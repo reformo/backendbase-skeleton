@@ -384,6 +384,8 @@ function writeAtomically(string $file, string $contents): void
         }
     } finally {
         if (is_file($temporaryFile)) {
+            // tempnam created this local temporary file.
+            // nosemgrep: php.lang.security.unlink-use.unlink-use
             unlink($temporaryFile);
         }
     }

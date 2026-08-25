@@ -755,7 +755,7 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
                 <table>
                     <thead><tr><th>Variable</th><th>Default</th><th>Use</th></tr></thead>
                     <tbody>
-                    <tr><td><code>EXAMPLE_API_KEY</code></td><td>None</td><td>Expected API key value. Current API-key middleware is disabled.</td></tr>
+                    <tr><td><code>EXAMPLE_API_KEY</code></td><td>None</td><td>Required API key value enforced by the current API-key middleware.</td></tr>
                     <tr><td><code>EXAMPLE_API_CORS_ORIGIN</code></td><td><code>http://127.0.0.1:8080</code></td><td>Comma-separated allowed origins are supported by the response emitter.</td></tr>
                     <tr><td><code>EXAMPLE_API_JWT_PERMITTED_FOR</code></td><td><code>example-api</code></td><td>JWT audience.</td></tr>
                     <tr><td><code>BACKENDBASE_JWT_SIGN_KEY</code></td><td>None</td><td>JWT symmetric signing key.</td></tr>
@@ -889,7 +889,6 @@ docker compose ps</code></pre></div>
                 <table>
                     <thead><tr><th>Observation</th><th>Impact</th></tr></thead>
                     <tbody>
-                    <tr><td><code>.env.example</code> does not define <code>EXAMPLE_API_KEY</code>.</td><td>It lists older user, expert, and admin API key names that current ExampleApi configuration does not read.</td></tr>
                     <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include base path, CORS origin, JWT audience, logger-level primary key, dead-letter settings, and payment callback URL.</td></tr>
                     <tr><td>The example file includes service base URLs and notification variables with no current consumer in the inspected source.</td><td>Do not assume that each listed variable changes runtime behavior.</td></tr>
                     <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>

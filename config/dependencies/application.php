@@ -48,7 +48,7 @@ return static function (ContainerBuilder $containerBuilder): void {
             }
 
             $preferredLocale = explode(';', explode(',', $acceptLanguage, 2)[0], 2)[0];
-            if (! is_file('resources/i18n/' . $preferredLocale . '.php')) {
+            if (! array_key_exists($preferredLocale, $locales)) {
                 $preferredLocale = 'tr-TR';
             }
 

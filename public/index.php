@@ -33,9 +33,10 @@ if ($useCase === null) {
     ], JSON_THROW_ON_ERROR));
 }
 
-$webroot  = $projectRoot . '/src/Backendbase/Infrastructure/UseCase/' . $useCase->name();
-$cacheDir = $projectRoot . '/var/cache/' . $useCase->slug();
-$_SERVER  = RequestUriNormalizer::normalize($_SERVER);
+$webroot            = $projectRoot . '/src/Backendbase/Infrastructure/UseCase/' . $useCase->name();
+$cacheDirectoryName = basename($useCase->slug());
+$cacheDir           = $projectRoot . '/var/cache/' . $cacheDirectoryName;
+$_SERVER            = RequestUriNormalizer::normalize($_SERVER);
 
 $configCachePath = $cacheDir . '/merged-conf.php';
 $environment     = Environment::PRODUCTION;
