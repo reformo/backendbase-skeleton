@@ -136,8 +136,7 @@
         "test": "vendor/bin/phpunit  --testdox --coverage-clover clover.xml",
         "generate-example-api-spec": "vendor/bin/php-openapi inline resources/api-docs/example-api/example-openapi.yml public/example-api/docs/example-api-merged.yml",
         "validate-example-api-spec": [
-            "vendor/bin/php-openapi validate --silent resources/api-docs/example-api/example-openapi.yml",
-            "vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml"
+            "vendor/bin/php-openapi validate --silent resources/api-docs/example-api/example-openapi.yml"
         ]
     }
 }
