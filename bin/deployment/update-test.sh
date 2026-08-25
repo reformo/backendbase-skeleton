@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-cd /opt/backendbase/webroot/api
-git stash
-git pull
-cp .env.stage .env
-composer install --optimize-autoloader --no-dev
-composer run generate-example-api-spec
-bin/backendbase clear-cache
-bin/doctrine migrations:migrate --no-interaction --no-all-or-nothing
-bin/doctrine orm:clear-cache:query
-bin/doctrine orm:clear-cache:metadata
-bin/doctrine orm:clear-cache:result
+set -Eeuo pipefail
+
+scriptDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "$#" -ne 2 ]]; then
+    printf 'Usage: %s <release-archive> <checksum-file>\n' "$0" >&2
+    exit 1
+fi
+
+export BACKENDBASE_DEPLOY_ROOT="${BACKENDBASE_DEPLOY_ROOT:-/opt/backendbase}"
+export BACKENDBASE_CURRENT_LINK="${BACKENDBASE_CURRENT_LINK:-$BACKENDBASE_DEPLOY_ROOT/webroot/api}"
+export BACKENDBASE_READINESS_URL="${BACKENDBASE_READINESS_URL:-http://127.0.0.1/example-api/_status/ready}"
+export BACKENDBASE_REQUIRE_BACKUP_HOOK=true
+export BACKENDBASE_REQUIRE_ACTIVATION_HOOK=true
+
+exec "$scriptDirectory/deploy-release.sh" "$1" "$2" '.env.stage'

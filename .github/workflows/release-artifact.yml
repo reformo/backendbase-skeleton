@@ -1,0 +1,73 @@
+name: Release artifact
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Reviewed commit, branch, or tag to package
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-artifact-${{ github.ref }}-${{ inputs.revision || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  build-release:
+    name: Build reviewed release
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: release
+
+    steps:
+      - name: Check out reviewed revision
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.revision || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate dependencies
+        run: |
+          composer validate --strict --no-check-publish
+          composer audit --locked --no-interaction
+          composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run release gates
+        run: |
+          composer run test
+          composer run phpstan
+          composer run cs-check
+          composer run generate-example-api-spec
+          composer run validate-example-api-spec
+          vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
+
+      - name: Build immutable artifact
+        id: release
+        run: |
+          revision="$(git rev-parse HEAD)"
+          bin/deployment/build-release.sh "$revision" artifacts/releases
+          echo "revision=$revision" >> "$GITHUB_OUTPUT"
+
+      - name: Upload immutable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backendbase-${{ steps.release.outputs.revision }}
+          path: |
+            artifacts/releases/backendbase-${{ steps.release.outputs.revision }}.tar.gz
+            artifacts/releases/backendbase-${{ steps.release.outputs.revision }}.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 30

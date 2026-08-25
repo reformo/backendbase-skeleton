@@ -70,6 +70,7 @@ update.sh
 !bin/*.sh
 !bin/*/*.sh
 !docker/docker-entrypoint.sh
+!tests/Deployment/deployment-scripts.sh
 **/*-merged.yml
 *.local
 clover.xml

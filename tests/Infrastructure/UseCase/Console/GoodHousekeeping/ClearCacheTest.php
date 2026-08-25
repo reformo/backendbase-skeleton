@@ -37,7 +37,7 @@ final class ClearCacheTest extends TestCase
             chdir($testDirectory);
             $exitCode = (new CommandTester(new ClearCache()))->execute([]);
 
-            self::assertSame(1, $exitCode);
+            self::assertSame(0, $exitCode);
             self::assertFalse(file_exists($testDirectory . '/var/cache/cache.php'));
             self::assertFalse(file_exists($testDirectory . '/var/cache/nested'));
         } finally {
@@ -68,7 +68,7 @@ final class ClearCacheTest extends TestCase
             chdir($testDirectory);
             $exitCode = (new CommandTester(new ClearCache()))->execute([]);
 
-            self::assertSame(1, $exitCode);
+            self::assertSame(0, $exitCode);
             self::assertTrue(file_exists($externalFile));
             self::assertTrue(file_exists($testDirectory . '/var/cache/.git/keep'));
         } finally {

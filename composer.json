@@ -133,7 +133,10 @@
         "cs-check": "vendor/bin/phpcs",
         "cs-fix": "vendor/bin/phpcbf -e -a",
         "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",
-        "test": "vendor/bin/phpunit  --testdox --coverage-clover clover.xml",
+        "test": [
+            "vendor/bin/phpunit --testdox --coverage-clover clover.xml",
+            "bash tests/Deployment/deployment-scripts.sh"
+        ],
         "generate-example-api-spec": "vendor/bin/php-openapi inline resources/api-docs/example-api/example-openapi.yml public/example-api/docs/example-api-merged.yml",
         "validate-example-api-spec": [
             "vendor/bin/php-openapi validate --silent resources/api-docs/example-api/example-openapi.yml"

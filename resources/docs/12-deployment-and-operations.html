@@ -19,26 +19,26 @@
 <div class="related"><a href="10-testing-and-quality.html">Testing and Quality</a><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
 <section id="flow"><p class="section-label">03 · Release flow</p><h2>Apply changes in one controlled sequence</h2>
-<div class="diagram-wrap"><ol class="flow"><li><strong>Source</strong><small>select reviewed revision</small></li><li><strong>Environment</strong><small>load target secrets</small></li><li><strong>Dependencies</strong><small>install optimized, no dev</small></li><li><strong>Artifacts</strong><small>generate OpenAPI</small></li><li><strong>Schema + cache</strong><small>migrate and rebuild</small></li><li><strong>Verify</strong><small>health, workers, logs</small></li></ol></div>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Source</strong><small>select reviewed revision</small></li><li><strong>Gates</strong><small>test and analyze</small></li><li><strong>Artifact</strong><small>package commit and dependencies</small></li><li><strong>Preflight</strong><small>verify checksum and recovery</small></li><li><strong>Activate</strong><small>migrate and switch link</small></li><li><strong>Verify</strong><small>readiness, workers, logs</small></li></ol></div>
 </section>
-<section id="scripts"><p class="section-label">04 · Current scripts</p><h2>Stage and production use similar update scripts</h2>
+<section id="scripts"><p class="section-label">04 · Current scripts</p><h2>Stage and production deploy immutable release archives</h2>
 <div class="table-wrap"><table><thead><tr><th>Step</th><th>Test script</th><th>Production script</th></tr></thead><tbody>
-<tr><td>Project path</td><td colspan="2"><code>/opt/backendbase/webroot/api</code></td></tr><tr><td>Local changes</td><td colspan="2"><code>git stash</code></td></tr>
-<tr><td>Source update</td><td><code>git pull</code></td><td><code>git pull origin trunk</code></td></tr><tr><td>Environment</td><td><code>.env.stage</code></td><td><code>.env.production</code></td></tr>
-<tr><td>Dependencies</td><td colspan="2"><code>composer install --optimize-autoloader --no-dev</code></td></tr>
-<tr><td>Generated contract</td><td colspan="2"><code>composer run generate-example-api-spec</code></td></tr>
-<tr><td>Database</td><td colspan="2"><code>migrations:migrate --no-interaction --no-all-or-nothing</code></td></tr>
-<tr><td>Cache</td><td colspan="2">Application cache before migration; Doctrine caches after migration</td></tr>
+<tr><td>Artifact</td><td colspan="2">Exact commit archive plus SHA-256 checksum</td></tr><tr><td>Active path</td><td colspan="2"><code>/opt/backendbase/webroot/api</code> symbolic link</td></tr>
+<tr><td>Environment</td><td><code>shared/.env.stage</code></td><td><code>shared/.env.production</code></td></tr>
+<tr><td>Dependencies</td><td colspan="2">Installed in the reviewed artifact by the release workflow</td></tr>
+<tr><td>Database</td><td colspan="2">Exact manifest target, dry run, required backup hook, and recovery record</td></tr>
+<tr><td>Activation</td><td colspan="2">Atomic link switch, process hook, and readiness gate</td></tr>
+<tr><td>Rollback</td><td colspan="2">Only the recorded previous release; schema remains expanded</td></tr>
 </tbody></table></div>
 </section>
 <section id="database"><p class="section-label">05 · Database</p><h2>Migration review is a release gate</h2>
 <ul><li>Back up or confirm recoverable database state before a risky migration.</li><li>Verify the migration metadata table.</li><li>Run only reviewed migrations.</li>
 <li>Watch locks and execution time for table changes.</li><li>Confirm application compatibility during rolling deployment.</li><li>Verify the schema and key queries after migration.</li></ul>
-<div class="callout warning"><strong>Current script behavior:</strong> <code>--no-all-or-nothing</code> allows earlier migrations to remain committed when a later migration fails.</div>
+<div class="callout warning"><strong>MySQL boundary:</strong> DDL can commit independently. Deployment records the dry-run SQL and migration output. A required hook confirms backup recovery before execution.</div>
 <div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
 </section>
 <section id="cache"><p class="section-label">06 · Cache</p><h2>Clear generated data when its source changes</h2>
-<p><code>bin/backendbase clear-cache</code> removes files under <code>var/cache</code>. Deployment scripts also clear Doctrine query, metadata, and result caches.</p>
+<p><code>bin/backendbase clear-cache</code> removes files under the new release <code>var/cache</code>. A successful clear returns exit code zero. Strict deployment stops on a cache failure.</p>
 <ul><li>Clear merged configuration after environment or configuration changes.</li><li>Clear route cache after route changes.</li><li>Clear container compilation after dependency changes.</li><li>Clear Doctrine metadata after mapping changes.</li></ul>
 </section>
 <section id="workers"><p class="section-label">07 · Workers and schedules</p><h2>Background delivery needs independent supervision</h2>
@@ -57,17 +57,16 @@
 <div class="callout"><code>/_status/ready</code> checks MySQL, Redis, the selected queue, and the object store. Each connection uses <code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code>. A failed check returns <code>503</code> with safe status data.</div>
 </section>
 <section id="rollback"><p class="section-label">09 · Recovery</p><h2>Prepare recovery before migration</h2>
-<ul><li>Keep the previous application artifact or revision available.</li><li>Know whether each migration can safely run down.</li><li>Prefer a forward repair when older code cannot use the new schema.</li>
-<li>Stop incompatible workers before reverting event or queue code.</li><li>Preserve failed messages and logs for diagnosis.</li><li>Restore server-local files only after reviewing the deployment stash.</li></ul>
+<ul><li>Keep the previous release directory available.</li><li>Record whether the previous application supports the target schema.</li><li>Prefer a forward repair when MySQL has committed part of a schema change.</li>
+<li>Use the required backup hook before migration.</li><li>Use <code>rollback-release.sh</code> only for the recorded previous revision.</li><li>Preserve recovery files, failed messages, and logs for diagnosis.</li></ul>
 </section>
 <section id="secrets"><p class="section-label">10 · Secrets</p><h2>Inject target values outside source control</h2>
-<p>Deployment copies a target environment file to <code>.env</code>. Protect database credentials, JWT signing keys, API keys, RabbitMQ credentials, AWS credentials, object-store credentials, and Tolgee keys.</p>
+<p>Each release links to a protected environment file under <code>/opt/backendbase/shared</code>. Protect database credentials, JWT signing keys, API keys, RabbitMQ credentials, AWS credentials, object-store credentials, and Tolgee keys.</p>
 <div class="callout danger">Do not print or archive environment files in deployment output.</div>
 </section>
 <section id="risks"><p class="section-label">11 · Current risks</p><h2>Known operational limits</h2>
-<ul><li><code>git stash</code> can hide untracked server changes and creates an unmanaged recovery step.</li><li>The scripts deploy from a mutable working tree, not an immutable artifact.</li>
-<li>Quality checks do not run inside deployment scripts.</li><li>Migrations use <code>--no-all-or-nothing</code>.</li><li>No rollback script exists.</li>
-<li>No worker supervisor, scheduler definition, container deployment manifest, or alert configuration exists in the repository.</li></ul>
+<ul><li>The repository does not define the server-specific backup and process activation hooks.</li><li>The first conversion from a working tree to the release-link layout requires a maintenance window.</li>
+<li>MySQL DDL needs backup recovery or a reviewed forward repair after partial execution.</li><li>No worker supervisor, scheduler definition, container deployment manifest, or alert configuration exists in the repository.</li></ul>
 </section>
 <section id="checklist"><p class="section-label">12 · Checklist</p><h2>Release completion criteria</h2>
 <ul><li>The deployed revision is known.</li><li>Dependencies install without development packages.</li><li>OpenAPI generates and validates.</li><li>Reviewed migrations complete.</li>
@@ -75,6 +74,9 @@
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Stage update</td><td><code>bin/deployment/update-test.sh</code></td></tr><tr><td>Production update</td><td><code>bin/deployment/update-prod.sh</code></td></tr>
+<tr><td>Artifact build</td><td><code>bin/deployment/build-release.sh</code></td></tr><tr><td>Guarded activation</td><td><code>bin/deployment/deploy-release.sh</code></td></tr>
+<tr><td>Application rollback</td><td><code>bin/deployment/rollback-release.sh</code></td></tr><tr><td>Release policy</td><td><code>deployment/release.json</code></td></tr>
+<tr><td>Server preparation and hook contract</td><td><code>deployment/README.md</code></td></tr>
 <tr><td>Local maintenance</td><td><code>bin/dev/housekeeping.sh</code></td></tr><tr><td>Console commands</td><td><code>config/commands.php</code></td></tr>
 <tr><td>Local infrastructure</td><td><code>docker-compose.yaml</code></td></tr><tr><td>Environment contract</td><td><code>.env.example</code></td></tr>
 <tr><td>HTTP health routes</td><td><code>Infrastructure/UseCase/ExampleApi/routes.php</code></td></tr><tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>

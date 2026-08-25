@@ -54,6 +54,6 @@ class ClearCache extends Command
             $command($realPath);
         }
 
-        return 1;
+        return Command::SUCCESS;
     }
 }
