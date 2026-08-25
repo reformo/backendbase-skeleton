@@ -8,6 +8,8 @@ use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Shared\Exception\InvalidUserInput;
 
 use function filter_var;
+use function is_array;
+use function is_bool;
 use function is_int;
 use function is_string;
 
@@ -32,6 +34,51 @@ final class ExampleRequestInput
         }
 
         return self::positiveInteger($value, 'typeTargetId');
+    }
+
+    public static function requiredString(mixed $value, string $name): string
+    {
+        if (! is_string($value)) {
+            throw InvalidUserInput::create('The ' . $name . ' value must be a string.');
+        }
+
+        return $value;
+    }
+
+    public static function optionalString(mixed $value, string $name, string $default): string
+    {
+        if ($value === null) {
+            return $default;
+        }
+
+        return self::requiredString($value, $name);
+    }
+
+    public static function optionalBoolean(mixed $value, string $name, bool $default): bool
+    {
+        if ($value === null) {
+            return $default;
+        }
+
+        if (! is_bool($value)) {
+            throw InvalidUserInput::create('The ' . $name . ' value must be a boolean.');
+        }
+
+        return $value;
+    }
+
+    /** @return array<string, mixed> */
+    public static function optionalObject(mixed $value, string $name): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (! is_array($value)) {
+            throw InvalidUserInput::create('The ' . $name . ' value must be an object.');
+        }
+
+        return $value;
     }
 
     public static function positiveInteger(mixed $value, string $name): int

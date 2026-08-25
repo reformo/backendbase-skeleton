@@ -55,6 +55,30 @@ final class ExampleWriteControllersTest extends TestCase
     }
 
     #[Test]
+    public function itRejectsInvalidNewExampleInput(): void
+    {
+        $commandBus = $this->createMock(CommandBus::class);
+        $commandBus->expects(self::never())->method('handle');
+        $action   = new NewExample($commandBus, $this->createStub(LoggerInterface::class), null);
+        $payloads = [
+            [],
+            ['lookupValue' => []],
+            ['lookupValue' => 'value', 'lookupKey' => []],
+            ['lookupValue' => 'value', 'details' => 'details'],
+            ['lookupValue' => 'value', 'isActive' => 'true'],
+        ];
+
+        foreach ($payloads as $payload) {
+            $request = $this->request('POST', '/examples')
+                ->withAttribute('typeSlug', 'system')
+                ->withAttribute('exampleGroup', 'settings')
+                ->withParsedBody($payload);
+
+            self::assertSame(400, $this->invoke($action, $request)->getStatusCode());
+        }
+    }
+
+    #[Test]
     public function itChangesAnExistingExample(): void
     {
         $queryBus = $this->createStub(QueryBus::class);

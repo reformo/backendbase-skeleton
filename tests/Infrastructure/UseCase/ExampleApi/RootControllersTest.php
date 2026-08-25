@@ -69,12 +69,34 @@ final class RootControllersTest extends TestCase
         $action  = new Authenticate($jwt, $this->createStub(LoggerInterface::class));
         $request = (new ServerRequestFactory())
             ->createServerRequest('POST', '/authenticate')
-            ->withParsedBody(['email' => 'user@example.com']);
+            ->withParsedBody(['email' => 'user@example.com', 'password' => 'secret']);
 
         $response = $action($request, new Response(), []);
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame(201, $response->getStatusCode());
         self::assertSame('access-token', $payload['accessToken']);
+    }
+
+    #[Test]
+    public function itRejectsInvalidAuthenticationInput(): void
+    {
+        $jwt = $this->createMock(Jwt::class);
+        $jwt->expects(self::never())->method('issueNewToken');
+        $action   = new Authenticate($jwt, $this->createStub(LoggerInterface::class));
+        $factory  = new ServerRequestFactory();
+        $payloads = [
+            [],
+            ['email' => 'not-an-email', 'password' => 'secret'],
+            ['email' => 'user@example.com'],
+            ['email' => 'user@example.com', 'password' => []],
+        ];
+
+        foreach ($payloads as $payload) {
+            $request  = $factory->createServerRequest('POST', '/authenticate')->withParsedBody($payload);
+            $response = $action($request, new Response(), []);
+
+            self::assertSame(400, $response->getStatusCode());
+        }
     }
 }

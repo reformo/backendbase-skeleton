@@ -117,15 +117,21 @@ paths:
         - $ref: '../common/components.yaml#/headers/X-Request-Id'
         - $ref: '../common/components.yaml#/headers/X-Source-Id'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - email
+                - password
               properties:
                 email:
                   type: string
+                  format: email
                 password:
                   type: string
+                  minLength: 1
 
       responses:
         201:
@@ -136,6 +142,8 @@ paths:
                 properties:
                   accessToken:
                     type: "string"
+        400:
+          $ref: '../common/components.yaml#/schemas/400'
         401:
           $ref: '../common/components.yaml#/schemas/401'
         403:

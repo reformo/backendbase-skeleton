@@ -38,16 +38,24 @@ class NewExample extends Action
         $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
         $exampleId    = Uuid::uuid7()->toString();
+        $lookupKey    = ExampleRequestInput::optionalString(
+            $payload['lookupKey'] ?? null,
+            'lookupKey',
+            strtolower(Ulid::generate()),
+        );
+        $lookupValue  = ExampleRequestInput::requiredString($payload['lookupValue'] ?? null, 'lookupValue');
+        $details      = ExampleRequestInput::optionalObject($payload['details'] ?? null, 'details');
+        $isActive     = ExampleRequestInput::optionalBoolean($payload['isActive'] ?? null, 'isActive', true);
 
         $command = new AddNewExample(
             $exampleId,
             ExampleRequestInput::type($type),
             $typeTargetId,
             $group,
-            (bool) ($payload['isActive'] ?? true),
-            $payload['lookupKey'] ?? strtolower(Ulid::generate()),
-            htmlspecialchars_decode((string) $payload['lookupValue']),
-            $payload['details'] ?? [],
+            $isActive,
+            $lookupKey,
+            htmlspecialchars_decode($lookupValue),
+            $details,
         );
 
         $this->commandBus->handle($command);

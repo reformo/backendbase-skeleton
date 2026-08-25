@@ -7,7 +7,6 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Services\Translator;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -26,13 +25,15 @@ class Authenticate extends Action
     #[Override]
     protected function action(): Response
     {
-        $payload = PayloadSanitizer::sanitize($this->request->getParsedBody());
+        $payload = AuthenticationRequestInput::payload($this->request->getParsedBody());
+        $email   = AuthenticationRequestInput::email($payload['email'] ?? null);
+        AuthenticationRequestInput::password($payload['password'] ?? null);
 
         $userId      = '019ee8a6-903a-75cf-b9a4-e19d6d0db533';
         $userData    = [
             'id' => 1,
             'uuid' => $userId,
-            'email' => $payload['email'],
+            'email' => $email,
             'firstName' => 'Jane',
             'familyName' => 'Doe',
         ];

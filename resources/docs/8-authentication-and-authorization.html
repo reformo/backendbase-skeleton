@@ -54,7 +54,7 @@
         <li>Sign with HMAC SHA-256 and the Base64 signing key.</li><li>Store <code>JWT:{alias}:{jti}</code> in Redis with a time-to-live.</li>
         <li>Store user data, token history, privileges, and claim metadata under the alias and user identifier.</li></ol>
     <p>The default alias is <code>USER</code>. The default issuer is <code>backendbase-api</code>. The default duration is 24 hours.</p>
-    <div class="callout danger"><strong>Demo authentication:</strong> <code>POST /auth</code> creates a token for one fixed user. It reads the email but does not verify the password.</div>
+    <div class="callout danger"><strong>Demo authentication:</strong> <code>POST /auth</code> requires a valid email and a non-empty password. It creates a token for one fixed user but does not verify the password.</div>
 </section>
 <section id="validate"><p class="section-label">05 · Token validation</p><h2>Redis enables immediate revocation</h2>
     <ul><li>The token must parse as an unencrypted signed JWT.</li><li>The token identifier must be a non-empty string.</li>
