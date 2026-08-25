@@ -1,0 +1,24 @@
+# Authentication and Authorization
+
+Authentication validates token identity and state. Authorization decides whether that identity can perform an operation.
+
+## JWT
+
+- Tokens use HMAC SHA-256 and a Base64 signing key.
+- Validate signature, time, issuer, audience, token identifier, and Redis state.
+- Redis enables immediate token revocation.
+- The default alias is `USER`.
+- The default issuer is `backendbase-api`.
+- The default lifetime is 24 hours.
+
+`AuthorizationMiddleware` adds `authorizedUserId`, `authorizedUserData`, `clientTimezone`, and `Acl` request attributes.
+
+`Acl::isAllowed()` accepts a named privilege, `full-privileges`, or the `system-admin` role. Denial uses status 403.
+
+Protect new endpoints by default. Make public policy explicit in routing and OpenAPI.
+
+ExampleApi middleware currently adds `ValidateApiKey`. It validates `Backendbase-Api-Key` outside configured public paths and returns status 400 on failure.
+
+Current security gaps include placeholder credential authentication and bearer failures that use status 400 instead of 401.
+
+Basis: `resources/docs/5-use-case-api.html`, `resources/docs/7-env-and-config.html`, `resources/docs/8-authentication-and-authorization.html`.

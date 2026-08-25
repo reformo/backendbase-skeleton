@@ -52,6 +52,14 @@ When your changes create orphans:
 - Remove imports/variables/functions that YOUR changes made unused.
 - Don't remove pre-existing dead code unless asked.
 
+### Documentation synchronization
+
+When code changes affect documented behavior, update every related document in the same change.
+
+- Check `resources/platform`, `resources/docs`, and `resources/skills` for affected documentation.
+- Update architecture, contracts, configuration, workflows, examples, operations, limitations, and file paths when applicable.
+- Do not omit a required documentation change when the related code changes.
+
 The test: Every changed line should trace directly to the user's request.
 
 ## 4. Goal-Driven Execution
