@@ -9,8 +9,8 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventDispatcher;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessageProcessor;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
-use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
+use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Services\EventManager\EventManager;
 use Monolog\Handler\TestHandler;

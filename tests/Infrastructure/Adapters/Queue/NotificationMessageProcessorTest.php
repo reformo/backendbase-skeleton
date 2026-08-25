@@ -6,8 +6,8 @@ namespace Tests\Infrastructure\Adapters\Queue;
 
 use Backendbase\Infrastructure\Adapters\Queue\NotificationMessageProcessor;
 use Backendbase\Shared\Integrations\Notify;
-use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
+use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
 use Backendbase\Shared\Persistence\ExternalEffectInProgress;
 use Backendbase\Shared\Persistence\ExternalEffectOutcomeUnknown;
