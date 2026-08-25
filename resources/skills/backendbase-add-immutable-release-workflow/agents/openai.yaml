@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Immutable Release Workflow"
+  short_description: "Add a guarded immutable release workflow"
+  default_prompt: "Use $backendbase-add-immutable-release-workflow to add a tested immutable release workflow to this service."

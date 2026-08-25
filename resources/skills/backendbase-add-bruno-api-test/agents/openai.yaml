@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Bruno API Test"
+  short_description: "Add a safe executable Bruno API test"
+  default_prompt: "Use $backendbase-add-bruno-api-test to add a safe Bruno request for an existing API operation."

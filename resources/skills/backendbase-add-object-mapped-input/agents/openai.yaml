@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Object-Mapped Input"
+  short_description: "Map boundary payloads into typed inputs"
+  default_prompt: "Use $backendbase-add-object-mapped-input to map a sanitized boundary payload into a typed input."

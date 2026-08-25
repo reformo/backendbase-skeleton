@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Trace-Aware Logging"
+  short_description: "Add safe correlation fields to logs"
+  default_prompt: "Use $backendbase-add-trace-aware-logging to add safe trace correlation to this project."

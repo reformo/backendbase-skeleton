@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add API Module"
+  short_description: "Register a route-prefix API module"
+  default_prompt: "Use $backendbase-add-api-module to add and register a route-prefix module in an existing API."

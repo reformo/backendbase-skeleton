@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Runtime Configuration"
+  short_description: "Add validated runtime configuration"
+  default_prompt: "Use $backendbase-add-runtime-configuration to add validated runtime configuration to this project."

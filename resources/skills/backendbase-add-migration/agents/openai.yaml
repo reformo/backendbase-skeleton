@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Migration"
+  short_description: "Generate and review one safe schema migration"
+  default_prompt: "Use $backendbase-add-migration to generate and review the approved schema change."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Internal Event Subscriber"
+  short_description: "Add an in-process event subscriber"
+  default_prompt: "Use $backendbase-add-internal-integration-event-subscriber to add an in-process subscriber for this event."

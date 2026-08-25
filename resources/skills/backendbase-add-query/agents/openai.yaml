@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Query"
+  short_description: "Add a typed CQRS read use case"
+  default_prompt: "Use $backendbase-add-query to add this typed read use case to the owning context."

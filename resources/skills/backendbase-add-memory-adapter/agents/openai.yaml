@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Memory Adapter"
+  short_description: "Add deterministic in-memory test adapters"
+  default_prompt: "Use $backendbase-add-memory-adapter to add a memory adapter for this context's focused tests."

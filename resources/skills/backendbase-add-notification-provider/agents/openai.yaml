@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Notification Provider"
+  short_description: "Register a tested notification provider"
+  default_prompt: "Use $backendbase-add-notification-provider to add and register a tested notification provider."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Queue Consumer Runtime"
+  short_description: "Expose a processor as a queue worker"
+  default_prompt: "Use $backendbase-add-queue-consumer-runtime to expose this processor as a supervised queue worker."

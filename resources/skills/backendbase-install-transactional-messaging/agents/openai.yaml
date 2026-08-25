@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Install Transactional Messaging"
+  short_description: "Install outbox and inbox messaging"
+  default_prompt: "Use $backendbase-install-transactional-messaging to install a transactional messaging runtime in this project."

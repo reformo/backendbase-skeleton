@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add API Endpoint"
+  short_description: "Implement one validated API endpoint"
+  default_prompt: "Use $backendbase-add-api-endpoint to implement one validated endpoint in the target API."

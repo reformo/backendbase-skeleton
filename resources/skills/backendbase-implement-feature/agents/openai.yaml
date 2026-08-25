@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Backendbase Feature"
+  short_description: "Build a complete Backendbase-style feature"
+  default_prompt: "Use $backendbase-implement-feature to plan and implement an end-to-end feature in this project."

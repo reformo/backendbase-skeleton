@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Verify Architecture"
+  short_description: "Check module and dependency boundaries"
+  default_prompt: "Use $backendbase-verify-architecture to verify the dependency boundaries affected by this change."

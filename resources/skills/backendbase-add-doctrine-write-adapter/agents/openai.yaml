@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Doctrine Write Adapter"
+  short_description: "Persist aggregates through a Doctrine adapter"
+  default_prompt: "Use $backendbase-add-doctrine-write-adapter to persist this aggregate through its write port."

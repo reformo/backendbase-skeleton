@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Seeder"
+  short_description: "Add idempotent approved reference data"
+  default_prompt: "Use $backendbase-add-seeder to add this approved reference data with an idempotency test."

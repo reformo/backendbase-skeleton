@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Backendbase Bounded Context"
+  short_description: "Create a bounded context and its wiring"
+  default_prompt: "Use $backendbase-add-bounded-context to create a minimal bounded context for this business capability."

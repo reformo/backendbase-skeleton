@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add OpenAPI Operation"
+  short_description: "Define and validate one OpenAPI operation"
+  default_prompt: "Use $backendbase-add-openapi-operation to define and validate one public API operation."

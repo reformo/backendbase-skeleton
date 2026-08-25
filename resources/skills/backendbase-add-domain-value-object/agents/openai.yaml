@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Domain Value Object"
+  short_description: "Create a valid-by-construction domain value"
+  default_prompt: "Use $backendbase-add-domain-value-object to model this business value and its invariant."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add HTTP Middleware"
+  short_description: "Add tested PSR-15 HTTP middleware"
+  default_prompt: "Use $backendbase-add-http-middleware to add tested PSR-15 middleware at the correct API scope."

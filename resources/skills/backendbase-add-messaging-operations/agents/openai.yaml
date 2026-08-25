@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Messaging Operations"
+  short_description: "Add relay and message maintenance operations"
+  default_prompt: "Use $backendbase-add-messaging-operations to add safe outbox maintenance and health commands."

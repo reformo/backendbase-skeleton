@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add External Service"
+  short_description: "Add a bounded external-service adapter"
+  default_prompt: "Use $backendbase-add-external-service to add a narrow project port and vendor adapter."

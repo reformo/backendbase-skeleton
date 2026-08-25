@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Evolve Integration Event"
+  short_description: "Version an integration event safely"
+  default_prompt: "Use $backendbase-evolve-integration-event-contract to evolve this released event contract safely."

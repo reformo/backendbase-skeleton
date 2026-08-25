@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Use Case API"
+  short_description: "Scaffold a complete Backendbase consumer API"
+  default_prompt: "Use $backendbase-add-use-case-api to scaffold a new consumer API surface from the target project's patterns."

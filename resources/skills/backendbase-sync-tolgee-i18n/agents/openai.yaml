@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Sync Tolgee i18n"
+  short_description: "Synchronize Tolgee with explicit authority"
+  default_prompt: "Use $backendbase-sync-tolgee-i18n to perform the requested Tolgee sync with explicit authority."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Translation"
+  short_description: "Add a consistent local translation key"
+  default_prompt: "Use $backendbase-add-translation to add a consistent key to every supported local dictionary."

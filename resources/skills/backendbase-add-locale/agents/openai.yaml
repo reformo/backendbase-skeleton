@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Locale"
+  short_description: "Add a complete supported locale catalog"
+  default_prompt: "Use $backendbase-add-locale to add one complete and tested locale catalog."

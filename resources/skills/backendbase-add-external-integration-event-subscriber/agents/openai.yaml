@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add External Event Subscriber"
+  short_description: "Add a versioned queue event subscriber"
+  default_prompt: "Use $backendbase-add-external-integration-event-subscriber to consume this versioned integration event."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Notification Delivery"
+  short_description: "Add idempotent queued notification delivery"
+  default_prompt: "Use $backendbase-add-notification-delivery to implement idempotent queued notification delivery."

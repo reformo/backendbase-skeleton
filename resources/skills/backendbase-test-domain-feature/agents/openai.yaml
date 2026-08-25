@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Test Domain Feature"
+  short_description: "Add focused domain and persistence evidence"
+  default_prompt: "Use $backendbase-test-domain-feature to add the smallest tests that prove this behavior."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Domain Event"
+  short_description: "Add a synchronous domain event and listener"
+  default_prompt: "Use $backendbase-add-domain-event to add this same-service domain event and listener."

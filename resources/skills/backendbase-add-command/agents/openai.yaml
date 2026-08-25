@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Command"
+  short_description: "Add a CQRS write contract and handler"
+  default_prompt: "Use $backendbase-add-command to implement this state-changing use case in the owning context."

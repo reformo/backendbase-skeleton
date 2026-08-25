@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Console Command"
+  short_description: "Add a tested Backendbase console command"
+  default_prompt: "Use $backendbase-add-console-command to add a console command to this project."

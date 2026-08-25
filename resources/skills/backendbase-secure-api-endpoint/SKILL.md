@@ -1,0 +1,69 @@
+---
+name: backendbase-secure-api-endpoint
+description: Protect an existing Backendbase-style API operation with the established API-key, JWT bearer, and ACL mechanisms. Do not use to create a new identity provider, credential flow, or generic middleware.
+---
+
+# Secure an API endpoint
+
+## Outcome
+
+Apply an explicit public or protected policy to one operation and keep routing, request attributes, ACL decisions, OpenAPI security, and failure tests aligned.
+
+## Required discovery
+
+1. Read applicable `AGENTS.md` files.
+2. Inspect Composer autoloading, namespaces, architecture layers, container definitions, tests, and the nearest protected route.
+3. Discover the owning API and trace source selection, API-context setup, API-key middleware, bearer validation, JWT settings and state, request attributes, ACL usage, CORS, and OpenAPI schemes.
+4. Resolve the exact API-key rule, identity requirement, named privilege, public exception if any, expected claims, and `401` versus `403` behavior.
+5. Confirm how the real route stack proves each layer and where runtime currently differs from the intended contract.
+6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+
+Ask before making an endpoint public or changing token and privilege semantics.
+
+## Target-project adaptation
+
+Use the target identity model, claims, issuer, audience, key storage, revocation store, roles, privileges, headers, and status contract. Never copy Backendbase signing data, API keys, token values, user fixtures, or hosts.
+
+## Workflow
+
+1. State whether the operation is anonymous, API-key-only, bearer-authenticated, or privilege-protected. For a new operation in an unmodified Backendbase consumer API, select API key plus bearer unless an explicit policy requires another mode.
+2. Apply only the API-key and bearer layers selected in step 1, at the narrowest correct scope.
+3. Use the established typed ACL or authorization service for each named privilege. Authentication alone is not authorization.
+4. Keep credential parsing and token validation outside controllers.
+5. Use `security: []` only when all applicable runtime security layers intentionally permit anonymous access.
+6. Declare identical API-key and bearer requirements and failure responses in OpenAPI.
+7. Align every security-related header across runtime validation and OpenAPI. Also align configured CORS and maintained Bruno coverage when applicable.
+8. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
+9. Test missing, malformed, expired, revoked, forbidden, and allowed paths as applicable.
+10. Exercise the real route and middleware stack. Unit tests of middleware or ACL alone do not prove route protection.
+
+## Backendbase invariants
+
+- New consumer endpoints are protected by default.
+- In an unmodified Backendbase consumer API, a new operation requires API key plus bearer by default. API-key-only or anonymous access requires an explicit policy.
+- In an unmodified Backendbase API, `AuthorizationMiddleware` supplies `authorizedUserId`, `authorizedUserData`, `clientTimezone`, and `Acl::class`.
+- In an unmodified Backendbase API, controllers ask `Acl` for a named privilege. Other projects must use their equivalent typed authorization service.
+- API-key validation, bearer authentication, and ACL authorization are independent policy layers.
+- An API-key-only operation is protected; an anonymous operation uses `security: []` and a matching runtime bypass.
+- `full-privileges` and `system-admin` are current Backendbase policy names, not portable defaults. Do not create equivalent bypasses unless the target policy requires them.
+- JWT validation includes signature, time, issuer, audience, token ID, and Redis state.
+- A missing identity is `401`; a valid identity without permission is `403` in the intended public contract.
+- Secrets, tokens, and personal identity data are not logged.
+
+## Verification
+
+```sh
+vendor/bin/phpunit tests/Domain/IdentityAndAccess
+vendor/bin/phpunit tests/Shared/Http/Middleware/ValidateApiKeyTest.php
+vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/ModuleRoutingTest.php
+vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
+composer run generate-{api-slug}-spec
+vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
+git diff -- public/{api-slug}/docs/{api-slug}-merged.yml
+composer phpstan
+composer cs-check
+```
+
+## Completion report
+
+Report the operation, each applied security layer, privilege, request attributes used, status contract, route-level evidence, and skipped checks.

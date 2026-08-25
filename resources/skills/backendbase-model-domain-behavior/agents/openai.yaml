@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Model Domain Behavior"
+  short_description: "Implement aggregate rules and state changes"
+  default_prompt: "Use $backendbase-model-domain-behavior to implement this domain rule with focused tests."

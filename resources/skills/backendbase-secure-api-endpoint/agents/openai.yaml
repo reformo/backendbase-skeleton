@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Secure API Endpoint"
+  short_description: "Apply API key, JWT, and ACL protection"
+  default_prompt: "Use $backendbase-secure-api-endpoint to apply the existing security mechanisms to an API operation."

@@ -1,0 +1,143 @@
+# Backendbase endpoint pattern
+
+## End-to-end endpoint flow
+
+```text
+discover affected API -> draft OpenAPI contract -> complete application path
+-> PSR-7 request -> optional sanitizer -> boundary validator -> command/query -> bus
+-> bus result -> response mapper -> PSR-7 response
+-> reconcile OpenAPI -> update maintained Bruno lifecycle -> semantic contract audit
+```
+
+| Endpoint concern | Backendbase reference | Target adaptation |
+| --- | --- | --- |
+| Base action | Shared `Action` catches known problem exceptions | Use the target error boundary |
+| Input validation | `ExampleRequestInput` validates enum and positive integers | Encode the requested external contract |
+| Create | `NewExample` sends a command and returns `204` plus insert ID | Select target create status and headers |
+| Read | `Examples` sends a query and maps a page | Use the target read model and schema |
+| Update/delete lookup | Current change and remove actions resolve an internal ID first | Prefer one authoritative command; otherwise recheck state in its handler |
+| Routing | `ModuleConfig` names and protects routes | Match target operation ID and policy |
+| Tests | Input, read, write, security, and conditional not-found tests | Use focused target doubles |
+
+## Boundary example
+
+```php
+$payload = PayloadSanitizer::sanitize($request->getParsedBody());
+$quantity = RequestInput::positiveInteger($payload['quantity'] ?? null, 'quantity');
+$commandBus->handle(new CreateItem($itemId, $quantity));
+```
+
+Do not use this shape to skip required-field checks. Validate the complete request before constructing a command.
+
+`PayloadSanitizer` escapes or transforms values. It does not prove presence, type, format, range, size, or membership in an allowed set. Use a request-specific validator or explicit typed construction for those rules.
+
+## Complete use-case requirement
+
+An endpoint can dispatch only a runtime-resolvable application path:
+
+```text
+route -> action -> command/query -> registered handler -> port -> registered adapter
+```
+
+If the command or query does not exist, create the complete use case first. Include the handler, required ports or adapters, container registration, focused tests, and one real bus-resolution test. Do not create a message class only to make the controller compile.
+
+Endpoint work does not authorize a database change. Add a migration only when the user explicitly requests the exact schema change.
+
+## Contract draft and reconciliation
+
+Use OpenAPI twice:
+
+1. Draft the intended method, path, inputs, security, responses, and errors before implementation.
+2. Reconcile every field with the final route, middleware, validator, command or query, response mapper, and tests.
+
+For each field, compare its name, location, required state, type, nullability, default, format, and limits. A schema validator proves document structure. It does not prove runtime alignment.
+
+The Backendbase shared headers are `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. If the target declares a header required, either enforce it at runtime or correct the contract. Also permit it in CORS for cross-origin clients.
+
+## Application and error boundaries
+
+Prefer one application message for one endpoint operation. A controller query followed by a command is not atomic. The command handler must reload state and enforce all write invariants even when a controller preflight query succeeded.
+
+The shared `Action` catches known `ProblemDetailsException` values. The global HTTP error handler owns unexpected failures. Do not build ad hoc error arrays in a controller or expose internal exception details.
+
+## Security layers
+
+Decide each layer independently:
+
+- API-key middleware controls access to the API surface.
+- Bearer middleware validates identity and supplies identity attributes.
+- ACL or another authorization service checks the requested privilege.
+- An OpenAPI operation is anonymous only when its runtime policy permits anonymous access and it declares `security: []`.
+
+An API-key-only route is not public. A bearer-protected route is not fully authorized when the use case also requires a named privilege.
+
+## Security and result tests
+
+For a protected operation, test missing credentials, invalid credentials, insufficient permission, and successful authorized access as applicable. For an explicitly public operation, test successful access without credentials.
+
+Compare the route middleware with the OpenAPI operation security declaration. Test their agreement at the runtime boundary.
+
+Use result-specific behavior:
+
+- A missing single resource can return the documented problem response.
+- An empty collection normally returns the documented successful empty shape.
+- A paginated collection needs tests for defaults, maximum size, invalid values, empty pages, and out-of-range pages.
+- Boundary-validation and controller-local mapping failures must not dispatch a write command. Domain preconditions remain authoritative in the command handler.
+
+Use a focused test matrix:
+
+| Test | Evidence |
+| --- | --- |
+| Valid read or write | Exact typed message reaches the correct bus |
+| Invalid input | Stable problem response and no bus dispatch |
+| Missing single resource | Documented not-found response |
+| Empty collection | Successful empty response shape |
+| Response mapping | Exact status, headers, fields, and date formats |
+| Route registration | Method, path, route name, and module registry agree |
+| Route security | The real middleware stack rejects and allows the expected requests |
+| Contract | Runtime and OpenAPI agree; maintained Bruno and configured CORS agree when applicable |
+
+## Current source limitations
+
+These conditions are audit prompts. Do not reproduce them as target behavior.
+
+- `NewExample` casts or reads some body values without complete required-field validation.
+- `PayloadSanitizer` is not a complete validator and includes special transformations for some field names.
+- Current change and remove actions perform a query before a command. This lookup is not an atomic write guard.
+- Runtime pagination accepts `pageSize` and `page`, while current OpenAPI omits them.
+- `ExampleDetails` omits `typeTargetId`, while current OpenAPI declares it.
+- API-key and bearer failures return `400`, while current OpenAPI declares `401` and `403`.
+- The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
+- Current write routes use bearer middleware but do not perform a named ACL check in their actions.
+- `tests/ExampleApiTestCase.php` loads obsolete HTTP adapter paths. Use current focused tests or repair a full-stack helper only when the requested test needs it.
+- Existing path placeholder names predate the current repository naming instruction. Do not rename legacy routes during an unrelated endpoint change.
+
+## Exact source provenance
+
+- `src/Backendbase/Shared/Http/Actions/Action.php`
+- `src/Backendbase/Shared/Http/Actions/ProblemDetailsResponseFactory.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ExampleRequestInput.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/NewExample.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/Examples.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ExampleDetails.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/RemoveExample.php`
+- `tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php`
+- `tests/Infrastructure/UseCase/ExampleApi/ExampleReadControllersTest.php`
+- `tests/Infrastructure/UseCase/ExampleApi/ExampleWriteControllersTest.php`
+- `tests/Infrastructure/UseCase/ExampleApi/ExampleNotFoundTest.php`
+- `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
+- `tests/ExampleApiTestCase.php`
+- `resources/api-docs/example-api/example-openapi.yml`
+- `resources/api-docs/example-api/example/`
+- `resources/bruno/example-api/example/`
+- `resources/docs/project.md`
+- `resources/platform/07-http-api.md`
+- `resources/platform/08-api-contracts.md`
+- `resources/platform/14-security.md`
+- `resources/platform/16-errors-observability.md`
+- `resources/platform/24-feature-workflow.md`
+
+These sources show adapter boundaries. The target project's public contract controls names and values.

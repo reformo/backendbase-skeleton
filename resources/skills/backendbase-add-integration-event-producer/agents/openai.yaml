@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Integration Event Producer"
+  short_description: "Add a transactional event producer"
+  default_prompt: "Use $backendbase-add-integration-event-producer to add a versioned event producer to this project."

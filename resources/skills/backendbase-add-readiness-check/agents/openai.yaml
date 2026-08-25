@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Readiness Check"
+  short_description: "Add a safe dependency readiness check"
+  default_prompt: "Use $backendbase-add-readiness-check to add a bounded readiness check to this service."

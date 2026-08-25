@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Shared Primitive"
+  short_description: "Add a stable cross-context primitive"
+  default_prompt: "Use $backendbase-add-shared-primitive to add a validated primitive with stable cross-context meaning."

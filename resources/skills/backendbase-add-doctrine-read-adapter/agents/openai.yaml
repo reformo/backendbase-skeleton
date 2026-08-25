@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Doctrine Read Adapter"
+  short_description: "Build a safe DBAL read projection adapter"
+  default_prompt: "Use $backendbase-add-doctrine-read-adapter to implement this read port with safe DBAL mapping."

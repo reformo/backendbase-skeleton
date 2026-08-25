@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Domain Problem"
+  short_description: "Add a stable typed Problem Details failure"
+  default_prompt: "Use $backendbase-add-domain-problem to add this expected failure as a stable public problem."

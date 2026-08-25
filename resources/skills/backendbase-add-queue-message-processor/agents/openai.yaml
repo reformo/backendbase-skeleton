@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Queue Message Processor"
+  short_description: "Add an idempotent queue processor"
+  default_prompt: "Use $backendbase-add-queue-message-processor to add a safe processor for this queue payload."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase Add Queue Transport Driver"
+  short_description: "Add a tested broker transport adapter"
+  default_prompt: "Use $backendbase-add-queue-transport-driver to add this broker to the project queue port."

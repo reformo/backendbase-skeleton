@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Backendbase Change"
+  short_description: "Verify architecture, contracts, and behavior"
+  default_prompt: "Use $backendbase-verify-change to verify this change against Backendbase architecture and quality rules."

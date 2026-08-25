@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Object Storage"
+  short_description: "Extend object storage behind a port"
+  default_prompt: "Use $backendbase-add-object-storage-capability to add a bounded object-storage operation."
