@@ -158,17 +158,26 @@ jobs:
 
       - name: Check provisioned dependencies
         run: |
-          readinessPayload="$(
-            curl --fail-with-body --silent --show-error \
+          readinessResponse="$RUNNER_TEMP/dast-readiness-response.json"
+          readinessStatus="$(
+            curl --silent --show-error \
+              --output "$readinessResponse" \
+              --write-out '%{http_code}' \
               --header 'X-Source-Id: example' \
               http://127.0.0.1:8080/example-api/_status/ready
           )"
-          jq --exit-status '
-            .checks.mysql == "ready"
-            and .checks.redis == "ready"
-            and .checks.queue == "ready"
-            and .checks.objectStore == "unavailable"
-          ' <<< "$readinessPayload"
+          if [[ "$readinessStatus" == '503' ]] && jq --exit-status '
+              .checks.mysql == "ready"
+              and .checks.redis == "ready"
+              and .checks.queue == "ready"
+              and .checks.objectStore == "unavailable"
+            ' "$readinessResponse" > /dev/null; then
+            exit 0
+          fi
+
+          echo "Readiness returned HTTP $readinessStatus with an unexpected dependency state."
+          cat "$readinessResponse"
+          exit 1
 
       - name: Run Bruno authenticated write sequence
         run: bin/bruno example-api local --env-var "apiKey=$EXAMPLE_API_KEY" --bail
