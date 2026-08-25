@@ -1082,7 +1082,7 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
 
         <section id="schema">
             <h2>Database records</h2>
-            <p class="lede">Four migrations create and extend three message-control tables.</p>
+            <p class="lede">Five migrations create and extend three message-control tables.</p>
 
             <div class="grid">
                 <article class="card">
@@ -1299,7 +1299,7 @@ ORDER BY received_at DESC;</code></pre>
                 <table>
                     <thead><tr><th>Area</th><th>Primary source</th></tr></thead>
                     <tbody>
-                        <tr><td>Driver selection</td><td><code>config/dependencies.php</code></td></tr>
+                        <tr><td>Driver selection</td><td><code>config/dependencies/queue.php</code></td></tr>
                         <tr><td>RabbitMQ settings</td><td><code>config/autoload/rabbitmq.global.php</code></td></tr>
                         <tr><td>SQS settings</td><td><code>config/autoload/aws.global.php</code></td></tr>
                         <tr><td>RabbitMQ adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php</code></td></tr>

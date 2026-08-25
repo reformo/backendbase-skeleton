@@ -9,7 +9,7 @@ use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessagePro
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Infrastructure\Adapters\Queue\NotificationMessageProcessor;
 use Backendbase\Infrastructure\UseCase\Console\Queue\ContainerAwareQueueConsumer;
-use Backendbase\Infrastructure\UseCase\Console\Queue\NotifiyReciever;
+use Backendbase\Infrastructure\UseCase\Console\Queue\NotifyReceiver;
 use Backendbase\Shared\Integrations\BackendbaseQueue;
 use Backendbase\Shared\Integrations\Notify;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
@@ -56,7 +56,7 @@ final class QueueConsumerCommandsTest extends TestCase
             $this->createStub(QueueMessageFailurePolicy::class),
             new NullLogger(),
         );
-        $tester    = new CommandTester(new NotifiyReciever($queue, $processor));
+        $tester    = new CommandTester(new NotifyReceiver($queue, $processor));
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertStringContainsString('Notifier started consuming', $tester->getDisplay());

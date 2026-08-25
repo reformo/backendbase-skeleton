@@ -682,7 +682,7 @@
                 <strong>Current routing exception</strong>
                 Command and query contracts use <code>#[CQRSHandler(HandlerClass::class)]</code>. The contract therefore names its application handler for bus routing.
             </div>
-            <p class="muted">The repository currently enforces only the <code>Shared</code> boundary with an architecture test. It does not automatically reject cross-context imports or all layer violations.</p>
+            <p class="muted">Architecture tests parse PHP symbols and enforce domain purity, bounded-context isolation, adapter direction, framework-import boundaries, and the <code>Shared</code> dependency boundary.</p>
         </section>
 
         <section id="registration">
@@ -899,7 +899,7 @@
                     <tr><td>Discovery uses relative paths.</td><td>Boot expects the project root as the current working directory.</td></tr>
                     <tr><td>Glob order is not sorted.</td><td>Duplicate definition keys are overwritten during iteration. Do not let contexts claim the same port.</td></tr>
                     <tr><td>Provider data is trusted.</td><td>A wrong class name or malformed subscriber entry can fail container construction or event registration.</td></tr>
-                    <tr><td>Architecture enforcement is narrow.</td><td>The automated boundary test protects <code>Shared</code>. It does not enforce every context layer rule.</td></tr>
+                    <tr><td>Architecture enforcement is static.</td><td>The suite checks declared PHP dependencies. It does not prove runtime registration, dynamic lookups, or business behavior.</td></tr>
                     <tr><td>Identity and access wiring is direct.</td><td><code>IdentityAndAccess</code> components are referenced from main configuration and API code, not a context provider.</td></tr>
                     <tr><td>One context is the full example.</td><td>New contexts must use <code>ExampleBoundedContext</code>, not empty or partial directories, as the implementation reference.</td></tr>
                     </tbody>
@@ -936,7 +936,7 @@
                     <tr><td>Reference context</td><td><code>src/Backendbase/Domain/ExampleBoundedContext</code></td></tr>
                     <tr><td>Context provider</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php</code></td></tr>
                     <tr><td>Provider contract</td><td><code>src/Backendbase/Shared/ServiceProvider.php</code></td></tr>
-                    <tr><td>Provider discovery and bus wiring</td><td><code>config/dependencies.php</code></td></tr>
+                    <tr><td>Provider discovery and bus wiring</td><td><code>config/dependencies/bounded-contexts.php</code> and <code>config/dependencies/modules.php</code></td></tr>
                     <tr><td>Doctrine entity discovery</td><td><code>src/Backendbase/Shared/Helpers/PathFinder.php</code></td></tr>
                     <tr><td>Domain aggregate</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Domain/Example.php</code></td></tr>
                     <tr><td>Read and write ports</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Example*Repository.php</code></td></tr>
@@ -945,7 +945,7 @@
                     <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
                     <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Tests</code></td></tr>
                     <tr><td>Context and adapter suites</td><td><code>tests/Domain/ExampleBoundedContext</code></td></tr>
-                    <tr><td>Architecture boundary</td><td><code>tests/Architecture/SharedDependencyBoundaryTest.php</code></td></tr>
+                    <tr><td>Architecture boundaries</td><td><code>tests/Architecture</code></td></tr>
                     <tr><td>Project architecture rules</td><td><code>resources/docs/project.md</code></td></tr>
                     </tbody>
                 </table>

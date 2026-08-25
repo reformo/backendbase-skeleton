@@ -64,7 +64,7 @@ bin/tolgee/sync-remote-keys --help</code></pre>
 <section id="checklist"><p class="section-label">14 · Checklist</p><h2>Add or change translations safely</h2>
 <ul><li>Every supported locale has one PHP file.</li><li>Each file returns the same key shape.</li><li>Placeholders have the same names in all locales.</li><li>The default locale has a value for each key.</li><li>Tolgee keys use the expected service prefix.</li><li>The API key stays outside source.</li><li>Only one synchronization process writes local files.</li><li>Runtime and synchronization tests pass.</li></ul></section>
 <section id="sources"><p class="section-label">15 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-<tr><td>Runtime translator</td><td><code>src/Backendbase/Shared/Services/Translator.php</code></td></tr><tr><td>Locale selection</td><td><code>config/dependencies.php</code></td></tr>
+<tr><td>Runtime translator</td><td><code>src/Backendbase/Shared/Services/Translator.php</code></td></tr><tr><td>Locale selection</td><td><code>config/dependencies/application.php</code></td></tr>
 <tr><td>Dictionaries</td><td><code>resources/i18n</code></td></tr><tr><td>Local-to-remote script</td><td><code>bin/tolgee/sync-local-keys</code></td></tr>
 <tr><td>Remote-to-local script</td><td><code>bin/tolgee/sync-remote-keys</code></td></tr><tr><td>Shared synchronization code</td><td><code>bin/tolgee/sync-support.php</code></td></tr><tr><td>Workflow text</td><td><code>resources/docs/skills/tolgee-i18n/SKILL.md</code></td></tr>
 </tbody></table></div></section>

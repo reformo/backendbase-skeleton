@@ -58,7 +58,7 @@ vendor/bin/phpunit tests/Shared/Integrations</code></pre>
 <ul><li>The owning context and external action are clear.</li><li>A project-owned port hides vendor types.</li><li>Configuration validates required values.</li><li>Network timeouts are finite.</li><li>Retries are bounded and idempotent.</li><li>External responses are validated.</li><li>Secrets and personal data stay out of logs.</li><li>Tests use deterministic doubles.</li></ul></section>
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Storage port</td><td><code>src/Backendbase/Shared/Integrations/BucketService.php</code></td></tr><tr><td>S3 adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/S3Bucket.php</code></td></tr>
-<tr><td>Object-store settings</td><td><code>config/autoload/object-store.global.php</code></td></tr><tr><td>Dependency wiring</td><td><code>config/dependencies.php</code></td></tr>
+<tr><td>Object-store settings</td><td><code>config/autoload/object-store.global.php</code></td></tr><tr><td>Dependency wiring</td><td><code>config/dependencies/aws.php</code></td></tr>
 <tr><td>External-service workflow</td><td><code>resources/docs/skills/add-external-service</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · External services and object storage guide</footer></body></html>

@@ -73,7 +73,7 @@
     <div class="table-wrap"><table><thead><tr><th>Case</th><th>Behavior</th></tr></thead><tbody>
         <tr><td>OPTIONS</td><td>Returns an empty 200 response.</td></tr><tr><td>Configured public path</td><td>Skips API-key validation.</td></tr>
         <tr><td>Identifier mode</td><td>Requires a non-empty header but does not compare it with a configured secret.</td></tr>
-        <tr><td>Normal mode</td><td>Compares the header with <code>{api-name}.api-key</code>, except for <code>/</code>.</td></tr>
+<tr><td>Normal mode</td><td>Compares the header with <code>{api-name}.api-key</code>. Only the configured public path prefixes skip this check.</td></tr>
     </tbody></table></div>
     <div class="callout danger"><strong>Current state:</strong> ExampleApi comments out <code>ValidateApiKey::class</code>. OpenAPI and Bruno still declare and send the key.</div>
 </section>
@@ -97,7 +97,7 @@
     <div class="callout warning"><strong>Contract difference:</strong> OpenAPI lists 401 and 403 for authentication and authorization failures. The runtime currently returns 400 for several authentication failures.</div>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known security limits</h2>
-    <ul><li>The authentication endpoint does not verify credentials.</li><li>API-key middleware is disabled.</li><li>Bearer failures use 400 instead of 401.</li>
+    <ul><li>The authentication endpoint does not verify credentials.</li><li>API-key middleware is active, but its failures use 400 instead of 401 or 403.</li><li>Bearer failures use 400 instead of 401.</li>
         <li>The time-zone header is passed directly to <code>DateTimeZone</code>.</li><li><code>ValidateApiKey</code> contains public paths that do not belong to the current ExampleApi route set.</li>
         <li><code>SessionMiddleware</code> is available but is not part of the inspected ExampleApi middleware chain.</li></ul>
 </section>

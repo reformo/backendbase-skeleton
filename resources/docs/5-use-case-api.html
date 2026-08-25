@@ -669,9 +669,9 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                 </article>
             </div>
             <p>The shared bootstrap also adds body parsing, routing, error middleware, a shutdown handler, and the response emitter.</p>
-            <div class="callout danger">
-                <strong>API-key validation is disabled</strong>
-                <code>ValidateApiKey::class</code> is commented out in <code>ExampleApi/middleware.php</code>. Configuration, OpenAPI, and Bruno still describe or send <code>Backendbase-Api-Key</code>, but runtime does not validate it.
+            <div class="callout warning">
+                <strong>API-key validation is active</strong>
+                <code>ExampleApi/middleware.php</code> adds <code>ValidateApiKey::class</code>. It validates <code>Backendbase-Api-Key</code> on non-public paths and currently returns status <code>400</code> for a missing or invalid key.
             </div>
             <p>Protected routes expect <code>Authorization: Bearer &lt;accessToken&gt;</code>. Missing or invalid bearer data currently returns status <code>400</code>.</p>
         </section>
@@ -880,7 +880,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                         <li>Missing resources stop command dispatch.</li>
                         <li>Read actions map projections.</li>
                         <li>Write actions create correct commands.</li>
-                        <li>Module routing has six module and nine total routes.</li>
+                        <li>Module routing has six module and eleven total routes.</li>
                         <li>Root, authentication, and fallback responses are stable.</li>
                     </ul>
                 </article>
@@ -950,7 +950,7 @@ bin/bruno example-api local</code></pre></div>
                 <table>
                     <thead><tr><th>Current behavior</th><th>Impact</th></tr></thead>
                     <tbody>
-                    <tr><td>API-key validation is commented out.</td><td>The API key is configured and documented but not enforced by ExampleApi middleware.</td></tr>
+                    <tr><td>API-key failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>
                     <tr><td>The CORS allow-header list omits <code>Accept-Language</code>.</td><td>Browser preflight can reject requests that send this documented header.</td></tr>
                     <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
                     <tr><td>Bearer failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>

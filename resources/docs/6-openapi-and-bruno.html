@@ -684,10 +684,10 @@ bin/bruno                                       # Bruno command wrapper</pre>
                 <table>
                     <thead><tr><th>Method</th><th>Path</th><th>Operation ID</th><th>Security in spec</th><th>Bruno</th></tr></thead>
                     <tbody>
-                        <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>apiMetadata</code></td><td>API key</td><td>Missing</td></tr>
-                        <tr><td><span class="method get">GET</span></td><td><code>/_status</code></td><td><code>livenessCheck</code></td><td>Public</td><td>Missing</td></tr>
-                        <tr><td><span class="method get">GET</span></td><td><code>/_status/ready</code></td><td><code>readinessCheck</code></td><td>Public</td><td>Missing</td></tr>
-                        <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>authenticateUser</code></td><td>API key</td><td>Missing</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>apiMetadata</code></td><td>API key</td><td>Sequence 1</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/_status</code></td><td><code>livenessCheck</code></td><td>Public</td><td>Sequence 2</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/_status/ready</code></td><td><code>readinessCheck</code></td><td>Public</td><td>Sequence 3</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>authenticateUser</code></td><td>API key</td><td>Sequence 10</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups</code></td><td><code>getExampleGroupsByType</code></td><td>API key</td><td>Sequence 40</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>getExamplesByGroup</code></td><td>API key</td><td>Sequence 42</td></tr>
                         <tr><td><span class="method post">POST</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>addNewExample</code></td><td>API key + bearer</td><td>Sequence 41</td></tr>
@@ -772,8 +772,8 @@ bin/bruno                                       # Bruno command wrapper</pre>
                 </article>
                 <article class="card">
                     <h3>Authentication</h3>
-                    <p><span class="badge note">Not in Bruno</span></p>
-                    <p>The OpenAPI source documents <code>POST /auth</code>. The Bruno collection does not call it.</p>
+                    <p><span class="badge">API key</span></p>
+                    <p>Bruno sequence 10 calls <code>POST /auth</code> and stores the returned access token for protected lifecycle requests.</p>
                 </article>
             </div>
             <div class="code-shell">
@@ -783,7 +783,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
     bearerAuth: []</code></pre>
             </div>
             <p>Both keys in one security requirement mean logical AND. Separate list items would mean logical OR.</p>
-            <div class="callout danger"><strong>Current runtime difference:</strong> Example API key validation is disabled in middleware. The contract and Bruno still require the header.</div>
+            <div class="callout warning"><strong>Current runtime difference:</strong> Example API key validation is active, but a missing or invalid key returns status <code>400</code>. The contract lists <code>401</code> and <code>403</code> security responses.</div>
         </section>
 
         <section id="generation">
@@ -974,7 +974,7 @@ runtime:
                     <thead><tr><th>Priority</th><th>Area</th><th>Current difference</th><th>Suggested action</th></tr></thead>
                     <tbody>
                         <tr><td><span class="badge note">Medium</span></td><td>Bruno report data</td><td>The report must remain safe to share.</td><td>Keep credentials and request and response bodies excluded.</td></tr>
-                        <tr><td><span class="badge risk">High</span></td><td>Runtime security</td><td>OpenAPI and Bruno require an API key. Example API key validation is disabled.</td><td>Enable validation or change the public contract.</td></tr>
+                        <tr><td><span class="badge risk">High</span></td><td>API-key status</td><td>OpenAPI and Bruno require an API key. Invalid API keys return status <code>400</code>.</td><td>Align middleware status codes and problem schemas.</td></tr>
                         <tr><td><span class="badge risk">High</span></td><td>Error status</td><td>The contract lists 401 and 403. Current authorization failures return 400.</td><td>Align middleware status codes and problem schemas.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Security scheme name</td><td>The root contract uses <code>Backendbase-Api-Key</code>. A duplicate common scheme uses <code>X-Example-Api-Key</code>.</td><td>Keep one authoritative security scheme.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Response fields</td><td>OpenAPI includes <code>typeTargetId</code> in details. The current controller omits it.</td><td>Change the response or the contract.</td></tr>

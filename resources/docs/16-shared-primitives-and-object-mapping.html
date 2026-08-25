@@ -68,8 +68,8 @@ vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php</code></pre>
 <section id="checklist"><p class="section-label">14 · Checklist</p><h2>Add a primitive or mapping target safely</h2>
 <ul><li>The type has stable cross-context meaning.</li><li>The constructor preserves its invariant.</li><li>External input is validated before trusted use.</li><li>Serialization has one documented form.</li><li>Sensitive values do not appear in logs.</li><li>Public mapping fields match the input contract.</li><li>Unknown input-key behavior is intentional.</li><li>Invalid and boundary tests pass.</li></ul></section>
 <section id="sources"><p class="section-label">15 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-<tr><td>Primitive catalog</td><td><code>src/Backendbase/Shared/Primitives</code></td></tr><tr><td>UUID identifier</td><td><code>Shared/Primitives/EntityId.php</code></td></tr>
+<tr><td>Primitive catalog</td><td><code>src/Backendbase/Shared/Primitives</code></td></tr><tr><td>UUID identifier</td><td><code>Shared/Primitives/Identifier/EntityId.php</code></td></tr>
 <tr><td>Value validation</td><td><code>Email.php</code>, <code>Name.php</code>, tax identifier types</td></tr><tr><td>Query values</td><td><code>Pagination.php</code>, <code>Filter.php</code></td></tr>
-<tr><td>Object mapping</td><td><code>src/Backendbase/Shared/Services/ObjectMapper.php</code></td></tr><tr><td>Mapper wiring</td><td><code>config/dependencies.php</code></td></tr>
+<tr><td>Object mapping</td><td><code>src/Backendbase/Shared/Services/ObjectMapper.php</code></td></tr><tr><td>Mapper wiring</td><td><code>config/dependencies/application.php</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Shared primitives and object mapping guide</footer></body></html>

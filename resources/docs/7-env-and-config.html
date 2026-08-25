@@ -562,7 +562,7 @@
                     <tr><td><code>object-store.global.php</code></td><td>Object-store credentials, region, bucket, and CDN URL.</td><td>S3-compatible storage</td></tr>
                     <tr><td><code>config/example-api/*</code></td><td>API key, route cache, CORS, and JWT values.</td><td>ExampleApi</td></tr>
                     <tr><td><code>config/settings.php</code></td><td>Binds the merged array to the shared <code>Settings</code> interface.</td><td>PHP-DI</td></tr>
-                    <tr><td><code>config/dependencies.php</code></td><td>Reads settings and constructs infrastructure services.</td><td>Runtime container</td></tr>
+                    <tr><td><code>config/dependencies.php</code> and <code>config/dependencies/*</code></td><td>Load focused providers that read settings and construct runtime services.</td><td>Runtime container</td></tr>
                     <tr><td><code>.env.example</code></td><td>Local convenience list. It is not complete and is not authoritative.</td><td>Developer reference</td></tr>
                     </tbody>
                 </table>
@@ -644,7 +644,7 @@
                 <article class="card green">
                     <span class="tag">Application</span>
                     <h3>Container connection</h3>
-                    <p><code>config/dependencies.php</code> parses <code>BACKENDBASE_DB_DSN</code> with a MySQL-to-<code>pdo_mysql</code> DSN mapping.</p>
+                    <p><code>config/dependencies/doctrine.php</code> parses <code>BACKENDBASE_DB_DSN</code> with a MySQL-to-<code>pdo_mysql</code> DSN mapping.</p>
                     <p>Doctrine ORM finds shared and bounded-context entity paths through <code>PathFinder</code>.</p>
                 </article>
                 <article class="card blue">
@@ -889,8 +889,8 @@ docker compose ps</code></pre></div>
                 <table>
                     <thead><tr><th>Observation</th><th>Impact</th></tr></thead>
                     <tbody>
-                    <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include base path, CORS origin, JWT audience, logger-level primary key, dead-letter settings, and payment callback URL.</td></tr>
-                    <tr><td>The example file includes service base URLs and notification variables with no current consumer in the inspected source.</td><td>Do not assume that each listed variable changes runtime behavior.</td></tr>
+                    <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include queue driver, readiness timeout, base path, JWT audience, dead-letter settings, SQS and SNS settings, current object-store keys, Tolgee settings, and payment callback URL.</td></tr>
+                    <tr><td>The example file includes unused or legacy names.</td><td><code>BACKENDBASE_LOGGER_HANDLER</code>, <code>AWS_S3_BUCKET</code>, and <code>AWS_S3_CLOUD_FRONT</code> have no current consumer in the inspected source.</td></tr>
                     <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
                     <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
                     <tr><td>Public cached boot skips Dotenv.</td><td>A changed <code>.env</code> has no effect until cache is cleared.</td></tr>
@@ -953,7 +953,7 @@ composer run start-apis</code></pre></div>
                     <tr><td>Shared configuration</td><td><code>config/autoload</code></td></tr>
                     <tr><td>ExampleApi configuration</td><td><code>config/example-api</code></td></tr>
                     <tr><td>Settings registration</td><td><code>config/settings.php</code></td></tr>
-                    <tr><td>Service factories and validation</td><td><code>config/dependencies.php</code></td></tr>
+                    <tr><td>Service factories and validation</td><td><code>config/dependencies</code></td></tr>
                     <tr><td>Public configuration bootstrap</td><td><code>public/index.php</code></td></tr>
                     <tr><td>Console bootstrap</td><td><code>bin/backendbase</code></td></tr>
                     <tr><td>Doctrine bootstrap</td><td><code>bin/doctrine</code></td></tr>

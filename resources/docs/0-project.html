@@ -673,7 +673,7 @@
                     <text x="670" y="59" text-anchor="middle" fill="#4f5f59" font-size="14" font-weight="700">Shared supplies CQRS, HTTP, domain, persistence, integration, primitive, and service building blocks</text>
                 </svg>
             </div>
-            <p>The architecture test enforces one key rule: <code>Shared</code> must not depend on <code>Domain</code> or <code>Infrastructure</code>.</p>
+            <p>The architecture suite enforces domain purity, bounded-context isolation, adapter direction, framework-import boundaries, and the rule that <code>Shared</code> must not depend on <code>Domain</code> or <code>Infrastructure</code>.</p>
         </section>
 
         <section id="boundaries">
@@ -741,7 +741,7 @@
                     <p>The root routes provide API metadata, liveness, readiness, and authentication. <code>ModuleRoutes</code> registers the Example module. A final route handles missing paths.</p>
                 </article>
             </div>
-            <div class="callout warning"><strong>Current security state:</strong> API-key validation is commented out in ExampleApi middleware. Protected module routes still use authorization middleware.</div>
+            <div class="callout warning"><strong>Current security state:</strong> ExampleApi middleware validates <code>Backendbase-Api-Key</code>. Protected module routes also use authorization middleware. Both middleware paths currently return status <code>400</code> for authentication failures.</div>
         </section>
 
         <section id="feature-flow">
@@ -908,8 +908,8 @@ bin/bruno example-api local</code></pre>
                     <thead><tr><th>Check</th><th>Command</th><th>Scope</th></tr></thead>
                     <tbody>
                         <tr><td>Focused PHPUnit</td><td><code>vendor/bin/phpunit &lt;path&gt;</code></td><td>Changed module or adapter</td></tr>
-                        <tr><td>Full PHPUnit</td><td><code>composer test</code></td><td>Root and module-local suites with coverage</td></tr>
-                        <tr><td>Architecture boundary</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Shared dependency direction</td></tr>
+                        <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit suites with coverage, then deployment script checks</td></tr>
+                        <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, context, adapter, framework, and Shared dependency rules</td></tr>
                         <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Source and tests at level 8</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>OpenAPI validation</td><td><code>php-openapi validate</code></td><td>Generated contract structure</td></tr>
@@ -922,19 +922,19 @@ bin/bruno example-api local</code></pre>
 
         <section id="deployment">
             <p class="section-label">17 · Deployment</p>
-            <h2>Deployment rebuilds dependencies, contracts, cache, and schema</h2>
+            <h2>Deployment activates a verified immutable release</h2>
             <div class="diagram-wrap">
                 <ol class="flow-list" aria-label="Deployment lifecycle">
-                    <li><strong>Update source</strong><small>pull target branch</small></li>
-                    <li><strong>Environment</strong><small>select stage or production</small></li>
-                    <li><strong>Composer</strong><small>install optimized, no dev</small></li>
-                    <li><strong>OpenAPI</strong><small>generate merged file</small></li>
-                    <li><strong>App cache</strong><small>clear generated runtime files</small></li>
-                    <li><strong>Database</strong><small>migrate, then clear ORM cache</small></li>
+                    <li><strong>Revision</strong><small>select exact commit</small></li>
+                    <li><strong>Artifact</strong><small>install production dependencies</small></li>
+                    <li><strong>Contract</strong><small>generate and validate OpenAPI</small></li>
+                    <li><strong>Preflight</strong><small>verify checksum and migration plan</small></li>
+                    <li><strong>Activate</strong><small>migrate and switch link</small></li>
+                    <li><strong>Verify</strong><small>readiness, workers, and logs</small></li>
                 </ol>
             </div>
-            <p>The repository has separate test and production update scripts. Both install production dependencies, generate OpenAPI, clear caches, and run migrations.</p>
-            <div class="callout warning"><strong>Review note:</strong> The current scripts use <code>git stash</code> before pull. Confirm server-local changes and deployment policy before execution.</div>
+            <p><code>build-release.sh</code> creates an exact commit archive and SHA-256 checksum. Stage and production wrappers select a protected environment file, then <code>deploy-release.sh</code> verifies the artifact, runs the approved migration target, clears cache, switches the active symbolic link, and gates success on readiness.</p>
+            <div class="callout warning"><strong>Recovery note:</strong> Application rollback can select only the recorded previous release. The expanded database schema remains in place.</div>
         </section>
 
         <section id="change-paths">

@@ -1216,14 +1216,14 @@ self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
                 <table>
                     <thead><tr><th>Area</th><th>Primary source</th></tr></thead>
                     <tbody>
-                        <tr><td>Producer event interface and trait</td><td><code>src/Backendbase/Shared/Domain/IntegrationEvent.php</code>, <code>IntegrationEventTrait.php</code></td></tr>
-                        <tr><td>Message and subscriber interfaces</td><td><code>src/Backendbase/Shared/Domain/EventMessage.php</code>, <code>IntegrationEventSubscriber.php</code>, <code>ExternalIntegrationEventSubscriber.php</code></td></tr>
+                        <tr><td>Producer event interface and trait</td><td><code>src/Backendbase/Shared/Domain/Messaging/IntegrationEvent.php</code>, <code>IntegrationEventTrait.php</code></td></tr>
+                        <tr><td>Message and subscriber interfaces</td><td><code>src/Backendbase/Shared/Domain/Messaging/EventMessage.php</code>, <code>IntegrationEventSubscriber.php</code>, <code>ExternalIntegrationEventSubscriber.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
                         <tr><td>Outbox publication</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php</code></td></tr>
                         <tr><td>Message processing and mapping</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
                         <tr><td>Version registry</td><td><code>InMemoryExternalIntegrationEventRegistry.php</code></td></tr>
                         <tr><td>Event manager</td><td><code>src/Backendbase/Shared/Services/EventManager/ContainerAwareEventManager.php</code></td></tr>
-                        <tr><td>Container registration</td><td><code>config/dependencies.php</code></td></tr>
+                        <tr><td>Container registration</td><td><code>config/dependencies/modules.php</code></td></tr>
                         <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
                         <tr><td>Reference implementation</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/</code></td></tr>
                     </tbody>

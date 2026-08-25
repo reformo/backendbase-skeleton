@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class NotifiyReciever extends Command
+class NotifyReceiver extends Command
 {
     private const string COMMAND_NAME = 'notifier';
 

@@ -46,9 +46,9 @@
 <tr><td>PHPStan</td><td><code>phpstan.neon</code></td><td><code>src</code> and <code>tests</code>, level 8</td></tr>
 <tr><td>PHPCS</td><td><code>phpcs.xml.dist</code></td><td>Doctrine Coding Standard for <code>src</code> and <code>tests</code></td></tr>
 <tr><td>Qodana</td><td><code>qodana.yaml</code></td><td>PHP 8.5 starter profile and explicit inspections</td></tr>
-<tr><td>Rector</td><td><code>rector.php</code></td><td>Configuration exists, but the package is not installed</td></tr>
+<tr><td>Rector</td><td>Not configured</td><td>No project configuration or direct Composer package exists</td></tr>
 </tbody></table></div>
-<div class="callout danger"><strong>Do not report Rector as passing.</strong> <code>rector/rector</code> is not installed in the current Composer dependencies.</div>
+<div class="callout warning"><strong>Do not report Rector as passing.</strong> The repository does not configure or install Rector.</div>
 </section>
 <section id="coverage"><p class="section-label">08 · Coverage</p><h2>Coverage reports show exercised code, not correctness</h2>
 <p><code>phpunit.xml</code> writes Clover and HTML reports under <code>artifacts</code>. The Composer <code>test</code> script also requests <code>clover.xml</code> at the project root.</p>
@@ -60,11 +60,11 @@
 <li>Run Bruno only with a prepared API, credentials, and data.</li></ol>
 </section>
 <section id="automation"><p class="section-label">10 · Automation state</p><h2>Quality configuration exists without a repository pipeline</h2>
-<p>The repository contains PHPUnit, PHPStan, PHPCS, Qodana, and Rector configuration files. It does not contain a GitHub Actions, GitLab CI, or Jenkins pipeline file.</p>
+<p>The repository contains PHPUnit, PHPStan, PHPCS, and Qodana configuration files. It does not contain a Rector configuration, GitHub Actions, GitLab CI, or Jenkins pipeline file.</p>
 <div class="callout warning">Deployment scripts do not run PHPUnit, PHPStan, or PHPCS. Run quality gates before deployment.</div>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known quality-tool differences</h2>
-<ul><li>Rector configuration references an <code>app</code> path that does not exist.</li><li>Rector is not installed.</li><li>No repository CI pipeline connects the configured checks.</li>
+<ul><li>Rector is not configured or installed.</li><li>No repository CI pipeline connects the configured checks.</li>
 <li>The Composer coverage path and PHPUnit configuration coverage path differ.</li><li>Bruno needs external runtime state and is not a self-contained suite.</li></ul>
 </section>
 <section id="commands"><p class="section-label">12 · Commands</p><h2>Common verification commands</h2>
@@ -81,12 +81,13 @@ composer cs-check
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
 bin/bruno example-api local
 # Report: artifacts/bruno/example-api/local.html</code></pre>
+<p><code>composer test</code> runs PHPUnit with coverage, then <code>tests/Deployment/deployment-scripts.sh</code>.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Suite configuration</td><td><code>phpunit.xml</code></td></tr><tr><td>Static analysis</td><td><code>phpstan.neon</code></td></tr>
 <tr><td>Coding standard</td><td><code>phpcs.xml.dist</code></td></tr><tr><td>Qodana</td><td><code>qodana.yaml</code></td></tr>
-<tr><td>Rector</td><td><code>rector.php</code></td></tr><tr><td>Project scripts</td><td><code>composer.json</code></td></tr>
+<tr><td>Project scripts and Rector status</td><td><code>composer.json</code></td></tr>
 <tr><td>Tests</td><td><code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Testing and quality guide</footer></body></html>
