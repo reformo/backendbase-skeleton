@@ -1,0 +1,47 @@
+info:
+  name: "Change Example Details"
+  type: "http"
+  seq: 44
+
+http:
+  method: "PATCH"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples/{{exampleKey}}"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+    - name: "Content-Type"
+      value: "application/json"
+  body:
+    type: "json"
+    data: |-
+      {
+        "lookupValue": "20",
+        "details": {
+          "title": {
+            "en": "Updated English title",
+            "tr": "Updated Turkish Title"
+          },
+          "auditLog": {
+            "userId": 12,
+            "logDate": "2024-01-02T13:45:00"
+          }
+        },
+        "isActive": true,
+        "typeTargetId": null
+      }
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(204);

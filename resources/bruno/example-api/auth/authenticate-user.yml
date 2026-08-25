@@ -1,0 +1,37 @@
+info:
+  name: "Authenticate User"
+  type: "http"
+  seq: 10
+
+http:
+  method: "POST"
+  url: "{{baseUrl}}/auth"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Content-Type"
+      value: "application/json"
+  body:
+    type: "json"
+    data: |-
+      {
+        "email": "{{email}}",
+        "password": "{{password}}"
+      }
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(201);
+        const body = res.getBody();
+        expect(body.accessToken).to.be.a("string").and.not.be.empty;
+        bru.setEnvVar("accessToken", body.accessToken);

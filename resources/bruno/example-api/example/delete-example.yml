@@ -1,0 +1,31 @@
+info:
+  name: "Delete Example"
+  type: "http"
+  seq: 45
+
+http:
+  method: "DELETE"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples/{{exampleKey}}"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+  params:
+    - name: "typeTargetId"
+      value: "{{typeTargetId}}"
+      type: "query"
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(204);

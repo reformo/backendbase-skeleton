@@ -1,0 +1,36 @@
+info:
+  name: "Get Example Details"
+  type: "http"
+  seq: 43
+
+http:
+  method: "GET"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples/{{exampleKey}}"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+  params:
+    - name: "typeTargetId"
+      value: "{{typeTargetId}}"
+      type: "query"
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body.example).to.have.property("uuid");
+        expect(body.example).to.have.property("type");
+        expect(body.example).to.have.property("exampleGroup");
+        expect(body.example).to.have.property("lookupKey");
+        expect(body.example).to.have.property("lookupValue");
+        expect(body.example).to.have.property("details");

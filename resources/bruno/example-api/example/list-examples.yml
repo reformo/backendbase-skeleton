@@ -1,0 +1,40 @@
+info:
+  name: "List Examples"
+  type: "http"
+  seq: 42
+
+http:
+  method: "GET"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+  params:
+    - name: "typeTargetId"
+      value: "{{typeTargetId}}"
+      type: "query"
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body).to.have.property("pageSize");
+        expect(body).to.have.property("page");
+        expect(body).to.have.property("total");
+        expect(body.examples).to.be.an("array");
+        if (body.examples.length > 0) {
+          expect(body.examples[0]).to.have.property("uuid");
+          expect(body.examples[0]).to.have.property("lookupKey");
+          expect(body.examples[0]).to.have.property("lookupValue");
+          expect(body.examples[0]).to.have.property("details");
+        }

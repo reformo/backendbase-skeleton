@@ -1,0 +1,30 @@
+name: local
+variables:
+  - name: baseUrl
+    value: http://127.0.0.1:8080/example-api
+  - name: apiKey
+    value: local-api-key
+  - name: accessToken
+    value: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3ODc2NjQ3OTgsIm5iZiI6MTc4NzY2NDc5OCwiZXhwIjoxNzg3NzUxMTk4LCJpc3MiOiJiYWNrZW5kYmFzZS1hcGkiLCJhdWQiOiJleGFtcGxlLWFwaSIsImp0aSI6IjdVMnVkVWc3eVJDeTNYeWQ1dFNTMlpodGUyYWR0aFFWU1Z4aXpaVG16YVEiLCJ1c2VySWQiOiIwMTllZThhNi05MDNhLTc1Y2YtYjlhNC1lMTlkNmQwZGI1MzMifQ.D7ZvErTvnAnwGhdxwTkJ2O0yMLBdT5MCUaNJMGJ0m6I
+  - name: acceptLanguage
+    value: tr-TR
+  - name: timezone
+    value: Europe/Istanbul
+  - name: requestId
+    value: 019f0325-5940-7702-8488-3cfe56553586
+  - name: sourceId
+    value: example
+  - name: email
+    value: admin@example.com
+  - name: password
+    value: secret
+  - name: typeSlug
+    value: system
+  - name: exampleGroup
+    value: settings
+  - name: exampleKey
+    value: bruno-settings-max-list-item
+  - name: typeTargetId
+    value: ""
+  - name: exampleLookupValue
+    value: "10"

@@ -1,0 +1,34 @@
+info:
+  name: "List Example Groups"
+  type: "http"
+  seq: 40
+
+http:
+  method: "GET"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+  params:
+    - name: "typeTargetId"
+      value: "{{typeTargetId}}"
+      type: "query"
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body).to.have.property("pageSize");
+        expect(body).to.have.property("page");
+        expect(body).to.have.property("total");
+        expect(body.exampleGroups).to.be.an("array");

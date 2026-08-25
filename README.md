@@ -88,6 +88,8 @@ bin/bruno [collection] [environment]
 bin/bruno example-api local
 ```
 
+Each run writes a human-readable HTML report to `artifacts/bruno/{collection}/{environment}.html`.
+
 ## Project Policies
 
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) before you propose a change.

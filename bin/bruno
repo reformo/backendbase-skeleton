@@ -1,3 +1,17 @@
 #!/bin/bash
-cd ./resources/bruno/$1
-npx bru run --env $2
+set -euo pipefail
+
+collection="$1"
+environment="$2"
+workspacePath="$(pwd)"
+reportPath="$workspacePath/artifacts/bruno/$collection/$environment.html"
+
+mkdir -p "$(dirname "$reportPath")"
+cd "$workspacePath/resources/bruno/$collection"
+
+npx bru run \
+  --env "$environment" \
+  --reporter-html "$reportPath" \
+  --reporter-skip-headers "Authorization" \
+  --reporter-skip-headers "Backendbase-Api-Key" \
+  --reporter-skip-body

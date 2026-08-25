@@ -1,0 +1,30 @@
+info:
+  name: "API Metadata"
+  type: "http"
+  seq: 1
+
+http:
+  method: "GET"
+  url: "{{baseUrl}}/"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body).to.have.property("backendbase-api");
+        expect(body["backendbase-api"]).to.have.property("version");
+        expect(body["backendbase-api"]).to.have.property("buildId");
+        expect(body["backendbase-api"]).to.have.property("cdnBaseUrl");

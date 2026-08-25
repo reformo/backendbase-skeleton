@@ -1,0 +1,48 @@
+info:
+  name: "Add New Example"
+  type: "http"
+  seq: 41
+
+http:
+  method: "POST"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+    - name: "Content-Type"
+      value: "application/json"
+  body:
+    type: "json"
+    data: |-
+      {
+        "typeTargetId": null,
+        "lookupKey": "{{exampleKey}}",
+        "lookupValue": "{{exampleLookupValue}}",
+        "details": {
+          "title": {
+            "en": "English title",
+            "tr": "Turkish Title"
+          },
+          "auditLog": {
+            "userId": 12,
+            "logDate": "2024-01-01T13:45:00"
+          }
+        },
+        "isActive": true
+      }
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(204);
