@@ -1,0 +1,59 @@
+name: Quality gates
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+    branches:
+      - trunk
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-gates-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    name: Quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Validate Composer files
+        run: composer validate --strict --no-check-publish
+
+      - name: Audit Composer dependencies
+        run: composer audit --locked --no-interaction
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run PHPUnit
+        run: composer run test
+
+      - name: Run PHPStan
+        run: composer run phpstan
+
+      - name: Run PHPCS
+        run: composer run cs-check
+
+      - name: Validate OpenAPI
+        run: |
+          composer run validate-example-api-spec
+          composer run generate-example-api-spec
+          git diff --exit-code -- public/example-api/docs/example-api-merged.yml

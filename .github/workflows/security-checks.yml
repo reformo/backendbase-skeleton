@@ -1,0 +1,88 @@
+name: Security checks
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+    branches:
+      - trunk
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sast:
+    name: SAST
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:1.172.0
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Run Semgrep
+        run: semgrep scan --config auto --error --metrics=off src config public bin resources/database
+
+  dast:
+    name: DAST
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BACKENDBASE_ENV: dev
+      docker: '1'
+      ZAP_AUTH_HEADER: X-Source-Id
+      ZAP_AUTH_HEADER_VALUE: example
+      ZAP_AUTH_HEADER_SITE: 127.0.0.1
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Start Example API
+        run: |
+          php -d expose_php=0 -S 127.0.0.1:8080 -t public > "$RUNNER_TEMP/backendbase-dast.log" 2>&1 &
+
+      - name: Wait for Example API
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error --header 'X-Source-Id: example' http://127.0.0.1:8080/example-api/ > /dev/null; then
+              exit 0
+            fi
+
+            sleep 1
+          done
+
+          cat "$RUNNER_TEMP/backendbase-dast.log"
+          exit 1
+
+      - name: Run OWASP ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: http://127.0.0.1:8080/example-api/
+          rules_file_name: .zap/rules.tsv
+          fail_action: true
+          allow_issue_writing: false
+          artifact_name: zap-baseline-report
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/backendbase-dast.log"
