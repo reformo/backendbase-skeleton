@@ -158,7 +158,11 @@ jobs:
 
       - name: Check provisioned dependencies
         run: |
-          readinessPayload="$(curl --silent --show-error http://127.0.0.1:8080/example-api/_status/ready)"
+          readinessPayload="$(
+            curl --fail-with-body --silent --show-error \
+              --header 'X-Source-Id: example' \
+              http://127.0.0.1:8080/example-api/_status/ready
+          )"
           jq --exit-status '
             .checks.mysql == "ready"
             and .checks.redis == "ready"
