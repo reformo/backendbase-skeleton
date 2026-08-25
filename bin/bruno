@@ -3,6 +3,7 @@ set -euo pipefail
 
 collection="$1"
 environment="$2"
+shift 2
 workspacePath="$(pwd)"
 reportPath="$workspacePath/artifacts/bruno/$collection/$environment.html"
 
@@ -14,4 +15,5 @@ npx bru run \
   --reporter-html "$reportPath" \
   --reporter-skip-headers "Authorization" \
   --reporter-skip-headers "Backendbase-Api-Key" \
-  --reporter-skip-body
+  --reporter-skip-body \
+  "$@"

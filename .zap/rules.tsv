@@ -1,2 +1,7 @@
 # The API intentionally disables response caching.
 10049	IGNORE	(Content Cacheability)
+10038	IGNORE	(Content Security Policy is not applicable to JSON API responses)
+10063	IGNORE	(Permissions Policy is not applicable to JSON API responses)
+10106	IGNORE	(The DAST target is an isolated HTTP service on the GitHub runner)
+90004	IGNORE	(Cross-origin browser isolation headers are not applicable to JSON API responses)
+100001	IGNORE	(HTTP 204 responses intentionally have no content type)

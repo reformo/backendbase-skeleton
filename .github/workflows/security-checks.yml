@@ -34,14 +34,60 @@ jobs:
   dast:
     name: DAST
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
-      BACKENDBASE_ENV: dev
+      BACKENDBASE_ENV: production
+      BACKENDBASE_DB_DSN: mysql://backendbase_ci:backendbase_ci_password@127.0.0.1:3306/backendbase?charset=utf8mb4
+      BACKENDBASE_REDIS_HOST: 127.0.0.1
+      BACKENDBASE_REDIS_PORT: 6379
+      BACKENDBASE_RABBITMQ_HOST: 127.0.0.1
+      BACKENDBASE_RABBITMQ_PORT: 5672
+      BACKENDBASE_RABBITMQ_USER: backendbase
+      BACKENDBASE_RABBITMQ_PASSWORD: backendbase
+      BACKENDBASE_RABBITMQ_VHOST: /
+      BACKENDBASE_RABBITMQ_QUEUE: backendbase-queue
+      BACKENDBASE_RABBITMQ_EXCHANGE: backendbase
+      BACKENDBASE_JWT_SIGN_KEY: ZGFzdC1zaWduaW5nLWtleS0zMi1ieXRlcy1sb25nISE=
       EXAMPLE_API_KEY: dast-example-api-key
       docker: '1'
-      ZAP_AUTH_HEADER: X-Source-Id
-      ZAP_AUTH_HEADER_VALUE: example
-      ZAP_AUTH_HEADER_SITE: 127.0.0.1
+
+    services:
+      mysql:
+        image: mysql:8.4.11@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+        env:
+          MYSQL_ROOT_PASSWORD: backendbase_ci_root
+          MYSQL_DATABASE: backendbase
+          MYSQL_USER: backendbase_ci
+          MYSQL_PASSWORD: backendbase_ci_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=backendbase_ci_root --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis/redis-stack:7.4.0-v8@sha256:5d5154123426693540ea6c1d9e638eae2bf2024879c839db6fcfdd7717e817c7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      rabbitmq:
+        image: rabbitmq:4.3.5-management@sha256:06fb591136a49e861e01aaaf9ce45085839ca23c35913d45a1e83519bb9778ca
+        env:
+          RABBITMQ_DEFAULT_USER: backendbase
+          RABBITMQ_DEFAULT_PASS: backendbase
+          RABBITMQ_DEFAULT_VHOST: /
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping && rabbitmq-diagnostics -q check_port_connectivity"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - name: Check out repository
@@ -55,8 +101,40 @@ jobs:
           coverage: none
           tools: composer:v2
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Install Bruno CLI
+        run: npm install --global @usebruno/cli@4.1.0
+
+      - name: Run database migrations
+        run: bin/doctrine migrations:migrate --no-interaction
+
+      - name: Generate and validate OpenAPI
+        run: |
+          composer generate-example-api-spec
+          composer validate-example-api-spec
+          vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
+
+      - name: Prepare OpenAPI scan contract
+        run: |
+          mkdir -p artifacts/zap
+          php -r '
+          require "vendor/autoload.php";
+          $specification = Symfony\Component\Yaml\Yaml::parseFile("public/example-api/docs/example-api-merged.yml");
+          unset($specification["paths"]["/_status/ready"]);
+          file_put_contents(
+              "artifacts/zap/example-api-openapi.yml",
+              Symfony\Component\Yaml\Yaml::dump($specification, 20, 2, Symfony\Component\Yaml\Yaml::DUMP_OBJECT_AS_MAP),
+          );
+          '
+          vendor/bin/php-openapi validate --silent artifacts/zap/example-api-openapi.yml
 
       - name: Start Example API
         run: |
@@ -78,16 +156,130 @@ jobs:
           cat "$RUNNER_TEMP/backendbase-dast.log"
           exit 1
 
-      - name: Run OWASP ZAP baseline scan
-        uses: zaproxy/action-baseline@v0.15.0
+      - name: Check provisioned dependencies
+        run: |
+          readinessPayload="$(curl --silent --show-error http://127.0.0.1:8080/example-api/_status/ready)"
+          jq --exit-status '
+            .checks.mysql == "ready"
+            and .checks.redis == "ready"
+            and .checks.queue == "ready"
+            and .checks.objectStore == "unavailable"
+          ' <<< "$readinessPayload"
+
+      - name: Run Bruno authenticated write sequence
+        run: bin/bruno example-api local --env-var "apiKey=$EXAMPLE_API_KEY" --bail
+
+      - name: Create DAST session and write fixture
+        id: dast-session
+        run: |
+          accessToken="$(
+            curl --fail-with-body --silent --show-error \
+              --request POST \
+              --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+              --header 'X-Source-Id: example' \
+              --header 'Content-Type: application/json' \
+              --data '{"email":"dast@example.com","password":"dast"}' \
+              http://127.0.0.1:8080/example-api/auth \
+            | jq --exit-status --raw-output '.accessToken'
+          )"
+          echo "::add-mask::$accessToken"
+          echo 'ZAP_AUTH_HEADER=Authorization' >> "$GITHUB_ENV"
+          echo "ZAP_AUTH_HEADER_VALUE=Bearer $accessToken" >> "$GITHUB_ENV"
+          echo 'ZAP_AUTH_HEADER_SITE=127.0.0.1' >> "$GITHUB_ENV"
+
+          exampleKey="zap-scan-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          fixturePayload="$(jq --null-input --compact-output --arg exampleKey "$exampleKey" '{
+            typeTargetId: null,
+            lookupKey: $exampleKey,
+            lookupValue: "ZAP seed value",
+            details: {source: "dast"},
+            isActive: true
+          }')"
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header "Authorization: Bearer $accessToken" \
+            --header 'Content-Type: application/json' \
+            --data "$fixturePayload" \
+            http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples
+
+          curl --fail-with-body --silent --show-error \
+            --request PATCH \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header "Authorization: Bearer $accessToken" \
+            --header 'Content-Type: application/json' \
+            --data '{"lookupValue":"ZAP patched value","typeTargetId":null}' \
+            "http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples/$exampleKey"
+
+          echo "example-key=$exampleKey" >> "$GITHUB_OUTPUT"
+
+      - name: Verify access and input boundaries
+        run: |
+          assertStatus() {
+            expectedStatus="$1"
+            description="$2"
+            shift 2
+            responseFile="$RUNNER_TEMP/dast-boundary-response.json"
+            actualStatus="$(curl --silent --show-error --output "$responseFile" --write-out '%{http_code}' "$@")"
+            if [[ "$actualStatus" == "$expectedStatus" ]]; then
+              return
+            fi
+
+            echo "$description returned HTTP $actualStatus; expected $expectedStatus."
+            cat "$responseFile"
+            exit 1
+          }
+
+          validPayload='{"lookupKey":"boundary-test","lookupValue":"value","typeTargetId":null}'
+          writeUrl='http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples'
+
+          assertStatus 400 'Missing API key' \
+            --header 'X-Source-Id: example' \
+            http://127.0.0.1:8080/example-api/
+          assertStatus 400 'Invalid API key' \
+            --header 'Backendbase-Api-Key: invalid-api-key' \
+            --header 'X-Source-Id: example' \
+            http://127.0.0.1:8080/example-api/
+          assertStatus 400 'Missing bearer token' \
+            --request POST \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header 'Content-Type: application/json' \
+            --data "$validPayload" \
+            "$writeUrl"
+          assertStatus 400 'Invalid bearer token' \
+            --request POST \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header 'Authorization: Bearer invalid-token' \
+            --header 'Content-Type: application/json' \
+            --data "$validPayload" \
+            "$writeUrl"
+          assertStatus 400 'Invalid request input' \
+            --request POST \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header "Authorization: $ZAP_AUTH_HEADER_VALUE" \
+            --header 'Content-Type: application/json' \
+            --data '{"lookupValue":[]}' \
+            http://127.0.0.1:8080/example-api/example-types/not-a-type/groups/zap-scan/examples
+
+      - name: Run OWASP ZAP OpenAPI scan
+        uses: zaproxy/action-api-scan@v0.10.0
         with:
-          target: http://127.0.0.1:8080/example-api/
+          target: artifacts/zap/example-api-openapi.yml
+          format: openapi
           rules_file_name: .zap/rules.tsv
           cmd_options: >-
-            -z "-config replacer.full_list(0).description=ExampleApiKey -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Backendbase-Api-Key -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=dast-example-api-key"
+            -a
+            -T 10
+            -O http://127.0.0.1:8080/example-api
+            -z "-config replacer.full_list(0).description=ExampleApiKey -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Backendbase-Api-Key -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=${{ env.EXAMPLE_API_KEY }} -config replacer.full_list(1).description=SourceId -config replacer.full_list(1).enabled=true -config replacer.full_list(1).matchtype=REQ_HEADER -config replacer.full_list(1).matchstr=X-Source-Id -config replacer.full_list(1).regex=false -config replacer.full_list(1).replacement=example -config formhandler.fields.field(0).fieldId=typeSlug -config formhandler.fields.field(0).value=system -config formhandler.fields.field(0).enabled=true -config formhandler.fields.field(1).fieldId=exampleGroup -config formhandler.fields.field(1).value=zap-scan -config formhandler.fields.field(1).enabled=true -config formhandler.fields.field(2).fieldId=exampleKey -config formhandler.fields.field(2).value=${{ steps.dast-session.outputs.example-key }} -config formhandler.fields.field(2).enabled=true -config formhandler.fields.field(3).fieldId=lookupKey -config formhandler.fields.field(3).value=${{ steps.dast-session.outputs.example-key }} -config formhandler.fields.field(3).enabled=true -config formhandler.fields.field(4).fieldId=lookupValue -config formhandler.fields.field(4).value=zap-scan-value -config formhandler.fields.field(4).enabled=true"
           fail_action: true
           allow_issue_writing: false
-          artifact_name: zap-baseline-report
+          artifact_name: zap-api-report
 
       - name: Show server log on failure
         if: failure()
