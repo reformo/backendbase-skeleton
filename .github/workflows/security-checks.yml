@@ -111,7 +111,7 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
 
       - name: Install Bruno CLI
-        run: npm install --global @usebruno/cli@4.1.0
+        run: npm install --global @usebruno/cli@4.0.0
 
       - name: Run database migrations
         run: bin/doctrine migrations:migrate --no-interaction
@@ -283,4 +283,6 @@ jobs:
 
       - name: Show server log on failure
         if: failure()
-        run: cat "$RUNNER_TEMP/backendbase-dast.log"
+        run: |
+          test -f "$RUNNER_TEMP/backendbase-dast.log" || exit 0
+          cat "$RUNNER_TEMP/backendbase-dast.log"
