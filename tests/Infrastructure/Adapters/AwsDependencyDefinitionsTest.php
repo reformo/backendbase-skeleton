@@ -18,10 +18,18 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+use function bin2hex;
+use function is_dir;
+use function is_file;
+use function random_bytes;
+use function rmdir;
+use function sys_get_temp_dir;
+use function unlink;
+
 final class AwsDependencyDefinitionsTest extends TestCase
 {
     #[Test]
-    public function itResolvesAwsQueueAndNotificationServices(): void
+    public function itCompilesAndResolvesAwsQueueAndNotificationServices(): void
     {
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->addDefinitions([
@@ -30,15 +38,30 @@ final class AwsDependencyDefinitionsTest extends TestCase
         $dependencies = require 'config/dependencies.php';
         $dependencies($containerBuilder);
         $containerBuilder->addDefinitions([LoggerInterface::class => new NullLogger()]);
-        $container = $containerBuilder->build();
+        $containerClass       = 'AwsDefinitionsCompiledContainer' . bin2hex(random_bytes(8));
+        $compilationDirectory = sys_get_temp_dir() . '/' . $containerClass;
+        $compiledContainer    = $compilationDirectory . '/' . $containerClass . '.php';
+        $containerBuilder->enableCompilation($compilationDirectory, $containerClass);
 
-        self::assertInstanceOf(SqsClient::class, $container->get(SqsClient::class));
-        self::assertInstanceOf(SnsClient::class, $container->get(SnsClient::class));
-        self::assertInstanceOf(SqsQueue::class, $container->get(BackendbaseQueue::class));
+        try {
+            $container = $containerBuilder->build();
 
-        $notifier = $container->get(Notify::class);
-        self::assertInstanceOf(StackNotifier::class, $notifier);
-        self::assertContainsOnlyInstancesOf(SnsClient::class, $notifier->getClient());
+            self::assertInstanceOf(SqsClient::class, $container->get(SqsClient::class));
+            self::assertInstanceOf(SnsClient::class, $container->get(SnsClient::class));
+            self::assertInstanceOf(SqsQueue::class, $container->get(BackendbaseQueue::class));
+
+            $notifier = $container->get(Notify::class);
+            self::assertInstanceOf(StackNotifier::class, $notifier);
+            self::assertContainsOnlyInstancesOf(SnsClient::class, $notifier->getClient());
+        } finally {
+            if (is_file($compiledContainer)) {
+                unlink($compiledContainer);
+            }
+
+            if (is_dir($compilationDirectory)) {
+                rmdir($compilationDirectory);
+            }
+        }
     }
 
     /** @return array<string, mixed> */
