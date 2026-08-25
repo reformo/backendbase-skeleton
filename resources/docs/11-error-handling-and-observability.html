@@ -40,14 +40,15 @@
 <tr><td>Bad request</td><td><code>http/bad-request</code></td><td><code>BAD_REQUEST</code></td></tr>
 <tr><td>Not implemented</td><td><code>http/not-implemented</code></td><td><code>NOT_IMPLEMENTED</code></td></tr>
 </tbody></table></div>
-<p>Unexpected exceptions return a safe 500 message. Development mode can add exception details to the response.</p>
+<p>Unexpected exceptions return a safe 500 message. Only local development aliases and the test mode can add exception details to the response. Stage, CI, production, and unknown modes hide them.</p>
 </section>
 <section id="shutdown"><p class="section-label">06 · Shutdown errors</p><h2>Fatal PHP state still gets a structured response</h2>
 <p>The shutdown handler ignores deprecation errors. It logs other last-error data and passes an internal-server exception to the HTTP error handler.</p>
-<div class="callout danger">Production must keep <code>displayErrorDetails</code> disabled. File paths, traces, and exception messages must not appear in public responses.</div>
+<div class="callout danger">Stage, CI, and production keep <code>displayErrorDetails</code> disabled. File paths, traces, and exception messages must not appear in shared-environment responses.</div>
 </section>
 <section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>
 <p>The configured logger name is <code>backendbase-app</code>. It writes to standard output when the <code>docker</code> environment key exists. Otherwise, it writes to <code>var/logs/app.log</code>.</p>
+<p>Unexpected failures log the exception class, message, file, line, and trace. Protect log access and retention because this context can contain internal data.</p>
 <p><code>BACKENDBASE_LOGGER_LEVEL</code> is the primary level input. <code>BACKENDBASE_DEBUG</code> is the fallback.</p>
 <div class="callout warning">Use valid Monolog level names. Invalid names fail while configuration is evaluated.</div>
 </section>

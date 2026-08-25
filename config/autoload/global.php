@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 use Backendbase\Shared\Options\System\Environment;
 
-$environment      = backendbaseEnv('BACKENDBASE_ENV', Environment::DEV->value);
-$backendbaseDebug = backendbaseEnv('BACKENDBASE_LOGGER_LEVEL') ?? backendbaseEnv('BACKENDBASE_DEBUG');
+$environment         = backendbaseEnv('BACKENDBASE_ENV', Environment::DEV->value);
+$backendbaseDebug    = backendbaseEnv('BACKENDBASE_LOGGER_LEVEL') ?? backendbaseEnv('BACKENDBASE_DEBUG');
+$displayErrorDetails = match (Environment::fromValue((string) $environment)) {
+    Environment::DEV, Environment::TEST => true,
+    default => false,
+};
 $readinessTimeout = filter_var(
     backendbaseEnv('BACKENDBASE_READINESS_TIMEOUT_SECONDS', 2),
     FILTER_VALIDATE_FLOAT,
@@ -17,7 +21,7 @@ if ($readinessTimeout === false || $readinessTimeout < 0.1 || $readinessTimeout 
 return [
     'service-name' => backendbaseEnv('BACKENDBASE_SERVICE_NAME', 'example'),
     'env' => $environment,
-    'displayErrorDetails' => $environment !== Environment::PRODUCTION->value,
+    'displayErrorDetails' => $displayErrorDetails,
     'logError'            => true,
     'logErrorDetails'     => true,
     'cdnBaseUrl' => backendbaseEnv('CDN_BASE_URL', ''),
