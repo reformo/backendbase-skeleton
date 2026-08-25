@@ -38,7 +38,7 @@
 </section>
 <section id="api"><p class="section-label">06 · API and contract</p><h2>Verify both adapter behavior and the published contract</h2>
 <ul><li>Controller tests check input parsing, bus dispatch, response status, headers, and body shape.</li><li>Routing tests check method, path, module registration, and authorization grouping.</li>
-<li>OpenAPI validation checks document structure.</li><li>Bruno checks selected examples against a running API.</li><li>OpenAPI and Bruno do not replace failure-path PHPUnit tests.</li></ul>
+<li>OpenAPI validation checks document structure.</li><li>Bruno checks documented Example API operations against a running API and writes an HTML report.</li><li>OpenAPI and Bruno do not replace failure-path PHPUnit tests.</li></ul>
 <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
 <section id="static"><p class="section-label">07 · Static checks</p><h2>Run analysis and style after behavior passes</h2>
@@ -79,7 +79,8 @@ composer cs-check
 
 # Contract and E2E
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
-bin/bruno example-api local</code></pre>
+bin/bruno example-api local
+# Report: artifacts/bruno/example-api/local.html</code></pre>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>

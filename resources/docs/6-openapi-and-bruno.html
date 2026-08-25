@@ -587,8 +587,8 @@
             <p>The OpenAPI source defines the public contract. The generated YAML gives tools one complete file. Bruno sends example requests to the running API.</p>
             <div class="summary-grid">
                 <div class="stat"><strong>3</strong><span>OpenAPI source groups</span></div>
-                <div class="stat"><strong>8</strong><span>Documented operations</span></div>
-                <div class="stat"><strong>6</strong><span>Bruno API requests</span></div>
+                <div class="stat"><strong>10</strong><span>Documented operations</span></div>
+                <div class="stat"><strong>10</strong><span>Bruno API requests</span></div>
                 <div class="stat"><strong>1</strong><span>Bruno environment</span></div>
             </div>
             <div class="callout good"><strong>Verified state:</strong> <code>public/example-api/docs/example-api-merged.yml</code> validates against the OpenAPI 3.0 schema.</div>
@@ -608,8 +608,11 @@
 │           ├── examples.yaml                   # example list and create
 │           └── example-details.yaml            # get, change, and delete
 └── bruno/example-api/
-    ├── environments/local.yaml                 # local values
-    └── example/*.yaml                          # six executable requests
+    ├── opencollection.yml                       # collection root
+    ├── environments/local.yml                   # local values
+    ├── system/*.yml                             # metadata and status requests
+    ├── auth/*.yml                               # authentication request
+    └── example/*.yml                            # example lifecycle requests
 
 public/example-api/docs/
 ├── example-api-merged.yml                      # generated, single-file contract
@@ -828,16 +831,20 @@ vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</
                 <table>
                     <thead><tr><th>Sequence</th><th>Request file</th><th>Purpose</th><th>Expected status</th></tr></thead>
                     <tbody>
-                        <tr><td>40</td><td><code>list-example-groups.yaml</code></td><td>List available groups</td><td>200</td></tr>
-                        <tr><td>41</td><td><code>add-example.yaml</code></td><td>Create a test example</td><td>204</td></tr>
-                        <tr><td>42</td><td><code>list-examples.yaml</code></td><td>Find examples in the group</td><td>200</td></tr>
-                        <tr><td>43</td><td><code>get-example-details.yaml</code></td><td>Read the test example</td><td>200</td></tr>
-                        <tr><td>44</td><td><code>change-example-details.yaml</code></td><td>Change the test example</td><td>204</td></tr>
-                        <tr><td>45</td><td><code>delete-example.yaml</code></td><td>Delete the test example</td><td>204</td></tr>
+                        <tr><td>1</td><td><code>system/api-metadata.yml</code></td><td>Read API metadata</td><td>200</td></tr>
+                        <tr><td>2</td><td><code>system/liveness-check.yml</code></td><td>Check process liveness</td><td>200</td></tr>
+                        <tr><td>3</td><td><code>system/readiness-check.yml</code></td><td>Check dependency readiness</td><td>200 or 503</td></tr>
+                        <tr><td>10</td><td><code>auth/authenticate-user.yml</code></td><td>Capture an access token</td><td>201</td></tr>
+                        <tr><td>40</td><td><code>example/list-example-groups.yml</code></td><td>List available groups</td><td>200</td></tr>
+                        <tr><td>41</td><td><code>example/add-example.yml</code></td><td>Create a test example</td><td>204</td></tr>
+                        <tr><td>42</td><td><code>example/list-examples.yml</code></td><td>Find examples in the group</td><td>200</td></tr>
+                        <tr><td>43</td><td><code>example/get-example-details.yml</code></td><td>Read the test example</td><td>200</td></tr>
+                        <tr><td>44</td><td><code>example/change-example-details.yml</code></td><td>Change the test example</td><td>204</td></tr>
+                        <tr><td>45</td><td><code>example/delete-example.yml</code></td><td>Delete the test example</td><td>204</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p>The collection covers all six Example module operations. It does not cover system status or authentication.</p>
+            <p>The collection covers all ten documented Example API operations.</p>
         </section>
 
         <section id="bruno-request">
@@ -846,24 +853,25 @@ vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</
             <p>The create request shows the full pattern. It reads URL, credential, context, and fixture values from the selected environment.</p>
             <div class="code-shell">
                 <button class="copy-button" type="button">Copy</button>
-                <pre><code>meta:
+                <pre><code>info:
   name: "Add New Example"
   type: "http"
   seq: 41
 
-request:
+http:
   method: "POST"
   url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples"
   headers:
-    Backendbase-Api-Key: "{{apiKey}}"
-    X-Request-Id: "{{requestId}}"
-    Authorization: "Bearer {{accessToken}}"
-    Content-Type: "application/json"
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
 
-tests:
-  - name: "status is 204"
-    script: |
-      expect(res.status).to.equal(204);</code></pre>
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(204);</code></pre>
             </div>
             <div class="card-grid">
                 <article class="card">
@@ -871,18 +879,19 @@ tests:
                     <p>Read requests check status and important response fields. Write requests check status.</p>
                 </article>
                 <article class="card">
-                    <h3>Captured value</h3>
-                    <p>The create request stores <code>Backendbase-Insert-Id</code> in <code>exampleId</code>.</p>
+                    <h3>Authentication</h3>
+                    <p>The authentication request captures <code>accessToken</code> for protected lifecycle requests.</p>
                 </article>
             </div>
-            <p>The later requests use <code>exampleKey</code>, not <code>exampleId</code>. The captured identifier is checked and stored, but it does not connect the request chain.</p>
+            <p>The lifecycle uses <code>exampleKey</code> as its deterministic resource identifier.</p>
         </section>
 
         <section id="run-sequence">
             <p class="section-label">12 · Run sequence</p>
-            <h2>The numbers define an intended lifecycle</h2>
+            <h2>Authentication precedes the lifecycle</h2>
             <div class="diagram-wrap">
                 <ol class="flow-list" aria-label="Bruno request sequence">
+                    <li><strong>10 · Authenticate</strong><small>capture access token</small></li>
                     <li><strong>40 · List groups</strong><small>confirm fixture group</small></li>
                     <li><strong>41 · Add</strong><small>create by exampleKey</small></li>
                     <li><strong>42 · List</strong><small>check collection</small></li>
@@ -895,8 +904,8 @@ tests:
                 <button class="copy-button" type="button">Copy</button>
                 <pre><code>bin/bruno example-api local</code></pre>
             </div>
-            <p>The wrapper changes to <code>resources/bruno/example-api</code> and runs <code>npx bru run --env local</code>.</p>
-            <div class="callout danger"><strong>Precondition:</strong> Set <code>accessToken</code> before the run. The collection has no request that obtains a token.</div>
+            <p>The wrapper changes to <code>resources/bruno/example-api</code>, runs Bruno, and writes <code>artifacts/bruno/example-api/local.html</code>.</p>
+            <div class="callout"><strong>Report privacy:</strong> The HTML report omits request and response bodies, bearer tokens, and API keys.</div>
             <div class="callout warning"><strong>Repeat-run risk:</strong> The collection uses a fixed <code>exampleKey</code>. A stopped run can leave data that makes the next create request fail.</div>
         </section>
 
@@ -909,8 +918,8 @@ tests:
                     <tbody>
                         <tr><td>Connection</td><td><code>baseUrl</code>, <code>apiKey</code>, <code>accessToken</code></td><td>Target and credentials</td></tr>
                         <tr><td>Context</td><td><code>acceptLanguage</code>, <code>timezone</code>, <code>requestId</code>, <code>sourceId</code></td><td>Shared request headers</td></tr>
-                        <tr><td>Authentication</td><td><code>email</code>, <code>password</code></td><td>Reserved for authentication; no Bruno auth request uses them</td></tr>
-                        <tr><td>Example fixture</td><td><code>typeSlug</code>, <code>exampleGroup</code>, <code>exampleKey</code>, <code>typeTargetId</code>, <code>exampleLookupValue</code>, <code>exampleId</code></td><td>Request path, body, and captured values</td></tr>
+                        <tr><td>Authentication</td><td><code>email</code>, <code>password</code></td><td>Authentication request input</td></tr>
+                        <tr><td>Example fixture</td><td><code>typeSlug</code>, <code>exampleGroup</code>, <code>exampleKey</code>, <code>typeTargetId</code>, <code>exampleLookupValue</code></td><td>Request path and body values</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -920,7 +929,7 @@ tests:
                 <li>Add a separate environment file for each target that the team must run.</li>
                 <li>Remove unused variables when they no longer support this collection.</li>
             </ul>
-            <div class="callout warning"><strong>Current cleanup item:</strong> <code>local.yaml</code> contains unrelated agreement variables. They do not support the Example API requests.</div>
+            <div class="callout"><strong>Collection format:</strong> The environment is <code>local.yml</code>. The collection root is <code>opencollection.yml</code>.</div>
         </section>
 
         <section id="testing">
@@ -964,7 +973,7 @@ tests:
                 <table>
                     <thead><tr><th>Priority</th><th>Area</th><th>Current difference</th><th>Suggested action</th></tr></thead>
                     <tbody>
-                        <tr><td><span class="badge risk">High</span></td><td>Bruno authentication</td><td>Write requests require <code>accessToken</code>, but no request obtains it.</td><td>Add an auth request or document a secure token injection step.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>Bruno report data</td><td>The report must remain safe to share.</td><td>Keep credentials and request and response bodies excluded.</td></tr>
                         <tr><td><span class="badge risk">High</span></td><td>Runtime security</td><td>OpenAPI and Bruno require an API key. Example API key validation is disabled.</td><td>Enable validation or change the public contract.</td></tr>
                         <tr><td><span class="badge risk">High</span></td><td>Error status</td><td>The contract lists 401 and 403. Current authorization failures return 400.</td><td>Align middleware status codes and problem schemas.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Security scheme name</td><td>The root contract uses <code>Backendbase-Api-Key</code>. A duplicate common scheme uses <code>X-Example-Api-Key</code>.</td><td>Keep one authoritative security scheme.</td></tr>
@@ -1045,8 +1054,10 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
                         <tr><td>Example paths</td><td><code>resources/api-docs/example-api/example/*.yaml</code></td></tr>
                         <tr><td>Generated contract</td><td><a href="../../public/example-api/docs/example-api-merged.yml"><code>public/example-api/docs/example-api-merged.yml</code></a></td></tr>
                         <tr><td>Documentation viewer</td><td><a href="../../public/example-api/docs/index.php"><code>public/example-api/docs/index.php</code></a></td></tr>
-                        <tr><td>Bruno environment</td><td><a href="../bruno/example-api/environments/local.yaml"><code>resources/bruno/example-api/environments/local.yaml</code></a></td></tr>
-                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/example/*.yaml</code></td></tr>
+                        <tr><td>Bruno collection root</td><td><a href="../bruno/example-api/opencollection.yml"><code>resources/bruno/example-api/opencollection.yml</code></a></td></tr>
+                        <tr><td>Bruno environment</td><td><a href="../bruno/example-api/environments/local.yml"><code>resources/bruno/example-api/environments/local.yml</code></a></td></tr>
+                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/{system,auth,example}/*.yml</code></td></tr>
+                        <tr><td>Bruno HTML report</td><td><code>artifacts/bruno/example-api/local.html</code></td></tr>
                         <tr><td>Bruno wrapper</td><td><a href="../../bin/bruno"><code>bin/bruno</code></a></td></tr>
                         <tr><td>Related runtime guide</td><td><a href="5-use-case-api.html"><code>resources/docs/5-use-case-api.html</code></a></td></tr>
                         <tr><td>Related configuration guide</td><td><a href="7-env-and-config.html"><code>resources/docs/7-env-and-config.html</code></a></td></tr>

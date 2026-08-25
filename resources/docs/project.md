@@ -45,7 +45,7 @@ backendbase-core/
 │   ├── api-docs/
 │   │   ├── common/                    # Shared OpenAPI components
 │   │   └── example-api/               # ExampleApi OpenAPI source files
-│   ├── bruno/example-api/            # ExampleApi end-to-end requests
+│   ├── bruno/example-api/            # ExampleApi Bruno YAML collection
 │   ├── database/
 │   │   ├── Migrations/                # Doctrine migration classes
 │   │   └── Seeders/                   # Database seeders
@@ -211,6 +211,7 @@ The queue message processor converts a producer event name to an external subscr
 - ExampleApi configuration: `config/example-api`
 - ExampleApi OpenAPI source: `resources/api-docs/example-api`
 - ExampleApi Bruno collection: `resources/bruno/example-api`
+- Bruno HTML reports: `artifacts/bruno/{collection}/{environment}.html`
 - Reference bounded context: `src/Backendbase/Domain/ExampleBoundedContext`
 - Doctrine migrations: `resources/database/Migrations`
 - Main DI wiring: `config/dependencies.php`
