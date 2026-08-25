@@ -875,7 +875,7 @@ composer run start-apis</code></pre>
                     <p>Requests under <code>resources/bruno/example-api</code> cover six Example module operations against a selected environment.</p>
                 </article>
             </div>
-            <p>Every new operation supports <code>Accept-Language</code>, <code>The-Timezone-IANA</code>, <code>X-Request-Id</code>, <code>X-Source-Id</code>, and optional <code>X-User-Id</code>.</p>
+            <p>Every new operation supports <code>Accept-Language</code>, <code>The-Timezone-IANA</code>, <code>X-Request-Id</code>, and <code>X-Source-Id</code>.</p>
             <pre><code>composer run generate-example-api-spec
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
 bin/bruno example-api local</code></pre>

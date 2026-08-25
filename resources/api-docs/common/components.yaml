@@ -38,16 +38,6 @@ headers:
       enum: ["public", "private", "example"]
       default: 'example'
     example: 'example'
-  X-User-Id:
-    name: X-User-Id
-    in: header
-    description: User Id for request
-    required: false
-    schema:
-      type: string
-      format: uuid
-      nullable: true
-
 schemas:
   200:
     description: OK

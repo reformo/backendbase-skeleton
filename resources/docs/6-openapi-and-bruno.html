@@ -745,7 +745,6 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <tr><td><code>The-Timezone-IANA</code></td><td><span class="badge">Required</span></td><td>IANA time zone</td><td><code>timezone</code></td></tr>
                         <tr><td><code>X-Request-Id</code></td><td><span class="badge">Required</span></td><td>Request correlation</td><td><code>requestId</code></td></tr>
                         <tr><td><code>X-Source-Id</code></td><td><span class="badge">Required</span></td><td>API source selection and context</td><td><code>sourceId</code></td></tr>
-                        <tr><td><code>X-User-Id</code></td><td><span class="badge note">Optional</span></td><td>User context</td><td><code>userId</code></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -909,7 +908,7 @@ tests:
                     <thead><tr><th>Variable group</th><th>Variables</th><th>Use</th></tr></thead>
                     <tbody>
                         <tr><td>Connection</td><td><code>baseUrl</code>, <code>apiKey</code>, <code>accessToken</code></td><td>Target and credentials</td></tr>
-                        <tr><td>Context</td><td><code>acceptLanguage</code>, <code>timezone</code>, <code>requestId</code>, <code>sourceId</code>, <code>userId</code></td><td>Shared request headers</td></tr>
+                        <tr><td>Context</td><td><code>acceptLanguage</code>, <code>timezone</code>, <code>requestId</code>, <code>sourceId</code></td><td>Shared request headers</td></tr>
                         <tr><td>Authentication</td><td><code>email</code>, <code>password</code></td><td>Reserved for authentication; no Bruno auth request uses them</td></tr>
                         <tr><td>Example fixture</td><td><code>typeSlug</code>, <code>exampleGroup</code>, <code>exampleKey</code>, <code>typeTargetId</code>, <code>exampleLookupValue</code>, <code>exampleId</code></td><td>Request path, body, and captured values</td></tr>
                     </tbody>
@@ -972,7 +971,7 @@ tests:
                         <tr><td><span class="badge note">Medium</span></td><td>Response fields</td><td>OpenAPI includes <code>typeTargetId</code> in details. The current controller omits it.</td><td>Change the response or the contract.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Pagination</td><td>Runtime list handlers accept <code>pageSize</code> and <code>page</code>. OpenAPI omits these query parameters.</td><td>Document both parameters and their limits.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Body properties do not declare complete required-field rules.</td><td>Match schema requirements to boundary validation.</td></tr>
-                        <tr><td><span class="badge note">Medium</span></td><td>CORS</td><td>Allowed headers omit <code>Accept-Language</code> and <code>X-User-Id</code>.</td><td>Align CORS with the public header contract.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>CORS</td><td>Allowed headers omit <code>Accept-Language</code>.</td><td>Align CORS with the public header contract.</td></tr>
                         <tr><td><span class="badge">Low</span></td><td>Tags</td><td><code>Identity &amp; Access</code> is used but absent from the root tag catalog.</td><td>Add the tag definition.</td></tr>
                         <tr><td><span class="badge">Low</span></td><td>Collection data</td><td>The fixed <code>exampleKey</code> can collide after an incomplete run.</td><td>Use a run-unique key or guaranteed cleanup.</td></tr>
                     </tbody>

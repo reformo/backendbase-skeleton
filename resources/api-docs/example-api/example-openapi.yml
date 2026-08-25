@@ -66,7 +66,6 @@ paths:
         - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
         - $ref: '../common/components.yaml#/headers/X-Request-Id'
         - $ref: '../common/components.yaml#/headers/X-Source-Id'
-        - $ref: '../common/components.yaml#/headers/X-User-Id'
       responses:
         200:
           description: Process is alive
@@ -92,7 +91,6 @@ paths:
         - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
         - $ref: '../common/components.yaml#/headers/X-Request-Id'
         - $ref: '../common/components.yaml#/headers/X-Source-Id'
-        - $ref: '../common/components.yaml#/headers/X-User-Id'
       responses:
         200:
           description: All dependencies are ready

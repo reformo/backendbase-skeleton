@@ -738,7 +738,6 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <tr><td><code>The-Timezone-IANA</code></td><td>Required</td><td>Protected routes create <code>clientTimezone</code>. Absence defaults to <code>UTC</code>.</td></tr>
                     <tr><td><code>X-Request-Id</code></td><td>Required</td><td>The logger uses it as <code>trace_id</code>. The logger generates a UUID when absent.</td></tr>
                     <tr><td><code>X-Source-Id</code></td><td>Required</td><td>The shared front controller uses it to select <code>ExampleApi</code>. The dedicated front controller already selects the API.</td></tr>
-                    <tr><td><code>X-User-Id</code></td><td>Optional and nullable</td><td>No current ExampleApi controller reads it.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -951,7 +950,7 @@ bin/bruno example-api local</code></pre></div>
                     <thead><tr><th>Current behavior</th><th>Impact</th></tr></thead>
                     <tbody>
                     <tr><td>API-key validation is commented out.</td><td>The API key is configured and documented but not enforced by ExampleApi middleware.</td></tr>
-                    <tr><td>The CORS allow-header list omits <code>Accept-Language</code> and <code>X-User-Id</code>.</td><td>Browser preflight can reject requests that send these documented headers.</td></tr>
+                    <tr><td>The CORS allow-header list omits <code>Accept-Language</code>.</td><td>Browser preflight can reject requests that send this documented header.</td></tr>
                     <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
                     <tr><td>Bearer failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>
                     <tr><td><code>Authenticate</code> uses fixed example user data and ignores the submitted password.</td><td>The route is a placeholder implementation, not production credential authentication.</td></tr>

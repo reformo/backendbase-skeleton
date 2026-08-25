@@ -144,7 +144,7 @@ Before implementing a feature, inspect the current `Infrastructure/UseCase` dire
 
 All new consumer API endpoints must be grouped with `AuthorizationMiddleware` by default. Leave a new endpoint ungrouped only when the request strictly states that authorization is not required, or when it is clearly a public/common endpoint such as registration/authentication bootstrap, callback/webhook handling, or non-user-related public information. If it is not clear whether a public exception applies, ask before implementing the route.
 
-Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. `X-User-Id` must also be supported but is nullable/optional. Add all five shared header references to each new OpenAPI operation's `parameters` section. Follow `resources/api-docs/example-api/example/examples.yaml`.
+Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. Add all four shared header references to each new OpenAPI operation's `parameters` section. Follow `resources/api-docs/example-api/example/examples.yaml`.
 
 ### CQRS
 
