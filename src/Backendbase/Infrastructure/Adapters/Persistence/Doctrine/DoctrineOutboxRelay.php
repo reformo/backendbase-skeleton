@@ -6,8 +6,8 @@ namespace Backendbase\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Shared\Helpers\DateTimeImmutable;
-use Backendbase\Shared\Integrations\OutboxRelay;
 use Backendbase\Shared\Integrations\Operation\OutboxRelayResult;
+use Backendbase\Shared\Integrations\OutboxRelay;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;

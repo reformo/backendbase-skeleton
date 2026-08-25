@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Shared\Helpers\DateTimeImmutable;
-use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
+use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Doctrine\DBAL\Connection;
 
 final readonly class DoctrineQueueMessageFailurePolicy implements QueueMessageFailurePolicy

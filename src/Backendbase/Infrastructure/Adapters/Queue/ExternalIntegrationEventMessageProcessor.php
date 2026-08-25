@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
-use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
+use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use CuyZ\Valinor\Mapper\MappingError;
 use Psr\Log\LoggerInterface;
