@@ -19,6 +19,6 @@ Clear merged configuration, route, container, and Doctrine metadata caches when 
 
 Keep the recorded previous release available. Prefer forward repair after partially committed MySQL data-definition changes.
 
-Current deployment scripts require server-specific backup and process-activation hooks. The repository provides no worker supervisor, scheduler, deployment manifest, or alerts.
+Current deployment scripts require server-specific backup and process-activation hooks. `deployment/release.json` supplies migration and rollback policy for the generated `release-manifest.json`. The repository provides no worker supervisor, scheduler, or alerts.
 
 Basis: `resources/docs/12-deployment-and-operations.html`.

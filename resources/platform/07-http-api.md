@@ -11,10 +11,9 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 
 ## Controller rules
 
-- Extend `Backendbase\Shared\Http\Actions\Action`.
-- Read PSR-7 path, query, header, and parsed-body data.
-- Sanitize and validate all untrusted input before bus dispatch.
-- Create one command or query.
+- Business endpoint actions extend `Backendbase\Shared\Http\Actions\Action`.
+- A transport-only system handler can be directly invokable when it needs no shared action flow. `Liveness` is the current exception.
+- When an action dispatches application behavior, read and validate its PSR-7 input before creating one command or query.
 - Map the result to the documented response shape.
 - Select the documented status and headers.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.

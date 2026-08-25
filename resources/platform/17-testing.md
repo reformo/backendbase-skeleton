@@ -31,6 +31,6 @@ composer test
 
 `composer test` runs PHPUnit with coverage, then the deployment shell-script checks.
 
-The repository has no configured continuous integration pipeline. Rector has no project configuration or direct Composer package.
+GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Rector has no project configuration or direct Composer package.
 
 Basis: `resources/docs/10-testing-and-quality.html`.
