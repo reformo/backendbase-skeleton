@@ -87,7 +87,7 @@ class ExampleRecord implements DoctrineEntity
         insertable: false,
         updatable: false,
         options: ['unsigned' => true],
-        columnDefinition: 'TINYINT UNSIGNED GENERATED ALWAYS AS (IF(deleted_at IS NULL, 1, NULL)) STORED',
+        columnDefinition: 'TINYINT UNSIGNED GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) STORED',
         generated: 'ALWAYS',
     )]
     private int|null $activeUniquenessKey = 1;
