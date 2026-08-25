@@ -1,0 +1,2 @@
+# The API intentionally disables response caching.
+10049	IGNORE	(Content Cacheability)

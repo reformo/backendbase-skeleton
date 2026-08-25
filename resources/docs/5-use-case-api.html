@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase Use Case API Guide</title>
+    <style>
+        :root {
+            --page: #f5f6fa;
+            --surface: #ffffff;
+            --surface-soft: #f8f9fc;
+            --ink: #192236;
+            --muted: #626d81;
+            --line: #dde2ec;
+            --purple: #6550b9;
+            --purple-soft: #f0edff;
+            --blue: #1769ba;
+            --blue-soft: #eaf3ff;
+            --cyan: #087d88;
+            --cyan-soft: #e5f7f8;
+            --green: #287852;
+            --green-soft: #e9f7ef;
+            --amber: #956000;
+            --amber-soft: #fff5d8;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --code: #101729;
+            --code-ink: #eef1fa;
+            --shadow: 0 16px 42px rgba(35, 43, 72, 0.09);
+            --radius: 16px;
+            --max: 1180px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0d111c;
+                --surface: #171d2b;
+                --surface-soft: #1b2232;
+                --ink: #f0f2f8;
+                --muted: #b2b9c8;
+                --line: #30394d;
+                --purple: #b6a5f5;
+                --purple-soft: #30284d;
+                --blue: #83b9f4;
+                --blue-soft: #172d48;
+                --cyan: #75d3dc;
+                --cyan-soft: #17383d;
+                --green: #7bd7a7;
+                --green-soft: #18382a;
+                --amber: #f0c369;
+                --amber-soft: #413619;
+                --red: #ff9c94;
+                --red-soft: #482321;
+                --code: #080d18;
+                --code-ink: #edf1fa;
+                --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--blue); }
+
+        code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+        code {
+            padding: 0.12rem 0.35rem;
+            border-radius: 5px;
+            background: var(--blue-soft);
+            color: var(--ink);
+            font-size: 0.9em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #6d54c3;
+            background: #12182d;
+            color: #fff;
+        }
+
+        .hero::after {
+            position: absolute;
+            inset: 0 0 0 56%;
+            content: "";
+            background: linear-gradient(135deg, rgba(101,80,185,0.35), rgba(8,125,136,0.62));
+            clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 62px 0 58px;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: #c9bef9;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 { line-height: 1.16; }
+
+        h1 {
+            max-width: 920px;
+            margin: 0;
+            font-size: clamp(2.5rem, 6vw, 5.4rem);
+            letter-spacing: -0.055em;
+        }
+
+        .lede {
+            max-width: 860px;
+            margin: 20px 0 0;
+            color: #e0e5f1;
+            font-size: clamp(1.04rem, 2vw, 1.3rem);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,0.23);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 36px;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 36px 0 80px;
+        }
+
+        nav {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        nav strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            display: block;
+            padding: 4px 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        nav a:hover, nav a:focus { color: var(--purple); }
+
+        main { min-width: 0; }
+
+        section {
+            scroll-margin-top: 24px;
+            margin-bottom: 58px;
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: clamp(1.8rem, 4vw, 2.7rem);
+            letter-spacing: -0.035em;
+        }
+
+        h3 { margin: 0 0 10px; font-size: 1.12rem; }
+        p { margin: 0 0 15px; }
+        .muted { color: var(--muted); }
+
+        .grid { display: grid; gap: 16px; }
+        .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .card {
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .card.purple { border-top: 4px solid var(--purple); }
+        .card.blue { border-top: 4px solid var(--blue); }
+        .card.cyan { border-top: 4px solid var(--cyan); }
+
+        .tag {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--purple-soft);
+            color: var(--purple);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .tag.blue { background: var(--blue-soft); color: var(--blue); }
+        .tag.cyan { background: var(--cyan-soft); color: var(--cyan); }
+        .tag.green { background: var(--green-soft); color: var(--green); }
+
+        .callout {
+            margin: 18px 0;
+            padding: 16px 18px;
+            border-left: 4px solid var(--amber);
+            border-radius: 8px;
+            background: var(--amber-soft);
+        }
+
+        .callout.danger { border-color: var(--red); background: var(--red-soft); }
+        .callout.info { border-color: var(--blue); background: var(--blue-soft); }
+        .callout strong { display: block; margin-bottom: 4px; }
+
+        .diagram {
+            margin: 20px 0;
+            padding: 16px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .diagram svg {
+            display: block;
+            min-width: 900px;
+            width: 100%;
+            height: auto;
+        }
+
+        figcaption { margin: 12px 4px 2px; color: var(--muted); font-size: 0.88rem; }
+
+        .process {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .step {
+            position: relative;
+            min-height: 118px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        .step:not(:last-child)::after {
+            position: absolute;
+            top: 47%;
+            right: -16px;
+            content: "→";
+            color: var(--purple);
+            font-weight: 900;
+        }
+
+        .step-number {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--purple);
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 0.77rem;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+        .table-wrap { overflow-x: auto; }
+
+        .method {
+            display: inline-block;
+            min-width: 58px;
+            padding: 2px 7px;
+            border-radius: 5px;
+            color: #fff;
+            font: 800 0.72rem/1.6 "SFMono-Regular", Consolas, monospace;
+            text-align: center;
+        }
+
+        .get { background: #1769ba; }
+        .post { background: #287852; }
+        .patch { background: #956000; }
+        .delete { background: #b42318; }
+        .any { background: #6550b9; }
+
+        .code-wrap { position: relative; margin: 16px 0; }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            border: 1px solid #293451;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.87rem;
+            line-height: 1.55;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+
+        .copy {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 10px;
+            border: 1px solid #53607a;
+            border-radius: 7px;
+            background: #202943;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.75rem;
+        }
+
+        ul, ol { padding-left: 1.25rem; }
+        li { margin: 0.38rem 0; }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 22px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .checklist li { position: relative; padding-left: 28px; }
+        .checklist li::before { position: absolute; left: 0; content: "✓"; color: var(--green); font-weight: 900; }
+
+        .related { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        .related a {
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface);
+            text-decoration: none;
+        }
+
+        footer {
+            padding: 32px 20px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; }
+            .process { grid-template-columns: 1fr 1fr; }
+            .step:not(:last-child)::after { display: none; }
+        }
+
+        @media (max-width: 680px) {
+            .hero-inner, .layout { width: min(calc(100% - 24px), var(--max)); }
+            .hero-inner { padding: 42px 0; }
+            .grid.two, .grid.three, .checklist, .process { grid-template-columns: 1fr; }
+            th, td { min-width: 150px; }
+        }
+
+        @media print {
+            .hero { background: #fff; color: #000; border-bottom: 2px solid #000; }
+            .hero::after, nav, .copy { display: none; }
+            .lede, .eyebrow { color: #222; }
+            .layout { display: block; width: 100%; padding: 20px; }
+            .card, .diagram, table { box-shadow: none; }
+            section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · HTTP Adapter Guide</p>
+        <h1>Use Case API</h1>
+        <p class="lede">Build a consumer API as a thin Slim adapter that selects a use case, validates transport input, dispatches CQRS contracts, and returns stable HTTP responses.</p>
+        <div class="chips" aria-label="Guide topics">
+            <span class="chip">ExampleApi reference</span>
+            <span class="chip">Slim routing</span>
+            <span class="chip">Middleware</span>
+            <span class="chip">CQRS controllers</span>
+            <span class="chip">OpenAPI and Bruno</span>
+            <span class="chip">Source snapshot: 25 August 2026</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>On this page</strong>
+        <a href="#overview">Overview</a>
+        <a href="#topology">Current topology</a>
+        <a href="#lifecycle">Request lifecycle</a>
+        <a href="#entry-points">Entry points</a>
+        <a href="#routing">Routing and modules</a>
+        <a href="#middleware">Middleware and security</a>
+        <a href="#controllers">Controller pattern</a>
+        <a href="#inputs">Inputs and headers</a>
+        <a href="#cqrs">CQRS dispatch</a>
+        <a href="#responses">Responses and errors</a>
+        <a href="#configuration">Configuration and cache</a>
+        <a href="#openapi">OpenAPI</a>
+        <a href="#testing">Tests and Bruno</a>
+        <a href="#add-endpoint">Add an endpoint</a>
+        <a href="#new-api">Add another API</a>
+        <a href="#constraints">Current constraints</a>
+        <a href="#commands">Commands</a>
+        <a href="#source-map">Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>A Use Case API is an HTTP adapter under <code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code>. It owns transport concerns. It does not own domain rules or persistence.</p>
+            <div class="grid three">
+                <article class="card purple">
+                    <span class="tag">Select</span>
+                    <h3>Choose the API</h3>
+                    <p>A dedicated front controller or <code>X-Source-Id</code> selects the use-case directory and configuration slug.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">Translate</span>
+                    <h3>Adapt HTTP input</h3>
+                    <p>Routes and actions turn headers, paths, queries, and JSON into commands or queries.</p>
+                </article>
+                <article class="card cyan">
+                    <span class="tag cyan">Return</span>
+                    <h3>Shape HTTP output</h3>
+                    <p>Actions convert read models and domain errors into status codes, JSON, headers, or empty responses.</p>
+                </article>
+            </div>
+            <div class="callout info">
+                <strong>Current reference</strong>
+                The repository contains one consumer API: <code>ExampleApi</code>. Do not assume that another API exists before you scaffold it.
+            </div>
+        </section>
+
+        <section id="topology">
+            <h2>Current topology</h2>
+            <div class="code-wrap"><pre><code>public/
+├── index.php                         # Shared API selector and bootstrap
+└── example-api/
+    ├── index.php                     # Dedicated ExampleApi front controller
+    └── docs/                         # Generated OpenAPI file and viewer
+
+src/Backendbase/Infrastructure/UseCase/ExampleApi/
+├── middleware.php                    # API-specific middleware
+├── routes.php                        # Root, modules, and fallback routes
+└── Controllers/
+    ├── ModuleRoutes.php              # Module registry
+    ├── Root/                          # Health, authentication, not found
+    └── Example/
+        ├── ModuleConfig.php           # Six example routes
+        ├── ExampleRequestInput.php    # Boundary validation helpers
+        └── Handlers/                  # HTTP actions
+
+config/example-api/                    # API settings
+resources/api-docs/example-api/        # OpenAPI source
+resources/bruno/example-api/           # End-to-end requests
+tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
+            <p>The PHP namespace uses <code>ExampleApi</code>. Public, configuration, specification, cache, and Bruno paths use the <code>example-api</code> slug.</p>
+        </section>
+
+        <section id="lifecycle">
+            <h2>Request lifecycle</h2>
+            <p>The shared bootstrap builds the runtime. The selected API supplies only its middleware and routes.</p>
+            <figure class="diagram">
+                <svg viewBox="0 0 1120 560" role="img" aria-label="Use Case API request lifecycle">
+                    <title>Use Case API request lifecycle</title>
+                    <desc>A request selects ExampleApi, loads configuration and the dependency container, passes through Slim middleware and routing, invokes an action, dispatches CQRS, and returns through error handling and the response emitter.</desc>
+                    <defs>
+                        <marker id="api-arrow-purple" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#9f8bea"/></marker>
+                        <marker id="api-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#6ca6ed"/></marker>
+                    </defs>
+
+                    <rect x="30" y="68" width="160" height="82" rx="13" fill="#252040" stroke="#9f8bea"/>
+                    <text x="110" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">HTTP request</text>
+                    <text x="110" y="126" text-anchor="middle" fill="#d8d0f5" font-size="12">path · headers · body</text>
+
+                    <rect x="238" y="68" width="160" height="82" rx="13" fill="#1c304a" stroke="#6ca6ed"/>
+                    <text x="318" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">API selection</text>
+                    <text x="318" y="126" text-anchor="middle" fill="#cadcf2" font-size="12">front controller or source ID</text>
+
+                    <rect x="446" y="68" width="200" height="82" rx="13" fill="#19363b" stroke="#69c7cf"/>
+                    <text x="546" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Shared bootstrap</text>
+                    <text x="546" y="126" text-anchor="middle" fill="#c8e8eb" font-size="12">config · container · Slim app</text>
+
+                    <rect x="694" y="68" width="176" height="82" rx="13" fill="#252040" stroke="#9f8bea"/>
+                    <text x="782" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Middleware</text>
+                    <text x="782" y="126" text-anchor="middle" fill="#d8d0f5" font-size="12">errors · routing · body · API</text>
+
+                    <rect x="918" y="68" width="170" height="82" rx="13" fill="#1c304a" stroke="#6ca6ed"/>
+                    <text x="1003" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Route action</text>
+                    <text x="1003" y="126" text-anchor="middle" fill="#cadcf2" font-size="12">sanitize · validate</text>
+
+                    <rect x="792" y="232" width="190" height="82" rx="13" fill="#253724" stroke="#6fc494"/>
+                    <text x="887" y="264" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Command / query bus</text>
+                    <text x="887" y="290" text-anchor="middle" fill="#d2eadb" font-size="12">bounded context contract</text>
+
+                    <rect x="532" y="232" width="190" height="82" rx="13" fill="#3b2f1c" stroke="#d0a553"/>
+                    <text x="627" y="264" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Handler and ports</text>
+                    <text x="627" y="290" text-anchor="middle" fill="#f1dfb8" font-size="12">domain · read/write adapter</text>
+
+                    <rect x="284" y="232" width="176" height="82" rx="13" fill="#1c304a" stroke="#6ca6ed"/>
+                    <text x="372" y="264" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">HTTP response</text>
+                    <text x="372" y="290" text-anchor="middle" fill="#cadcf2" font-size="12">JSON · 204 · problem</text>
+
+                    <rect x="58" y="232" width="176" height="82" rx="13" fill="#19363b" stroke="#69c7cf"/>
+                    <text x="146" y="264" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Response emitter</text>
+                    <text x="146" y="290" text-anchor="middle" fill="#c8e8eb" font-size="12">CORS · no-cache · output</text>
+
+                    <rect x="190" y="396" width="740" height="92" rx="16" fill="#171f31" stroke="#59657d"/>
+                    <text x="560" y="428" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Error path</text>
+                    <text x="560" y="456" text-anchor="middle" fill="#c8cede" font-size="13">Action catches ProblemDetailsException · HttpErrorHandler catches Slim and unexpected errors</text>
+
+                    <line x1="190" y1="109" x2="236" y2="109" stroke="#9f8bea" stroke-width="2" marker-end="url(#api-arrow-purple)"/>
+                    <line x1="398" y1="109" x2="444" y2="109" stroke="#6ca6ed" stroke-width="2" marker-end="url(#api-arrow-blue)"/>
+                    <line x1="646" y1="109" x2="692" y2="109" stroke="#9f8bea" stroke-width="2" marker-end="url(#api-arrow-purple)"/>
+                    <line x1="870" y1="109" x2="916" y2="109" stroke="#6ca6ed" stroke-width="2" marker-end="url(#api-arrow-blue)"/>
+                    <path d="M1003 150 V190 H887 V230" fill="none" stroke="#9f8bea" stroke-width="2" marker-end="url(#api-arrow-purple)"/>
+                    <line x1="792" y1="273" x2="724" y2="273" stroke="#6ca6ed" stroke-width="2" marker-end="url(#api-arrow-blue)"/>
+                    <line x1="532" y1="273" x2="462" y2="273" stroke="#9f8bea" stroke-width="2" marker-end="url(#api-arrow-purple)"/>
+                    <line x1="284" y1="273" x2="236" y2="273" stroke="#6ca6ed" stroke-width="2" marker-end="url(#api-arrow-blue)"/>
+                    <path d="M1003 150 V442 H932" fill="none" stroke="#d0a553" stroke-width="2" marker-end="url(#api-arrow-purple)"/>
+                    <path d="M190 442 H146 V316" fill="none" stroke="#69c7cf" stroke-width="2" marker-end="url(#api-arrow-blue)"/>
+                </svg>
+                <figcaption>Figure 1. API code adapts transport data. The bounded context performs the use case.</figcaption>
+            </figure>
+        </section>
+
+        <section id="entry-points">
+            <h2>Entry points and bootstrap</h2>
+            <div class="grid two">
+                <article class="card purple">
+                    <span class="tag">Dedicated</span>
+                    <h3><code>public/example-api/index.php</code></h3>
+                    <p>Sets <code>$useCaseName = 'ExampleApi'</code> and <code>$useCaseSlug = 'example-api'</code>, then includes the shared bootstrap.</p>
+                    <p>Development base URL: <code>http://127.0.0.1:8080/example-api</code>.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">Shared selector</span>
+                    <h3><code>public/index.php</code></h3>
+                    <p>Reads <code>X-Source-Id</code>. The current mapping is <code>example → ExampleApi / example-api</code>.</p>
+                    <p>A missing or unknown source ID ends bootstrap before Slim starts.</p>
+                </article>
+            </div>
+
+            <div class="process" aria-label="Shared bootstrap flow">
+                <div class="step"><span class="step-number">01</span><strong>Select API</strong><br><span class="muted">Resolve name, slug, web root, and cache root.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Merge config</strong><br><span class="muted">Load <code>config/autoload/*</code> and API config.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Build container</strong><br><span class="muted">Register shared and context dependencies.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>Create Slim</strong><br><span class="muted">Apply cache, middleware, and routes.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Handle request</strong><br><span class="muted">Create PSR-7 request and emit response.</span></div>
+            </div>
+            <p>The bootstrap changes the current working directory to the project root. This supports relative configuration, provider discovery, and cache paths.</p>
+        </section>
+
+        <section id="routing">
+            <h2>Routing and modules</h2>
+            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> currently registers one module at <code>/example-types</code>.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Method</th><th>Path</th><th>Action</th><th>Bearer middleware</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>Root</code></td><td>No</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>Authenticate</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups</code></td><td><code>ExampleGroups</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>Examples</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>ExampleDetails</code></td><td>No</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>NewExample</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>ChangeExampleDetails</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>RemoveExample</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method any">ANY</span></td><td><code>/{routes:.*}</code></td><td><code>NotFound</code></td><td>No</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p><code>ModuleConfig::ROUTE_KEY</code> defines the prefix. <code>ModuleRoutes</code> must import and register every new module explicitly.</p>
+            <div class="callout">
+                <strong>Default authorization rule for new routes</strong>
+                Put each new endpoint in an <code>AuthorizationMiddleware</code> group unless the request clearly defines a public endpoint.
+            </div>
+        </section>
+
+        <section id="middleware">
+            <h2>Middleware and security</h2>
+            <div class="grid three">
+                <article class="card cyan">
+                    <span class="tag cyan">API metadata</span>
+                    <h3>Request attributes</h3>
+                    <p>The API middleware sets <code>apiName</code>, <code>apiKeyHeaderName</code>, and <code>useIdentifierAsApiKey</code>.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">Client IP</span>
+                    <h3>Proxy header scan</h3>
+                    <p><code>IpAddress</code> stores the resolved address in the <code>ClientIp</code> request attribute.</p>
+                </article>
+                <article class="card purple">
+                    <span class="tag">Bearer token</span>
+                    <h3>Protected route group</h3>
+                    <p>The authorization middleware validates a Redis-backed JSON Web Token and adds user, timezone, and access-control attributes.</p>
+                </article>
+            </div>
+            <p>The shared bootstrap also adds body parsing, routing, error middleware, a shutdown handler, and the response emitter.</p>
+            <div class="callout danger">
+                <strong>API-key validation is disabled</strong>
+                <code>ValidateApiKey::class</code> is commented out in <code>ExampleApi/middleware.php</code>. Configuration, OpenAPI, and Bruno still describe or send <code>Backendbase-Api-Key</code>, but runtime does not validate it.
+            </div>
+            <p>Protected routes expect <code>Authorization: Bearer &lt;accessToken&gt;</code>. Missing or invalid bearer data currently returns status <code>400</code>.</p>
+        </section>
+
+        <section id="controllers">
+            <h2>Controller pattern</h2>
+            <p>Each handler extends <code>Backendbase\Shared\Http\Actions\Action</code>. The base class stores the PSR-7 request, response, and route arguments before it calls <code>action()</code>.</p>
+            <div class="code-wrap"><pre><code>final class ExampleAction extends Action
+{
+    public function __construct(
+        private readonly QueryBus $queryBus,
+        protected LoggerInterface $logger,
+        protected Translator|null $translator,
+    ) {
+        parent::__construct($logger, $translator);
+    }
+
+    protected function action(): Response
+    {
+        $type = ExampleRequestInput::type(
+            $this-&gt;request-&gt;getAttribute('typeSlug'),
+        );
+        $params = PayloadSanitizer::sanitize(
+            $this-&gt;request-&gt;getQueryParams(),
+        );
+
+        $result = $this-&gt;queryBus-&gt;handle(new ExampleQuery($type));
+
+        return new JsonResponse(['data' =&gt; $result], 200);
+    }
+}</code></pre></div>
+            <div class="grid two">
+                <article class="card purple">
+                    <h3>Controller responsibilities</h3>
+                    <ul>
+                        <li>Read path, query, header, and parsed-body data.</li>
+                        <li>Sanitize and validate untrusted input.</li>
+                        <li>Create a command or query.</li>
+                        <li>Map a read model to the response schema.</li>
+                        <li>Select the HTTP status and response headers.</li>
+                    </ul>
+                </article>
+                <article class="card blue">
+                    <h3>Do not put here</h3>
+                    <ul>
+                        <li>SQL or Doctrine repository calls.</li>
+                        <li>Aggregate state changes.</li>
+                        <li>Outbox or queue publishing.</li>
+                        <li>Reusable business decisions.</li>
+                        <li>Database transaction control.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section id="inputs">
+            <h2>Inputs and headers</h2>
+            <p>Every new OpenAPI operation must reference these shared request headers.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Header</th><th>Specification</th><th>Current runtime use</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>Accept-Language</code></td><td>Required</td><td>Used by shared translation configuration through server state. The API middleware does not reject absence.</td></tr>
+                    <tr><td><code>The-Timezone-IANA</code></td><td>Required</td><td>Protected routes create <code>clientTimezone</code>. Absence defaults to <code>UTC</code>.</td></tr>
+                    <tr><td><code>X-Request-Id</code></td><td>Required</td><td>The logger uses it as <code>trace_id</code>. The logger generates a UUID when absent.</td></tr>
+                    <tr><td><code>X-Source-Id</code></td><td>Required</td><td>The shared front controller uses it to select <code>ExampleApi</code>. The dedicated front controller already selects the API.</td></tr>
+                    <tr><td><code>X-User-Id</code></td><td>Optional and nullable</td><td>No current ExampleApi controller reads it.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Current boundary validation</h3>
+            <p><code>ExampleRequestInput</code> validates the example type and positive integers. Invalid data raises <code>InvalidUserInput</code> before bus dispatch.</p>
+            <ul>
+                <li><code>typeSlug</code> must map to an <code>ExampleType</code>.</li>
+                <li><code>typeTargetId</code> accepts null, an empty string, or a positive integer.</li>
+                <li><code>pageSize</code> and <code>page</code> default to <code>1000</code> and <code>1</code>.</li>
+                <li><code>PayloadSanitizer</code> processes query and parsed-body arrays before use.</li>
+            </ul>
+            <div class="callout">
+                <strong>Validate all new fields at the boundary</strong>
+                The current helper covers only selected fields. Do not rely on PHP casts as complete request validation.
+            </div>
+        </section>
+
+        <section id="cqrs">
+            <h2>CQRS dispatch</h2>
+            <div class="grid two">
+                <article class="card blue">
+                    <span class="tag blue">Read</span>
+                    <h3>Query action</h3>
+                    <ol>
+                        <li>Validate path and query data.</li>
+                        <li>Create a typed query contract.</li>
+                        <li>Call <code>QueryBus::handle()</code>.</li>
+                        <li>Map the read model to response JSON.</li>
+                        <li>Return status <code>200</code>.</li>
+                    </ol>
+                </article>
+                <article class="card purple">
+                    <span class="tag">Write</span>
+                    <h3>Command action</h3>
+                    <ol>
+                        <li>Validate path and JSON data.</li>
+                        <li>Create or resolve the resource identifier.</li>
+                        <li>Create a typed command contract.</li>
+                        <li>Call <code>CommandBus::handle()</code>.</li>
+                        <li>Return status <code>204</code>.</li>
+                    </ol>
+                </article>
+            </div>
+            <p><code>ChangeExampleDetails</code> and <code>RemoveExample</code> first query for the internal example UUID. They return a resource-not-found problem without dispatching the command when the query returns null.</p>
+            <div class="related">
+                <a href="2-cqrs.html">CQRS guide</a>
+                <a href="1-bounded-contexts.html">Bounded contexts guide</a>
+                <a href="3-integration-events.html">Integration events guide</a>
+            </div>
+        </section>
+
+        <section id="responses">
+            <h2>Responses and errors</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Case</th><th>Response</th><th>Owner</th></tr></thead>
+                    <tbody>
+                    <tr><td>API metadata</td><td><code>200</code> JSON with API name, version, build, and timestamp.</td><td><code>Root</code></td></tr>
+                    <tr><td>Liveness</td><td><code>200</code> JSON with <code>status: alive</code>.</td><td><code>Liveness</code></td></tr>
+                    <tr><td>Readiness</td><td><code>200</code> or <code>503</code> JSON with dependency status values.</td><td><code>Readiness</code></td></tr>
+                    <tr><td>Authentication token</td><td><code>201</code> JSON with <code>accessToken</code>.</td><td><code>Authenticate</code></td></tr>
+                    <tr><td>Read success</td><td><code>200</code> JSON projection.</td><td>Read actions</td></tr>
+                    <tr><td>Write success</td><td><code>204</code> empty response. Create also returns <code>Backendbase-Insert-Id</code>.</td><td>Write actions</td></tr>
+                    <tr><td>Invalid input</td><td><code>400</code> problem payload with <code>general/invalid-user-input</code>.</td><td><code>Action</code></td></tr>
+                    <tr><td>Missing example</td><td><code>404</code> problem payload with <code>general/resource-not-found</code>.</td><td><code>Action</code></td></tr>
+                    <tr><td>Unknown route</td><td><code>404</code> JSON. An <code>OPTIONS</code> fallback returns <code>204</code>.</td><td><code>NotFound</code></td></tr>
+                    <tr><td>Slim or unexpected error</td><td><code>application/problem+json</code>. Details depend on environment settings.</td><td><code>HttpErrorHandler</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The final <code>ResponseEmitter</code> adds CORS headers, allowed methods, and no-cache headers before output.</p>
+        </section>
+
+        <section id="configuration">
+            <h2>Configuration and cache</h2>
+            <p>The bootstrap merges shared configuration and API-specific configuration. Production can compile the dependency container and cache routes.</p>
+            <div class="grid two">
+                <article class="card purple">
+                    <h3><code>config/example-api/global.php</code></h3>
+                    <ul>
+                        <li>API version <code>1.0.0</code></li>
+                        <li><code>EXAMPLE_API_KEY</code></li>
+                        <li>Route cache: <code>var/cache/example-api/routes.php</code></li>
+                    </ul>
+                </article>
+                <article class="card blue">
+                    <h3><code>config/example-api/jwt.global.php</code></h3>
+                    <ul>
+                        <li>Alias, issuer, and audience</li>
+                        <li><code>BACKENDBASE_JWT_SIGN_KEY</code></li>
+                        <li>Token duration <code>PT24H</code></li>
+                    </ul>
+                </article>
+                <article class="card cyan">
+                    <h3><code>http-headers.global.php</code></h3>
+                    <ul>
+                        <li>Allowed CORS origins</li>
+                        <li>Allowed request headers</li>
+                    </ul>
+                </article>
+                <article class="card purple">
+                    <h3>Shared settings</h3>
+                    <ul>
+                        <li>Environment and error visibility</li>
+                        <li><code>BASE_PATH</code> and <code>CDN_BASE_URL</code></li>
+                        <li>Logger, database, Redis, queue, and object-store settings</li>
+                    </ul>
+                </article>
+            </div>
+            <p>When no cached merged configuration exists, the bootstrap loads <code>.env</code>. It then selects development or production behavior from <code>BACKENDBASE_ENV</code>.</p>
+        </section>
+
+        <section id="openapi">
+            <h2>OpenAPI documentation</h2>
+            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components and three Example module path files.</p>
+            <div class="process" aria-label="OpenAPI generation flow">
+                <div class="step"><span class="step-number">01</span><strong>Edit operation</strong><br><span class="muted">Change the module YAML and shared references.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference all five shared request headers.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Align security</strong><br><span class="muted">Match public or bearer-protected routing.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>Generate</strong><br><span class="muted">Inline references into the public YAML file.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Review viewer</strong><br><span class="muted">Check schemas, examples, and status codes.</span></div>
+            </div>
+            <div class="code-wrap"><pre><code>composer run generate-example-api-spec</code></pre></div>
+            <p>The command writes <code>public/example-api/docs/example-api-merged.yml</code>. The documentation page loads that file with Stoplight Elements from jsDelivr.</p>
+            <div class="callout">
+                <strong>Keep source and generated output separate</strong>
+                Edit files under <code>resources/api-docs</code>. Regenerate the public merged file after each public contract change.
+            </div>
+        </section>
+
+        <section id="testing">
+            <h2>Tests and Bruno</h2>
+            <div class="grid two">
+                <article class="card blue">
+                    <span class="tag blue">PHPUnit</span>
+                    <h3>HTTP adapter tests</h3>
+                    <ul>
+                        <li>Input validation stops bus dispatch.</li>
+                        <li>Missing resources stop command dispatch.</li>
+                        <li>Read actions map projections.</li>
+                        <li>Write actions create correct commands.</li>
+                        <li>Module routing has six module and nine total routes.</li>
+                        <li>Root, authentication, and fallback responses are stable.</li>
+                    </ul>
+                </article>
+                <article class="card purple">
+                    <span class="tag">Bruno</span>
+                    <h3>End-to-end collection</h3>
+                    <p>Six YAML requests cover add, change, delete, details, groups, and list behavior.</p>
+                    <p>The local environment points to <code>http://127.0.0.1:8080/example-api</code>.</p>
+                </article>
+            </div>
+            <div class="code-wrap"><pre><code>vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi
+bin/bruno example-api local</code></pre></div>
+            <p>Run PHPUnit without external services when possible. Bruno requires the API and its configured dependencies to be running.</p>
+        </section>
+
+        <section id="add-endpoint">
+            <h2>Add an endpoint</h2>
+            <ol>
+                <li>Define the OpenAPI path, operation, headers, security, input schema, response schema, and errors.</li>
+                <li>Add or reuse a bounded-context command or query contract.</li>
+                <li>Add domain behavior, ports, adapters, and handlers before the HTTP controller.</li>
+                <li>Create an <code>Action</code> under the affected API module.</li>
+                <li>Sanitize and validate all untrusted input before bus dispatch.</li>
+                <li>Add the route to <code>ModuleConfig</code>.</li>
+                <li>Group the route with <code>AuthorizationMiddleware</code> by default.</li>
+                <li>Add focused controller and routing tests.</li>
+                <li>Regenerate the OpenAPI file.</li>
+                <li>Add or update the Bruno request when end-to-end coverage is required.</li>
+            </ol>
+            <ul class="checklist">
+                <li>Request names use camelCase.</li>
+                <li>URL path parameters use kebab-case conventions.</li>
+                <li>Response attributes use camelCase.</li>
+                <li>Success and error statuses match OpenAPI.</li>
+                <li>The controller does not access Doctrine.</li>
+                <li>Invalid input never reaches a bus.</li>
+                <li>Not-found writes never dispatch a command.</li>
+                <li>All affected consumer APIs are updated.</li>
+            </ul>
+        </section>
+
+        <section id="new-api">
+            <h2>Add another Use Case API</h2>
+            <p>Scaffold a separate API before you add its controllers. Use <code>ExampleApi</code> as the reference for all required roots.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Concern</th><th>Required location</th></tr></thead>
+                    <tbody>
+                    <tr><td>Runtime adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code></td></tr>
+                    <tr><td>Dedicated entry point</td><td><code>public/{api-slug}/index.php</code></td></tr>
+                    <tr><td>API selection</td><td>Add source ID, class name, and slug to <code>public/index.php</code>.</td></tr>
+                    <tr><td>Configuration</td><td><code>config/{api-slug}</code></td></tr>
+                    <tr><td>OpenAPI source</td><td><code>resources/api-docs/{api-slug}</code></td></tr>
+                    <tr><td>Generated docs</td><td><code>public/{api-slug}/docs</code></td></tr>
+                    <tr><td>End-to-end collection</td><td><code>resources/bruno/{api-slug}</code></td></tr>
+                    <tr><td>Adapter tests</td><td><code>tests/Infrastructure/UseCase/{ApiName}</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Do not add a controller under a non-existent API name. Confirm the intended API surface before scaffolding a new one.</p>
+        </section>
+
+        <section id="constraints">
+            <h2>Current constraints and specification gaps</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Current behavior</th><th>Impact</th></tr></thead>
+                    <tbody>
+                    <tr><td>API-key validation is commented out.</td><td>The API key is configured and documented but not enforced by ExampleApi middleware.</td></tr>
+                    <tr><td>The CORS allow-header list omits <code>Accept-Language</code> and <code>X-User-Id</code>.</td><td>Browser preflight can reject requests that send these documented headers.</td></tr>
+                    <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
+                    <tr><td>Bearer failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>
+                    <tr><td><code>Authenticate</code> uses fixed example user data and ignores the submitted password.</td><td>The route is a placeholder implementation, not production credential authentication.</td></tr>
+                    <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
+                    <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
+                    <tr><td>Group pagination metadata is accepted without slicing the group list.</td><td>The response reports page values, while the current query returns the repository list.</td></tr>
+                    <tr><td>OpenAPI output is generated.</td><td>A source YAML change has no public effect until the merged file is regenerated.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="commands">
+            <h2>Useful commands</h2>
+            <div class="code-wrap"><pre><code># Start all public API front controllers
+composer run start-apis
+
+# Generate the public ExampleApi specification
+composer run generate-example-api-spec
+
+# Run the focused HTTP adapter suite
+vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi
+
+# Run the local Bruno collection after the API is ready
+bin/bruno example-api local
+
+# Run static analysis for PHP changes
+composer phpstan</code></pre></div>
+        </section>
+
+        <section id="source-map">
+            <h2>Source map</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Purpose</th><th>Source</th></tr></thead>
+                    <tbody>
+                    <tr><td>Shared bootstrap and API selector</td><td><code>public/index.php</code></td></tr>
+                    <tr><td>Dedicated front controller</td><td><code>public/example-api/index.php</code></td></tr>
+                    <tr><td>API routes</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php</code></td></tr>
+                    <tr><td>API middleware</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php</code></td></tr>
+                    <tr><td>Module registry</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php</code></td></tr>
+                    <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example</code></td></tr>
+                    <tr><td>Shared action base</td><td><code>src/Backendbase/Shared/Http/Actions/Action.php</code></td></tr>
+                    <tr><td>Authorization middleware</td><td><code>src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php</code></td></tr>
+                    <tr><td>Error handler</td><td><code>src/Backendbase/Shared/Http/Handlers/HttpErrorHandler.php</code></td></tr>
+                    <tr><td>Response emitter</td><td><code>src/Backendbase/Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
+                    <tr><td>API configuration</td><td><code>config/example-api</code></td></tr>
+                    <tr><td>OpenAPI source</td><td><code>resources/api-docs/example-api</code></td></tr>
+                    <tr><td>Generated specification and viewer</td><td><code>public/example-api/docs</code></td></tr>
+                    <tr><td>Bruno collection</td><td><code>resources/bruno/example-api</code></td></tr>
+                    <tr><td>HTTP adapter suite</td><td><code>tests/Infrastructure/UseCase/ExampleApi</code></td></tr>
+                    <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    Generated from the Backendbase Core source tree. Update this guide when API selection, middleware, routing, controller conventions, or public contracts change.
+</footer>
+
+<script>
+    document.querySelectorAll('.code-wrap').forEach((wrapper) => {
+        const pre = wrapper.querySelector('pre');
+        if (!pre) {
+            return;
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code');
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(pre.innerText);
+                button.textContent = 'Copied';
+                window.setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+            } catch (_error) {
+                button.textContent = 'Select text';
+            }
+        });
+        wrapper.appendChild(button);
+    });
+</script>
+</body>
+</html>

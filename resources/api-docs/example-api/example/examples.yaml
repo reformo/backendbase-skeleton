@@ -1,0 +1,158 @@
+post:
+  tags:
+    - Example
+  operationId: addNewExample
+  description: Add new example
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+    - $ref: '../../common/components.yaml#/headers/X-User-Id'
+
+    - in: path
+      name: typeSlug
+      description: Type slug
+      required: true
+      schema:
+        type: string
+        enum: [ 'system', 'user', 'expert', 'admin' ]
+    - in: path
+      name: exampleGroup
+      description: Example group
+      required: true
+      schema:
+        type: string
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            typeTargetId:
+              type: integer
+              format: int64
+              nullable: true
+              description: "null if type is 'system'"
+              default: null
+            lookupKey:
+              type: string
+              nullable: true
+              format: <ulid> or string
+              description: unique key. use lowercase ulid values
+              example: "01hkj62kff4ndb51nxy8sasy8w"
+            lookupValue:
+              type: string
+            details:
+              type: object
+              example:
+                title:
+                  en: "English title"
+                  tr: "Turkish Title"
+                auditLog:
+                  userId: 12
+                  logDate: "2024-01-01T13:45:00"
+
+            isActive:
+              type: boolean
+              example: true
+
+  responses:
+    204:
+      $ref: '../../common/components.yaml#/schemas/204'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: [ ]
+      bearerAuth: [ ]
+
+get:
+  tags:
+    - Example
+  operationId: getExamplesByGroup
+  description: Get examples by group
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+    - $ref: '../../common/components.yaml#/headers/X-User-Id'
+
+    - in: path
+      name: typeSlug
+      description: Type slug
+      required: true
+      schema:
+        type: string
+        enum: [ 'system', 'user', 'expert', 'admin' ]
+    - in: path
+      name: exampleGroup
+      description: Example group
+      required: true
+      schema:
+        type: string
+    - in: query
+      name: typeTargetId
+      description: Type target id. If type is system, this is null.
+      schema:
+        type: integer
+        format: int64
+        nullable: true
+  responses:
+    200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              pageSize:
+                type: integer
+              page:
+                type: integer
+              total:
+                type: integer
+              examples:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    uuid:
+                      type: string
+                      format: uuid
+                    type:
+                      type: string
+                      enum: [ 'system', 'user', 'expert', 'admin' ]
+                      format: kebab-case
+                    exampleGroup:
+                      type: string
+                      format: kebab-case
+                    typeTargetId:
+                      type: integer
+                      format: int64
+                      nullable: true
+                      description: "null if type is 'system'"
+                    lookupKey:
+                      type: string
+                      format: <ulid> or string
+                      example: "01hkj62kff4ndb51nxy8sasy8w"
+                    lookupValue:
+                      type: string
+                    isActive:
+                      type: boolean
+                      example: true
+                    details:
+                      type: object
+
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: [ ]

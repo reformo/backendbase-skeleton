@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase Notifications Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · External effects</p><h1>Notifications</h1>
+<p class="lede">Email, push, and SMS models; provider dispatch; SNS and Firebase adapters; queue consumption; idempotency; failure policy; configuration; and current provider gaps.</p>
+<div class="chips"><span class="chip">Email</span><span class="chip">Push</span><span class="chip">SMS</span><span class="chip">SNS</span><span class="chip">Firebase</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#flow">2. Delivery flow</a><a href="#models">3. Notification models</a><a href="#stack">4. Provider stack</a>
+<a href="#sms">5. SMS with SNS</a><a href="#push">6. Push with Firebase</a><a href="#email">7. Email state</a><a href="#queue">8. Queue consumer</a>
+<a href="#idempotency">9. Idempotency</a><a href="#configuration">10. Configuration</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Notification models are independent from providers</h2>
+<p>Shared notification primitives describe the delivery request. Infrastructure adapters translate those models to one provider. <code>StackNotifier</code> selects a provider by notification type.</p>
+<div class="grid-3"><article class="card"><h3>Email</h3><p>Addresses, sender, subject, HTML, template data, and attachments.</p></article><article class="card"><h3>Push</h3><p>Title, body, topic, device token, image, and string-compatible data.</p></article><article class="card"><h3>SMS</h3><p>E.164 phone number and non-empty message.</p></article></div>
+</section>
+<section id="flow"><p class="section-label">02 · Delivery flow</p><h2>Queue delivery uses an external-effect inbox</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Message</strong><small>contains notification body</small></li><li><strong>Consumer</strong><small>validates metadata</small></li><li><strong>Primitive</strong><small>builds typed work</small></li><li><strong>Inbox</strong><small>claims external effect</small></li><li><strong>Provider</strong><small>sends notification</small></li><li><strong>Outcome</strong><small>ack, retry, or reject</small></li></ol></div>
+</section>
+<section id="models"><p class="section-label">03 · Notification models</p><h2>Validate data before provider calls</h2>
+<div class="table-wrap"><table><thead><tr><th>Model</th><th>Validation or behavior</th></tr></thead><tbody>
+<tr><td><code>Address</code></td><td>Trims and validates an email address. An optional name becomes null when empty.</td></tr>
+<tr><td><code>Attachment</code></td><td>Requires content and filename. Supports Base64, string, or file input.</td></tr>
+<tr><td><code>EmailNotification</code></td><td>Collects addresses, sender, content, templates, and attachments.</td></tr>
+<tr><td><code>PushNotification</code></td><td>Supports topic or device token, notification data, and image metadata.</td></tr>
+<tr><td><code>SmsNotification</code></td><td>Requires E.164 phone format and a non-empty message.</td></tr>
+<tr><td><code>StackNotification</code></td><td>Groups multiple typed notifications for dispatch.</td></tr>
+</tbody></table></div>
+</section>
+<section id="stack"><p class="section-label">04 · Provider stack</p><h2>Select providers by stable type names</h2>
+<p>Providers implement <code>Notify</code> and return their type. <code>StackNotifier</code> stores one provider per type and dispatches each notification in order.</p>
+<div class="callout danger">A missing provider raises <code>UnexpectedValueException</code>. Register every type that a producer or queue consumer can create.</div>
+</section>
+<section id="sms"><p class="section-label">05 · SMS with SNS</p><h2>SNS sends transactional or promotional SMS</h2>
+<p><code>SnsNotifier</code> accepts only <code>SmsNotification</code>. It publishes the phone number, message, SMS type, and optional sender identifier through <code>SnsClient</code>.</p>
+<ul><li><code>AWS_SNS_SMS_TYPE</code> must be <code>Promotional</code> or <code>Transactional</code>.</li><li><code>AWS_SNS_SENDER_ID</code> is optional.</li><li>The destination uses E.164 format.</li></ul>
+</section>
+<section id="push"><p class="section-label">06 · Push with Firebase</p><h2>Firebase maps one push model into CloudMessage</h2>
+<p><code>FirebasePushNotifier</code> maps notification text, topic, token, data, Android options, Apple Push Notification Service options, and optional CDN-based images.</p>
+<div class="callout warning"><strong>Registration state:</strong> The adapter exists, but the inspected dependency container does not register it in <code>StackNotifier</code>.</div>
+</section>
+<section id="email"><p class="section-label">07 · Email state</p><h2>Email has a model but no registered provider</h2>
+<p><code>EmailNotification</code> supports direct HTML, templates, recipients, sender data, and attachments. The repository has environment placeholders for SendGrid and Pusher, but no inspected email notifier adapter is registered.</p>
+<div class="callout danger"><strong>Runtime mismatch:</strong> <code>NotificationMessageProcessor</code> always builds an email notification. The container registers only <code>SnsNotifier</code>, which accepts SMS.</div>
+</section>
+<section id="queue"><p class="section-label">08 · Queue consumer</p><h2>Classify failures before acknowledging the message</h2>
+<div class="table-wrap"><table><thead><tr><th>Failure</th><th>Outcome</th></tr></thead><tbody>
+<tr><td>Already in progress</td><td>Retry</td></tr><tr><td>External outcome unknown</td><td>Permanent failure policy</td></tr>
+<tr><td>Invalid JSON or value</td><td>Reject when metadata is missing; otherwise permanent failure</td></tr>
+<tr><td>Other provider or transport error</td><td>Transient failure policy</td></tr><tr><td>Success</td><td>Acknowledge and clear failure state</td></tr>
+</tbody></table></div>
+<div class="related"><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
+</section>
+<section id="idempotency"><p class="section-label">09 · Idempotency</p><h2>External delivery needs explicit outcome state</h2>
+<p><code>ExternalEffectInbox::processOnce()</code> prevents concurrent or repeated provider calls. It distinguishes success, in-progress work, and unknown external outcome.</p>
+<div class="callout warning">A provider can accept a request before the process records success. Treat an unknown outcome as a manual or permanent-failure case, not an automatic duplicate send.</div>
+</section>
+<section id="configuration"><p class="section-label">10 · Configuration</p><h2>Provider configuration belongs at the external boundary</h2>
+<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Configuration</th></tr></thead><tbody>
+<tr><td>SNS</td><td>AWS region, credentials or provider chain, endpoint, SMS type, sender ID</td></tr>
+<tr><td>Firebase</td><td>Firebase Messaging client and optional CDN base URL</td></tr>
+<tr><td>Email</td><td>Placeholders exist, but no active adapter contract is wired</td></tr>
+</tbody></table></div>
+<div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
+</section>
+<section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known notification limits</h2>
+<ul><li>The notification queue produces email work without an email provider.</li><li>Firebase adapter registration is absent.</li><li>Email properties use mutable fields that can remain uninitialized.</li>
+<li>The Firebase adapter debug message contains a spelling error.</li><li>Provider payload logging can include notification content.</li><li>No end-to-end notification provider test exists.</li></ul>
+</section>
+<section id="tests"><p class="section-label">12 · Tests</p><h2>Test primitives, mapping, provider calls, and outcomes</h2>
+<pre><code>vendor/bin/phpunit tests/Shared/Primitives/Notification
+vendor/bin/phpunit tests/Infrastructure/Adapters/Notification
+vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProcessorTest.php</code></pre>
+<p>Use deterministic provider doubles. Do not send real email, push, or SMS in automated tests.</p>
+</section>
+<section id="checklist"><p class="section-label">13 · Checklist</p><h2>Add a notification type safely</h2>
+<ul><li>The model validates required external data.</li><li>The provider has one stable type name.</li><li>The container registers the provider.</li><li>Secrets stay in configuration.</li>
+<li>The queue model maps without data loss.</li><li>Idempotency and unknown outcomes are handled.</li><li>Logs exclude sensitive content.</li><li>Failure-policy tests pass.</li></ul>
+</section>
+<section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Models</td><td><code>Shared/Primitives/Notification</code></td></tr><tr><td>Provider port</td><td><code>Shared/Integrations/Notify.php</code></td></tr>
+<tr><td>Provider selection</td><td><code>Infrastructure/Adapters/Notification/StackNotifier.php</code></td></tr><tr><td>SMS</td><td><code>SnsNotifier.php</code></td></tr>
+<tr><td>Push</td><td><code>FirebasePushNotifier.php</code></td></tr><tr><td>Queue consumer</td><td><code>Queue/NotificationMessageProcessor.php</code></td></tr>
+<tr><td>Container wiring</td><td><code>config/dependencies.php</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · Notifications guide</footer></body></html>

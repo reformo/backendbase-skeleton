@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase Bounded Context Guide</title>
+    <style>
+        :root {
+            --page: #f4f7f7;
+            --surface: #ffffff;
+            --surface-soft: #f7faf9;
+            --ink: #152322;
+            --muted: #5c6d6a;
+            --line: #d9e4e1;
+            --green: #0d7a67;
+            --green-soft: #e4f7f2;
+            --blue: #225eaa;
+            --blue-soft: #ebf3ff;
+            --violet: #6d4bb8;
+            --violet-soft: #f1edff;
+            --amber: #986000;
+            --amber-soft: #fff4d6;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --code: #101b1c;
+            --code-ink: #eaf4f2;
+            --shadow: 0 16px 42px rgba(24, 51, 47, 0.09);
+            --radius: 16px;
+            --max: 1180px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0c1517;
+                --surface: #142023;
+                --surface-soft: #17262a;
+                --ink: #eef7f5;
+                --muted: #afc0bc;
+                --line: #2d4140;
+                --green: #62d4bd;
+                --green-soft: #173b35;
+                --blue: #89b8f4;
+                --blue-soft: #172d49;
+                --violet: #c0a8f5;
+                --violet-soft: #30254b;
+                --amber: #f2c76e;
+                --amber-soft: #413719;
+                --red: #ff9a92;
+                --red-soft: #482321;
+                --code: #081012;
+                --code-ink: #e7f2f0;
+                --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--blue); }
+
+        code, pre {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        code {
+            padding: 0.12rem 0.35rem;
+            border-radius: 5px;
+            background: var(--blue-soft);
+            color: var(--ink);
+            font-size: 0.9em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: #102a28;
+            color: #fff;
+            border-bottom: 4px solid #0d7a67;
+        }
+
+        .hero::after {
+            position: absolute;
+            inset: 0 0 0 55%;
+            content: "";
+            background: linear-gradient(135deg, rgba(21, 122, 103, 0.12), rgba(34, 94, 170, 0.5));
+            clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 62px 0 58px;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: #a9e1d6;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 { line-height: 1.16; }
+
+        h1 {
+            max-width: 900px;
+            margin: 0;
+            font-size: clamp(2.5rem, 6vw, 5.4rem);
+            letter-spacing: -0.055em;
+        }
+
+        .lede {
+            max-width: 840px;
+            margin: 20px 0 0;
+            color: #dcebea;
+            font-size: clamp(1.04rem, 2vw, 1.3rem);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,0.23);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 36px;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 36px 0 80px;
+        }
+
+        nav {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        nav strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            display: block;
+            padding: 4px 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        nav a:hover, nav a:focus { color: var(--green); }
+
+        main { min-width: 0; }
+
+        section {
+            scroll-margin-top: 24px;
+            margin-bottom: 58px;
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: clamp(1.8rem, 4vw, 2.7rem);
+            letter-spacing: -0.035em;
+        }
+
+        h3 {
+            margin: 0 0 10px;
+            font-size: 1.12rem;
+        }
+
+        p { margin: 0 0 15px; }
+
+        .muted { color: var(--muted); }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .card {
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .card.green { border-top: 4px solid var(--green); }
+        .card.blue { border-top: 4px solid var(--blue); }
+        .card.violet { border-top: 4px solid var(--violet); }
+
+        .tag {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--green-soft);
+            color: var(--green);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .tag.blue { background: var(--blue-soft); color: var(--blue); }
+        .tag.violet { background: var(--violet-soft); color: var(--violet); }
+
+        .callout {
+            margin: 18px 0;
+            padding: 16px 18px;
+            border-left: 4px solid var(--amber);
+            border-radius: 8px;
+            background: var(--amber-soft);
+        }
+
+        .callout.danger {
+            border-color: var(--red);
+            background: var(--red-soft);
+        }
+
+        .callout strong { display: block; margin-bottom: 4px; }
+
+        .diagram {
+            margin: 20px 0;
+            padding: 16px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .diagram svg {
+            display: block;
+            min-width: 820px;
+            width: 100%;
+            height: auto;
+        }
+
+        figcaption {
+            margin: 12px 4px 2px;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .layer-stack {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .layer {
+            display: grid;
+            grid-template-columns: 160px minmax(0, 1fr);
+            gap: 16px;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        .layer b { color: var(--green); }
+
+        .process {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .step {
+            position: relative;
+            min-height: 118px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        .step:not(:last-child)::after {
+            position: absolute;
+            top: 47%;
+            right: -16px;
+            content: "→";
+            color: var(--green);
+            font-weight: 900;
+        }
+
+        .step-number {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--green);
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 0.77rem;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+
+        .table-wrap { overflow-x: auto; }
+
+        .code-wrap {
+            position: relative;
+            margin: 16px 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            border: 1px solid #26393b;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.87rem;
+            line-height: 1.55;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+
+        .copy {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 10px;
+            border: 1px solid #496062;
+            border-radius: 7px;
+            background: #1d3032;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.75rem;
+        }
+
+        ul, ol { padding-left: 1.25rem; }
+        li { margin: 0.38rem 0; }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 22px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .checklist li {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .checklist li::before {
+            position: absolute;
+            left: 0;
+            content: "✓";
+            color: var(--green);
+            font-weight: 900;
+        }
+
+        .related {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .related a {
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface);
+            text-decoration: none;
+        }
+
+        footer {
+            padding: 32px 20px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; }
+            .process { grid-template-columns: 1fr 1fr; }
+            .step:not(:last-child)::after { display: none; }
+        }
+
+        @media (max-width: 680px) {
+            .hero-inner, .layout { width: min(calc(100% - 24px), var(--max)); }
+            .hero-inner { padding: 42px 0; }
+            .grid.two, .grid.three, .checklist { grid-template-columns: 1fr; }
+            .process { grid-template-columns: 1fr; }
+            .layer { grid-template-columns: 1fr; gap: 4px; }
+            th, td { min-width: 150px; }
+        }
+
+        @media print {
+            .hero { background: #fff; color: #000; border-bottom: 2px solid #000; }
+            .hero::after, nav, .copy { display: none; }
+            .lede, .eyebrow { color: #222; }
+            .layout { display: block; width: 100%; padding: 20px; }
+            .card, .diagram, table { box-shadow: none; }
+            section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Architecture Guide</p>
+        <h1>Bounded Contexts</h1>
+        <p class="lede">Keep one business model, its use cases, contracts, adapters, registration, and module tests in one movable unit.</p>
+        <div class="chips" aria-label="Guide topics">
+            <span class="chip">Module boundary</span>
+            <span class="chip">Ports and adapters</span>
+            <span class="chip">Automatic discovery</span>
+            <span class="chip">Context communication</span>
+            <span class="chip">Source snapshot: 25 August 2026</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>On this page</strong>
+        <a href="#overview">Overview</a>
+        <a href="#current-map">Current context map</a>
+        <a href="#boundary">Boundary model</a>
+        <a href="#anatomy">Module anatomy</a>
+        <a href="#dependencies">Dependency rules</a>
+        <a href="#registration">Registration</a>
+        <a href="#write-path">Write path</a>
+        <a href="#read-path">Read path</a>
+        <a href="#persistence">Persistence adapters</a>
+        <a href="#communication">Context communication</a>
+        <a href="#http">HTTP boundary</a>
+        <a href="#testing">Testing</a>
+        <a href="#new-context">Add a context</a>
+        <a href="#constraints">Current constraints</a>
+        <a href="#checklist">Review checklist</a>
+        <a href="#source-map">Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>A bounded context gives one business model a clear language and ownership boundary. Backendbase represents that boundary as a module under <code>src/Backendbase/Domain/{ContextName}</code>.</p>
+            <div class="grid three">
+                <article class="card green">
+                    <span class="tag">Own</span>
+                    <h3>Business meaning</h3>
+                    <p>Keep aggregates, domain rules, contracts, read models, and event schemas with the context that defines them.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">Expose</span>
+                    <h3>Stable contracts</h3>
+                    <p>HTTP adapters and shared runtime services enter through commands, queries, ports, and event contracts.</p>
+                </article>
+                <article class="card violet">
+                    <span class="tag violet">Compose</span>
+                    <h3>Runtime wiring</h3>
+                    <p>A context <code>ServiceProvider</code> binds its ports and registers its integration event subscribers.</p>
+                </article>
+            </div>
+            <div class="callout">
+                <strong>Reference implementation</strong>
+                Use <code>ExampleBoundedContext</code> as the current pattern. The repository guide explicitly excludes the empty <code>Content</code> directory as a reference.
+            </div>
+        </section>
+
+        <section id="current-map">
+            <h2>Current context map</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr><th>Directory</th><th>Current role</th><th>Automatic context registration</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><code>ExampleBoundedContext</code></td>
+                        <td>Complete reference module with domain, contracts, handlers, persistence adapters, events, tests, and a service provider.</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><code>IdentityAndAccess</code></td>
+                        <td>Authentication and authorization components. The main configuration and API modules reference these components directly.</td>
+                        <td>No <code>ServiceProvider.php</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>Content</code></td>
+                        <td>Empty placeholder.</td>
+                        <td>No</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="muted">A directory under <code>Domain</code> is not automatically a complete registered context. Runtime discovery requires the expected service provider file.</p>
+        </section>
+
+        <section id="boundary">
+            <h2>Boundary model</h2>
+            <p>The consumer adapter stays outside the context. It sends a contract inward. The application layer selects domain behavior and a port. The adapter implements that port.</p>
+            <figure class="diagram">
+                <svg viewBox="0 0 1040 540" role="img" aria-label="Bounded context dependency and request flow">
+                    <title>Bounded context dependency and request flow</title>
+                    <desc>An HTTP adapter sends contracts into a bounded context. Application handlers use domain behavior and ports. Persistence adapters implement the ports. Shared services support all layers without importing the context.</desc>
+                    <defs>
+                        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                            <path d="M0,0 L8,4 L0,8 Z" fill="#3fb99f"/>
+                        </marker>
+                        <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                            <path d="M0,0 L8,4 L0,8 Z" fill="#6ca5ed"/>
+                        </marker>
+                    </defs>
+                    <rect x="218" y="34" width="790" height="418" rx="24" fill="#142326" stroke="#3fb99f" stroke-width="2"/>
+                    <text x="250" y="72" fill="#78d6c3" font-size="18" font-weight="700">EXAMPLE BOUNDED CONTEXT</text>
+
+                    <rect x="24" y="178" width="150" height="92" rx="13" fill="#1d3048" stroke="#6ca5ed"/>
+                    <text x="99" y="213" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">HTTP adapter</text>
+                    <text x="99" y="240" text-anchor="middle" fill="#c7d8ef" font-size="12">sanitize · dispatch</text>
+
+                    <rect x="260" y="104" width="190" height="90" rx="13" fill="#203a38" stroke="#3fb99f"/>
+                    <text x="355" y="139" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Contracts</text>
+                    <text x="355" y="166" text-anchor="middle" fill="#c5e8e1" font-size="12">commands · queries · ports</text>
+
+                    <rect x="520" y="104" width="190" height="90" rx="13" fill="#292341" stroke="#a48ae2"/>
+                    <text x="615" y="139" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Application</text>
+                    <text x="615" y="166" text-anchor="middle" fill="#ded4f5" font-size="12">handlers · orchestration</text>
+
+                    <rect x="780" y="104" width="190" height="90" rx="13" fill="#3b2f19" stroke="#d0a64d"/>
+                    <text x="875" y="139" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Domain</text>
+                    <text x="875" y="166" text-anchor="middle" fill="#f2ddb1" font-size="12">aggregate · rules · enum</text>
+
+                    <rect x="520" y="260" width="190" height="90" rx="13" fill="#1d3048" stroke="#6ca5ed"/>
+                    <text x="615" y="295" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Ports</text>
+                    <text x="615" y="322" text-anchor="middle" fill="#c7d8ef" font-size="12">read and write interfaces</text>
+
+                    <rect x="780" y="260" width="190" height="90" rx="13" fill="#203a38" stroke="#3fb99f"/>
+                    <text x="875" y="295" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Adapters</text>
+                    <text x="875" y="322" text-anchor="middle" fill="#c5e8e1" font-size="12">Doctrine · memory</text>
+
+                    <rect x="392" y="386" width="430" height="44" rx="11" fill="#222f31" stroke="#637a79"/>
+                    <text x="607" y="414" text-anchor="middle" fill="#e9f3f1" font-size="14" font-weight="700">ServiceProvider composes ports and subscribers</text>
+
+                    <rect x="250" y="476" width="710" height="42" rx="11" fill="#0f1b1d" stroke="#637a79"/>
+                    <text x="605" y="502" text-anchor="middle" fill="#c5d4d1" font-size="14">Shared CQRS, persistence, event, HTTP, and primitive services</text>
+
+                    <line x1="174" y1="224" x2="258" y2="159" stroke="#6ca5ed" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                    <line x1="450" y1="149" x2="518" y2="149" stroke="#3fb99f" stroke-width="2" marker-end="url(#arrow-green)"/>
+                    <line x1="710" y1="149" x2="778" y2="149" stroke="#3fb99f" stroke-width="2" marker-end="url(#arrow-green)"/>
+                    <line x1="615" y1="194" x2="615" y2="258" stroke="#6ca5ed" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                    <line x1="710" y1="305" x2="778" y2="305" stroke="#3fb99f" stroke-width="2" marker-end="url(#arrow-green)"/>
+                    <line x1="875" y1="260" x2="875" y2="196" stroke="#3fb99f" stroke-width="2" marker-end="url(#arrow-green)"/>
+                </svg>
+                <figcaption>Figure 1. The context owns its model and ports. Outer adapters depend on those contracts.</figcaption>
+            </figure>
+            <div class="callout">
+                <strong>Enforced platform boundary</strong>
+                <code>SharedDependencyBoundaryTest</code> prevents <code>Shared</code> from importing <code>Domain</code> or <code>Infrastructure</code>. This keeps the shared runtime below application modules.
+            </div>
+        </section>
+
+        <section id="anatomy">
+            <h2>Module anatomy</h2>
+            <p>A complete module keeps these parts under one context root. Create only the folders that the context needs.</p>
+            <div class="code-wrap"><pre><code>src/Backendbase/Domain/ExampleBoundedContext/
+├── Domain/                       # Aggregates, value objects, enums, rules
+├── Contracts/
+│   ├── Command/                  # State-change inputs
+│   ├── Query/                    # Read inputs
+│   ├── ReadModel/                # Query results
+│   ├── DomainEvents/             # In-process domain notifications
+│   ├── IntegrationEvents/        # Producer event contracts and versions
+│   └── ExternalIntegrationEvents/# Versioned incoming message carriers
+├── Application/
+│   ├── CommandHandlers/          # Write orchestration
+│   ├── QueryHandlers/            # Read orchestration
+│   ├── DomainEventListener/
+│   ├── IntegrationEventSubscribers/
+│   └── ExternalIntegrationEventSubscribers/
+├── Adapters/Persistence/
+│   ├── Doctrine/                 # Production read/write adapters
+│   └── Memory/                   # Fast test adapters
+├── Tests/                        # Module-local tests
+└── ServiceProvider.php           # Context composition root</code></pre></div>
+
+            <div class="layer-stack">
+                <div class="layer"><b>Domain</b><span>Own business state and invariants. Do not put SQL, HTTP, or container calls here.</span></div>
+                <div class="layer"><b>Contracts</b><span>Define the context entry points, repository ports, event schemas, and read results.</span></div>
+                <div class="layer"><b>Application</b><span>Coordinate one use case. Call aggregate behavior and context ports.</span></div>
+                <div class="layer"><b>Adapters</b><span>Translate between context contracts and technologies such as Doctrine DBAL or ORM.</span></div>
+                <div class="layer"><b>Service provider</b><span>Select production adapters and publish subscriber metadata to the platform.</span></div>
+                <div class="layer"><b>Tests</b><span>Verify the module in isolation. Keep module-local tests with the module.</span></div>
+            </div>
+        </section>
+
+        <section id="dependencies">
+            <h2>Dependency rules</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Area</th><th>Can depend on</th><th>Must avoid</th></tr></thead>
+                    <tbody>
+                    <tr><td>Domain</td><td>Its own domain types and selected <code>Shared</code> primitives or helpers.</td><td>HTTP, Doctrine, the container, application handlers, and infrastructure adapters.</td></tr>
+                    <tr><td>Contracts</td><td>Domain types, shared CQRS interfaces, shared event interfaces, and stable value objects.</td><td>Doctrine records, HTTP request objects, and concrete persistence adapters.</td></tr>
+                    <tr><td>Application</td><td>Context contracts, domain objects, and shared ports.</td><td>SQL in handlers, direct queue publishing, and HTTP response construction.</td></tr>
+                    <tr><td>Adapters</td><td>Context ports and domain types. Technology libraries are allowed here.</td><td>Creation, change, or removal business rules.</td></tr>
+                    <tr><td>HTTP use case</td><td>Context commands, queries, read models, and shared buses.</td><td>Doctrine adapters and direct aggregate persistence.</td></tr>
+                    <tr><td>Shared</td><td>Technology-neutral shared contracts and runtime services.</td><td>Any <code>Backendbase\Domain\</code> or <code>Backendbase\Infrastructure\</code> import.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout">
+                <strong>Current routing exception</strong>
+                Command and query contracts use <code>#[CQRSHandler(HandlerClass::class)]</code>. The contract therefore names its application handler for bus routing.
+            </div>
+            <p class="muted">The repository currently enforces only the <code>Shared</code> boundary with an architecture test. It does not automatically reject cross-context imports or all layer violations.</p>
+        </section>
+
+        <section id="registration">
+            <h2>Automatic registration</h2>
+            <p>The main dependency configuration discovers direct child context providers at boot.</p>
+            <div class="process" aria-label="Context registration flow">
+                <div class="step"><span class="step-number">01 · SCAN</span><strong>Find providers</strong><br><span class="muted"><code>Domain/*/ServiceProvider.php</code></span></div>
+                <div class="step"><span class="step-number">02 · LOAD</span><strong>Build class name</strong><br><span class="muted">Convert the file path to a fully qualified class name.</span></div>
+                <div class="step"><span class="step-number">03 · BIND</span><strong>Read definitions</strong><br><span class="muted">Autowire each interface to its implementation.</span></div>
+                <div class="step"><span class="step-number">04 · SUBSCRIBE</span><strong>Read event metadata</strong><br><span class="muted">Register internal and external subscribers.</span></div>
+                <div class="step"><span class="step-number">05 · MAP</span><strong>Find entities</strong><br><span class="muted">Add context Doctrine entity directories.</span></div>
+            </div>
+
+            <div class="grid two">
+                <article class="card green">
+                    <h3>Port definitions</h3>
+                    <div class="code-wrap"><pre><code>public static function getDefinitions(): iterable
+{
+    return [
+        ExampleReadRepository::class
+            =&gt; DoctrineExampleReadRepository::class,
+        ExampleWriteRepository::class
+            =&gt; DoctrineExampleWriteRepository::class,
+    ];
+}</code></pre></div>
+                </article>
+                <article class="card blue">
+                    <h3>Subscriber metadata</h3>
+                    <div class="code-wrap"><pre><code>public static function getIntegrationEventSubscribers(): iterable
+{
+    return [[
+        'events' =&gt; Subscriber::getSubscribedEvents(),
+        'subscriberFQCN' =&gt; Subscriber::class,
+        'messageFQCN' =&gt; MessageV1::class,
+        'eventVersion' =&gt; Event::EVENT_VERSION,
+    ]];
+}</code></pre></div>
+                </article>
+            </div>
+            <p>No Composer mapping change is required for a normal context. The existing <code>Backendbase\</code> PSR-4 mapping covers every context directory.</p>
+        </section>
+
+        <section id="write-path">
+            <h2>Write path</h2>
+            <p>The reference write path puts behavior on the aggregate and persistence behind a write port.</p>
+            <div class="process" aria-label="Bounded context write flow">
+                <div class="step"><span class="step-number">01</span><strong>HTTP action</strong><br><span class="muted">Validate input and create a command.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Command bus</strong><br><span class="muted">Resolve the handler from its attribute.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Handler</strong><br><span class="muted">Load or create the aggregate.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>Aggregate</strong><br><span class="muted">Apply the business operation.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Write port</strong><br><span class="muted">Map and persist through Doctrine.</span></div>
+            </div>
+            <p><code>AddNewExampleHandler</code>, <code>ChangeExampleHandler</code>, and <code>RemoveExampleHandler</code> wrap the mutation and outbox event with <code>IntegrationEventTransaction</code>.</p>
+            <div class="callout danger">
+                <strong>Do not bypass the context</strong>
+                An HTTP action must not update a Doctrine record directly. A persistence adapter must not decide how an aggregate changes.
+            </div>
+        </section>
+
+        <section id="read-path">
+            <h2>Read path</h2>
+            <p>The read path does not reconstitute an aggregate. It builds a projection through a read port.</p>
+            <div class="process" aria-label="Bounded context read flow">
+                <div class="step"><span class="step-number">01</span><strong>HTTP action</strong><br><span class="muted">Validate input and create a query.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Query bus</strong><br><span class="muted">Resolve the query handler.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Handler</strong><br><span class="muted">Call the context read port.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>DBAL adapter</strong><br><span class="muted">Run plain SQL for the use case.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Read model</strong><br><span class="muted">Return typed response data.</span></div>
+            </div>
+            <p>The example read adapter returns <code>ExampleDetails</code>, <code>ExamplePage</code>, identifiers, and group lists. It filters removed records in SQL.</p>
+        </section>
+
+        <section id="persistence">
+            <h2>Persistence adapters</h2>
+            <div class="grid two">
+                <article class="card blue">
+                    <span class="tag blue">Read side</span>
+                    <h3>Doctrine DBAL and SQL</h3>
+                    <ul>
+                        <li>Accept query contracts through <code>ExampleReadRepository</code>.</li>
+                        <li>Use use-case-specific SQL.</li>
+                        <li>Map rows with <code>ExampleReadModelMapper</code>.</li>
+                        <li>Return context read models, not Doctrine records.</li>
+                    </ul>
+                </article>
+                <article class="card green">
+                    <span class="tag">Write side</span>
+                    <h3>Doctrine ORM and records</h3>
+                    <ul>
+                        <li>Accept aggregates through <code>ExampleWriteRepository</code>.</li>
+                        <li>Map with <code>ExampleRecord::fromDomain()</code> and <code>toDomain()</code>.</li>
+                        <li>Synchronize storage state after domain behavior runs.</li>
+                        <li>Throw a context-safe error when an active record is absent.</li>
+                    </ul>
+                </article>
+            </div>
+            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>ExampleStore</code> for isolated tests.</p>
+            <div class="callout">
+                <strong>Doctrine discovery</strong>
+                <code>PathFinder::doctrineEntityPaths()</code> discovers <code>Domain/*/Adapters/Persistence/Doctrine/Entity</code> and one additional nested module depth.
+            </div>
+        </section>
+
+        <section id="communication">
+            <h2>Context communication</h2>
+            <p>The reference module demonstrates asynchronous communication through integration event contracts.</p>
+            <div class="grid three">
+                <article class="card green">
+                    <h3>Domain event</h3>
+                    <p>Use an in-process event for behavior that belongs to the same business operation and service.</p>
+                </article>
+                <article class="card blue">
+                    <h3>Producer integration event</h3>
+                    <p>Store a versioned event with the database change. Let the outbox relay publish it.</p>
+                </article>
+                <article class="card violet">
+                    <h3>External event carrier</h3>
+                    <p>Map an incoming producer event to a versioned message class before an external subscriber handles it.</p>
+                </article>
+            </div>
+            <p>Place internal subscribers under <code>Application/IntegrationEventSubscribers</code>. Place external subscribers under <code>Application/ExternalIntegrationEventSubscribers/{SourceService}</code>.</p>
+            <div class="callout danger">
+                <strong>No synchronous cross-context pattern is demonstrated</strong>
+                The source tree does not provide a reference gateway for direct synchronous context calls. Avoid importing another context's application or adapter internals.
+            </div>
+            <p>See the related guides for delivery, versioning, retry, inbox, and outbox details.</p>
+            <div class="related">
+                <a href="3-integration-events.html">Integration events guide</a>
+                <a href="4-messaging-and-queues.html">Messaging and queues guide</a>
+                <a href="2-cqrs.html">CQRS guide</a>
+            </div>
+        </section>
+
+        <section id="http">
+            <h2>HTTP boundary</h2>
+            <p>The HTTP adapter belongs under <code>Infrastructure/UseCase</code>, not inside the bounded context. This adapter translates transport data into context contracts.</p>
+            <div class="grid two">
+                <article class="card green">
+                    <h3>The adapter can</h3>
+                    <ul>
+                        <li>Read PSR-7 request data.</li>
+                        <li>Sanitize and validate external input.</li>
+                        <li>Create a command or query.</li>
+                        <li>Dispatch a bus and shape an HTTP response.</li>
+                    </ul>
+                </article>
+                <article class="card blue">
+                    <h3>The context owns</h3>
+                    <ul>
+                        <li>Business language and invariants.</li>
+                        <li>Use-case orchestration.</li>
+                        <li>Repository ports and read models.</li>
+                        <li>Domain and integration event contracts.</li>
+                    </ul>
+                </article>
+            </div>
+            <p><code>ExampleApi</code> is the only current consumer API. Its controllers import context contracts and domain enums, then use the shared command and query buses.</p>
+        </section>
+
+        <section id="testing">
+            <h2>Testing strategy</h2>
+            <div class="grid two">
+                <article class="card green">
+                    <h3>Module-local tests</h3>
+                    <p>Keep tests that belong to the module under the module <code>Tests/</code> directory. These tests move with the context.</p>
+                    <div class="code-wrap"><pre><code>vendor/bin/phpunit \
+  src/Backendbase/Domain/ExampleBoundedContext/Tests</code></pre></div>
+                </article>
+                <article class="card blue">
+                    <h3>Platform and integration tests</h3>
+                    <p>Keep architecture, shared, infrastructure, Doctrine adapter, and API-level tests under root <code>tests/</code>.</p>
+                    <div class="code-wrap"><pre><code>vendor/bin/phpunit \
+  tests/Domain/ExampleBoundedContext \
+  tests/Functional/ExampleLifecycleTest.php \
+  tests/Architecture/SharedDependencyBoundaryTest.php</code></pre></div>
+                </article>
+            </div>
+            <ul>
+                <li>Use memory adapters for fast use-case and lifecycle tests.</li>
+                <li>Use Doctrine <code>SchemaTool</code> and production metadata for ORM repository schemas.</li>
+                <li>Test command and query contracts as public entry points.</li>
+                <li>Test aggregate rules without transport or persistence dependencies.</li>
+                <li>Test event schemas when other services can consume them.</li>
+            </ul>
+        </section>
+
+        <section id="new-context">
+            <h2>Add a bounded context</h2>
+            <ol>
+                <li>Choose one clear business capability and a PascalCase context name.</li>
+                <li>Create <code>src/Backendbase/Domain/{ContextName}</code>.</li>
+                <li>Define aggregates, value objects, enums, and business rules under <code>Domain</code>.</li>
+                <li>Define commands, queries, ports, read models, and event contracts under <code>Contracts</code>.</li>
+                <li>Add handlers that orchestrate one use case each.</li>
+                <li>Add Doctrine and memory adapters only for required ports.</li>
+                <li>Add <code>ServiceProvider.php</code> and implement <code>Backendbase\Shared\ServiceProvider</code>.</li>
+                <li>Register port bindings and all event subscriber metadata.</li>
+                <li>Add module-local tests and required platform tests.</li>
+                <li>Verify container boot, Doctrine metadata, the CQRS paths, and event registration.</li>
+            </ol>
+            <div class="callout">
+                <strong>Database boundary</strong>
+                Create or change only the database structure that the user explicitly requests. Generate a Doctrine migration after repository behavior is final.
+            </div>
+        </section>
+
+        <section id="constraints">
+            <h2>Current constraints and important behavior</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Constraint</th><th>Effect</th></tr></thead>
+                    <tbody>
+                    <tr><td>Provider location is exact.</td><td>Automatic discovery scans only <code>src/Backendbase/Domain/*/ServiceProvider.php</code>.</td></tr>
+                    <tr><td>Discovery uses relative paths.</td><td>Boot expects the project root as the current working directory.</td></tr>
+                    <tr><td>Glob order is not sorted.</td><td>Duplicate definition keys are overwritten during iteration. Do not let contexts claim the same port.</td></tr>
+                    <tr><td>Provider data is trusted.</td><td>A wrong class name or malformed subscriber entry can fail container construction or event registration.</td></tr>
+                    <tr><td>Architecture enforcement is narrow.</td><td>The automated boundary test protects <code>Shared</code>. It does not enforce every context layer rule.</td></tr>
+                    <tr><td>Identity and access wiring is direct.</td><td><code>IdentityAndAccess</code> components are referenced from main configuration and API code, not a context provider.</td></tr>
+                    <tr><td>One context is the full example.</td><td>New contexts must use <code>ExampleBoundedContext</code>, not empty or partial directories, as the implementation reference.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="checklist">
+            <h2>Review checklist</h2>
+            <ul class="checklist">
+                <li>The context owns one clear business language.</li>
+                <li>Business rules are in domain objects.</li>
+                <li>Commands and queries have positional handler attributes.</li>
+                <li>Handlers use ports, not concrete Doctrine adapters.</li>
+                <li>Read SQL stays in a read adapter.</li>
+                <li>Write mapping stays in a write adapter.</li>
+                <li>The service provider binds each context port.</li>
+                <li>Every integration subscriber is registered.</li>
+                <li>External event carriers are versioned.</li>
+                <li>HTTP validation occurs before bus dispatch.</li>
+                <li>Module-local tests stay with the module.</li>
+                <li>Architecture and functional tests pass.</li>
+                <li>No context imports another context's adapters.</li>
+                <li>Database changes match the exact request.</li>
+            </ul>
+        </section>
+
+        <section id="source-map">
+            <h2>Source map</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Purpose</th><th>Source</th></tr></thead>
+                    <tbody>
+                    <tr><td>Reference context</td><td><code>src/Backendbase/Domain/ExampleBoundedContext</code></td></tr>
+                    <tr><td>Context provider</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php</code></td></tr>
+                    <tr><td>Provider contract</td><td><code>src/Backendbase/Shared/ServiceProvider.php</code></td></tr>
+                    <tr><td>Provider discovery and bus wiring</td><td><code>config/dependencies.php</code></td></tr>
+                    <tr><td>Doctrine entity discovery</td><td><code>src/Backendbase/Shared/Helpers/PathFinder.php</code></td></tr>
+                    <tr><td>Domain aggregate</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Domain/Example.php</code></td></tr>
+                    <tr><td>Read and write ports</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Example*Repository.php</code></td></tr>
+                    <tr><td>Doctrine adapters</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine</code></td></tr>
+                    <tr><td>Memory adapters</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory</code></td></tr>
+                    <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
+                    <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Tests</code></td></tr>
+                    <tr><td>Context and adapter suites</td><td><code>tests/Domain/ExampleBoundedContext</code></td></tr>
+                    <tr><td>Architecture boundary</td><td><code>tests/Architecture/SharedDependencyBoundaryTest.php</code></td></tr>
+                    <tr><td>Project architecture rules</td><td><code>resources/docs/project.md</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    Generated from the Backendbase Core source tree. Update this guide when context discovery, module structure, or dependency rules change.
+</footer>
+
+<script>
+    document.querySelectorAll('.code-wrap').forEach((wrapper) => {
+        const pre = wrapper.querySelector('pre');
+        if (!pre) {
+            return;
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code');
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(pre.innerText);
+                button.textContent = 'Copied';
+                window.setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+            } catch (_error) {
+                button.textContent = 'Select text';
+            }
+        });
+        wrapper.appendChild(button);
+    });
+</script>
+</body>
+</html>

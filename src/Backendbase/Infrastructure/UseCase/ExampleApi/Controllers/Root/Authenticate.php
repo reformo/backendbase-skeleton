@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
+
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
+use Backendbase\Shared\Http\Actions\Action;
+use Backendbase\Shared\Services\Translator;
+use Backendbase\Utility\Arrays\PayloadSanitizer;
+use Laminas\Diactoros\Response\JsonResponse;
+use Override;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Log\LoggerInterface;
+
+class Authenticate extends Action
+{
+    public function __construct(
+        private readonly Jwt $jwt,
+        LoggerInterface $logger,
+        Translator|null $translator = null,
+    ) {
+        parent::__construct($logger, $translator);
+    }
+
+    #[Override]
+    protected function action(): Response
+    {
+        $payload = PayloadSanitizer::sanitize($this->request->getParsedBody());
+
+        $userId      = '019ee8a6-903a-75cf-b9a4-e19d6d0db533';
+        $userData    = [
+            'id' => 1,
+            'uuid' => $userId,
+            'email' => $payload['email'],
+            'firstName' => 'Jane',
+            'familyName' => 'Doe',
+        ];
+        $accessToken = $this->jwt->issueNewToken('userId', $userId, $userData);
+
+        return new JsonResponse(['accessToken' => $accessToken], 201);
+    }
+}

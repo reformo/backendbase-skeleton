@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase General Project Guide</title>
+    <style>
+        :root {
+            --page: #f4f5f2;
+            --surface: #ffffff;
+            --surface-soft: #f8f9f6;
+            --ink: #1e2926;
+            --muted: #66736f;
+            --line: #dce2de;
+            --navy: #18333d;
+            --green: #1f7a58;
+            --green-soft: #e8f5ee;
+            --blue: #1e68a2;
+            --blue-soft: #eaf3fa;
+            --orange: #ad5b12;
+            --orange-soft: #fff1df;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --purple: #6850a8;
+            --purple-soft: #f1edfb;
+            --code: #102027;
+            --code-ink: #eaf1ee;
+            --shadow: 0 18px 45px rgba(35, 54, 48, 0.09);
+            --radius: 16px;
+            --max: 1200px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0d1413;
+                --surface: #17211f;
+                --surface-soft: #1b2724;
+                --ink: #eef4f1;
+                --muted: #b3c0bb;
+                --line: #32413c;
+                --navy: #d9e9e4;
+                --green: #78d5aa;
+                --green-soft: #19392c;
+                --blue: #8bc0e8;
+                --blue-soft: #193247;
+                --orange: #efb473;
+                --orange-soft: #44301d;
+                --red: #ff9d96;
+                --red-soft: #492522;
+                --purple: #c0a9ec;
+                --purple-soft: #332947;
+                --code: #081210;
+                --code-ink: #edf4f1;
+                --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+            }
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--blue); }
+        code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+        code {
+            padding: 0.12rem 0.35rem;
+            border-radius: 5px;
+            background: var(--blue-soft);
+            color: var(--ink);
+            font-size: 0.9em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #45b781;
+            background: #132a31;
+            color: #fff;
+        }
+
+        .hero::before {
+            position: absolute;
+            top: -150px;
+            right: -40px;
+            width: 600px;
+            height: 600px;
+            border: 100px solid rgba(69, 183, 129, 0.14);
+            border-radius: 50%;
+            content: "";
+        }
+
+        .hero::after {
+            position: absolute;
+            inset: 0 0 0 60%;
+            background: linear-gradient(145deg, rgba(30, 104, 162, 0.10), rgba(69, 183, 129, 0.40));
+            clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+            content: "";
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 62px 0 58px;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: #96e9c2;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 { line-height: 1.16; }
+
+        h1 {
+            max-width: 920px;
+            margin: 0;
+            font-size: clamp(2.6rem, 6vw, 5.35rem);
+            letter-spacing: -0.055em;
+        }
+
+        .lede {
+            max-width: 860px;
+            margin: 20px 0 0;
+            color: #dfe9e5;
+            font-size: clamp(1.04rem, 2vw, 1.3rem);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.09);
+            font-size: 0.84rem;
+            font-weight: 750;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 255px minmax(0, 1fr);
+            gap: 36px;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 36px 0 80px;
+        }
+
+        nav {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        nav strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            display: block;
+            padding: 4px 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.35;
+            text-decoration: none;
+        }
+
+        nav a:hover { color: var(--green); }
+        main { min-width: 0; }
+
+        section {
+            margin-bottom: 28px;
+            padding: clamp(22px, 4vw, 38px);
+            scroll-margin-top: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        section > :first-child { margin-top: 0; }
+        section > :last-child { margin-bottom: 0; }
+
+        h2 {
+            margin: 0 0 18px;
+            color: var(--navy);
+            font-size: clamp(1.55rem, 3vw, 2.25rem);
+            letter-spacing: -0.025em;
+        }
+
+        h3 {
+            margin: 28px 0 10px;
+            font-size: 1.08rem;
+        }
+
+        p { margin: 10px 0; }
+        ul, ol { padding-left: 1.3rem; }
+        li + li { margin-top: 6px; }
+
+        .section-label {
+            margin-bottom: 8px;
+            color: var(--green);
+            font-size: 0.72rem;
+            font-weight: 850;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .summary-grid,
+        .card-grid,
+        .two-col,
+        .three-col {
+            display: grid;
+            gap: 16px;
+        }
+
+        .summary-grid { grid-template-columns: repeat(4, 1fr); }
+        .card-grid, .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .stat,
+        .card,
+        .guide-card {
+            min-width: 0;
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: var(--surface-soft);
+        }
+
+        .stat strong {
+            display: block;
+            color: var(--green);
+            font-size: 2.05rem;
+            line-height: 1;
+        }
+
+        .stat span {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .card h3, .guide-card h3 { margin-top: 0; }
+        .card p:last-child, .card ul:last-child, .guide-card p:last-child { margin-bottom: 0; }
+
+        .guide-card a {
+            color: var(--navy);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .guide-card a:hover { color: var(--green); }
+
+        .callout {
+            margin: 18px 0;
+            padding: 15px 17px;
+            border-left: 4px solid var(--blue);
+            border-radius: 0 10px 10px 0;
+            background: var(--blue-soft);
+        }
+
+        .callout.warning {
+            border-left-color: var(--orange);
+            background: var(--orange-soft);
+        }
+
+        .callout.danger {
+            border-left-color: var(--red);
+            background: var(--red-soft);
+        }
+
+        .callout.good {
+            border-left-color: var(--green);
+            background: var(--green-soft);
+        }
+
+        .table-wrap,
+        .diagram-wrap {
+            margin: 18px 0;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+            background: var(--surface);
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 0.73rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+
+        .badge {
+            display: inline-block;
+            margin: 2px 3px 2px 0;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: var(--green-soft);
+            color: var(--green);
+            font-size: 0.74rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge.blue { background: var(--blue-soft); color: var(--blue); }
+        .badge.orange { background: var(--orange-soft); color: var(--orange); }
+        .badge.purple { background: var(--purple-soft); color: var(--purple); }
+
+        pre {
+            margin: 16px 0;
+            padding: 19px 20px;
+            overflow-x: auto;
+            border: 1px solid #263b36;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.84rem;
+            line-height: 1.65;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            font-size: inherit;
+            overflow-wrap: normal;
+        }
+
+        .diagram {
+            display: block;
+            min-width: 780px;
+            width: 100%;
+            height: auto;
+            background: var(--surface-soft);
+        }
+
+        .flow-list {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(105px, 1fr));
+            min-width: 780px;
+            margin: 0;
+            padding: 24px;
+            list-style: none;
+            counter-reset: flow;
+        }
+
+        .flow-list li {
+            position: relative;
+            margin: 0;
+            padding: 16px 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--surface);
+            text-align: center;
+        }
+
+        .flow-list li::before {
+            display: block;
+            width: 28px;
+            height: 28px;
+            margin: 0 auto 8px;
+            border-radius: 50%;
+            background: var(--green);
+            color: var(--surface);
+            content: counter(flow);
+            counter-increment: flow;
+            font-size: 0.8rem;
+            font-weight: 850;
+            line-height: 28px;
+        }
+
+        .flow-list li:not(:last-child)::after {
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            right: -17px;
+            width: 32px;
+            color: var(--green);
+            content: "→";
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .flow-list strong, .flow-list small { display: block; }
+        .flow-list small { margin-top: 5px; color: var(--muted); line-height: 1.35; }
+
+        .tree {
+            margin: 16px 0;
+            padding: 18px 20px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface-soft);
+            color: var(--ink);
+            white-space: pre;
+        }
+
+        .steps {
+            margin: 18px 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: steps;
+        }
+
+        .steps li {
+            position: relative;
+            min-height: 52px;
+            margin: 0 0 12px;
+            padding: 12px 15px 12px 58px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--surface-soft);
+        }
+
+        .steps li::before {
+            position: absolute;
+            top: 11px;
+            left: 14px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--navy);
+            color: var(--surface);
+            content: counter(steps);
+            counter-increment: steps;
+            font-weight: 850;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .small { color: var(--muted); font-size: 0.86rem; }
+
+        footer {
+            width: min(calc(100% - 40px), var(--max));
+            margin: -50px auto 0;
+            padding: 0 0 36px 291px;
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; max-height: none; }
+            nav a { display: inline-block; margin-right: 14px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .three-col { grid-template-columns: 1fr; }
+            footer { margin-top: -50px; padding-left: 0; }
+        }
+
+        @media (max-width: 660px) {
+            body { font-size: 15px; }
+            .hero-inner { padding: 44px 0 40px; }
+            .layout { width: min(calc(100% - 24px), var(--max)); gap: 22px; padding-top: 22px; }
+            section { padding: 20px; margin-bottom: 20px; }
+            .card-grid, .two-col, .summary-grid { grid-template-columns: 1fr; }
+            nav { padding: 17px; }
+            nav a { display: block; margin: 0; }
+            footer { width: min(calc(100% - 24px), var(--max)); }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Project entry guide</p>
+        <h1>General Project Guide</h1>
+        <p class="lede">A repository-based map of the architecture, runtime, local setup, development workflow, quality gates, operations, and detailed documentation.</p>
+        <div class="chips" aria-label="Project summary">
+            <span class="chip">PHP 8.5</span>
+            <span class="chip">Slim 4</span>
+            <span class="chip">DDD + CQRS</span>
+            <span class="chip">Doctrine</span>
+            <span class="chip">ExampleApi</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>Contents</strong>
+        <a href="#overview">1. Overview</a>
+        <a href="#state">2. Current state</a>
+        <a href="#stack">3. Technology stack</a>
+        <a href="#repository">4. Repository map</a>
+        <a href="#architecture">5. Architecture</a>
+        <a href="#boundaries">6. Layer boundaries</a>
+        <a href="#modules">7. Active modules</a>
+        <a href="#http">8. HTTP runtime</a>
+        <a href="#feature-flow">9. Feature flow</a>
+        <a href="#persistence">10. Persistence</a>
+        <a href="#messaging">11. Messaging</a>
+        <a href="#configuration">12. Configuration</a>
+        <a href="#local-setup">13. Local setup</a>
+        <a href="#api-contract">14. API contract</a>
+        <a href="#console">15. Console operations</a>
+        <a href="#quality">16. Tests and quality</a>
+        <a href="#deployment">17. Deployment</a>
+        <a href="#change-paths">18. Change paths</a>
+        <a href="#guides">19. Detailed guides</a>
+        <a href="#commands">20. Command reference</a>
+        <a href="#sources">21. Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <p class="section-label">01 · Overview</p>
+            <h2>A modular backend service foundation</h2>
+            <p>Backendbase Core is a PHP API project for backend services. It combines Domain-Driven Design, Ports and Adapters, and Command Query Responsibility Segregation.</p>
+            <p>The current repository provides one consumer API named <code>ExampleApi</code>. It also provides a complete reference bounded context, shared runtime services, persistence adapters, queue adapters, console operations, and API contract tools.</p>
+            <div class="callout good"><strong>Use this page first.</strong> Follow its links when you need the complete rules for one architecture topic.</div>
+        </section>
+
+        <section id="state">
+            <p class="section-label">02 · Current state</p>
+            <h2>Repository at a glance</h2>
+            <div class="summary-grid">
+                <div class="stat"><strong>1</strong><span>Consumer API</span></div>
+                <div class="stat"><strong>210</strong><span>PHP source files</span></div>
+                <div class="stat"><strong>73</strong><span>PHP test files</span></div>
+                <div class="stat"><strong>7</strong><span>Doctrine migrations</span></div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Area</th><th>Current implementation</th><th>Reference</th></tr></thead>
+                    <tbody>
+                        <tr><td>Consumer API</td><td><code>ExampleApi</code></td><td><code>Infrastructure/UseCase/ExampleApi</code></td></tr>
+                        <tr><td>Business module</td><td><code>ExampleBoundedContext</code></td><td>Complete DDD reference module</td></tr>
+                        <tr><td>Identity</td><td><code>IdentityAndAccess</code></td><td>JWT and authorization support</td></tr>
+                        <tr><td>Placeholder</td><td><code>Content</code></td><td>Empty; do not use as a reference</td></tr>
+                        <tr><td>Queue drivers</td><td>RabbitMQ or Amazon SQS</td><td>Selected by environment configuration</td></tr>
+                        <tr><td>API E2E collection</td><td>Six Bruno requests</td><td>Example module lifecycle</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small">Counts describe the inspected repository on 25 August 2026.</p>
+        </section>
+
+        <section id="stack">
+            <p class="section-label">03 · Technology stack</p>
+            <h2>Runtime and development tools</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Concern</th><th>Technology</th><th>Current version or role</th></tr></thead>
+                    <tbody>
+                        <tr><td>Runtime</td><td>PHP</td><td><code>^8.5</code></td></tr>
+                        <tr><td>HTTP</td><td>Slim</td><td>4.15.2 routing and middleware</td></tr>
+                        <tr><td>Container</td><td>PHP-DI</td><td>7.1.1 dependency injection</td></tr>
+                        <tr><td>HTTP messages</td><td>Laminas Diactoros</td><td>3.8.0 PSR-7 implementation</td></tr>
+                        <tr><td>Persistence</td><td>Doctrine ORM and DBAL</td><td>3.6.8 and 4.4.4</td></tr>
+                        <tr><td>Database</td><td>MySQL</td><td>8.4 local container</td></tr>
+                        <tr><td>Cache</td><td>Redis Stack</td><td>Redis and RedisJSON</td></tr>
+                        <tr><td>Messaging</td><td>RabbitMQ or Amazon SQS</td><td>Transactional outbox delivery</td></tr>
+                        <tr><td>Console</td><td>Symfony Console</td><td>8.1.5 through <code>bin/backendbase</code></td></tr>
+                        <tr><td>Tests</td><td>PHPUnit</td><td>13.3.1</td></tr>
+                        <tr><td>Static analysis</td><td>PHPStan</td><td>2.2.9 at level 8</td></tr>
+                        <tr><td>Style</td><td>PHPCS</td><td>Doctrine Coding Standard</td></tr>
+                        <tr><td>API contract</td><td>OpenAPI and Bruno</td><td>Documentation and executable examples</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="repository">
+            <p class="section-label">04 · Repository map</p>
+            <h2>Find the correct change surface</h2>
+            <pre class="tree" aria-label="Project folder tree">backendbase-core/
+├── bin/                         # API, Doctrine, Bruno, maintenance, deployment
+├── config/                      # shared and ExampleApi configuration
+├── public/                      # HTTP entry points and generated API documentation
+├── resources/
+│   ├── api-docs/               # OpenAPI source
+│   ├── bruno/                  # executable API requests
+│   ├── database/               # migrations and seeders
+│   ├── docs/                   # project documentation
+│   └── i18n/                   # translations
+├── src/Backendbase/
+│   ├── Domain/                 # bounded contexts
+│   ├── Infrastructure/         # external adapters and use cases
+│   └── Shared/                 # stable cross-module building blocks
+├── tests/                      # platform and cross-module tests
+├── var/cache/                  # generated runtime cache
+├── composer.json               # packages and project scripts
+├── docker-compose.yaml         # local infrastructure
+└── .env.example                # environment contract</pre>
+            <div class="callout warning"><strong>Module-local tests:</strong> Tests under a bounded context belong with that module. Root tests cover platform, infrastructure, and API behavior.</div>
+        </section>
+
+        <section id="architecture">
+            <p class="section-label">05 · Architecture</p>
+            <h2>Dependencies point toward contracts and domain rules</h2>
+            <div class="diagram-wrap" role="img" aria-label="Backendbase dependency flowchart">
+                <svg class="diagram" viewBox="0 0 1080 350" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="project-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#1f7a58"/>
+                        </marker>
+                    </defs>
+                    <rect x="30" y="112" width="180" height="112" rx="14" fill="#eaf3fa" stroke="#1e68a2" stroke-width="2"/>
+                    <text x="120" y="146" text-anchor="middle" fill="#164c75" font-size="16" font-weight="700">External input</text>
+                    <text x="120" y="175" text-anchor="middle" fill="#3b6079" font-size="13">HTTP · CLI · Queue</text>
+                    <text x="120" y="198" text-anchor="middle" fill="#3b6079" font-size="13">Scheduler · Service</text>
+
+                    <line x1="210" y1="168" x2="280" y2="168" stroke="#1f7a58" stroke-width="3" marker-end="url(#project-arrow)"/>
+                    <rect x="292" y="112" width="180" height="112" rx="14" fill="#fff1df" stroke="#ad5b12" stroke-width="2"/>
+                    <text x="382" y="146" text-anchor="middle" fill="#7b400b" font-size="16" font-weight="700">Infrastructure</text>
+                    <text x="382" y="175" text-anchor="middle" fill="#795a3b" font-size="13">controllers and</text>
+                    <text x="382" y="198" text-anchor="middle" fill="#795a3b" font-size="13">external adapters</text>
+
+                    <line x1="472" y1="168" x2="542" y2="168" stroke="#1f7a58" stroke-width="3" marker-end="url(#project-arrow)"/>
+                    <rect x="554" y="112" width="180" height="112" rx="14" fill="#f1edfb" stroke="#6850a8" stroke-width="2"/>
+                    <text x="644" y="146" text-anchor="middle" fill="#4e397f" font-size="16" font-weight="700">Application</text>
+                    <text x="644" y="175" text-anchor="middle" fill="#64577b" font-size="13">commands · queries</text>
+                    <text x="644" y="198" text-anchor="middle" fill="#64577b" font-size="13">handlers · ports</text>
+
+                    <line x1="734" y1="168" x2="804" y2="168" stroke="#1f7a58" stroke-width="3" marker-end="url(#project-arrow)"/>
+                    <rect x="816" y="112" width="232" height="112" rx="14" fill="#e8f5ee" stroke="#1f7a58" stroke-width="2"/>
+                    <text x="932" y="146" text-anchor="middle" fill="#15583e" font-size="16" font-weight="700">Domain</text>
+                    <text x="932" y="175" text-anchor="middle" fill="#3e6858" font-size="13">aggregates · value objects</text>
+                    <text x="932" y="198" text-anchor="middle" fill="#3e6858" font-size="13">business rules · events</text>
+
+                    <path d="M382 224 C382 305 932 305 932 237" fill="none" stroke="#ad5b12" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#project-arrow)"/>
+                    <text x="654" y="291" text-anchor="middle" fill="#8b510f" font-size="13" font-weight="700">Adapters implement ports; domain does not depend on adapters</text>
+
+                    <rect x="292" y="30" width="756" height="46" rx="12" fill="#f8f9f6" stroke="#bdc8c2"/>
+                    <text x="670" y="59" text-anchor="middle" fill="#4f5f59" font-size="14" font-weight="700">Shared supplies CQRS, HTTP, domain, persistence, integration, primitive, and service building blocks</text>
+                </svg>
+            </div>
+            <p>The architecture test enforces one key rule: <code>Shared</code> must not depend on <code>Domain</code> or <code>Infrastructure</code>.</p>
+        </section>
+
+        <section id="boundaries">
+            <p class="section-label">06 · Layer boundaries</p>
+            <h2>Keep each concern in its owning layer</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Layer</th><th>Owns</th><th>Must avoid</th></tr></thead>
+                    <tbody>
+                        <tr><td>Domain</td><td>Aggregates, invariants, value objects, domain events</td><td>Slim, PSR-7, Doctrine records, queue clients</td></tr>
+                        <tr><td>Application</td><td>Commands, queries, handlers, orchestration, subscribers</td><td>HTTP parsing and direct concrete infrastructure calls</td></tr>
+                        <tr><td>Contracts</td><td>Ports, command and query inputs, read models, event contracts</td><td>Adapter implementation details</td></tr>
+                        <tr><td>Infrastructure</td><td>Controllers, database adapters, queue adapters, external services</td><td>Business rules that belong to aggregates</td></tr>
+                        <tr><td>Shared</td><td>Stable framework-independent building blocks</td><td>Dependencies on application modules</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout danger"><strong>Database boundary:</strong> Create only database structures that the requested feature needs. Review every generated migration before execution.</div>
+        </section>
+
+        <section id="modules">
+            <p class="section-label">07 · Active modules</p>
+            <h2>The Example bounded context is the reference</h2>
+            <div class="card-grid">
+                <article class="card">
+                    <h3>ExampleBoundedContext</h3>
+                    <p>Contains domain objects, commands, queries, read models, handlers, Doctrine and memory repositories, events, subscribers, a service provider, and module-local tests.</p>
+                </article>
+                <article class="card">
+                    <h3>IdentityAndAccess</h3>
+                    <p>Provides JWT authentication, access control, HTTP authorization middleware, and authorization exceptions.</p>
+                </article>
+                <article class="card">
+                    <h3>ExampleApi</h3>
+                    <p>Provides the current HTTP adapter. It contains root controllers, the Example controller module, middleware, and routes.</p>
+                </article>
+                <article class="card">
+                    <h3>Service providers</h3>
+                    <p>Each bounded context maps ports to adapters and registers integration event subscribers.</p>
+                </article>
+            </div>
+            <p>Do not assume that another consumer API exists. Scaffold it before adding its controllers, configuration, OpenAPI source, or Bruno collection.</p>
+        </section>
+
+        <section id="http">
+            <p class="section-label">08 · HTTP runtime</p>
+            <h2>A request passes through bootstrap, middleware, and a use case</h2>
+            <div class="diagram-wrap">
+                <ol class="flow-list" aria-label="HTTP request lifecycle">
+                    <li><strong>Front controller</strong><small>selects ExampleApi</small></li>
+                    <li><strong>Configuration</strong><small>merges shared + API files</small></li>
+                    <li><strong>Container</strong><small>builds dependencies</small></li>
+                    <li><strong>Middleware</strong><small>adds request context</small></li>
+                    <li><strong>Controller</strong><small>creates command or query</small></li>
+                    <li><strong>Response</strong><small>emits PSR-7 output</small></li>
+                </ol>
+            </div>
+            <div class="two-col">
+                <article class="card">
+                    <h3>Entry points</h3>
+                    <p><code>public/index.php</code> can select an API through <code>X-Source-Id</code>. <code>public/example-api/index.php</code> selects <code>ExampleApi</code> directly.</p>
+                </article>
+                <article class="card">
+                    <h3>Routes</h3>
+                    <p>The root routes provide API metadata, liveness, readiness, and authentication. <code>ModuleRoutes</code> registers the Example module. A final route handles missing paths.</p>
+                </article>
+            </div>
+            <div class="callout warning"><strong>Current security state:</strong> API-key validation is commented out in ExampleApi middleware. Protected module routes still use authorization middleware.</div>
+        </section>
+
+        <section id="feature-flow">
+            <p class="section-label">09 · Feature flow</p>
+            <h2>Use contracts to connect adapters to behavior</h2>
+            <ol class="steps">
+                <li>Define or change the public OpenAPI operation.</li>
+                <li>Add the bounded context when the business capability does not exist.</li>
+                <li>Create a command or query contract with its handler attribute.</li>
+                <li>Implement domain behavior, value objects, and invariants.</li>
+                <li>Add repository ports and the required persistence adapter.</li>
+                <li>Implement the application handler and event behavior.</li>
+                <li>Add focused domain, repository, handler, and lifecycle tests.</li>
+                <li>Add migrations only when the approved feature changes the schema.</li>
+                <li>Add the affected API controller, route, OpenAPI source, and Bruno request.</li>
+                <li>Run generation, validation, static checks, and focused runtime tests.</li>
+            </ol>
+            <div class="callout good"><strong>Write path:</strong> The handler tells an aggregate to perform behavior, and then saves it through a write port.</div>
+            <div class="callout"><strong>Read path:</strong> Use a read adapter with Doctrine DBAL and explicit SQL for projections. Keep SQL out of controllers and domain objects.</div>
+        </section>
+
+        <section id="persistence">
+            <p class="section-label">10 · Persistence</p>
+            <h2>Doctrine adapters keep storage outside the domain</h2>
+            <div class="three-col">
+                <article class="card">
+                    <h3>Write side</h3>
+                    <p>Write repositories load and save aggregates. Doctrine records map aggregate state to columns.</p>
+                </article>
+                <article class="card">
+                    <h3>Read side</h3>
+                    <p>Read repositories return stable read models. DBAL projections can use purpose-built SQL.</p>
+                </article>
+                <article class="card">
+                    <h3>Test side</h3>
+                    <p>Memory adapters support fast lifecycle tests. Doctrine tests use production metadata and <code>SchemaTool</code>.</p>
+                </article>
+            </div>
+            <p>The current migrations create and evolve <code>example_table</code>, the integration event outbox, the inbox, and the delivery failure log.</p>
+            <pre><code>bin/doctrine migrations:diff
+bin/doctrine migrations:migrate</code></pre>
+            <div class="callout warning">Run the migration difference after repository behavior is final. Review all SQL before migration execution.</div>
+        </section>
+
+        <section id="messaging">
+            <p class="section-label">11 · Messaging</p>
+            <h2>Business writes and event records share one transaction</h2>
+            <div class="diagram-wrap">
+                <ol class="flow-list" aria-label="Transactional messaging lifecycle">
+                    <li><strong>Command</strong><small>requests a state change</small></li>
+                    <li><strong>Aggregate</strong><small>enforces rules</small></li>
+                    <li><strong>Transaction</strong><small>saves state + outbox</small></li>
+                    <li><strong>Relay</strong><small>publishes pending events</small></li>
+                    <li><strong>Queue</strong><small>RabbitMQ or SQS</small></li>
+                    <li><strong>Subscriber</strong><small>handles message safely</small></li>
+                </ol>
+            </div>
+            <ul>
+                <li>Use <code>IntegrationEventTransaction::execute()</code> for a write and its outbox message.</li>
+                <li>Use synchronous domain listeners only when failure must roll back the command.</li>
+                <li>Use the outbox for business-relevant external effects.</li>
+                <li>Register internal and external subscribers in the bounded context service provider.</li>
+                <li>Keep event names and event versions stable after publication.</li>
+            </ul>
+            <p>RabbitMQ is the default queue driver. Set <code>BACKENDBASE_QUEUE_DRIVER=sqs</code> to select Amazon SQS.</p>
+        </section>
+
+        <section id="configuration">
+            <p class="section-label">12 · Configuration</p>
+            <h2>Environment values feed layered PHP configuration</h2>
+            <div class="two-col">
+                <article class="card">
+                    <h3>Shared configuration</h3>
+                    <p><code>config/autoload/*</code> defines global, logger, Redis, RabbitMQ, AWS, and object-store settings.</p>
+                </article>
+                <article class="card">
+                    <h3>API configuration</h3>
+                    <p><code>config/example-api/*</code> defines the API version, key, headers, JWT, base path, and route cache.</p>
+                </article>
+            </div>
+            <p>The bootstrap loads <code>.env</code> when the compiled configuration cache does not exist. It merges shared providers with the selected API providers.</p>
+            <div class="callout danger"><strong>Secret rule:</strong> Keep real keys, tokens, passwords, and service credentials out of version control. Use <code>.env.example</code> only as a variable contract.</div>
+            <p>See the environment guide for precedence, cache behavior, queue selection, AWS validation, and common failure modes.</p>
+        </section>
+
+        <section id="local-setup">
+            <p class="section-label">13 · Local setup</p>
+            <h2>Start dependencies, migrate, and run the API</h2>
+            <ol class="steps">
+                <li>Install PHP 8.5, Composer, Docker, and the required PHP extensions.</li>
+                <li>Install locked Composer dependencies.</li>
+                <li>Create <code>.env</code> from <code>.env.example</code>. Set local values.</li>
+                <li>Start MySQL, Redis Stack, and RabbitMQ.</li>
+                <li>Apply Doctrine migrations.</li>
+                <li>Generate the merged Example API OpenAPI file.</li>
+                <li>Start the PHP development server.</li>
+                <li>Run focused tests and contract checks.</li>
+            </ol>
+            <pre><code>composer install
+cp .env.example .env
+docker compose up -d
+bin/doctrine migrations:migrate --no-interaction
+composer run generate-example-api-spec
+composer run start-apis</code></pre>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Local service</th><th>Port</th><th>Purpose</th></tr></thead>
+                    <tbody>
+                        <tr><td>ExampleApi</td><td><code>8080</code></td><td>HTTP API and served API documentation</td></tr>
+                        <tr><td>MySQL</td><td><code>3306</code></td><td>Application and integration message data</td></tr>
+                        <tr><td>Redis</td><td><code>6379</code></td><td>JWT and RedisJSON data</td></tr>
+                        <tr><td>Redis Insight</td><td><code>8001</code></td><td>Local Redis interface</td></tr>
+                        <tr><td>RabbitMQ AMQP</td><td><code>5672</code></td><td>Queue traffic</td></tr>
+                        <tr><td>RabbitMQ management</td><td><code>15672</code></td><td>Queue administration interface</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Docker Compose binds each infrastructure port to <code>127.0.0.1</code> by default. Configure local ports and credentials with <code>BACKENDBASE_DEV_*</code> variables.</p>
+        </section>
+
+        <section id="api-contract">
+            <p class="section-label">14 · API contract</p>
+            <h2>OpenAPI describes the contract; Bruno exercises examples</h2>
+            <div class="card-grid">
+                <article class="card">
+                    <h3>OpenAPI source</h3>
+                    <p>Edit files under <code>resources/api-docs</code>. Generate the single-file contract under <code>public/example-api/docs</code>.</p>
+                </article>
+                <article class="card">
+                    <h3>Bruno collection</h3>
+                    <p>Requests under <code>resources/bruno/example-api</code> cover six Example module operations against a selected environment.</p>
+                </article>
+            </div>
+            <p>Every new operation supports <code>Accept-Language</code>, <code>The-Timezone-IANA</code>, <code>X-Request-Id</code>, <code>X-Source-Id</code>, and optional <code>X-User-Id</code>.</p>
+            <pre><code>composer run generate-example-api-spec
+vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
+bin/bruno example-api local</code></pre>
+        </section>
+
+        <section id="console">
+            <p class="section-label">15 · Console operations</p>
+            <h2>The CLI exposes queue and maintenance work</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Command</th><th>Purpose</th><th>Operational note</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>bin/backendbase clear-cache</code></td><td>Clear generated runtime caches</td><td>Use after configuration or deployment changes</td></tr>
+                        <tr><td><code>bin/backendbase outbox:relay --limit=100</code></td><td>Publish pending outbox messages</td><td>Schedule or run as a worker</td></tr>
+                        <tr><td><code>bin/backendbase outbox:status --max-pending-age=300</code></td><td>Report pending and retried messages</td><td>Returns failure for unhealthy state</td></tr>
+                        <tr><td><code>bin/backendbase queue:consume [name]</code></td><td>Consume external integration events</td><td>Default queue is <code>backendbase-queue</code></td></tr>
+                        <tr><td><code>bin/backendbase queue:notify-consumer [name]</code></td><td>Consume notification messages</td><td>Default email queue is configured in code</td></tr>
+                        <tr><td><code>bin/backendbase integration-messages:cleanup</code></td><td>Delete old completed message logs</td><td>Minimum retention is 30 days</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Use <code>bin/doctrine</code> for ORM and migration commands. Use <code>bin/bruno</code> for API end-to-end collections.</p>
+        </section>
+
+        <section id="quality">
+            <p class="section-label">16 · Tests and quality</p>
+            <h2>Use the smallest relevant check first</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Check</th><th>Command</th><th>Scope</th></tr></thead>
+                    <tbody>
+                        <tr><td>Focused PHPUnit</td><td><code>vendor/bin/phpunit &lt;path&gt;</code></td><td>Changed module or adapter</td></tr>
+                        <tr><td>Full PHPUnit</td><td><code>composer test</code></td><td>Root and module-local suites with coverage</td></tr>
+                        <tr><td>Architecture boundary</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Shared dependency direction</td></tr>
+                        <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Source and tests at level 8</td></tr>
+                        <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
+                        <tr><td>OpenAPI validation</td><td><code>php-openapi validate</code></td><td>Generated contract structure</td></tr>
+                        <tr><td>API E2E</td><td><code>bin/bruno example-api local</code></td><td>Running API and local data</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p><code>phpunit.xml</code> includes both <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. Coverage output belongs under <code>artifacts</code>.</p>
+        </section>
+
+        <section id="deployment">
+            <p class="section-label">17 · Deployment</p>
+            <h2>Deployment rebuilds dependencies, contracts, cache, and schema</h2>
+            <div class="diagram-wrap">
+                <ol class="flow-list" aria-label="Deployment lifecycle">
+                    <li><strong>Update source</strong><small>pull target branch</small></li>
+                    <li><strong>Environment</strong><small>select stage or production</small></li>
+                    <li><strong>Composer</strong><small>install optimized, no dev</small></li>
+                    <li><strong>OpenAPI</strong><small>generate merged file</small></li>
+                    <li><strong>App cache</strong><small>clear generated runtime files</small></li>
+                    <li><strong>Database</strong><small>migrate, then clear ORM cache</small></li>
+                </ol>
+            </div>
+            <p>The repository has separate test and production update scripts. Both install production dependencies, generate OpenAPI, clear caches, and run migrations.</p>
+            <div class="callout warning"><strong>Review note:</strong> The current scripts use <code>git stash</code> before pull. Confirm server-local changes and deployment policy before execution.</div>
+        </section>
+
+        <section id="change-paths">
+            <p class="section-label">18 · Change paths</p>
+            <h2>Start with the user-visible outcome</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Requested change</th><th>Primary surfaces</th><th>Required checks</th></tr></thead>
+                    <tbody>
+                        <tr><td>Business behavior</td><td>Bounded context domain, contract, handler, repository</td><td>Domain, handler, repository, lifecycle tests</td></tr>
+                        <tr><td>New read endpoint</td><td>OpenAPI, query, read adapter, controller, route, Bruno</td><td>Projection tests, API tests, contract validation</td></tr>
+                        <tr><td>New write endpoint</td><td>OpenAPI, command, aggregate, write adapter, controller, route</td><td>Invariant tests, transaction tests, API tests</td></tr>
+                        <tr><td>Database change</td><td>Doctrine record and generated migration</td><td>Review SQL, migrate, repository tests</td></tr>
+                        <tr><td>Integration event</td><td>Event contract, transaction, subscriber, service provider</td><td>Outbox and processor tests</td></tr>
+                        <tr><td>Configuration</td><td><code>.env.example</code>, config provider, container binding</td><td>Failure-path and environment tests</td></tr>
+                        <tr><td>New consumer API</td><td>Public, config, infrastructure use case, OpenAPI, Bruno</td><td>Bootstrap, route, configuration, and E2E tests</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="guides">
+            <p class="section-label">19 · Detailed guides</p>
+            <h2>Continue with the topic that owns your change</h2>
+            <div class="card-grid">
+                <article class="guide-card"><h3><a href="1-bounded-contexts.html">1. Bounded Contexts</a></h3><p>Module anatomy, dependency direction, repositories, service providers, and context boundaries.</p></article>
+                <article class="guide-card"><h3><a href="2-cqrs.html">2. CQRS</a></h3><p>Command and query contracts, handler resolution, write and read flows, and testing.</p></article>
+                <article class="guide-card"><h3><a href="3-integration-events.html">3. Integration Events</a></h3><p>Event contracts, versions, naming, subscribers, transactions, inbox behavior, and compatibility.</p></article>
+                <article class="guide-card"><h3><a href="4-messaging-and-queues.html">4. Messaging and Queues</a></h3><p>Outbox relay, RabbitMQ, SQS, consumers, dead letters, schedules, and operations.</p></article>
+                <article class="guide-card"><h3><a href="5-use-case-api.html">5. Use Case API</a></h3><p>HTTP bootstrap, middleware, routes, controllers, request rules, responses, and current gaps.</p></article>
+                <article class="guide-card"><h3><a href="6-openapi-and-bruno.html">6. OpenAPI and Bruno</a></h3><p>Contract composition, generation, validation, documentation viewer, environments, and request sequence.</p></article>
+                <article class="guide-card"><h3><a href="7-env-and-config.html">7. Environment and Configuration</a></h3><p>Environment values, configuration merge, cache, container bindings, and external services.</p></article>
+                <article class="guide-card"><h3><a href="8-authentication-and-authorization.html">8. Authentication and Authorization</a></h3><p>Demo authentication, JWT lifecycle, middleware, ACL checks, API-key state, and security gaps.</p></article>
+                <article class="guide-card"><h3><a href="9-persistence-and-database.html">9. Persistence and Database</a></h3><p>Doctrine records, write and read adapters, migrations, custom types, seeders, and database operations.</p></article>
+                <article class="guide-card"><h3><a href="10-testing-and-quality.html">10. Testing and Quality</a></h3><p>Test layout, PHPUnit, PHPStan, coding standards, coverage, static analysis, and automation gaps.</p></article>
+                <article class="guide-card"><h3><a href="11-error-handling-and-observability.html">11. Error Handling and Observability</a></h3><p>Problem details, error handlers, shutdown handling, logs, trace identifiers, and health checks.</p></article>
+                <article class="guide-card"><h3><a href="12-deployment-and-operations.html">12. Deployment and Operations</a></h3><p>Update scripts, migration behavior, cache handling, process commands, risks, and rollback gaps.</p></article>
+                <article class="guide-card"><h3><a href="13-notifications.html">13. Notifications</a></h3><p>Email, push, and SMS models, provider dispatch, queue delivery, idempotency, and provider gaps.</p></article>
+                <article class="guide-card"><h3><a href="14-external-services-and-object-storage.html">14. External Services and Object Storage</a></h3><p>Integration boundaries, failure policy, S3 uploads, signed requests, configuration, and tests.</p></article>
+                <article class="guide-card"><h3><a href="15-internationalization-and-tolgee.html">15. Internationalization and Tolgee</a></h3><p>Runtime dictionaries, locale selection, placeholders, Tolgee scripts, cron, and current differences.</p></article>
+                <article class="guide-card"><h3><a href="16-shared-primitives-and-object-mapping.html">16. Shared Primitives and Object Mapping</a></h3><p>Identifiers, validated values, query primitives, object mapping, serialization, and safe reuse.</p></article>
+                <article class="guide-card"><h3><a href="project.md">Agent Project Reference</a></h3><p>Machine-oriented repository rules, feature sequence, entry points, and implementation constraints.</p></article>
+            </div>
+        </section>
+
+        <section id="commands">
+            <p class="section-label">20 · Command reference</p>
+            <h2>Common project commands</h2>
+            <pre><code># Install and start local services
+composer install
+docker compose up -d
+composer run start-apis
+
+# Database
+bin/doctrine migrations:diff
+bin/doctrine migrations:migrate
+
+# Contract and E2E
+composer run generate-example-api-spec
+vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
+bin/bruno example-api local
+
+# Quality
+composer test
+composer phpstan
+composer cs-check
+
+# Messaging operations
+bin/backendbase outbox:relay --limit=100
+bin/backendbase outbox:status --max-pending-age=300
+bin/backendbase queue:consume
+bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000
+
+# Cache and command discovery
+bin/backendbase clear-cache
+bin/backendbase list</code></pre>
+            <p class="small">Run commands from the project root. Some commands require local infrastructure, valid environment values, or API credentials.</p>
+        </section>
+
+        <section id="sources">
+            <p class="section-label">21 · Source map</p>
+            <h2>Primary files used for this guide</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Concern</th><th>Source</th></tr></thead>
+                    <tbody>
+                        <tr><td>Project rules</td><td><a href="project.md"><code>resources/docs/project.md</code></a></td></tr>
+                        <tr><td>Setup and operations</td><td><a href="../../README.md"><code>README.md</code></a></td></tr>
+                        <tr><td>Packages and scripts</td><td><a href="../../composer.json"><code>composer.json</code></a></td></tr>
+                        <tr><td>Local infrastructure</td><td><a href="../../docker-compose.yaml"><code>docker-compose.yaml</code></a></td></tr>
+                        <tr><td>HTTP bootstrap</td><td><a href="../../public/index.php"><code>public/index.php</code></a></td></tr>
+                        <tr><td>Dependency container</td><td><a href="../../config/dependencies.php"><code>config/dependencies.php</code></a></td></tr>
+                        <tr><td>Console commands</td><td><a href="../../config/commands.php"><code>config/commands.php</code></a></td></tr>
+                        <tr><td>Example bounded context</td><td><code>src/Backendbase/Domain/ExampleBoundedContext</code></td></tr>
+                        <tr><td>Example API</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
+                        <tr><td>Test suite</td><td><a href="../../phpunit.xml"><code>phpunit.xml</code></a></td></tr>
+                        <tr><td>Static analysis</td><td><a href="../../phpstan.neon"><code>phpstan.neon</code></a></td></tr>
+                        <tr><td>Coding standard</td><td><a href="../../phpcs.xml.dist"><code>phpcs.xml.dist</code></a></td></tr>
+                        <tr><td>Environment contract</td><td><a href="../../.env.example"><code>.env.example</code></a></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>Backendbase Core · General project guide · Generated from the current repository source</footer>
+</body>
+</html>

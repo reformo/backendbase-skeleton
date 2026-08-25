@@ -1,0 +1,69 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Infrastructure\Adapters\Notification;
+
+use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
+use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Primitives\Notification\EmailNotification;
+use Backendbase\Shared\Primitives\Notification\StackNotification;
+use Monolog\Logger;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use stdClass;
+use UnexpectedValueException;
+
+final class StackNotifierTest extends TestCase
+{
+    #[Test]
+    public function itRejectsANotificationWithoutAProvider(): void
+    {
+        $notifier = new StackNotifier(new Logger('notification-test'));
+
+        $this->expectException(UnexpectedValueException::class);
+
+        $notifier->notify($this->emailNotification());
+    }
+
+    #[Test]
+    public function itPropagatesAProviderFailure(): void
+    {
+        $provider = $this->createStub(Notify::class);
+        $provider->method('type')->willReturn('email');
+        $provider->method('notify')->willThrowException(new RuntimeException('Provider unavailable.'));
+        $notifier = new StackNotifier(new Logger('notification-test'));
+        $notifier->add($provider);
+
+        $this->expectException(RuntimeException::class);
+
+        $notifier->notify($this->emailNotification());
+    }
+
+    #[Test]
+    public function itReturnsProviderStatusesAndClients(): void
+    {
+        $client   = new stdClass();
+        $provider = $this->createMock(Notify::class);
+        $provider->method('type')->willReturn('email');
+        $provider->expects(self::once())
+            ->method('notify')
+            ->willReturn(['messageId' => 'message-id']);
+        $provider->method('getClient')->willReturn($client);
+        $notifier = new StackNotifier(new Logger('notification-test'));
+        $notifier->add($provider);
+
+        self::assertSame(
+            ['email' => ['messageId' => 'message-id']],
+            $notifier->notify($this->emailNotification()),
+        );
+        self::assertSame([$client], $notifier->getClient());
+        self::assertSame('stack', $notifier->type());
+    }
+
+    private function emailNotification(): StackNotification
+    {
+        return new StackNotification()->addNotification(new EmailNotification()->setHtmlBody('Message'));
+    }
+}

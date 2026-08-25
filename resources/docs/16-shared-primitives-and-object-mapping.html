@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase Shared Primitives and Object Mapping Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Shared values</p><h1>Shared Primitives and Object Mapping</h1>
+<p class="lede">Identifiers, validated values, pagination, filters, collections, health data, request mapping, validation errors, serialization, and safe reuse boundaries.</p>
+<div class="chips"><span class="chip">Value objects</span><span class="chip">UUIDv7</span><span class="chip">Valinor</span><span class="chip">Validation</span><span class="chip">Serialization</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#catalog">2. Catalog</a><a href="#identifiers">3. Identifiers</a><a href="#validated">4. Validated strings</a><a href="#passwords">5. Password hashes</a>
+<a href="#query-values">6. Query values</a><a href="#collections">7. Collections and health</a><a href="#mapping-flow">8. Mapping flow</a><a href="#mapping-contract">9. Mapping contract</a>
+<a href="#errors">10. Mapping errors</a><a href="#boundaries">11. Reuse boundaries</a><a href="#gaps">12. Current gaps</a><a href="#tests">13. Tests</a><a href="#checklist">14. Checklist</a><a href="#sources">15. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Share stable technical values, not context rules</h2>
+<p>The shared primitive directory contains small types used across bounded contexts. A primitive should validate its own invariant and provide one stable representation.</p>
+<div class="callout warning">Keep business-specific decisions inside their owning bounded context. Do not move a type to <code>Shared</code> only because two classes use it.</div>
+<div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="5-use-case-api.html">Use Case API</a></div></section>
+<section id="catalog"><p class="section-label">02 · Catalog</p><h2>The current catalog covers common transport and value needs</h2>
+<div class="table-wrap"><table><thead><tr><th>Group</th><th>Examples</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Identifiers</td><td><code>EntityId</code>, <code>EntityIntId</code>, <code>EntityObjectId</code>, <code>EntityPrivateId</code></td><td>Create, parse, compare, and serialize identifiers.</td></tr>
+<tr><td>Validated values</td><td><code>Email</code>, <code>Name</code>, tax identifiers</td><td>Reject invalid external values at construction.</td></tr>
+<tr><td>Access and time</td><td><code>PasswordHash</code>, <code>DateIntervalValues</code>, <code>IsEnabled</code></td><td>Represent reusable technical values.</td></tr>
+<tr><td>Queries</td><td><code>Pagination</code>, <code>Filter</code>, <code>Coordinates</code></td><td>Carry query and location parameters.</td></tr>
+<tr><td>Transport</td><td><code>HealthCheckData</code>, notification models, JSON collection</td><td>Provide stable serialized data.</td></tr>
+</tbody></table></div></section>
+<section id="identifiers"><p class="section-label">03 · Identifiers</p><h2><code>EntityId</code> uses UUID version 7</h2>
+<p><code>create()</code> and <code>generate()</code> create a UUID version 7 (UUIDv7). <code>fromString()</code> parses persisted or external values and translates invalid input to <code>InvalidResourceId</code>.</p>
+<div class="grid-3"><article class="card"><h3>Create</h3><p>Generate a new time-ordered UUIDv7.</p></article><article class="card"><h3>Parse</h3><p>Build the exact subtype from a UUID string.</p></article><article class="card"><h3>Serialize</h3><p>Return the canonical UUID string.</p></article></div>
+<p><code>null()</code> creates the all-zero UUID sentinel. Use it only when the surrounding contract defines that value.</p></section>
+<section id="validated"><p class="section-label">04 · Validated strings</p><h2>Constructors enforce only their current invariant</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Current behavior</th></tr></thead><tbody>
+<tr><td><code>Email</code></td><td>Uses PHP email validation. It preserves the original string and does not trim or lowercase it.</td></tr>
+<tr><td><code>Name</code></td><td>Requires a byte length of at least two. It preserves whitespace.</td></tr>
+<tr><td>Tax identifier types</td><td>Represent private and corporate tax identifiers behind <code>TaxId</code>.</td></tr>
+<tr><td><code>Coordinates</code></td><td>Stores longitude and latitude strings without range validation.</td></tr>
+</tbody></table></div>
+<div class="callout">Validate the exact contract at the external boundary. Do not assume a primitive normalizes a value unless its source states that behavior.</div></section>
+<section id="passwords"><p class="section-label">05 · Password hashes</p><h2><code>PasswordHash</code> verifies and replaces Argon2id hashes</h2>
+<p><code>verifyHash()</code> compares a sensitive password with the stored hash. <code>changeHashWithNewPassword()</code> returns a cloned value with a new Argon2id hash.</p>
+<div class="callout danger"><code>validatePassword()</code> is currently empty. Callers must not treat that method as password-policy enforcement.</div></section>
+<section id="query-values"><p class="section-label">06 · Query values</p><h2>Pagination and filters carry read-model input</h2>
+<p><code>Pagination</code> normalizes a non-positive current page to page 1 before total calculation. <code>setTotal()</code> calculates the page count and clamps a page that exceeds it.</p>
+<p><code>Filter</code> stores a query, target fields, and optional criteria. It does not validate SQL field names. A repository must use allowlisted columns and bound parameters.</p>
+<div class="callout warning"><code>Pagination</code> does not reject a zero page size. A zero value causes division by zero in <code>setTotal()</code>.</div></section>
+<section id="collections"><p class="section-label">07 · Collections and health</p><h2>Shared transport values have explicit JSON forms</h2>
+<ul><li><code>JsonSerializableArrayCollection</code> serializes contained values for JSON output.</li><li><code>HealthCheckData</code> includes the Git build identifier, numeric status, and status text.</li><li><code>Pagination</code> serializes <code>pageSize</code>, <code>page</code>, and <code>total</code>.</li><li>Notification primitives define provider-independent email, push, and SMS data.</li></ul>
+<div class="related"><a href="11-error-handling-and-observability.html">Error Handling and Observability</a><a href="13-notifications.html">Notifications</a></div></section>
+<section id="mapping-flow"><p class="section-label">08 · Mapping flow</p><h2><code>ObjectMapper</code> turns boundary arrays into typed objects</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Payload</strong><small>comes from boundary</small></li><li><strong>Sanitizer</strong><small>normalizes values</small></li><li><strong>Callback</strong><small>can adjust payload</small></li><li><strong>Field filter</strong><small>keeps public vars</small></li><li><strong>Valinor</strong><small>maps target type</small></li><li><strong>Result</strong><small>or validation error</small></li></ol></div>
+<p>The dependency container uses a filesystem Valinor cache. Development adds a file-watching cache wrapper.</p></section>
+<section id="mapping-contract"><p class="section-label">09 · Mapping contract</p><h2>Only public declared target fields survive filtering</h2>
+<p>The mapper gets target field names through <code>get_class_vars()</code>. It removes payload keys that do not match a public declared property. Valinor then maps the filtered array with permissive types enabled.</p>
+<div class="callout warning">Permissive mapping can convert compatible scalar values. Validate HTTP and command-line input before mapping when silent conversion would change the contract.</div></section>
+<section id="errors"><p class="section-label">10 · Mapping errors</p><h2>Return structured input errors without Valinor details at the controller</h2>
+<p>A Valinor <code>MappingError</code> becomes <code>InvalidUserInput</code>. Its context contains the short target class name and an error map indexed by field name.</p>
+<pre><code>[
+    'target' =&gt; 'CreateExampleInput',
+    'errors' =&gt; ['email' =&gt; '...'],
+]</code></pre>
+<div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="11-error-handling-and-observability.html">Error Handling</a></div></section>
+<section id="boundaries"><p class="section-label">11 · Reuse boundaries</p><h2>Use shared types only for stable cross-context meaning</h2>
+<div class="grid-2"><article class="card"><h3>Good shared candidate</h3><p>A UUID wrapper, email syntax, date interval constant, or generic pagination value.</p></article><article class="card"><h3>Keep in the context</h3><p>A customer status, order rule, product limit, or role decision owned by one model.</p></article></div>
+<p>Context code can wrap a shared technical value when it needs additional domain meaning.</p></section>
+<section id="gaps"><p class="section-label">12 · Current gaps</p><h2>Known primitive and mapper limits</h2>
+<ul><li><code>PasswordHash::validatePassword()</code> has no implementation.</li><li><code>Pagination</code> accepts a zero page size.</li><li><code>Coordinates</code> does not validate numeric format or geographic range.</li><li><code>Email</code> and <code>Name</code> do not normalize input.</li><li>Permissive object mapping can hide scalar-type mistakes.</li><li>Unknown payload keys are removed instead of reported.</li><li><code>HealthCheckData</code> exposes mutable public fields and setters.</li></ul></section>
+<section id="tests"><p class="section-label">13 · Tests</p><h2>Test construction, boundaries, serialization, and invalid input</h2>
+<pre><code>vendor/bin/phpunit tests/Shared/Primitives
+vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php</code></pre>
+<p>Add boundary cases for each invariant. Test the exact serialized value and the public exception type.</p></section>
+<section id="checklist"><p class="section-label">14 · Checklist</p><h2>Add a primitive or mapping target safely</h2>
+<ul><li>The type has stable cross-context meaning.</li><li>The constructor preserves its invariant.</li><li>External input is validated before trusted use.</li><li>Serialization has one documented form.</li><li>Sensitive values do not appear in logs.</li><li>Public mapping fields match the input contract.</li><li>Unknown input-key behavior is intentional.</li><li>Invalid and boundary tests pass.</li></ul></section>
+<section id="sources"><p class="section-label">15 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Primitive catalog</td><td><code>src/Backendbase/Shared/Primitives</code></td></tr><tr><td>UUID identifier</td><td><code>Shared/Primitives/EntityId.php</code></td></tr>
+<tr><td>Value validation</td><td><code>Email.php</code>, <code>Name.php</code>, tax identifier types</td></tr><tr><td>Query values</td><td><code>Pagination.php</code>, <code>Filter.php</code></td></tr>
+<tr><td>Object mapping</td><td><code>src/Backendbase/Shared/Services/ObjectMapper.php</code></td></tr><tr><td>Mapper wiring</td><td><code>config/dependencies.php</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · Shared primitives and object mapping guide</footer></body></html>

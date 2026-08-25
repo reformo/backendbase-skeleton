@@ -1,0 +1,130 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Backendbase\Infrastructure\Adapters\Queue;
+
+use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
+use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
+use Backendbase\Shared\Persistence\ExternalEffectInbox;
+use Backendbase\Shared\Persistence\ExternalEffectInProgress;
+use Backendbase\Shared\Persistence\ExternalEffectOutcomeUnknown;
+use Backendbase\Shared\Primitives\Notification\EmailNotification;
+use Backendbase\Shared\Primitives\Notification\StackNotification;
+use JsonException;
+use Psr\Log\LoggerInterface;
+use Throwable;
+use UnexpectedValueException;
+
+use function is_string;
+use function json_decode;
+
+use const JSON_THROW_ON_ERROR;
+
+final readonly class NotificationMessageProcessor
+{
+    private const string EVENT_NAME = 'Notification_Email';
+
+    public function __construct(
+        private Notify $notifier,
+        private ExternalEffectInbox $externalEffectInbox,
+        private QueueMessageFailurePolicy $failurePolicy,
+        private LoggerInterface $logger,
+    ) {
+    }
+
+    /** @param array<string, mixed> $data */
+    public function process(array $data): QueueMessageHandlingOutcome
+    {
+        $consumerName = $data['topic'] ?? null;
+        $messageId    = $data['messageId'] ?? null;
+        try {
+            $this->validateMetadata($consumerName, $messageId);
+            $notification = $this->notification($data['messageBody'] ?? null);
+            $this->externalEffectInbox->processOnce(
+                $consumerName,
+                $messageId,
+                self::EVENT_NAME,
+                function () use ($notification): void {
+                    $this->notifier->notify($notification);
+                },
+            );
+            $this->failurePolicy->succeeded($consumerName, $messageId);
+
+            return QueueMessageHandlingOutcome::ACKNOWLEDGE;
+        } catch (ExternalEffectInProgress $exception) {
+            $this->logger->info('Notification delivery is already in progress.', [
+                'message_id' => $messageId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return QueueMessageHandlingOutcome::RETRY;
+        } catch (ExternalEffectOutcomeUnknown $exception) {
+            $this->logger->critical('Notification delivery outcome is unknown.', [
+                'message_id' => $messageId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return $this->failurePolicy->permanentFailure(
+                $consumerName,
+                $messageId,
+                $exception::class,
+            );
+        } catch (JsonException | UnexpectedValueException $exception) {
+            $this->logger->error('Notification queue message is invalid.', [
+                'message_id' => $messageId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            if (! is_string($consumerName) || ! is_string($messageId)) {
+                return QueueMessageHandlingOutcome::REJECT;
+            }
+
+            return $this->failurePolicy->permanentFailure(
+                $consumerName,
+                $messageId,
+                $exception::class,
+            );
+        } catch (Throwable $exception) {
+            $this->logger->error('Notification queue message processing failed.', [
+                'exception' => $exception::class,
+                'message_id' => $messageId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return $this->failurePolicy->transientFailure(
+                $consumerName,
+                $messageId,
+                $exception::class,
+            );
+        }
+    }
+
+    private function validateMetadata(mixed $consumerName, mixed $messageId): void
+    {
+        if (! is_string($consumerName) || $consumerName === '') {
+            throw new UnexpectedValueException('The notification consumer name is missing.');
+        }
+
+        if (! is_string($messageId) || $messageId === '') {
+            throw new UnexpectedValueException('The notification message ID is missing.');
+        }
+    }
+
+    private function notification(mixed $messageBody): StackNotification
+    {
+        if (! is_string($messageBody) || $messageBody === '') {
+            throw new UnexpectedValueException('The notification message body is missing.');
+        }
+
+        $htmlBody = json_decode($messageBody, true, 512, JSON_THROW_ON_ERROR);
+        if (! is_string($htmlBody)) {
+            throw new UnexpectedValueException('The notification message body must contain a JSON string.');
+        }
+
+        $notification = new EmailNotification()->setHtmlBody($htmlBody);
+
+        return new StackNotification()->addNotification($notification);
+    }
+}

@@ -1,0 +1,65 @@
+services:
+  redis:
+    image: redis/redis-stack:7.4.0-v8@sha256:5d5154123426693540ea6c1d9e638eae2bf2024879c839db6fcfdd7717e817c7
+    container_name: backendbase-redis
+    ports:
+      - "127.0.0.1:${BACKENDBASE_DEV_REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${BACKENDBASE_DEV_REDIS_INSIGHT_PORT:-8001}:8001"
+    volumes:
+      - ./var/docker-data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backendbase_net
+  mysql:
+    image: mysql:8.4.11@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+    container_name: backendbase-db
+    ports:
+      - "127.0.0.1:${BACKENDBASE_DEV_MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./var/docker-data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${BACKENDBASE_DEV_MYSQL_ROOT_PASSWORD:-backendbase_root!}
+      MYSQL_DATABASE: ${BACKENDBASE_DEV_MYSQL_DATABASE:-backendbase}
+      MYSQL_USER: ${BACKENDBASE_DEV_MYSQL_USER:-backendbase_user}
+      MYSQL_PASSWORD: ${BACKENDBASE_DEV_MYSQL_PASSWORD:-backendbase+dev-}
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysqladmin ping --host=127.0.0.1 --user=root --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - backendbase_net
+  rabbitmq:
+    image: rabbitmq:4.3.5-management@sha256:06fb591136a49e861e01aaaf9ce45085839ca23c35913d45a1e83519bb9778ca
+    container_name: backendbase-rabbitmq
+    hostname: backendbase-rabbitmq
+    ports:
+      - "127.0.0.1:${BACKENDBASE_DEV_RABBITMQ_PORT:-5672}:5672"
+      - "127.0.0.1:${BACKENDBASE_DEV_RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${BACKENDBASE_DEV_RABBITMQ_USER:-backendbase}
+      RABBITMQ_DEFAULT_PASS: ${BACKENDBASE_DEV_RABBITMQ_PASSWORD:-backendbase}
+      RABBITMQ_DEFAULT_VHOST: ${BACKENDBASE_DEV_RABBITMQ_VHOST:-/}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping && rabbitmq-diagnostics -q check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - backendbase_net
+
+networks:
+  backendbase_net:
+    driver: "bridge"
+
+volumes:
+  rabbitmq_data:

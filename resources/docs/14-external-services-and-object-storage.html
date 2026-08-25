@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase External Services and Object Storage Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Integration boundaries</p><h1>External Services and Object Storage</h1>
+<p class="lede">Integration ownership, configuration, dependency injection, failure policy, S3 uploads, signed requests, tests, and the current operational limits.</p>
+<div class="chips"><span class="chip">Ports</span><span class="chip">Adapters</span><span class="chip">AWS S3</span><span class="chip">Timeouts</span><span class="chip">Tests</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#boundary">2. Integration boundary</a><a href="#workflow">3. Add a service</a><a href="#configuration">4. Configuration</a>
+<a href="#failures">5. Failure policy</a><a href="#storage-flow">6. Object-storage flow</a><a href="#downloads">7. Download URLs</a><a href="#uploads">8. Server uploads</a>
+<a href="#signed-post">9. Browser uploads</a><a href="#wiring">10. S3 wiring</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Keep vendor details at the infrastructure boundary</h2>
+<p>Application and domain code must depend on a project-owned port. An infrastructure adapter owns the vendor Software Development Kit (SDK), request mapping, and response mapping.</p>
+<div class="grid-3"><article class="card"><h3>Port</h3><p>Defines the capability in project terms.</p></article><article class="card"><h3>Adapter</h3><p>Maps the port to one vendor API.</p></article><article class="card"><h3>Composition</h3><p>Builds the client and adapter in the dependency container.</p></article></div>
+<div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="7-env-and-config.html">Environment and Configuration</a></div></section>
+<section id="boundary"><p class="section-label">02 · Integration boundary</p><h2>Use one owner for each external contract</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Use case</strong><small>requests capability</small></li><li><strong>Project port</strong><small>defines contract</small></li><li><strong>Adapter</strong><small>maps values</small></li><li><strong>Vendor client</strong><small>sends request</small></li><li><strong>Remote API</strong><small>returns outcome</small></li><li><strong>Adapter</strong><small>returns project value</small></li></ol></div>
+<p>Do not pass vendor request or response objects across the adapter boundary. Translate recoverable vendor errors into stable project exceptions.</p></section>
+<section id="workflow"><p class="section-label">03 · Add a service</p><h2>Start from the required external action</h2>
+<ol class="steps"><li>Identify the owning bounded context and exact external action.</li><li>Review the official vendor contract and SDK support.</li><li>Define a narrow project-owned port.</li><li>Implement one adapter under infrastructure code.</li><li>Add validated settings and dependency-container wiring.</li><li>Test request mapping, response mapping, and failure cases with doubles.</li></ol>
+<div class="callout">The repository includes an <code>add-external-service</code> skill and workflow reference. They describe the expected vendor-subtree pattern. No populated vendor service subtree exists in the inspected source.</div></section>
+<section id="configuration"><p class="section-label">04 · Configuration</p><h2>Keep operational values outside application code</h2>
+<div class="table-wrap"><table><thead><tr><th>Setting</th><th>Purpose</th><th>Rule</th></tr></thead><tbody>
+<tr><td>Base URI and API version</td><td>Select the remote contract.</td><td>Set by environment when it can change.</td></tr>
+<tr><td>Credential or token</td><td>Authenticates the service.</td><td>Keep it out of source and logs.</td></tr>
+<tr><td>Connect and request timeout</td><td>Bounds blocked work.</td><td>Use explicit finite values.</td></tr>
+<tr><td>Region, account, or bucket</td><td>Selects remote resources.</td><td>Validate before the first request.</td></tr>
+<tr><td>Rate and retry limits</td><td>Controls pressure and recovery.</td><td>Use bounded values and backoff.</td></tr>
+</tbody></table></div></section>
+<section id="failures"><p class="section-label">05 · Failure policy</p><h2>Classify errors before retrying work</h2>
+<div class="grid-3"><article class="card"><h3>Input or contract</h3><p>Reject invalid data and malformed remote responses.</p></article><article class="card"><h3>Transient</h3><p>Retry timeouts, connection failures, and selected server errors with limits.</p></article><article class="card"><h3>Permanent</h3><p>Do not retry denied, missing, or invalid requests without a state change.</p></article></div>
+<div class="callout warning">Retry a state-changing request only when the vendor supports idempotency or the project can prove a safe outcome.</div></section>
+<section id="storage-flow"><p class="section-label">06 · Object-storage flow</p><h2><code>BucketService</code> isolates AWS S3</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Caller</strong><small>uses BucketService</small></li><li><strong>S3Bucket</strong><small>validates key</small></li><li><strong>S3 client</strong><small>signs or uploads</small></li><li><strong>Bucket</strong><small>stores object</small></li><li><strong>CDN or S3</strong><small>creates access URL</small></li><li><strong>Caller</strong><small>receives result</small></li></ol></div>
+<p>The port supports download URLs, local-file uploads, and signed browser-upload forms.</p></section>
+<section id="downloads"><p class="section-label">07 · Download URLs</p><h2>Prefer the configured Content Delivery Network URL</h2>
+<p><code>getPreSignedUrl()</code> returns null for an empty key. It returns <code>CDN_BASE_URL + key</code> when a Content Delivery Network (CDN) base URL exists.</p>
+<p>Without a CDN, the adapter creates a time-limited S3 <code>GetObject</code> request. The current request sets the response content type to <code>image/jpeg</code>.</p></section>
+<section id="uploads"><p class="section-label">08 · Server uploads</p><h2>Resume multipart uploads after an SDK failure</h2>
+<p><code>putFile()</code> opens the local file as a stream and uses <code>ObjectUploader</code>. A multipart failure rewinds the stream and resumes with <code>MultipartUploader</code> and the saved upload state.</p>
+<div class="callout danger">The upload loop has no explicit retry limit. Add a bounded policy before using this path for unreliable or untrusted workloads.</div></section>
+<section id="signed-post"><p class="section-label">09 · Browser uploads</p><h2>Create a private signed POST for one key prefix</h2>
+<p><code>createSignedRequest()</code> rejects an empty key. It returns form attributes and inputs for a private S3 POST.</p>
+<div class="callout warning">The method accepts <code>contentType</code>, but the current policy does not use it. A client can submit a different content type unless another control rejects it.</div></section>
+<section id="wiring"><p class="section-label">10 · S3 wiring</p><h2>Settings build the AWS client and project adapter</h2>
+<div class="table-wrap"><table><thead><tr><th>Environment key</th><th>Setting</th></tr></thead><tbody>
+<tr><td><code>OBJECT_STORE_ACCESS_KEY</code></td><td>Explicit S3 access key</td></tr><tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Explicit S3 secret</td></tr>
+<tr><td><code>OBJECT_STORE_REGION</code></td><td>AWS region</td></tr><tr><td><code>BUCKET_NAME</code></td><td>S3 bucket</td></tr><tr><td><code>CDN_BASE_URL</code></td><td>Optional direct delivery base URL</td></tr>
+</tbody></table></div>
+<p>The dependency container creates <code>S3ClientInterface</code> with explicit credentials. This differs from the SQS and SNS wiring, which can use the AWS credential provider chain when both credential values are empty.</p></section>
+<section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known integration and storage limits</h2>
+<ul><li>The S3 upload retry loop has no explicit attempt limit.</li><li>Signed browser uploads do not enforce the supplied content type.</li><li>Download signing forces an image response content type.</li><li>S3 always receives an explicit credential object, including empty values.</li><li>Object-store settings do not include an endpoint for local S3-compatible services.</li><li>No general external-service adapter exists as a live example.</li></ul></section>
+<section id="tests"><p class="section-label">12 · Tests</p><h2>Keep external calls out of automated tests</h2>
+<pre><code>vendor/bin/phpunit tests/Infrastructure/Adapters/S3BucketTest.php
+vendor/bin/phpunit tests/Shared/Integrations</code></pre>
+<p>Use SDK and port doubles. Test empty keys, signed expiration, success mapping, malformed responses, timeouts, and exhausted retries.</p></section>
+<section id="checklist"><p class="section-label">13 · Checklist</p><h2>Add an integration safely</h2>
+<ul><li>The owning context and external action are clear.</li><li>A project-owned port hides vendor types.</li><li>Configuration validates required values.</li><li>Network timeouts are finite.</li><li>Retries are bounded and idempotent.</li><li>External responses are validated.</li><li>Secrets and personal data stay out of logs.</li><li>Tests use deterministic doubles.</li></ul></section>
+<section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Storage port</td><td><code>src/Backendbase/Shared/Integrations/BucketService.php</code></td></tr><tr><td>S3 adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/S3Bucket.php</code></td></tr>
+<tr><td>Object-store settings</td><td><code>config/autoload/object-store.global.php</code></td></tr><tr><td>Dependency wiring</td><td><code>config/dependencies.php</code></td></tr>
+<tr><td>External-service workflow</td><td><code>resources/docs/skills/add-external-service</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · External services and object storage guide</footer></body></html>

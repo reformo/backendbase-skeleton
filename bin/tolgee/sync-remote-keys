@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use function Backendbase\TolgeeSync\printHelp;
+use function Backendbase\TolgeeSync\runRemoteSync;
+
+require __DIR__ . '/sync-support.php';
+
+if (in_array('--help', $argv, true) || in_array('-h', $argv, true)) {
+    printHelp(
+        $argv[0],
+        'Replace local resources/i18n locale files with service-prefixed translations exported from Tolgee.',
+    );
+    exit(0);
+}
+
+exit(runRemoteSync());

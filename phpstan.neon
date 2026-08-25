@@ -1,0 +1,8 @@
+parameters:
+  level: 8
+  tmpDir: ./artifacts/phpstan
+  paths:
+    - src/
+    - tests/
+    - config/
+    - public/

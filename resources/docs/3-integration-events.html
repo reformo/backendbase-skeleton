@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase Integration Events</title>
+    <style>
+        :root {
+            --page: #f5f4fb;
+            --surface: #ffffff;
+            --surface-soft: #faf9ff;
+            --ink: #1f1b2d;
+            --muted: #675f78;
+            --line: #e2deeb;
+            --brand: #6941c6;
+            --brand-strong: #5332a4;
+            --brand-soft: #f0ebff;
+            --cyan: #087e8b;
+            --cyan-soft: #e8f8fa;
+            --green: #147d64;
+            --green-soft: #e9f8f3;
+            --amber: #946200;
+            --amber-soft: #fff6d8;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --code: #171421;
+            --code-ink: #f0edf8;
+            --shadow: 0 16px 42px rgba(53, 42, 81, 0.09);
+            --radius: 16px;
+            --max: 1180px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 24px;
+        }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--brand); }
+        a:hover { text-decoration-thickness: 2px; }
+
+        code, pre {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        code {
+            padding: 0.12rem 0.34rem;
+            border-radius: 5px;
+            background: var(--brand-soft);
+            color: var(--ink);
+            font-size: 0.91em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 83% 20%, rgba(108, 227, 216, 0.23), transparent 29%),
+                radial-gradient(circle at 8% 90%, rgba(180, 145, 255, 0.23), transparent 31%),
+                linear-gradient(135deg, #251742 0%, #5332a4 58%, #087e8b 120%);
+            color: #ffffff;
+        }
+
+        .hero::after {
+            position: absolute;
+            right: -80px;
+            bottom: -130px;
+            width: 430px;
+            height: 430px;
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 50%;
+            box-shadow: 0 0 0 62px rgba(255,255,255,0.035), 0 0 0 124px rgba(255,255,255,0.022);
+            content: "";
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(var(--max), calc(100% - 40px));
+            margin: 0 auto;
+            padding: 72px 0 64px;
+        }
+
+        .eyebrow {
+            margin: 0 0 13px;
+            color: #baf4ec;
+            font-size: 0.77rem;
+            font-weight: 820;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 900px;
+            margin: 0;
+            font-size: clamp(2.5rem, 5vw, 4.85rem);
+            line-height: 1.01;
+            letter-spacing: -0.057em;
+        }
+
+        .hero-copy {
+            max-width: 820px;
+            margin: 23px 0 0;
+            color: #e8e3f5;
+            font-size: clamp(1.03rem, 2vw, 1.24rem);
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 5px 11px;
+            border: 1px solid rgba(255,255,255,0.24);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 750;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 36px;
+            width: min(var(--max), calc(100% - 40px));
+            margin: 36px auto 82px;
+        }
+
+        .toc {
+            position: sticky;
+            top: 22px;
+            align-self: start;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .toc strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.78rem;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .toc a {
+            display: block;
+            padding: 5px 0;
+            color: var(--muted);
+            font-size: 0.91rem;
+            text-decoration: none;
+        }
+
+        .toc a:hover { color: var(--brand); }
+
+        main { min-width: 0; }
+
+        section {
+            margin-bottom: 54px;
+            scroll-margin-top: 20px;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: clamp(1.68rem, 3vw, 2.4rem);
+            line-height: 1.15;
+            letter-spacing: -0.036em;
+        }
+
+        h3 {
+            margin: 30px 0 10px;
+            font-size: 1.2rem;
+            line-height: 1.3;
+        }
+
+        h4 { margin: 21px 0 8px; }
+
+        .lede {
+            max-width: 780px;
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 1.04rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .card {
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: 0 8px 24px rgba(53, 42, 81, 0.05);
+        }
+
+        .card h3, .card h4 { margin-top: 0; }
+        .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+        .metric {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--brand);
+            font-size: 1.28rem;
+            font-weight: 820;
+            letter-spacing: -0.025em;
+        }
+
+        .callout {
+            margin: 20px 0;
+            padding: 16px 18px;
+            border-left: 4px solid var(--brand);
+            border-radius: 8px;
+            background: var(--brand-soft);
+        }
+
+        .callout strong { display: block; margin-bottom: 3px; }
+        .callout.warning { border-color: #d69c00; background: var(--amber-soft); }
+        .callout.danger { border-color: var(--red); background: var(--red-soft); }
+        .callout.success { border-color: var(--green); background: var(--green-soft); }
+
+        .diagram {
+            overflow-x: auto;
+            margin: 22px 0 28px;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .diagram svg {
+            display: block;
+            width: 100%;
+            min-width: 800px;
+            height: auto;
+        }
+
+        .diagram figcaption {
+            padding: 10px 8px 4px;
+            color: var(--muted);
+            font-size: 0.87rem;
+        }
+
+        .node { fill: var(--surface-soft); stroke: #a49ab6; stroke-width: 1.5; }
+        .node.brand { fill: var(--brand-soft); stroke: #9d7ee8; }
+        .node.cyan { fill: var(--cyan-soft); stroke: #57abb3; }
+        .node.green { fill: var(--green-soft); stroke: #61b69f; }
+        .node.amber { fill: var(--amber-soft); stroke: #d0a33b; }
+        .node.red { fill: var(--red-soft); stroke: #e09b95; }
+        .flow-line { fill: none; stroke: #75698a; stroke-width: 2; marker-end: url(#event-arrow); }
+        .flow-line.alt { stroke: #087e8b; }
+        .flow-line.fail { stroke: #c43e34; stroke-dasharray: 6 5; }
+        .node-title { fill: var(--ink); font: 750 14px Inter, ui-sans-serif, system-ui, sans-serif; }
+        .node-note { fill: var(--muted); font: 12px Inter, ui-sans-serif, system-ui, sans-serif; }
+        .flow-label { fill: var(--muted); font: 650 12px Inter, ui-sans-serif, system-ui, sans-serif; }
+
+        .code-wrap {
+            position: relative;
+            min-width: 0;
+            margin: 14px 0 22px;
+        }
+
+        pre {
+            overflow-x: auto;
+            margin: 0;
+            padding: 20px;
+            border: 1px solid #2a2636;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.85rem;
+            line-height: 1.62;
+            tab-size: 4;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            font-size: inherit;
+            overflow-wrap: normal;
+        }
+
+        .copy {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            padding: 6px 9px;
+            border: 1px solid #4a435c;
+            border-radius: 7px;
+            background: #272233;
+            color: #e8e3f2;
+            cursor: pointer;
+            font: 720 0.73rem Inter, ui-sans-serif, system-ui, sans-serif;
+        }
+
+        .copy:hover { background: #352e45; }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.91rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            font-size: 0.76rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+        td:first-child { font-weight: 650; }
+
+        ul, ol { padding-left: 1.35rem; }
+        li + li { margin-top: 6px; }
+
+        .steps {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .steps li {
+            position: relative;
+            min-height: 48px;
+            padding: 0 0 20px 52px;
+            counter-increment: step;
+        }
+
+        .steps li::before {
+            position: absolute;
+            left: 0;
+            top: -2px;
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--brand);
+            color: #ffffff;
+            content: counter(step);
+            font-size: 0.82rem;
+            font-weight: 820;
+        }
+
+        .steps li::after {
+            position: absolute;
+            left: 16px;
+            top: 34px;
+            bottom: 0;
+            width: 2px;
+            background: var(--line);
+            content: "";
+        }
+
+        .steps li:last-child::after { display: none; }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: var(--brand-soft);
+            color: var(--brand-strong);
+            font-size: 0.74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .tag.green { background: var(--green-soft); color: var(--green); }
+        .tag.red { background: var(--red-soft); color: var(--red); }
+        .tag.amber { background: var(--amber-soft); color: var(--amber); }
+
+        .contract-pair {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr);
+            gap: 12px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+
+        .contract-arrow {
+            display: grid;
+            place-items: center;
+            color: var(--red);
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        footer {
+            padding: 24px 20px 38px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .toc { position: static; }
+            .grid, .grid.three { grid-template-columns: 1fr; }
+            .hero-inner { padding: 54px 0 47px; }
+        }
+
+        @media (max-width: 620px) {
+            .hero-inner, .layout { width: min(100% - 24px, var(--max)); }
+            .layout { margin-top: 18px; }
+            h1 { font-size: 2.65rem; }
+            .card { padding: 17px; }
+            .contract-pair { grid-template-columns: 1fr; }
+            .contract-arrow { min-height: 34px; transform: rotate(90deg); }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #100d17;
+                --surface: #191522;
+                --surface-soft: #211b2d;
+                --ink: #f3effa;
+                --muted: #b8aec7;
+                --line: #362e45;
+                --brand: #b69af5;
+                --brand-strong: #d2c2ff;
+                --brand-soft: #302451;
+                --cyan: #77d4dc;
+                --cyan-soft: #143b40;
+                --green: #72d5b8;
+                --green-soft: #163b31;
+                --amber: #f2c85a;
+                --amber-soft: #3b3012;
+                --red: #ff9c93;
+                --red-soft: #40201f;
+                --shadow: 0 16px 42px rgba(0,0,0,0.24);
+            }
+            .node { stroke: #756987; }
+            .node.brand { stroke: #8f75cd; }
+            .node.cyan { stroke: #4c939a; }
+            .node.green { stroke: #4c9a84; }
+            .node.amber { stroke: #ad872c; }
+            .node.red { stroke: #ae6660; }
+            .flow-line { stroke: #a89bb9; }
+            .flow-line.alt { stroke: #6bc8d0; }
+            .flow-line.fail { stroke: #e67d74; }
+        }
+
+        @media print {
+            :root { color-scheme: light; }
+            body { background: #ffffff; }
+            .hero { background: #5332a4 !important; print-color-adjust: exact; }
+            .layout { display: block; width: 100%; margin: 24px 0; padding: 0 20px; }
+            .toc, .copy { display: none; }
+            section { break-inside: avoid-page; }
+            .card, .diagram, .table-wrap { box-shadow: none; }
+            a { color: inherit; text-decoration: none; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Developer Guide</p>
+        <h1>Integration Events</h1>
+        <p class="hero-copy">
+            Define stable event contracts, store them with domain changes, publish them through the outbox,
+            and map versioned messages into idempotent subscribers.
+        </p>
+        <div class="hero-meta" aria-label="Document scope">
+            <span class="pill">Producer contracts</span>
+            <span class="pill">Transactional outbox</span>
+            <span class="pill">Versioned consumers</span>
+            <span class="pill">Subscriber registry</span>
+            <span class="pill">Source snapshot: 25 August 2026</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <a href="#overview">Overview</a>
+        <a href="#terms">Event types</a>
+        <a href="#lifecycle">Lifecycle</a>
+        <a href="#contract">Event contract</a>
+        <a href="#naming">Naming</a>
+        <a href="#producer">Producer pattern</a>
+        <a href="#versioning">Payloads and versions</a>
+        <a href="#consumers">Consumer flow</a>
+        <a href="#subscribers">Subscriber types</a>
+        <a href="#registration">Registration</a>
+        <a href="#testing">Testing</a>
+        <a href="#current-events">Current events</a>
+        <a href="#known-issue">Known contract issue</a>
+        <a href="#checklist">Implementation checklist</a>
+        <a href="#source-map">Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p class="lede">
+                An integration event is a versioned fact that another component or service can consume.
+                The producer records the fact in the same transaction as its domain change.
+            </p>
+
+            <div class="grid three">
+                <article class="card">
+                    <span class="metric">Stable contract</span>
+                    <p>The event name, version, and payload shape are compatibility contracts.</p>
+                </article>
+                <article class="card">
+                    <span class="metric">Atomic record</span>
+                    <p>The domain mutation and outbox insert commit or roll back together.</p>
+                </article>
+                <article class="card">
+                    <span class="metric">Idempotent intake</span>
+                    <p>The inbox uses the consumer name and message ID to stop duplicate database work.</p>
+                </article>
+            </div>
+
+            <div class="callout success">
+                <strong>Primary rule</strong>
+                Publish business-relevant external effects through the outbox. Do not publish directly from a command handler.
+            </div>
+        </section>
+
+        <section id="terms">
+            <h2>Event types</h2>
+            <p class="lede">Backendbase uses separate contracts for domain, producer, and consumer concerns.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Type</th><th>Purpose</th><th>Execution</th><th>Core contract</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>Domain event</td>
+                            <td>Reports a fact inside one bounded context.</td>
+                            <td>Synchronous through <code>DomainEventPublisher</code>.</td>
+                            <td><code>DomainEvent</code></td>
+                        </tr>
+                        <tr>
+                            <td>Producer integration event</td>
+                            <td>Defines the published event name, version, time, and payload.</td>
+                            <td>Stored by <code>IntegrationEventTransaction</code>.</td>
+                            <td><code>IntegrationEvent</code></td>
+                        </tr>
+                        <tr>
+                            <td>Internal integration subscriber</td>
+                            <td>Handles an <code>IntegrationEvent</code> in the current process.</td>
+                            <td>Only an explicit <code>EventManager::dispatchEvent()</code> call invokes it.</td>
+                            <td><code>IntegrationEventSubscriber</code></td>
+                        </tr>
+                        <tr>
+                            <td>External integration subscriber</td>
+                            <td>Handles a mapped message received from a queue.</td>
+                            <td>Asynchronous through the queue processor and inbox.</td>
+                            <td><code>ExternalIntegrationEventSubscriber</code></td>
+                        </tr>
+                        <tr>
+                            <td>Event message</td>
+                            <td>Defines the typed payload available to a consumer.</td>
+                            <td>Created by Valinor after version lookup.</td>
+                            <td><code>EventMessage</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout warning">
+                <strong>Internal subscribers are not part of the outbox consumer path</strong>
+                The queue processor dispatches only <code>ExternalIntegrationEventSubscriber</code> implementations.
+                Project rules also prohibit direct <code>dispatchEvent()</code> calls from command handlers.
+            </div>
+        </section>
+
+        <section id="lifecycle">
+            <h2>End-to-end lifecycle</h2>
+            <p class="lede">The event moves through a producer contract, durable storage, transport, version mapping, and a subscriber.</p>
+
+            <figure class="diagram">
+                <svg viewBox="0 0 1120 485" role="img" aria-label="Integration event lifecycle">
+                    <title>Integration event lifecycle</title>
+                    <desc>A command creates a versioned integration event. One transaction writes domain data and an outbox row. A relay publishes the event. A consumer records an inbox row, maps a versioned message, and invokes an external subscriber.</desc>
+                    <defs>
+                        <marker id="event-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
+                        </marker>
+                    </defs>
+
+                    <rect class="node brand" x="24" y="60" width="160" height="74" rx="12"></rect>
+                    <text class="node-title" x="104" y="88" text-anchor="middle">Command handler</text>
+                    <text class="node-note" x="104" y="110" text-anchor="middle">Creates event</text>
+
+                    <rect class="node brand" x="238" y="60" width="178" height="74" rx="12"></rect>
+                    <text class="node-title" x="327" y="88" text-anchor="middle">IntegrationEvent</text>
+                    <text class="node-note" x="327" y="110" text-anchor="middle">name + version + payload</text>
+
+                    <rect class="node cyan" x="470" y="24" width="182" height="74" rx="12"></rect>
+                    <text class="node-title" x="561" y="52" text-anchor="middle">Domain tables</text>
+                    <text class="node-note" x="561" y="74" text-anchor="middle">Business mutation</text>
+
+                    <rect class="node cyan" x="470" y="132" width="182" height="74" rx="12"></rect>
+                    <text class="node-title" x="561" y="160" text-anchor="middle">Outbox row</text>
+                    <text class="node-note" x="561" y="182" text-anchor="middle">Same DB transaction</text>
+
+                    <rect class="node amber" x="706" y="132" width="158" height="74" rx="12"></rect>
+                    <text class="node-title" x="785" y="160" text-anchor="middle">Relay + queue</text>
+                    <text class="node-note" x="785" y="182" text-anchor="middle">At-least-once delivery</text>
+
+                    <rect class="node brand" x="918" y="132" width="178" height="74" rx="12"></rect>
+                    <text class="node-title" x="1007" y="160" text-anchor="middle">Message processor</text>
+                    <text class="node-note" x="1007" y="182" text-anchor="middle">Validate metadata</text>
+
+                    <rect class="node green" x="918" y="286" width="178" height="74" rx="12"></rect>
+                    <text class="node-title" x="1007" y="314" text-anchor="middle">Inbox</text>
+                    <text class="node-note" x="1007" y="336" text-anchor="middle">Process message once</text>
+
+                    <rect class="node brand" x="706" y="286" width="158" height="74" rx="12"></rect>
+                    <text class="node-title" x="785" y="314" text-anchor="middle">Version registry</text>
+                    <text class="node-note" x="785" y="336" text-anchor="middle">name + version</text>
+
+                    <rect class="node cyan" x="470" y="286" width="182" height="74" rx="12"></rect>
+                    <text class="node-title" x="561" y="314" text-anchor="middle">EventMessage</text>
+                    <text class="node-note" x="561" y="336" text-anchor="middle">Typed consumer carrier</text>
+
+                    <rect class="node green" x="238" y="286" width="178" height="74" rx="12"></rect>
+                    <text class="node-title" x="327" y="314" text-anchor="middle">External subscriber</text>
+                    <text class="node-note" x="327" y="336" text-anchor="middle">Application behavior</text>
+
+                    <rect class="node red" x="24" y="397" width="160" height="64" rx="12"></rect>
+                    <text class="node-title" x="104" y="424" text-anchor="middle">Reject / retry</text>
+                    <text class="node-note" x="104" y="445" text-anchor="middle">Failure policy</text>
+
+                    <path class="flow-line" d="M184 97 L238 97"></path>
+                    <path class="flow-line" d="M416 83 C438 83 445 61 470 61"></path>
+                    <path class="flow-line" d="M416 111 C440 111 445 169 470 169"></path>
+                    <text class="flow-label" x="436" y="100" text-anchor="middle">atomic</text>
+                    <path class="flow-line" d="M652 169 L706 169"></path>
+                    <path class="flow-line" d="M864 169 L918 169"></path>
+                    <path class="flow-line" d="M1007 206 L1007 286"></path>
+                    <path class="flow-line alt" d="M918 323 L864 323"></path>
+                    <path class="flow-line alt" d="M706 323 L652 323"></path>
+                    <path class="flow-line alt" d="M470 323 L416 323"></path>
+                    <path class="flow-line fail" d="M238 350 C201 372 170 397 155 411"></path>
+                    <text class="flow-label" x="205" y="385">failure</text>
+                </svg>
+                <figcaption>Figure 1. Durable boundaries allow the producer, broker, and consumer to recover independently.</figcaption>
+            </figure>
+
+            <p>
+                See <a href="4-messaging-and-queues.html">Messaging and Queue Operations</a>
+                for queue drivers, retry rules, dead letters, monitoring, and cron commands.
+            </p>
+        </section>
+
+        <section id="contract">
+            <h2>Producer event contract</h2>
+            <p class="lede"><code>IntegrationEvent</code> defines all data needed to store and publish the event.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Method</th><th>Contract</th><th>Stored or used as</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>eventName()</code></td><td>Stable event type string.</td><td><code>integration_event_outbox.event_name</code></td></tr>
+                        <tr><td><code>eventVersion()</code></td><td>Exact payload schema version.</td><td><code>integration_event_outbox.event_version</code></td></tr>
+                        <tr><td><code>occurredOn()</code></td><td>Time when the domain fact occurred.</td><td><code>integration_event_outbox.occurred_at</code></td></tr>
+                        <tr><td><code>getEventArguments()</code></td><td>JSON-compatible payload object.</td><td><code>integration_event_outbox.payload</code></td></tr>
+                        <tr><td><code>toArray()</code></td><td>Array form for logs and serialization.</td><td>Delegates to <code>getEventArguments()</code> in the trait.</td></tr>
+                        <tr><td><code>isExternal()</code></td><td>Returns the <code>IS_MESSAGING_EVENT</code> flag.</td><td>Project convention for outbox events.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Reference contract</h3>
+            <div class="code-wrap">
+                <pre><code>final class ExampleChanged implements IntegrationEvent
+{
+    public const string EVENT_VERSION = '1.0';
+    public const bool IS_MESSAGING_EVENT = true;
+    public const string EVENT_TYPE = 'Example_ExampleChanged';
+
+    use IntegrationEventTrait;
+
+    public function __construct(private readonly ExampleChangedPayload $payload)
+    {
+        $this-&gt;occurredOn = DateTimeImmutable::create();
+    }
+
+    public function eventName(): string
+    {
+        return self::EVENT_TYPE;
+    }
+
+    public function eventVersion(): string
+    {
+        return self::EVENT_VERSION;
+    }
+
+    public function getEventArguments(): array
+    {
+        return $this-&gt;payload-&gt;toArray();
+    }
+}</code></pre>
+            </div>
+
+            <div class="callout warning">
+                <strong>The external flag is a convention, not a transaction guard</strong>
+                <code>DoctrineIntegrationEventTransaction</code> stores every event passed to <code>execute()</code>.
+                It does not call <code>isExternal()</code> before insertion.
+            </div>
+        </section>
+
+        <section id="naming">
+            <h2>Naming rules</h2>
+            <p class="lede">Names must identify the producer service and the business fact.</p>
+
+            <div class="grid">
+                <article class="card">
+                    <h3>Producer event type</h3>
+                    <p><code>{PascalCaseServiceName}_{PascalCaseEventClassName}</code></p>
+                    <p>The service name comes from <code>service-name</code> in <code>config/autoload/global.php</code>.</p>
+                </article>
+                <article class="card">
+                    <h3>Consumer event name</h3>
+                    <p><code>{producer EVENT_TYPE}_Event</code></p>
+                    <p>The queue processor appends <code>_Event</code> before registry lookup and dispatch.</p>
+                </article>
+            </div>
+
+            <div class="code-wrap">
+                <pre><code># Default service-name: example
+Event class:    ExampleChanged
+Producer type:  Example_ExampleChanged
+Consumer name:  Example_ExampleChanged_Event</code></pre>
+            </div>
+
+            <div class="callout danger">
+                <strong>Do not rename a published event</strong>
+                Existing names are compatibility contracts. Use a migration plan when a published name must change.
+            </div>
+
+            <p>
+                The repository uses the current <code>Example_*</code> names for the example service.
+                Keep published names unchanged unless a planned migration replaces them.
+            </p>
+        </section>
+
+        <section id="producer">
+            <h2>Producer pattern</h2>
+            <p class="lede">Create the complete payload before the transaction. Keep broker calls outside the command handler.</p>
+
+            <div class="code-wrap">
+                <pre><code>$event = new ExampleChanged(new ExampleChangedPayload(
+    exampleId: $command-&gt;exampleId(),
+    isActive: $command-&gt;isActive(),
+    value: $command-&gt;value(),
+    details: $command-&gt;details(),
+));
+
+$this-&gt;integrationEventTransaction-&gt;execute(
+    $event,
+    function () use ($command): void {
+        $example = $this-&gt;exampleRepository-&gt;getActive($command-&gt;exampleId());
+        $example-&gt;change(
+            $command-&gt;isActive(),
+            $command-&gt;value(),
+            $command-&gt;details(),
+        );
+        $this-&gt;exampleRepository-&gt;save($example);
+    },
+);</code></pre>
+            </div>
+
+            <h3>Transaction behavior</h3>
+            <ol class="steps">
+                <li><strong>Start one Doctrine transaction.</strong></li>
+                <li><strong>Run the database mutation callback.</strong></li>
+                <li><strong>Serialize <code>getEventArguments()</code> as JSON.</strong></li>
+                <li><strong>Insert a UUID version 7 outbox row.</strong></li>
+                <li><strong>Commit both writes or roll back both writes.</strong></li>
+            </ol>
+
+            <div class="grid">
+                <article class="card">
+                    <h3>Allowed in the callback</h3>
+                    <ul>
+                        <li>Aggregate changes</li>
+                        <li>Repository writes</li>
+                        <li>Synchronous domain listeners that must control rollback</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <h3>Not allowed in the callback</h3>
+                    <ul>
+                        <li>Network calls</li>
+                        <li>Process execution</li>
+                        <li>Filesystem input or output</li>
+                        <li>Direct queue publication</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section id="versioning">
+            <h2>Payloads and versions</h2>
+            <p class="lede">
+                The producer payload and consumer message carrier are separate classes.
+                Their serialized shapes must still match for a given event version.
+            </p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Contract</th><th>Location</th><th>Purpose</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>Producer payload</td>
+                            <td><code>Contracts/IntegrationEvents/V1</code></td>
+                            <td>Creates the exact JSON object stored in the outbox.</td>
+                        </tr>
+                        <tr>
+                            <td>Consumer message</td>
+                            <td><code>Contracts/ExternalIntegrationEvents/V1</code></td>
+                            <td>Defines constructor fields and types accepted by the consumer.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Version rules</h3>
+            <ul>
+                <li>Keep the event name stable when the business fact stays the same.</li>
+                <li>Do not change a released version-one payload shape in place.</li>
+                <li>Create a new versioned payload and consumer carrier for an incompatible change.</li>
+                <li>Change <code>EVENT_VERSION</code> only when the matching consumer registration exists.</li>
+                <li>Keep old message contracts while old messages can remain in queues or outbox tables.</li>
+                <li>Use explicit typed fields. Do not serialize command objects or aggregates directly.</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Registry identity</strong>
+                The external registry key is <code>eventName:eventVersion</code>.
+                A duplicate key fails container creation. An unknown version fails message processing.
+            </div>
+
+            <h3>Consumer schema example</h3>
+            <div class="code-wrap">
+                <pre><code>final readonly class NewExampleAddedMessage implements EventMessage
+{
+    public function __construct(
+        private string $exampleId,
+        private string $type,
+        private int|null $typeTargetId,
+        private string $group,
+        private bool $isActive,
+        private string $key,
+        private string $value,
+        private array $details,
+    ) {
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'exampleId' =&gt; $this-&gt;exampleId,
+            'type' =&gt; $this-&gt;type,
+            // Remaining fields...
+        ];
+    }
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="consumers">
+            <h2>External consumer flow</h2>
+            <p class="lede">The queue processor treats contract and mapping errors as permanent failures.</p>
+
+            <ol class="steps">
+                <li><strong>Validate the event type, message ID, consumer name, and event version.</strong></li>
+                <li><strong>Append <code>_Event</code> to the producer event type.</strong></li>
+                <li><strong>Claim the inbox key made from consumer name and message ID.</strong></li>
+                <li><strong>Find subscribers for the derived event name.</strong></li>
+                <li><strong>Require every matched subscriber to implement the external subscriber interface.</strong></li>
+                <li><strong>Resolve the message class by event name and version.</strong></li>
+                <li><strong>Map the payload into the message class with Valinor.</strong></li>
+                <li><strong>Dispatch the message and commit <code>processed_at</code>.</strong></li>
+                <li><strong>Acknowledge the queue message.</strong></li>
+            </ol>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Result</th><th>Examples</th><th>Queue outcome</th></tr></thead>
+                    <tbody>
+                        <tr><td>Success</td><td>Subscriber completes, or inbox key is a processed duplicate.</td><td><span class="tag green">ACKNOWLEDGE</span></td></tr>
+                        <tr><td>Permanent failure</td><td>Missing metadata, unknown version, no subscriber, wrong subscriber type, or mapping error.</td><td><span class="tag red">REJECT</span></td></tr>
+                        <tr><td>Transient failure</td><td>Subscriber or infrastructure throws another exception.</td><td><span class="tag amber">RETRY</span> until attempt 5</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout success">
+                <strong>Database subscriber idempotency</strong>
+                <code>InboxMessageTransaction</code> wraps the inbox insert, subscriber work, and processed timestamp in one transaction.
+                A failed database mutation rolls back the inbox insert so the broker can retry.
+            </div>
+        </section>
+
+        <section id="subscribers">
+            <h2>Subscriber types</h2>
+            <p class="lede">Choose the subscriber interface from the dispatch boundary.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Behavior</th><th>Internal subscriber</th><th>External subscriber</th></tr></thead>
+                    <tbody>
+                        <tr><td>Interface</td><td><code>IntegrationEventSubscriber</code></td><td><code>ExternalIntegrationEventSubscriber</code></td></tr>
+                        <tr><td>Location</td><td><code>Application/IntegrationEventSubscribers</code></td><td><code>Application/ExternalIntegrationEventSubscribers/{SourceService}</code></td></tr>
+                        <tr><td>Input</td><td><code>IntegrationEvent</code></td><td><code>EventMessage</code></td></tr>
+                        <tr><td>Invocation</td><td>Explicit <code>EventManager::dispatchEvent()</code></td><td>Queue processor calls <code>dispatchExternalEvent()</code></td></tr>
+                        <tr><td>Version registry</td><td>Not used.</td><td>Required.</td></tr>
+                        <tr><td>Outbox path</td><td>Not automatic.</td><td>Yes.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>External subscriber example</h3>
+            <div class="code-wrap">
+                <pre><code>final readonly class NewExampleAddedExternalSubscriber
+    implements ExternalIntegrationEventSubscriber
+{
+    public const string EVENT_TYPE = 'Example_NewExampleAdded_Event';
+
+    public function __construct(private LoggerInterface $logger)
+    {
+    }
+
+    /** @param NewExampleAddedMessage $message */
+    public function handle(EventMessage $message): void
+    {
+        $this-&gt;logger-&gt;debug('NewExampleAdded', $message-&gt;toArray());
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [self::EVENT_TYPE];
+    }
+}</code></pre>
+            </div>
+
+            <h3>Exact and wildcard names</h3>
+            <p>
+                The event manager supports exact names and <code>fnmatch</code> wildcard patterns such as <code>Partner_*_Event</code>.
+                It hashes subscriber class names so the same subscriber runs once when exact and wildcard entries both match.
+            </p>
+
+            <div class="callout warning">
+                <strong>Keep subscriber types separate</strong>
+                If an internal subscriber wildcard matches an external event name, the external dispatcher rejects the message.
+                It requires all matched subscribers to implement <code>ExternalIntegrationEventSubscriber</code>.
+            </div>
+        </section>
+
+        <section id="registration">
+            <h2>Service provider registration</h2>
+            <p class="lede">Register both subscriber kinds in the bounded-context <code>ServiceProvider</code>.</p>
+
+            <div class="grid">
+                <article class="card">
+                    <h3>Internal registration</h3>
+                    <div class="code-wrap"><pre><code>[
+    'events' =&gt; NewExampleAddedSubscriber::getSubscribedEvents(),
+    'subscriberFQCN' =&gt; NewExampleAddedSubscriber::class,
+]</code></pre></div>
+                </article>
+                <article class="card">
+                    <h3>External registration</h3>
+                    <div class="code-wrap"><pre><code>[
+    'events' =&gt; NewExampleAddedExternalSubscriber::getSubscribedEvents(),
+    'subscriberFQCN' =&gt; NewExampleAddedExternalSubscriber::class,
+    'messageFQCN' =&gt; NewExampleAddedMessage::class,
+    'eventVersion' =&gt; NewExampleAdded::EVENT_VERSION,
+]</code></pre></div>
+                </article>
+            </div>
+
+            <h3>Container startup</h3>
+            <ol class="steps">
+                <li>The container scans <code>src/Backendbase/Domain/*/ServiceProvider.php</code>.</li>
+                <li>It adds every subscriber entry to <code>EventManager</code>.</li>
+                <li>It adds entries with <code>messageFQCN</code> and <code>eventVersion</code> to the external registry.</li>
+                <li>The registry checks that each message class implements <code>EventMessage</code>.</li>
+                <li>The registry rejects duplicate event-name and version keys.</li>
+            </ol>
+
+            <div class="callout">
+                <strong>Run from the project root</strong>
+                The service provider scan uses a relative path. Console and application entry points already change to the project root.
+            </div>
+        </section>
+
+        <section id="testing">
+            <h2>Required tests</h2>
+            <p class="lede">Test contract stability, transaction atomicity, mapping, duplication, and failure behavior.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Test</th><th>Must prove</th><th>Reference</th></tr></thead>
+                    <tbody>
+                        <tr><td>Schema test</td><td>The exact version string and payload array do not change.</td><td><code>IntegrationEventSchemaTest</code></td></tr>
+                        <tr><td>Command handler test</td><td>The handler passes the correct event and executes work inside the transaction callback.</td><td><code>AddNewExampleHandlerTest</code></td></tr>
+                        <tr><td>Outbox transaction test</td><td>Mutation and event commit together. Either failure rolls both back.</td><td><code>DoctrineIntegrationEventTransactionTest</code></td></tr>
+                        <tr><td>Registry test</td><td>Name and version resolve the expected message class. Unknown versions fail.</td><td><code>InMemoryExternalIntegrationEventRegistryTest</code></td></tr>
+                        <tr><td>Mapping test</td><td>Valid producer payload maps. Missing, extra, and wrong-type fields fail.</td><td><code>ExternalIntegrationEventDispatcherTest</code></td></tr>
+                        <tr><td>Processor test</td><td>Success acknowledges, duplicates do not dispatch, invalid input rejects, and transient failures retry.</td><td><code>ExternalIntegrationEventMessageProcessorTest</code></td></tr>
+                        <tr><td>End-to-end contract test</td><td>The actual producer payload maps into the registered consumer carrier.</td><td><strong>Missing for the current example.</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Recommended end-to-end contract assertion</h3>
+            <div class="code-wrap">
+                <pre><code>$event = new NewExampleAdded(new NewExampleAddedPayload(/* explicit values */));
+
+$message = (new MapperBuilder())
+    -&gt;allowPermissiveTypes()
+    -&gt;mapper()
+    -&gt;map(
+        NewExampleAddedMessage::class,
+        $event-&gt;getEventArguments(),
+    );
+
+self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
+            </div>
+
+            <h3>Focused test command</h3>
+            <div class="code-wrap">
+                <pre><code>vendor/bin/phpunit \
+  tests/Domain/ExampleBoundedContext/Contracts/IntegrationEvents \
+  tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php \
+  tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php \
+  tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php</code></pre>
+            </div>
+        </section>
+
+        <section id="current-events">
+            <h2>Current example events</h2>
+            <p class="lede">The example bounded context defines three producer integration events.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Class</th><th>Published type</th><th>Version</th><th>Payload</th><th>Registered subscribers</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><code>NewExampleAdded</code></td>
+                            <td><code>Example_NewExampleAdded</code></td>
+                            <td><code>1.0</code></td>
+                            <td><code>V1/NewExampleAddedPayload</code></td>
+                            <td>One internal subscriber and one external subscriber.</td>
+                        </tr>
+                        <tr>
+                            <td><code>ExampleChanged</code></td>
+                            <td><code>Example_ExampleChanged</code></td>
+                            <td><code>1.0</code></td>
+                            <td><code>V1/ExampleChangedPayload</code></td>
+                            <td>None.</td>
+                        </tr>
+                        <tr>
+                            <td><code>ExampleRemoved</code></td>
+                            <td><code>Example_ExampleRemoved</code></td>
+                            <td><code>1.0</code></td>
+                            <td>Inline <code>exampleId</code> array.</td>
+                            <td>None.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout warning">
+                <strong>Unregistered external events still publish</strong>
+                <code>ExampleChanged</code> and <code>ExampleRemoved</code> enter the outbox.
+                The current consumer rejects either event if it receives it because no matching external subscriber and message contract are registered.
+            </div>
+        </section>
+
+        <section id="known-issue">
+            <h2>Known version-one contract issue</h2>
+            <p class="lede">
+                The registered <code>NewExampleAdded</code> producer and external consumer use different payload shapes.
+                The actual Valinor mapping fails with eight errors.
+            </p>
+
+            <div class="contract-pair">
+                <article class="card">
+                    <h3>Published producer payload</h3>
+                    <div class="code-wrap"><pre><code>{
+  "exampleId": "example-id",
+  "command": {
+    "exampleId": "example-id",
+    "type": "system",
+    "typeTargetId": null,
+    "group": "settings",
+    "isActive": true,
+    "key": "page-size",
+    "value": "25",
+    "details": {}
+  }
+}</code></pre></div>
+                </article>
+
+                <div class="contract-arrow" aria-hidden="true">≠</div>
+
+                <article class="card">
+                    <h3>Registered consumer shape</h3>
+                    <div class="code-wrap"><pre><code>{
+  "exampleId": "example-id",
+  "type": "system",
+  "typeTargetId": null,
+  "group": "settings",
+  "isActive": true,
+  "key": "page-size",
+  "value": "25",
+  "details": {}
+}</code></pre></div>
+                </article>
+            </div>
+
+            <div class="callout danger">
+                <strong>Runtime effect</strong>
+                The queue processor classifies the mapping error as permanent.
+                It records a delivery failure and returns <code>REJECT</code>.
+                RabbitMQ sends the message to its dead-letter queue. Amazon Simple Queue Service needs a redrive policy.
+            </div>
+
+            <h3>Resolution choices</h3>
+            <div class="grid">
+                <article class="card">
+                    <h3>Preserve the published version</h3>
+                    <p>Change the version-one consumer carrier to accept the nested <code>command</code> shape.</p>
+                    <p>Use this choice when version-one messages can already exist.</p>
+                </article>
+                <article class="card">
+                    <h3>Create a new version</h3>
+                    <p>Keep version one unchanged. Add aligned version-two producer and consumer contracts.</p>
+                    <p>Use this choice for an incompatible released-contract change.</p>
+                </article>
+            </div>
+
+            <p>This guide reports the issue. It does not change either contract.</p>
+        </section>
+
+        <section id="checklist">
+            <h2>Implementation checklist</h2>
+            <p class="lede">Complete every applicable item before release.</p>
+
+            <ol class="steps">
+                <li><strong>Read the configured service name.</strong></li>
+                <li><strong>Choose a stable producer event type.</strong></li>
+                <li><strong>Create a versioned producer payload with explicit fields.</strong></li>
+                <li><strong>Implement <code>IntegrationEvent</code> and use <code>IntegrationEventTrait</code>.</strong></li>
+                <li><strong>Set <code>EVENT_TYPE</code>, <code>EVENT_VERSION</code>, and <code>IS_MESSAGING_EVENT</code>.</strong></li>
+                <li><strong>Write the mutation through <code>IntegrationEventTransaction::execute()</code>.</strong></li>
+                <li><strong>Create a matching versioned external message carrier.</strong></li>
+                <li><strong>Create the external subscriber with the <code>_Event</code> name.</strong></li>
+                <li><strong>Register subscriber, carrier, and version in <code>ServiceProvider</code>.</strong></li>
+                <li><strong>Test the exact producer payload against the registered carrier.</strong></li>
+                <li><strong>Test success, duplicate, invalid, and transient failure paths.</strong></li>
+                <li><strong>Apply outbox and inbox migrations before deployment.</strong></li>
+                <li><strong>Run the relay and consumer under operational supervision.</strong></li>
+            </ol>
+        </section>
+
+        <section id="source-map">
+            <h2>Source map</h2>
+            <p class="lede">Use these files when an integration-event rule changes.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Area</th><th>Primary source</th></tr></thead>
+                    <tbody>
+                        <tr><td>Producer event interface and trait</td><td><code>src/Backendbase/Shared/Domain/IntegrationEvent.php</code>, <code>IntegrationEventTrait.php</code></td></tr>
+                        <tr><td>Message and subscriber interfaces</td><td><code>src/Backendbase/Shared/Domain/EventMessage.php</code>, <code>IntegrationEventSubscriber.php</code>, <code>ExternalIntegrationEventSubscriber.php</code></td></tr>
+                        <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
+                        <tr><td>Outbox publication</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php</code></td></tr>
+                        <tr><td>Message processing and mapping</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
+                        <tr><td>Version registry</td><td><code>InMemoryExternalIntegrationEventRegistry.php</code></td></tr>
+                        <tr><td>Event manager</td><td><code>src/Backendbase/Shared/Services/EventManager/ContainerAwareEventManager.php</code></td></tr>
+                        <tr><td>Container registration</td><td><code>config/dependencies.php</code></td></tr>
+                        <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
+                        <tr><td>Reference implementation</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    Generated from the Backendbase Core source tree. Update this guide when event contracts, registry rules, or dispatch behavior change.
+</footer>
+
+<script>
+    document.querySelectorAll('.code-wrap').forEach((wrapper) => {
+        const pre = wrapper.querySelector('pre');
+        if (!pre) {
+            return;
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code');
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(pre.innerText);
+                button.textContent = 'Copied';
+                window.setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+            } catch (_error) {
+                button.textContent = 'Select text';
+            }
+        });
+        wrapper.appendChild(button);
+    });
+</script>
+</body>
+</html>

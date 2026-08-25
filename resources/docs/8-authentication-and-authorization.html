@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase Authentication and Authorization Guide</title>
+    <link rel="stylesheet" href="documentation.css">
+</head>
+<body>
+<header class="hero"><div class="hero-inner">
+    <p class="eyebrow">Backendbase Core · Identity boundary</p>
+    <h1>Authentication and Authorization</h1>
+    <p class="lede">JWT issue, Redis-backed validation, request authorization, access-control checks, API keys, security boundaries, and current runtime gaps.</p>
+    <div class="chips"><span class="chip">JWT</span><span class="chip">Redis</span><span class="chip">ACL</span><span class="chip">API keys</span><span class="chip">Middleware</span></div>
+</div></header>
+<div class="layout">
+<nav aria-label="Page contents"><strong>Contents</strong>
+    <a href="#overview">1. Overview</a><a href="#map">2. Component map</a><a href="#flow">3. Request flow</a>
+    <a href="#issue">4. Token issue</a><a href="#validate">5. Token validation</a><a href="#acl">6. Access control</a>
+    <a href="#api-key">7. API keys</a><a href="#routes">8. Route policy</a><a href="#configuration">9. Configuration</a>
+    <a href="#failures">10. Failure behavior</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a>
+    <a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
+</nav>
+<main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Two checks protect a private operation</h2>
+    <p>Authentication proves the token state. Authorization decides whether the authenticated user can perform an operation.</p>
+    <div class="grid-3">
+        <article class="card"><h3>JWT adapter</h3><p>Issues HMAC SHA-256 tokens and validates their signature, time, issuer, audience, identifier, and Redis state.</p></article>
+        <article class="card"><h3>Authorization middleware</h3><p>Reads the bearer token and adds user, time zone, and access-control attributes to the request.</p></article>
+        <article class="card"><h3>ACL</h3><p>Allows a named privilege, full privileges, or the <code>system-admin</code> role.</p></article>
+    </div>
+    <div class="callout warning"><strong>Current scope:</strong> The implementation is a reference identity boundary. The ExampleApi authentication action is not production authentication.</div>
+</section>
+<section id="map"><p class="section-label">02 · Component map</p><h2>Identity code and HTTP security are separate</h2>
+    <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th><th>State</th></tr></thead><tbody>
+        <tr><td><code>Jwt</code></td><td>Issue, parse, validate, and revoke tokens.</td><td>Signed token plus Redis records</td></tr>
+        <tr><td><code>AuthorizationMiddleware</code></td><td>Validate the bearer header and enrich the request.</td><td>PSR-7 attributes</td></tr>
+        <tr><td><code>Acl</code></td><td>Enforce privilege checks.</td><td>Token privilege list</td></tr>
+        <tr><td><code>ValidateApiKey</code></td><td>Validate an API-specific key or identifier mode.</td><td>Settings and request attributes</td></tr>
+        <tr><td><code>SessionMiddleware</code></td><td>Start a PHP session when an authorization server value exists.</td><td>PHP session</td></tr>
+    </tbody></table></div>
+</section>
+<section id="flow"><p class="section-label">03 · Request flow</p><h2>Bearer validation enriches the request</h2>
+    <div class="diagram-wrap"><ol class="flow">
+        <li><strong>Client</strong><small>sends bearer token</small></li><li><strong>Middleware</strong><small>parses scheme + token</small></li>
+        <li><strong>JWT</strong><small>checks cryptography + claims</small></li><li><strong>Redis</strong><small>confirms token is active</small></li>
+        <li><strong>Request</strong><small>receives user + ACL</small></li><li><strong>Controller</strong><small>dispatches the use case</small></li>
+    </ol></div>
+    <p>The middleware adds <code>authorizedUserId</code>, <code>authorizedUserData</code>, <code>clientTimezone</code>, and an <code>Acl</code> object.</p>
+</section>
+<section id="issue"><p class="section-label">04 · Token issue</p><h2>Token issue creates cryptographic and server-side state</h2>
+    <ol class="steps"><li>Create a random token identifier.</li><li>Set issuer, audience, identifier claim, custom user claim, and expiry.</li>
+        <li>Sign with HMAC SHA-256 and the Base64 signing key.</li><li>Store <code>JWT:{alias}:{jti}</code> in Redis with a time-to-live.</li>
+        <li>Store user data, token history, privileges, and claim metadata under the alias and user identifier.</li></ol>
+    <p>The default alias is <code>USER</code>. The default issuer is <code>backendbase-api</code>. The default duration is 24 hours.</p>
+    <div class="callout danger"><strong>Demo authentication:</strong> <code>POST /auth</code> creates a token for one fixed user. It reads the email but does not verify the password.</div>
+</section>
+<section id="validate"><p class="section-label">05 · Token validation</p><h2>Redis enables immediate revocation</h2>
+    <ul><li>The token must parse as an unencrypted signed JWT.</li><li>The token identifier must be a non-empty string.</li>
+        <li>The Redis token key must exist.</li><li>The signature, current time, issuer, token identifier, and audience must validate.</li>
+        <li>The Redis user record must exist.</li></ul>
+    <p>The clock permits 30 seconds of leeway. A failed validation attempts to delete the token key and raises <code>AuthorizationExpired</code>.</p>
+    <div class="callout"><strong>Operational dependency:</strong> JWT issue and validation require Redis and RedisJSON. A valid signature alone is not sufficient.</div>
+</section>
+<section id="acl"><p class="section-label">06 · Access control</p><h2>Ask the ACL for one named privilege</h2>
+    <pre><code>$acl->isAllowed('example.change');</code></pre>
+    <p>The check succeeds when the user has the requested privilege, has <code>full-privileges</code>, or uses role <code>system-admin</code>. A denied check throws <code>ResourceAccessForbidden</code> with HTTP status 403.</p>
+    <div class="callout warning">Do not read the raw privilege array in controllers. Put the access decision in <code>Acl</code> or a domain-specific authorization service.</div>
+</section>
+<section id="api-key"><p class="section-label">07 · API keys</p><h2>API-key validation depends on request attributes</h2>
+    <p>ExampleApi middleware sets <code>apiName</code>, <code>apiKeyHeaderName</code>, and <code>useIdentifierAsApiKey</code>. <code>ValidateApiKey</code> then compares the request header with API settings.</p>
+    <div class="table-wrap"><table><thead><tr><th>Case</th><th>Behavior</th></tr></thead><tbody>
+        <tr><td>OPTIONS</td><td>Returns an empty 200 response.</td></tr><tr><td>Configured public path</td><td>Skips API-key validation.</td></tr>
+        <tr><td>Identifier mode</td><td>Requires a non-empty header but does not compare it with a configured secret.</td></tr>
+        <tr><td>Normal mode</td><td>Compares the header with <code>{api-name}.api-key</code>, except for <code>/</code>.</td></tr>
+    </tbody></table></div>
+    <div class="callout danger"><strong>Current state:</strong> ExampleApi comments out <code>ValidateApiKey::class</code>. OpenAPI and Bruno still declare and send the key.</div>
+</section>
+<section id="routes"><p class="section-label">08 · Route policy</p><h2>Protect new endpoints by default</h2>
+    <p>Group new consumer endpoints with <code>AuthorizationMiddleware</code>. Leave an endpoint public only for a clear bootstrap, callback, webhook, or public-information use case.</p>
+    <p>The current Example module protects POST, PATCH, and DELETE routes. Its GET routes are not grouped with bearer authorization.</p>
+    <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
+</section>
+<section id="configuration"><p class="section-label">09 · Configuration</p><h2>JWT settings form one security contract</h2>
+    <div class="table-wrap"><table><thead><tr><th>Setting</th><th>Source</th><th>Purpose</th></tr></thead><tbody>
+        <tr><td><code>BACKENDBASE_JWT_SIGN_KEY</code></td><td>Environment</td><td>Base64 HMAC signing key</td></tr>
+        <tr><td><code>EXAMPLE_API_JWT_PERMITTED_FOR</code></td><td>Environment or <code>example-api</code></td><td>Audience</td></tr>
+        <tr><td><code>issuer</code></td><td><code>backendbase-api</code></td><td>Token issuer</td></tr>
+        <tr><td><code>duration</code></td><td><code>PT24H</code></td><td>Token lifetime</td></tr>
+        <tr><td><code>EXAMPLE_API_KEY</code></td><td>Environment</td><td>Expected API key when middleware is enabled</td></tr>
+    </tbody></table></div>
+    <div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
+</section>
+<section id="failures"><p class="section-label">10 · Failure behavior</p><h2>Security errors need stable public status codes</h2>
+    <p>The ACL uses status 403. The current bearer middleware returns status 400 for a missing, malformed, expired, or invalid token. API-key failures also return 400.</p>
+    <div class="callout warning"><strong>Contract difference:</strong> OpenAPI lists 401 and 403 for authentication and authorization failures. The runtime currently returns 400 for several authentication failures.</div>
+</section>
+<section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known security limits</h2>
+    <ul><li>The authentication endpoint does not verify credentials.</li><li>API-key middleware is disabled.</li><li>Bearer failures use 400 instead of 401.</li>
+        <li>The time-zone header is passed directly to <code>DateTimeZone</code>.</li><li><code>ValidateApiKey</code> contains public paths that do not belong to the current ExampleApi route set.</li>
+        <li><code>SessionMiddleware</code> is available but is not part of the inspected ExampleApi middleware chain.</li></ul>
+</section>
+<section id="tests"><p class="section-label">12 · Tests</p><h2>Verify cryptography, state, middleware, and policy</h2>
+    <pre><code>vendor/bin/phpunit tests/Domain/IdentityAndAccess
+vendor/bin/phpunit tests/Shared/Http/Middleware
+vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
+    <p>Cover token issue, claim validation, Redis revocation, expiry, malformed tokens, request attributes, ACL allow and deny paths, API-key modes, and protected route grouping.</p>
+</section>
+<section id="checklist"><p class="section-label">13 · Checklist</p><h2>Review every security change</h2>
+    <ul><li>Credentials are verified before token issue.</li><li>Secrets are not logged or returned.</li><li>Issuer, audience, expiry, and Redis state are validated.</li>
+        <li>Routes have an explicit public or protected policy.</li><li>ACL checks use stable privilege names.</li><li>401 and 403 responses match OpenAPI.</li>
+        <li>Failure paths have focused tests.</li></ul>
+</section>
+<section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2>
+    <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+        <tr><td>JWT adapter</td><td><code>Domain/IdentityAndAccess/Adapters/Authentication/Jwt.php</code></td></tr>
+        <tr><td>Bearer middleware</td><td><code>Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php</code></td></tr>
+        <tr><td>ACL</td><td><code>Domain/IdentityAndAccess/Authorization/Acl.php</code></td></tr>
+        <tr><td>API key</td><td><code>Shared/Http/Middleware/ValidateApiKey.php</code></td></tr>
+        <tr><td>Authentication action</td><td><code>Infrastructure/UseCase/ExampleApi/Controllers/Root/Authenticate.php</code></td></tr>
+        <tr><td>JWT configuration</td><td><code>config/example-api/jwt.global.php</code></td></tr>
+    </tbody></table></div>
+</section>
+</main></div><footer>Backendbase Core · Authentication and authorization guide</footer>
+</body></html>

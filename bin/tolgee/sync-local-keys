@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use function Backendbase\TolgeeSync\printHelp;
+use function Backendbase\TolgeeSync\runLocalSync;
+
+require __DIR__ . '/sync-support.php';
+
+if (in_array('--help', $argv, true) || in_array('-h', $argv, true)) {
+    printHelp(
+        $argv[0],
+        'Create Tolgee keys that exist in local resources/i18n locale files but not in Tolgee.',
+    );
+    exit(0);
+}
+
+exit(runLocalSync());

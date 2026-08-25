@@ -1,0 +1,79 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+#Enable inspections
+#include:
+#  - name: <SomeEnabledInspectionId>
+#Disable inspections
+#exclude:
+#  - name: <SomeDisabledInspectionId>
+#    paths:
+#      - <path/where/not/run/inspection>
+php:
+  version: 8.5 #(Applied in CI/CD pipeline)
+#Execute shell command before Qodana execution (Applied in CI/CD pipeline)
+#bootstrap: sh ./prepare-qodana.sh
+#Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
+#plugins:
+#  - id: <plugin.id> #(plugin id can be found at https://plugins.jetbrains.com)
+#Specify Qodana linter for analysis (Applied in CI/CD pipeline)
+linter: jetbrains/qodana-php:latest
+include:
+  - name: PhpRedundantAttributeParenthesisInspection
+  - name: PhpInconsistentReturnPointsInspection
+  - name: PhpExpressionWithSameOperandsInspection
+  - name: PhpMethodParametersCountMismatchInspection
+  - name: PhpPointlessBooleanExpressionInConditionInspection
+  - name: PhpTernaryExpressionCanBeReplacedWithConditionInspection
+  - name: PhpUnnecessaryLocalVariableInspection
+  - name: PhpIssetCanBeReplacedWithCoalesceInspection
+  - name: PhpMixedReturnTypeCanBeReducedInspection
+  - name: PhpFullyQualifiedNameUsageInspection
+  - name: PhpDocMissingThrowsInspection
+  - name: PhpRedundantClosingTagInspection
+  - name: PhpCastIsUnnecessaryInspection
+  - name: PhpUnnecessaryFullyQualifiedNameInspection
+  - name: PhpConditionAlreadyCheckedInspection
+  - name: PhpUnhandledExceptionInspection
+  - name: PhpReturnDocTypeMismatchInspection
+  - name: PhpMissingParamTypeInspection
+  - name: PhpMissingFieldTypeInspection
+  - name: PhpMissingReturnTypeInspection
+  - name: PhpUnusedAliasInspection
+  - name: PhpUnusedLocalVariableInspection
+  - name: PhpUnusedParameterInspection
+  - name: PhpUnusedPrivateMethodInspection
+  - name: PhpStrFunctionsInspection
+  - name: PhpClassConstantAccessedViaChildClassInspection
+  - name: PhpIllegalPsrClassPathInspection
+  - name: PhpDeprecationInspection
+  - name: DuplicatedCode
+  - name: PhpExceptionImmediatelyRethrownInspection
+  - name: PhpComposerExtensionStubsInspection
+  - name: PhpLoopCanBeConvertedToArrayMapInspection
+  - name: PhpSameParameterValueInspection
+  - name: PhpDocSignatureInspection
+  - name: PhpPossiblePolymorphicInvocationInspection
+  - name: PhpPrivateFieldCanBeLocalVariableInspection
+  - name: PhpPropertyOnlyWrittenInspection
+  - name: PhpRedundantOptionalArgumentInspection
+  - name: PhpVarTagWithoutVariableNameInspection
+  - name: PhpUnnecessaryCurlyVarSyntaxInspection
+  - name: PhpUnreachableStatementInspection
+  - name: PhpIncludeInspection
+  - name: PhpUnusedPrivateFieldInspection
+  - name: PhpArrayUsedOnlyForWriteInspection
+  - name: PhpClassCanBeReadonlyInspection
+  - name: PhpConditionCheckedByNextConditionInspection
+  - name: PhpMissingParentConstructorInspection
+  - name: PhpNamedArgumentsWithChangedOrderInspection
+  - name: PhpParenthesesCanBeOmittedForNewCallInspection
+  - name: PhpUnnecessaryStringCastInspection
+  - name: PhpStatementHasEmptyBodyInspection
+  - name: PhpCastIsEvaluableInspection
+  - name: PhpParameterByRefIsNotUsedAsReferenceInspection

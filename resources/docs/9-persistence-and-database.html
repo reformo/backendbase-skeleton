@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase Persistence and Database Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Storage boundary</p><h1>Persistence and Database</h1>
+<p class="lede">Read and write ports, Doctrine ORM records, DBAL projections, mapping validation, migrations, seeders, transactions, and database tests.</p>
+<div class="chips"><span class="chip">Doctrine ORM</span><span class="chip">DBAL</span><span class="chip">MySQL</span><span class="chip">Migrations</span><span class="chip">Seeders</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#architecture">2. Architecture</a><a href="#write">3. Write persistence</a><a href="#read">4. Read projections</a>
+<a href="#mapping">5. Record mapping</a><a href="#discovery">6. Discovery and types</a><a href="#migrations">7. Migrations</a><a href="#seeders">8. Seeders</a>
+<a href="#transactions">9. Transactions</a><a href="#tests">10. Database tests</a><a href="#rules">11. Rules</a><a href="#commands">12. Commands</a><a href="#sources">13. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>The domain does not know Doctrine</h2>
+<p>Bounded-context contracts define persistence ports. Doctrine adapters implement those ports. Domain aggregates and read models remain independent from database records.</p>
+<div class="grid-3"><article class="card"><h3>Write side</h3><p>Doctrine ORM maps aggregate snapshots to records and saves state.</p></article><article class="card"><h3>Read side</h3><p>Doctrine DBAL runs explicit SQL and maps rows into immutable read models.</p></article><article class="card"><h3>Schema side</h3><p>Reviewed migrations own production schema changes. Seeders add approved reference data.</p></article></div>
+</section>
+<section id="architecture"><p class="section-label">02 · Architecture</p><h2>Ports separate behavior from storage</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Handler</strong><small>uses a context port</small></li><li><strong>Port</strong><small>defines required behavior</small></li><li><strong>Adapter</strong><small>uses ORM or DBAL</small></li><li><strong>Mapper</strong><small>validates state or rows</small></li><li><strong>Connection</strong><small>talks to MySQL</small></li><li><strong>Model</strong><small>returns domain or read data</small></li></ol></div>
+<div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="2-cqrs.html">CQRS</a></div>
+</section>
+<section id="write"><p class="section-label">03 · Write persistence</p><h2>Save aggregate state through a write port</h2>
+<p><code>ExampleWriteRepository</code> persists a new <code>ExampleRecord</code>, loads active records by UUID, synchronizes a record from an aggregate snapshot, and flushes the entity manager.</p>
+<ul><li><code>add()</code> maps a new aggregate with <code>fromDomain()</code>.</li><li><code>getActive()</code> reconstitutes an aggregate with <code>toDomain()</code>.</li><li><code>save()</code> synchronizes the existing record and flushes.</li></ul>
+<div class="callout warning">The adapter maps state. It must not decide how an example changes or whether a business operation is allowed.</div>
+</section>
+<section id="read"><p class="section-label">04 · Read projections</p><h2>Use DBAL and explicit SQL for query models</h2>
+<p><code>ExampleReadRepository</code> uses one table for identifier lookup, detail lookup, group lists, and paginated example lists.</p>
+<ul><li>Bind all values as parameters.</li><li>Bind page size and offset as integers.</li><li>Filter removed records with <code>deleted_at IS NULL</code>.</li>
+<li>Return context read models, not database rows or Doctrine entities.</li><li>Use stable ordering for pagination.</li></ul>
+<div class="callout"><strong>Trust boundary:</strong> <code>ExampleReadModelMapper</code> rejects invalid persisted strings, integers, booleans, enums, dates, and JSON objects.</div>
+</section>
+<section id="mapping"><p class="section-label">05 · Record mapping</p><h2>Records translate aggregate snapshots into columns</h2>
+<p><code>ExampleRecord</code> uses PHP attributes for its table, indexes, unique constraints, columns, generated columns, UUID, enum, JSON, timestamps, and soft removal state.</p>
+<div class="table-wrap"><table><thead><tr><th>Mapping concern</th><th>Current pattern</th></tr></thead><tbody>
+<tr><td>Domain enum</td><td>Native string-backed enum with Doctrine <code>enumType</code>.</td></tr><tr><td>Aggregate state</td><td><code>snapshot()</code> feeds <code>synchronize()</code>.</td></tr>
+<tr><td>Reconstitution</td><td><code>toDomain()</code> calls a domain reconstitution factory.</td></tr><tr><td>Soft removal</td><td><code>deleted_at</code> remains part of persistence, while domain state uses <code>removedAt</code>.</td></tr>
+<tr><td>Uniqueness</td><td>Generated columns support active-record uniqueness when nullable values and soft removal are present.</td></tr>
+</tbody></table></div>
+</section>
+<section id="discovery"><p class="section-label">06 · Discovery and types</p><h2>PathFinder discovers mapped entity directories</h2>
+<p>The runtime and Doctrine CLI use <code>PathFinder::doctrineEntityPaths()</code>. The CLI schema filter includes service tables and the Doctrine migration metadata table.</p>
+<p><code>config/doctrine-types.php</code> registers UUID, binary UUID, and JSON document types. The main container also registers custom MySQL DQL functions.</p>
+<div class="callout warning">Run Doctrine commands from the project root. Entity and configuration discovery use relative paths.</div>
+</section>
+<section id="migrations"><p class="section-label">07 · Migrations</p><h2>Generate, review, and execute approved schema changes</h2>
+<ol class="steps"><li>Finish the domain record and repository behavior.</li><li>Make repository tests pass.</li><li>Run <code>bin/doctrine migrations:diff</code>.</li>
+<li>Review every generated SQL statement.</li><li>Keep only the schema requested by the feature.</li><li>Use <code>CREATE TABLE IF NOT EXISTS</code> for new table statements.</li>
+<li>Run the migration and verify the resulting schema.</li></ol>
+<div class="callout danger"><strong>Hard boundary:</strong> Do not add unrequested tables, columns, indexes, timestamps, status fields, or audit fields.</div>
+</section>
+<section id="seeders"><p class="section-label">08 · Seeders</p><h2>Seed only approved reference data</h2>
+<p>Seeders use the <code>Backendbase\Seeders</code> namespace and live under <code>resources/database/Seeders</code>. A migration can call a seeder at the end of <code>up()</code>.</p>
+<ul><li>Make each seeder idempotent with an existence check.</li><li>Seed reference or lookup data only.</li><li>Do not put environment-specific or test-only data in production seeders.</li>
+<li>Do not invoke the reference <code>ExampleSeeder</code> unless the feature explicitly needs that data.</li></ul>
+</section>
+<section id="transactions"><p class="section-label">09 · Transactions</p><h2>Use one transaction for state and its outbox event</h2>
+<p><code>IntegrationEventTransaction</code> coordinates a domain mutation and the integration event outbox insert. Inbox adapters coordinate consumer deduplication and external-effect state.</p>
+<div class="related"><a href="3-integration-events.html">Integration Events</a><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
+</section>
+<section id="tests"><p class="section-label">10 · Database tests</p><h2>Use production metadata in repository tests</h2>
+<ul><li>Create ORM test schemas with Doctrine <code>SchemaTool</code> and production mapping metadata.</li><li>Test aggregate-to-record and record-to-aggregate mapping.</li>
+<li>Test DBAL filtering, null handling, ordering, pagination, and malformed persisted data.</li><li>Test migration SQL and custom Doctrine functions.</li>
+<li>Test seeders twice to prove idempotency.</li><li>Test commit and rollback behavior for transaction adapters.</li></ul>
+<pre><code>vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine
+vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine
+vendor/bin/phpunit tests/Shared/Persistence</code></pre>
+</section>
+<section id="rules"><p class="section-label">11 · Rules</p><h2>Keep storage rules explicit</h2>
+<ul><li>Handlers depend on ports, not concrete Doctrine classes.</li><li>Controllers do not run SQL or use the entity manager.</li><li>Read adapters validate persisted data before creating read models.</li>
+<li>Write adapters map aggregate state without business decisions.</li><li>Database changes require explicit feature scope and reviewed migrations.</li><li>Migration and seeder behavior has automated evidence.</li></ul>
+</section>
+<section id="commands"><p class="section-label">12 · Commands</p><h2>Common database commands</h2>
+<pre><code>bin/doctrine migrations:status
+bin/doctrine migrations:diff
+bin/doctrine migrations:migrate --no-interaction
+bin/doctrine orm:validate-schema
+bin/doctrine orm:clear-cache:query
+bin/doctrine orm:clear-cache:metadata
+bin/doctrine orm:clear-cache:result</code></pre>
+</section>
+<section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
+<div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Write adapter</td><td><code>ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php</code></td></tr>
+<tr><td>Read adapter</td><td><code>ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadRepository.php</code></td></tr>
+<tr><td>Record</td><td><code>ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php</code></td></tr>
+<tr><td>Row mapper</td><td><code>ExampleReadModelMapper.php</code></td></tr><tr><td>CLI</td><td><code>bin/doctrine</code></td></tr>
+<tr><td>Migrations</td><td><code>resources/database/Migrations</code></td></tr><tr><td>Seeders</td><td><code>resources/database/Seeders</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · Persistence and database guide</footer></body></html>

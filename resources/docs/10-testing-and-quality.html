@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase Testing and Quality Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Verification strategy</p><h1>Testing and Quality</h1>
+<p class="lede">Test ownership, fast feedback, database evidence, API checks, coverage, static analysis, coding standards, automation, and completion criteria.</p>
+<div class="chips"><span class="chip">PHPUnit 13</span><span class="chip">PHPStan level 8</span><span class="chip">PHPCS</span><span class="chip">Coverage</span><span class="chip">Architecture tests</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#layout">2. Suite layout</a><a href="#layers">3. Test layers</a><a href="#fast">4. Fast tests</a>
+<a href="#database">5. Database tests</a><a href="#api">6. API and contract</a><a href="#static">7. Static checks</a><a href="#coverage">8. Coverage</a>
+<a href="#workflow">9. Verification workflow</a><a href="#automation">10. Automation state</a><a href="#gaps">11. Current gaps</a><a href="#commands">12. Commands</a><a href="#sources">13. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
+<p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
+<div class="summary-grid"><div class="stat"><strong>73</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>3</strong><span>Main quality commands</span></div></div>
+</section>
+<section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
+<div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
+<tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Module service tests</td></tr>
+<tr><td><code>tests/Domain</code></td><td>Cross-module or adapter-aware domain behavior</td><td>Aggregates, handlers, repositories, identity</td></tr>
+<tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS, primitives, HTTP, persistence, services</td></tr>
+<tr><td><code>tests/Infrastructure</code></td><td>External adapters and use cases</td><td>Queue, notification, persistence, API controllers</td></tr>
+<tr><td><code>tests/Functional</code></td><td>Complete in-process flows</td><td>Example lifecycle through both buses</td></tr>
+<tr><td><code>tests/Architecture</code></td><td>Parsed-symbol dependency rules</td><td>Domain purity, context isolation, adapter direction, framework imports, and Shared direction</td></tr>
+</tbody></table></div>
+</section>
+<section id="layers"><p class="section-label">03 · Test layers</p><h2>Each layer proves a different contract</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Value object</strong><small>invariants and boundaries</small></li><li><strong>Aggregate</strong><small>business state changes</small></li><li><strong>Handler</strong><small>use-case orchestration</small></li><li><strong>Repository</strong><small>mapping and SQL</small></li><li><strong>API</strong><small>HTTP translation</small></li><li><strong>E2E</strong><small>running system evidence</small></li></ol></div>
+<p>Do not replace a narrow unit test with a slow end-to-end test. Do not claim runtime behavior from static analysis alone.</p>
+</section>
+<section id="fast"><p class="section-label">04 · Fast tests</p><h2>Keep domain and application feedback deterministic</h2>
+<ul><li>Test value-object invalid, boundary, and valid inputs.</li><li>Test aggregate invariants before repository behavior.</li><li>Use memory repositories for complete in-process lifecycles.</li>
+<li>Stub ports at application boundaries.</li><li>Assert emitted events when the event is part of the use-case contract.</li><li>Do not make live network calls.</li></ul>
+</section>
+<section id="database"><p class="section-label">05 · Database tests</p><h2>Use real mapping metadata and isolated schemas</h2>
+<p>Doctrine repository tests use production mapping metadata. They verify state mapping, SQL filters, ordering, pagination, null behavior, JSON data, enums, and rollback.</p>
+<div class="callout warning">Do not copy mapped tables into handwritten test DDL. Use Doctrine <code>SchemaTool</code> with the production record metadata.</div>
+<div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
+</section>
+<section id="api"><p class="section-label">06 · API and contract</p><h2>Verify both adapter behavior and the published contract</h2>
+<ul><li>Controller tests check input parsing, bus dispatch, response status, headers, and body shape.</li><li>Routing tests check method, path, module registration, and authorization grouping.</li>
+<li>OpenAPI validation checks document structure.</li><li>Bruno checks selected examples against a running API.</li><li>OpenAPI and Bruno do not replace failure-path PHPUnit tests.</li></ul>
+<div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
+</section>
+<section id="static"><p class="section-label">07 · Static checks</p><h2>Run analysis and style after behavior passes</h2>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>Configuration</th><th>Current scope</th></tr></thead><tbody>
+<tr><td>PHPStan</td><td><code>phpstan.neon</code></td><td><code>src</code> and <code>tests</code>, level 8</td></tr>
+<tr><td>PHPCS</td><td><code>phpcs.xml.dist</code></td><td>Doctrine Coding Standard for <code>src</code> and <code>tests</code></td></tr>
+<tr><td>Qodana</td><td><code>qodana.yaml</code></td><td>PHP 8.5 starter profile and explicit inspections</td></tr>
+<tr><td>Rector</td><td><code>rector.php</code></td><td>Configuration exists, but the package is not installed</td></tr>
+</tbody></table></div>
+<div class="callout danger"><strong>Do not report Rector as passing.</strong> <code>rector/rector</code> is not installed in the current Composer dependencies.</div>
+</section>
+<section id="coverage"><p class="section-label">08 · Coverage</p><h2>Coverage reports show exercised code, not correctness</h2>
+<p><code>phpunit.xml</code> writes Clover and HTML reports under <code>artifacts</code>. The Composer <code>test</code> script also requests <code>clover.xml</code> at the project root.</p>
+<ul><li>Use coverage to find untested branches.</li><li>Do not use percentage alone as acceptance evidence.</li><li>Prioritize validation, failure, rollback, retry, and mapping branches.</li></ul>
+</section>
+<section id="workflow"><p class="section-label">09 · Verification workflow</p><h2>Expand checks in proportion to risk</h2>
+<ol class="steps"><li>Run the smallest failing or changed test file.</li><li>Run the owning directory.</li><li>Run related persistence, API, or queue tests.</li>
+<li>Validate OpenAPI when the public contract changes.</li><li>Run PHPStan at level 8.</li><li>Run PHPCS.</li><li>Run the full suite for broad changes.</li>
+<li>Run Bruno only with a prepared API, credentials, and data.</li></ol>
+</section>
+<section id="automation"><p class="section-label">10 · Automation state</p><h2>Quality configuration exists without a repository pipeline</h2>
+<p>The repository contains PHPUnit, PHPStan, PHPCS, Qodana, and Rector configuration files. It does not contain a GitHub Actions, GitLab CI, or Jenkins pipeline file.</p>
+<div class="callout warning">Deployment scripts do not run PHPUnit, PHPStan, or PHPCS. Run quality gates before deployment.</div>
+</section>
+<section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known quality-tool differences</h2>
+<ul><li>Rector configuration references an <code>app</code> path that does not exist.</li><li>Rector is not installed.</li><li>No repository CI pipeline connects the configured checks.</li>
+<li>The Composer coverage path and PHPUnit configuration coverage path differ.</li><li>Bruno needs external runtime state and is not a self-contained suite.</li></ul>
+</section>
+<section id="commands"><p class="section-label">12 · Commands</p><h2>Common verification commands</h2>
+<pre><code># Focused behavior
+vendor/bin/phpunit tests/Functional/ExampleLifecycleTest.php
+vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi
+
+# Full suite and quality
+composer test
+composer phpstan
+composer cs-check
+
+# Contract and E2E
+vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
+bin/bruno example-api local</code></pre>
+</section>
+<section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
+<div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Suite configuration</td><td><code>phpunit.xml</code></td></tr><tr><td>Static analysis</td><td><code>phpstan.neon</code></td></tr>
+<tr><td>Coding standard</td><td><code>phpcs.xml.dist</code></td></tr><tr><td>Qodana</td><td><code>qodana.yaml</code></td></tr>
+<tr><td>Rector</td><td><code>rector.php</code></td></tr><tr><td>Project scripts</td><td><code>composer.json</code></td></tr>
+<tr><td>Tests</td><td><code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · Testing and quality guide</footer></body></html>

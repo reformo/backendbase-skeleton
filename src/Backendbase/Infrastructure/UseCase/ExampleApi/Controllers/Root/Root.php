@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
+
+use Backendbase\Shared\Http\Actions\Action;
+use Backendbase\Shared\Services\Translator;
+use Backendbase\Shared\Settings;
+use Laminas\Diactoros\Response\JsonResponse;
+use Override;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Log\LoggerInterface;
+
+class Root extends Action
+{
+    public function __construct(
+        private readonly Settings $settings,
+        LoggerInterface $logger,
+        Translator|null $translator = null,
+    ) {
+        parent::__construct($logger, $translator);
+    }
+
+    #[Override]
+    protected function action(): Response
+    {
+        $cdnBaseUrl = $this->settings->get('cdnBaseUrl');
+
+        $this->logger->info('Root endpoint called');
+
+        return new JsonResponse([
+            'backendbase-api' => [
+                'version' => '1.0.0',
+                'buildId' => '0.0.1', // Version::short(),
+                'cdnBaseUrl' => $cdnBaseUrl,
+            ],
+        ], 200);
+    }
+}

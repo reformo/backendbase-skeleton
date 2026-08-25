@@ -1,0 +1,56 @@
+get:
+  tags:
+    - Example
+  operationId: getExampleGroupsByType
+  description: Get example groups by type
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+    - $ref: '../../common/components.yaml#/headers/X-User-Id'
+
+    - in: path
+      name: typeSlug
+      description: Type slug
+      required: true
+      schema:
+        type: string
+        enum: [ 'system', 'user', 'expert', 'admin' ]
+    - in: query
+      name: typeTargetId
+      description: Type target id
+      required: false
+      schema:
+        type: integer
+        format: int64
+        nullable: true
+
+  responses:
+    200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              pageSize:
+                type: integer
+              page:
+                type: integer
+              total:
+                type: integer
+              exampleGroups:
+                type: array
+                items:
+                  type: string
+                  format: kebab-case
+
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: [ ]

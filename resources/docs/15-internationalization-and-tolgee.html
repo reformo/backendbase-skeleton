@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase Internationalization and Tolgee Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Language resources</p><h1>Internationalization and Tolgee</h1>
+<p class="lede">Runtime locale selection, local dictionaries, placeholders, missing-key behavior, Tolgee synchronization scripts, secure configuration, and current source-to-skill differences.</p>
+<div class="chips"><span class="chip">Translator</span><span class="chip">Accept-Language</span><span class="chip">Local dictionaries</span><span class="chip">Tolgee</span><span class="chip">Cron</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#runtime">2. Runtime flow</a><a href="#locale">3. Locale selection</a><a href="#dictionary">4. Dictionaries</a><a href="#translate">5. Translation calls</a>
+<a href="#missing">6. Missing keys</a><a href="#tolgee">7. Tolgee role</a><a href="#push">8. Local to Tolgee</a><a href="#pull">9. Tolgee to local</a><a href="#cron">10. Commands and cron</a>
+<a href="#security">11. Security and limits</a><a href="#mismatch">12. Current differences</a><a href="#tests">13. Tests</a><a href="#checklist">14. Checklist</a><a href="#sources">15. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>The runtime reads local PHP dictionaries</h2>
+<p><code>Translator</code> does not call Tolgee while it handles an HTTP request. The dependency container loads <code>resources/i18n/*.php</code> and selects one local locale.</p>
+<div class="grid-3"><article class="card"><h3>Runtime</h3><p>Loads local files and translates keys.</p></article><article class="card"><h3>Source workflow</h3><p>Synchronizes local keys with Tolgee.</p></article><article class="card"><h3>Deployment</h3><p>Must deliver generated local dictionaries.</p></article></div>
+<div class="related"><a href="7-env-and-config.html">Environment and Configuration</a><a href="12-deployment-and-operations.html">Deployment and Operations</a></div></section>
+<section id="runtime"><p class="section-label">02 · Runtime flow</p><h2>Translation stays inside the process</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Request</strong><small>has Accept-Language</small></li><li><strong>Container</strong><small>selects locale</small></li><li><strong>PHP files</strong><small>load dictionaries</small></li><li><strong>Translator</strong><small>looks up key</small></li><li><strong>Values</strong><small>replace placeholders</small></li><li><strong>Caller</strong><small>receives text or array</small></li></ol></div>
+<p>This flow has no runtime network request and no runtime Redis dependency.</p></section>
+<section id="locale"><p class="section-label">03 · Locale selection</p><h2>Use the first supported <code>Accept-Language</code> value</h2>
+<ol class="steps"><li>Read <code>HTTP_ACCEPT_LANGUAGE</code>.</li><li>Use <code>tr-TR</code> when the header is missing or empty.</li><li>Take the first comma-separated language value.</li><li>Remove its optional quality weight.</li><li>Use <code>tr-TR</code> when no matching PHP file exists.</li></ol>
+<div class="callout warning">The current selector does not negotiate language ranges. For example, <code>en</code> does not match <code>en-US.php</code>.</div></section>
+<section id="dictionary"><p class="section-label">04 · Dictionaries</p><h2>Use nested arrays with stable dotted keys</h2>
+<pre><code>return [
+    'general' =&gt; [
+        'error' =&gt; 'Unclassified error: :error',
+    ],
+];</code></pre>
+<p>The translator prefixes the dotted key with the selected locale. <code>general.error</code> becomes <code>en-US.general.error</code> inside the combined dictionary.</p></section>
+<section id="translate"><p class="section-label">05 · Translation calls</p><h2>Replace named placeholders after lookup</h2>
+<pre><code>$translator-&gt;translate('general.error', ['error' =&gt; $message]);
+$translator-&gt;_('general.command-failed');
+$translator-&gt;translate('general.error', ['error' =&gt; $message], 'tr-TR');</code></pre>
+<p>Each value key replaces the matching colon placeholder. A translation can also return a nested array.</p></section>
+<section id="missing"><p class="section-label">06 · Missing keys</p><h2>A missing translation returns its locale-qualified key</h2>
+<p>When lookup fails, <code>Translator</code> returns a value such as <code>en-US.general.unknown</code>. It does not fall back to another dictionary.</p>
+<div class="callout">This visible key makes missing content easy to detect. It can also expose internal key names in client responses.</div></section>
+<section id="tolgee"><p class="section-label">07 · Tolgee role</p><h2>Tolgee supports source synchronization</h2>
+<p>The repository has two executable scripts. They compare or replace local locale files through the Tolgee API. Both scripts use shared validation and HTTP support from <code>bin/tolgee/sync-support.php</code>.</p>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Local files</strong><small>contain service keys</small></li><li><strong>Sync script</strong><small>loads configuration</small></li><li><strong>Tolgee API</strong><small>creates or exports keys</small></li><li><strong>Service prefix</strong><small>selects owned keys</small></li><li><strong>PHP writer</strong><small>replaces locale files</small></li><li><strong>Runtime</strong><small>loads local result</small></li></ol></div></section>
+<section id="push"><p class="section-label">08 · Local to Tolgee</p><h2>Create remote keys that are missing</h2>
+<p><code>bin/tolgee/sync-local-keys</code> loads local files and creates keys that do not exist in Tolgee. It does not replace existing remote translations.</p>
+<pre><code>TOLGEE_API_KEY='project-key' bin/tolgee/sync-local-keys</code></pre></section>
+<section id="pull"><p class="section-label">09 · Tolgee to local</p><h2>Replace local locale files with a remote export</h2>
+<p><code>bin/tolgee/sync-remote-keys</code> exports service-prefixed translations. It writes temporary files and then replaces each local PHP file.</p>
+<pre><code>TOLGEE_API_KEY='project-key' bin/tolgee/sync-remote-keys</code></pre>
+<div class="callout warning">Review version-control changes after a remote sync. This command changes tracked translation source files.</div></section>
+<section id="cron"><p class="section-label">10 · Commands and cron</p><h2>Run synchronization outside request handling</h2>
+<pre><code># Show command help
+bin/tolgee/sync-local-keys --help
+bin/tolgee/sync-remote-keys --help
+
+# Example source synchronization every 15 minutes
+*/15 * * * * cd /srv/backendbase &amp;&amp; bin/tolgee/sync-remote-keys &gt;&gt; var/logs/tolgee-sync.log 2&gt;&amp;1</code></pre>
+<div class="callout warning">Choose only one service instance to run a synchronization cron. Concurrent writers can replace the same local files.</div></section>
+<section id="security"><p class="section-label">11 · Security and limits</p><h2>Protect the project API key and bound HTTP work</h2>
+<ul><li><code>TOLGEE_API_KEY</code> is required and must stay in secret storage.</li><li><code>TOLGEE_API_URL</code> defaults to <code>https://app.tolgee.io</code>.</li><li>The shared HTTP client uses a 10-second connection timeout.</li><li>The shared HTTP client uses a 30-second request timeout.</li><li>The script checks HTTP status and response content.</li><li>Do not write the API key to logs or commands stored in shell history.</li></ul></section>
+<section id="mismatch"><p class="section-label">12 · Current differences</p><h2>Source behavior differs from the Tolgee skill text</h2>
+<ul><li>The skill describes a <code>bin/backendbase tolgee:sync</code> command. The current source has two scripts under <code>bin/tolgee</code>.</li><li>The skill describes Redis-backed runtime translations. The current <code>Translator</code> reads only local PHP files.</li><li><code>en-US.php</code> currently requires <code>tr-TR.php</code>. English responses therefore contain Turkish values.</li><li>The locale selector supports exact filenames only.</li><li>There is no fallback from a selected locale to a default dictionary for a missing key.</li></ul></section>
+<section id="tests"><p class="section-label">13 · Tests</p><h2>Verify lookup, synchronization, and file safety</h2>
+<pre><code>vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
+bin/tolgee/sync-local-keys --help
+bin/tolgee/sync-remote-keys --help</code></pre>
+<p>Use a local HTTP test server or client doubles for synchronization tests. Do not call a live Tolgee project from the test suite.</p></section>
+<section id="checklist"><p class="section-label">14 · Checklist</p><h2>Add or change translations safely</h2>
+<ul><li>Every supported locale has one PHP file.</li><li>Each file returns the same key shape.</li><li>Placeholders have the same names in all locales.</li><li>The default locale has a value for each key.</li><li>Tolgee keys use the expected service prefix.</li><li>The API key stays outside source.</li><li>Only one synchronization process writes local files.</li><li>Runtime and synchronization tests pass.</li></ul></section>
+<section id="sources"><p class="section-label">15 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Runtime translator</td><td><code>src/Backendbase/Shared/Services/Translator.php</code></td></tr><tr><td>Locale selection</td><td><code>config/dependencies.php</code></td></tr>
+<tr><td>Dictionaries</td><td><code>resources/i18n</code></td></tr><tr><td>Local-to-remote script</td><td><code>bin/tolgee/sync-local-keys</code></td></tr>
+<tr><td>Remote-to-local script</td><td><code>bin/tolgee/sync-remote-keys</code></td></tr><tr><td>Shared synchronization code</td><td><code>bin/tolgee/sync-support.php</code></td></tr><tr><td>Workflow text</td><td><code>resources/docs/skills/tolgee-i18n/SKILL.md</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · Internationalization and Tolgee guide</footer></body></html>

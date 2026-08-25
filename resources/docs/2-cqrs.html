@@ -1,0 +1,1223 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase CQRS Guide</title>
+    <style>
+        :root {
+            --page: #f4f7fa;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --ink: #152235;
+            --muted: #5d6b7d;
+            --line: #dce4ec;
+            --command: #c54f1a;
+            --command-soft: #fff0e9;
+            --query: #1468c3;
+            --query-soft: #eaf3ff;
+            --teal: #087d72;
+            --teal-soft: #e7f8f5;
+            --amber: #946200;
+            --amber-soft: #fff6d8;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --code: #101a28;
+            --code-ink: #eaf1fa;
+            --shadow: 0 16px 42px rgba(28, 47, 73, 0.09);
+            --radius: 16px;
+            --max: 1180px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 24px;
+        }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--query); }
+        a:hover { text-decoration-thickness: 2px; }
+
+        code, pre {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        code {
+            padding: 0.12rem 0.34rem;
+            border-radius: 5px;
+            background: var(--query-soft);
+            color: var(--ink);
+            font-size: 0.91em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(115deg, rgba(12, 34, 64, 0.97) 0 49.8%, rgba(121, 49, 18, 0.97) 50.2% 100%),
+                #102a4b;
+            color: #ffffff;
+        }
+
+        .hero::before,
+        .hero::after {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 44%;
+            content: "";
+            opacity: 0.75;
+        }
+
+        .hero::before {
+            left: 0;
+            background: radial-gradient(circle at 20% 25%, rgba(70, 160, 255, 0.32), transparent 45%);
+        }
+
+        .hero::after {
+            right: 0;
+            background: radial-gradient(circle at 80% 75%, rgba(255, 164, 100, 0.28), transparent 45%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(var(--max), calc(100% - 40px));
+            margin: 0 auto;
+            padding: 72px 0 64px;
+        }
+
+        .eyebrow {
+            margin: 0 0 13px;
+            color: #bce3ff;
+            font-size: 0.77rem;
+            font-weight: 820;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 930px;
+            margin: 0;
+            font-size: clamp(2.55rem, 5vw, 4.9rem);
+            line-height: 1.01;
+            letter-spacing: -0.057em;
+        }
+
+        .hero-copy {
+            max-width: 830px;
+            margin: 23px 0 0;
+            color: #e8eef6;
+            font-size: clamp(1.03rem, 2vw, 1.23rem);
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 5px 11px;
+            border: 1px solid rgba(255,255,255,0.24);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 750;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 36px;
+            width: min(var(--max), calc(100% - 40px));
+            margin: 36px auto 82px;
+        }
+
+        .toc {
+            position: sticky;
+            top: 22px;
+            align-self: start;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .toc strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.78rem;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .toc a {
+            display: block;
+            padding: 5px 0;
+            color: var(--muted);
+            font-size: 0.91rem;
+            text-decoration: none;
+        }
+
+        .toc a:hover { color: var(--query); }
+
+        main { min-width: 0; }
+
+        section {
+            margin-bottom: 54px;
+            scroll-margin-top: 20px;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: clamp(1.68rem, 3vw, 2.4rem);
+            line-height: 1.15;
+            letter-spacing: -0.036em;
+        }
+
+        h3 {
+            margin: 30px 0 10px;
+            font-size: 1.2rem;
+            line-height: 1.3;
+        }
+
+        h4 { margin: 21px 0 8px; }
+
+        .lede {
+            max-width: 790px;
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 1.04rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .card {
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: 0 8px 24px rgba(28, 47, 73, 0.05);
+        }
+
+        .card.command { border-top: 4px solid var(--command); }
+        .card.query { border-top: 4px solid var(--query); }
+        .card h3, .card h4 { margin-top: 0; }
+        .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+        .metric {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1.28rem;
+            font-weight: 820;
+            letter-spacing: -0.025em;
+        }
+
+        .metric.command { color: var(--command); }
+        .metric.query { color: var(--query); }
+        .metric.teal { color: var(--teal); }
+
+        .callout {
+            margin: 20px 0;
+            padding: 16px 18px;
+            border-left: 4px solid var(--query);
+            border-radius: 8px;
+            background: var(--query-soft);
+        }
+
+        .callout strong { display: block; margin-bottom: 3px; }
+        .callout.command { border-color: var(--command); background: var(--command-soft); }
+        .callout.warning { border-color: #d69c00; background: var(--amber-soft); }
+        .callout.danger { border-color: var(--red); background: var(--red-soft); }
+        .callout.success { border-color: var(--teal); background: var(--teal-soft); }
+
+        .diagram {
+            overflow-x: auto;
+            margin: 22px 0 28px;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .diagram svg {
+            display: block;
+            width: 100%;
+            min-width: 820px;
+            height: auto;
+        }
+
+        .diagram figcaption {
+            padding: 10px 8px 4px;
+            color: var(--muted);
+            font-size: 0.87rem;
+        }
+
+        .node { fill: var(--surface-soft); stroke: #9aabba; stroke-width: 1.5; }
+        .node.command { fill: var(--command-soft); stroke: #dc875f; }
+        .node.query { fill: var(--query-soft); stroke: #6ba2dc; }
+        .node.teal { fill: var(--teal-soft); stroke: #5ca99f; }
+        .node.amber { fill: var(--amber-soft); stroke: #d0a33b; }
+        .flow-command { fill: none; stroke: #c54f1a; stroke-width: 2; marker-end: url(#command-arrow); }
+        .flow-query { fill: none; stroke: #1468c3; stroke-width: 2; marker-end: url(#query-arrow); }
+        .flow-neutral { fill: none; stroke: #63788e; stroke-width: 2; marker-end: url(#neutral-arrow); }
+        .node-title { fill: var(--ink); font: 750 14px Inter, ui-sans-serif, system-ui, sans-serif; }
+        .node-note { fill: var(--muted); font: 12px Inter, ui-sans-serif, system-ui, sans-serif; }
+        .flow-label { fill: var(--muted); font: 650 12px Inter, ui-sans-serif, system-ui, sans-serif; }
+
+        .code-wrap {
+            position: relative;
+            min-width: 0;
+            margin: 14px 0 22px;
+        }
+
+        pre {
+            overflow-x: auto;
+            margin: 0;
+            padding: 20px;
+            border: 1px solid #243247;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.85rem;
+            line-height: 1.62;
+            tab-size: 4;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            font-size: inherit;
+            overflow-wrap: normal;
+        }
+
+        .copy {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            padding: 6px 9px;
+            border: 1px solid #41516a;
+            border-radius: 7px;
+            background: #1d2a3d;
+            color: #e5eef9;
+            cursor: pointer;
+            font: 720 0.73rem Inter, ui-sans-serif, system-ui, sans-serif;
+        }
+
+        .copy:hover { background: #293a54; }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.91rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            font-size: 0.76rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+        td:first-child { font-weight: 650; }
+
+        ul, ol { padding-left: 1.35rem; }
+        li + li { margin-top: 6px; }
+
+        .steps {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .steps li {
+            position: relative;
+            min-height: 48px;
+            padding: 0 0 20px 52px;
+            counter-increment: step;
+        }
+
+        .steps li::before {
+            position: absolute;
+            left: 0;
+            top: -2px;
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--query);
+            color: #ffffff;
+            content: counter(step);
+            font-size: 0.82rem;
+            font-weight: 820;
+        }
+
+        .steps.command-steps li::before { background: var(--command); }
+
+        .steps li::after {
+            position: absolute;
+            left: 16px;
+            top: 34px;
+            bottom: 0;
+            width: 2px;
+            background: var(--line);
+            content: "";
+        }
+
+        .steps li:last-child::after { display: none; }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 820;
+            white-space: nowrap;
+        }
+
+        .tag.command { background: var(--command-soft); color: var(--command); }
+        .tag.query { background: var(--query-soft); color: var(--query); }
+        .tag.teal { background: var(--teal-soft); color: var(--teal); }
+        .tag.red { background: var(--red-soft); color: var(--red); }
+
+        footer {
+            padding: 24px 20px 38px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .toc { position: static; }
+            .grid, .grid.three { grid-template-columns: 1fr; }
+            .hero-inner { padding: 54px 0 47px; }
+        }
+
+        @media (max-width: 620px) {
+            .hero-inner, .layout { width: min(100% - 24px, var(--max)); }
+            .layout { margin-top: 18px; }
+            h1 { font-size: 2.65rem; }
+            .card { padding: 17px; }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0d141d;
+                --surface: #141e2a;
+                --surface-soft: #192535;
+                --ink: #eff5fc;
+                --muted: #afbdcd;
+                --line: #2d3b4c;
+                --command: #ff9b6a;
+                --command-soft: #45261d;
+                --query: #82b9f3;
+                --query-soft: #1a3554;
+                --teal: #6bd1c5;
+                --teal-soft: #143c37;
+                --amber: #f1c85c;
+                --amber-soft: #3b3012;
+                --red: #ff9b92;
+                --red-soft: #40201f;
+                --shadow: 0 16px 42px rgba(0,0,0,0.24);
+            }
+            .node { stroke: #65788d; }
+            .node.command { stroke: #b86d4d; }
+            .node.query { stroke: #5988b9; }
+            .node.teal { stroke: #4b9389; }
+            .node.amber { stroke: #aa852c; }
+            .flow-command { stroke: #e7895c; }
+            .flow-query { stroke: #72a9e2; }
+            .flow-neutral { stroke: #91a4b8; }
+        }
+
+        @media print {
+            :root { color-scheme: light; }
+            body { background: #ffffff; }
+            .hero { background: #173d67 !important; print-color-adjust: exact; }
+            .layout { display: block; width: 100%; margin: 24px 0; padding: 0 20px; }
+            .toc, .copy { display: none; }
+            section { break-inside: avoid-page; }
+            .card, .diagram, .table-wrap { box-shadow: none; }
+            a { color: inherit; text-decoration: none; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Developer Guide</p>
+        <h1>Command Query Responsibility Segregation</h1>
+        <p class="hero-copy">
+            Use commands for state changes and queries for read results.
+            Resolve one handler through a class attribute and keep input validation at the adapter boundary.
+        </p>
+        <div class="hero-meta" aria-label="Document scope">
+            <span class="pill">Command bus</span>
+            <span class="pill">Query bus</span>
+            <span class="pill">Attribute routing</span>
+            <span class="pill">Read and write ports</span>
+            <span class="pill">Source snapshot: 25 August 2026</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#contracts">Core contracts</a>
+        <a href="#resolution">Handler resolution</a>
+        <a href="#commands">Command path</a>
+        <a href="#queries">Query path</a>
+        <a href="#repositories">Read and write ports</a>
+        <a href="#http-boundary">HTTP boundary</a>
+        <a href="#transactions">Transactions and events</a>
+        <a href="#wiring">Dependency wiring</a>
+        <a href="#errors">Errors</a>
+        <a href="#testing">Testing</a>
+        <a href="#catalog">Current catalog</a>
+        <a href="#constraints">Current constraints</a>
+        <a href="#checklist">Implementation checklist</a>
+        <a href="#source-map">Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p class="lede">
+                Command Query Responsibility Segregation (CQRS) separates state-changing requests from read requests.
+                Backendbase uses a small in-process bus for each path.
+            </p>
+
+            <div class="grid three">
+                <article class="card command">
+                    <span class="metric command">Commands write</span>
+                    <p>A command handler changes domain state and returns no result.</p>
+                </article>
+                <article class="card query">
+                    <span class="metric query">Queries read</span>
+                    <p>A query handler returns a typed read model, scalar, list, page, or <code>null</code>.</p>
+                </article>
+                <article class="card">
+                    <span class="metric teal">One handler</span>
+                    <p>Each command or query class names one handler with <code>#[CQRSHandler(...)]</code>.</p>
+                </article>
+            </div>
+
+            <div class="callout success">
+                <strong>Separation goal</strong>
+                Commands protect domain invariants through aggregates. Queries use direct read projections without loading aggregates.
+            </div>
+        </section>
+
+        <section id="architecture">
+            <h2>Architecture</h2>
+            <p class="lede">The adapter creates a contract. The bus resolves its handler. The handler uses the correct persistence port.</p>
+
+            <figure class="diagram">
+                <svg viewBox="0 0 1120 530" role="img" aria-label="CQRS command and query architecture">
+                    <title>CQRS command and query architecture</title>
+                    <desc>An HTTP action validates input and creates either a command or a query. A command bus routes commands to write handlers and aggregates. A query bus routes queries to read handlers and read models.</desc>
+                    <defs>
+                        <marker id="command-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
+                        </marker>
+                        <marker id="query-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
+                        </marker>
+                        <marker id="neutral-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
+                        </marker>
+                    </defs>
+
+                    <rect class="node" x="32" y="203" width="170" height="82" rx="12"></rect>
+                    <text class="node-title" x="117" y="233" text-anchor="middle">HTTP Action</text>
+                    <text class="node-note" x="117" y="255" text-anchor="middle">sanitize + validate</text>
+
+                    <rect class="node command" x="267" y="66" width="166" height="78" rx="12"></rect>
+                    <text class="node-title" x="350" y="95" text-anchor="middle">Command</text>
+                    <text class="node-note" x="350" y="117" text-anchor="middle">intent to change state</text>
+
+                    <rect class="node query" x="267" y="350" width="166" height="78" rx="12"></rect>
+                    <text class="node-title" x="350" y="379" text-anchor="middle">Query</text>
+                    <text class="node-note" x="350" y="401" text-anchor="middle">request for data</text>
+
+                    <rect class="node command" x="498" y="66" width="166" height="78" rx="12"></rect>
+                    <text class="node-title" x="581" y="95" text-anchor="middle">CommandBus</text>
+                    <text class="node-note" x="581" y="117" text-anchor="middle">attribute → container</text>
+
+                    <rect class="node query" x="498" y="350" width="166" height="78" rx="12"></rect>
+                    <text class="node-title" x="581" y="379" text-anchor="middle">QueryBus</text>
+                    <text class="node-note" x="581" y="401" text-anchor="middle">attribute → container</text>
+
+                    <rect class="node command" x="729" y="66" width="166" height="78" rx="12"></rect>
+                    <text class="node-title" x="812" y="95" text-anchor="middle">CommandHandler</text>
+                    <text class="node-note" x="812" y="117" text-anchor="middle">orchestrate write</text>
+
+                    <rect class="node query" x="729" y="350" width="166" height="78" rx="12"></rect>
+                    <text class="node-title" x="812" y="379" text-anchor="middle">QueryHandler</text>
+                    <text class="node-note" x="812" y="401" text-anchor="middle">orchestrate read</text>
+
+                    <rect class="node teal" x="950" y="36" width="144" height="78" rx="12"></rect>
+                    <text class="node-title" x="1022" y="65" text-anchor="middle">Aggregate</text>
+                    <text class="node-note" x="1022" y="87" text-anchor="middle">business behavior</text>
+
+                    <rect class="node teal" x="950" y="146" width="144" height="78" rx="12"></rect>
+                    <text class="node-title" x="1022" y="175" text-anchor="middle">Write port</text>
+                    <text class="node-note" x="1022" y="197" text-anchor="middle">Doctrine ORM</text>
+
+                    <rect class="node teal" x="950" y="319" width="144" height="78" rx="12"></rect>
+                    <text class="node-title" x="1022" y="348" text-anchor="middle">Read port</text>
+                    <text class="node-note" x="1022" y="370" text-anchor="middle">Doctrine DBAL + SQL</text>
+
+                    <rect class="node query" x="950" y="429" width="144" height="78" rx="12"></rect>
+                    <text class="node-title" x="1022" y="458" text-anchor="middle">Read model</text>
+                    <text class="node-note" x="1022" y="480" text-anchor="middle">response data</text>
+
+                    <path class="flow-command" d="M202 226 C226 192 242 128 267 105"></path>
+                    <path class="flow-query" d="M202 262 C226 296 242 365 267 389"></path>
+                    <path class="flow-command" d="M433 105 L498 105"></path>
+                    <path class="flow-command" d="M664 105 L729 105"></path>
+                    <path class="flow-command" d="M895 91 L950 75"></path>
+                    <path class="flow-command" d="M895 119 C920 135 928 174 950 185"></path>
+                    <path class="flow-query" d="M433 389 L498 389"></path>
+                    <path class="flow-query" d="M664 389 L729 389"></path>
+                    <path class="flow-query" d="M895 382 C921 376 928 358 950 358"></path>
+                    <path class="flow-query" d="M1022 397 L1022 429"></path>
+
+                    <text class="flow-label" x="228" y="176">write</text>
+                    <text class="flow-label" x="228" y="328">read</text>
+                </svg>
+                <figcaption>Figure 1. Commands and queries share handler resolution but use different domain and persistence paths.</figcaption>
+            </figure>
+        </section>
+
+        <section id="contracts">
+            <h2>Core contracts</h2>
+            <p class="lede">The shared CQRS namespace contains nine small types.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Type</th><th>Responsibility</th><th>Runtime result</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Command</code></td><td>Serializable state-change input. Requires <code>toArray()</code>.</td><td>None.</td></tr>
+                        <tr><td><code>CommandHandler</code></td><td>Handles a <code>Command</code>.</td><td><code>void</code></td></tr>
+                        <tr><td><code>CommandBus</code></td><td>Resolves and invokes one command handler.</td><td><code>void</code></td></tr>
+                        <tr><td><code>Query&lt;TResult&gt;</code></td><td>Serializable read input with a covariant PHPDoc result type.</td><td>Declared by <code>TResult</code>.</td></tr>
+                        <tr><td><code>QueryHandler&lt;TQuery, TResult&gt;</code></td><td>Handles a query and returns its result.</td><td><code>TResult</code> in PHPDoc, <code>mixed</code> at runtime.</td></tr>
+                        <tr><td><code>QueryBus</code></td><td>Resolves and invokes one query handler.</td><td><code>TResult</code> in PHPDoc, <code>mixed</code> at runtime.</td></tr>
+                        <tr><td><code>CQRSHandler</code></td><td>Class attribute that stores the handler class name.</td><td>Reflection metadata.</td></tr>
+                        <tr><td><code>ContainerAwareCommandBus</code></td><td>Production command-bus implementation.</td><td><code>void</code></td></tr>
+                        <tr><td><code>ContainerAwareQueryBus</code></td><td>Production query-bus implementation.</td><td>Handler result.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout warning">
+                <strong>Query serialization differs from command serialization</strong>
+                <code>Command</code> requires <code>toArray()</code> and <code>jsonSerialize()</code>.
+                <code>Query</code> requires only <code>jsonSerialize()</code>, although current queries also expose <code>toArray()</code>.
+            </div>
+        </section>
+
+        <section id="resolution">
+            <h2>Handler resolution</h2>
+            <p class="lede">Both buses use the same reflection and container lookup sequence.</p>
+
+            <ol class="steps">
+                <li><strong>Read the concrete command or query class.</strong></li>
+                <li><strong>Create a <code>ReflectionClass</code>.</strong></li>
+                <li><strong>Read the first <code>CQRSHandler</code> attribute.</strong></li>
+                <li><strong>Read positional attribute argument index <code>0</code>.</strong></li>
+                <li><strong>Resolve that handler class from the PSR container.</strong></li>
+                <li><strong>Verify the command or query handler interface.</strong></li>
+                <li><strong>Call <code>handle()</code> with the original contract object.</strong></li>
+            </ol>
+
+            <h3>Required attribute form</h3>
+            <div class="code-wrap">
+                <pre><code>#[CQRSHandler(ChangeExampleHandler::class)]
+final class ChangeExample implements Command
+{
+    // Contract data and serialization...
+}</code></pre>
+            </div>
+
+            <div class="callout danger">
+                <strong>Use a positional argument</strong>
+                The buses call <code>getArguments()[0]</code>.
+                Do not write <code>#[CQRSHandler(handlerName: ChangeExampleHandler::class)]</code> without changing both buses.
+            </div>
+
+            <h3>Bus implementation</h3>
+            <div class="code-wrap">
+                <pre><code>public function handle(Command $command): void
+{
+    $reflection = new ReflectionClass($command::class);
+    $handlerFQCN = $reflection
+        -&gt;getAttributes(CQRSHandler::class)[0]
+        -&gt;getArguments()[0];
+
+    $handler = $this-&gt;container-&gt;get($handlerFQCN);
+    if (! $handler instanceof CommandHandler) {
+        throw new UnexpectedValueException(
+            $handlerFQCN . ' is not a command handler.',
+        );
+    }
+
+    $handler-&gt;handle($command);
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="commands">
+            <h2>Command path</h2>
+            <p class="lede">A command expresses an accepted intent to change state. It does not return domain data.</p>
+
+            <h3>Command contract</h3>
+            <div class="code-wrap">
+                <pre><code>#[CQRSHandler(RemoveExampleHandler::class)]
+readonly class RemoveExample implements Command
+{
+    public function __construct(private string $exampleId)
+    {
+    }
+
+    public function exampleId(): string
+    {
+        return $this-&gt;exampleId;
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this-&gt;toArray();
+    }
+
+    public function toArray(): array
+    {
+        return ['exampleId' =&gt; $this-&gt;exampleId];
+    }
+}</code></pre>
+            </div>
+
+            <h3>Command handler</h3>
+            <div class="code-wrap">
+                <pre><code>readonly class RemoveExampleHandler implements CommandHandler
+{
+    public function __construct(
+        private ExampleWriteRepository $exampleRepository,
+        private IntegrationEventTransaction $integrationEventTransaction,
+    ) {
+    }
+
+    /** @param RemoveExample $command */
+    public function handle(Command $command): void
+    {
+        $event = new ExampleRemoved($command-&gt;exampleId());
+
+        $this-&gt;integrationEventTransaction-&gt;execute(
+            $event,
+            function () use ($command): void {
+                $example = $this-&gt;exampleRepository
+                    -&gt;getActive($command-&gt;exampleId());
+                $example-&gt;remove();
+                $this-&gt;exampleRepository-&gt;save($example);
+            },
+        );
+    }
+}</code></pre>
+            </div>
+
+            <h3>Command rules</h3>
+            <ul>
+                <li>Use intention-revealing names such as <code>AddNewExample</code> or <code>RemoveExample</code>.</li>
+                <li>Convert external primitives into enums, value objects, and validated values before construction.</li>
+                <li>Carry only the data needed for one use case.</li>
+                <li>Put business decisions on the aggregate, not in the controller.</li>
+                <li>Use the write repository port for aggregate persistence.</li>
+                <li>Start required transactions inside the handler or a called application service.</li>
+                <li>Return no data through <code>CommandBus</code>. Use a generated ID before dispatch when the response needs it.</li>
+            </ul>
+
+            <div class="callout command">
+                <strong>Patch commands can carry nullable fields</strong>
+                The current <code>ChangeExample</code> command uses nullable values to mean “not supplied.”
+                Its handler passes those values to aggregate behavior.
+            </div>
+        </section>
+
+        <section id="queries">
+            <h2>Query path</h2>
+            <p class="lede">A query describes requested data and declares its result through PHPDoc generics.</p>
+
+            <h3>Query contract</h3>
+            <div class="code-wrap">
+                <pre><code>/** @implements Query&lt;ExampleDetails|null&gt; */
+#[CQRSHandler(GetExampleByCriteriaHandler::class)]
+final readonly class GetExampleByCriteria implements Query
+{
+    public function __construct(
+        private ExampleType $type,
+        private int|null $typeTargetId,
+        private string $group,
+        private string $key,
+    ) {
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this-&gt;toArray();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'type' =&gt; $this-&gt;type-&gt;value,
+            'typeTargetId' =&gt; $this-&gt;typeTargetId,
+            'group' =&gt; $this-&gt;group,
+            'key' =&gt; $this-&gt;key,
+        ];
+    }
+}</code></pre>
+            </div>
+
+            <h3>Query handler</h3>
+            <div class="code-wrap">
+                <pre><code>/** @implements QueryHandler&lt;GetExampleByCriteria, ExampleDetails|null&gt; */
+final readonly class GetExampleByCriteriaHandler implements QueryHandler
+{
+    public function __construct(
+        private ExampleReadRepository $exampleRepository,
+    ) {
+    }
+
+    /** @param GetExampleByCriteria $query */
+    public function handle(Query $query): ExampleDetails|null
+    {
+        return $this-&gt;exampleRepository-&gt;getExampleByCriteria($query);
+    }
+}</code></pre>
+            </div>
+
+            <h3>Query rules</h3>
+            <ul>
+                <li>Use a result type in <code>@implements Query&lt;TResult&gt;</code>.</li>
+                <li>Repeat query and result types on <code>QueryHandler</code>.</li>
+                <li>Return explicit read models, pages, scalars, lists, or <code>null</code>.</li>
+                <li>Use Doctrine Database Abstraction Layer (DBAL) and plain SQL for read projections.</li>
+                <li>Do not load or change aggregates on the query path.</li>
+                <li>Do not create integration events from query handlers.</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Generics are static-analysis metadata</strong>
+                PHP returns <code>mixed</code> from <code>QueryBus::handle()</code> at runtime.
+                PHPStan uses the template annotations to infer the result at call sites.
+            </div>
+        </section>
+
+        <section id="repositories">
+            <h2>Read and write ports</h2>
+            <p class="lede">The example bounded context uses separate repository interfaces and Doctrine adapters.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Concern</th><th>Write side</th><th>Read side</th></tr></thead>
+                    <tbody>
+                        <tr><td>Port</td><td><code>ExampleWriteRepository</code></td><td><code>ExampleReadRepository</code></td></tr>
+                        <tr><td>Input</td><td>Aggregate or aggregate ID.</td><td>Concrete query contract.</td></tr>
+                        <tr><td>Output</td><td>Aggregate for behavior, or <code>void</code>.</td><td>Read model, page, scalar, list, or <code>null</code>.</td></tr>
+                        <tr><td>Doctrine API</td><td>Object-Relational Mapper (ORM) entity manager.</td><td>DBAL connection and plain SQL.</td></tr>
+                        <tr><td>Mapping</td><td><code>ExampleRecord</code> converts to and from the aggregate.</td><td><code>ExampleReadModelMapper</code> validates rows and builds read models.</td></tr>
+                        <tr><td>Business behavior</td><td>Runs on <code>Example</code>.</td><td>None. The adapter projects data.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout success">
+                <strong>Shared storage is allowed</strong>
+                CQRS here separates code paths and models. It does not require separate databases.
+                Both Doctrine adapters use the same <code>example_table</code> data.
+            </div>
+        </section>
+
+        <section id="http-boundary">
+            <h2>HTTP adapter boundary</h2>
+            <p class="lede">Controllers translate untrusted HTTP data into valid command and query contracts.</p>
+
+            <ol class="steps">
+                <li><strong>Read route, query, or request-body values.</strong></li>
+                <li><strong>Sanitize the input with <code>PayloadSanitizer</code>.</strong></li>
+                <li><strong>Validate types, formats, ranges, and enum values.</strong></li>
+                <li><strong>Create typed primitives such as <code>ExampleType</code> and <code>Pagination</code>.</strong></li>
+                <li><strong>Construct the command or query.</strong></li>
+                <li><strong>Dispatch through <code>CommandBus</code> or <code>QueryBus</code>.</strong></li>
+                <li><strong>Map the result into an HTTP response.</strong></li>
+            </ol>
+
+            <h3>Boundary example</h3>
+            <div class="code-wrap">
+                <pre><code>$type = ExampleRequestInput::type(
+    $this-&gt;request-&gt;getAttribute('typeSlug'),
+);
+
+$params = PayloadSanitizer::sanitize(
+    $this-&gt;request-&gt;getQueryParams(),
+);
+
+$typeTargetId = ExampleRequestInput::optionalTypeTargetId(
+    $params['typeTargetId'] ?? null,
+);
+
+$result = $this-&gt;queryBus-&gt;handle(
+    new GetExampleGroupsByType($type, $typeTargetId),
+);</code></pre>
+            </div>
+
+            <div class="callout danger">
+                <strong>The buses are not validation boundaries</strong>
+                They accept any object that implements the required interface.
+                They do not validate fields, authorization, HTTP rules, or business invariants.
+            </div>
+
+            <h3>Query before command</h3>
+            <p>
+                The change and remove controllers first query an example ID, then dispatch a command.
+                These two dispatches are not one transaction.
+                The command handler reloads the active aggregate and must enforce current invariants.
+            </p>
+        </section>
+
+        <section id="transactions">
+            <h2>Transactions and events</h2>
+            <p class="lede">A bus only routes. A command handler controls write atomicity and event publication.</p>
+
+            <div class="grid">
+                <article class="card command">
+                    <h3>Bus responsibilities</h3>
+                    <ul>
+                        <li>Read handler metadata</li>
+                        <li>Resolve the handler</li>
+                        <li>Verify the handler interface</li>
+                        <li>Invoke the handler</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <h3>Handler responsibilities</h3>
+                    <ul>
+                        <li>Load required domain state</li>
+                        <li>Invoke aggregate behavior</li>
+                        <li>Persist through write ports</li>
+                        <li>Control database transactions</li>
+                        <li>Create domain or integration events when required</li>
+                    </ul>
+                </article>
+            </div>
+
+            <p>
+                All three example command handlers use <code>IntegrationEventTransaction::execute()</code>.
+                It commits the aggregate mutation and outbox event together.
+            </p>
+
+            <div class="callout command">
+                <strong>Do not publish directly from a command handler</strong>
+                Use the transactional outbox for business-relevant external effects.
+                See <a href="3-integration-events.html">Integration Events</a> for the complete event contract and subscriber flow.
+            </div>
+        </section>
+
+        <section id="wiring">
+            <h2>Dependency wiring</h2>
+            <p class="lede">PHP-DI provides the buses, handlers, and repository adapters.</p>
+
+            <h3>Bus definitions</h3>
+            <div class="code-wrap">
+                <pre><code>CommandBus::class =&gt; fn (ContainerInterface $container) =&gt;
+    new ContainerAwareCommandBus($container),
+
+QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
+    new ContainerAwareQueryBus($container),</code></pre>
+            </div>
+
+            <h3>Handler autowiring</h3>
+            <div class="code-wrap">
+                <pre><code>'Backendbase\Domain\*\Application\CommandHandlers\*Handler'
+    =&gt; autowire('Backendbase\Domain\*\Application\CommandHandlers\*Handler'),
+
+'Backendbase\Domain\*\Application\QueryHandlers\*Handler'
+    =&gt; autowire('Backendbase\Domain\*\Application\QueryHandlers\*Handler'),</code></pre>
+            </div>
+
+            <p>
+                Bounded-context service providers bind repository ports to Doctrine adapters.
+                Tests can bind the same ports to memory adapters.
+            </p>
+
+            <div class="callout warning">
+                <strong>Attributes do not register services</strong>
+                <code>CQRSHandler</code> only identifies a handler class.
+                The container must still resolve that class and every constructor dependency.
+            </div>
+        </section>
+
+        <section id="errors">
+            <h2>Error behavior</h2>
+            <p class="lede">The buses add little error handling. Most exceptions propagate to the calling adapter.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Failure</th><th>Current behavior</th><th>Owner</th></tr></thead>
+                    <tbody>
+                        <tr><td>Missing <code>CQRSHandler</code> attribute</td><td>The bus reads attribute index <code>0</code> without a presence check. No dedicated CQRS exception exists.</td><td>Contract author and tests.</td></tr>
+                        <tr><td>Named attribute argument</td><td>The bus reads numeric argument index <code>0</code>. Resolution can fail before container lookup.</td><td>Contract author.</td></tr>
+                        <tr><td>Handler is missing from the container</td><td>The PSR container exception propagates.</td><td>Dependency configuration.</td></tr>
+                        <tr><td>Resolved class has the wrong interface</td><td>The bus throws <code>UnexpectedValueException</code>.</td><td>Contract registration.</td></tr>
+                        <tr><td>Wrong concrete command or query reaches a handler</td><td>PHPDoc does not add a runtime type check. Handler code can fail.</td><td>Attribute link and handler test.</td></tr>
+                        <tr><td>Domain or repository failure</td><td>The handler exception propagates through the bus.</td><td>HTTP error mapping or calling process.</td></tr>
+                        <tr><td>Query returns <code>null</code></td><td>The controller decides whether <code>null</code> means not found or a valid empty result.</td><td>HTTP action.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <strong>HTTP problem details</strong>
+                <code>Action</code> converts <code>ProblemDetailsException</code> into an <code>application/problem+json</code> response.
+                Other failures reach the global HTTP error handler.
+            </div>
+        </section>
+
+        <section id="testing">
+            <h2>Testing strategy</h2>
+            <p class="lede">Test contracts, handlers, buses, persistence adapters, and HTTP boundaries at separate levels.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Test level</th><th>Must prove</th><th>Reference</th></tr></thead>
+                    <tbody>
+                        <tr><td>Contract test</td><td>Accessors, nullable meaning, enum serialization, and JSON shape remain correct.</td><td><code>CommandAndQueryContractsTest</code></td></tr>
+                        <tr><td>Handler unit test</td><td>The handler uses the correct ports and places work inside required transactions.</td><td><code>AddNewExampleHandlerTest</code></td></tr>
+                        <tr><td>Bus lifecycle test</td><td>Attributes resolve handlers and commands affect later query results.</td><td><code>ExampleLifecycleTest</code></td></tr>
+                        <tr><td>Read repository test</td><td>SQL filters, ordering, null handling, pagination, and row mapping are correct.</td><td>Doctrine repository tests.</td></tr>
+                        <tr><td>Write repository test</td><td>Aggregate mapping and persistence preserve domain state.</td><td>Doctrine repository tests.</td></tr>
+                        <tr><td>HTTP validation test</td><td>Invalid external input fails before either bus runs.</td><td><code>ExampleInputValidationTest</code></td></tr>
+                        <tr><td>HTTP not-found test</td><td>A missing query result prevents the command dispatch.</td><td><code>ExampleNotFoundTest</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Focused test command</h3>
+            <div class="code-wrap">
+                <pre><code>vendor/bin/phpunit \
+  tests/Domain/ExampleBoundedContext/Contracts/CommandAndQueryContractsTest.php \
+  tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php \
+  tests/Functional/ExampleLifecycleTest.php \
+  tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php \
+  tests/Infrastructure/UseCase/ExampleApi/ExampleNotFoundTest.php</code></pre>
+            </div>
+
+            <div class="callout warning">
+                <strong>Missing bus failure-path coverage</strong>
+                Current tests do not directly cover a missing handler attribute, a named attribute argument, or a resolved class with the wrong handler interface.
+            </div>
+        </section>
+
+        <section id="catalog">
+            <h2>Current CQRS catalog</h2>
+            <p class="lede">The example bounded context contains three commands and four queries.</p>
+
+            <h3>Commands</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Command</th><th>Handler</th><th>Write behavior</th><th>Integration event</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>AddNewExample</code></td><td><code>AddNewExampleHandler</code></td><td>Create and add an <code>Example</code>.</td><td><code>NewExampleAdded</code></td></tr>
+                        <tr><td><code>ChangeExample</code></td><td><code>ChangeExampleHandler</code></td><td>Load, change, and save an active <code>Example</code>.</td><td><code>ExampleChanged</code></td></tr>
+                        <tr><td><code>RemoveExample</code></td><td><code>RemoveExampleHandler</code></td><td>Load, remove, and save an active <code>Example</code>.</td><td><code>ExampleRemoved</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Queries</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Query</th><th>Handler</th><th>Result</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>GetExampleByCriteria</code></td><td><code>GetExampleByCriteriaHandler</code></td><td><code>ExampleDetails|null</code></td></tr>
+                        <tr><td><code>GetExampleIdByCriteria</code></td><td><code>GetExampleIdByCriteriaHandler</code></td><td><code>string|null</code></td></tr>
+                        <tr><td><code>GetExampleGroupsByType</code></td><td><code>GetExampleGroupsByTypeHandler</code></td><td><code>list&lt;string&gt;</code></td></tr>
+                        <tr><td><code>GetExamplesByGroup</code></td><td><code>GetExamplesByGroupHandler</code></td><td><code>ExamplePage</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="constraints">
+            <h2>Current constraints and important behavior</h2>
+            <p class="lede">These points describe the current implementation, not an extended CQRS framework.</p>
+
+            <div class="grid">
+                <article class="card">
+                    <h3>No bus middleware</h3>
+                    <p>The buses do not provide validation, logging, tracing, authorization, retries, or transaction middleware.</p>
+                </article>
+                <article class="card">
+                    <h3>No asynchronous commands</h3>
+                    <p><code>CommandBus</code> invokes its handler in the current process. It does not enqueue commands.</p>
+                </article>
+                <article class="card">
+                    <h3>No runtime generic check</h3>
+                    <p>Query result templates help PHPStan. The bus still returns <code>mixed</code> at runtime.</p>
+                </article>
+                <article class="card">
+                    <h3>No attribute guard</h3>
+                    <p>A missing attribute does not produce a stable, specific CQRS exception.</p>
+                </article>
+                <article class="card">
+                    <h3>Mutable patch command</h3>
+                    <p><code>ChangeExample</code> uses setters. Build it fully before dispatch and do not reuse it after dispatch.</p>
+                </article>
+                <article class="card">
+                    <h3>Query and command are not atomic</h3>
+                    <p>A controller sequence that queries an ID and then sends a command can observe concurrent changes.</p>
+                </article>
+                <article class="card">
+                    <h3>Serialization asymmetry</h3>
+                    <p><code>AddNewExample::details()</code> changes <code>null</code> to an empty array, but <code>toArray()</code> keeps the original nullable property.</p>
+                </article>
+                <article class="card">
+                    <h3>One handler per contract</h3>
+                    <p>The class attribute names one handler. Fan-out behavior belongs in the handler or an event published after the write.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="checklist">
+            <h2>Implementation checklist</h2>
+            <p class="lede">Complete every applicable item for a new use case.</p>
+
+            <ol class="steps">
+                <li><strong>Choose a command for state change or a query for data retrieval.</strong></li>
+                <li><strong>Create the contract under <code>Contracts/Command</code> or <code>Contracts/Query</code>.</strong></li>
+                <li><strong>Validate external data before contract construction.</strong></li>
+                <li><strong>Use enums or value objects for business-bearing primitives.</strong></li>
+                <li><strong>Add the positional <code>CQRSHandler</code> attribute.</strong></li>
+                <li><strong>Create the handler under <code>Application/CommandHandlers</code> or <code>Application/QueryHandlers</code>.</strong></li>
+                <li><strong>Add concrete PHPDoc parameter and generic result types.</strong></li>
+                <li><strong>Use the write port and aggregate for commands.</strong></li>
+                <li><strong>Use the read port and projection for queries.</strong></li>
+                <li><strong>Control transactions and integration events in command orchestration.</strong></li>
+                <li><strong>Bind new repository ports in the bounded-context service provider.</strong></li>
+                <li><strong>Test serialization, handler behavior, bus routing, persistence, and HTTP boundaries.</strong></li>
+                <li><strong>Run PHPStan at level 8 and the focused PHPUnit tests.</strong></li>
+            </ol>
+        </section>
+
+        <section id="source-map">
+            <h2>Source map</h2>
+            <p class="lede">Use these files when CQRS behavior or project rules change.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Area</th><th>Primary source</th></tr></thead>
+                    <tbody>
+                        <tr><td>Core interfaces</td><td><code>src/Backendbase/Shared/CQRS/</code></td></tr>
+                        <tr><td>Handler attribute</td><td><code>src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php</code></td></tr>
+                        <tr><td>Command bus</td><td><code>src/Backendbase/Shared/CQRS/ContainerAwareCommandBus.php</code></td></tr>
+                        <tr><td>Query bus</td><td><code>src/Backendbase/Shared/CQRS/ContainerAwareQueryBus.php</code></td></tr>
+                        <tr><td>Dependency definitions</td><td><code>config/dependencies.php</code></td></tr>
+                        <tr><td>Command contracts</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command/</code></td></tr>
+                        <tr><td>Query contracts</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Query/</code></td></tr>
+                        <tr><td>Command handlers</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/</code></td></tr>
+                        <tr><td>Query handlers</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Application/QueryHandlers/</code></td></tr>
+                        <tr><td>HTTP reference</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/</code></td></tr>
+                        <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>
+                Related guides:
+                <a href="3-integration-events.html">Integration Events</a> and
+                <a href="4-messaging-and-queues.html">Messaging and Queue Operations</a>.
+            </p>
+        </section>
+    </main>
+</div>
+
+<footer>
+    Generated from the Backendbase Core source tree. Update this guide when contracts, bus routing, or handler conventions change.
+</footer>
+
+<script>
+    document.querySelectorAll('.code-wrap').forEach((wrapper) => {
+        const pre = wrapper.querySelector('pre');
+        if (!pre) {
+            return;
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code');
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(pre.innerText);
+                button.textContent = 'Copied';
+                window.setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+            } catch (_error) {
+                button.textContent = 'Select text';
+            }
+        });
+        wrapper.appendChild(button);
+    });
+</script>
+</body>
+</html>

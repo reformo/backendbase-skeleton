@@ -1,0 +1,143 @@
+{
+    "name": "backendbase/backendbase-skel",
+    "description": "An API application template with DDD, CQRS, and transactional messaging",
+    "type": "project",
+    "keywords": [
+        "api",
+        "cqrs",
+        "ddd",
+        "doctrine",
+        "slim"
+    ],
+    "homepage": "https://backendbase.co",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mehmet Korkmaz",
+            "email": "mehmet@mkorkmaz.com",
+            "homepage": "https://mkorkmaz.com"
+        }
+    ],
+    "require": {
+        "php": "^8.5",
+        "ext-bcmath": "*",
+        "ext-dom": "*",
+        "ext-fileinfo": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-redis": "*",
+        "adbario/php-dot-notation": "^3.5.0",
+        "akrabat/ip-address-middleware": "^2.6.1",
+        "aws/aws-sdk-php": "^3.393.4",
+        "beberlei/doctrineextensions": "^v1.5.0",
+        "cuyz/valinor": "^2.6.0",
+        "devizzent/cebe-php-openapi": "^1.1.5",
+        "doctrine/collections": "^2.6.0",
+        "doctrine/dbal": "^4.4.4",
+        "doctrine/lexer": "^3.0.1",
+        "doctrine/migrations": "^3.9.7",
+        "doctrine/orm": "^3.6.8",
+        "dunglas/doctrine-json-odm": "^v1.5.0",
+        "friendsofphp/proxy-manager-lts": "^v1.0.19",
+        "guzzlehttp/guzzle": "^7.15.3",
+        "kreait/firebase-php": "^8.4.0",
+        "laminas/laminas-config-aggregator": "^1.20.0",
+        "laminas/laminas-diactoros": "^3.8.0",
+        "lcobucci/clock": "^3.6.0",
+        "lcobucci/jwt": "^5.6.0",
+        "mkorkmaz/redislabs-rejson": "^2.3",
+        "monolog/monolog": "^3.10.0",
+        "php-amqplib/php-amqplib": "^3.7.4",
+        "php-di/php-di": "^7.1.1",
+        "psr/container": "^2.0.2",
+        "psr/http-message": "^2.0",
+        "psr/http-server-handler": "^1.0.2",
+        "psr/http-server-middleware": "^1.0.2",
+        "psr/log": "^3.0.2",
+        "psr/simple-cache": "^3.0.0",
+        "ramsey/uuid": "^4.9.3",
+        "ramsey/uuid-doctrine": "^2.1.0",
+        "reformo/backendbase-specification": "^1.0",
+        "reformo/backendbase-utility": "^1.3.2",
+        "scienta/doctrine-json-functions": "^6.5.0",
+        "slim/slim": "^4.15.2",
+        "symfony/cache": "^v8.1.5",
+        "symfony/console": "^v8.1.5",
+        "symfony/serializer": "^v8.1.5",
+        "symfony/uid": "^v8.1.5",
+        "symfony/yaml": "^v8.1.5",
+        "talleu/php-redis-om": "^v1.1.2",
+        "vlucas/phpdotenv": "^v5.6.4"
+    },
+    "require-dev": {
+        "doctrine/coding-standard": "^13.0.1",
+        "malukenho/mcbumpface": "^1.2.0",
+        "nikic/php-parser": "^5.8.0",
+        "phpstan/phpstan": "^2.2.9",
+        "phpunit/phpunit": "^13.3.1",
+        "squizlabs/php_codesniffer": "^3.13.6"
+    },
+
+    "replace": {
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*",
+        "symfony/polyfill-php83": "*",
+        "symfony/polyfill-php84": "*",
+        "symfony/polyfill-php85": "*",
+        "symfony/polyfill-mbstring": "*",
+        "symfony/polyfill-ctype": "*"
+    },
+    "config": {
+        "process-timeout": 0,
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "malukenho/mcbumpface": true,
+            "php-http/discovery": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Backendbase\\": "src/Backendbase/",
+            "Backendbase\\Proxies\\": "var/cache/doctrine/",
+            "Backendbase\\Seeders\\": "resources/database/Seeders/",
+            "Backendbase\\Migrations\\": "resources/database/Migrations/"
+        },
+        "files": [
+            "src/Backendbase/Shared/Helpers/functions.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "google/apiclient-services": [
+            "FirebaseCloudMessaging"
+        ],
+        "aws/aws-sdk-php": [
+            "S3",
+            "Sqs",
+            "Sns"
+        ]
+    },
+    "scripts": {
+        "pre-autoload-dump": [
+            "Google\\Task\\Composer::cleanup",
+            "Aws\\Script\\Composer\\Composer::removeUnusedServices"
+        ],
+        "start-apis": "php -S 0.0.0.0:8080 -t public",
+        "cs-check": "vendor/bin/phpcs",
+        "cs-fix": "vendor/bin/phpcbf -e -a",
+        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",
+        "test": "vendor/bin/phpunit  --testdox --coverage-clover clover.xml",
+        "generate-example-api-spec": "vendor/bin/php-openapi inline resources/api-docs/example-api/example-openapi.yml public/example-api/docs/example-api-merged.yml",
+        "validate-example-api-spec": [
+            "vendor/bin/php-openapi validate --silent resources/api-docs/example-api/example-openapi.yml",
+            "vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml"
+        ]
+    }
+}

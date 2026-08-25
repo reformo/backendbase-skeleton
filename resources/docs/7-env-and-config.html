@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase Environment and Configuration Guide</title>
+    <style>
+        :root {
+            --page: #f5f7f5;
+            --surface: #ffffff;
+            --surface-soft: #f8faf8;
+            --ink: #1c2922;
+            --muted: #637168;
+            --line: #dde5df;
+            --green: #26734f;
+            --green-soft: #e8f6ee;
+            --blue: #1f65a8;
+            --blue-soft: #eaf3ff;
+            --amber: #9a6200;
+            --amber-soft: #fff4d5;
+            --orange: #bd561f;
+            --orange-soft: #fff0e8;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --code: #101a16;
+            --code-ink: #eef6f1;
+            --shadow: 0 16px 42px rgba(31, 52, 40, 0.09);
+            --radius: 16px;
+            --max: 1180px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0d1511;
+                --surface: #17211c;
+                --surface-soft: #1b2821;
+                --ink: #eff7f2;
+                --muted: #b1c0b6;
+                --line: #304139;
+                --green: #79d6a5;
+                --green-soft: #193728;
+                --blue: #88b9ef;
+                --blue-soft: #182d45;
+                --amber: #efc46b;
+                --amber-soft: #423718;
+                --orange: #f3a179;
+                --orange-soft: #45291d;
+                --red: #ff9d95;
+                --red-soft: #482321;
+                --code: #08110d;
+                --code-ink: #edf6f0;
+                --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--blue); }
+        code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+        code {
+            padding: 0.12rem 0.35rem;
+            border-radius: 5px;
+            background: var(--blue-soft);
+            color: var(--ink);
+            font-size: 0.9em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #2d8a61;
+            background: #12251b;
+            color: #fff;
+        }
+
+        .hero::after {
+            position: absolute;
+            inset: 0 0 0 55%;
+            content: "";
+            background: linear-gradient(135deg, rgba(38,115,79,0.28), rgba(154,98,0,0.62));
+            clip-path: polygon(24% 0, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 62px 0 58px;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: #a9e1c4;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 { line-height: 1.16; }
+
+        h1 {
+            max-width: 940px;
+            margin: 0;
+            font-size: clamp(2.5rem, 6vw, 5.25rem);
+            letter-spacing: -0.055em;
+        }
+
+        .lede {
+            max-width: 860px;
+            margin: 20px 0 0;
+            color: #deebe3;
+            font-size: clamp(1.04rem, 2vw, 1.3rem);
+        }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,0.23);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 36px;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 36px 0 80px;
+        }
+
+        nav {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        nav strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            display: block;
+            padding: 4px 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        nav a:hover, nav a:focus { color: var(--green); }
+        main { min-width: 0; }
+
+        section { scroll-margin-top: 24px; margin-bottom: 58px; }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: clamp(1.8rem, 4vw, 2.7rem);
+            letter-spacing: -0.035em;
+        }
+
+        h3 { margin: 0 0 10px; font-size: 1.12rem; }
+        p { margin: 0 0 15px; }
+        .muted { color: var(--muted); }
+
+        .grid { display: grid; gap: 16px; }
+        .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .card {
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .card.green { border-top: 4px solid var(--green); }
+        .card.blue { border-top: 4px solid var(--blue); }
+        .card.amber { border-top: 4px solid var(--amber); }
+
+        .tag {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--green-soft);
+            color: var(--green);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .tag.blue { background: var(--blue-soft); color: var(--blue); }
+        .tag.amber { background: var(--amber-soft); color: var(--amber); }
+
+        .callout {
+            margin: 18px 0;
+            padding: 16px 18px;
+            border-left: 4px solid var(--amber);
+            border-radius: 8px;
+            background: var(--amber-soft);
+        }
+
+        .callout.danger { border-color: var(--red); background: var(--red-soft); }
+        .callout.info { border-color: var(--blue); background: var(--blue-soft); }
+        .callout strong { display: block; margin-bottom: 4px; }
+
+        .diagram {
+            margin: 20px 0;
+            padding: 16px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .diagram svg { display: block; min-width: 900px; width: 100%; height: auto; }
+        figcaption { margin: 12px 4px 2px; color: var(--muted); font-size: 0.88rem; }
+
+        .process {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .step {
+            position: relative;
+            min-height: 118px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        .step:not(:last-child)::after {
+            position: absolute;
+            top: 47%;
+            right: -16px;
+            content: "→";
+            color: var(--green);
+            font-weight: 900;
+        }
+
+        .step-number {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--green);
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 0.77rem;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+        .table-wrap { overflow-x: auto; }
+
+        .status {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .required { background: var(--red-soft); color: var(--red); }
+        .optional { background: var(--green-soft); color: var(--green); }
+        .conditional { background: var(--amber-soft); color: var(--amber); }
+
+        .code-wrap { position: relative; margin: 16px 0; }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            border: 1px solid #2b4035;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.87rem;
+            line-height: 1.55;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+
+        .copy {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 10px;
+            border: 1px solid #50685b;
+            border-radius: 7px;
+            background: #1d3227;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.75rem;
+        }
+
+        ul, ol { padding-left: 1.25rem; }
+        li { margin: 0.38rem 0; }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 22px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .checklist li { position: relative; padding-left: 28px; }
+        .checklist li::before { position: absolute; left: 0; content: "✓"; color: var(--green); font-weight: 900; }
+
+        .related { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        .related a {
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface);
+            text-decoration: none;
+        }
+
+        footer {
+            padding: 32px 20px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; }
+            .process { grid-template-columns: 1fr 1fr; }
+            .step:not(:last-child)::after { display: none; }
+        }
+
+        @media (max-width: 680px) {
+            .hero-inner, .layout { width: min(calc(100% - 24px), var(--max)); }
+            .hero-inner { padding: 42px 0; }
+            .grid.two, .grid.three, .checklist, .process { grid-template-columns: 1fr; }
+            th, td { min-width: 150px; }
+        }
+
+        @media print {
+            .hero { background: #fff; color: #000; border-bottom: 2px solid #000; }
+            .hero::after, nav, .copy { display: none; }
+            .lede, .eyebrow { color: #222; }
+            .layout { display: block; width: 100%; padding: 20px; }
+            .card, .diagram, table { box-shadow: none; }
+            section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Operations Guide</p>
+        <h1>Environment and Configuration</h1>
+        <p class="lede">Understand how environment values become merged settings, how runtime modes change caches and error output, and which services validate configuration only when they start.</p>
+        <div class="chips" aria-label="Guide topics">
+            <span class="chip">Value precedence</span>
+            <span class="chip">Config merge</span>
+            <span class="chip">Environment modes</span>
+            <span class="chip">Secrets</span>
+            <span class="chip">Runtime cache</span>
+            <span class="chip">Source snapshot: 25 August 2026</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>On this page</strong>
+        <a href="#overview">Overview</a>
+        <a href="#flow">Configuration flow</a>
+        <a href="#sources">Configuration map</a>
+        <a href="#precedence">Value precedence</a>
+        <a href="#environments">Environment modes</a>
+        <a href="#core">Core variables</a>
+        <a href="#database">Database and Doctrine</a>
+        <a href="#logging">Logging</a>
+        <a href="#messaging">Messaging</a>
+        <a href="#redis-jwt">Redis and JWT</a>
+        <a href="#object-store">Object storage</a>
+        <a href="#example-api">ExampleApi settings</a>
+        <a href="#entry-points">Entry-point differences</a>
+        <a href="#docker">Local Docker</a>
+        <a href="#secrets">Secret handling</a>
+        <a href="#cache">Cache and changes</a>
+        <a href="#validation">Validation behavior</a>
+        <a href="#drift">Current drift</a>
+        <a href="#setup">Setup workflow</a>
+        <a href="#checklist">Review checklist</a>
+        <a href="#source-map">Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Backendbase stores configuration as PHP arrays. Environment variables supply deployment values. <code>ConfigAggregator</code> merges shared files with one API-specific directory. PHP-DI then exposes the merged array through <code>Backendbase\Shared\Settings</code>.</p>
+            <div class="grid three">
+                <article class="card green">
+                    <span class="tag">Read</span>
+                    <h3>Environment values</h3>
+                    <p><code>backendbaseEnv()</code> reads <code>$_ENV</code>, then the process environment, then a code default.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">Merge</span>
+                    <h3>Configuration arrays</h3>
+                    <p>Shared <code>config/autoload</code> values load first. The selected API configuration loads second.</p>
+                </article>
+                <article class="card amber">
+                    <span class="tag amber">Consume</span>
+                    <h3>Container services</h3>
+                    <p>Factories read top-level settings and validate some values only when their services are resolved.</p>
+                </article>
+            </div>
+            <div class="callout danger">
+                <strong>Never treat <code>.env.example</code> as a secret store</strong>
+                It is tracked source. Use placeholders only. Store production secrets in the deployment platform or a secret manager.
+            </div>
+        </section>
+
+        <section id="flow">
+            <h2>Configuration flow</h2>
+            <figure class="diagram">
+                <svg viewBox="0 0 1120 560" role="img" aria-label="Backendbase environment and configuration flow">
+                    <title>Backendbase environment and configuration flow</title>
+                    <desc>Existing process values and an optional dot env file feed the environment helper. Shared and API PHP configuration files form merged settings, which PHP-DI provides to service factories. Public API configuration can be cached.</desc>
+                    <defs>
+                        <marker id="cfg-arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#65bf91"/></marker>
+                        <marker id="cfg-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#69a6e4"/></marker>
+                    </defs>
+
+                    <rect x="34" y="60" width="180" height="82" rx="13" fill="#20392c" stroke="#65bf91"/>
+                    <text x="124" y="92" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Process environment</text>
+                    <text x="124" y="118" text-anchor="middle" fill="#cee9d9" font-size="12">container · shell · secret</text>
+
+                    <rect x="34" y="190" width="180" height="82" rx="13" fill="#3b301c" stroke="#d0a655"/>
+                    <text x="124" y="222" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Optional .env</text>
+                    <text x="124" y="248" text-anchor="middle" fill="#f0dfba" font-size="12">local development</text>
+
+                    <rect x="272" y="124" width="190" height="92" rx="13" fill="#1c3048" stroke="#69a6e4"/>
+                    <text x="367" y="157" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">backendbaseEnv()</text>
+                    <text x="367" y="183" text-anchor="middle" fill="#cadcf0" font-size="12">$_ENV → getenv → default</text>
+
+                    <rect x="520" y="48" width="190" height="82" rx="13" fill="#20392c" stroke="#65bf91"/>
+                    <text x="615" y="80" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Shared config</text>
+                    <text x="615" y="106" text-anchor="middle" fill="#cee9d9" font-size="12">config/autoload/*</text>
+
+                    <rect x="520" y="174" width="190" height="82" rx="13" fill="#1c3048" stroke="#69a6e4"/>
+                    <text x="615" y="206" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">API config</text>
+                    <text x="615" y="232" text-anchor="middle" fill="#cadcf0" font-size="12">config/example-api/*</text>
+
+                    <rect x="772" y="104" width="180" height="92" rx="13" fill="#3b301c" stroke="#d0a655"/>
+                    <text x="862" y="137" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Merged settings</text>
+                    <text x="862" y="163" text-anchor="middle" fill="#f0dfba" font-size="12">ConfigAggregator</text>
+
+                    <rect x="772" y="268" width="180" height="82" rx="13" fill="#252d3e" stroke="#71829f"/>
+                    <text x="862" y="300" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Config cache</text>
+                    <text x="862" y="326" text-anchor="middle" fill="#d0d8e7" font-size="12">public API only</text>
+
+                    <rect x="520" y="330" width="190" height="92" rx="13" fill="#20392c" stroke="#65bf91"/>
+                    <text x="615" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Settings service</text>
+                    <text x="615" y="389" text-anchor="middle" fill="#cee9d9" font-size="12">top-level get() · env()</text>
+
+                    <rect x="272" y="330" width="190" height="92" rx="13" fill="#1c3048" stroke="#69a6e4"/>
+                    <text x="367" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">PHP-DI factories</text>
+                    <text x="367" y="389" text-anchor="middle" fill="#cadcf0" font-size="12">validate and construct</text>
+
+                    <rect x="34" y="330" width="180" height="92" rx="13" fill="#3b301c" stroke="#d0a655"/>
+                    <text x="124" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Runtime services</text>
+                    <text x="124" y="389" text-anchor="middle" fill="#f0dfba" font-size="12">DB · queue · JWT · S3</text>
+
+                    <line x1="214" y1="101" x2="270" y2="150" stroke="#65bf91" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
+                    <line x1="214" y1="231" x2="270" y2="190" stroke="#d0a655" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
+                    <line x1="462" y1="170" x2="518" y2="90" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
+                    <line x1="462" y1="170" x2="518" y2="215" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
+                    <line x1="710" y1="89" x2="770" y2="135" stroke="#65bf91" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
+                    <line x1="710" y1="215" x2="770" y2="165" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
+                    <line x1="862" y1="196" x2="862" y2="266" stroke="#d0a655" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
+                    <path d="M772 170 H736 V376 H712" fill="none" stroke="#65bf91" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
+                    <line x1="520" y1="376" x2="464" y2="376" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
+                    <line x1="272" y1="376" x2="216" y2="376" stroke="#d0a655" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
+                </svg>
+                <figcaption>Figure 1. Values become settings before a container factory constructs a technology service.</figcaption>
+            </figure>
+        </section>
+
+        <section id="sources">
+            <h2>Configuration map</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Source</th><th>Purpose</th><th>Scope</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>config/autoload/global.php</code></td><td>Service name, mode, error display, database DSN, CDN URL, base path.</td><td>All entry points</td></tr>
+                    <tr><td><code>logger.global.php</code></td><td>Logger name, destination, and level.</td><td>All entry points</td></tr>
+                    <tr><td><code>rabbitmq.global.php</code></td><td>RabbitMQ connection, topology, timeouts, and prefetch.</td><td>Queue driver</td></tr>
+                    <tr><td><code>aws.global.php</code></td><td>Queue driver, AWS client, SQS, and SNS values.</td><td>AWS and queue services</td></tr>
+                    <tr><td><code>redis.global.php</code></td><td>Redis host and port.</td><td>JWT state and Redis consumers</td></tr>
+                    <tr><td><code>object-store.global.php</code></td><td>Object-store credentials, region, bucket, and CDN URL.</td><td>S3-compatible storage</td></tr>
+                    <tr><td><code>config/example-api/*</code></td><td>API key, route cache, CORS, and JWT values.</td><td>ExampleApi</td></tr>
+                    <tr><td><code>config/settings.php</code></td><td>Binds the merged array to the shared <code>Settings</code> interface.</td><td>PHP-DI</td></tr>
+                    <tr><td><code>config/dependencies.php</code></td><td>Reads settings and constructs infrastructure services.</td><td>Runtime container</td></tr>
+                    <tr><td><code>.env.example</code></td><td>Local convenience list. It is not complete and is not authoritative.</td><td>Developer reference</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="precedence">
+            <h2>Value precedence and types</h2>
+            <div class="process" aria-label="Environment value precedence">
+                <div class="step"><span class="step-number">01 · FIRST</span><strong><code>$_ENV[$key]</code></strong><br><span class="muted">An existing environment array value wins.</span></div>
+                <div class="step"><span class="step-number">02</span><strong><code>getenv($key)</code></strong><br><span class="muted">Use the process value when <code>$_ENV</code> has no key.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Code default</strong><br><span class="muted">Use the supplied fallback when the variable is absent.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>Explicit cast</strong><br><span class="muted">Some config files cast integer, float, or boolean values.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Consumer validation</strong><br><span class="muted">A service factory can reject invalid values later.</span></div>
+            </div>
+            <div class="code-wrap"><pre><code>function backendbaseEnv(string $key, mixed $default = null): mixed
+{
+    if (array_key_exists($key, $_ENV)) {
+        return $_ENV[$key];
+    }
+
+    $value = getenv($key);
+
+    return $value === false ? $default : $value;
+}</code></pre></div>
+            <ul>
+                <li>An empty string is a present value. It does not activate the default.</li>
+                <li>Most environment values remain strings.</li>
+                <li>Ports, counts, and timeouts use explicit casts in their configuration file.</li>
+                <li><code>AWS_SQS_CONTINUOUS</code> uses <code>FILTER_VALIDATE_BOOL</code>.</li>
+                <li><code>Settings::get()</code> returns <code>mixed</code> and reads one top-level key.</li>
+            </ul>
+            <p><code>Dotenv::createUnsafeImmutable()</code> loads local values without replacing values that the process already supplied.</p>
+        </section>
+
+        <section id="environments">
+            <h2>Environment modes</h2>
+            <p>Use exact mode values to keep all entry points consistent.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th><code>BACKENDBASE_ENV</code></th><th>HTTP error details</th><th>Public container</th><th>Doctrine CLI cache</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>dev</code></td><td>Shown</td><td>No production compilation</td><td>In-memory</td></tr>
+                    <tr><td><code>test</code></td><td>Shown</td><td>No production compilation</td><td>Filesystem</td></tr>
+                    <tr><td><code>ci</code></td><td>Shown</td><td>No production compilation</td><td>Filesystem</td></tr>
+                    <tr><td><code>stage</code></td><td>Shown</td><td>No production compilation</td><td>Filesystem</td></tr>
+                    <tr><td><code>production</code></td><td>Hidden</td><td>Compiled container, proxies, and route cache</td><td>Filesystem</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout">
+                <strong>Use the exact values above</strong>
+                The public selector accepts <code>local</code> and <code>development</code> as development aliases, but merged settings retain the raw string. <code>Settings::env()</code> accepts only enum values.
+            </div>
+            <p>An unknown public mode is treated as production during early bootstrap. The raw unknown value can still fail later when code calls <code>Settings::env()</code>.</p>
+        </section>
+
+        <section id="core">
+            <h2>Core variables</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Variable</th><th>Default</th><th>Requirement and use</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>BACKENDBASE_SERVICE_NAME</code></td><td><code>example</code></td><td>Names the service and prefixes new integration event types.</td></tr>
+                    <tr><td><code>BACKENDBASE_ENV</code></td><td><code>dev</code></td><td>Controls error display and caches. Use an exact environment mode.</td></tr>
+                    <tr><td><code>BACKENDBASE_DB_DSN</code></td><td>None</td><td><span class="status required">Required for DB</span> Parsed as a MySQL DBAL connection string.</td></tr>
+                    <tr><td><code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code></td><td><code>2</code></td><td>Bounds dependency connection work used by readiness checks. Use a value from <code>0.1</code> through <code>10</code>.</td></tr>
+                    <tr><td><code>CDN_BASE_URL</code></td><td>Empty string</td><td>Used in root metadata, example projections, and object-store configuration.</td></tr>
+                    <tr><td><code>BASE_PATH</code></td><td>Empty string</td><td>Sets the Slim base path after routes are registered.</td></tr>
+                    <tr><td><code>PAYMENT_CALLBACK_BASEURL</code></td><td>Empty string</td><td>Stored as <code>payment-gateway-call-baseurl</code>. No current consumer was found.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="database">
+            <h2>Database and Doctrine</h2>
+            <div class="grid two">
+                <article class="card green">
+                    <span class="tag">Application</span>
+                    <h3>Container connection</h3>
+                    <p><code>config/dependencies.php</code> parses <code>BACKENDBASE_DB_DSN</code> with a MySQL-to-<code>pdo_mysql</code> DSN mapping.</p>
+                    <p>Doctrine ORM finds shared and bounded-context entity paths through <code>PathFinder</code>.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">CLI</span>
+                    <h3><code>bin/doctrine</code></h3>
+                    <p>The Doctrine entry point loads the optional <code>.env</code>, merges shared, ExampleApi, and console configuration, then builds its own entity manager.</p>
+                    <p>Development uses <code>ArrayAdapter</code>. Other modes use <code>var/cache/doctrine</code>.</p>
+                </article>
+            </div>
+            <div class="callout danger">
+                <strong>Keep credentials out of commands and logs</strong>
+                Supply the DSN through the environment. Do not paste a production DSN into documentation, shell history, or source files.
+            </div>
+        </section>
+
+        <section id="logging">
+            <h2>Logging</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Variable</th><th>Behavior</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>BACKENDBASE_LOGGER_LEVEL</code></td><td>Primary log level. It takes precedence over <code>BACKENDBASE_DEBUG</code>.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEBUG</code></td><td>Fallback log level. Default behavior is Monolog <code>Info</code>.</td></tr>
+                    <tr><td><code>docker</code></td><td>If this lowercase key exists, logs go to <code>php://stdout</code>. Otherwise they go to <code>var/logs/app.log</code>.</td></tr>
+                    <tr><td><code>X-Request-Id</code></td><td>Used as the log <code>trace_id</code>. A UUID is generated when the header is absent.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The configured level name is converted to a Monolog <code>Level</code> case with <code>ucfirst()</code>. Use valid names such as <code>debug</code>, <code>info</code>, <code>warning</code>, or <code>error</code>.</p>
+        </section>
+
+        <section id="messaging">
+            <h2>Messaging configuration</h2>
+            <h3>Driver selection</h3>
+            <p><code>BACKENDBASE_QUEUE_DRIVER</code> defaults to <code>rabbitmq</code>. The queue factory accepts only <code>rabbitmq</code> or <code>sqs</code>.</p>
+
+            <div class="grid two">
+                <article class="card green">
+                    <span class="tag">RabbitMQ</span>
+                    <h3>Connection and topology</h3>
+                    <ul>
+                        <li><code>BACKENDBASE_RABBITMQ_HOST</code>, <code>PORT</code>, <code>USER</code>, <code>PASSWORD</code>, and <code>VHOST</code></li>
+                        <li><code>QUEUE</code>, <code>EXCHANGE</code>, and <code>EXCHANGE_TYPE</code></li>
+                        <li><code>DEAD_LETTER_EXCHANGE</code> and <code>DEAD_LETTER_QUEUE_SUFFIX</code></li>
+                        <li><code>CONNECTION_TIMEOUT</code>, <code>READ_WRITE_TIMEOUT</code>, <code>HEARTBEAT</code>, and <code>PREFETCH_COUNT</code></li>
+                    </ul>
+                    <p>Message retention is fixed in code at seven days.</p>
+                </article>
+                <article class="card blue">
+                    <span class="tag blue">AWS</span>
+                    <h3>SQS and SNS</h3>
+                    <ul>
+                        <li><code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code></li>
+                        <li><code>AWS_REGION</code> defaults to <code>eu-central-1</code>.</li>
+                        <li><code>AWS_ENDPOINT</code> supports compatible local or private endpoints.</li>
+                        <li>SQS queue name, URL, batch count, wait, visibility, and continuous mode</li>
+                        <li>SNS SMS type and sender ID</li>
+                    </ul>
+                    <p><code>AWS_SECRET_KEY</code> is a compatibility fallback for the secret key.</p>
+                </article>
+            </div>
+            <p>AWS credentials must both be empty or both be non-empty. The shared AWS factory rejects a partial pair.</p>
+            <div class="related">
+                <a href="4-messaging-and-queues.html">Messaging and queues guide</a>
+                <a href="3-integration-events.html">Integration events guide</a>
+            </div>
+        </section>
+
+        <section id="redis-jwt">
+            <h2>Redis and JWT</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Variable</th><th>Default</th><th>Use</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>BACKENDBASE_REDIS_HOST</code></td><td><code>127.0.0.1</code></td><td>Redis JSON client host.</td></tr>
+                    <tr><td><code>BACKENDBASE_REDIS_PORT</code></td><td><code>6379</code></td><td>Redis client port.</td></tr>
+                    <tr><td><code>BACKENDBASE_JWT_SIGN_KEY</code></td><td>None</td><td><span class="status required">Required for JWT</span> Base64-encoded symmetric signing key.</td></tr>
+                    <tr><td><code>EXAMPLE_API_JWT_PERMITTED_FOR</code></td><td><code>example-api</code></td><td>JWT audience.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>JWT token state is stored in Redis. Token issue and validation therefore require a working Redis connection.</p>
+            <div class="code-wrap"><pre><code># Generate a new base64 value outside source control.
+# Put the generated value in the deployment secret store.
+BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
+        </section>
+
+        <section id="object-store">
+            <h2>Object storage</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Variable</th><th>Default</th><th>Use</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>OBJECT_STORE_ACCESS_KEY</code></td><td>Empty</td><td>Object-store access credential.</td></tr>
+                    <tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Empty</td><td>Object-store secret credential.</td></tr>
+                    <tr><td><code>OBJECT_STORE_REGION</code></td><td>Empty</td><td>S3 client region.</td></tr>
+                    <tr><td><code>BUCKET_NAME</code></td><td>Empty</td><td>Target bucket.</td></tr>
+                    <tr><td><code>CDN_BASE_URL</code></td><td>No default in object-store array</td><td>Public URL prefix for stored assets.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The S3 client receives these values when <code>BucketService</code> is resolved. Empty values can remain unnoticed until that service is used.</p>
+        </section>
+
+        <section id="example-api">
+            <h2>ExampleApi settings</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Variable</th><th>Default</th><th>Use</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>EXAMPLE_API_KEY</code></td><td>None</td><td>Expected API key value. Current API-key middleware is disabled.</td></tr>
+                    <tr><td><code>EXAMPLE_API_CORS_ORIGIN</code></td><td><code>http://127.0.0.1:8080</code></td><td>Comma-separated allowed origins are supported by the response emitter.</td></tr>
+                    <tr><td><code>EXAMPLE_API_JWT_PERMITTED_FOR</code></td><td><code>example-api</code></td><td>JWT audience.</td></tr>
+                    <tr><td><code>BACKENDBASE_JWT_SIGN_KEY</code></td><td>None</td><td>JWT symmetric signing key.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Other API values are fixed in PHP: version <code>1.0.0</code>, JWT alias <code>USER</code>, issuer <code>backendbase-api</code>, duration <code>PT24H</code>, and route cache path <code>var/cache/example-api/routes.php</code>.</p>
+            <div class="related"><a href="5-use-case-api.html">Use Case API guide</a></div>
+        </section>
+
+        <section id="entry-points">
+            <h2>Entry-point differences</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Entry point</th><th>Dotenv behavior</th><th>Configuration providers</th><th>Cache</th></tr></thead>
+                    <tbody>
+                    <tr><td>Public API</td><td>Loads optional <code>.env</code> only when merged config cache is absent.</td><td>Shared plus selected API</td><td>Merged config, container, proxies, routes in production</td></tr>
+                    <tr><td><code>bin/backendbase</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared plus optional <code>config/console/*</code></td><td>No ConfigAggregator cache path</td></tr>
+                    <tr><td><code>bin/doctrine</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared, ExampleApi, and optional console</td><td>Doctrine filesystem cache outside development</td></tr>
+                    <tr><td>Base integration test</td><td>Calls <code>load()</code>, so <code>.env</code> must exist.</td><td>Shared plus ExampleApi</td><td>Container is not compiled</td></tr>
+                    <tr><td>Tolgee scripts</td><td>Calls <code>safeLoad()</code>.</td><td>Reads shared global config directly</td><td>None</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>All primary entry points change to, or expect, the project root. Relative config and cache paths depend on that working directory.</p>
+        </section>
+
+        <section id="docker">
+            <h2>Local Docker services</h2>
+            <p><code>docker-compose.yaml</code> provides three development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
+            <div class="grid three">
+                <article class="card green"><span class="tag">Redis Stack 7.4.0-v8</span><h3>Ports 6379 and 8001</h3><p>Uses a pinned image digest, persists data under <code>var/docker-data/redis</code>, and has a health check.</p></article>
+                <article class="card blue"><span class="tag blue">MySQL 8.4</span><h3>Port 3306</h3><p>Creates the local database and user, persists data under <code>var/docker-data/mysql</code>, and has a health check.</p></article>
+                <article class="card amber"><span class="tag amber">RabbitMQ 4.3</span><h3>Ports 5672 and 15672</h3><p>Uses environment-backed credentials, a named volume, and a health check.</p></article>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Development variables</th><th>Use</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>BACKENDBASE_DEV_MYSQL_*</code></td><td>MySQL port, database, user, password, and root password.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEV_REDIS_*</code></td><td>Redis and Redis Insight host ports.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEV_RABBITMQ_*</code></td><td>RabbitMQ ports, user, password, and virtual host.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="code-wrap"><pre><code>docker compose up -d
+docker compose ps</code></pre></div>
+            <p>Docker Compose values are local development defaults. Application variables in <code>.env.example</code> reference the same development values. Do not copy them into stage or production secrets.</p>
+        </section>
+
+        <section id="secrets">
+            <h2>Secret handling</h2>
+            <div class="grid two">
+                <article class="card green">
+                    <h3>Secret values</h3>
+                    <ul>
+                        <li>Database DSN</li>
+                        <li>RabbitMQ password</li>
+                        <li>AWS and object-store keys</li>
+                        <li>JWT signing key</li>
+                        <li>API keys</li>
+                        <li>Tolgee project key</li>
+                    </ul>
+                </article>
+                <article class="card blue">
+                    <h3>Safe storage</h3>
+                    <ul>
+                        <li>Local untracked <code>.env</code></li>
+                        <li>Container secrets</li>
+                        <li>Kubernetes Secrets</li>
+                        <li>Cloud secret manager</li>
+                        <li>CI protected variables</li>
+                    </ul>
+                </article>
+            </div>
+            <div class="callout danger">
+                <strong>The tracked example file contains concrete-looking secret samples</strong>
+                Treat them as exposed placeholders. Do not reuse them. Replace them with neutral placeholders and rotate any value that was used outside local development.
+            </div>
+            <ul class="checklist">
+                <li>Do not commit <code>.env</code>.</li>
+                <li>Do not log full settings arrays.</li>
+                <li>Do not print tokens or connection strings.</li>
+                <li>Use separate values for each environment.</li>
+                <li>Rotate credentials after suspected exposure.</li>
+                <li>Keep least-privilege service permissions.</li>
+            </ul>
+        </section>
+
+        <section id="cache">
+            <h2>Cache and configuration changes</h2>
+            <p>The public API stores its merged configuration under <code>var/cache/{api-slug}/merged-conf.php</code>. When that file exists, bootstrap does not load <code>.env</code>.</p>
+            <div class="process" aria-label="Apply a configuration change">
+                <div class="step"><span class="step-number">01</span><strong>Change secret</strong><br><span class="muted">Update the deployment environment or local <code>.env</code>.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Clear cache</strong><br><span class="muted">Remove merged config, route, container, and Doctrine caches.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Restart</strong><br><span class="muted">Restart long-running workers and API processes.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>Resolve services</strong><br><span class="muted">Exercise database, Redis, and the active queue driver.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Verify</strong><br><span class="muted">Check health, logs, and one safe request.</span></div>
+            </div>
+            <div class="code-wrap"><pre><code>bin/backendbase clear-cache</code></pre></div>
+            <div class="callout">
+                <strong>Current exit-code behavior</strong>
+                <code>ClearCache</code> deletes cache contents but returns <code>1</code>. Automation can interpret the command as failed even after deletion.
+            </div>
+        </section>
+
+        <section id="validation">
+            <h2>Validation and failure behavior</h2>
+            <p>There is no central configuration schema. Validation is distributed across casts, enum conversion, service factories, and external clients.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Configuration</th><th>Validation time</th><th>Failure behavior</th></tr></thead>
+                    <tbody>
+                    <tr><td>Environment mode</td><td>Early public bootstrap and <code>Settings::env()</code></td><td>Unknown values can select production early and fail later.</td></tr>
+                    <tr><td>Logger level</td><td>Config file load</td><td>An invalid Monolog level name fails configuration evaluation.</td></tr>
+                    <tr><td>Database DSN</td><td>Connection resolution</td><td>DBAL parsing or connection error.</td></tr>
+                    <tr><td>Redis</td><td><code>RedisJsonInterface</code> resolution</td><td>Connection failure becomes a service error.</td></tr>
+                    <tr><td>Queue driver</td><td><code>BackendbaseQueue</code> resolution</td><td>Rejects drivers other than <code>rabbitmq</code> and <code>sqs</code>.</td></tr>
+                    <tr><td>AWS region and credential pair</td><td>AWS client resolution</td><td>Rejects missing region, invalid types, or a partial credential pair.</td></tr>
+                    <tr><td>JWT signing key</td><td><code>Jwt</code> resolution</td><td>JWT configuration construction fails for invalid key data.</td></tr>
+                    <tr><td>Missing Settings key</td><td><code>Settings::get()</code></td><td>Direct array access has no dedicated missing-key exception.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>PHP-DI creates many services lazily. A successful container build does not prove that every external-service configuration is valid.</p>
+        </section>
+
+        <section id="drift">
+            <h2>Current configuration drift</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Observation</th><th>Impact</th></tr></thead>
+                    <tbody>
+                    <tr><td><code>.env.example</code> does not define <code>EXAMPLE_API_KEY</code>.</td><td>It lists older user, expert, and admin API key names that current ExampleApi configuration does not read.</td></tr>
+                    <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include base path, CORS origin, JWT audience, logger-level primary key, dead-letter settings, and payment callback URL.</td></tr>
+                    <tr><td>The example file includes service base URLs and notification variables with no current consumer in the inspected source.</td><td>Do not assume that each listed variable changes runtime behavior.</td></tr>
+                    <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
+                    <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
+                    <tr><td>Only production hides HTTP error details.</td><td>Stage currently exposes error details unless another layer changes behavior.</td></tr>
+                    <tr><td>Public cached boot skips Dotenv.</td><td>A changed <code>.env</code> has no effect until cache is cleared.</td></tr>
+                    <tr><td>Settings are untyped arrays.</td><td>Type and presence errors can occur far from configuration load.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="setup">
+            <h2>Local setup workflow</h2>
+            <ol>
+                <li>Copy <code>.env.example</code> to an untracked <code>.env</code>.</li>
+                <li>Replace every secret-like sample with a new local-only value.</li>
+                <li>Add current variables that the example file omits.</li>
+                <li>Select <code>BACKENDBASE_ENV=dev</code>.</li>
+                <li>Start MySQL, Redis, and the selected queue driver.</li>
+                <li>Clear stale runtime caches.</li>
+                <li>Run focused configuration and dependency tests.</li>
+                <li>Start the API and verify one health request.</li>
+            </ol>
+            <div class="code-wrap"><pre><code>cp .env.example .env
+docker compose up -d
+bin/backendbase clear-cache
+composer run start-apis</code></pre></div>
+            <p>Do not use the example credentials for any shared, stage, or production environment.</p>
+        </section>
+
+        <section id="checklist">
+            <h2>Review checklist</h2>
+            <ul class="checklist">
+                <li>The environment mode uses an exact enum value.</li>
+                <li>Every required secret comes from a protected source.</li>
+                <li>No tracked file contains a live credential.</li>
+                <li>The database DSN points to the intended database.</li>
+                <li>Only one queue driver is selected.</li>
+                <li>Queue timeouts match worker behavior.</li>
+                <li>AWS credential keys are both present or both absent.</li>
+                <li>Redis is available before JWT use.</li>
+                <li>CORS origins match the deployed clients.</li>
+                <li>The JWT audience matches the API.</li>
+                <li>Logger output and level match the runtime.</li>
+                <li>Configuration caches were cleared after changes.</li>
+                <li>Long-running workers were restarted.</li>
+                <li>External-service factories were resolved in checks.</li>
+                <li>Stage does not expose unwanted error details.</li>
+                <li><code>.env.example</code> matches current variable names.</li>
+            </ul>
+        </section>
+
+        <section id="source-map">
+            <h2>Source map</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Purpose</th><th>Source</th></tr></thead>
+                    <tbody>
+                    <tr><td>Environment helper</td><td><code>src/Backendbase/Shared/Helpers/functions.php</code></td></tr>
+                    <tr><td>Environment enum</td><td><code>src/Backendbase/Shared/Options/System/Environment.php</code></td></tr>
+                    <tr><td>Settings contract and implementation</td><td><code>src/Backendbase/Shared/Settings.php</code> and <code>Shared/Services/Settings.php</code></td></tr>
+                    <tr><td>Shared configuration</td><td><code>config/autoload</code></td></tr>
+                    <tr><td>ExampleApi configuration</td><td><code>config/example-api</code></td></tr>
+                    <tr><td>Settings registration</td><td><code>config/settings.php</code></td></tr>
+                    <tr><td>Service factories and validation</td><td><code>config/dependencies.php</code></td></tr>
+                    <tr><td>Public configuration bootstrap</td><td><code>public/index.php</code></td></tr>
+                    <tr><td>Console bootstrap</td><td><code>bin/backendbase</code></td></tr>
+                    <tr><td>Doctrine bootstrap</td><td><code>bin/doctrine</code></td></tr>
+                    <tr><td>Cache command</td><td><code>src/Backendbase/Infrastructure/UseCase/Console/GoodHousekeeping/ClearCache.php</code></td></tr>
+                    <tr><td>Local variable reference</td><td><code>.env.example</code></td></tr>
+                    <tr><td>Local services</td><td><code>docker-compose.yaml</code></td></tr>
+                    <tr><td>Helper and settings tests</td><td><code>tests/Shared/Helpers/HelpersTest.php</code> and <code>tests/Shared/Services/SharedServicesTest.php</code></td></tr>
+                    <tr><td>AWS configuration test</td><td><code>tests/Infrastructure/Adapters/AwsDependencyDefinitionsTest.php</code></td></tr>
+                    <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>
+    Generated from the Backendbase Core source tree. Update this guide when variable names, configuration providers, cache behavior, or service validation changes.
+</footer>
+
+<script>
+    document.querySelectorAll('.code-wrap').forEach((wrapper) => {
+        const pre = wrapper.querySelector('pre');
+        if (!pre) {
+            return;
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code');
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(pre.innerText);
+                button.textContent = 'Copied';
+                window.setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+            } catch (_error) {
+                button.textContent = 'Select text';
+            }
+        });
+        wrapper.appendChild(button);
+    });
+</script>
+</body>
+</html>

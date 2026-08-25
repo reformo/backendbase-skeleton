@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Backendbase Error Handling and Observability Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Diagnostic boundary</p><h1>Error Handling and Observability</h1>
+<p class="lede">Problem Details responses, domain exceptions, Slim failures, shutdown handling, logs, trace identifiers, health checks, queue monitoring, and diagnostic safety.</p>
+<div class="chips"><span class="chip">Problem Details</span><span class="chip">Monolog</span><span class="chip">Trace ID</span><span class="chip">Health</span><span class="chip">Failure paths</span></div></div></header>
+<div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
+<a href="#overview">1. Overview</a><a href="#flow">2. Failure flow</a><a href="#problem">3. Problem Details</a><a href="#action">4. Action errors</a>
+<a href="#http">5. HTTP errors</a><a href="#shutdown">6. Shutdown errors</a><a href="#logging">7. Logging</a><a href="#trace">8. Trace identifiers</a>
+<a href="#health">9. Health and monitoring</a><a href="#safety">10. Diagnostic safety</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#sources">13. Source map</a>
+</nav><main>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Translate failures at architectural boundaries</h2>
+<p>Domain and application code raise typed failures. HTTP adapters translate them into stable public responses. Logs keep the internal diagnostic context.</p>
+<div class="grid-3"><article class="card"><h3>Expected problem</h3><p>A <code>ProblemDetailsException</code> becomes <code>application/problem+json</code>.</p></article><article class="card"><h3>HTTP or unexpected error</h3><p><code>HttpErrorHandler</code> maps Slim exceptions and safe server failures.</p></article><article class="card"><h3>PHP shutdown error</h3><p><code>ShutdownHandler</code> logs the last PHP error and emits a 500 response.</p></article></div>
+</section>
+<section id="flow"><p class="section-label">02 · Failure flow</p><h2>One of three boundaries owns the response</h2>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Operation</strong><small>fails with an exception</small></li><li><strong>Action</strong><small>catches domain problems</small></li><li><strong>Slim handler</strong><small>catches HTTP + unexpected</small></li><li><strong>Logger</strong><small>records diagnostics</small></li><li><strong>Problem body</strong><small>keeps public contract</small></li><li><strong>Emitter</strong><small>adds response headers</small></li></ol></div>
+</section>
+<section id="problem"><p class="section-label">03 · Problem Details</p><h2>Public failures use a stable five-field core</h2>
+<pre><code>{
+  "type": "about:blank",
+  "code": "general/resource-not-found",
+  "title": "Resource Not Found",
+  "status": 404,
+  "detail": "The example was not found."
+}</code></pre>
+<p><code>ActionError</code> serializes these fields and merges approved additional data. Domain exceptions provide constants for status, type, code, and title.</p>
+</section>
+<section id="action"><p class="section-label">04 · Action errors</p><h2>Action catches known application problems</h2>
+<p><code>Action::__invoke()</code> catches <code>ProblemDetailsException</code>, builds an <code>ActionError</code>, translates message keys, replaces <code>:placeholder</code> values, and returns JSON.</p>
+<p>It logs problems whose status is outside 400, 401, 403, and 404. Log context includes the exception class, file, line, trace, status, and error code.</p>
+<div class="callout warning">Only put public and non-sensitive values in additional problem data. The array becomes part of the response.</div>
+</section>
+<section id="http"><p class="section-label">05 · HTTP errors</p><h2>Slim exceptions map to public problem types</h2>
+<div class="table-wrap"><table><thead><tr><th>Exception</th><th>Code</th><th>Type</th></tr></thead><tbody>
+<tr><td>Not found</td><td><code>http/resource-not-found</code></td><td><code>RESOURCE_NOT_FOUND</code></td></tr>
+<tr><td>Method not allowed</td><td><code>http/not-allowed</code></td><td><code>NOT_ALLOWED</code></td></tr>
+<tr><td>Unauthorized</td><td><code>http/unauthenticated</code></td><td><code>UNAUTHENTICATED</code></td></tr>
+<tr><td>Forbidden</td><td><code>http/insufficient-privileges</code></td><td><code>INSUFFICIENT_PRIVILEGES</code></td></tr>
+<tr><td>Bad request</td><td><code>http/bad-request</code></td><td><code>BAD_REQUEST</code></td></tr>
+<tr><td>Not implemented</td><td><code>http/not-implemented</code></td><td><code>NOT_IMPLEMENTED</code></td></tr>
+</tbody></table></div>
+<p>Unexpected exceptions return a safe 500 message. Development mode can add exception details to the response.</p>
+</section>
+<section id="shutdown"><p class="section-label">06 · Shutdown errors</p><h2>Fatal PHP state still gets a structured response</h2>
+<p>The shutdown handler ignores deprecation errors. It logs other last-error data and passes an internal-server exception to the HTTP error handler.</p>
+<div class="callout danger">Production must keep <code>displayErrorDetails</code> disabled. File paths, traces, and exception messages must not appear in public responses.</div>
+</section>
+<section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>
+<p>The configured logger name is <code>backendbase-app</code>. It writes to standard output when the <code>docker</code> environment key exists. Otherwise, it writes to <code>var/logs/app.log</code>.</p>
+<p><code>BACKENDBASE_LOGGER_LEVEL</code> is the primary level input. <code>BACKENDBASE_DEBUG</code> is the fallback.</p>
+<div class="callout warning">Use valid Monolog level names. Invalid names fail while configuration is evaluated.</div>
+</section>
+<section id="trace"><p class="section-label">08 · Trace identifiers</p><h2>Every logger instance receives one trace ID</h2>
+<p>The container reads <code>X-Request-Id</code>. When it is absent, it creates a UUID version 7. The logger processor writes it as <code>extra.trace_id</code>.</p>
+<p>Pass the same request identifier across HTTP calls and queue messages when the contract supports it. Do not generate a new identifier at every internal layer.</p>
+</section>
+<section id="health"><p class="section-label">09 · Health and monitoring</p><h2>Health needs both request and background signals</h2>
+<div class="table-wrap"><table><thead><tr><th>Signal</th><th>Current source</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>API metadata</td><td><code>GET /</code></td><td>Returns the API name, version, build, and timestamp.</td></tr>
+<tr><td>Liveness</td><td><code>GET /_status</code></td><td>Tests only that the application process can return a response.</td></tr>
+<tr><td>Readiness</td><td><code>GET /_status/ready</code></td><td>Tests MySQL, Redis, the selected queue, and the object store.</td></tr>
+<tr><td>Outbox status</td><td><code>outbox:status</code></td><td>Pending, retried, and oldest pending event state.</td></tr>
+<tr><td>Queue failures</td><td>Delivery failure log and dead-letter queue</td><td>Permanent or exhausted delivery problems.</td></tr>
+<tr><td>Dependency failures</td><td>Typed adapter exceptions and logs</td><td>Redis, database, queue, AWS, or provider failure.</td></tr>
+</tbody></table></div>
+<div class="callout"><code>/_status/ready</code> returns only safe status values. Bounded connection checks use <code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code>.</div>
+</section>
+<section id="safety"><p class="section-label">10 · Diagnostic safety</p><h2>Logs can diagnose without exposing secrets</h2>
+<ul><li>Log exception type, stable operation, message identifier, and trace identifier.</li><li>Do not log access tokens, passwords, API keys, signing keys, AWS secrets, notification content, or unnecessary personal data.</li>
+<li>Keep stack traces in internal logs.</li><li>Use stable public error codes for client behavior.</li><li>Preserve the previous exception when translating a failure.</li></ul>
+</section>
+<section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known diagnostic limits</h2>
+<ul><li>Authorization middleware uses custom 400 bodies instead of the shared problem flow.</li>
+<li><code>TooManyRequests</code> uses status 409 instead of the common 429 status.</li><li>The logger records full traces for some application problems.</li>
+<li>No metrics, tracing exporter, dashboard, or alert configuration exists in the repository.</li></ul>
+</section>
+<section id="tests"><p class="section-label">12 · Tests</p><h2>Verify public safety and internal evidence</h2>
+<pre><code>vendor/bin/phpunit tests/Shared/Http/Actions
+vendor/bin/phpunit tests/Shared/Http/Handlers
+vendor/bin/phpunit tests/Shared/Http/ResponseEmitter
+vendor/bin/phpunit tests/Infrastructure/UseCase/Console</code></pre>
+<p>Test status mappings, content type, safe production bodies, detailed development bodies, logging calls, shutdown behavior, CORS headers, output buffer handling, and unhealthy outbox exit codes.</p>
+</section>
+<section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
+<tr><td>Known problems</td><td><code>Shared/Http/Actions/Action.php</code> and <code>ActionError.php</code></td></tr><tr><td>Unexpected HTTP failures</td><td><code>Shared/Http/Handlers/HttpErrorHandler.php</code></td></tr>
+<tr><td>Shutdown failures</td><td><code>Shared/Http/Handlers/ShutdownHandler.php</code></td></tr><tr><td>Response emission</td><td><code>Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
+<tr><td>Logger config</td><td><code>config/autoload/logger.global.php</code></td></tr><tr><td>Health actions</td><td><code>ExampleApi/Controllers/Root/Liveness.php</code> and <code>Readiness.php</code></td></tr>
+<tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>
+</tbody></table></div></section>
+</main></div><footer>Backendbase Core · Error handling and observability guide</footer></body></html>

@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Backendbase OpenAPI and Bruno Guide</title>
+    <style>
+        :root {
+            --page: #f3f6f8;
+            --surface: #ffffff;
+            --surface-soft: #f7fafb;
+            --ink: #17242d;
+            --muted: #60717d;
+            --line: #d9e2e7;
+            --navy: #142b3a;
+            --teal: #087f75;
+            --teal-soft: #e6f7f4;
+            --blue: #1769aa;
+            --blue-soft: #eaf3fb;
+            --orange: #b45309;
+            --orange-soft: #fff1df;
+            --green: #237a48;
+            --green-soft: #e8f6ee;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --purple: #6d4db3;
+            --purple-soft: #f1edfb;
+            --code: #0c1923;
+            --code-ink: #e9f2f6;
+            --shadow: 0 18px 46px rgba(23, 45, 58, 0.10);
+            --radius: 16px;
+            --max: 1200px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0d1419;
+                --surface: #162029;
+                --surface-soft: #1a2630;
+                --ink: #edf4f7;
+                --muted: #b2c0c8;
+                --line: #30404b;
+                --navy: #dceaf0;
+                --teal: #73d9ce;
+                --teal-soft: #173a38;
+                --blue: #8bc2ed;
+                --blue-soft: #183249;
+                --orange: #f0b46e;
+                --orange-soft: #44301c;
+                --green: #79d39d;
+                --green-soft: #193727;
+                --red: #ff9d96;
+                --red-soft: #482522;
+                --purple: #c5acef;
+                --purple-soft: #342947;
+                --code: #080f15;
+                --code-ink: #edf4f7;
+                --shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+            }
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background: var(--page);
+            color: var(--ink);
+            font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--blue); }
+        code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+        code {
+            padding: 0.12rem 0.35rem;
+            border-radius: 5px;
+            background: var(--blue-soft);
+            color: var(--ink);
+            font-size: 0.9em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #12a89b;
+            background: #0f2634;
+            color: #fff;
+        }
+
+        .hero::before {
+            position: absolute;
+            inset: -80px -40px auto auto;
+            width: 520px;
+            height: 520px;
+            border: 92px solid rgba(18, 168, 155, 0.14);
+            border-radius: 50%;
+            content: "";
+        }
+
+        .hero::after {
+            position: absolute;
+            inset: 0 0 0 58%;
+            background: linear-gradient(140deg, rgba(23, 105, 170, 0.15), rgba(18, 168, 155, 0.45));
+            clip-path: polygon(24% 0, 100% 0, 100% 100%, 0 100%);
+            content: "";
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 62px 0 58px;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: #88e6dd;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 { line-height: 1.16; }
+
+        h1 {
+            max-width: 930px;
+            margin: 0;
+            font-size: clamp(2.5rem, 6vw, 5.25rem);
+            letter-spacing: -0.055em;
+        }
+
+        .lede {
+            max-width: 860px;
+            margin: 20px 0 0;
+            color: #dce8ed;
+            font-size: clamp(1.04rem, 2vw, 1.3rem);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.09);
+            font-size: 0.84rem;
+            font-weight: 750;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 255px minmax(0, 1fr);
+            gap: 36px;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 36px 0 80px;
+        }
+
+        nav {
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        nav strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            display: block;
+            padding: 4px 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.35;
+            text-decoration: none;
+        }
+
+        nav a:hover { color: var(--teal); }
+
+        main { min-width: 0; }
+
+        section {
+            margin-bottom: 28px;
+            padding: clamp(22px, 4vw, 38px);
+            scroll-margin-top: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        section > :first-child { margin-top: 0; }
+        section > :last-child { margin-bottom: 0; }
+
+        h2 {
+            margin: 0 0 18px;
+            color: var(--navy);
+            font-size: clamp(1.55rem, 3vw, 2.25rem);
+            letter-spacing: -0.025em;
+        }
+
+        h3 {
+            margin: 28px 0 10px;
+            font-size: 1.08rem;
+        }
+
+        p { margin: 10px 0; }
+        ul, ol { padding-left: 1.3rem; }
+        li + li { margin-top: 6px; }
+
+        .section-label {
+            margin-bottom: 8px;
+            color: var(--teal);
+            font-size: 0.72rem;
+            font-weight: 850;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .summary-grid,
+        .card-grid,
+        .two-col,
+        .three-col {
+            display: grid;
+            gap: 16px;
+        }
+
+        .summary-grid { grid-template-columns: repeat(4, 1fr); }
+        .card-grid, .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .stat,
+        .card {
+            min-width: 0;
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: var(--surface-soft);
+        }
+
+        .stat strong {
+            display: block;
+            color: var(--teal);
+            font-size: 2.1rem;
+            line-height: 1;
+        }
+
+        .stat span {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .card h3 { margin-top: 0; }
+        .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+        .callout {
+            margin: 18px 0;
+            padding: 15px 17px;
+            border-left: 4px solid var(--blue);
+            border-radius: 0 10px 10px 0;
+            background: var(--blue-soft);
+        }
+
+        .callout.warning {
+            border-left-color: var(--orange);
+            background: var(--orange-soft);
+        }
+
+        .callout.danger {
+            border-left-color: var(--red);
+            background: var(--red-soft);
+        }
+
+        .callout.good {
+            border-left-color: var(--green);
+            background: var(--green-soft);
+        }
+
+        .table-wrap,
+        .diagram-wrap {
+            margin: 18px 0;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+            background: var(--surface);
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 0.73rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+
+        .method {
+            display: inline-block;
+            min-width: 58px;
+            padding: 3px 7px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 850;
+            text-align: center;
+        }
+
+        .get { background: #1769aa; }
+        .post { background: #237a48; }
+        .patch { background: #a9570b; }
+        .delete { background: #b42318; }
+
+        .badge {
+            display: inline-block;
+            margin: 2px 3px 2px 0;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: var(--teal-soft);
+            color: var(--teal);
+            font-size: 0.74rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge.write { background: var(--purple-soft); color: var(--purple); }
+        .badge.risk { background: var(--red-soft); color: var(--red); }
+        .badge.note { background: var(--orange-soft); color: var(--orange); }
+
+        pre {
+            position: relative;
+            margin: 16px 0;
+            padding: 19px 20px;
+            overflow-x: auto;
+            border: 1px solid #243642;
+            border-radius: 12px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.84rem;
+            line-height: 1.65;
+        }
+
+        pre code {
+            padding: 0;
+            background: transparent;
+            color: inherit;
+            font-size: inherit;
+            overflow-wrap: normal;
+        }
+
+        .code-shell { position: relative; }
+
+        .copy-button {
+            position: absolute;
+            z-index: 2;
+            top: 9px;
+            right: 9px;
+            padding: 5px 9px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.09);
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.73rem;
+            font-weight: 700;
+        }
+
+        .copy-button:hover { background: rgba(255, 255, 255, 0.17); }
+
+        .diagram {
+            display: block;
+            min-width: 780px;
+            width: 100%;
+            height: auto;
+            background: var(--surface-soft);
+        }
+
+        .flow-list {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(105px, 1fr));
+            min-width: 780px;
+            margin: 0;
+            padding: 24px;
+            list-style: none;
+            counter-reset: flow;
+        }
+
+        .flow-list li {
+            position: relative;
+            margin: 0;
+            padding: 16px 14px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--surface);
+            text-align: center;
+        }
+
+        .flow-list li::before {
+            display: block;
+            width: 28px;
+            height: 28px;
+            margin: 0 auto 8px;
+            border-radius: 50%;
+            background: var(--teal);
+            color: var(--surface);
+            content: counter(flow);
+            counter-increment: flow;
+            font-size: 0.8rem;
+            font-weight: 850;
+            line-height: 28px;
+        }
+
+        .flow-list li:not(:last-child)::after {
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            right: -17px;
+            width: 32px;
+            color: var(--teal);
+            content: "→";
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .flow-list strong, .flow-list small { display: block; }
+        .flow-list small { margin-top: 5px; color: var(--muted); line-height: 1.35; }
+
+        .tree {
+            margin: 16px 0;
+            padding: 18px 20px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface-soft);
+            color: var(--ink);
+            white-space: pre;
+        }
+
+        .steps {
+            margin: 18px 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: steps;
+        }
+
+        .steps li {
+            position: relative;
+            min-height: 52px;
+            margin: 0 0 12px;
+            padding: 12px 15px 12px 58px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--surface-soft);
+        }
+
+        .steps li::before {
+            position: absolute;
+            top: 11px;
+            left: 14px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--navy);
+            color: var(--surface);
+            content: counter(steps);
+            counter-increment: steps;
+            font-weight: 850;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .small { color: var(--muted); font-size: 0.86rem; }
+        .mono { font-family: "SFMono-Regular", Consolas, monospace; }
+
+        footer {
+            width: min(calc(100% - 40px), var(--max));
+            margin: -50px auto 0;
+            padding: 0 0 36px 291px;
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; max-height: none; }
+            nav a { display: inline-block; margin-right: 14px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .three-col { grid-template-columns: 1fr; }
+            footer { margin-top: -50px; padding-left: 0; }
+        }
+
+        @media (max-width: 660px) {
+            body { font-size: 15px; }
+            .hero-inner { padding: 44px 0 40px; }
+            .layout { width: min(calc(100% - 24px), var(--max)); gap: 22px; padding-top: 22px; }
+            section { padding: 20px; margin-bottom: 20px; }
+            .card-grid, .two-col, .summary-grid { grid-template-columns: 1fr; }
+            nav { padding: 17px; }
+            nav a { display: block; margin: 0; }
+            footer { width: min(calc(100% - 24px), var(--max)); }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Contract and executable examples</p>
+        <h1>OpenAPI &amp; Bruno</h1>
+        <p class="lede">A source-based guide to the Example API contract, merged specification, documentation viewer, Bruno collection, and contract checks.</p>
+        <div class="chips" aria-label="Guide scope">
+            <span class="chip">OpenAPI 3.0</span>
+            <span class="chip">8 operations</span>
+            <span class="chip">6 Bruno requests</span>
+            <span class="chip">Local environment</span>
+            <span class="chip">Contract alignment</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>Contents</strong>
+        <a href="#overview">1. Overview</a>
+        <a href="#artifact-map">2. Artifact map</a>
+        <a href="#contract-flow">3. Contract flow</a>
+        <a href="#operation-map">4. Operation map</a>
+        <a href="#openapi-source">5. OpenAPI source</a>
+        <a href="#components">6. Shared components</a>
+        <a href="#security">7. Security contract</a>
+        <a href="#generation">8. Generate and validate</a>
+        <a href="#viewer">9. Documentation viewer</a>
+        <a href="#bruno-collection">10. Bruno collection</a>
+        <a href="#bruno-request">11. Request structure</a>
+        <a href="#run-sequence">12. Run sequence</a>
+        <a href="#environments">13. Environments and secrets</a>
+        <a href="#testing">14. Verification layers</a>
+        <a href="#change-workflow">15. Change workflow</a>
+        <a href="#alignment">16. Current alignment gaps</a>
+        <a href="#commands">17. Command reference</a>
+        <a href="#checklist">18. Review checklist</a>
+        <a href="#sources">19. Source map</a>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <p class="section-label">01 · Overview</p>
+            <h2>One contract, three representations</h2>
+            <p>The OpenAPI source defines the public contract. The generated YAML gives tools one complete file. Bruno sends example requests to the running API.</p>
+            <div class="summary-grid">
+                <div class="stat"><strong>3</strong><span>OpenAPI source groups</span></div>
+                <div class="stat"><strong>8</strong><span>Documented operations</span></div>
+                <div class="stat"><strong>6</strong><span>Bruno API requests</span></div>
+                <div class="stat"><strong>1</strong><span>Bruno environment</span></div>
+            </div>
+            <div class="callout good"><strong>Verified state:</strong> <code>public/example-api/docs/example-api-merged.yml</code> validates against the OpenAPI 3.0 schema.</div>
+            <p>Do not edit the merged file. Edit the source files under <code>resources/api-docs</code>, and then regenerate the merged file.</p>
+        </section>
+
+        <section id="artifact-map">
+            <p class="section-label">02 · Artifact map</p>
+            <h2>Know which file owns each concern</h2>
+            <pre class="tree" aria-label="OpenAPI and Bruno file tree">resources/
+├── api-docs/
+│   ├── common/components.yaml                  # shared headers and responses
+│   └── example-api/
+│       ├── example-openapi.yml                 # root contract and servers
+│       └── example/
+│           ├── example-groups.yaml             # group list
+│           ├── examples.yaml                   # example list and create
+│           └── example-details.yaml            # get, change, and delete
+└── bruno/example-api/
+    ├── environments/local.yaml                 # local values
+    └── example/*.yaml                          # six executable requests
+
+public/example-api/docs/
+├── example-api-merged.yml                      # generated, single-file contract
+└── index.php                                   # Stoplight Elements viewer
+
+bin/bruno                                       # Bruno command wrapper</pre>
+            <div class="card-grid">
+                <article class="card">
+                    <h3>Authoritative files</h3>
+                    <p>Change <code>resources/api-docs</code> and <code>resources/bruno</code>. Review these files with the route implementation.</p>
+                </article>
+                <article class="card">
+                    <h3>Generated file</h3>
+                    <p>Commit the merged YAML when the project workflow requires it. Never hand-edit it.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="contract-flow">
+            <p class="section-label">03 · Contract flow</p>
+            <h2>From design to executable evidence</h2>
+            <div class="diagram-wrap" role="img" aria-label="Flowchart from contract source through generation and testing">
+                <svg class="diagram" viewBox="0 0 1080 330" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#087f75"/>
+                        </marker>
+                    </defs>
+                    <rect x="28" y="90" width="176" height="108" rx="14" fill="#e6f7f4" stroke="#087f75" stroke-width="2"/>
+                    <text x="116" y="124" text-anchor="middle" fill="#064e49" font-size="16" font-weight="700">OpenAPI source</text>
+                    <text x="116" y="151" text-anchor="middle" fill="#315b59" font-size="13">root document + paths</text>
+                    <text x="116" y="173" text-anchor="middle" fill="#315b59" font-size="13">+ components</text>
+
+                    <line x1="204" y1="144" x2="263" y2="144" stroke="#087f75" stroke-width="3" marker-end="url(#arrow)"/>
+                    <rect x="274" y="90" width="176" height="108" rx="14" fill="#eaf3fb" stroke="#1769aa" stroke-width="2"/>
+                    <text x="362" y="124" text-anchor="middle" fill="#124a77" font-size="16" font-weight="700">Inline command</text>
+                    <text x="362" y="151" text-anchor="middle" fill="#315b72" font-size="13">resolve external</text>
+                    <text x="362" y="173" text-anchor="middle" fill="#315b72" font-size="13">references</text>
+
+                    <line x1="450" y1="144" x2="509" y2="144" stroke="#087f75" stroke-width="3" marker-end="url(#arrow)"/>
+                    <rect x="520" y="90" width="176" height="108" rx="14" fill="#f1edfb" stroke="#6d4db3" stroke-width="2"/>
+                    <text x="608" y="124" text-anchor="middle" fill="#503584" font-size="16" font-weight="700">Merged YAML</text>
+                    <text x="608" y="151" text-anchor="middle" fill="#63527c" font-size="13">one generated</text>
+                    <text x="608" y="173" text-anchor="middle" fill="#63527c" font-size="13">OpenAPI document</text>
+
+                    <line x1="696" y1="122" x2="755" y2="85" stroke="#087f75" stroke-width="3" marker-end="url(#arrow)"/>
+                    <rect x="766" y="28" width="274" height="104" rx="14" fill="#fff1df" stroke="#b45309" stroke-width="2"/>
+                    <text x="903" y="62" text-anchor="middle" fill="#7e3d06" font-size="16" font-weight="700">Documentation viewer</text>
+                    <text x="903" y="89" text-anchor="middle" fill="#78552f" font-size="13">Stoplight Elements loads</text>
+                    <text x="903" y="111" text-anchor="middle" fill="#78552f" font-size="13">the local merged YAML</text>
+
+                    <line x1="696" y1="169" x2="755" y2="213" stroke="#087f75" stroke-width="3" marker-end="url(#arrow)"/>
+                    <rect x="766" y="180" width="274" height="104" rx="14" fill="#e8f6ee" stroke="#237a48" stroke-width="2"/>
+                    <text x="903" y="214" text-anchor="middle" fill="#185b34" font-size="16" font-weight="700">Bruno + API tests</text>
+                    <text x="903" y="241" text-anchor="middle" fill="#3d674e" font-size="13">send requests and check</text>
+                    <text x="903" y="263" text-anchor="middle" fill="#3d674e" font-size="13">runtime behavior</text>
+
+                    <path d="M903 284 C903 319 116 320 116 211" fill="none" stroke="#b45309" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+                    <text x="505" y="313" text-anchor="middle" fill="#8b520d" font-size="13" font-weight="700">Fix contract or implementation drift</text>
+                </svg>
+            </div>
+            <div class="callout"><strong>Key point:</strong> Generation proves that references can be inlined. Validation proves the generated structure. Runtime tests prove behavior.</div>
+        </section>
+
+        <section id="operation-map">
+            <p class="section-label">04 · Operation map</p>
+            <h2>Current Example API contract</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Method</th><th>Path</th><th>Operation ID</th><th>Security in spec</th><th>Bruno</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>apiMetadata</code></td><td>API key</td><td>Missing</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/_status</code></td><td><code>livenessCheck</code></td><td>Public</td><td>Missing</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/_status/ready</code></td><td><code>readinessCheck</code></td><td>Public</td><td>Missing</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>authenticateUser</code></td><td>API key</td><td>Missing</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups</code></td><td><code>getExampleGroupsByType</code></td><td>API key</td><td>Sequence 40</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>getExamplesByGroup</code></td><td>API key</td><td>Sequence 42</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>addNewExample</code></td><td>API key + bearer</td><td>Sequence 41</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>getExampleByCriteria</code></td><td>API key</td><td>Sequence 43</td></tr>
+                        <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>removeExample</code></td><td>API key + bearer</td><td>Sequence 45</td></tr>
+                        <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>changeExampleDetails</code></td><td>API key + bearer</td><td>Sequence 44</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small">The application also has a catch-all route. The OpenAPI document does not describe it as a public operation.</p>
+        </section>
+
+        <section id="openapi-source">
+            <p class="section-label">05 · OpenAPI source</p>
+            <h2>The root document composes the contract</h2>
+            <p><code>example-openapi.yml</code> owns the OpenAPI version, title, servers, root operations, security schemes, tags, and path references.</p>
+            <div class="two-col">
+                <article class="card">
+                    <h3>Root document</h3>
+                    <ul>
+                        <li>Uses OpenAPI <code>3.0.0</code>.</li>
+                        <li>Defines local, stage, and production servers.</li>
+                        <li>Defines <code>bearerAuth</code> and <code>apiKey</code>.</li>
+                        <li>References three feature path files.</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <h3>Feature path files</h3>
+                    <ul>
+                        <li><code>example-groups.yaml</code> owns one GET operation.</li>
+                        <li><code>examples.yaml</code> owns GET and POST operations.</li>
+                        <li><code>example-details.yaml</code> owns GET, PATCH, and DELETE operations.</li>
+                    </ul>
+                </article>
+            </div>
+            <div class="code-shell">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code>paths:
+  /example-types/{typeSlug}/groups:
+    $ref: "./example/example-groups.yaml"
+  /example-types/{typeSlug}/groups/{exampleGroup}/examples:
+    $ref: "./example/examples.yaml"
+  /example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}:
+    $ref: "./example/example-details.yaml"</code></pre>
+            </div>
+            <p>Keep one operation ID for each operation. Keep path parameter names equal to route placeholders.</p>
+        </section>
+
+        <section id="components">
+            <p class="section-label">06 · Shared components</p>
+            <h2>Reuse headers and standard responses</h2>
+            <p><code>resources/api-docs/common/components.yaml</code> defines shared request headers and response schemas.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Header</th><th>Requirement</th><th>Purpose</th><th>Bruno variable</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Accept-Language</code></td><td><span class="badge">Required</span></td><td>Response language</td><td><code>acceptLanguage</code></td></tr>
+                        <tr><td><code>The-Timezone-IANA</code></td><td><span class="badge">Required</span></td><td>IANA time zone</td><td><code>timezone</code></td></tr>
+                        <tr><td><code>X-Request-Id</code></td><td><span class="badge">Required</span></td><td>Request correlation</td><td><code>requestId</code></td></tr>
+                        <tr><td><code>X-Source-Id</code></td><td><span class="badge">Required</span></td><td>API source selection and context</td><td><code>sourceId</code></td></tr>
+                        <tr><td><code>X-User-Id</code></td><td><span class="badge note">Optional</span></td><td>User context</td><td><code>userId</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Shared response schemas cover <code>200</code>, <code>201</code>, <code>202</code>, <code>204</code>, <code>400</code>, <code>401</code>, <code>403</code>, <code>404</code>, and <code>409</code>.</p>
+            <p>The standard problem body uses <code>type</code>, <code>code</code>, <code>title</code>, <code>status</code>, and <code>detail</code>.</p>
+            <div class="callout warning"><strong>Format note:</strong> Values such as <code>kebab-case</code>, <code>Timezone IANA name</code>, and <code>&lt;ulid&gt; or string</code> are descriptive hints. OpenAPI tools do not treat them as standard formats.</div>
+        </section>
+
+        <section id="security">
+            <p class="section-label">07 · Security contract</p>
+            <h2>Read and write operations use different declarations</h2>
+            <div class="three-col">
+                <article class="card">
+                    <h3>Read operations</h3>
+                    <p><span class="badge">API key</span></p>
+                    <p>The OpenAPI source declares <code>apiKey</code>. Bruno sends <code>Backendbase-Api-Key</code>.</p>
+                </article>
+                <article class="card">
+                    <h3>Write operations</h3>
+                    <p><span class="badge">API key</span> <span class="badge write">Bearer token</span></p>
+                    <p>POST, PATCH, and DELETE declare both schemes. Bruno sends both headers.</p>
+                </article>
+                <article class="card">
+                    <h3>Authentication</h3>
+                    <p><span class="badge note">Not in Bruno</span></p>
+                    <p>The OpenAPI source documents <code>POST /auth</code>. The Bruno collection does not call it.</p>
+                </article>
+            </div>
+            <div class="code-shell">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code>security:
+  - apiKey: []
+    bearerAuth: []</code></pre>
+            </div>
+            <p>Both keys in one security requirement mean logical AND. Separate list items would mean logical OR.</p>
+            <div class="callout danger"><strong>Current runtime difference:</strong> Example API key validation is disabled in middleware. The contract and Bruno still require the header.</div>
+        </section>
+
+        <section id="generation">
+            <p class="section-label">08 · Generate and validate</p>
+            <h2>Build one tool-ready OpenAPI file</h2>
+            <p>The Composer script calls <code>php-openapi inline</code>. It resolves external file references and writes one YAML document.</p>
+            <ol class="steps">
+                <li>Edit the root document, shared components, or feature path source.</li>
+                <li>Generate <code>public/example-api/docs/example-api-merged.yml</code>.</li>
+                <li>Validate the generated file against the OpenAPI 3.0 schema.</li>
+                <li>Review the generated difference before commit.</li>
+            </ol>
+            <div class="code-shell">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code>composer run generate-example-api-spec
+vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</code></pre>
+            </div>
+            <div class="callout warning"><strong>Important:</strong> The generation script does not run validation. Run validation as a separate command.</div>
+            <p>Development housekeeping and test or production deployment scripts also generate the specification.</p>
+        </section>
+
+        <section id="viewer">
+            <p class="section-label">09 · Documentation viewer</p>
+            <h2>Stoplight Elements renders the merged file</h2>
+            <p><code>public/example-api/docs/index.php</code> loads the merged YAML through <code>apiDescriptionUrl</code>. It adds a modification timestamp to prevent stale browser caching.</p>
+            <div class="diagram-wrap">
+                <ol class="flow-list" aria-label="Documentation viewer request flow">
+                    <li><strong>Browser</strong><small>opens docs page</small></li>
+                    <li><strong>index.php</strong><small>finds base path</small></li>
+                    <li><strong>Elements</strong><small>starts the viewer</small></li>
+                    <li><strong>YAML</strong><small>loads merged file</small></li>
+                    <li><strong>Router</strong><small>shows operation</small></li>
+                    <li><strong>Developer</strong><small>reads contract</small></li>
+                </ol>
+            </div>
+            <div class="callout"><strong>Network requirement:</strong> The page serves YAML locally, but it loads Stoplight JavaScript and CSS from jsDelivr.</div>
+            <p>Start the API services, and then open the Example API documentation route in the local server.</p>
+        </section>
+
+        <section id="bruno-collection">
+            <p class="section-label">10 · Bruno collection</p>
+            <h2>Executable examples for the Example module</h2>
+            <p>The repository stores Bruno requests as YAML. Each file contains request metadata, method, URL, headers, query values, body, and assertions.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Sequence</th><th>Request file</th><th>Purpose</th><th>Expected status</th></tr></thead>
+                    <tbody>
+                        <tr><td>40</td><td><code>list-example-groups.yaml</code></td><td>List available groups</td><td>200</td></tr>
+                        <tr><td>41</td><td><code>add-example.yaml</code></td><td>Create a test example</td><td>204</td></tr>
+                        <tr><td>42</td><td><code>list-examples.yaml</code></td><td>Find examples in the group</td><td>200</td></tr>
+                        <tr><td>43</td><td><code>get-example-details.yaml</code></td><td>Read the test example</td><td>200</td></tr>
+                        <tr><td>44</td><td><code>change-example-details.yaml</code></td><td>Change the test example</td><td>204</td></tr>
+                        <tr><td>45</td><td><code>delete-example.yaml</code></td><td>Delete the test example</td><td>204</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The collection covers all six Example module operations. It does not cover system status or authentication.</p>
+        </section>
+
+        <section id="bruno-request">
+            <p class="section-label">11 · Request structure</p>
+            <h2>Use variables for environment-specific values</h2>
+            <p>The create request shows the full pattern. It reads URL, credential, context, and fixture values from the selected environment.</p>
+            <div class="code-shell">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code>meta:
+  name: "Add New Example"
+  type: "http"
+  seq: 41
+
+request:
+  method: "POST"
+  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples"
+  headers:
+    Backendbase-Api-Key: "{{apiKey}}"
+    X-Request-Id: "{{requestId}}"
+    Authorization: "Bearer {{accessToken}}"
+    Content-Type: "application/json"
+
+tests:
+  - name: "status is 204"
+    script: |
+      expect(res.status).to.equal(204);</code></pre>
+            </div>
+            <div class="card-grid">
+                <article class="card">
+                    <h3>Assertions</h3>
+                    <p>Read requests check status and important response fields. Write requests check status.</p>
+                </article>
+                <article class="card">
+                    <h3>Captured value</h3>
+                    <p>The create request stores <code>Backendbase-Insert-Id</code> in <code>exampleId</code>.</p>
+                </article>
+            </div>
+            <p>The later requests use <code>exampleKey</code>, not <code>exampleId</code>. The captured identifier is checked and stored, but it does not connect the request chain.</p>
+        </section>
+
+        <section id="run-sequence">
+            <p class="section-label">12 · Run sequence</p>
+            <h2>The numbers define an intended lifecycle</h2>
+            <div class="diagram-wrap">
+                <ol class="flow-list" aria-label="Bruno request sequence">
+                    <li><strong>40 · List groups</strong><small>confirm fixture group</small></li>
+                    <li><strong>41 · Add</strong><small>create by exampleKey</small></li>
+                    <li><strong>42 · List</strong><small>check collection</small></li>
+                    <li><strong>43 · Get</strong><small>check details</small></li>
+                    <li><strong>44 · Change</strong><small>update values</small></li>
+                    <li><strong>45 · Delete</strong><small>remove fixture</small></li>
+                </ol>
+            </div>
+            <div class="code-shell">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code>bin/bruno example-api local</code></pre>
+            </div>
+            <p>The wrapper changes to <code>resources/bruno/example-api</code> and runs <code>npx bru run --env local</code>.</p>
+            <div class="callout danger"><strong>Precondition:</strong> Set <code>accessToken</code> before the run. The collection has no request that obtains a token.</div>
+            <div class="callout warning"><strong>Repeat-run risk:</strong> The collection uses a fixed <code>exampleKey</code>. A stopped run can leave data that makes the next create request fail.</div>
+        </section>
+
+        <section id="environments">
+            <p class="section-label">13 · Environments and secrets</p>
+            <h2>The collection currently has one local environment</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Variable group</th><th>Variables</th><th>Use</th></tr></thead>
+                    <tbody>
+                        <tr><td>Connection</td><td><code>baseUrl</code>, <code>apiKey</code>, <code>accessToken</code></td><td>Target and credentials</td></tr>
+                        <tr><td>Context</td><td><code>acceptLanguage</code>, <code>timezone</code>, <code>requestId</code>, <code>sourceId</code>, <code>userId</code></td><td>Shared request headers</td></tr>
+                        <tr><td>Authentication</td><td><code>email</code>, <code>password</code></td><td>Reserved for authentication; no Bruno auth request uses them</td></tr>
+                        <tr><td>Example fixture</td><td><code>typeSlug</code>, <code>exampleGroup</code>, <code>exampleKey</code>, <code>typeTargetId</code>, <code>exampleLookupValue</code>, <code>exampleId</code></td><td>Request path, body, and captured values</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <ul>
+                <li>Use placeholders in versioned environment files.</li>
+                <li>Do not commit real API keys, tokens, passwords, or user data.</li>
+                <li>Add a separate environment file for each target that the team must run.</li>
+                <li>Remove unused variables when they no longer support this collection.</li>
+            </ul>
+            <div class="callout warning"><strong>Current cleanup item:</strong> <code>local.yaml</code> contains unrelated agreement variables. They do not support the Example API requests.</div>
+        </section>
+
+        <section id="testing">
+            <p class="section-label">14 · Verification layers</p>
+            <h2>Each check answers a different question</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Layer</th><th>Command or artifact</th><th>What it proves</th><th>What it does not prove</th></tr></thead>
+                    <tbody>
+                        <tr><td>Generation</td><td><code>composer run generate-example-api-spec</code></td><td>External references can be resolved.</td><td>The contract is correct or valid.</td></tr>
+                        <tr><td>Schema validation</td><td><code>php-openapi validate</code></td><td>The merged document follows OpenAPI 3.0 structure.</td><td>The API follows the document.</td></tr>
+                        <tr><td>Bruno</td><td><code>bin/bruno example-api local</code></td><td>A running API passes selected examples and assertions.</td><td>Full schema coverage or all failure paths.</td></tr>
+                        <tr><td>PHPUnit</td><td><code>tests/Infrastructure/UseCase/ExampleApi</code></td><td>Application adapters and endpoint behavior pass their tests.</td><td>The published contract matches all behavior.</td></tr>
+                        <tr><td>Review</td><td>OpenAPI, Bruno, route, and test difference</td><td>Names, payloads, status codes, and security stay aligned.</td><td>Future behavior.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout"><strong>Recommended gate:</strong> Generate, validate, run focused PHPUnit tests, and run Bruno against a clean local database.</div>
+        </section>
+
+        <section id="change-workflow">
+            <p class="section-label">15 · Change workflow</p>
+            <h2>Update the contract and executable example together</h2>
+            <ol class="steps">
+                <li>Define the route, method, path parameters, request body, response, and security rule.</li>
+                <li>Add or change the operation in <code>resources/api-docs/example-api</code>.</li>
+                <li>Reuse shared header and response references where they match.</li>
+                <li>Add or change the Bruno request and its focused assertions.</li>
+                <li>Implement the route and use case. Add focused PHP tests.</li>
+                <li>Generate and validate the merged OpenAPI file.</li>
+                <li>Run the PHPUnit scope. Run Bruno against a clean target.</li>
+                <li>Review OpenAPI, Bruno, route, middleware, and response payload together.</li>
+            </ol>
+            <div class="callout good"><strong>Done means:</strong> One operation has one route, one accurate contract, one executable example, and behavior checks.</div>
+        </section>
+
+        <section id="alignment">
+            <p class="section-label">16 · Current alignment gaps</p>
+            <h2>Known differences need an explicit owner</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Priority</th><th>Area</th><th>Current difference</th><th>Suggested action</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class="badge risk">High</span></td><td>Bruno authentication</td><td>Write requests require <code>accessToken</code>, but no request obtains it.</td><td>Add an auth request or document a secure token injection step.</td></tr>
+                        <tr><td><span class="badge risk">High</span></td><td>Runtime security</td><td>OpenAPI and Bruno require an API key. Example API key validation is disabled.</td><td>Enable validation or change the public contract.</td></tr>
+                        <tr><td><span class="badge risk">High</span></td><td>Error status</td><td>The contract lists 401 and 403. Current authorization failures return 400.</td><td>Align middleware status codes and problem schemas.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>Security scheme name</td><td>The root contract uses <code>Backendbase-Api-Key</code>. A duplicate common scheme uses <code>X-Example-Api-Key</code>.</td><td>Keep one authoritative security scheme.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>Response fields</td><td>OpenAPI includes <code>typeTargetId</code> in details. The current controller omits it.</td><td>Change the response or the contract.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>Pagination</td><td>Runtime list handlers accept <code>pageSize</code> and <code>page</code>. OpenAPI omits these query parameters.</td><td>Document both parameters and their limits.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Body properties do not declare complete required-field rules.</td><td>Match schema requirements to boundary validation.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>CORS</td><td>Allowed headers omit <code>Accept-Language</code> and <code>X-User-Id</code>.</td><td>Align CORS with the public header contract.</td></tr>
+                        <tr><td><span class="badge">Low</span></td><td>Tags</td><td><code>Identity &amp; Access</code> is used but absent from the root tag catalog.</td><td>Add the tag definition.</td></tr>
+                        <tr><td><span class="badge">Low</span></td><td>Collection data</td><td>The fixed <code>exampleKey</code> can collide after an incomplete run.</td><td>Use a run-unique key or guaranteed cleanup.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>These items describe the repository state. They are not changes made by this guide.</p>
+        </section>
+
+        <section id="commands">
+            <p class="section-label">17 · Command reference</p>
+            <h2>Common contract commands</h2>
+            <div class="code-shell">
+                <button class="copy-button" type="button">Copy</button>
+                <pre><code># Generate the single-file OpenAPI document
+composer run generate-example-api-spec
+
+# Validate the generated OpenAPI 3.0 document
+vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
+
+# Start the project API services
+composer run start-apis
+
+# Run the Example API Bruno collection with local values
+bin/bruno example-api local
+
+# Run focused Example API PHP tests
+vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
+            </div>
+            <p class="small">Run commands from the project root. Bruno also needs Node.js, <code>npx</code>, the Bruno CLI package, a running API, valid credentials, and suitable data.</p>
+        </section>
+
+        <section id="checklist">
+            <p class="section-label">18 · Review checklist</p>
+            <h2>Check every public operation change</h2>
+            <div class="two-col">
+                <article class="card">
+                    <h3>Contract</h3>
+                    <ul>
+                        <li>Method and path match the route.</li>
+                        <li>Path and query parameters match runtime input.</li>
+                        <li>Required headers match middleware.</li>
+                        <li>Body required fields match validation.</li>
+                        <li>Response fields and status codes match output.</li>
+                        <li>Security requirements match enforcement.</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <h3>Executable example</h3>
+                    <ul>
+                        <li>Bruno uses environment variables.</li>
+                        <li>Assertions check status and important fields.</li>
+                        <li>Write data has deterministic cleanup.</li>
+                        <li>No real secret is stored in the repository.</li>
+                        <li>The merged file generates and validates.</li>
+                        <li>Focused tests and Bruno pass.</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section id="sources">
+            <p class="section-label">19 · Source map</p>
+            <h2>Files used for this guide</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Concern</th><th>Source</th></tr></thead>
+                    <tbody>
+                        <tr><td>Project API rules</td><td><a href="project.md"><code>resources/docs/project.md</code></a></td></tr>
+                        <tr><td>OpenAPI root</td><td><a href="../api-docs/example-api/example-openapi.yml"><code>resources/api-docs/example-api/example-openapi.yml</code></a></td></tr>
+                        <tr><td>Shared components</td><td><a href="../api-docs/common/components.yaml"><code>resources/api-docs/common/components.yaml</code></a></td></tr>
+                        <tr><td>Example paths</td><td><code>resources/api-docs/example-api/example/*.yaml</code></td></tr>
+                        <tr><td>Generated contract</td><td><a href="../../public/example-api/docs/example-api-merged.yml"><code>public/example-api/docs/example-api-merged.yml</code></a></td></tr>
+                        <tr><td>Documentation viewer</td><td><a href="../../public/example-api/docs/index.php"><code>public/example-api/docs/index.php</code></a></td></tr>
+                        <tr><td>Bruno environment</td><td><a href="../bruno/example-api/environments/local.yaml"><code>resources/bruno/example-api/environments/local.yaml</code></a></td></tr>
+                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/example/*.yaml</code></td></tr>
+                        <tr><td>Bruno wrapper</td><td><a href="../../bin/bruno"><code>bin/bruno</code></a></td></tr>
+                        <tr><td>Related runtime guide</td><td><a href="5-use-case-api.html"><code>resources/docs/5-use-case-api.html</code></a></td></tr>
+                        <tr><td>Related configuration guide</td><td><a href="7-env-and-config.html"><code>resources/docs/7-env-and-config.html</code></a></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small">This guide describes the repository state inspected on 25 August 2026.</p>
+        </section>
+    </main>
+</div>
+
+<footer>Backendbase Core · OpenAPI and Bruno guide · Generated from the current repository source</footer>
+
+<script>
+    document.querySelectorAll('.code-shell').forEach((shell) => {
+        const button = shell.querySelector('.copy-button');
+        const code = shell.querySelector('code');
+
+        if (!button || !code) {
+            return;
+        }
+
+        button.addEventListener('click', () => {
+            const temporaryField = document.createElement('textarea');
+            temporaryField.value = code.textContent;
+            temporaryField.style.position = 'fixed';
+            temporaryField.style.opacity = '0';
+            document.body.appendChild(temporaryField);
+            temporaryField.select();
+            const copied = document.execCommand('copy');
+            temporaryField.remove();
+
+            button.textContent = copied ? 'Copied' : 'Copy failed';
+            window.setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 1200);
+        });
+    });
+</script>
+</body>
+</html>

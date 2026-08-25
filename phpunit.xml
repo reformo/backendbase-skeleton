@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+        backupGlobals="false"
+        beStrictAboutTestsThatDoNotTestAnything="true"
+        beStrictAboutChangesToGlobalState="true"
+        beStrictAboutOutputDuringTests="true"
+        colors="true"
+        processIsolation="false"
+        stopOnFailure="false"
+        bootstrap="tests/bootstrap.php"
+        cacheDirectory="artifacts/.phpunit.cache"
+        backupStaticProperties="false"
+        displayDetailsOnTestsThatTriggerDeprecations="true"
+        displayDetailsOnTestsThatTriggerErrors="true"
+        displayDetailsOnTestsThatTriggerNotices="true"
+        displayDetailsOnTestsThatTriggerWarnings="true"
+        displayDetailsOnPhpunitDeprecations="true"
+>
+  <testsuites>
+    <testsuite name="Backendbase General Test Suite">
+      <directory>./tests</directory>
+      <directory>./src/Backendbase/Domain/*/Tests</directory>
+    </testsuite>
+  </testsuites>
+  <source>
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+  </source>
+  <coverage>
+    <report>
+      <clover outputFile="artifacts/clover.xml"/>
+      <html outputDirectory="artifacts/coverage"/>
+    </report>
+  </coverage>
+  <php>
+    <ini name="memory_limit" value="312M"/>
+  </php>
+</phpunit>

@@ -1,0 +1,200 @@
+get:
+  tags:
+    - Example
+  operationId: getExampleByCriteria
+  description: Get example details
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+    - $ref: '../../common/components.yaml#/headers/X-User-Id'
+    - in: path
+      name: typeSlug
+      description: Type slug
+      required: true
+      schema:
+        type: string
+        enum: [ 'system', 'user', 'expert', 'admin' ]
+    - in: path
+      name: exampleGroup
+      description: Example group
+      required: true
+      schema:
+        type: string
+    - in: path
+      name: exampleKey
+      description: Example key
+      required: true
+      schema:
+        type: string
+        format: <ulid> or string
+    - in: query
+      name: typeTargetId
+      description: Type target id
+      required: false
+      schema:
+        type: integer
+        format: int64
+        nullable: true
+  responses:
+    200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              example:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                  type:
+                    type: string
+                    enum: [ 'system', 'user', 'expert', 'admin' ]
+                    format: kebab-case
+                  exampleGroup:
+                    type: string
+                    format: kebab-case
+                  typeTargetId:
+                    type: integer
+                    description: "null if type is 'system'"
+                    format: int64
+                    nullable: true
+                  lookupKey:
+                    type: string
+                    format: <ulid> or string
+                    example: "01hkj62kff4ndb51nxy8sasy8w"
+                  lookupValue:
+                    type: string
+                  details:
+                    type: object
+                  isActive:
+                    type: boolean
+                    example: true
+                  updatedAt:
+                    type: string
+                    format: datetime
+                  createdAt:
+                    type: string
+                    format: datetime
+
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: [ ]
+
+patch:
+  tags:
+    - Example
+  operationId: changeExampleDetails
+  description: Change example details
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+    - $ref: '../../common/components.yaml#/headers/X-User-Id'
+
+    - in: path
+      name: typeSlug
+      description: Type slug
+      required: true
+      schema:
+        type: string
+        enum: [ 'system', 'user', 'expert', 'admin' ]
+    - in: path
+      name: exampleGroup
+      description: Example group
+      required: true
+      schema:
+        type: string
+    - in: path
+      name: exampleKey
+      description: Example key
+      required: true
+      schema:
+        type: string
+        format: <ulid> or string
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            lookupValue:
+              type: string
+            details:
+              type: object
+            isActive:
+              type: boolean
+              example: true
+            typeTargetId:
+              type: integer
+              format: int64
+              nullable: true
+
+  responses:
+    204:
+      $ref: '../../common/components.yaml#/schemas/204'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: [ ]
+      bearerAuth: [ ]
+
+delete:
+  tags:
+    - Example
+  operationId: removeExample
+  description: Remove example
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+    - $ref: '../../common/components.yaml#/headers/X-User-Id'
+
+    - in: path
+      name: typeSlug
+      description: Type slug
+      required: true
+      schema:
+        type: string
+        enum: [ 'system', 'user', 'expert', 'admin' ]
+    - in: path
+      name: exampleGroup
+      description: Example group
+      required: true
+      schema:
+        type: string
+    - in: path
+      name: exampleKey
+      description: Example key
+      required: true
+      schema:
+        type: string
+        format: <ulid> or string
+
+  responses:
+    204:
+      $ref: '../../common/components.yaml#/schemas/204'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: [ ]
+      bearerAuth: [ ]

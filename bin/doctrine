@@ -1,0 +1,117 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\AbstractAsset;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\ORMSetup;
+use Doctrine\DBAL\Tools\DsnParser;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
+use Dotenv\Dotenv;
+use Laminas\ConfigAggregator\ConfigAggregator;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Laminas\ConfigAggregator\PhpFileProvider;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Backendbase\Shared\Options\System\Environment;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Configuration\Migration\JsonFile;
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\Migrations\Tools\Console\Command;
+use Backendbase\Shared\Helpers\PathFinder;
+use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonExtract;
+use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch;
+
+
+$projectRoot = dirname(__DIR__);
+chdir($projectRoot);
+require_once $projectRoot ."/vendor/autoload.php";
+include $projectRoot . '/config/doctrine-types.php';
+$dotenv = Dotenv::createUnsafeImmutable($projectRoot);
+// K8s injects env via secret; .env is optional (local/dev).
+$dotenv->safeLoad();
+
+$configGenerator = new ConfigAggregator([
+    new PhpFileProvider('config/autoload/*'),
+    new PhpFileProvider('config/example-api/*'),
+    new PhpFileProvider('config/console/*')
+]);
+$settings = $configGenerator->getMergedConfig();
+
+if ($settings['env'] === Environment::DEV->value) {
+    $cache = new ArrayAdapter();
+} else {
+    $cache = new PhpFilesAdapter('orm-cache',0, 'var/cache/doctrine');
+}
+
+$configuration = ORMSetup::createAttributeMetadataConfiguration(
+    paths: PathFinder::doctrineEntityPaths(),
+    isDevMode: $settings['env'] === Environment::DEV->value,
+    proxyDir: $projectRoot . '/var/cache/doctrine/proxies',
+    cache: $cache
+);
+$configuration->enableNativeLazyObjects(true);
+$configuration->addCustomStringFunction(JsonExtract::FUNCTION_NAME, JsonExtract::class);
+$configuration->addCustomStringFunction(JsonSearch::FUNCTION_NAME, JsonSearch::class);
+
+$dsnParser  = new DsnParser(['mysql' => 'pdo_mysql']);
+$connection = DriverManager::getConnection($dsnParser->parse($settings['doctrine']['connect']), $configuration);
+
+$entityFiles = glob($projectRoot . '/src/Backendbase/Domain/*/Adapters/Persistence/Doctrine/Entity/*.php', GLOB_NOSORT);
+
+$serviceTables = [];
+foreach ($entityFiles as $entityFile) {
+    require_once $entityFile;
+    $entityClass = str_replace([$projectRoot . '/src/', '.php', '/'], ['', '', '\\'], $entityFile);
+    $className = basename($entityClass);
+    $reflection = new ReflectionClass($entityClass);
+    $attributes = $reflection->getAttributes(Table::class);
+    foreach ($attributes as $attribute) {
+        $arguments = $attribute->getArguments();
+        $serviceTables[] = $arguments['name'];
+    }
+}
+
+$connection->getConfiguration()->setSchemaAssetsFilter(static function (string|AbstractAsset $assetName) use($serviceTables): bool {
+    if ($assetName instanceof AbstractAsset) {
+        $assetName = $assetName->getName();
+    }
+    // Doctrine Migrations must be able to discover its own metadata table.
+    // Otherwise, it assumes that the table is missing and tries to create it again.
+    return $assetName === 'doctrine_migration_versions'
+            || in_array($assetName, $serviceTables, true);
+});
+
+$entityManager = new EntityManager($connection, $configuration);
+
+$config = new JsonFile($projectRoot . '/migrations.json');
+foreach ($config->getConfiguration()->getMigrationDirectories() as $migrationDirectory) {
+    if (!file_exists($migrationDirectory)) {
+        if (!mkdir($migrationDirectory, 0744, true) && !is_dir($migrationDirectory)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $migrationDirectory));
+        }
+    }
+}
+
+$dependencyFactory = DependencyFactory::fromEntityManager($config, new ExistingEntityManager($entityManager));
+
+ConsoleRunner::run(
+        new SingleManagerProvider($entityManager),
+    [
+        new Command\DumpSchemaCommand($dependencyFactory),
+        new Command\ExecuteCommand($dependencyFactory),
+        new Command\GenerateCommand($dependencyFactory),
+        new Command\LatestCommand($dependencyFactory),
+        new Command\CurrentCommand($dependencyFactory),
+        new Command\ListCommand($dependencyFactory),
+        new Command\MigrateCommand($dependencyFactory),
+        new Command\RollupCommand($dependencyFactory),
+        new Command\StatusCommand($dependencyFactory),
+        new Command\SyncMetadataCommand($dependencyFactory),
+        new Command\VersionCommand($dependencyFactory),
+        new Command\DiffCommand($dependencyFactory),
+        new Command\UpToDateCommand($dependencyFactory)
+    ]
+);

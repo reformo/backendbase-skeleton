@@ -1,0 +1,3 @@
+#!/bin/bash
+cd ./resources/bruno/$1
+npx bru run --env $2
