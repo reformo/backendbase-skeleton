@@ -175,3 +175,6 @@ Use ASD-STE100 Simplified Technical English for all English agent responses.
 - Avoid idioms, slang, jargon, contractions, and ambiguous pronouns.
 - Define an abbreviation or an unfamiliar technical term at its first use.
 - Preserve exact code identifiers, commands, paths, protocol terms, and quoted text when accuracy requires them.
+- Use clear subject/verb/object constructions. Do not use cleft sentences, contrastive appositives, appended-glosses, or trailing clauses.
+- Assume I may edit documents myself. Especially markdown documents.
+- When writing markdown documents, don't include references to conversations or threads a reader would not know about.

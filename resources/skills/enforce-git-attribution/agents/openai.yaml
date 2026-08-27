@@ -1,0 +1,3 @@
+interface:
+  display_name: "Enforce Git Attribution"
+  short_description: "Set global Git identity and trailer hooks"

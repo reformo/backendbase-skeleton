@@ -67,6 +67,7 @@ var/docker-data/*
 update.sh
 .phpunit.result.cache
 *.sh
+!scripts/memory-check.sh
 !bin/*.sh
 !bin/*/*.sh
 !docker/docker-entrypoint.sh

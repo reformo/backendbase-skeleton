@@ -43,6 +43,7 @@ Select the smallest skill that covers the task. Use `backendbase-implement-featu
 | [`backendbase-test-domain-feature`](../skills/backendbase-test-domain-feature/SKILL.md) | Add focused domain, CQRS, repository, lifecycle, or composition tests. |
 | [`backendbase-verify-architecture`](../skills/backendbase-verify-architecture/SKILL.md) | Verify dependency direction and bounded-context isolation. |
 | [`backendbase-verify-change`](../skills/backendbase-verify-change/SKILL.md) | Audit a complete change before delivery. |
+| [`cyclomatic-complexity`](../skills/cyclomatic-complexity/SKILL.md) | Measure and reduce control-flow complexity in a touched function. |
 
 ### Domain and CQRS
 
@@ -128,3 +129,8 @@ The source guides describe the repository on 25 August 2026. Their disputed curr
 Treat design rules as requirements. Recheck statements marked as current state before later implementation work.
 
 Basis: `resources/docs/0-project.html` through `resources/docs/16-shared-primitives-and-object-mapping.html`.
+
+## Additional Rules
+- Use clear subject/verb/object constructions. Do not use cleft sentences, contrastive appositives, appended-glosses, or trailing clauses.
+- Assume I may edit documents myself. Especially markdown documents.
+- When writing markdown documents, don't include references to conversations or threads a reader would not know about.
