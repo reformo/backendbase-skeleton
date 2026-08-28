@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessagePublisher;
+use Backendbase\Shared\Integrations\Messaging\Message;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use UnexpectedValueException;
@@ -16,7 +17,7 @@ use const JSON_THROW_ON_ERROR;
 
 final readonly class OutboxMessagePublisher
 {
-    public function __construct(private BackendbaseQueue $queue, private LoggerInterface $logger)
+    public function __construct(private MessagePublisher $publisher, private LoggerInterface $logger)
     {
     }
 
@@ -28,12 +29,12 @@ final readonly class OutboxMessagePublisher
                 throw new UnexpectedValueException('The outbox payload must be a JSON object.');
             }
 
-            $this->queue->publish([
-                'messageId' => $messageId,
-                'messageBody' => $eventName,
-                'eventVersion' => $eventVersion,
-                'properties' => $properties,
-            ]);
+            $this->publisher->publish(new Message(
+                $eventName,
+                $properties,
+                $messageId,
+                $eventVersion,
+            ));
 
             return true;
         } catch (Throwable $exception) {

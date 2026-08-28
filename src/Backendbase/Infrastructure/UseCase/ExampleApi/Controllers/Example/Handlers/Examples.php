@@ -9,7 +9,6 @@ use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleReq
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Primitives\Pagination;
-use Backendbase\Shared\Services\Translator;
 use Backendbase\Shared\Settings;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -27,9 +26,8 @@ class Examples extends Action
         private readonly QueryBus $queryBus,
         private readonly Settings $settings,
         protected LoggerInterface $logger,
-        protected Translator|null $translator,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     #[Override]

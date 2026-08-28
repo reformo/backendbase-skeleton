@@ -2,34 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Shared\Services\EventManager;
+namespace Backendbase\Infrastructure\Adapters\EventManager;
 
 use Backendbase\Shared\Domain\Messaging\EventMessage;
 use Backendbase\Shared\Domain\Messaging\ExternalIntegrationEventSubscriber;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventSubscriber;
-use Backendbase\Utility\Resolver;
+use Backendbase\Shared\Services\EventManager\EventManager;
 use Override;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use ReflectionClass;
 use UnexpectedValueException;
-
-use function fnmatch;
-use function hash;
-use function str_contains;
 
 class ContainerAwareEventManager implements EventManager
 {
-    /** @var array<string, array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>>> */
-    private array $subscribers = [];
-    /** @var array<string, array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>>> */
-    private array $wildcardSubscribers = [];
+    private readonly ContainerAwareSubscriberRegistry $subscriberRegistry;
 
     public function __construct(
-        private readonly ContainerInterface $container,
+        ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
+        $this->subscriberRegistry = new ContainerAwareSubscriberRegistry($container);
     }
 
     #[Override]
@@ -44,7 +37,7 @@ class ContainerAwareEventManager implements EventManager
         $this->logger->debug('ContainerAwareEventManager-2', ['event' => $event]);
         foreach ($subscribers as $subscriberFQCN) {
             $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
-            $subscriber = $this->autowireSubscriber($subscriberFQCN);
+            $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
             if (! $subscriber instanceof IntegrationEventSubscriber) {
                 throw new UnexpectedValueException($subscriberFQCN . ' is not an integration event subscriber.');
             }
@@ -63,7 +56,7 @@ class ContainerAwareEventManager implements EventManager
 
         foreach ($subscribers as $subscriberFQCN) {
             $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
-            $subscriber = $this->autowireSubscriber($subscriberFQCN);
+            $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
             if (! $subscriber instanceof ExternalIntegrationEventSubscriber) {
                 throw new UnexpectedValueException($subscriberFQCN . ' is not an external integration event subscriber.');
             }
@@ -72,31 +65,11 @@ class ContainerAwareEventManager implements EventManager
         }
     }
 
-    /** @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN */
-    private function autowireSubscriber(string $subscriberFQCN): IntegrationEventSubscriber|ExternalIntegrationEventSubscriber
-    {
-        $arguments                   = [];
-        $handlerConstructorArguments = Resolver::getParameterHints($subscriberFQCN, '__construct');
-        foreach ($handlerConstructorArguments as $argumentName => $argumentType) {
-            $arguments[] = $this->getArgument($argumentName, $argumentType);
-        }
-
-        return (new ReflectionClass($subscriberFQCN))->newInstanceArgs($arguments);
-    }
-
-    private function getArgument(string $argumentName, string $argumentType): mixed
-    {
-        return $this->container->has($argumentType) ? $this->container->get($argumentType) : $this->container->get($argumentName);
-    }
-
     /** @return array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>> */
     #[Override]
     public function getSubscriber(string $event): array
     {
-        $subscribers = $this->subscribers[$event] ?? [];
-        foreach ($this->wildcardSubscribers as $eventPattern => $wildcardSubscribers) {
-            $subscribers += fnmatch($eventPattern, $event) ? $wildcardSubscribers : [];
-        }
+        $subscribers = $this->subscriberRegistry->forEvent($event);
 
         $this->logger->debug('ContainerAwareEventManager-5', ['subscribers' => $subscribers]);
 
@@ -107,7 +80,7 @@ class ContainerAwareEventManager implements EventManager
     #[Override]
     public function getAllSubscribers(): array
     {
-        return $this->subscribers + $this->wildcardSubscribers;
+        return $this->subscriberRegistry->all();
     }
 
     #[Override]
@@ -123,14 +96,7 @@ class ContainerAwareEventManager implements EventManager
     #[Override]
     public function addEventSubscriber(string|array $events, string $subscriberFQCN): void
     {
-        $hash = hash('sha256', $subscriberFQCN);
-        foreach ((array) $events as $event) {
-            if (str_contains((string) $event, '*')) {
-                $this->wildcardSubscribers[$event][$hash] = $subscriberFQCN;
-            } else {
-                $this->subscribers[$event][$hash] = $subscriberFQCN;
-            }
-        }
+        $this->subscriberRegistry->add($events, $subscriberFQCN);
     }
 
     /**
@@ -140,9 +106,6 @@ class ContainerAwareEventManager implements EventManager
     #[Override]
     public function removeEventSubscriber(string|array $events, string $subscriberFQCN): void
     {
-        $hash = hash('sha256', $subscriberFQCN);
-        foreach ((array) $events as $event) {
-            unset($this->subscribers[$event][$hash], $this->wildcardSubscribers[$event][$hash]);
-        }
+        $this->subscriberRegistry->remove($events, $subscriberFQCN);
     }
 }

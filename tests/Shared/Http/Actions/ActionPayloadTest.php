@@ -41,7 +41,7 @@ final class ActionPayloadTest extends TestCase
             'Original detail',
             ['status' => 422, 'field' => 'email'],
         );
-        self::assertSame(422, $error->status());
+        self::assertSame(400, $error->status());
         self::assertSame('Invalid input', $error->title());
         self::assertSame('invalid-input', $error->getCode());
         self::assertSame('about:blank', $error->getType());
@@ -57,7 +57,7 @@ final class ActionPayloadTest extends TestCase
             'type' => 'problem/conflict',
             'code' => 'conflict',
             'title' => 'Conflict',
-            'status' => 422,
+            'status' => 409,
             'detail' => 'Changed detail',
             'resource' => 'example',
         ], $error->jsonSerialize());

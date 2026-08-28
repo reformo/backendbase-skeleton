@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\CQRS;
+namespace Tests\Infrastructure\Adapters\CQRS;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
+use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
-use Backendbase\Shared\CQRS\ContainerAwareCommandBus;
-use Backendbase\Shared\CQRS\ContainerAwareQueryBus;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;

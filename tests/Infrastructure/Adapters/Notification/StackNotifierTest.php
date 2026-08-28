@@ -6,13 +6,13 @@ namespace Tests\Infrastructure\Adapters\Notification;
 
 use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\EmailNotification;
 use Backendbase\Shared\Primitives\Notification\StackNotification;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use stdClass;
 use UnexpectedValueException;
 
 final class StackNotifierTest extends TestCase
@@ -42,23 +42,20 @@ final class StackNotifierTest extends TestCase
     }
 
     #[Test]
-    public function itReturnsProviderStatusesAndClients(): void
+    public function itReturnsTypedProviderResults(): void
     {
-        $client   = new stdClass();
         $provider = $this->createMock(Notify::class);
         $provider->method('type')->willReturn('email');
         $provider->expects(self::once())
             ->method('notify')
-            ->willReturn(['messageId' => 'message-id']);
-        $provider->method('getClient')->willReturn($client);
+            ->willReturn(NotificationResult::delivered('email', 'message-id'));
         $notifier = new StackNotifier(new Logger('notification-test'));
         $notifier->add($provider);
 
-        self::assertSame(
-            ['email' => ['messageId' => 'message-id']],
-            $notifier->notify($this->emailNotification()),
-        );
-        self::assertSame([$client], $notifier->getClient());
+        $result = $notifier->notify($this->emailNotification());
+
+        self::assertTrue($result->has('email'));
+        self::assertSame('message-id', $result->messageId('email'));
         self::assertSame('stack', $notifier->type());
     }
 

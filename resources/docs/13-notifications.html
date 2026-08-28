@@ -27,7 +27,7 @@
 </tbody></table></div>
 </section>
 <section id="stack"><p class="section-label">04 · Provider stack</p><h2>Select providers by stable type names</h2>
-<p>Providers implement <code>Notify</code> and return their type. <code>StackNotifier</code> stores one provider per type and dispatches each notification in order.</p>
+<p>Providers implement <code>Notify</code> and return typed <code>NotificationResult</code> values. <code>StackNotifier</code> stores one provider per type and dispatches each notification in order. Provider clients and raw responses remain inside Infrastructure adapters.</p>
 <div class="callout danger">A missing provider raises <code>UnexpectedValueException</code>. Register every type that a producer or queue consumer can create.</div>
 </section>
 <section id="sms"><p class="section-label">05 · SMS with SNS</p><h2>SNS sends transactional or promotional SMS</h2>
@@ -77,7 +77,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProces
 <li>The queue model maps without data loss.</li><li>Idempotency and unknown outcomes are handled.</li><li>Logs exclude sensitive content.</li><li>Failure-policy tests pass.</li></ul>
 </section>
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-<tr><td>Models</td><td><code>Shared/Primitives/Notification</code></td></tr><tr><td>Provider port</td><td><code>Shared/Integrations/Notify.php</code></td></tr>
+<tr><td>Models</td><td><code>Shared/Primitives/Notification</code></td></tr><tr><td>Provider port and result</td><td><code>Shared/Integrations/Notify.php</code>, <code>Shared/Integrations/Operation/NotificationResult.php</code></td></tr>
 <tr><td>Provider selection</td><td><code>Infrastructure/Adapters/Notification/StackNotifier.php</code></td></tr><tr><td>SMS</td><td><code>SnsNotifier.php</code></td></tr>
 <tr><td>Push</td><td><code>FirebasePushNotifier.php</code></td></tr><tr><td>Queue consumer</td><td><code>Queue/NotificationMessageProcessor.php</code></td></tr>
 <tr><td>Container wiring</td><td><code>config/dependencies/aws.php</code></td></tr>

@@ -734,21 +734,20 @@
 
         <section id="message-envelope">
             <h2>Message envelope</h2>
-            <p class="lede">Both adapters produce the same normalized consumer data.</p>
+            <p class="lede">Both adapters produce the same typed <code>Message</code>. Consumers receive no vendor object or transport array.</p>
 
             <h3>Normalized consumer data</h3>
             <div class="code-wrap">
                 <pre><code>{
-  "messageBody": "Example_NewExampleAdded",
-  "eventVersion": "1.0",
-  "data": {
+  "body()": "Example_NewExampleAdded",
+  "eventVersion()": "1.0",
+  "data()": {
     "exampleId": "0198...",
     "type": "system"
   },
-  "messageId": "0198...",
-  "topic": "backendbase-queue",
-  "tag": "backendbase-queue",
-  "keys": []
+  "id()": "0198...",
+  "destination()": "backendbase-queue",
+  "routingKey()": "backendbase-queue"
 }</code></pre>
             </div>
 
@@ -756,13 +755,12 @@
                 <table>
                     <thead><tr><th>Field</th><th>Purpose</th><th>Source</th></tr></thead>
                     <tbody>
-                        <tr><td><code>messageBody</code></td><td>Integration event type or notification body.</td><td>Outbox <code>event_name</code> for integration events.</td></tr>
-                        <tr><td><code>eventVersion</code></td><td>Selects the external message contract.</td><td>Event <code>EVENT_VERSION</code>.</td></tr>
-                        <tr><td><code>data</code></td><td>Event payload object.</td><td>Merged <code>properties</code> and <code>attributes</code>.</td></tr>
-                        <tr><td><code>messageId</code></td><td>Idempotency key.</td><td>Outbox UUID. RabbitMQ uses the AMQP property. SQS embeds it.</td></tr>
-                        <tr><td><code>topic</code></td><td>Consumer name for inbox identity.</td><td>Resolved queue name.</td></tr>
-                        <tr><td><code>tag</code></td><td>Routing key or logical tag.</td><td>RabbitMQ routing key or the SQS envelope.</td></tr>
-                        <tr><td><code>keys</code></td><td>Optional transport attributes.</td><td>SQS message attributes. RabbitMQ returns an empty array.</td></tr>
+                        <tr><td><code>body()</code></td><td>Integration event type or notification body.</td><td>Outbox <code>event_name</code> for integration events.</td></tr>
+                        <tr><td><code>eventVersion()</code></td><td>Selects the external message contract.</td><td>Event <code>EVENT_VERSION</code>.</td></tr>
+                        <tr><td><code>data()</code></td><td>Event payload object.</td><td>Outbox payload for integration events.</td></tr>
+                        <tr><td><code>id()</code></td><td>Idempotency key.</td><td>Outbox UUID. RabbitMQ uses the AMQP property. SQS embeds it.</td></tr>
+                        <tr><td><code>destination()</code></td><td>Consumer name for inbox identity.</td><td>Resolved queue name.</td></tr>
+                        <tr><td><code>routingKey()</code></td><td>Routing key or logical tag.</td><td>RabbitMQ routing key or the SQS envelope.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -899,7 +897,7 @@
 
         <section id="drivers">
             <h2>Queue drivers</h2>
-            <p class="lede">The dependency container selects one <code>BackendbaseQueue</code> implementation.</p>
+            <p class="lede">The dependency container selects one adapter for the <code>MessagePublisher</code> and <code>MessageConsumer</code> ports.</p>
 
             <div class="table-wrap">
                 <table>
@@ -1300,6 +1298,7 @@ ORDER BY received_at DESC;</code></pre>
                     <thead><tr><th>Area</th><th>Primary source</th></tr></thead>
                     <tbody>
                         <tr><td>Driver selection</td><td><code>config/dependencies/queue.php</code></td></tr>
+                        <tr><td>Messaging ports and values</td><td><code>src/Backendbase/Shared/Integrations/MessagePublisher.php</code>, <code>MessageConsumer.php</code>, <code>Messaging/</code>, <code>Operation/MessagePublicationResult.php</code></td></tr>
                         <tr><td>RabbitMQ settings</td><td><code>config/autoload/rabbitmq.global.php</code></td></tr>
                         <tr><td>SQS settings</td><td><code>config/autoload/aws.global.php</code></td></tr>
                         <tr><td>RabbitMQ adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php</code></td></tr>

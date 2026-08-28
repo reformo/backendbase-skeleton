@@ -2,6 +2,8 @@
 
 Set `BACKENDBASE_QUEUE_DRIVER` to `rabbitmq` or `sqs`. RabbitMQ is the default and local reference.
 
+Queue clients depend on separate `MessagePublisher` and `MessageConsumer` ports. The ports exchange typed `Message`, `MessageSubscription`, and `MessagePublicationResult` objects. Vendor results stay inside Infrastructure adapters.
+
 ## Driver behavior
 
 | Outcome | RabbitMQ | SQS |

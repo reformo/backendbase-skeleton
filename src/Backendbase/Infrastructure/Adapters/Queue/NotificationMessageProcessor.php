@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
+use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Notify;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
@@ -34,23 +35,23 @@ final readonly class NotificationMessageProcessor
     ) {
     }
 
-    /** @param array<string, mixed> $data */
-    public function process(array $data): QueueMessageHandlingOutcome
+    public function process(Message $message): QueueMessageHandlingOutcome
     {
-        $consumerName = $data['topic'] ?? null;
-        $messageId    = $data['messageId'] ?? null;
+        $consumerName = $message->destination();
+        $messageId    = $message->id();
         try {
-            $this->validateMetadata($consumerName, $messageId);
-            $notification = $this->notification($data['messageBody'] ?? null);
+            [$validatedConsumerName, $validatedMessageId] = $this->metadata($consumerName, $messageId);
+
+            $notification = $this->notification($message->body());
             $this->externalEffectInbox->processOnce(
-                $consumerName,
-                $messageId,
+                $validatedConsumerName,
+                $validatedMessageId,
                 self::EVENT_NAME,
                 function () use ($notification): void {
                     $this->notifier->notify($notification);
                 },
             );
-            $this->failurePolicy->succeeded($consumerName, $messageId);
+            $this->failurePolicy->succeeded($validatedConsumerName, $validatedMessageId);
 
             return QueueMessageHandlingOutcome::ACKNOWLEDGE;
         } catch (ExternalEffectInProgress $exception) {
@@ -65,6 +66,10 @@ final readonly class NotificationMessageProcessor
                 'message_id' => $messageId,
                 'message' => $exception->getMessage(),
             ]);
+
+            if (! is_string($consumerName) || ! is_string($messageId)) {
+                return QueueMessageHandlingOutcome::REJECT;
+            }
 
             return $this->failurePolicy->permanentFailure(
                 $consumerName,
@@ -93,6 +98,10 @@ final readonly class NotificationMessageProcessor
                 'message' => $exception->getMessage(),
             ]);
 
+            if (! is_string($consumerName) || ! is_string($messageId)) {
+                return QueueMessageHandlingOutcome::REJECT;
+            }
+
             return $this->failurePolicy->transientFailure(
                 $consumerName,
                 $messageId,
@@ -101,7 +110,8 @@ final readonly class NotificationMessageProcessor
         }
     }
 
-    private function validateMetadata(mixed $consumerName, mixed $messageId): void
+    /** @return array{string, string} */
+    private function metadata(string|null $consumerName, string|null $messageId): array
     {
         if (! is_string($consumerName) || $consumerName === '') {
             throw new UnexpectedValueException('The notification consumer name is missing.');
@@ -110,11 +120,13 @@ final readonly class NotificationMessageProcessor
         if (! is_string($messageId) || $messageId === '') {
             throw new UnexpectedValueException('The notification message ID is missing.');
         }
+
+        return [$consumerName, $messageId];
     }
 
-    private function notification(mixed $messageBody): StackNotification
+    private function notification(string $messageBody): StackNotification
     {
-        if (! is_string($messageBody) || $messageBody === '') {
+        if ($messageBody === '') {
             throw new UnexpectedValueException('The notification message body is missing.');
         }
 

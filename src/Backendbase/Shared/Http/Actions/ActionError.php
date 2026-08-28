@@ -7,8 +7,6 @@ namespace Backendbase\Shared\Http\Actions;
 use JsonSerializable;
 use Override;
 
-use function array_key_exists;
-use function array_merge;
 use function count;
 
 class ActionError implements JsonSerializable
@@ -23,8 +21,6 @@ class ActionError implements JsonSerializable
     public const string VALIDATION_ERROR        = 'VALIDATION_ERROR';
     public const string VERIFICATION_ERROR      = 'VERIFICATION_ERROR';
 
-    private int $overWrittenStatus = 0;
-
     /** @param array<string, mixed>|null $additionalData */
     public function __construct(
         private int $status,
@@ -34,16 +30,11 @@ class ActionError implements JsonSerializable
         private string|null $description,
         private array|null $additionalData = [],
     ) {
-        if ($additionalData === null || ! array_key_exists('status', $additionalData)) {
-            return;
-        }
-
-        $this->overWrittenStatus = (int) $additionalData['status'];
     }
 
     public function status(): int
     {
-        return $this->overWrittenStatus > 0 ? $this->overWrittenStatus : $this->status;
+        return $this->status;
     }
 
     public function setStatus(int $status): void
@@ -115,7 +106,7 @@ class ActionError implements JsonSerializable
             'detail' => $this->description,
         ];
         if ($this->additionalData !== null && count($this->additionalData) > 0) {
-            $returnData = array_merge($returnData, $this->additionalData);
+            $returnData += $this->additionalData;
         }
 
         return $returnData;

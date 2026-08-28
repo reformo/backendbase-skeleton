@@ -6,7 +6,6 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
 
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Services\Translator;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -17,9 +16,8 @@ class Authenticate extends Action
     public function __construct(
         private readonly TokenIssuer $tokenIssuer,
         LoggerInterface $logger,
-        Translator|null $translator = null,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     #[Override]

@@ -16,33 +16,32 @@ Do not copy Backendbase namespaces, queue or exchange names, hosts, credentials,
 
 | Role | Backendbase reference | Target decision |
 | --- | --- | --- |
-| Transport-neutral port | `BackendbaseQueue` | Reuse the target project-owned interface. |
+| Transport-neutral ports | `MessagePublisher` and `MessageConsumer` | Reuse the target project-owned direction-specific interfaces. |
 | Outgoing mapper | RabbitMQ and SQS mappers | Preserve logical body, version, data, and message ID. |
-| Incoming mapper | normalized array | Make the processor transport-independent. |
+| Incoming mapper | typed `Message` | Make the processor transport-independent. |
 | Driver adapter | `RabbitMQ` or `SqsQueue` | Keep vendor SDK types in infrastructure. |
 | Selector | `config/dependencies/queue.php` | Validate one explicit driver value. |
 | Readiness | transport-specific check | Use a bounded, read-only probe. |
 | Tests | adapter and dependency tests | Prove semantics without live resources. |
 
-## Queue port
+## Messaging ports
 
-Backendbase uses an array-based port:
+Backendbase separates publication and consumption:
 
 ```php
-interface ApplicationQueue
+interface MessagePublisher
 {
-    /** @param array<string, mixed> $params */
-    public function publish(array $params): mixed;
+    public function publish(Message $message): MessagePublicationResult;
+}
 
-    /**
-     * @param array<string, mixed> $params
-     * @param callable(array<string, mixed>): QueueMessageHandlingOutcome $handler
-     */
-    public function consume(array $params, callable $handler): void;
+interface MessageConsumer
+{
+    /** @param callable(Message): QueueMessageHandlingOutcome $handler */
+    public function consume(MessageSubscription $subscription, callable $handler): void;
 }
 ```
 
-Use a more strongly typed existing target port when available. Do not replace it only to match this reference.
+Keep vendor response objects inside the adapter. Return a project-owned publication result.
 
 ## Normalized envelope
 
@@ -150,9 +149,13 @@ Report driver value, package, normalized envelope, ACK/RETRY/REJECT semantics, t
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified on 2026-08-29 from:
 
-- `src/Backendbase/Shared/Integrations/BackendbaseQueue.php`
+- `src/Backendbase/Shared/Integrations/MessagePublisher.php`
+- `src/Backendbase/Shared/Integrations/MessageConsumer.php`
+- `src/Backendbase/Shared/Integrations/Messaging/Message.php`
+- `src/Backendbase/Shared/Integrations/Messaging/MessageSubscription.php`
+- `src/Backendbase/Shared/Integrations/Operation/MessagePublicationResult.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/RabbitMQMessageMapper.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/RabbitMQTopology.php`

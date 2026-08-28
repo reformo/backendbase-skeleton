@@ -24,18 +24,21 @@ final readonly class VendorEmailNotifier implements Notify
         return 'email';
     }
 
-    public function notify(Notification $notification): array
+    public function notify(Notification $notification): NotificationResult
     {
         if (! $notification instanceof EmailNotification) {
             throw new UnexpectedValueException('Email notification required.');
         }
 
-        return $this->mapResult($this->client->send($this->mapRequest($notification)));
+        $providerResult = $this->client->send($this->mapRequest($notification));
+
+        return NotificationResult::delivered('email', $this->messageId($providerResult));
     }
 }
 ```
 
 Register it in the target container and add it to `StackNotifier`. Test that each producer-created type resolves to a provider.
+Do not expose the vendor client or vendor response through the project port.
 
 ## Current source limitations
 
@@ -49,6 +52,7 @@ Register it in the target container and add it to `StackNotifier`. Test that eac
 ## Exact source provenance
 
 - `src/Backendbase/Shared/Integrations/Notify.php`
+- `src/Backendbase/Shared/Integrations/Operation/NotificationResult.php`
 - `src/Backendbase/Shared/Primitives/Notification/Notification.php`
 - `src/Backendbase/Shared/Primitives/Notification/EmailNotification.php`
 - `src/Backendbase/Shared/Primitives/Notification/PushNotification.php`

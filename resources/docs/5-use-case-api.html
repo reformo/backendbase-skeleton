@@ -579,7 +579,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
                     <rect x="190" y="396" width="740" height="92" rx="16" fill="#171f31" stroke="#59657d"/>
                     <text x="560" y="428" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Error path</text>
-                    <text x="560" y="456" text-anchor="middle" fill="#c8cede" font-size="13">Action catches ProblemDetailsException · HttpErrorHandler catches Slim and unexpected errors</text>
+                    <text x="560" y="456" text-anchor="middle" fill="#c8cede" font-size="13">HttpErrorHandler maps domain, Slim, and unexpected errors at the HTTP boundary</text>
 
                     <line x1="190" y1="109" x2="236" y2="109" stroke="#9f8bea" stroke-width="2" marker-end="url(#api-arrow-purple)"/>
                     <line x1="398" y1="109" x2="444" y2="109" stroke="#6ca6ed" stroke-width="2" marker-end="url(#api-arrow-blue)"/>
@@ -684,9 +684,8 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
     public function __construct(
         private readonly QueryBus $queryBus,
         protected LoggerInterface $logger,
-        protected Translator|null $translator,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     protected function action(): Response
@@ -743,11 +742,12 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
             </div>
 
             <h3>Current boundary validation</h3>
-            <p><code>ExampleRequestInput</code> validates the example type and positive integers. Invalid data raises <code>InvalidUserInput</code> before bus dispatch.</p>
+            <p><code>ExampleRequestInput</code> validates the example type, integers, strings, objects, and booleans. Invalid data raises <code>InvalidUserInput</code> before bus dispatch.</p>
             <ul>
                 <li><code>typeSlug</code> must map to an <code>ExampleType</code>.</li>
                 <li><code>typeTargetId</code> accepts null, an empty string, or a positive integer.</li>
                 <li><code>pageSize</code> and <code>page</code> default to <code>1000</code> and <code>1</code>.</li>
+                <li>PATCH accepts omitted <code>lookupValue</code>, <code>details</code>, and <code>isActive</code> fields. Supplied values must be a string, object, and boolean.</li>
                 <li><code>PayloadSanitizer</code> processes query and parsed-body arrays before use.</li>
             </ul>
             <div class="callout">
@@ -802,8 +802,8 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <tr><td>Authentication token</td><td><code>201</code> JSON with <code>accessToken</code>.</td><td><code>Authenticate</code></td></tr>
                     <tr><td>Read success</td><td><code>200</code> JSON projection.</td><td>Read actions</td></tr>
                     <tr><td>Write success</td><td><code>204</code> empty response. Create also returns <code>Backendbase-Insert-Id</code>.</td><td>Write actions</td></tr>
-                    <tr><td>Invalid input</td><td><code>400</code> problem payload with <code>general/invalid-user-input</code>.</td><td><code>Action</code></td></tr>
-                    <tr><td>Missing example</td><td><code>404</code> problem payload with <code>general/resource-not-found</code>.</td><td><code>Action</code></td></tr>
+                    <tr><td>Invalid input</td><td><code>400</code> problem payload with <code>general/invalid-user-input</code>.</td><td><code>HttpErrorHandler</code></td></tr>
+                    <tr><td>Missing example</td><td><code>404</code> problem payload with <code>general/resource-not-found</code>.</td><td><code>HttpErrorHandler</code></td></tr>
                     <tr><td>Unknown route</td><td><code>404</code> JSON. An <code>OPTIONS</code> fallback returns <code>204</code>.</td><td><code>NotFound</code></td></tr>
                     <tr><td>Slim or unexpected error</td><td><code>application/problem+json</code>. Details depend on environment settings.</td><td><code>HttpErrorHandler</code></td></tr>
                     </tbody>
@@ -996,7 +996,7 @@ composer phpstan</code></pre></div>
                     <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example</code></td></tr>
                     <tr><td>Shared action base</td><td><code>src/Backendbase/Shared/Http/Actions/Action.php</code></td></tr>
                     <tr><td>Authorization middleware</td><td><code>src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php</code></td></tr>
-                    <tr><td>Error handler</td><td><code>src/Backendbase/Shared/Http/Handlers/HttpErrorHandler.php</code></td></tr>
+                    <tr><td>Error handler</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
                     <tr><td>Response emitter</td><td><code>src/Backendbase/Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
                     <tr><td>API configuration</td><td><code>config/example-api</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/example-api</code></td></tr>

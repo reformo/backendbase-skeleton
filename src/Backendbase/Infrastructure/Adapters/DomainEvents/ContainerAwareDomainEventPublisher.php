@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Shared\Domain;
+namespace Backendbase\Infrastructure\Adapters\DomainEvents;
 
 use Backendbase\Shared\Domain\Attributes\DomainEventListener as DomainEventListenerAttribute;
+use Backendbase\Shared\Domain\DomainEvent;
+use Backendbase\Shared\Domain\DomainEventListener;
+use Backendbase\Shared\Domain\DomainEventPublisher;
 use Override;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;

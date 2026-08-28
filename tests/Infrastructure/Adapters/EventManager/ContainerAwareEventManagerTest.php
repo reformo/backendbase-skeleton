@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\Services\EventManager;
+namespace Tests\Infrastructure\Adapters\EventManager;
 
 use Backendbase\Domain\ExampleBoundedContext\Application\ExternalIntegrationEventSubscribers\ExampleBoundedContext\NewExampleAddedExternalSubscriber;
 use Backendbase\Domain\ExampleBoundedContext\Application\IntegrationEventSubscribers\NewExampleAddedSubscriber;
@@ -10,7 +10,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleRemoved;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\NewExampleAdded;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\V1\NewExampleAddedPayload;
-use Backendbase\Shared\Services\EventManager\ContainerAwareEventManager;
+use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use DI\Container;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;

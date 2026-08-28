@@ -69,7 +69,7 @@ Do not weaken an architecture rule because composition fails. Fix the registrati
 - Static scanning cannot prove container registration, dynamically built class names, runtime calls, SQL behavior, or business invariants.
 - Architecture tests complement focused runtime tests; they do not replace them.
 - `tests/Domain/ExampleBoundedContext/ServiceProviderTest.php` checks provider arrays but does not load full provider discovery or resolve production dependencies.
-- `tests/Shared/CQRS` checks bus metadata and invalid container-entry types but does not prove a new production handler resolves.
+- `tests/Infrastructure/Adapters/CQRS` checks bus metadata and invalid container-entry types but does not prove a new production handler resolves.
 - The current repository has partial composition evidence, not one complete reference for every registration path. Add a purpose-built real composition test when registration changes.
 
 ## Verification map
@@ -95,8 +95,8 @@ Create or select `{RealCompositionTestPath}` for the changed provider, container
 - `resources/docs/10-testing-and-quality.html`
 - `resources/platform/02-architecture.md`
 - `src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php`
-- `src/Backendbase/Shared/CQRS/ContainerAwareCommandBus.php`
-- `src/Backendbase/Shared/CQRS/ContainerAwareQueryBus.php`
+- `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php`
+- `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php`
 - `config/dependencies/bounded-contexts.php`
 - `config/dependencies/modules.php`
 - `tests/Architecture/DomainPurityTest.php`
@@ -108,6 +108,6 @@ Create or select `{RealCompositionTestPath}` for the changed provider, container
 - `tests/Architecture/Support/BoundedContextDependencies.php`
 - `tests/Architecture/Support/PhpDependencyScanner.php`
 - `tests/Domain/ExampleBoundedContext/ServiceProviderTest.php`
-- `tests/Shared/CQRS`
+- `tests/Infrastructure/Adapters/CQRS`
 - `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
 - `.github/workflows/quality-gates.yml`

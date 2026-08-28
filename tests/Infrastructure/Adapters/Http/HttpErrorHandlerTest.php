@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\Http\Handlers;
+namespace Tests\Infrastructure\Adapters\Http;
 
+use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
+use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Http\Handlers\HttpErrorHandler;
 use Backendbase\Shared\Services\Translator;
 use Laminas\Diactoros\ServerRequestFactory;
 use Monolog\Handler\TestHandler;
@@ -53,6 +54,7 @@ final class HttpErrorHandlerTest extends TestCase
             $app->getCallableResolver(),
             $app->getResponseFactory(),
             $logger,
+            new DomainErrorProblemDetailsMapper(),
         ));
 
         $request  = (new ServerRequestFactory())->createServerRequest('GET', '/failure');
@@ -94,16 +96,16 @@ final class HttpErrorHandlerTest extends TestCase
     }
 
     #[Test]
-    public function itMapsAndTranslatesProblemDetails(): void
+    public function itMapsAndTranslatesDomainErrors(): void
     {
         $request    = (new ServerRequestFactory())->createServerRequest('GET', '/resource');
         $translator = new Translator('en', ['en' => ['resource' => ['missing' => 'Resource missing.']]]);
-        $exception  = ResourceNotFound::create('Missing.', ['message' => 'resource.missing', 'status' => 409]);
+        $exception  = ResourceNotFound::create('Missing.', ['message' => 'resource.missing']);
 
         $response = $this->handler($translator)->__invoke($request, $exception, false, false, false);
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
-        self::assertSame(409, $response->getStatusCode());
+        self::assertSame(404, $response->getStatusCode());
         self::assertSame('general/resource-not-found', $payload['code']);
         self::assertSame('Resource missing.', $payload['message']);
     }
@@ -129,6 +131,7 @@ final class HttpErrorHandlerTest extends TestCase
             $app->getCallableResolver(),
             $app->getResponseFactory(),
             new Logger('http-error-handler-test'),
+            new DomainErrorProblemDetailsMapper(),
             $translator,
         );
     }

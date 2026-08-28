@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
+use Backendbase\Shared\Integrations\Messaging\Message;
 use JsonException;
 
-use function array_merge;
 use function is_array;
 use function is_string;
 use function json_decode;
@@ -16,43 +16,35 @@ use const JSON_THROW_ON_ERROR;
 
 final class SqsMessageMapper
 {
-    /** @param array<string, mixed> $params */
-    public static function outgoing(array $params): string
+    public static function outgoing(Message $message): string
     {
-        $properties = $params['properties'] ?? [];
-        $attributes = $params['attributes'] ?? [];
-
         return json_encode([
-            'messageBody' => (string) $params['messageBody'],
-            'messageId' => $params['messageId'] ?? null,
-            'eventVersion' => $params['eventVersion'] ?? null,
-            'data' => array_merge(
-                is_array($properties) ? $properties : [],
-                is_array($attributes) ? $attributes : [],
-            ),
-            'tag' => $params['tag'] ?? $params['routingKey'] ?? null,
+            'messageBody' => $message->body(),
+            'messageId' => $message->id(),
+            'eventVersion' => $message->eventVersion(),
+            'data' => $message->data(),
+            'tag' => $message->routingKey(),
         ], JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @param array<string, mixed> $message
-     *
-     * @return array<string, mixed>
-     */
-    public static function incoming(array $message, string $queueName): array
+    /** @param array<string, mixed> $message */
+    public static function incoming(array $message, string $queueName): Message
     {
-        $body    = is_string($message['Body'] ?? null) ? $message['Body'] : '';
-        $payload = self::payload($body);
+        $body        = is_string($message['Body'] ?? null) ? $message['Body'] : '';
+        $payload     = self::payload($body);
+        $messageBody = $payload['messageBody'] ?? $body;
+        $messageId   = $payload['messageId'] ?? $message['MessageId'] ?? null;
+        $version     = $payload['eventVersion'] ?? null;
+        $routingKey  = $payload['tag'] ?? $queueName;
 
-        return [
-            'messageBody' => $payload['messageBody'] ?? $body,
-            'eventVersion' => $payload['eventVersion'] ?? null,
-            'data' => is_array($payload['data'] ?? null) ? $payload['data'] : [],
-            'messageId' => $payload['messageId'] ?? $message['MessageId'] ?? null,
-            'topic' => $queueName,
-            'tag' => $payload['tag'] ?? $queueName,
-            'keys' => is_array($message['MessageAttributes'] ?? null) ? $message['MessageAttributes'] : [],
-        ];
+        return new Message(
+            is_string($messageBody) ? $messageBody : $body,
+            is_array($payload['data'] ?? null) ? $payload['data'] : [],
+            is_string($messageId) ? $messageId : null,
+            is_string($version) ? $version : null,
+            $queueName,
+            is_string($routingKey) ? $routingKey : $queueName,
+        );
     }
 
     /** @return array<string, mixed> */

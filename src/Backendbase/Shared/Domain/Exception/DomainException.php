@@ -4,15 +4,25 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Domain\Exception;
 
-use Backendbase\Shared\ProblemDetailsException;
 use DomainException as PhpDomainException;
 
-abstract class DomainException extends PhpDomainException implements ProblemDetailsException
+abstract class DomainException extends PhpDomainException
 {
-    use DomainExceptionProblemDetails;
+    /** @param array<string, mixed> $context */
+    final private function __construct(string $message, private readonly array $context)
+    {
+        parent::__construct($message);
+    }
 
-    public const int STATUS   = 500;
-    public const string TYPE  = 'about:blank';
-    public const string CODE  = 'server/server-error';
-    public const string TITLE = 'Server Error';
+    /** @param array<string, mixed>|null $context */
+    public static function create(string $message, array|null $context = []): static
+    {
+        return new static($message, $context ?? []);
+    }
+
+    /** @return array<string, mixed> */
+    public function context(): array
+    {
+        return $this->context;
+    }
 }

@@ -8,17 +8,11 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\DomainEvents\ExampleAdded;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
-use Backendbase\Shared\Domain\ContainerAwareDomainEventPublisher;
-use Backendbase\Shared\Domain\DomainEvent;
-use Backendbase\Shared\Domain\DomainEventTrait;
-use Backendbase\Shared\Domain\Exception\DomainRecordNotFoundExceptionProblemDetails;
+use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventTrait;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use stdClass;
-use UnexpectedValueException;
 
 final class SharedDomainSupportTest extends TestCase
 {
@@ -68,59 +62,6 @@ final class SharedDomainSupportTest extends TestCase
     }
 
     #[Test]
-    public function itRejectsDomainEventsWithoutAListenerAttribute(): void
-    {
-        $publisher = new ContainerAwareDomainEventPublisher(
-            $this->createStub(ContainerInterface::class),
-        );
-        $event     = new class implements DomainEvent {
-            use DomainEventTrait;
-
-            public function __construct()
-            {
-                $this->initializeOccurredOn();
-            }
-
-            public function eventName(): string
-            {
-                return 'Unregistered';
-            }
-
-            /** @return array<string, mixed> */
-            public function getEventArguments(): array
-            {
-                return [];
-            }
-        };
-
-        $this->expectException(UnexpectedValueException::class);
-
-        $publisher->publish($event);
-    }
-
-    #[Test]
-    public function itRejectsAContainerEntryThatIsNotADomainEventListener(): void
-    {
-        $container = $this->createStub(ContainerInterface::class);
-        $container->method('get')->willReturn(new stdClass());
-        $publisher = new ContainerAwareDomainEventPublisher($container);
-        $command   = new AddNewExample(
-            'example-id',
-            ExampleType::SYSTEM,
-            null,
-            'settings',
-            true,
-            'key',
-            'value',
-            new Acl(['full-privileges']),
-        );
-
-        $this->expectException(UnexpectedValueException::class);
-
-        $publisher->publish(new ExampleAdded('example-id', $command));
-    }
-
-    #[Test]
     public function itIdentifiesAnInternalIntegrationEvent(): void
     {
         $event = new class implements IntegrationEvent {
@@ -147,29 +88,15 @@ final class SharedDomainSupportTest extends TestCase
     }
 
     #[Test]
-    public function itSerializesProblemDetailsWithAdditionalData(): void
+    public function itCreatesPureDomainErrorsWithContext(): void
     {
-        $exception = DomainRecordNotFoundExceptionProblemDetails::create(
+        $exception = DomainRecordNotFound::create(
             'Record not found.',
             ['resourceId' => 'resource-id'],
         );
 
-        self::assertSame(404, $exception->getStatus());
-        self::assertSame('about:blank', $exception->getType());
-        self::assertSame('domain/not-found', $exception->getErrorCode());
-        self::assertSame('NotFound', $exception->getTitle());
-        self::assertSame('Record not found.', $exception->getDetail());
-        self::assertSame(['resourceId' => 'resource-id'], $exception->getAdditionalData());
-        self::assertSame([
-            'status' => 404,
-            'detail' => 'Record not found.',
-            'title' => 'NotFound',
-            'type' => 'about:blank',
-            'resourceId' => 'resource-id',
-        ], $exception->toArray());
-        self::assertSame($exception->toArray(), $exception->jsonSerialize());
-
-        $withoutAdditionalData = DomainRecordNotFoundExceptionProblemDetails::create('Missing.', null);
-        self::assertSame([], $withoutAdditionalData->getAdditionalData());
+        self::assertSame('Record not found.', $exception->getMessage());
+        self::assertSame(['resourceId' => 'resource-id'], $exception->context());
+        self::assertSame([], DomainRecordNotFound::create('Missing.', null)->context());
     }
 }

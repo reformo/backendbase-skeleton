@@ -6,12 +6,14 @@ $projectRoot = str_replace('/public', '', __DIR__);
 chdir($projectRoot);
 require 'vendor/autoload.php';
 
+use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
+use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Shared\Http\Bootstrap\RequestUriNormalizer;
 use Backendbase\Shared\Http\Bootstrap\UseCaseTarget;
-use Backendbase\Shared\Http\Handlers\HttpErrorHandler;
 use Backendbase\Shared\Http\Handlers\ShutdownHandler;
 use Backendbase\Shared\Http\ResponseEmitter\ResponseEmitter;
 use Backendbase\Shared\Options\System\Environment;
+use Backendbase\Shared\Services\Translator;
 use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
@@ -127,7 +129,14 @@ $request              = $serverRequestCreator->createServerRequestFromGlobals();
 // Create Error Handler
 $responseFactory = $app->getResponseFactory();
 $logger          = $container->get(LoggerInterface::class);
-$errorHandler    = new HttpErrorHandler($callableResolver, $responseFactory, $logger, null);
+$translator      = $container->get(Translator::class);
+$errorHandler    = new HttpErrorHandler(
+    $callableResolver,
+    $responseFactory,
+    $logger,
+    new DomainErrorProblemDetailsMapper(),
+    $translator,
+);
 
 // Create Shutdown Handler
 $shutdownHandler = new ShutdownHandler($request, $errorHandler, $settings, $displayErrorDetails, $logger);

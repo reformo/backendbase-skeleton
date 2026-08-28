@@ -41,7 +41,7 @@ final class ExampleReadControllersTest extends TestCase
                 return $query->type() === ExampleType::USER && $query->typeTargetId() === 42;
             }))
             ->willReturn(['settings', 'preferences']);
-        $action  = new ExampleGroups($queryBus, $this->createStub(LoggerInterface::class), null);
+        $action  = new ExampleGroups($queryBus, $this->createStub(LoggerInterface::class));
         $request = $this->request('/example-types/user/groups')
             ->withAttribute('typeSlug', 'user')
             ->withQueryParams(['typeTargetId' => 42, 'pageSize' => 10, 'page' => 2]);
@@ -72,7 +72,7 @@ final class ExampleReadControllersTest extends TestCase
             ->with(self::isInstanceOf(GetExamplesByGroup::class))
             ->willReturn(new ExamplePage([$item], 1));
         $settings = new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']);
-        $action   = new Examples($queryBus, $settings, $this->createStub(LoggerInterface::class), null);
+        $action   = new Examples($queryBus, $settings, $this->createStub(LoggerInterface::class));
         $request  = $this->request('/example-types/system/groups/settings/examples')
             ->withAttribute('typeSlug', 'system')
             ->withAttribute('exampleGroup', 'settings')
@@ -107,7 +107,7 @@ final class ExampleReadControllersTest extends TestCase
         );
         $queryBus  = $this->createStub(QueryBus::class);
         $queryBus->method('handle')->willReturn($details);
-        $action  = new ExampleDetailsAction($queryBus, $this->createStub(LoggerInterface::class), null);
+        $action  = new ExampleDetailsAction($queryBus, $this->createStub(LoggerInterface::class));
         $request = $this->request('/example-types/system/groups/settings/examples/page-size')
             ->withAttribute('typeSlug', 'system')
             ->withAttribute('exampleGroup', 'settings')

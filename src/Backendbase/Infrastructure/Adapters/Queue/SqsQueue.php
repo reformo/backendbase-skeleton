@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
 use Aws\Sqs\SqsClient;
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessageConsumer;
+use Backendbase\Shared\Integrations\MessagePublisher;
+use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
+use Backendbase\Shared\Integrations\Operation\MessagePublicationResult;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Override;
 use Throwable;
@@ -16,61 +20,50 @@ use function is_string;
 use function max;
 use function min;
 
-final readonly class SqsQueue implements BackendbaseQueue
+final readonly class SqsQueue implements MessageConsumer, MessagePublisher
 {
     /** @param array<string, mixed> $settings */
     public function __construct(private SqsClient $client, private array $settings)
     {
     }
 
-    /**
-     * @param array<string, mixed> $params
-     *
-     * @return array<string, mixed>
-     */
     #[Override]
-    public function publish(array $params): array
+    public function publish(Message $message): MessagePublicationResult
     {
-        $result = $this->client->sendMessage([
-            'QueueUrl' => $this->queueUrl($params),
-            'MessageBody' => SqsMessageMapper::outgoing($params),
+        $result    = $this->client->sendMessage([
+            'QueueUrl' => $this->queueUrl($message->destination()),
+            'MessageBody' => SqsMessageMapper::outgoing($message),
         ]);
+        $messageId = $result['MessageId'] ?? null;
 
-        return $result->toArray();
+        return new MessagePublicationResult(is_string($messageId) ? $messageId : null);
     }
 
-    /**
-     * @param array<string, mixed>                                        $params
-     * @param callable(array<string, mixed>): QueueMessageHandlingOutcome $handler
-     */
+    /** @param callable(Message): QueueMessageHandlingOutcome $handler */
     #[Override]
-    public function consume(array $params, callable $handler): void
+    public function consume(MessageSubscription $subscription, callable $handler): void
     {
-        $queueName  = $this->queueName($params);
-        $queueUrl   = $this->queueUrl($params);
-        $continuous = (bool) ($params['continuous'] ?? $this->settings['continuous'] ?? true);
+        $queueName  = $subscription->destination();
+        $queueUrl   = $this->queueUrl($queueName);
+        $continuous = $subscription->continuous() ?? (bool) ($this->settings['continuous'] ?? true);
 
         do {
-            foreach ($this->receiveMessages($params, $queueUrl) as $message) {
+            foreach ($this->receiveMessages($subscription, $queueUrl) as $message) {
                 $this->handleMessage($message, $queueName, $queueUrl, $handler);
             }
         } while ($continuous);
     }
 
-    /**
-     * @param array<string, mixed> $params
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function receiveMessages(array $params, string $queueUrl): array
+    /** @return list<array<string, mixed>> */
+    private function receiveMessages(MessageSubscription $subscription, string $queueUrl): array
     {
         $result   = $this->client->receiveMessage([
             'AttributeNames' => ['All'],
-            'MaxNumberOfMessages' => min(10, max(1, (int) ($params['maxNumberOfMessages'] ?? $this->settings['maxNumberOfMessages'] ?? 1))),
+            'MaxNumberOfMessages' => min(10, max(1, $subscription->maxNumberOfMessages() ?? (int) ($this->settings['maxNumberOfMessages'] ?? 1))),
             'MessageAttributeNames' => ['All'],
             'QueueUrl' => $queueUrl,
-            'VisibilityTimeout' => min(43200, max(0, (int) ($params['visibilityTimeout'] ?? $this->settings['visibilityTimeout'] ?? 30))),
-            'WaitTimeSeconds' => min(20, max(0, (int) ($params['waitTimeSeconds'] ?? $this->settings['waitTimeSeconds'] ?? 20))),
+            'VisibilityTimeout' => min(43200, max(0, $subscription->visibilityTimeout() ?? (int) ($this->settings['visibilityTimeout'] ?? 30))),
+            'WaitTimeSeconds' => min(20, max(0, (int) ($subscription->waitTimeSeconds() ?? $this->settings['waitTimeSeconds'] ?? 20))),
         ]);
         $messages = $result['Messages'] ?? [];
         if (! is_array($messages)) {
@@ -90,8 +83,8 @@ final readonly class SqsQueue implements BackendbaseQueue
     }
 
     /**
-     * @param array<string, mixed>                                        $message
-     * @param callable(array<string, mixed>): QueueMessageHandlingOutcome $handler
+     * @param array<string, mixed>                           $message
+     * @param callable(Message): QueueMessageHandlingOutcome $handler
      */
     private function handleMessage(
         array $message,
@@ -117,15 +110,14 @@ final readonly class SqsQueue implements BackendbaseQueue
         $this->client->deleteMessage(['QueueUrl' => $queueUrl, 'ReceiptHandle' => $receiptHandle]);
     }
 
-    /** @param array<string, mixed> $params */
-    private function queueUrl(array $params): string
+    private function queueUrl(string|null $queueName): string
     {
-        $queueUrl = $params['queueUrl'] ?? $this->settings['queueUrl'] ?? null;
+        $queueUrl = $this->settings['queueUrl'] ?? null;
         if (is_string($queueUrl) && $queueUrl !== '') {
             return $queueUrl;
         }
 
-        $result   = $this->client->getQueueUrl(['QueueName' => $this->queueName($params)]);
+        $result   = $this->client->getQueueUrl(['QueueName' => $this->queueName($queueName)]);
         $queueUrl = $result['QueueUrl'] ?? null;
         if (! is_string($queueUrl) || $queueUrl === '') {
             throw new UnexpectedValueException('The SQS queue URL was not resolved.');
@@ -134,10 +126,9 @@ final readonly class SqsQueue implements BackendbaseQueue
         return $queueUrl;
     }
 
-    /** @param array<string, mixed> $params */
-    private function queueName(array $params): string
+    private function queueName(string|null $queueName): string
     {
-        $queueName = $params['queueName'] ?? $params['queue'] ?? $params['topic'] ?? $this->settings['queue'] ?? null;
+        $queueName ??= $this->settings['queue'] ?? null;
         if (! is_string($queueName) || $queueName === '') {
             throw new UnexpectedValueException('The SQS queue name is missing.');
         }

@@ -105,7 +105,7 @@ Code changes do not authorize executing subscriber effects against live data. Us
 
 ```sh
 vendor/bin/phpunit tests/Domain/ExampleBoundedContext/ServiceProviderTest.php
-vendor/bin/phpunit tests/Shared/Services/EventManager
+vendor/bin/phpunit tests/Infrastructure/Adapters/EventManager
 vendor/bin/phpunit tests/Architecture
 composer phpstan
 composer cs-check
@@ -123,10 +123,10 @@ Verified on 2026-08-25 from:
 
 - `src/Backendbase/Shared/Domain/Messaging/IntegrationEventSubscriber.php`
 - `src/Backendbase/Shared/Services/EventManager/EventManager.php`
-- `src/Backendbase/Shared/Services/EventManager/ContainerAwareEventManager.php`
+- `src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php`
 - `config/dependencies/modules.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/IntegrationEventSubscribers/NewExampleAddedSubscriber.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
-- `tests/Shared/Services/EventManager/ContainerAwareEventManagerTest.php`
+- `tests/Infrastructure/Adapters/EventManager/ContainerAwareEventManagerTest.php`
 - `resources/platform/06-integration-event-consumers.md`
 - `resources/docs/3-integration-events.html`

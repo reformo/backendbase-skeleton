@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Shared;
 
+use ArrayIterator;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEvents;
 use Backendbase\Shared\Domain\DomainEventTrait;
@@ -40,7 +41,19 @@ final class DomainEventsTest extends TestCase
         $domainEvents->add($domainEvent);
 
         self::assertSame([$domainEvent], $domainEvents->events());
+        self::assertSame($domainEvent, $domainEvents->first());
+        self::assertInstanceOf(ArrayIterator::class, $domainEvents->getIterator());
         self::assertInstanceOf(DateTimeImmutable::class, $domainEvent->occurredOn());
         self::assertSame(['exampleId' => 'example-id'], $domainEvent->jsonSerialize());
+    }
+
+    #[Test]
+    public function itStartsAsAnEmptyNativeCollection(): void
+    {
+        $domainEvents = new DomainEvents();
+
+        self::assertCount(0, $domainEvents);
+        self::assertNull($domainEvents->first());
+        self::assertSame([], [...$domainEvents]);
     }
 }

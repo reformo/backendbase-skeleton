@@ -12,7 +12,7 @@ discover affected API -> draft OpenAPI contract -> complete application path
 | Endpoint concern | Backendbase reference | Target adaptation |
 | --- | --- | --- |
 | Base action | Shared `Action` catches known problem exceptions | Use the target error boundary |
-| Input validation | `ExampleRequestInput` validates enum and positive integers | Encode the requested external contract |
+| Input validation | `ExampleRequestInput` validates enum, scalar, object, boolean, and positive-integer fields | Encode the requested external contract |
 | Create | `NewExample` sends a command and returns `204` plus insert ID | Select target create status and headers |
 | Read | `Examples` sends a query and maps a page | Use the target read model and schema |
 | Update/delete lookup | Change and remove actions send `ExampleIdentity` in one command | Resolve the aggregate and missing-state decision in the handler |
@@ -58,7 +58,7 @@ The Backendbase shared headers are `Accept-Language`, `The-Timezone-IANA`, `X-Re
 
 Use one application message for one endpoint operation. Do not use a controller query to translate public identity for a write. Carry the identity in the command. Resolve the aggregate and enforce current invariants through a write port in the command handler.
 
-The shared `Action` catches known `ProblemDetailsException` values. The global HTTP error handler owns unexpected failures. Do not build ad hoc error arrays in a controller or expose internal exception details.
+The Infrastructure HTTP error handler maps known domain errors, Slim failures, and unexpected failures. Do not build ad hoc error arrays in a controller or expose internal exception details.
 
 ## Security layers
 
@@ -114,7 +114,8 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 ## Exact source provenance
 
 - `src/Backendbase/Shared/Http/Actions/Action.php`
-- `src/Backendbase/Shared/Http/Actions/ProblemDetailsResponseFactory.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ExampleRequestInput.php`

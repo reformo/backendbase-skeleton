@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Notification;
 
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
 use Backendbase\Shared\Primitives\Notification\PushNotification;
 use Kreait\Firebase\Contract\Messaging;
@@ -14,6 +15,7 @@ use Psr\Log\LoggerInterface;
 
 use function array_key_exists;
 use function array_replace_recursive;
+use function is_string;
 
 class FirebasePushNotifier implements Notify
 {
@@ -31,16 +33,13 @@ class FirebasePushNotifier implements Notify
         return self::TYPE;
     }
 
-    /**
-     * @param PushNotification $params
-     *
-     * @return array<string, mixed>
-     */
+    /** @param PushNotification $params */
     #[Override]
-    public function notify(Notification $params): array
+    public function notify(Notification $params): NotificationResult
     {
-        $params  = $params->toArray();
-        $payload = [
+        $notificationType = $params->type();
+        $params           = $params->toArray();
+        $payload          = [
             'message' => [
                 'notification' => [
                     'title' => $params['title'] ?? null,
@@ -97,12 +96,12 @@ class FirebasePushNotifier implements Notify
 
         $message = CloudMessage::fromArray($payload['message']);
 
-        return $this->client->send($message);
-    }
+        $result    = $this->client->send($message);
+        $messageId = $result['name'] ?? null;
 
-    #[Override]
-    public function getClient(): mixed
-    {
-        return $this->client;
+        return NotificationResult::delivered(
+            $notificationType,
+            is_string($messageId) ? $messageId : null,
+        );
     }
 }

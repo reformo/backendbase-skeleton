@@ -163,9 +163,10 @@ Defend at trust boundaries. Do not scatter redundant checks throughout trusted i
 
 ## 8. Language
 
-Use ASD-STE100 Simplified Technical English for all English agent responses.
+Use ASD-STE100 Simplified Technical English for all agent responses.
 
-- Use English unless the user explicitly requests a different language.
+- Reply in English, regardless of the prompt language, unless the user explicitly requests a different response language.
+- Always write documentation in English.
 - Use approved, common words. Use each word with one meaning.
 - Use the same term for the same item or action. Do not use synonyms only to vary the text.
 - Use active voice. Use the imperative form for instructions.

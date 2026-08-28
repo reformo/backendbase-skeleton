@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 
+use Backendbase\Shared\Integrations\Messaging\Message;
 use JsonException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Ramsey\Uuid\Uuid;
 
-use function array_merge;
 use function is_array;
+use function is_string;
 use function json_decode;
 use function json_encode;
 
@@ -17,18 +18,12 @@ use const JSON_THROW_ON_ERROR;
 
 final class RabbitMQMessageMapper
 {
-    /** @param array<string, mixed> $params */
-    public static function outboundMessage(array $params): AMQPMessage
+    public static function outboundMessage(Message $message): AMQPMessage
     {
-        $properties = $params['properties'] ?? [];
-        $attributes = $params['attributes'] ?? [];
-        $payload    = [
-            'messageBody' => (string) $params['messageBody'],
-            'eventVersion' => $params['eventVersion'] ?? null,
-            'data' => array_merge(
-                is_array($properties) ? $properties : [],
-                is_array($attributes) ? $attributes : [],
-            ),
+        $payload = [
+            'messageBody' => $message->body(),
+            'eventVersion' => $message->eventVersion(),
+            'data' => $message->data(),
         ];
 
         return new AMQPMessage(
@@ -36,13 +31,12 @@ final class RabbitMQMessageMapper
             [
                 'content_type' => 'application/json',
                 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
-                'message_id' => (string) ($params['messageId'] ?? Uuid::uuid7()->toString()),
+                'message_id' => $message->id() ?? Uuid::uuid7()->toString(),
             ],
         );
     }
 
-    /** @return array<string, mixed> */
-    public static function inboundPayload(AMQPMessage $message, string $queue): array
+    public static function inboundMessage(AMQPMessage $message, string $queue): Message
     {
         try {
             $payload = json_decode($message->getBody(), true, 512, JSON_THROW_ON_ERROR);
@@ -54,14 +48,17 @@ final class RabbitMQMessageMapper
             $payload = ['messageBody' => $message->getBody(), 'data' => []];
         }
 
-        return [
-            'messageBody' => $payload['messageBody'] ?? $message->getBody(),
-            'eventVersion' => $payload['eventVersion'] ?? null,
-            'data' => is_array($payload['data'] ?? null) ? $payload['data'] : [],
-            'messageId' => $message->has('message_id') ? $message->get('message_id') : null,
-            'topic' => $queue,
-            'tag' => $message->getRoutingKey(),
-            'keys' => [],
-        ];
+        $messageBody = $payload['messageBody'] ?? $message->getBody();
+        $version     = $payload['eventVersion'] ?? null;
+        $messageId   = $message->has('message_id') ? $message->get('message_id') : null;
+
+        return new Message(
+            is_string($messageBody) ? $messageBody : $message->getBody(),
+            is_array($payload['data'] ?? null) ? $payload['data'] : [],
+            is_string($messageId) ? $messageId : null,
+            is_string($version) ? $version : null,
+            $queue,
+            $message->getRoutingKey(),
+        );
     }
 }

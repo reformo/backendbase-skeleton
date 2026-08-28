@@ -86,7 +86,7 @@ composer cs-check
 - `resources/platform/04-cqrs.md`
 - `src/Backendbase/Shared/CQRS/Query.php`
 - `src/Backendbase/Shared/CQRS/QueryHandler.php`
-- `src/Backendbase/Shared/CQRS/ContainerAwareQueryBus.php`
+- `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/Query`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ReadModel`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExampleReadRepository.php`

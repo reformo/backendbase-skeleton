@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Adapters\Notification;
 
 use Aws\Sns\SnsClient;
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
 use Backendbase\Shared\Primitives\Notification\SmsNotification;
 use Override;
@@ -29,9 +30,8 @@ final readonly class SnsNotifier implements Notify
         return self::TYPE;
     }
 
-    /** @return array<string, mixed> */
     #[Override]
-    public function notify(Notification $params): array
+    public function notify(Notification $params): NotificationResult
     {
         if (! $params instanceof SmsNotification) {
             throw new UnexpectedValueException('SNS requires an SMS notification.');
@@ -43,13 +43,12 @@ final readonly class SnsNotifier implements Notify
             'MessageAttributes' => $this->messageAttributes(),
         ]);
 
-        return $result->toArray();
-    }
+        $messageId = $result['MessageId'] ?? null;
 
-    #[Override]
-    public function getClient(): SnsClient
-    {
-        return $this->client;
+        return NotificationResult::delivered(
+            $params->type(),
+            is_string($messageId) ? $messageId : null,
+        );
     }
 
     /** @return array<string, array{DataType: string, StringValue: string}> */

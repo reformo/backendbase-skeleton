@@ -10,7 +10,6 @@ use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleReq
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Services\Translator;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
@@ -24,9 +23,8 @@ class ExampleDetails extends Action
     public function __construct(
         private readonly QueryBus $queryBus,
         protected LoggerInterface $logger,
-        protected Translator|null $translator,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     #[Override]

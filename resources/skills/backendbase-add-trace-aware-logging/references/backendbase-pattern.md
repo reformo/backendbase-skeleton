@@ -90,7 +90,7 @@ Changing code and tests does not authorize altering centralized log retention, s
 Run the newly added logger-factory test first. Then run the target equivalents of:
 
 ```sh
-vendor/bin/phpunit tests/Shared/Http/Handlers
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http
 vendor/bin/phpunit tests/Shared/Http/Actions
 composer phpstan
 composer cs-check
@@ -109,8 +109,7 @@ Verified on 2026-08-25 from:
 - `config/autoload/logger.global.php`
 - `config/dependencies/logger.php`
 - `public/index.php`
-- `src/Backendbase/Shared/Http/Actions/ProblemDetailsResponseFactory.php`
-- `src/Backendbase/Shared/Http/Handlers/HttpErrorHandler.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php`
 - `src/Backendbase/Shared/Http/Handlers/ShutdownHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php`
 - `resources/platform/16-errors-observability.md`

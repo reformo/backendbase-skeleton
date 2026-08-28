@@ -22,6 +22,9 @@ final class DomainPurityTest extends TestCase
             static fn (string $file, string $dependency): bool => str_starts_with(
                 $dependency,
                 'Backendbase\\Infrastructure\\',
+            ) || str_starts_with(
+                $dependency,
+                'Backendbase\\Shared\\Http\\',
             ) || (
                 str_starts_with($dependency, 'Backendbase\\Domain\\')
                 && str_contains($dependency, '\\Application\\')

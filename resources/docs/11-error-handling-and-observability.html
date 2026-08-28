@@ -5,16 +5,16 @@
 <p class="lede">Problem Details responses, domain exceptions, Slim failures, shutdown handling, logs, trace identifiers, health checks, queue monitoring, and diagnostic safety.</p>
 <div class="chips"><span class="chip">Problem Details</span><span class="chip">Monolog</span><span class="chip">Trace ID</span><span class="chip">Health</span><span class="chip">Failure paths</span></div></div></header>
 <div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
-<a href="#overview">1. Overview</a><a href="#flow">2. Failure flow</a><a href="#problem">3. Problem Details</a><a href="#action">4. Action errors</a>
+<a href="#overview">1. Overview</a><a href="#flow">2. Failure flow</a><a href="#problem">3. Problem Details</a><a href="#action">4. Domain errors</a>
 <a href="#http">5. HTTP errors</a><a href="#shutdown">6. Shutdown errors</a><a href="#logging">7. Logging</a><a href="#trace">8. Trace identifiers</a>
 <a href="#health">9. Health and monitoring</a><a href="#safety">10. Diagnostic safety</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#sources">13. Source map</a>
 </nav><main>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Translate failures at architectural boundaries</h2>
 <p>Domain and application code raise typed failures. HTTP adapters translate them into stable public responses. Logs keep the internal diagnostic context.</p>
-<div class="grid-3"><article class="card"><h3>Expected problem</h3><p>A <code>ProblemDetailsException</code> becomes <code>application/problem+json</code>.</p></article><article class="card"><h3>HTTP or unexpected error</h3><p><code>HttpErrorHandler</code> maps Slim exceptions and safe server failures.</p></article><article class="card"><h3>PHP shutdown error</h3><p><code>ShutdownHandler</code> logs the last PHP error and emits a 500 response.</p></article></div>
+<div class="grid-3"><article class="card"><h3>Expected problem</h3><p>A pure <code>DomainException</code> becomes <code>application/problem+json</code> at the HTTP boundary.</p></article><article class="card"><h3>HTTP or unexpected error</h3><p><code>HttpErrorHandler</code> maps Slim exceptions and safe server failures.</p></article><article class="card"><h3>PHP shutdown error</h3><p><code>ShutdownHandler</code> logs the last PHP error and emits a 500 response.</p></article></div>
 </section>
 <section id="flow"><p class="section-label">02 · Failure flow</p><h2>One of three boundaries owns the response</h2>
-<div class="diagram-wrap"><ol class="flow"><li><strong>Operation</strong><small>fails with an exception</small></li><li><strong>Action</strong><small>catches domain problems</small></li><li><strong>Slim handler</strong><small>catches HTTP + unexpected</small></li><li><strong>Logger</strong><small>records diagnostics</small></li><li><strong>Problem body</strong><small>keeps public contract</small></li><li><strong>Emitter</strong><small>adds response headers</small></li></ol></div>
+<div class="diagram-wrap"><ol class="flow"><li><strong>Operation</strong><small>raises a typed domain error</small></li><li><strong>Slim handler</strong><small>catches the error</small></li><li><strong>HTTP mapper</strong><small>selects the public contract</small></li><li><strong>Logger</strong><small>records diagnostics</small></li><li><strong>Problem body</strong><small>keeps public contract</small></li><li><strong>Emitter</strong><small>adds response headers</small></li></ol></div>
 </section>
 <section id="problem"><p class="section-label">03 · Problem Details</p><h2>Public failures use a stable five-field core</h2>
 <pre><code>{
@@ -24,11 +24,11 @@
   "status": 404,
   "detail": "The example was not found."
 }</code></pre>
-<p><code>ActionError</code> serializes these fields and merges approved additional data. Domain exceptions provide constants for status, type, code, and title.</p>
+<p><code>ActionError</code> serializes these fields and merges approved context. <code>DomainErrorProblemDetailsMapper</code> provides status, type, code, and title.</p>
 </section>
-<section id="action"><p class="section-label">04 · Action errors</p><h2>Action catches known application problems</h2>
-<p><code>Action::__invoke()</code> catches <code>ProblemDetailsException</code>, builds an <code>ActionError</code>, translates message keys, replaces <code>:placeholder</code> values, and returns JSON.</p>
-<p>It logs problems whose status is outside 400, 401, 403, and 404. Log context includes the exception class, file, line, trace, status, and error code.</p>
+<section id="action"><p class="section-label">04 · Domain errors</p><h2>The HTTP adapter maps known domain errors</h2>
+<p><code>HttpErrorHandler</code> passes each domain error to <code>DomainErrorProblemDetailsMapper</code>. It then translates message keys, replaces <code>:placeholder</code> values, and returns JSON.</p>
+<p>Domain and application code do not contain HTTP status, type, code, or title values.</p>
 <div class="callout warning">Only put public and non-sensitive values in additional problem data. The array becomes part of the response.</div>
 </section>
 <section id="http"><p class="section-label">05 · HTTP errors</p><h2>Slim exceptions map to public problem types</h2>
@@ -78,13 +78,13 @@
 </section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Verify public safety and internal evidence</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Http/Actions
-vendor/bin/phpunit tests/Shared/Http/Handlers
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http
 vendor/bin/phpunit tests/Shared/Http/ResponseEmitter
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console</code></pre>
 <p>Test status mappings, content type, safe production bodies, detailed development bodies, logging calls, shutdown behavior, CORS headers, output buffer handling, and unhealthy outbox exit codes.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-<tr><td>Known problems</td><td><code>Shared/Http/Actions/Action.php</code> and <code>ActionError.php</code></td></tr><tr><td>Unexpected HTTP failures</td><td><code>Shared/Http/Handlers/HttpErrorHandler.php</code></td></tr>
+<tr><td>Known problems</td><td><code>Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php</code></td></tr><tr><td>HTTP error handling</td><td><code>Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
 <tr><td>Shutdown failures</td><td><code>Shared/Http/Handlers/ShutdownHandler.php</code></td></tr><tr><td>Response emission</td><td><code>Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
 <tr><td>Logger config</td><td><code>config/autoload/logger.global.php</code></td></tr><tr><td>Health actions</td><td><code>ExampleApi/Controllers/Root/Liveness.php</code> and <code>Readiness.php</code></td></tr>
 <tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>

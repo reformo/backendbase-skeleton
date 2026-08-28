@@ -8,11 +8,13 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Authenticate;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\NotFound;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Root;
+use Backendbase\Shared\Exception\InvalidUserInput;
 use Backendbase\Shared\Services\Settings;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 use function json_decode;
@@ -95,10 +97,18 @@ final class RootControllersTest extends TestCase
         ];
 
         foreach ($payloads as $payload) {
-            $request  = $factory->createServerRequest('POST', '/authenticate')->withParsedBody($payload);
-            $response = $action($request, new Response(), []);
+            $request = $factory->createServerRequest('POST', '/authenticate')->withParsedBody($payload);
+            $this->assertInvalidAuthenticationInput($action, $request);
+        }
+    }
 
-            self::assertSame(400, $response->getStatusCode());
+    private function assertInvalidAuthenticationInput(Authenticate $action, ServerRequestInterface $request): void
+    {
+        try {
+            $action($request, new Response(), []);
+            self::fail('Invalid authentication input must fail.');
+        } catch (InvalidUserInput) {
+            self::addToAssertionCount(1);
         }
     }
 }

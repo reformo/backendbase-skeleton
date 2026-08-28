@@ -14,6 +14,7 @@ use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\N
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\RemoveExample;
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
+use Backendbase\Shared\Exception\InvalidUserInput;
 use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -39,7 +40,7 @@ final class ExampleWriteControllersTest extends TestCase
 
                 return true;
             }));
-        $action  = new NewExample($commandBus, $this->createStub(LoggerInterface::class), null);
+        $action  = new NewExample($commandBus, $this->createStub(LoggerInterface::class));
         $request = $this->request('POST', '/examples')
             ->withAttribute('typeSlug', 'system')
             ->withAttribute('exampleGroup', 'settings')
@@ -61,7 +62,7 @@ final class ExampleWriteControllersTest extends TestCase
     {
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::never())->method('handle');
-        $action   = new NewExample($commandBus, $this->createStub(LoggerInterface::class), null);
+        $action   = new NewExample($commandBus, $this->createStub(LoggerInterface::class));
         $payloads = [
             [],
             ['lookupValue' => []],
@@ -77,7 +78,7 @@ final class ExampleWriteControllersTest extends TestCase
                 ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
                 ->withParsedBody($payload);
 
-            self::assertSame(400, $this->invoke($action, $request)->getStatusCode());
+            $this->assertInvalidNewExampleInput($action, $request);
         }
     }
 
@@ -101,7 +102,6 @@ final class ExampleWriteControllersTest extends TestCase
         $action  = new ChangeExampleDetails(
             $commandBus,
             $this->createStub(LoggerInterface::class),
-            null,
         );
         $request = $this->request('PATCH', '/examples/page-size')
             ->withAttribute('typeSlug', 'system')
@@ -134,7 +134,6 @@ final class ExampleWriteControllersTest extends TestCase
         $action  = new RemoveExample(
             $commandBus,
             $this->createStub(LoggerInterface::class),
-            null,
         );
         $request = $this->request('DELETE', '/examples/page-size')
             ->withAttribute('typeSlug', 'system')
@@ -153,5 +152,15 @@ final class ExampleWriteControllersTest extends TestCase
     private function invoke(Action $action, ServerRequestInterface $request): ResponseInterface
     {
         return $action($request, new Response(), []);
+    }
+
+    private function assertInvalidNewExampleInput(Action $action, ServerRequestInterface $request): void
+    {
+        try {
+            $this->invoke($action, $request);
+            self::fail('Invalid new-example input must fail.');
+        } catch (InvalidUserInput) {
+            self::addToAssertionCount(1);
+        }
     }
 }

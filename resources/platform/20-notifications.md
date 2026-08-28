@@ -6,6 +6,7 @@ Shared notification models define provider-independent email, push, and SMS requ
 
 - Validate email addresses, attachments, push fields, and E.164 SMS numbers before provider calls.
 - `StackNotifier` selects one registered provider by stable notification type.
+- Providers return `NotificationResult`. They do not expose vendor clients or vendor response arrays.
 - `SnsNotifier` sends SMS through Amazon Simple Notification Service (SNS).
 - `FirebasePushNotifier` maps push requests, but container registration is absent.
 - Email has a model, but no registered email provider exists.

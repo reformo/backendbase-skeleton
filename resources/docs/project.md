@@ -148,7 +148,7 @@ Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, 
 
 ### CQRS
 
-Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. Each contract uses `#[CQRSHandler(HandlerClass::class)]`. `ContainerAwareCommandBus` and `ContainerAwareQueryBus` resolve handlers from that attribute and the PHP-DI container.
+Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. Each contract uses `#[CQRSHandler(HandlerClass::class)]`. The Infrastructure `ContainerAwareCommandBus` and `ContainerAwareQueryBus` adapters resolve handlers from that attribute and the PHP-DI container.
 
 ### Example API
 
@@ -193,7 +193,7 @@ Command handlers may create integration events. Add producer event contracts und
 
 New integration event types must follow `{PascalCaseServiceName}_{PascalCaseEventClassName}`. Read the service name from the `service-name` key in `config/autoload/global.php`. The current default is `example`, so a new `ExampleChanged` event uses `Example_ExampleChanged`. Existing published names are compatibility contracts. Do not rename them without a migration plan.
 
-Producer integration events that enter the outbox declare `IS_MESSAGING_EVENT = true`. The outbox relay publishes them through the configured `BackendbaseQueue` adapter.
+Producer integration events that enter the outbox declare `IS_MESSAGING_EVENT = true`. The outbox relay publishes typed messages through the configured `MessagePublisher` adapter.
 
 Internal subscribers implement `IntegrationEventSubscriber` and live under `Application/IntegrationEventSubscribers`. External subscribers implement `ExternalIntegrationEventSubscriber` and live under `Application/ExternalIntegrationEventSubscribers/{SourceService}`. Versioned external message carriers live under `Contracts/ExternalIntegrationEvents/{Version}`. Register both subscriber types in the bounded context `ServiceProvider`.
 

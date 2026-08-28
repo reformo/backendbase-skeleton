@@ -58,9 +58,9 @@ final class SharedServicesTest extends TestCase
             $mapper->map(MappedInput::class, ['name' => 'User', 'age' => []]);
             self::fail('Invalid mapped input must fail.');
         } catch (InvalidUserInput $exception) {
-            self::assertSame('Invalid input(s) provided', $exception->getDetail());
-            self::assertSame('MappedInput', $exception->getAdditionalData()['target']);
-            self::assertNotEmpty($exception->getAdditionalData()['errors']);
+            self::assertSame('Invalid input(s) provided', $exception->getMessage());
+            self::assertSame('MappedInput', $exception->context()['target']);
+            self::assertNotEmpty($exception->context()['errors']);
         }
     }
 

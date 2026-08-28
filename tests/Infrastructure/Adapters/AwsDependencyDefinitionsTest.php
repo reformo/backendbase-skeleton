@@ -6,9 +6,11 @@ namespace Tests\Infrastructure\Adapters;
 
 use Aws\Sns\SnsClient;
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
 use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessageConsumer;
+use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Notify;
 use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Settings as SettingsInterface;
@@ -21,6 +23,7 @@ use Psr\Log\NullLogger;
 use function bin2hex;
 use function is_dir;
 use function is_file;
+use function method_exists;
 use function random_bytes;
 use function rmdir;
 use function sys_get_temp_dir;
@@ -48,11 +51,13 @@ final class AwsDependencyDefinitionsTest extends TestCase
 
             self::assertInstanceOf(SqsClient::class, $container->get(SqsClient::class));
             self::assertInstanceOf(SnsClient::class, $container->get(SnsClient::class));
-            self::assertInstanceOf(SqsQueue::class, $container->get(BackendbaseQueue::class));
+            self::assertInstanceOf(SqsQueue::class, $container->get(MessagePublisher::class));
+            self::assertInstanceOf(SqsQueue::class, $container->get(MessageConsumer::class));
 
             $notifier = $container->get(Notify::class);
             self::assertInstanceOf(StackNotifier::class, $notifier);
-            self::assertContainsOnlyInstancesOf(SnsClient::class, $notifier->getClient());
+            self::assertInstanceOf(SnsNotifier::class, $container->get(SnsNotifier::class));
+            self::assertFalse(method_exists(Notify::class, 'getClient'));
         } finally {
             if (is_file($compiledContainer)) {
                 unlink($compiledContainer);

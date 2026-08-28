@@ -4,16 +4,46 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Domain;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use Override;
+use Traversable;
 
-use function array_values;
+use function count;
 
-/** @extends ArrayCollection<int, DomainEvent> */
-class DomainEvents extends ArrayCollection
+/** @implements IteratorAggregate<int, DomainEvent> */
+final class DomainEvents implements Countable, IteratorAggregate
 {
+    /** @var list<DomainEvent> */
+    private array $events = [];
+
+    public function add(DomainEvent $domainEvent): void
+    {
+        $this->events[] = $domainEvent;
+    }
+
+    public function first(): DomainEvent|null
+    {
+        return $this->events[0] ?? null;
+    }
+
     /** @return list<DomainEvent> */
     public function events(): array
     {
-        return array_values($this->toArray());
+        return $this->events;
+    }
+
+    #[Override]
+    public function count(): int
+    {
+        return count($this->events);
+    }
+
+    /** @return Traversable<int, DomainEvent> */
+    #[Override]
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->events);
     }
 }

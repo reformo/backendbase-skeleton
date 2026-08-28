@@ -6,7 +6,9 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxRelay;
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessagePublisher;
+use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Operation\MessagePublicationResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -47,23 +49,23 @@ final class DoctrineOutboxRelayTest extends TestCase
     #[Test]
     public function itPublishesAndMarksAnOutboxMessage(): void
     {
-        $queue = $this->createMock(BackendbaseQueue::class);
-        $queue->expects(self::once())
+        $publisher = $this->createMock(MessagePublisher::class);
+        $publisher->expects(self::once())
             ->method('publish')
-            ->with([
-                'messageId' => 'message-id',
-                'messageBody' => 'Example_Removed',
-                'eventVersion' => '1.0',
-                'properties' => ['exampleId' => 'example-id'],
-            ])
-            ->willReturnCallback(function (): null {
+            ->with(new Message(
+                'Example_Removed',
+                ['exampleId' => 'example-id'],
+                'message-id',
+                '1.0',
+            ))
+            ->willReturnCallback(function (): MessagePublicationResult {
                 self::assertFalse($this->connection->isTransactionActive());
 
-                return null;
+                return new MessagePublicationResult('transport-message-id');
             });
         $relay = new DoctrineOutboxRelay(
             $this->connection,
-            new OutboxMessagePublisher($queue, new Logger('outbox-relay-test')),
+            new OutboxMessagePublisher($publisher, new Logger('outbox-relay-test')),
         );
 
         $result = $relay->relay(10);
@@ -84,11 +86,11 @@ final class DoctrineOutboxRelayTest extends TestCase
         $logHandler = new TestHandler();
         $logger     = new Logger('outbox-relay-test');
         $logger->pushHandler($logHandler);
-        $queue = $this->createStub(BackendbaseQueue::class);
-        $queue->method('publish')->willThrowException(new RuntimeException('Broker unavailable.'));
+        $publisher = $this->createStub(MessagePublisher::class);
+        $publisher->method('publish')->willThrowException(new RuntimeException('Broker unavailable.'));
         $relay = new DoctrineOutboxRelay(
             $this->connection,
-            new OutboxMessagePublisher($queue, $logger),
+            new OutboxMessagePublisher($publisher, $logger),
         );
 
         $result  = $relay->relay(10);
@@ -113,11 +115,11 @@ final class DoctrineOutboxRelayTest extends TestCase
             ['payload' => '1'],
             ['id' => 'message-id'],
         );
-        $queue = $this->createMock(BackendbaseQueue::class);
-        $queue->expects(self::never())->method('publish');
+        $publisher = $this->createMock(MessagePublisher::class);
+        $publisher->expects(self::never())->method('publish');
         $relay = new DoctrineOutboxRelay(
             $this->connection,
-            new OutboxMessagePublisher($queue, new Logger('outbox-relay-test')),
+            new OutboxMessagePublisher($publisher, new Logger('outbox-relay-test')),
         );
 
         $result = $relay->relay(1);
@@ -133,7 +135,7 @@ final class DoctrineOutboxRelayTest extends TestCase
         $relay = new DoctrineOutboxRelay(
             $this->connection,
             new OutboxMessagePublisher(
-                $this->createStub(BackendbaseQueue::class),
+                $this->createStub(MessagePublisher::class),
                 new Logger('outbox-relay-test'),
             ),
         );

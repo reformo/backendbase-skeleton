@@ -9,6 +9,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventDispatcher;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessageProcessor;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
+use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
@@ -89,13 +90,13 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             $logger,
         );
 
-        $processed = $processor->process([
-            'messageId' => 'message-id',
-            'messageBody' => 'Example_NewExampleAdded',
-            'eventVersion' => '1.0',
-            'topic' => 'events',
-            'data' => ['exampleId' => 'example-id'],
-        ]);
+        $processed = $processor->process(new Message(
+            'Example_NewExampleAdded',
+            ['exampleId' => 'example-id'],
+            'message-id',
+            '1.0',
+            'events',
+        ));
 
         self::assertSame(QueueMessageHandlingOutcome::REJECT, $processed);
         self::assertTrue($logHandler->hasErrorRecords());
@@ -135,10 +136,10 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
 
         foreach (
             [
-                [],
-                ['messageBody' => 'Event'],
-                ['messageBody' => 'Event', 'messageId' => 'message-id'],
-                ['messageBody' => 'Event', 'messageId' => 'message-id', 'topic' => 'events'],
+                new Message(''),
+                new Message('Event'),
+                new Message('Event', id: 'message-id'),
+                new Message('Event', id: 'message-id', destination: 'events'),
             ] as $message
         ) {
             self::assertSame(QueueMessageHandlingOutcome::REJECT, $processor->process($message));
@@ -192,15 +193,11 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
         return $transaction;
     }
 
-    /** @return array<string, mixed> */
-    private function messageData(): array
+    private function messageData(): Message
     {
-        return [
-            'messageId' => 'message-id',
-            'messageBody' => 'Example_NewExampleAdded',
-            'eventVersion' => '1.0',
-            'topic' => 'events',
-            'data' => [
+        return new Message(
+            'Example_NewExampleAdded',
+            [
                 'exampleId' => 'example-id',
                 'type' => 'system',
                 'typeTargetId' => null,
@@ -210,6 +207,9 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
                 'value' => 'value',
                 'details' => [],
             ],
-        ];
+            'message-id',
+            '1.0',
+            'events',
+        );
     }
 }

@@ -10,7 +10,8 @@ use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRe
 use Backendbase\Infrastructure\Adapters\Queue\NotificationMessageProcessor;
 use Backendbase\Infrastructure\UseCase\Console\Queue\ContainerAwareQueueConsumer;
 use Backendbase\Infrastructure\UseCase\Console\Queue\NotifyReceiver;
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessageConsumer;
+use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Backendbase\Shared\Integrations\Notify;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
@@ -27,14 +28,11 @@ final class QueueConsumerCommandsTest extends TestCase
     #[Test]
     public function itStartsTheExternalEventQueueConsumer(): void
     {
-        $queue = $this->createMock(BackendbaseQueue::class);
-        $queue->expects(self::once())
+        $consumer = $this->createMock(MessageConsumer::class);
+        $consumer->expects(self::once())
             ->method('consume')
-            ->with([
-                'waitTimeSeconds' => 20,
-                'queue' => 'events',
-            ], self::isCallable());
-        $tester = new CommandTester(new ContainerAwareQueueConsumer($queue, $this->eventProcessor()));
+            ->with(new MessageSubscription('events', 20), self::isCallable());
+        $tester = new CommandTester(new ContainerAwareQueueConsumer($consumer, $this->eventProcessor()));
 
         self::assertSame(Command::SUCCESS, $tester->execute(['name' => 'events']));
         self::assertStringContainsString('Queue consumer started', $tester->getDisplay());
@@ -43,20 +41,17 @@ final class QueueConsumerCommandsTest extends TestCase
     #[Test]
     public function itStartsTheNotificationQueueConsumerWithItsDefaultQueue(): void
     {
-        $queue = $this->createMock(BackendbaseQueue::class);
-        $queue->expects(self::once())
+        $consumer = $this->createMock(MessageConsumer::class);
+        $consumer->expects(self::once())
             ->method('consume')
-            ->with([
-                'waitTimeSeconds' => 20,
-                'queueName' => 'backendbase-queue-email',
-            ], self::isCallable());
+            ->with(new MessageSubscription('backendbase-queue-email', 20), self::isCallable());
         $processor = new NotificationMessageProcessor(
             $this->createStub(Notify::class),
             $this->createStub(ExternalEffectInbox::class),
             $this->createStub(QueueMessageFailurePolicy::class),
             new NullLogger(),
         );
-        $tester    = new CommandTester(new NotifyReceiver($queue, $processor));
+        $tester    = new CommandTester(new NotifyReceiver($consumer, $processor));
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertStringContainsString('Notifier started consuming', $tester->getDisplay());

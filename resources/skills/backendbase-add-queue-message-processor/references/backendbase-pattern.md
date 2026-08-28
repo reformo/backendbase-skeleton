@@ -14,17 +14,16 @@ Do not copy Backendbase queue names, notification payloads, event names, provide
 
 ## Normalized message contract
 
-Backendbase transports normalize these roles:
+Backendbase transports normalize these roles in a typed `Message` object:
 
 | Field | Purpose |
 | --- | --- |
-| `messageBody` | event type or processor-specific body |
-| `eventVersion` | versioned event schema, when applicable |
-| `data` | decoded object payload |
-| `messageId` | idempotency identity |
-| `topic` | consumer identity, usually the resolved queue name |
-| `tag` | routing key or logical tag |
-| `keys` | transport attributes |
+| `body()` | event type or processor-specific body |
+| `eventVersion()` | versioned event schema, when applicable |
+| `data()` | decoded object payload |
+| `id()` | idempotency identity |
+| `destination()` | consumer identity, usually the resolved queue name |
+| `routingKey()` | routing key or logical tag |
 
 Discover the target envelope. Do not add unused fields only to imitate Backendbase.
 
@@ -58,19 +57,19 @@ Use no inbox only when repeating the computation has no externally visible effec
 Names are illustrative. The failure policy calls must accept validated strings.
 
 ```php
-public function process(array $data): QueueMessageHandlingOutcome
+public function process(Message $message): QueueMessageHandlingOutcome
 {
-    $consumerName = $data['topic'] ?? null;
-    $messageId    = $data['messageId'] ?? null;
+    $consumerName = $message->destination();
+    $messageId    = $message->id();
 
     try {
         $this->validateMetadata($consumerName, $messageId);
-        $message = $this->mapper->map($data);
+        $applicationMessage = $this->mapper->map($message->data());
         $this->inbox->processOnce(
             $consumerName,
             $messageId,
-            $message->type(),
-            fn (): void => $this->handler->handle($message),
+            $applicationMessage->type(),
+            fn (): void => $this->handler->handle($applicationMessage),
         );
         $this->failurePolicy->succeeded($consumerName, $messageId);
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
 
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Services\Translator;
 use Backendbase\Shared\Settings;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
@@ -17,9 +16,8 @@ class Root extends Action
     public function __construct(
         private readonly Settings $settings,
         LoggerInterface $logger,
-        Translator|null $translator = null,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     #[Override]

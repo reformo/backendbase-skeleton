@@ -9,7 +9,6 @@ use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleReq
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Services\Translator;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Override;
@@ -26,9 +25,8 @@ class NewExample extends Action
     public function __construct(
         private readonly CommandBus $commandBus,
         protected LoggerInterface $logger,
-        protected Translator|null $translator,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     #[Override]

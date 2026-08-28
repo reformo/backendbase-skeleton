@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
+use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ExampleDetails;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\RemoveExample;
@@ -13,7 +15,6 @@ use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Http\Handlers\HttpErrorHandler;
 use Laminas\Diactoros\ServerRequestFactory;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\Test;
@@ -38,9 +39,9 @@ final class ExampleNotFoundTest extends TestCase
         );
         $logger  = new Logger('example-not-found-test');
         $actions = [
-            ['GET', new ExampleDetails($queryBus, $logger, null)],
-            ['PATCH', new ChangeExampleDetails($commandBus, $logger, null)],
-            ['DELETE', new RemoveExample($commandBus, $logger, null)],
+            ['GET', new ExampleDetails($queryBus, $logger)],
+            ['PATCH', new ChangeExampleDetails($commandBus, $logger)],
+            ['DELETE', new RemoveExample($commandBus, $logger)],
         ];
 
         foreach ($actions as [$method, $action]) {
@@ -66,6 +67,7 @@ final class ExampleNotFoundTest extends TestCase
             $app->getCallableResolver(),
             $app->getResponseFactory(),
             $logger,
+            new DomainErrorProblemDetailsMapper(),
         ));
         $request = (new ServerRequestFactory())
             ->createServerRequest($method, '/examples/system/settings/key')

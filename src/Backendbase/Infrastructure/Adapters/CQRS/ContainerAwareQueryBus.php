@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Shared\CQRS;
+namespace Backendbase\Infrastructure\Adapters\CQRS;
 
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
+use Backendbase\Shared\CQRS\Query;
+use Backendbase\Shared\CQRS\QueryBus;
+use Backendbase\Shared\CQRS\QueryHandler;
 use Override;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;

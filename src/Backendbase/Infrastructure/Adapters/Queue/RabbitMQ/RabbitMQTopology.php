@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 
+use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Wire\AMQPTable;
 
@@ -14,37 +16,36 @@ final class RabbitMQTopology
     {
     }
 
-    /**
-     * @param array<string, mixed> $params
-     *
-     * @return array{queue: string, exchange: string, routingKey: string}
-     */
-    public function route(array $params): array
+    /** @return array{queue: string, exchange: string, routingKey: string} */
+    public function publicationRoute(Message $message): array
     {
-        $queue = (string) (
-            $params['queueName']
-            ?? $params['queue']
-            ?? $params['topic']
-            ?? $this->settings['queue']
-        );
+        $queue = $message->destination() ?? (string) $this->settings['queue'];
 
         return [
             'queue' => $queue,
-            'exchange' => (string) ($params['exchange'] ?? $this->settings['exchange']),
-            'routingKey' => (string) ($params['routingKey'] ?? $params['tag'] ?? $queue),
+            'exchange' => (string) $this->settings['exchange'],
+            'routingKey' => $message->routingKey() ?? $queue,
         ];
     }
 
-    /** @param array<string, mixed> $params */
-    public function prefetchCount(array $params): int
+    /** @return array{queue: string, exchange: string, routingKey: string} */
+    public function subscriptionRoute(MessageSubscription $subscription): array
     {
-        return (int) ($params['maxNumberOfMessages'] ?? $this->settings['prefetchCount']);
+        return [
+            'queue' => $subscription->destination(),
+            'exchange' => (string) $this->settings['exchange'],
+            'routingKey' => $subscription->destination(),
+        ];
     }
 
-    /** @param array<string, mixed> $params */
-    public function waitTimeout(array $params): float
+    public function prefetchCount(MessageSubscription $subscription): int
     {
-        return (float) ($params['waitTimeSeconds'] ?? 0);
+        return $subscription->maxNumberOfMessages() ?? (int) $this->settings['prefetchCount'];
+    }
+
+    public function waitTimeout(MessageSubscription $subscription): float
+    {
+        return $subscription->waitTimeSeconds() ?? 0;
     }
 
     /** @param array{queue: string, exchange: string, routingKey: string} $route */

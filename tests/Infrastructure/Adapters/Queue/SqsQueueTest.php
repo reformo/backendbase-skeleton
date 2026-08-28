@@ -9,6 +9,8 @@ use Aws\MockHandler;
 use Aws\Result;
 use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
+use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -46,16 +48,16 @@ final class SqsQueueTest extends TestCase
         ]);
         $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
 
-        $result = $queue->publish([
-            'queue' => 'events',
-            'tag' => 'collection.created',
-            'messageBody' => 'Collection_Item_Added',
-            'messageId' => 'message-1',
-            'eventVersion' => '1.0',
-            'properties' => ['id' => 'item-1'],
-        ]);
+        $result = $queue->publish(new Message(
+            'Collection_Item_Added',
+            ['id' => 'item-1'],
+            'message-1',
+            '1.0',
+            'events',
+            'collection.created',
+        ));
 
-        self::assertSame('sqs-message-1', $result['MessageId']);
+        self::assertSame('sqs-message-1', $result->messageId());
     }
 
     #[Test]
@@ -81,13 +83,13 @@ final class SqsQueueTest extends TestCase
         ]);
         $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
 
-        $queue->consume([], static function (array $payload): QueueMessageHandlingOutcome {
-            self::assertSame('Collection_Item_Added', $payload['messageBody']);
-            self::assertSame('message-1', $payload['messageId']);
-            self::assertSame('1.0', $payload['eventVersion']);
-            self::assertSame(['id' => 'item-1'], $payload['data']);
-            self::assertSame('events', $payload['topic']);
-            self::assertSame('collection.created', $payload['tag']);
+        $queue->consume(new MessageSubscription('events'), static function (Message $message): QueueMessageHandlingOutcome {
+            self::assertSame('Collection_Item_Added', $message->body());
+            self::assertSame('message-1', $message->id());
+            self::assertSame('1.0', $message->eventVersion());
+            self::assertSame(['id' => 'item-1'], $message->data());
+            self::assertSame('events', $message->destination());
+            self::assertSame('collection.created', $message->routingKey());
 
             return QueueMessageHandlingOutcome::ACKNOWLEDGE;
         });
@@ -102,7 +104,7 @@ final class SqsQueueTest extends TestCase
             new MalformedSqsClient(new Result(['Messages' => 'invalid'])),
             self::settings(),
         );
-        $invalidCollection->consume([], static function (): never {
+        $invalidCollection->consume(new MessageSubscription('events'), static function (): never {
             self::fail('A malformed collection must not reach the handler.');
         });
 
@@ -110,7 +112,7 @@ final class SqsQueueTest extends TestCase
             new MalformedSqsClient(new Result(['Messages' => ['invalid']])),
             self::settings(),
         );
-        $invalidMessage->consume([], static function (): never {
+        $invalidMessage->consume(new MessageSubscription('events'), static function (): never {
             self::fail('A malformed message must not reach the handler.');
         });
 
@@ -131,15 +133,15 @@ final class SqsQueueTest extends TestCase
         $calls   = 0;
         $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
 
-        $queue->consume([], static function (array $payload) use (&$calls): QueueMessageHandlingOutcome {
+        $queue->consume(new MessageSubscription('events'), static function (Message $message) use (&$calls): QueueMessageHandlingOutcome {
             ++$calls;
             if ($calls === 1) {
-                self::assertSame('{', $payload['messageBody']);
+                self::assertSame('{', $message->body());
 
                 throw new RuntimeException('Handler failed.');
             }
 
-            self::assertSame('1', $payload['messageBody']);
+            self::assertSame('1', $message->body());
 
             return QueueMessageHandlingOutcome::RETRY;
         });
@@ -159,7 +161,7 @@ final class SqsQueueTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
 
         $queue->consume(
-            [],
+            new MessageSubscription('events'),
             static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::ACKNOWLEDGE,
         );
     }
@@ -187,7 +189,7 @@ final class SqsQueueTest extends TestCase
 
         self::assertSame(
             'message-id',
-            $queue->publish(['messageBody' => 'Event'])['MessageId'],
+            $queue->publish(new Message('Event'))->messageId(),
         );
     }
 
@@ -203,7 +205,7 @@ final class SqsQueueTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
 
-        $queue->publish(['messageBody' => 'Event']);
+        $queue->publish(new Message('Event'));
     }
 
     #[Test]
@@ -215,7 +217,7 @@ final class SqsQueueTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
 
-        $queue->publish(['messageBody' => 'Event']);
+        $queue->publish(new Message('Event'));
     }
 
     /** @return array<string, mixed> */

@@ -46,9 +46,8 @@ final class SnsNotifierTest extends TestCase
             new SmsNotification('+905551112233', 'Your verification code is 123456.'),
         );
 
-        self::assertSame('sns-message-1', $result['MessageId']);
+        self::assertSame('sns-message-1', $result->messageId('sms'));
         self::assertSame('sms', $notifier->type());
-        self::assertInstanceOf(SnsClient::class, $notifier->getClient());
     }
 
     #[Test]
@@ -68,7 +67,7 @@ final class SnsNotifierTest extends TestCase
 
         self::assertSame(
             'sns-message-2',
-            $notifier->notify(new SmsNotification('+905551112233', 'Message'))['MessageId'],
+            $notifier->notify(new SmsNotification('+905551112233', 'Message'))->messageId('sms'),
         );
     }
 

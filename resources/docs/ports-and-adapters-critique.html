@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="description" content="Backendbase Core için kanıta dayalı Ports and Adapters mimari değerlendirmesi.">
-    <title>Backendbase Core — Ports and Adapters Mimari Kritik Raporu</title>
+    <meta name="description" content="An evidence-based Ports and Adapters architecture assessment for Backendbase Core.">
+    <title>Backendbase Core — Ports and Adapters Architecture Critique</title>
     <style>
         :root {
             --page: #f3f5f3;
@@ -321,6 +321,11 @@
             font-size: 0.9rem;
         }
 
+        .leak.resolved {
+            border-color: color-mix(in srgb, var(--green) 35%, var(--line));
+            background: var(--green-soft);
+        }
+
         figcaption { margin-top: 12px; color: var(--muted); font-size: 0.84rem; }
 
         .table-wrap { margin: 17px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
@@ -454,265 +459,281 @@
     </style>
 </head>
 <body>
-<a class="skip-link" href="#main-content">Ana içeriğe geç</a>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="hero">
     <div class="hero-inner">
-        <p class="eyebrow">Backendbase Core · Mimari değerlendirme · 28 Ağustos 2026</p>
-        <h1>Ports and Adapters Mimari Kritik Raporu</h1>
-        <p class="lede">Bağımlılık yönü, port sahipliği, adaptör sınırları, framework izolasyonu, adaptör eşdeğerliği ve mimari testler üzerine kanıta dayalı inceleme.</p>
-        <div class="chips" aria-label="Rapor özeti">
-            <span class="chip">Salt-okunur inceleme</span>
-            <span class="chip">3 yüksek öncelik</span>
-            <span class="chip">4 orta öncelik</span>
-            <span class="chip">6/6 mimari testi geçti</span>
-            <span class="chip">8/8 contract testi geçti</span>
+        <p class="eyebrow">Backendbase Core · Architecture assessment · August 29, 2026</p>
+        <h1>Ports and Adapters Architecture Critique</h1>
+        <p class="lede">An evidence-based review of dependency direction, port ownership, adapter boundaries, framework isolation, adapter parity, and architecture tests.</p>
+        <div class="chips" aria-label="Report summary">
+            <span class="chip">Current code review</span>
+            <span class="chip">4 findings resolved</span>
+            <span class="chip">No high-priority findings open</span>
+            <span class="chip">3 medium-priority findings open</span>
+            <span class="chip">9/9 architecture tests passed</span>
+            <span class="chip">8/8 contract tests passed</span>
         </div>
     </div>
 </header>
 
 <div class="layout">
-    <nav aria-label="İçindekiler">
-        <strong>İçindekiler</strong>
-        <a href="#verdict">1. Kısa hüküm</a>
-        <a href="#dependency-map">2. Bağımlılık haritası</a>
-        <a href="#scorecard">3. Değerlendirme tablosu</a>
-        <a href="#findings">4. Kritik bulgular</a>
-        <a href="#strengths">5. Güçlü taraflar</a>
-        <a href="#roadmap">6. Düzeltme sırası</a>
-        <a href="#verification">7. Doğrulama ve kapsam</a>
+    <nav aria-label="Table of contents">
+        <strong>Contents</strong>
+        <a href="#verdict">1. Executive verdict</a>
+        <a href="#dependency-map">2. Dependency map</a>
+        <a href="#scorecard">3. Assessment scorecard</a>
+        <a href="#findings">4. Critical findings</a>
+        <a href="#strengths">5. Strengths</a>
+        <a href="#roadmap">6. Remediation order</a>
+        <a href="#verification">7. Verification and scope</a>
     </nav>
 
     <main id="main-content">
         <section id="verdict">
-            <p class="section-label">01 · Kısa hüküm</p>
-            <h2>İyi bir temel var; bağımlılık yönü her sınırda korunmuyor</h2>
+            <p class="section-label">01 · Executive verdict</p>
+            <h2>Core and messaging boundaries are stronger; adapter policy debt remains</h2>
             <div class="callout warning">
-                <strong>En doğru tanım:</strong> Proje, Ports and Adapters öğelerini kullanan modüler bir DDD/CQRS mimarisidir. Katı bir hexagonal mimari değildir.
+                <strong>Most accurate description:</strong> The project uses a modular Domain-Driven Design (DDD) and Command Query Responsibility Segregation (CQRS) architecture with Ports and Adapters elements. It is not a strict hexagonal architecture.
             </div>
             <div class="callout good">
-                <strong>Çözüm güncellemesi:</strong> Bulgu 01 kapatıldı. HTTP girişleri artık <code>TokenIssuer</code> ve <code>TokenValidator</code> portlarını kullanır. Redis durumu <code>AuthorizationStore</code> portunun arkasındadır. Example yazma handler sınıfları adlandırılmış ayrıcalıkları yan etkilerden önce denetler.
+                <strong>Latest update:</strong> Findings 01 through 04 are closed. Messaging now uses direction-specific ports, typed messages, typed results, and notification adapters without vendor-client access.
             </div>
-            <p><code>ExampleBoundedContext</code> içindeki read/write portları, Doctrine ayrımı, memory adaptörleri ve modül-içi CQRS handler eşleştirmesi proje kararlarıyla tutarlıdır. Başlıca sorunlar Identity and Access sınırı, Shared çekirdeği, HTTP orkestrasyonu, messaging portlarının biçimi ve adaptör eşdeğerliğidir.</p>
-            <div class="metrics" aria-label="Özet metrikler">
-                <div class="stat"><strong>7</strong><span>Öncelikli mimari bulgu</span></div>
-                <div class="stat"><strong>3</strong><span>Yüksek öncelikli bulgu</span></div>
-                <div class="stat"><strong>6/6</strong><span>Geçen mimari testi</span></div>
-                <div class="stat"><strong>0</strong><span>Değişen üretim kodu dosyası</span></div>
+            <p>The read/write ports in <code>ExampleBoundedContext</code>, Doctrine separation, memory adapters, token ports, pure Shared core, typed messaging ports, input validation, and internal CQRS handler mapping align with project decisions. The main open issues concern policy inside concrete adapters, adapter parity, and general architecture enforcement.</p>
+            <div class="metrics" aria-label="Summary metrics">
+                <div class="stat"><strong>3</strong><span>Open architecture findings</span></div>
+                <div class="stat"><strong>0</strong><span>Open high-priority findings</span></div>
+                <div class="stat"><strong>9/9</strong><span>Architecture tests passed</span></div>
+                <div class="stat"><strong>4</strong><span>Findings resolved</span></div>
             </div>
         </section>
 
         <section id="dependency-map">
-            <p class="section-label">02 · Bağımlılık haritası</p>
-            <h2>İdeal yön ile gözlenen ters oklar</h2>
+            <p class="section-label">02 · Dependency map</p>
+            <h2>Ideal direction, resolved identity flow, and remaining leaks</h2>
             <figure class="diagram">
-                <div role="img" aria-label="Giriş adaptörlerinden giriş portuna, application ve domain çekirdeğine, çıkış portuna ve çıkış adaptörlerine giden ideal bağımlılık yönü. Alt bölümde dört ters bağımlılık gösterilir.">
+                <div role="img" aria-label="The ideal dependency direction from inbound adapters to an inbound port, the application and domain core, an outbound port, and outbound adapters. The lower section shows one open issue and four resolved flows.">
                     <div class="flow">
-                        <div class="node"><strong>HTTP · CLI · Queue</strong><small>Giriş adaptörleri</small></div>
+                        <div class="node"><strong>HTTP · CLI · Queue</strong><small>Inbound adapters</small></div>
                         <div class="arrow">→</div>
-                        <div class="node"><strong>Giriş portu</strong><small>Command, query veya use-case arayüzü</small></div>
+                        <div class="node"><strong>Inbound port</strong><small>Command, query, or use-case interface</small></div>
                         <div class="arrow">→</div>
-                        <div class="node core"><strong>Application + Domain</strong><small>Orkestrasyon, invariant ve politika</small></div>
+                        <div class="node core"><strong>Application + Domain</strong><small>Orchestration, invariants, and policy</small></div>
                         <div class="arrow">→</div>
-                        <div class="node"><strong>Çıkış portu</strong><small>Repository ve dış kabiliyet sözleşmesi</small></div>
+                        <div class="node"><strong>Outbound port</strong><small>Repository and external capability contract</small></div>
                         <div class="arrow">←</div>
-                        <div class="node"><strong>Doctrine · JWT · SQS</strong><small>Çıkış adaptörleri</small></div>
+                        <div class="node"><strong>Doctrine · JWT · SQS</strong><small>Outbound adapters</small></div>
                     </div>
-                    <div class="leak-grid" aria-label="Gözlenen bağımlılık kaçakları">
-                        <div class="leak"><strong>HTTP → query + karar + command</strong><br>Giriş adaptörü use-case sırasını ve kaynak çözümlemeyi yönetiyor.</div>
-                        <div class="leak"><strong>Çözüldü: HTTP → token portları → Jwt</strong><br>Redis durumu <code>AuthorizationStore</code> adaptörünün arkasındadır.</div>
-                        <div class="leak"><strong>Domain exception → HTTP Problem Details</strong><br>Domain, transport durum kodlarını taşıyor.</div>
-                        <div class="leak"><strong>Doctrine relay → queue adapter</strong><br>Politika ve mekanizma concrete adaptörde birleşiyor.</div>
+                    <div class="leak-grid" aria-label="Observed dependency leaks">
+                        <div class="leak resolved"><strong>Resolved: HTTP → typed PATCH command</strong><br>Supplied PATCH fields are validated before command construction.</div>
+                        <div class="leak resolved"><strong>Resolved: HTTP → token ports → Jwt</strong><br>Redis state is behind the <code>AuthorizationStore</code> port.</div>
+                        <div class="leak resolved"><strong>Resolved: domain error → HTTP adapter</strong><br>The Infrastructure mapper owns every Problem Details contract.</div>
+                        <div class="leak resolved"><strong>Resolved: typed messaging ports</strong><br>Publish, consume, and notification results hide vendor objects.</div>
+                        <div class="leak"><strong>Doctrine relay → queue adapter</strong><br>Policy and mechanism are combined in a concrete adapter.</div>
                     </div>
                 </div>
-                <figcaption>Üst akış ideal dependency rule yönünü gösterir. Alt kartlar mevcut ters veya bulanık bağımlılıkları gösterir.</figcaption>
+                <figcaption>The upper flow shows the ideal dependency rule. The lower cards show one open issue and four resolved flows.</figcaption>
             </figure>
         </section>
 
         <section id="scorecard">
-            <p class="section-label">03 · Değerlendirme tablosu</p>
-            <h2>Persistence sınırı güçlü; kimlik ve Shared sınırları zayıf</h2>
+            <p class="section-label">03 · Assessment scorecard</p>
+            <h2>Persistence, identity, and Shared core boundaries are strong</h2>
             <div class="table-wrap">
                 <table>
-                    <caption class="sr-only">Ports and Adapters değerlendirme tablosu</caption>
+                    <caption class="sr-only">Ports and Adapters assessment scorecard</caption>
                     <thead>
-                    <tr><th scope="col">Alan</th><th scope="col">Durum</th><th scope="col">Değerlendirme</th></tr>
+                    <tr><th scope="col">Area</th><th scope="col">Status</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Context-owned persistence portları</td><td><span class="badge strong">Güçlü</span></td><td>Read/write portları ayrılmış. Doctrine ve memory adaptörleri aynı arayüzleri uygular.</td></tr>
-                    <tr><td>Application handler yönü</td><td><span class="badge strong">Güçlü</span></td><td>Handler sınıfları SQL veya Doctrine yerine proje portlarına bağlıdır.</td></tr>
-                    <tr><td>Giriş portu disiplini</td><td><span class="badge partial">Kısmi</span></td><td>CQRS bus ve aynı context içindeki bire bir handler attribute eşleştirmesi bilinçli proje kararlarıdır. Ancak bazı controller’lar query, karar ve command adımlarını orkestre eder.</td></tr>
-                    <tr><td>Çıkış portu kalitesi</td><td><span class="badge partial">Kısmi</span></td><td>Bazı portlar dar ve tipli değildir. Queue portu iki yönü tek arayüzde birleştirir.</td></tr>
-                    <tr><td>Domain/framework izolasyonu</td><td><span class="badge weak">Zayıf</span></td><td>Shared domain Doctrine’a bağlıdır. Domain exception modeli HTTP biçimini taşır.</td></tr>
-                    <tr><td>Identity and Access sınırı</td><td><span class="badge strong">Güçlü</span></td><td>HTTP girişleri token portlarına bağlıdır. JWT codec ve Redis store bileşim kökünde ayrılır.</td></tr>
-                    <tr><td>Bileşim kökü</td><td><span class="badge partial">Kısmi güçlü</span></td><td>Merkezi DI dosyaları vardır. Bazı concrete bağlantılar hâlâ modül veya adaptör içinde kurulur.</td></tr>
-                    <tr><td>Mimari koruma testleri</td><td><span class="badge partial">Kısmi</span></td><td>Temel kurallar çalışır. Shared, adapter-to-adapter ve izin verilen attribute eşleştirmelerinin sınırları tam taranmaz.</td></tr>
+                    <tr><td>Context-owned persistence ports</td><td><span class="badge strong">Strong</span></td><td>Read and write ports are separate. Doctrine and memory adapters implement the same interfaces.</td></tr>
+                    <tr><td>Application handler direction</td><td><span class="badge strong">Strong</span></td><td>Handlers depend on project ports instead of SQL or Doctrine. Write handlers check privileges before side effects.</td></tr>
+                    <tr><td>Inbound port discipline</td><td><span class="badge strong">Strong</span></td><td>HTTP write actions validate input and dispatch one command. Resource resolution and missing-resource decisions are in the application handler.</td></tr>
+                    <tr><td>Messaging outbound port quality</td><td><span class="badge strong">Strong</span></td><td>Publication and consumption use separate ports. Typed message and result objects hide vendor contracts.</td></tr>
+                    <tr><td>Domain/framework isolation</td><td><span class="badge strong">Strong</span></td><td>Domain errors contain no transport fields. Domain events use a native collection. Container-aware implementations are Infrastructure adapters.</td></tr>
+                    <tr><td>Identity and Access boundary</td><td><span class="badge strong">Strong</span></td><td>HTTP entry points depend on token ports. The composition root separates the JWT codec and Redis store.</td></tr>
+                    <tr><td>Composition root</td><td><span class="badge partial">Partially strong</span></td><td>Central dependency injection files exist. Some concrete connections are still created inside modules or adapters.</td></tr>
+                    <tr><td>Architecture enforcement tests</td><td><span class="badge partial">Partial</span></td><td>Core rules, Shared framework isolation, container-adapter placement, and the HTTP → concrete Jwt ban work. General adapter-to-adapter and attribute mapping rules do not yet scan all cases.</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
         <section id="findings">
-            <p class="section-label">04 · Kritik bulgular</p>
-            <h2>Öncelik, bağımlılık yönü ve değişiklik etkisine göre verildi</h2>
+            <p class="section-label">04 · Critical findings</p>
+            <h2>Priority reflects dependency direction and change impact</h2>
             <div class="callout good">
-                <strong>Kabul edilen CQRS kararı:</strong> Command ve query sözleşmeleri aynı bounded context içindeki tek handler sınıfını positional <code>CQRSHandler</code> attribute ile gösterir. Sözleşmeler bağımsız paket olarak dağıtılmaz. Bu nedenle eşleştirme bir sınır ihlali değil, testle korunması gereken modül-içi metadata kararıdır.
+                <strong>Accepted CQRS decision:</strong> Command and query contracts identify one handler in the same bounded context through a positional <code>CQRSHandler</code> attribute. The contracts are not distributed as an independent package. This mapping is an internal metadata decision, not a boundary violation. Tests must protect it.
             </div>
             <div class="findings">
                 <article class="finding">
-                    <div><span class="badge strong">Çözüldü · 01</span></div>
+                    <div><span class="badge strong">Resolved · 01</span></div>
                     <div>
-                        <h3>Identity and Access application portunu atlıyor</h3>
-                        <p>HTTP controller ve middleware artık <code>TokenIssuer</code> ve <code>TokenValidator</code> portlarına bağlıdır. <code>Jwt</code>, dışarıdan verilen codec ve <code>AuthorizationStore</code> ile yalnızca token akışını yönetir.</p>
-                        <p>Middleware, tipli <code>AccessControl</code> nesnesini request içine koyar. Controller bu nesneyi command içine taşır. Application handler, gerekli ayrıcalığı transaction veya repository çağrısından önce denetler.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenIssuer.php"><code>TokenIssuer.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenValidator.php"><code>TokenValidator.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/AuthorizationStore.php"><code>AuthorizationStore.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandler.php"><code>ChangeExampleHandler.php</code></a>.</p>
+                        <h3>The Identity and Access application boundary is established</h3>
+                        <p>HTTP controllers and middleware now depend on the <code>TokenIssuer</code> and <code>TokenValidator</code> ports. <code>Jwt</code> only manages the token flow through an injected codec and <code>AuthorizationStore</code>.</p>
+                        <p>The middleware puts a typed <code>AccessControl</code> object in the request. The controller moves this object into the command. The application handler checks the required privilege before a transaction or repository call. A new architecture test prevents HTTP entry points from depending on the concrete <code>Jwt</code> class again.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenIssuer.php"><code>TokenIssuer.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenValidator.php"><code>TokenValidator.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/AuthorizationStore.php"><code>AuthorizationStore.php</code></a>, <a href="../../config/dependencies/redis.php"><code>config/dependencies/redis.php:46-64</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandler.php"><code>ChangeExampleHandler.php:28-39</code></a>, <a href="../../tests/Architecture/IdentityAndAccessPortBoundaryTest.php"><code>IdentityAndAccessPortBoundaryTest.php:18-34</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Uygulanan işlem</strong><code>TokenIssuer</code>, <code>TokenValidator</code> ve <code>AuthorizationStore</code> portları eklendi. Yetkilendirme application handler sınırına taşındı.</div>
+                    <div class="action"><strong>Implemented action</strong>The <code>TokenIssuer</code>, <code>TokenValidator</code>, and <code>AuthorizationStore</code> ports were added. Authorization moved to the application handler boundary.</div>
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge high">Yüksek · 02</span></div>
+                    <div><span class="badge strong">Resolved · 02</span></div>
                     <div>
-                        <h3>Domain ve Shared çekirdeği transport/framework bilgisi taşıyor</h3>
-                        <p>Domain exception sınıfları HTTP status ve Problem Details alanlarını taşır. <code>Shared\Domain\DomainEvents</code> Doctrine koleksiyonunu genişletir. Container-aware uygulamalar çekirdek ad alanlarında durur.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Shared/Domain/Exception/DomainException.php"><code>Shared/Domain/Exception/DomainException.php:7-17</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Exception/AuthorizationExpired.php"><code>AuthorizationExpired.php:11-14</code></a>, <a href="../../src/Backendbase/Shared/Domain/DomainEvents.php"><code>Shared/Domain/DomainEvents.php:7,12</code></a>, <a href="../../src/Backendbase/Shared/Domain/ContainerAwareDomainEventPublisher.php"><code>ContainerAwareDomainEventPublisher.php:9-38</code></a>.</p>
+                        <h3>The Domain and Shared core no longer carry transport or container details</h3>
+                        <p><code>DomainException</code> stores only a message and safe context. <code>DomainErrorProblemDetailsMapper</code> owns the public HTTP contracts. <code>DomainEvents</code> uses a native array and SPL interfaces. Container-aware buses, publishers, and event managers are under <code>Infrastructure/Adapters</code>.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Domain/Exception/DomainException.php"><code>Shared/Domain/Exception/DomainException.php</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php"><code>Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php</code></a>, <a href="../../src/Backendbase/Shared/Domain/DomainEvents.php"><code>Shared/Domain/DomainEvents.php</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/DomainEvents/ContainerAwareDomainEventPublisher.php"><code>Infrastructure/Adapters/DomainEvents/ContainerAwareDomainEventPublisher.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong>Saf domain hataları üretin. HTTP adapter içinde Problem Details eşlemesi yapın. Native collection kullanın. Container-aware sınıfları Infrastructure altına taşıyın.</div>
+                    <div class="action"><strong>Implemented action</strong>Transport mapping moved to the HTTP adapter. Framework-backed implementations moved to Infrastructure. Architecture tests now protect both boundaries.</div>
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge high">Yüksek · 03</span></div>
+                    <div><span class="badge strong">Resolved · 03</span></div>
                     <div>
-                        <h3>HTTP adaptörleri use-case orkestrasyonu ve eksik doğrulama yapıyor</h3>
-                        <p>PATCH ve DELETE action’ları önce query çalıştırır, 404 kararı verir ve sonra command çalıştırır. Başka bir giriş adaptörü aynı akışı tekrar etmek zorunda kalır.</p>
-                        <p>PATCH alanları typed setter çağrısından önce doğrulanmaz. Hatalı dış girdi <code>TypeError</code> ve genel 500 yanıtı üretebilir.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php"><code>ChangeExampleDetails.php:38-54</code></a>, <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/RemoveExample.php"><code>RemoveExample.php:41-46</code></a>, <a href="../platform/07-http-api.md"><code>resources/platform/07-http-api.md:16</code></a>.</p>
+                        <h3>HTTP orchestration and PATCH validation are complete</h3>
+                        <p>PATCH and DELETE action classes no longer manage a query → decision → command sequence. Each action dispatches one command. The application handler loads the active aggregate through the write port. It makes the missing-resource decision at that boundary.</p>
+                        <p><code>ExampleRequestInput</code> preserves omitted <code>lookupValue</code>, <code>details</code>, and <code>isActive</code> fields as null. It rejects supplied values unless they are a string, object, and boolean. Invalid types produce the stable 400 Problem Details response.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php"><code>ChangeExampleDetails.php</code></a>, <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ExampleRequestInput.php"><code>ExampleRequestInput.php</code></a>, <a href="../../tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php"><code>ExampleInputValidationTest.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandler.php"><code>ChangeExampleHandler.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong>Her action’dan tek bir application portu çağırın. Kimlik çözümleme ve hata kararını handler içine taşıyın. Tüm PATCH alanlarını sınırda doğrulayın.</div>
+                    <div class="action"><strong>Implemented action</strong>Nullable PATCH validators now reject invalid supplied types. HTTP regression tests cover all three fields and confirm that the command bus is not called.</div>
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Orta · 04</span></div>
+                    <div><span class="badge strong">Resolved · 04</span></div>
                     <div>
-                        <h3>Portlar yön ve teknoloji ayrıntısını tam gizlemiyor</h3>
-                        <p><code>BackendbaseQueue</code> hem publish hem consume işlemini aynı arayüzde toplar. Ham diziler ve <code>mixed</code> kullanır. <code>Notify</code>, <code>getClient(): mixed</code> ile vendor client nesnesini dışarı açar.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Shared/Integrations/BackendbaseQueue.php"><code>BackendbaseQueue.php:9-18</code></a>, <a href="../../src/Backendbase/Shared/Integrations/Notify.php"><code>Notify.php:9-16</code></a>.</p>
+                        <h3>Messaging ports hide direction and vendor details</h3>
+                        <p><code>MessagePublisher</code> and <code>MessageConsumer</code> separate the two queue directions. They exchange typed <code>Message</code>, <code>MessageSubscription</code>, and <code>MessagePublicationResult</code> objects.</p>
+                        <p><code>Notify</code> returns <code>NotificationResult</code>. Notification adapters no longer expose their vendor clients or raw vendor responses.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Integrations/MessagePublisher.php"><code>MessagePublisher.php</code></a>, <a href="../../src/Backendbase/Shared/Integrations/MessageConsumer.php"><code>MessageConsumer.php</code></a>, <a href="../../src/Backendbase/Shared/Integrations/Messaging/Message.php"><code>Messaging/Message.php</code></a>, <a href="../../src/Backendbase/Shared/Integrations/Notify.php"><code>Notify.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong><code>MessagePublisher</code> ve <code>MessageConsumer</code> portlarını ayırın. Typed message/result nesneleri kullanın. Vendor client erişimini kaldırın.</div>
+                    <div class="action"><strong>Implemented action</strong>Direction-specific ports and project-owned value objects replaced the combined array-based queue contract. Vendor-client access was removed.</div>
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Orta · 05</span></div>
+                    <div><span class="badge medium">Medium · 05</span></div>
                     <div>
-                        <h3>Politika concrete adaptörlerin içine yerleşmiş</h3>
-                        <p>Retry sayısı, permanent/transient kararları, outbox backoff ve yayın orkestrasyonu Doctrine adaptörlerinde uygulanır. Mekanizma ile politika aynı sınırlarda birleşir.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicy.php"><code>DoctrineQueueMessageFailurePolicy.php:14-43</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelay.php"><code>DoctrineOutboxRelay.php:18-44,124-142</code></a>.</p>
+                        <h3>Policy is inside concrete adapters</h3>
+                        <p>Doctrine adapters implement retry counts, permanent/transient decisions, outbox backoff, and publication orchestration. Mechanism and policy are combined at the same boundaries.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicy.php"><code>DoctrineQueueMessageFailurePolicy.php:14-43</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelay.php"><code>DoctrineOutboxRelay.php:18-44,124-142</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong>Retry ve relay kararlarını application servisine taşıyın. Persistence adapter yalnız claim, kayıt ve durum güncelleme mekanizmasını uygulasın.</div>
+                    <div class="action"><strong>Recommended action</strong>Move retry and relay decisions to an application service. Let the persistence adapter implement only claim, record, and status-update mechanisms.</div>
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Orta · 06</span></div>
+                    <div><span class="badge medium">Medium · 06</span></div>
                     <div>
-                        <h3>Adaptörler aynı port için eşdeğer davranış vermiyor</h3>
-                        <p>Memory store yalnız ID ile kayıt yapar. Doctrine aktif lookup alanlarında eşsizlik uygular. Memory tabanlı testler, üretimde reddedilecek duplicate veriyi kabul edebilir.</p>
-                        <p>Integration event üreticisi nested <code>command</code> alanı yayımlar. Kayıtlı external message DTO düz alanlar bekler. Producer → consumer uçtan uca contract testi yoktur.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleStore.php"><code>Memory/ExampleStore.php:14-16</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php"><code>ExampleRecord.php:27-31</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php"><code>NewExampleAddedPayload.php:48-60</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php"><code>NewExampleAddedMessage.php:65-77</code></a>.</p>
+                        <h3>Adapters do not provide equivalent behavior for the same port</h3>
+                        <p>The memory store records data only by ID. Doctrine enforces uniqueness for active lookup fields. Memory-based tests can accept duplicate data that production rejects.</p>
+                        <p>The integration event producer publishes a nested <code>command</code> field. The registered external message data transfer object (DTO) expects flat fields. No end-to-end producer → consumer contract test exists.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleStore.php"><code>Memory/ExampleStore.php:14-16</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php"><code>ExampleRecord.php:27-31</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php"><code>NewExampleAddedPayload.php:48-60</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php"><code>NewExampleAddedMessage.php:65-77</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong>Aynı repository contract test paketini iki adaptöre çalıştırın. Üretici payload’ını kayıtlı consumer DTO’ya gerçek dispatcher üzerinden map eden test ekleyin.</div>
+                    <div class="action"><strong>Recommended action</strong>Run the same repository contract test suite against both adapters. Add a test that maps the producer payload to the registered consumer DTO through the real dispatcher.</div>
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Orta · 07</span></div>
+                    <div><span class="badge medium">Medium · 07</span></div>
                     <div>
-                        <h3>Mimari testler gerçek kaçakların bir bölümünü görmüyor</h3>
-                        <p>Mevcut testler temel domain purity, context isolation ve adapter direction kurallarını denetler. Ancak Application → Infrastructure, Shared framework importları ve inbound-adapter → outbound-adapter ilişkileri kapsam dışındadır. Testler ayrıca attribute hedefinin aynı context içinde kalmasını ve doğru handler arayüzünü uygulamasını genel bir kuralla doğrulamaz.</p>
-                        <p class="evidence">Kanıt: <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php:17-29</code></a>, <a href="../../tests/Architecture/FrameworkImportBoundaryTest.php"><code>FrameworkImportBoundaryTest.php:33-41</code></a>, <a href="../../tests/Architecture/Support/BoundedContextDependencies.php"><code>BoundedContextDependencies.php:14-31</code></a>.</p>
+                        <h3>Architecture test coverage is broader; general leaks remain open</h3>
+                        <p>The new <code>IdentityAndAccessPortBoundaryTest</code> scans Infrastructure HTTP entry points and authorization middleware. It prevents these entry points from depending on the concrete <code>Jwt</code> adapter.</p>
+                        <p>Application → Infrastructure, Shared framework imports, and general inbound-adapter → outbound-adapter relations remain outside the test scope. No general rule verifies that an attribute target stays in the same context and implements the correct handler interface.</p>
+                        <p class="evidence">Evidence: <a href="../../tests/Architecture/IdentityAndAccessPortBoundaryTest.php"><code>IdentityAndAccessPortBoundaryTest.php:18-34</code></a>, <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php:17-29</code></a>, <a href="../../tests/Architecture/FrameworkImportBoundaryTest.php"><code>FrameworkImportBoundaryTest.php:33-41</code></a>, <a href="../../tests/Architecture/Support/BoundedContextDependencies.php"><code>BoundedContextDependencies.php:14-31</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong>Application, Shared core ve iki adaptör yönü için ayrı dependency testleri ekleyin. CQRS ve domain-listener attribute hedeflerini aynı context, tek positional hedef, doğru arayüz ve container çözümlemesi kurallarıyla koruyun.</div>
+                    <div class="action"><strong>Recommended action</strong>Add separate dependency tests for Application, the Shared core, and both adapter directions. Protect CQRS and domain-listener attribute targets with rules for the same context, one positional target, the correct interface, and container resolution.</div>
                 </article>
             </div>
         </section>
 
         <section id="strengths">
-            <p class="section-label">05 · Güçlü taraflar</p>
-            <h2>Mevcut iyi sınırlar korunmalı</h2>
+            <p class="section-label">05 · Strengths</p>
+            <h2>Preserve the existing effective boundaries</h2>
             <div class="grid-3">
                 <article class="card">
-                    <h3>Context-owned repository portları</h3>
-                    <p>Application handler’lar Doctrine yerine bounded context sözleşmelerine bağlıdır.</p>
+                    <h3>Context-owned repository ports</h3>
+                    <p>Application handlers depend on bounded context contracts instead of Doctrine.</p>
                 </article>
                 <article class="card">
-                    <h3>Read/write ayrımı</h3>
-                    <p>Read modelleri ile aggregate persistence davranışı farklı portlarda tutulur.</p>
+                    <h3>Read/write separation</h3>
+                    <p>Separate ports contain read models and aggregate persistence behavior.</p>
                 </article>
                 <article class="card">
-                    <h3>ORM izolasyonu</h3>
-                    <p>Domain aggregate üzerinde Doctrine attribute yoktur. ORM record ayrı bir mapper görevi görür.</p>
+                    <h3>Object-relational mapping isolation</h3>
+                    <p>The domain aggregate has no Doctrine attributes. A separate object-relational mapping (ORM) record acts as a mapper.</p>
                 </article>
                 <article class="card">
-                    <h3>Değiştirilebilir adaptör hedefi</h3>
-                    <p>Doctrine ve memory adaptörleri aynı proje arayüzlerini uygular.</p>
+                    <h3>Replaceable adapter goal</h3>
+                    <p>Doctrine and memory adapters implement the same project interfaces.</p>
                 </article>
                 <article class="card">
                     <h3>Transactional messaging</h3>
-                    <p>Outbox, inbox ve external-effect işlemleri proje-owned portlar ve transaction sınırları kullanır.</p>
+                    <p>Outbox, inbox, and external-effect operations use project-owned ports and transaction boundaries.</p>
                 </article>
                 <article class="card">
-                    <h3>Çalışan mimari korumalar</h3>
-                    <p>AST tabanlı testler temel yön ihlallerinin önemli bir bölümünü otomatik olarak yakalar.</p>
+                    <h3>Effective architecture controls</h3>
+                    <p>Abstract syntax tree (AST) tests detect core direction violations and the HTTP → concrete Jwt dependency.</p>
+                </article>
+                <article class="card">
+                    <h3>Token application ports</h3>
+                    <p>HTTP entry points use project contracts instead of concrete JWT or Redis classes for token creation and validation.</p>
+                </article>
+                <article class="card">
+                    <h3>Authorization at the handler boundary</h3>
+                    <p>Example write handlers check named privileges before transaction and repository operations.</p>
                 </article>
             </div>
-            <p class="evidence">Örnek kanıt: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php"><code>AddNewExampleHandler.php:21-25</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php"><code>Doctrine/ExampleWriteRepository.php:13-34</code></a>, <a href="../../config/dependencies/doctrine.php"><code>config/dependencies/doctrine.php:47-53</code></a>.</p>
+            <p class="evidence">Example evidence: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php"><code>AddNewExampleHandler.php:21-36</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php"><code>Doctrine/ExampleWriteRepository.php:13-34</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenValidator.php"><code>TokenValidator.php</code></a>, <a href="../../config/dependencies/redis.php"><code>config/dependencies/redis.php:46-64</code></a>.</p>
         </section>
 
         <section id="roadmap">
-            <p class="section-label">06 · Düzeltme sırası</p>
-            <h2>Önce kimlik ve Shared sınırları, sonra use-case akışı</h2>
+            <p class="section-label">06 · Remediation order</p>
+            <h2>Address adapter policy and parity</h2>
             <ol class="steps">
-                <li><strong>Identity and Access sınırını kurun.</strong> Token ve authorization portları ekleyin. HTTP, JWT ve Redis rollerini ayırın.</li>
-                <li><strong>Shared çekirdeğini saflaştırın.</strong> HTTP Problem Details eşlemesini dışarı taşıyın. Doctrine collection ve container-aware sınıfları çekirdekten çıkarın.</li>
-                <li><strong>Bir giriş, bir use case kuralını uygulayın.</strong> Controller içindeki query → command orkestrasyonunu application handler içine taşıyın.</li>
-                <li><strong>Messaging portlarını daraltın.</strong> Publish ve consume yönlerini ayırın. Ham diziler yerine typed message/result nesneleri kullanın.</li>
-                <li><strong>Adaptör eşdeğerliğini test edin.</strong> Memory/Doctrine contract suite ve producer/consumer message mapping testi ekleyin.</li>
-                <li><strong>Mimari testleri genişletin.</strong> Application, Shared core ve adapter-to-adapter bağımlılıklarını koruyun. İzin verilen attribute eşleştirmelerini aynı-context ve doğru-arayüz kurallarıyla sınırlandırın.</li>
+                <li><strong>Completed — establish the Identity and Access boundary.</strong> Token and authorization ports were added. HTTP, JWT codec, and Redis store roles were separated. Authorization moved to the application handler boundary.</li>
+                <li><strong>Completed — make the Shared core pure.</strong> HTTP Problem Details mapping, the native event collection, and container-aware Infrastructure adapters now enforce the boundary.</li>
+                <li><strong>Completed — enforce one entry point for one use case.</strong> Controller orchestration was removed. PATCH fields are validated at the HTTP boundary.</li>
+                <li><strong>Completed — narrow the messaging ports.</strong> Publication and consumption are separate. Typed message, subscription, publication, and notification results replace raw port values.</li>
+                <li><strong>Remove policy from adapters.</strong> Move retry, dead-letter, and outbox backoff decisions to application services.</li>
+                <li><strong>Test adapter parity.</strong> Add a Memory/Doctrine contract suite and a producer/consumer message mapping test.</li>
+                <li><strong>Expand architecture tests.</strong> Keep the new Identity boundary test. Cover Application, the Shared core, and general adapter-to-adapter dependencies.</li>
             </ol>
             <div class="callout good">
-                <strong>Başarı ölçütü:</strong> HTTP, CLI veya queue adaptörü değiştiğinde application/domain kodu değişmemeli. Doctrine, Redis veya broker değiştiğinde giriş adaptörleri değişmemeli.
+                <strong>Success criterion:</strong> Application and domain code must not change when an HTTP, CLI, or queue adapter changes. Inbound adapters must not change when Doctrine, Redis, or the broker changes.
             </div>
         </section>
 
         <section id="verification">
-            <p class="section-label">07 · Doğrulama ve kapsam</p>
-            <h2>Mevcut testler geçti; rapor kapsanmayan mimari kuralları gösterir</h2>
+            <p class="section-label">07 · Verification and scope</p>
+            <h2>Current tests passed; remaining architecture gaps are explicit</h2>
             <div class="table-wrap">
                 <table>
-                    <caption class="sr-only">Doğrulama komutları ve sonuçları</caption>
+                    <caption class="sr-only">Verification commands and results</caption>
                     <thead>
-                    <tr><th scope="col">Kontrol</th><th scope="col">Sonuç</th><th scope="col">Açıklama</th></tr>
+                    <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Description</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Geçti</span></td><td>6 test ve 11 assertion geçti.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit --testdox tests/Domain/ExampleBoundedContext/Contracts tests/Domain/ExampleBoundedContext/ServiceProviderTest.php</code></td><td><span class="badge strong">Geçti</span></td><td>8 test ve 57 assertion geçti.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Geçti</span></td><td>7 test ve 36 assertion geçti. Mevcut yedi command/query eşleştirmesi bus üzerinden çalıştı.</td></tr>
-                    <tr><td>Dependency ve kaynak taraması</td><td><span class="badge strong">Tamamlandı</span></td><td>Domain, Application, Contracts, Shared, Infrastructure, config ve ilgili testler incelendi.</td></tr>
-                    <tr><td>Üretim kodu değişikliği</td><td><span class="badge strong">Yok</span></td><td>İnceleme ve bu revizyon yalnız dokümantasyon dosyasını değiştirdi.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>9 tests and 14 assertions passed. This includes Identity port, Shared framework, and container-adapter placement checks.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit --testdox tests/Domain/ExampleBoundedContext/Contracts tests/Domain/ExampleBoundedContext/ServiceProviderTest.php</code></td><td><span class="badge strong">Passed</span></td><td>8 tests and 57 assertions passed.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Passed</span></td><td>10 tests and 44 assertions passed. Architecture rules and the complete Example lifecycle worked together.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit tests/Domain/IdentityAndAccess tests/Domain/ExampleBoundedContext/Application/CommandHandlers</code></td><td><span class="badge strong">Passed</span></td><td>21 tests and 74 assertions passed. The scope covered token ports, middleware, and handler privilege rejection.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>262 tests and 1,062 assertions passed.</td></tr>
+                    <tr><td><code>vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors.</td></tr>
+                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Domain, Application, Contracts, Shared, Infrastructure, configuration, and related tests were reviewed.</td></tr>
+                    <tr><td>Production code change</td><td><span class="badge strong">Present</span></td><td>Token ports, pure domain errors, HTTP error mapping, native event collection, Infrastructure container adapters, typed PATCH validation, and typed messaging ports were added.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="grid-2">
                 <aside class="callout warning">
-                    <strong>Test yorumu</strong>
-                    <p>Geçen testler mevcut kurallara uyumu kanıtlar. Bu raporda belirtilen eksik dependency kurallarını kanıtlamaz.</p>
+                    <strong>Test interpretation</strong>
+                    <p>The passed tests verify Identity and Shared core boundaries. They do not verify general Application → Infrastructure or adapter-to-adapter bans.</p>
                 </aside>
                 <aside class="callout">
-                    <strong>Kapsam sınırı</strong>
-                    <p>İnceleme canlı trafik, production incident kayıtları, dış servis çağrıları veya penetration test içermedi.</p>
+                    <strong>Scope limit</strong>
+                    <p>The review did not include live traffic, production incident records, external service calls, or penetration testing.</p>
                 </aside>
             </div>
         </section>
     </main>
 </div>
 
-<footer>Backendbase Core · Ports and Adapters Mimari Kritik Raporu · 28 Ağustos 2026</footer>
+<footer>Backendbase Core · Ports and Adapters Architecture Critique · August 29, 2026</footer>
 </body>
 </html>

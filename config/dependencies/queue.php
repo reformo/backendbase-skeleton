@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessageConsumer;
+use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use PhpAmqpLib\Connection\AbstractConnection;
@@ -12,7 +13,7 @@ use Psr\Container\ContainerInterface;
 
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
-        BackendbaseQueue::class => static function (ContainerInterface $container) {
+        MessagePublisher::class => static function (ContainerInterface $container) {
             $queueSettings = $container->get(Settings::class)->get('queue');
             if (! is_array($queueSettings)) {
                 throw new UnexpectedValueException('The queue settings are invalid.');
@@ -34,5 +35,8 @@ return static function (ContainerBuilder $containerBuilder): void {
 
             return new RabbitMQ($container->get(AbstractConnection::class), $rabbitMQSettings);
         },
+        MessageConsumer::class => static fn (ContainerInterface $container): MessageConsumer => $container->get(
+            MessagePublisher::class,
+        ),
     ]);
 };

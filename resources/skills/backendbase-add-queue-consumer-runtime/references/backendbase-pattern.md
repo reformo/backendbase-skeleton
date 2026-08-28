@@ -18,7 +18,7 @@ Do not copy `bin/backendbase`, `backendbase-queue`, `backendbase-queue-email`, s
 | --- | --- | --- |
 | Executable | `bin/backendbase` | Reuse the target console entry point. |
 | Worker command | `ContainerAwareQueueConsumer` | Add one command per processor role when useful. |
-| Transport port | `BackendbaseQueue` | Use the target queue abstraction. |
+| Transport port | `MessageConsumer` | Use the target consumption-only abstraction. |
 | Processor | callable returning queue outcome | Inject one existing processor. |
 | Queue selection | argument, setting, or deployment value | Use one documented source of truth. |
 | Process ownership | external supervisor | Document, but do not install without authority. |
@@ -31,7 +31,7 @@ Names and values are illustrative. Select defaults from target configuration, no
 final class ConsumeImportMessages extends Command
 {
     public function __construct(
-        private readonly ApplicationQueue $queue,
+        private readonly MessageConsumer $consumer,
         private readonly ImportMessageProcessor $processor,
         private readonly string $defaultQueue,
     ) {
@@ -52,9 +52,9 @@ final class ConsumeImportMessages extends Command
             return self::INVALID;
         }
 
-        $this->queue->consume(
-            ['queue' => $queueName],
-            fn (array $message): QueueMessageHandlingOutcome => $this->processor->process($message),
+        $this->consumer->consume(
+            new MessageSubscription($queueName),
+            fn (Message $message): QueueMessageHandlingOutcome => $this->processor->process($message),
         );
 
         return self::SUCCESS;
@@ -126,9 +126,11 @@ Report command name, processor, queue source, transport parameters, registration
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified on 2026-08-29 from:
 
-- `src/Backendbase/Shared/Integrations/BackendbaseQueue.php`
+- `src/Backendbase/Shared/Integrations/MessageConsumer.php`
+- `src/Backendbase/Shared/Integrations/Messaging/Message.php`
+- `src/Backendbase/Shared/Integrations/Messaging/MessageSubscription.php`
 - `src/Backendbase/Infrastructure/UseCase/Console/Queue/ContainerAwareQueueConsumer.php`
 - `src/Backendbase/Infrastructure/UseCase/Console/Queue/NotifyReceiver.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php`

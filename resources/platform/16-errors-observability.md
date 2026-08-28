@@ -4,9 +4,9 @@ Translate failures at architectural boundaries. Keep public error bodies stable 
 
 ## HTTP failure ownership
 
-- `Action` converts known `ProblemDetailsException` values into `application/problem+json`.
-- The stable core contains `type`, `code`, `title`, `status`, and `detail`.
-- `HttpErrorHandler` maps Slim and unexpected exceptions.
+- Domain errors contain only a message and safe context.
+- `DomainErrorProblemDetailsMapper` owns each stable `type`, `code`, `title`, and `status` value.
+- The Infrastructure HTTP error handler maps domain errors, Slim exceptions, and unexpected exceptions.
 - `ShutdownHandler` logs fatal PHP errors and emits a structured 500 response.
 - Stage, CI, production, and unknown environments hide internal exception details.
 

@@ -52,7 +52,8 @@ final class PrimitiveValueObjectsTest extends TestCase
             new Email('invalid');
             self::fail('An invalid email must fail.');
         } catch (InvalidEmailAddress $exception) {
-            self::assertSame('server/server-error', $exception->getErrorCode());
+            self::assertSame('Email provided is not a valid e-mail address', $exception->getMessage());
+            self::assertSame([], $exception->context());
         }
 
         $this->expectException(InvalidName::class);

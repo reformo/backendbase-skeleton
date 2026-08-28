@@ -1028,8 +1028,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
 
             <div class="callout">
                 <strong>HTTP problem details</strong>
-                <code>Action</code> converts <code>ProblemDetailsException</code> into an <code>application/problem+json</code> response.
-                Other failures reach the global HTTP error handler.
+                Domain errors reach the Infrastructure HTTP error handler. Its mapper converts them into an <code>application/problem+json</code> response.
+                The same handler owns Slim and unexpected failures.
             </div>
         </section>
 
@@ -1169,8 +1169,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <tbody>
                         <tr><td>Core interfaces</td><td><code>src/Backendbase/Shared/CQRS/</code></td></tr>
                         <tr><td>Handler attribute</td><td><code>src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php</code></td></tr>
-                        <tr><td>Command bus</td><td><code>src/Backendbase/Shared/CQRS/ContainerAwareCommandBus.php</code></td></tr>
-                        <tr><td>Query bus</td><td><code>src/Backendbase/Shared/CQRS/ContainerAwareQueryBus.php</code></td></tr>
+                        <tr><td>Command bus</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php</code></td></tr>
+                        <tr><td>Query bus</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php</code></td></tr>
                         <tr><td>Bus and handler definitions</td><td><code>config/dependencies/modules.php</code></td></tr>
                         <tr><td>Command contracts</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command/</code></td></tr>
                         <tr><td>Query contracts</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Query/</code></td></tr>

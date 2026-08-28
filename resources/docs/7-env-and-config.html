@@ -873,7 +873,7 @@ docker compose ps</code></pre></div>
                     <tr><td>Logger level</td><td>Config file load</td><td>An invalid Monolog level name fails configuration evaluation.</td></tr>
                     <tr><td>Database DSN</td><td>Connection resolution</td><td>DBAL parsing or connection error.</td></tr>
                     <tr><td>Redis</td><td><code>RedisJsonInterface</code> resolution</td><td>Connection failure becomes a service error.</td></tr>
-                    <tr><td>Queue driver</td><td><code>BackendbaseQueue</code> resolution</td><td>Rejects drivers other than <code>rabbitmq</code> and <code>sqs</code>.</td></tr>
+                    <tr><td>Queue driver</td><td><code>MessagePublisher</code> or <code>MessageConsumer</code> resolution</td><td>Rejects drivers other than <code>rabbitmq</code> and <code>sqs</code>.</td></tr>
                     <tr><td>AWS region and credential pair</td><td>AWS client resolution</td><td>Rejects missing region, invalid types, or a partial credential pair.</td></tr>
                     <tr><td>JWT signing key</td><td><code>Jwt</code> resolution</td><td>JWT configuration construction fails for invalid key data.</td></tr>
                     <tr><td>Missing Settings key</td><td><code>Settings::get()</code></td><td>Direct array access has no dedicated missing-key exception.</td></tr>

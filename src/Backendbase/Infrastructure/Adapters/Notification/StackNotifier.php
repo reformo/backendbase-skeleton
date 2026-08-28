@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Notification;
 
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
 use Backendbase\Shared\Primitives\Notification\StackNotification;
 use Override;
@@ -34,17 +35,13 @@ class StackNotifier implements Notify
         $this->notifiers[$notifier->type()] = $notifier;
     }
 
-    /**
-     * @param StackNotification $params
-     *
-     * @return array<string, mixed>
-     */
+    /** @param StackNotification $params */
     #[Override]
-    public function notify(Notification $params): array
+    public function notify(Notification $params): NotificationResult
     {
         $this->logger->debug('StackNotifier: new notification');
 
-        $statuses = [];
+        $result = NotificationResult::empty();
 
         foreach ($params->notifications() as $notification) {
             $notifier = $this->notifiers[$notification->type()] ?? null;
@@ -56,22 +53,9 @@ class StackNotifier implements Notify
                 );
             }
 
-            $notifierStatus                  = $notifier->notify($notification);
-            $statuses[$notification->type()] = $notifierStatus;
+            $result = $result->merge($notifier->notify($notification));
         }
 
-        return $statuses;
-    }
-
-    /** @return array<int, mixed> */
-    #[Override]
-    public function getClient(): array
-    {
-        $clients = [];
-        foreach ($this->notifiers as $notifier) {
-            $clients[] = $notifier->getClient();
-        }
-
-        return $clients;
+        return $result;
     }
 }

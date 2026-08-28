@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Queue;
 
 use Backendbase\Infrastructure\Adapters\Queue\NotificationMessageProcessor;
+use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
@@ -34,7 +36,7 @@ final class NotificationMessageProcessorTest extends TestCase
 
                 return true;
             }))
-            ->willReturn([]);
+            ->willReturn(NotificationResult::empty());
         $failurePolicy = $this->createMock(QueueMessageFailurePolicy::class);
         $failurePolicy->expects(self::once())->method('succeeded')->with('email', 'message-id');
         $processor = new NotificationMessageProcessor(
@@ -66,11 +68,7 @@ final class NotificationMessageProcessorTest extends TestCase
             new Logger('notification-test'),
         );
 
-        $outcome = $processor->process([
-            'topic' => 'email',
-            'messageId' => 'message-id',
-            'messageBody' => '{',
-        ]);
+        $outcome = $processor->process(new Message('{', id: 'message-id', destination: 'email'));
 
         self::assertSame(QueueMessageHandlingOutcome::REJECT, $outcome);
     }
@@ -151,10 +149,10 @@ final class NotificationMessageProcessorTest extends TestCase
             new Logger('notification-test'),
         );
 
-        self::assertSame(QueueMessageHandlingOutcome::REJECT, $processor->process([]));
+        self::assertSame(QueueMessageHandlingOutcome::REJECT, $processor->process(new Message('')));
         self::assertSame(
             QueueMessageHandlingOutcome::REJECT,
-            $processor->process(['topic' => 'email']),
+            $processor->process(new Message('', destination: 'email')),
         );
     }
 
@@ -179,7 +177,7 @@ final class NotificationMessageProcessorTest extends TestCase
     }
 
     #[Test]
-    public function itRejectsMissingAndNonStringNotificationBodies(): void
+    public function itRejectsMissingAndInvalidNotificationBodies(): void
     {
         $failurePolicy = $this->createMock(QueueMessageFailurePolicy::class);
         $failurePolicy->expects(self::exactly(2))
@@ -194,15 +192,11 @@ final class NotificationMessageProcessorTest extends TestCase
 
         self::assertSame(
             QueueMessageHandlingOutcome::REJECT,
-            $processor->process(['topic' => 'email', 'messageId' => 'message-id']),
+            $processor->process(new Message('', id: 'message-id', destination: 'email')),
         );
         self::assertSame(
             QueueMessageHandlingOutcome::REJECT,
-            $processor->process([
-                'topic' => 'email',
-                'messageId' => 'message-id',
-                'messageBody' => '[]',
-            ]),
+            $processor->process(new Message('[]', id: 'message-id', destination: 'email')),
         );
     }
 
@@ -230,13 +224,8 @@ final class NotificationMessageProcessorTest extends TestCase
         return $transaction;
     }
 
-    /** @return array<string, mixed> */
-    private function messageData(): array
+    private function messageData(): Message
     {
-        return [
-            'topic' => 'email',
-            'messageId' => 'message-id',
-            'messageBody' => '"<p>Hello</p>"',
-        ];
+        return new Message('"<p>Hello</p>"', id: 'message-id', destination: 'email');
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Shared\Integrations;
 
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
+use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
@@ -56,15 +58,17 @@ class RabbitMQTest extends TestCase
             );
         $channel->expects($this->once())->method('wait_for_pending_acks_returns');
 
-        $queue = new RabbitMQ($connection, $this->settings());
-        $queue->publish([
-            'queue' => 'events',
-            'tag' => 'collection.created',
-            'messageBody' => 'Collection_Item_Added',
-            'messageId' => 'message-1',
-            'eventVersion' => '1.0',
-            'properties' => ['id' => 'item-1'],
-        ]);
+        $queue  = new RabbitMQ($connection, $this->settings());
+        $result = $queue->publish(new Message(
+            'Collection_Item_Added',
+            ['id' => 'item-1'],
+            'message-1',
+            '1.0',
+            'events',
+            'collection.created',
+        ));
+
+        self::assertSame('message-1', $result->messageId());
     }
 
     #[Test]
@@ -115,13 +119,13 @@ class RabbitMQTest extends TestCase
         $channel->expects($this->once())->method('is_consuming')->willReturn(false);
 
         $queue = new RabbitMQ($connection, $this->settings());
-        $queue->consume(['queue' => 'events'], static function (array $payload): QueueMessageHandlingOutcome {
-            self::assertSame('Collection_Item_Added', $payload['messageBody']);
-            self::assertSame('1.0', $payload['eventVersion']);
-            self::assertSame(['id' => 'item-1'], $payload['data']);
-            self::assertSame('message-1', $payload['messageId']);
-            self::assertSame('events', $payload['topic']);
-            self::assertSame('events', $payload['tag']);
+        $queue->consume(new MessageSubscription('events'), static function (Message $message): QueueMessageHandlingOutcome {
+            self::assertSame('Collection_Item_Added', $message->body());
+            self::assertSame('1.0', $message->eventVersion());
+            self::assertSame(['id' => 'item-1'], $message->data());
+            self::assertSame('message-1', $message->id());
+            self::assertSame('events', $message->destination());
+            self::assertSame('events', $message->routingKey());
 
             return QueueMessageHandlingOutcome::ACKNOWLEDGE;
         });
@@ -160,7 +164,7 @@ class RabbitMQTest extends TestCase
 
         $queue = new RabbitMQ($connection, $this->settings());
         $queue->consume(
-            ['queue' => 'events'],
+            new MessageSubscription('events'),
             static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::RETRY,
         );
     }
@@ -198,7 +202,7 @@ class RabbitMQTest extends TestCase
 
         $queue = new RabbitMQ($connection, $this->settings());
         $queue->consume(
-            ['queue' => 'events'],
+            new MessageSubscription('events'),
             static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::REJECT,
         );
     }
@@ -229,7 +233,7 @@ class RabbitMQTest extends TestCase
         $channel->expects(self::once())->method('is_consuming')->willReturn(false);
 
         $queue = new RabbitMQ($connection, $this->settings());
-        $queue->consume(['queue' => 'events'], static function (): never {
+        $queue->consume(new MessageSubscription('events'), static function (): never {
             throw new RuntimeException('Handler failed.');
         });
     }
@@ -246,10 +250,7 @@ class RabbitMQTest extends TestCase
         $channel->expects(self::once())->method('queue_bind');
         $channel->expects(self::once())->method('basic_publish');
 
-        new RabbitMQ($connection, $settings)->publish([
-            'queue' => 'events',
-            'messageBody' => 'Event',
-        ]);
+        new RabbitMQ($connection, $settings)->publish(new Message('Event', destination: 'events'));
     }
 
     #[Test]
@@ -262,7 +263,7 @@ class RabbitMQTest extends TestCase
         $channel->expects(self::once())->method('wait')->with(null, false, 1.0);
 
         new RabbitMQ($connection, $this->settings())->consume(
-            ['queue' => 'events', 'waitTimeSeconds' => 1],
+            new MessageSubscription('events', 1),
             static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::ACKNOWLEDGE,
         );
     }
@@ -279,7 +280,7 @@ class RabbitMQTest extends TestCase
             ->willThrowException(new AMQPTimeoutException());
 
         new RabbitMQ($connection, $this->settings())->consume(
-            ['queue' => 'events'],
+            new MessageSubscription('events'),
             static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::ACKNOWLEDGE,
         );
     }
@@ -295,7 +296,7 @@ class RabbitMQTest extends TestCase
         $connection->method('isConnected')->willReturn(true);
         $connection->expects(self::once())->method('close');
         $queue = new RabbitMQ($connection, $this->settings());
-        $queue->publish(['queue' => 'events', 'messageBody' => 'Event']);
+        $queue->publish(new Message('Event', destination: 'events'));
 
         unset($queue);
     }

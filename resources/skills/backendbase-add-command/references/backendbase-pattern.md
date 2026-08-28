@@ -126,7 +126,7 @@ Test the required order and force listener failure. Verify that persisted state 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Contracts/CommandAndQueryContractsTest.php
 vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Application/CommandHandlers
-vendor/bin/phpunit tests/Shared/CQRS
+vendor/bin/phpunit tests/Infrastructure/Adapters/CQRS
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
@@ -143,7 +143,7 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `resources/platform/24-feature-workflow.md`
 - `src/Backendbase/Shared/CQRS/Command.php`
 - `src/Backendbase/Shared/CQRS/CommandHandler.php`
-- `src/Backendbase/Shared/CQRS/ContainerAwareCommandBus.php`
+- `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php`
 - `src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers`

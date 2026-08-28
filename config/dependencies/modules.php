@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
+use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
+use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
+use Backendbase\Infrastructure\Adapters\DomainEvents\ContainerAwareDomainEventPublisher;
+use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Shared\CQRS\ContainerAwareCommandBus;
-use Backendbase\Shared\CQRS\ContainerAwareQueryBus;
 use Backendbase\Shared\CQRS\QueryBus;
-use Backendbase\Shared\Domain\ContainerAwareDomainEventPublisher;
 use Backendbase\Shared\Domain\DomainEventPublisher;
 use Backendbase\Shared\Integrations\ExternalIntegrationEventRegistry;
-use Backendbase\Shared\Services\EventManager\ContainerAwareEventManager;
 use Backendbase\Shared\Services\EventManager\EventManager;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;

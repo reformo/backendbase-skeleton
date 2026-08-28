@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\UseCase\Console\Queue;
 
 use Backendbase\Infrastructure\Adapters\Queue\NotificationMessageProcessor;
-use Backendbase\Shared\Integrations\BackendbaseQueue;
+use Backendbase\Shared\Integrations\MessageConsumer;
+use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Override;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,7 +18,7 @@ class NotifyReceiver extends Command
     private const string COMMAND_NAME = 'notifier';
 
     public function __construct(
-        private readonly BackendbaseQueue $queue,
+        private readonly MessageConsumer $consumer,
         private readonly NotificationMessageProcessor $messageProcessor,
     ) {
         parent::__construct(self::COMMAND_NAME);
@@ -38,11 +39,11 @@ class NotifyReceiver extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('<info>----Notifier started consuming-----</info>');
-        $messageParams = [
-            'waitTimeSeconds' => 20,
-            'queueName' => $input->getArgument('name') ?? 'backendbase-queue-email',
-        ];
-        $this->queue->consume($messageParams, $this->messageProcessor->process(...));
+        $destination = $input->getArgument('name') ?? 'backendbase-queue-email';
+        $this->consumer->consume(
+            new MessageSubscription((string) $destination, 20),
+            $this->messageProcessor->process(...),
+        );
 
         return self::SUCCESS;
     }

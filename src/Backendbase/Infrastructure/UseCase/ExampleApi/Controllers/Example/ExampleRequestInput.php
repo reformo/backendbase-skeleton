@@ -65,6 +65,15 @@ final class ExampleRequestInput
         return self::requiredString($value, $name);
     }
 
+    public static function optionalStringOrNull(mixed $value, string $name): string|null
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return self::requiredString($value, $name);
+    }
+
     public static function optionalBoolean(mixed $value, string $name, bool $default): bool
     {
         if ($value === null) {
@@ -76,6 +85,15 @@ final class ExampleRequestInput
         }
 
         return $value;
+    }
+
+    public static function optionalBooleanOrNull(mixed $value, string $name): bool|null
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return self::optionalBoolean($value, $name, false);
     }
 
     /** @return array<string, mixed> */
@@ -90,6 +108,16 @@ final class ExampleRequestInput
         }
 
         return $value;
+    }
+
+    /** @return array<string, mixed>|null */
+    public static function optionalObjectOrNull(mixed $value, string $name): array|null
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return self::optionalObject($value, $name);
     }
 
     public static function positiveInteger(mixed $value, string $name): int

@@ -46,9 +46,8 @@ final class FirebasePushNotifierTest extends TestCase
         $logger->expects(self::once())->method('debug')->with('motification message', self::isArray());
         $notifier = new FirebasePushNotifier($client, $logger, 'https://cdn.example.com/');
 
-        self::assertSame(['name' => 'message-id'], $notifier->notify($notification));
+        self::assertSame('message-id', $notifier->notify($notification)->messageId('push'));
         self::assertSame('push', $notifier->type());
-        self::assertSame($client, $notifier->getClient());
     }
 
     #[Test]
@@ -70,6 +69,6 @@ final class FirebasePushNotifierTest extends TestCase
             $this->createStub(LoggerInterface::class),
         );
 
-        self::assertSame(['name' => 'message-id'], $notifier->notify($notification));
+        self::assertSame('message-id', $notifier->notify($notification)->messageId('push'));
     }
 }

@@ -10,7 +10,6 @@ use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleReq
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Http\Actions\Action;
-use Backendbase\Shared\Services\Translator;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Override;
@@ -22,9 +21,8 @@ class ChangeExampleDetails extends Action
     public function __construct(
         private readonly CommandBus $commandBus,
         protected LoggerInterface $logger,
-        protected Translator|null $translator,
     ) {
-        parent::__construct($logger, $translator);
+        parent::__construct($logger);
     }
 
     #[Override]
@@ -35,17 +33,16 @@ class ChangeExampleDetails extends Action
         $exampleKey   = (string) $this->request->getAttribute('exampleKey');
         $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
-
-        $payload['lookupValue'] ??= null;
-        $payload['details']     ??= null;
-        $payload['isActive']    ??= null;
+        $lookupValue  = ExampleRequestInput::optionalStringOrNull($payload['lookupValue'] ?? null, 'lookupValue');
+        $details      = ExampleRequestInput::optionalObjectOrNull($payload['details'] ?? null, 'details');
+        $isActive     = ExampleRequestInput::optionalBooleanOrNull($payload['isActive'] ?? null, 'isActive');
 
         $identity      = new ExampleIdentity($type, $typeTargetId, $group, $exampleKey);
         $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
         $command       = new ChangeExample($identity, $accessControl)
-            ->setDetails($payload['details'] ?? null)
-            ->setValue($payload['lookupValue'] ?? null)
-            ->setIsActive($payload['isActive'] ?? null);
+            ->setDetails($details)
+            ->setValue($lookupValue)
+            ->setIsActive($isActive);
         $this->commandBus->handle($command);
 
         return new EmptyResponse(204);

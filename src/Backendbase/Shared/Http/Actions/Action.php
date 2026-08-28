@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Http\Actions;
 
-use Backendbase\Shared\ProblemDetailsException;
-use Backendbase\Shared\Services\Translator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
@@ -30,7 +28,7 @@ abstract class Action
     /** @var array<string, mixed> */
     protected array $args;
 
-    public function __construct(protected LoggerInterface $logger, protected Translator|null $translator = null)
+    public function __construct(protected LoggerInterface $logger)
     {
     }
 
@@ -44,17 +42,11 @@ abstract class Action
         $this->request  = $request;
         $this->response = $response;
         $this->args     = $args;
-        try {
-            return $this->action();
-        } catch (ProblemDetailsException $exception) {
-            return ProblemDetailsResponseFactory::create($exception, $this->logger, $this->translator);
-        }
+
+        return $this->action();
     }
 
-    /**
-     * @throws ProblemDetailsException
-     * @throws HttpBadRequestException
-     */
+    /** @throws HttpBadRequestException */
     abstract protected function action(): Response;
 
     /**
