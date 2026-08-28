@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Services\Translator;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 class Authenticate extends Action
 {
     public function __construct(
-        private readonly Jwt $jwt,
+        private readonly TokenIssuer $tokenIssuer,
         LoggerInterface $logger,
         Translator|null $translator = null,
     ) {
@@ -36,8 +36,9 @@ class Authenticate extends Action
             'email' => $email,
             'firstName' => 'Jane',
             'familyName' => 'Doe',
+            'privileges' => ['example.add', 'example.change', 'example.remove'],
         ];
-        $accessToken = $this->jwt->issueNewToken('userId', $userId, $userData);
+        $accessToken = $this->tokenIssuer->issueNewToken('userId', $userId, $userData);
 
         return new JsonResponse(['accessToken' => $accessToken], 201);
     }

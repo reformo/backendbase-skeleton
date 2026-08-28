@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Domain\IdentityAndAccess\Adapters\Http;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Http\AuthorizationMiddleware;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Shared\Authorization\AccessControl;
 use DateTimeImmutable;
 use DateTimeZone;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -26,12 +27,12 @@ final class AuthorizationMiddlewareTest extends TestCase
     #[Test]
     public function itRejectsAMalformedAuthorizationHeader(): void
     {
-        $jwt = $this->createMock(Jwt::class);
-        $jwt->expects(self::never())->method('validateToken');
+        $tokenValidator = $this->createMock(TokenValidator::class);
+        $tokenValidator->expects(self::never())->method('validateToken');
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::never())->method('handle');
 
-        $response = (new AuthorizationMiddleware($jwt))->process(
+        $response = (new AuthorizationMiddleware($tokenValidator))->process(
             (new ServerRequestFactory())->createServerRequest('GET', '/resource'),
             $handler,
         );
@@ -45,12 +46,12 @@ final class AuthorizationMiddlewareTest extends TestCase
     #[Test]
     public function itReturnsAValidationFailureAsBadRequest(): void
     {
-        $jwt = $this->createStub(Jwt::class);
-        $jwt->method('validateToken')->willThrowException(AuthorizationExpired::create('Token expired.'));
+        $tokenValidator = $this->createStub(TokenValidator::class);
+        $tokenValidator->method('validateToken')->willThrowException(AuthorizationExpired::create('Token expired.'));
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::never())->method('handle');
 
-        $response = (new AuthorizationMiddleware($jwt))->process(
+        $response = (new AuthorizationMiddleware($tokenValidator))->process(
             (new ServerRequestFactory())
                 ->createServerRequest('GET', '/resource')
                 ->withHeader('Authorization', 'Bearer invalid-token'),
@@ -66,9 +67,9 @@ final class AuthorizationMiddlewareTest extends TestCase
     #[Test]
     public function itAddsValidatedIdentityDataToTheRequest(): void
     {
-        $registeredAt = new DateTimeImmutable('2026-08-25T10:00:00+00:00');
-        $jwt          = $this->createStub(Jwt::class);
-        $jwt->method('validateToken')->willReturn([
+        $registeredAt   = new DateTimeImmutable('2026-08-25T10:00:00+00:00');
+        $tokenValidator = $this->createStub(TokenValidator::class);
+        $tokenValidator->method('validateToken')->willReturn([
             'user' => ['uuid' => 'user-id', 'registeredAt' => $registeredAt],
             'privileges' => ['read-example'],
         ]);
@@ -76,8 +77,9 @@ final class AuthorizationMiddlewareTest extends TestCase
         $handler->expects(self::once())
             ->method('handle')
             ->with(self::callback(static function (ServerRequestInterface $request): bool {
-                $acl      = $request->getAttribute(Acl::class);
-                $timezone = $request->getAttribute('clientTimezone');
+                $acl           = $request->getAttribute(Acl::class);
+                $accessControl = $request->getAttribute(AccessControl::class);
+                $timezone      = $request->getAttribute('clientTimezone');
 
                 self::assertSame('user-id', $request->getAttribute('authorizedUserId'));
                 self::assertSame(
@@ -87,13 +89,14 @@ final class AuthorizationMiddlewareTest extends TestCase
                 self::assertInstanceOf(DateTimeZone::class, $timezone);
                 self::assertSame('UTC', $timezone->getName());
                 self::assertInstanceOf(Acl::class, $acl);
+                self::assertSame($acl, $accessControl);
                 self::assertTrue($acl->isAllowed('read-example'));
 
                 return true;
             }))
             ->willReturn(new EmptyResponse(204));
 
-        $response = (new AuthorizationMiddleware($jwt))->process(
+        $response = (new AuthorizationMiddleware($tokenValidator))->process(
             (new ServerRequestFactory())
                 ->createServerRequest('GET', '/resource')
                 ->withHeader('Authorization', 'Bearer valid-token'),
@@ -106,14 +109,14 @@ final class AuthorizationMiddlewareTest extends TestCase
     #[Test]
     public function itRejectsTokenDataWithoutAUser(): void
     {
-        $jwt = $this->createStub(Jwt::class);
-        $jwt->method('validateToken')->willReturn(['privileges' => []]);
+        $tokenValidator = $this->createStub(TokenValidator::class);
+        $tokenValidator->method('validateToken')->willReturn(['privileges' => []]);
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::never())->method('handle');
 
         $this->expectException(AuthorizationExpired::class);
 
-        (new AuthorizationMiddleware($jwt))->process(
+        (new AuthorizationMiddleware($tokenValidator))->process(
             (new ServerRequestFactory())
                 ->createServerRequest('GET', '/resource')
                 ->withHeader('Authorization', 'Bearer valid-token'),

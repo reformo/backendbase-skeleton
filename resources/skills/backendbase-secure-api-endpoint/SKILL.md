@@ -7,7 +7,7 @@ description: Protect an existing Backendbase-style API operation with the establ
 
 ## Outcome
 
-Apply an explicit public or protected policy to one operation and keep routing, request attributes, ACL decisions, OpenAPI security, and failure tests aligned.
+Apply an explicit public or protected policy to one operation. Keep routing, authorization context, application decisions, OpenAPI security, and failure tests aligned.
 
 ## Required discovery
 
@@ -28,21 +28,24 @@ Use the target identity model, claims, issuer, audience, key storage, revocation
 
 1. State whether the operation is anonymous, API-key-only, bearer-authenticated, or privilege-protected. For a new operation in an unmodified Backendbase consumer API, select API key plus bearer unless an explicit policy requires another mode.
 2. Apply only the API-key and bearer layers selected in step 1, at the narrowest correct scope.
-3. Use the established typed ACL or authorization service for each named privilege. Authentication alone is not authorization.
-4. Keep credential parsing and token validation outside controllers.
-5. Use `security: []` only when all applicable runtime security layers intentionally permit anonymous access.
-6. Declare identical API-key and bearer requirements and failure responses in OpenAPI.
-7. Align every security-related header across runtime validation and OpenAPI. Also align configured CORS and maintained Bruno coverage when applicable.
-8. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
-9. Test missing, malformed, expired, revoked, forbidden, and allowed paths as applicable.
-10. Exercise the real route and middleware stack. Unit tests of middleware or ACL alone do not prove route protection.
+3. Pass the established typed authorization context through the input contract for each named privilege.
+4. Enforce the named privilege at the application handler boundary before side effects.
+5. Keep credential parsing and token validation outside controllers.
+6. Use `security: []` only when all applicable runtime security layers intentionally permit anonymous access.
+7. Declare identical API-key and bearer requirements and failure responses in OpenAPI.
+8. Align every security-related header across runtime validation and OpenAPI. Also align configured CORS and maintained Bruno coverage when applicable.
+9. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
+10. Test missing, malformed, expired, revoked, forbidden, and allowed paths as applicable.
+11. Exercise the real route and middleware stack. Unit tests of middleware or ACL alone do not prove route protection.
 
 ## Backendbase invariants
 
 - New consumer endpoints are protected by default.
 - In an unmodified Backendbase consumer API, a new operation requires API key plus bearer by default. API-key-only or anonymous access requires an explicit policy.
-- In an unmodified Backendbase API, `AuthorizationMiddleware` supplies `authorizedUserId`, `authorizedUserData`, `clientTimezone`, and `Acl::class`.
-- In an unmodified Backendbase API, controllers ask `Acl` for a named privilege. Other projects must use their equivalent typed authorization service.
+- In an unmodified Backendbase API, `AuthorizationMiddleware` supplies identity data and typed `AccessControl`.
+- In an unmodified Backendbase API, write commands require `AccessControl`.
+- In an unmodified Backendbase API, application handlers ask `AccessControl` for the named privilege before side effects.
+- Other projects must use their equivalent typed authorization service at the discovered application boundary.
 - API-key validation, bearer authentication, and ACL authorization are independent policy layers.
 - An API-key-only operation is protected; an anonymous operation uses `security: []` and a matching runtime bypass.
 - `full-privileges` and `system-admin` are current Backendbase policy names, not portable defaults. Do not create equivalent bypasses unless the target policy requires them.

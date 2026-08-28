@@ -15,6 +15,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByT
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExamplePage;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\ContainerAwareCommandBus;
 use Backendbase\Shared\CQRS\ContainerAwareQueryBus;
@@ -97,7 +98,16 @@ class ExampleServiceTest extends TestCase
     public function testItForSuccessfullyAddItemAndGetItsDetails(): void
     {
         $exampleId = Uuid::uuid7()->toString();
-        $command   = new AddNewExample($exampleId, ExampleType::SYSTEM, null, 'settings', true, 'max-list-item', '10');
+        $command   = new AddNewExample(
+            $exampleId,
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            true,
+            'max-list-item',
+            '10',
+            new Acl(['full-privileges']),
+        );
 
         $this->commandBus->handle($command);
 
@@ -122,7 +132,16 @@ class ExampleServiceTest extends TestCase
         $this->assertSame($exampleId, $arguments['exampleId'] ?? null);
 
         $exampleId2 = Uuid::uuid7()->toString();
-        $command    = new AddNewExample($exampleId2, ExampleType::SYSTEM, null, 'settings', true, 'min-list-item', '2');
+        $command    = new AddNewExample(
+            $exampleId2,
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            true,
+            'min-list-item',
+            '2',
+            new Acl(['full-privileges']),
+        );
 
         $this->commandBus->handle($command);
         $query = new GetExamplesByGroup(ExampleType::SYSTEM, null, 'settings', new Pagination(10, 1));

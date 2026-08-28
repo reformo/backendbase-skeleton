@@ -7,6 +7,7 @@ namespace Tests\Shared\CQRS;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\ContainerAwareCommandBus;
 use Backendbase\Shared\CQRS\ContainerAwareQueryBus;
@@ -36,6 +37,7 @@ final class ContainerAwareBusTest extends TestCase
             true,
             'key',
             'value',
+            new Acl(['full-privileges']),
         );
 
         $this->expectException(UnexpectedValueException::class);

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Authentication;
 
+use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
 use DateTimeImmutable;
+use Override;
 use Redislabs\Module\RedisJson\RedisJsonInterface;
 
 use function array_key_exists;
@@ -12,7 +14,8 @@ use function array_walk;
 
 use const DATE_ATOM;
 
-final class JwtAuthorizationStore
+/** @phpstan-import-type IssuedToken from AuthorizationStore */
+final class JwtAuthorizationStore implements AuthorizationStore
 {
     public function __construct(
         private readonly RedisJsonInterface $redisJson,
@@ -21,9 +24,10 @@ final class JwtAuthorizationStore
     }
 
     /**
-     * @param array<string, mixed>                                                                                  $data
-     * @param array{token: string, id: non-empty-string, issuedAt: DateTimeImmutable, expiresAt: DateTimeImmutable} $issuedToken
+     * @param array<string, mixed> $data
+     * @param IssuedToken          $issuedToken
      */
+    #[Override]
     public function store(string $claimKey, mixed $claimValue, array $data, array $issuedToken): void
     {
         $userRedisKey = $this->configuration->userRedisKey($claimValue);
@@ -70,18 +74,21 @@ final class JwtAuthorizationStore
     }
 
     /** @param non-empty-string $tokenId */
+    #[Override]
     public function isActive(string $tokenId): bool
     {
         return ! empty($this->redisJson->getClient()->get($this->configuration->tokenRedisKey($tokenId)));
     }
 
     /** @return array<string, mixed>|null */
+    #[Override]
     public function byUserId(mixed $userId): array|null
     {
         return $this->redisJson->get($this->configuration->userRedisKey($userId));
     }
 
     /** @param non-empty-string $tokenId */
+    #[Override]
     public function revoke(string $tokenId): void
     {
         $this->redisJson->getClient()->del($this->configuration->tokenRedisKey($tokenId));

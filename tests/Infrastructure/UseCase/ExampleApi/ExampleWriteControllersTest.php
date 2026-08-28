@@ -8,9 +8,11 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\RemoveExample as RemoveExampleCommand;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\NewExample;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\RemoveExample;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response;
@@ -41,6 +43,7 @@ final class ExampleWriteControllersTest extends TestCase
         $request = $this->request('POST', '/examples')
             ->withAttribute('typeSlug', 'system')
             ->withAttribute('exampleGroup', 'settings')
+            ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
             ->withParsedBody([
                 'lookupKey' => 'page-size',
                 'lookupValue' => '25 & items',
@@ -71,6 +74,7 @@ final class ExampleWriteControllersTest extends TestCase
             $request = $this->request('POST', '/examples')
                 ->withAttribute('typeSlug', 'system')
                 ->withAttribute('exampleGroup', 'settings')
+                ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
                 ->withParsedBody($payload);
 
             self::assertSame(400, $this->invoke($action, $request)->getStatusCode());
@@ -103,6 +107,7 @@ final class ExampleWriteControllersTest extends TestCase
             ->withAttribute('typeSlug', 'system')
             ->withAttribute('exampleGroup', 'settings')
             ->withAttribute('exampleKey', 'page-size')
+            ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
             ->withParsedBody([
                 'lookupValue' => '50',
                 'isActive' => false,
@@ -134,7 +139,8 @@ final class ExampleWriteControllersTest extends TestCase
         $request = $this->request('DELETE', '/examples/page-size')
             ->withAttribute('typeSlug', 'system')
             ->withAttribute('exampleGroup', 'settings')
-            ->withAttribute('exampleKey', 'page-size');
+            ->withAttribute('exampleKey', 'page-size')
+            ->withAttribute(AccessControl::class, new Acl(['full-privileges']));
 
         self::assertSame(204, $this->invoke($action, $request)->getStatusCode());
     }

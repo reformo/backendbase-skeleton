@@ -11,12 +11,38 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\Example
 use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Shared\Authorization\AccessControl;
+use Backendbase\Shared\Exception\ResourceAccessForbidden;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class ChangeExampleHandlerTest extends TestCase
 {
+    #[Test]
+    public function itRejectsTheCommandBeforeStartingTheTransaction(): void
+    {
+        $accessControl = $this->createMock(AccessControl::class);
+        $accessControl->expects(self::once())
+            ->method('isAllowed')
+            ->with(ChangeExampleHandler::REQUIRED_PRIVILEGE)
+            ->willThrowException(ResourceAccessForbidden::create('Forbidden.'));
+        $transaction = $this->createMock(IntegrationEventTransaction::class);
+        $transaction->expects(self::never())->method('execute');
+        $handler = new ChangeExampleHandler(
+            $this->createStub(ExampleWriteRepository::class),
+            $transaction,
+        );
+        $command = new ChangeExample(
+            new ExampleIdentity(ExampleType::SYSTEM, null, 'settings', 'page-size'),
+            $accessControl,
+        );
+
+        $this->expectException(ResourceAccessForbidden::class);
+
+        $handler->handle($command);
+    }
+
     #[Test]
     public function itResolvesTheWriteTargetInsideTheIntegrationTransaction(): void
     {
@@ -59,7 +85,12 @@ final class ChangeExampleHandlerTest extends TestCase
                 self::assertSame('example-id', $event->exampleId());
                 $calls[] = 'transaction-end';
             });
-        $command = new ChangeExample($identity);
+        $accessControl = $this->createMock(AccessControl::class);
+        $accessControl->expects(self::once())
+            ->method('isAllowed')
+            ->with(ChangeExampleHandler::REQUIRED_PRIVILEGE)
+            ->willReturn(true);
+        $command = new ChangeExample($identity, $accessControl);
         $command->setValue('50');
 
         $handler = new ChangeExampleHandler($repository, $transaction);

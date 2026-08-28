@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Hand
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Services\Translator;
@@ -55,6 +56,7 @@ class NewExample extends Action
             $isActive,
             $lookupKey,
             htmlspecialchars_decode($lookupValue),
+            ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class)),
             $details,
         );
 

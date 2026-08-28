@@ -6,6 +6,7 @@ namespace Backendbase\Domain\ExampleBoundedContext\Contracts\Command;
 
 use Backendbase\Domain\ExampleBoundedContext\Application\CommandHandlers\AddNewExampleHandler;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Override;
@@ -22,6 +23,7 @@ class AddNewExample implements Command
         private bool $isActive,
         private string $key,
         private string $value,
+        private AccessControl $accessControl,
         private array|null $details = [],
     ) {
     }
@@ -65,6 +67,11 @@ class AddNewExample implements Command
     public function value(): string
     {
         return $this->value;
+    }
+
+    public function accessControl(): AccessControl
+    {
+        return $this->accessControl;
     }
 
     #[Override]

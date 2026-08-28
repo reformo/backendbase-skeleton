@@ -13,6 +13,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCrite
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\Primitives\Pagination;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,8 @@ final class CommandAndQueryContractsTest extends TestCase
     #[Test]
     public function itSerializesExampleCommands(): void
     {
-        $add = new AddNewExample(
+        $accessControl = new Acl(['full-privileges']);
+        $add           = new AddNewExample(
             'example-id',
             ExampleType::USER,
             42,
@@ -30,13 +32,14 @@ final class CommandAndQueryContractsTest extends TestCase
             true,
             'theme',
             'dark',
+            $accessControl,
             null,
         );
         self::assertSame([], $add->details());
         self::assertSame($add->toArray(), $add->jsonSerialize());
 
         $identity = new ExampleIdentity(ExampleType::USER, 42, 'settings', 'theme');
-        $change   = new ChangeExample($identity);
+        $change   = new ChangeExample($identity, $accessControl);
         self::assertSame($identity, $change->identity());
         self::assertNull($change->isActive());
         self::assertNull($change->value());
@@ -56,7 +59,7 @@ final class CommandAndQueryContractsTest extends TestCase
             'details' => ['contrast' => 'high'],
         ], $change->jsonSerialize());
 
-        $remove = new RemoveExample($identity);
+        $remove = new RemoveExample($identity, $accessControl);
         self::assertSame($identity, $remove->identity());
         self::assertSame(['identity' => $identity->toArray()], $remove->toArray());
         self::assertSame($remove->toArray(), $remove->jsonSerialize());

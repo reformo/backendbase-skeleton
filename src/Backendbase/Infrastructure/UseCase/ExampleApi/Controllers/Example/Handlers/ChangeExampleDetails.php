@@ -7,6 +7,7 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Hand
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Services\Translator;
@@ -39,8 +40,9 @@ class ChangeExampleDetails extends Action
         $payload['details']     ??= null;
         $payload['isActive']    ??= null;
 
-        $identity = new ExampleIdentity($type, $typeTargetId, $group, $exampleKey);
-        $command  = new ChangeExample($identity)
+        $identity      = new ExampleIdentity($type, $typeTargetId, $group, $exampleKey);
+        $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
+        $command       = new ChangeExample($identity, $accessControl)
             ->setDetails($payload['details'] ?? null)
             ->setValue($payload['lookupValue'] ?? null)
             ->setIsActive($payload['isActive'] ?? null);

@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Tests\Domain\IdentityAndAccess\Adapters\Authentication;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtAuthorizationStore;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtTokenCodec;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtTokenConfiguration;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use DateInterval;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Lcobucci\Clock\FrozenClock;
+use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -31,7 +35,7 @@ class JwtTest extends TestCase
     public function itValidatesIssuedTokensAndRejectsRevokedTokens(): void
     {
         $redisJson = $this->redisJson();
-        $jwt       = new Jwt($redisJson, self::jwtConfig('user-api'));
+        $jwt       = $this->jwt($redisJson, 'user-api');
 
         $token = $jwt->issueNewToken('userId', 'user-123', [
             'uuid' => 'user-123',
@@ -52,8 +56,8 @@ class JwtTest extends TestCase
     public function itRejectsTokensIssuedForADifferentAudience(): void
     {
         $redisJson      = $this->redisJson();
-        $tokenIssuer    = new Jwt($redisJson, self::jwtConfig('user-api'));
-        $tokenValidator = new Jwt($redisJson, self::jwtConfig('example-api'));
+        $tokenIssuer    = $this->jwt($redisJson, 'user-api');
+        $tokenValidator = $this->jwt($redisJson, 'example-api');
 
         $token = $tokenIssuer->issueNewToken('userId', 'user-123', [
             'uuid' => 'user-123',
@@ -69,7 +73,7 @@ class JwtTest extends TestCase
     public function itUsesTheCurrentTimeWhenIssuingFromALongRunningService(): void
     {
         $clock = new FrozenClock(new DateTimeImmutable('2026-08-25T10:00:00+00:00'));
-        $jwt   = new Jwt($this->redisJson(), self::jwtConfig('user-api'), $clock);
+        $jwt   = $this->jwt($this->redisJson(), 'user-api', $clock);
         $clock->adjustTime('+2 hours');
 
         $token = $jwt->issueNewToken('userId', 'user-123', ['uuid' => 'user-123']);
@@ -95,7 +99,7 @@ class JwtTest extends TestCase
     public function itRejectsAnExpiredTokenOutsideTheClockLeeway(): void
     {
         $clock = new FrozenClock(new DateTimeImmutable('2026-08-25T10:00:00+00:00'));
-        $jwt   = new Jwt($this->redisJson(), self::jwtConfig('user-api'), $clock);
+        $jwt   = $this->jwt($this->redisJson(), 'user-api', $clock);
         $token = $jwt->issueNewToken('userId', 'user-123', ['uuid' => 'user-123']);
 
         $clock->adjustTime('+24 hours 29 seconds');
@@ -111,7 +115,7 @@ class JwtTest extends TestCase
     #[Test]
     public function itRejectsAnEmptyClaimKey(): void
     {
-        $jwt = new Jwt($this->redisJson(), self::jwtConfig('user-api'));
+        $jwt = $this->jwt($this->redisJson(), 'user-api');
 
         $this->expectException(InvalidArgumentException::class);
 
@@ -123,7 +127,7 @@ class JwtTest extends TestCase
     {
         $state = new JwtRedisState();
         $state->put('user:user-123', ['name' => 'Existing user']);
-        $jwt  = new Jwt($this->redisJson($state), self::jwtConfig('user-api'));
+        $jwt  = $this->jwt($this->redisJson($state), 'user-api');
         $date = new DateTimeImmutable('2026-08-25T10:00:00+00:00');
 
         $token = $jwt->issueNewToken('userId', 'user-123', [
@@ -142,7 +146,7 @@ class JwtTest extends TestCase
     public function itRejectsAValidTokenWhenItsUserDataIsMissing(): void
     {
         $state = new JwtRedisState();
-        $jwt   = new Jwt($this->redisJson($state), self::jwtConfig('user-api'));
+        $jwt   = $this->jwt($this->redisJson($state), 'user-api');
         $token = $jwt->issueNewToken('userId', 'user-123', []);
         unset($state->jsonValues['user:user-123']);
 
@@ -156,7 +160,7 @@ class JwtTest extends TestCase
     {
         $state                              = new JwtRedisState();
         $state->jsonValues['user:user-123'] = ['user' => ['uuid' => 'user-123']];
-        $jwt                                = new Jwt($this->redisJson($state), self::jwtConfig('user-api'));
+        $jwt                                = $this->jwt($this->redisJson($state), 'user-api');
 
         self::assertSame(
             ['user' => ['uuid' => 'user-123']],
@@ -171,7 +175,7 @@ class JwtTest extends TestCase
     #[Test]
     public function itRejectsEmptyAndMalformedTokensDuringRevocation(): void
     {
-        $jwt = new Jwt($this->redisJson(), self::jwtConfig('user-api'));
+        $jwt = $this->jwt($this->redisJson(), 'user-api');
 
         $this->expectException(AuthorizationExpired::class);
 
@@ -211,6 +215,16 @@ class JwtTest extends TestCase
             'sign-key' => base64_encode('test-signing-key-32-bytes-long!!!'),
             'duration' => 'PT24H',
         ];
+    }
+
+    private function jwt(RedisJsonInterface $redisJson, string $permittedFor, FrozenClock|null $clock = null): Jwt
+    {
+        $configuration = new JwtTokenConfiguration(self::jwtConfig($permittedFor));
+
+        return new Jwt(
+            new JwtTokenCodec($configuration, $clock ?? SystemClock::fromUTC()),
+            new JwtAuthorizationStore($redisJson, $configuration),
+        );
     }
 
     private function redisJson(JwtRedisState|null $store = null): RedisJsonInterface

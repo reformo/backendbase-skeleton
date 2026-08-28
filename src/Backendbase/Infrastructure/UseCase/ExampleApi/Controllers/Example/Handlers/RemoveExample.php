@@ -7,6 +7,7 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Hand
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\RemoveExample as RemoveExampleCommand;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Services\Translator;
@@ -35,8 +36,9 @@ class RemoveExample extends Action
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
 
-        $identity = new ExampleIdentity($type, $typeTargetId, $group, $exampleKey);
-        $this->commandBus->handle(new RemoveExampleCommand($identity));
+        $identity      = new ExampleIdentity($type, $typeTargetId, $group, $exampleKey);
+        $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
+        $this->commandBus->handle(new RemoveExampleCommand($identity, $accessControl));
 
         return new EmptyResponse(204);
     }

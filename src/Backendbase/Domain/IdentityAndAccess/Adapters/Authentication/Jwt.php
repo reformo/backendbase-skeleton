@@ -4,27 +4,24 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Authentication;
 
+use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
-use Lcobucci\Clock\Clock;
-use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\UnencryptedToken;
-use Redislabs\Module\RedisJson\RedisJsonInterface;
+use Override;
 use Throwable;
 
-class Jwt
+final readonly class Jwt implements TokenIssuer, TokenValidator
 {
-    private readonly JwtTokenCodec $tokenCodec;
-    private readonly JwtAuthorizationStore $authorizationStore;
-
-    /** @param array<string, mixed> $config */
-    public function __construct(RedisJsonInterface $redisJson, array $config, Clock|null $clock = null)
-    {
-        $configuration            = new JwtTokenConfiguration($config);
-        $this->tokenCodec         = new JwtTokenCodec($configuration, $clock ?? SystemClock::fromUTC());
-        $this->authorizationStore = new JwtAuthorizationStore($redisJson, $configuration);
+    public function __construct(
+        private JwtTokenCodec $tokenCodec,
+        private AuthorizationStore $authorizationStore,
+    ) {
     }
 
     /** @param array<string, mixed> $data */
+    #[Override]
     public function issueNewToken(string $claimKey, mixed $claimValue, array $data): string
     {
         $issuedToken = $this->tokenCodec->issue($claimKey, $claimValue);
@@ -34,6 +31,7 @@ class Jwt
     }
 
     /** @return array<string, mixed> */
+    #[Override]
     public function validateToken(string $jwtToken): array
     {
         try {
@@ -59,6 +57,7 @@ class Jwt
     }
 
     /** @return array<string, mixed> */
+    #[Override]
     public function validateByUserId(string $userId): array
     {
         $tokenData = $this->authorizationStore->byUserId($userId);
@@ -69,6 +68,7 @@ class Jwt
         return $tokenData;
     }
 
+    #[Override]
     public function revokeToken(string $jwtToken): void
     {
         try {

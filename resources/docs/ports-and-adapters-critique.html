@@ -489,6 +489,9 @@
             <div class="callout warning">
                 <strong>En doğru tanım:</strong> Proje, Ports and Adapters öğelerini kullanan modüler bir DDD/CQRS mimarisidir. Katı bir hexagonal mimari değildir.
             </div>
+            <div class="callout good">
+                <strong>Çözüm güncellemesi:</strong> Bulgu 01 kapatıldı. HTTP girişleri artık <code>TokenIssuer</code> ve <code>TokenValidator</code> portlarını kullanır. Redis durumu <code>AuthorizationStore</code> portunun arkasındadır. Example yazma handler sınıfları adlandırılmış ayrıcalıkları yan etkilerden önce denetler.
+            </div>
             <p><code>ExampleBoundedContext</code> içindeki read/write portları, Doctrine ayrımı, memory adaptörleri ve modül-içi CQRS handler eşleştirmesi proje kararlarıyla tutarlıdır. Başlıca sorunlar Identity and Access sınırı, Shared çekirdeği, HTTP orkestrasyonu, messaging portlarının biçimi ve adaptör eşdeğerliğidir.</p>
             <div class="metrics" aria-label="Özet metrikler">
                 <div class="stat"><strong>7</strong><span>Öncelikli mimari bulgu</span></div>
@@ -516,7 +519,7 @@
                     </div>
                     <div class="leak-grid" aria-label="Gözlenen bağımlılık kaçakları">
                         <div class="leak"><strong>HTTP → query + karar + command</strong><br>Giriş adaptörü use-case sırasını ve kaynak çözümlemeyi yönetiyor.</div>
-                        <div class="leak"><strong>HTTP → concrete Jwt → Redis</strong><br>Kimlik akışı application portunu atlıyor.</div>
+                        <div class="leak"><strong>Çözüldü: HTTP → token portları → Jwt</strong><br>Redis durumu <code>AuthorizationStore</code> adaptörünün arkasındadır.</div>
                         <div class="leak"><strong>Domain exception → HTTP Problem Details</strong><br>Domain, transport durum kodlarını taşıyor.</div>
                         <div class="leak"><strong>Doctrine relay → queue adapter</strong><br>Politika ve mekanizma concrete adaptörde birleşiyor.</div>
                     </div>
@@ -540,7 +543,7 @@
                     <tr><td>Giriş portu disiplini</td><td><span class="badge partial">Kısmi</span></td><td>CQRS bus ve aynı context içindeki bire bir handler attribute eşleştirmesi bilinçli proje kararlarıdır. Ancak bazı controller’lar query, karar ve command adımlarını orkestre eder.</td></tr>
                     <tr><td>Çıkış portu kalitesi</td><td><span class="badge partial">Kısmi</span></td><td>Bazı portlar dar ve tipli değildir. Queue portu iki yönü tek arayüzde birleştirir.</td></tr>
                     <tr><td>Domain/framework izolasyonu</td><td><span class="badge weak">Zayıf</span></td><td>Shared domain Doctrine’a bağlıdır. Domain exception modeli HTTP biçimini taşır.</td></tr>
-                    <tr><td>Identity and Access sınırı</td><td><span class="badge weak">Zayıf</span></td><td>HTTP adaptörleri somut JWT/Redis uygulamasına doğrudan bağlıdır.</td></tr>
+                    <tr><td>Identity and Access sınırı</td><td><span class="badge strong">Güçlü</span></td><td>HTTP girişleri token portlarına bağlıdır. JWT codec ve Redis store bileşim kökünde ayrılır.</td></tr>
                     <tr><td>Bileşim kökü</td><td><span class="badge partial">Kısmi güçlü</span></td><td>Merkezi DI dosyaları vardır. Bazı concrete bağlantılar hâlâ modül veya adaptör içinde kurulur.</td></tr>
                     <tr><td>Mimari koruma testleri</td><td><span class="badge partial">Kısmi</span></td><td>Temel kurallar çalışır. Shared, adapter-to-adapter ve izin verilen attribute eşleştirmelerinin sınırları tam taranmaz.</td></tr>
                     </tbody>
@@ -556,14 +559,14 @@
             </div>
             <div class="findings">
                 <article class="finding">
-                    <div><span class="badge high">Yüksek · 01</span></div>
+                    <div><span class="badge strong">Çözüldü · 01</span></div>
                     <div>
                         <h3>Identity and Access application portunu atlıyor</h3>
-                        <p>HTTP controller ve middleware doğrudan somut <code>Jwt</code> adaptörüne bağlıdır. <code>Jwt</code>, token use case, JWT codec ve Redis store işlerini birleştirir.</p>
-                        <p>Middleware bir <code>Acl</code> nesnesini request içine koyar. Üretim kodunda <code>Acl::isAllowed()</code> çağrısı bulunmaz. Ayrıcalık kontrolü amaçlanıyorsa başka giriş adaptörleri bu kontrolü aşabilir.</p>
-                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Authenticate.php"><code>Authenticate.php:7,18</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php"><code>AuthorizationMiddleware.php:7,28,80-83</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/Jwt.php"><code>Jwt.php:20-24</code></a>.</p>
+                        <p>HTTP controller ve middleware artık <code>TokenIssuer</code> ve <code>TokenValidator</code> portlarına bağlıdır. <code>Jwt</code>, dışarıdan verilen codec ve <code>AuthorizationStore</code> ile yalnızca token akışını yönetir.</p>
+                        <p>Middleware, tipli <code>AccessControl</code> nesnesini request içine koyar. Controller bu nesneyi command içine taşır. Application handler, gerekli ayrıcalığı transaction veya repository çağrısından önce denetler.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenIssuer.php"><code>TokenIssuer.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenValidator.php"><code>TokenValidator.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/AuthorizationStore.php"><code>AuthorizationStore.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandler.php"><code>ChangeExampleHandler.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Önerilen işlem</strong><code>TokenIssuer</code>, <code>TokenValidator</code> ve <code>AuthorizationStore</code> portları ekleyin. Yetkilendirmeyi application handler sınırında uygulayın.</div>
+                    <div class="action"><strong>Uygulanan işlem</strong><code>TokenIssuer</code>, <code>TokenValidator</code> ve <code>AuthorizationStore</code> portları eklendi. Yetkilendirme application handler sınırına taşındı.</div>
                 </article>
 
                 <article class="finding">

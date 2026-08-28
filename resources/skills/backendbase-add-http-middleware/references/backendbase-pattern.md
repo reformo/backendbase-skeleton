@@ -71,7 +71,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - The public-path list includes paths that are not part of the Example API route set.
 - OPTIONS returns an empty `200`; the fallback action returns `204` for OPTIONS. Keep one intentional contract.
 - The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
-- Existing write routes add bearer middleware but do not make a named ACL decision in their actions.
+- Existing write routes add bearer middleware and enforce named privileges in their application handlers.
 - OpenAPI validation can succeed while middleware status, headers, or bypass behavior differs. Run a semantic audit.
 
 ## Exact source provenance

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Authenticate;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\NotFound;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Root;
@@ -55,18 +55,20 @@ final class RootControllersTest extends TestCase
     #[Test]
     public function itIssuesAnAuthenticationToken(): void
     {
-        $jwt = $this->createMock(Jwt::class);
-        $jwt->expects(self::once())
+        $tokenIssuer = $this->createMock(TokenIssuer::class);
+        $tokenIssuer->expects(self::once())
             ->method('issueNewToken')
             ->with(
                 'userId',
                 '019ee8a6-903a-75cf-b9a4-e19d6d0db533',
                 self::callback(static function (array $user): bool {
-                    return $user['email'] === 'user@example.com' && $user['firstName'] === 'Jane';
+                    return $user['email'] === 'user@example.com'
+                        && $user['firstName'] === 'Jane'
+                        && $user['privileges'] === ['example.add', 'example.change', 'example.remove'];
                 }),
             )
             ->willReturn('access-token');
-        $action  = new Authenticate($jwt, $this->createStub(LoggerInterface::class));
+        $action  = new Authenticate($tokenIssuer, $this->createStub(LoggerInterface::class));
         $request = (new ServerRequestFactory())
             ->createServerRequest('POST', '/authenticate')
             ->withParsedBody(['email' => 'user@example.com', 'password' => 'secret']);
@@ -81,9 +83,9 @@ final class RootControllersTest extends TestCase
     #[Test]
     public function itRejectsInvalidAuthenticationInput(): void
     {
-        $jwt = $this->createMock(Jwt::class);
-        $jwt->expects(self::never())->method('issueNewToken');
-        $action   = new Authenticate($jwt, $this->createStub(LoggerInterface::class));
+        $tokenIssuer = $this->createMock(TokenIssuer::class);
+        $tokenIssuer->expects(self::never())->method('issueNewToken');
+        $action   = new Authenticate($tokenIssuer, $this->createStub(LoggerInterface::class));
         $factory  = new ServerRequestFactory();
         $payloads = [
             [],

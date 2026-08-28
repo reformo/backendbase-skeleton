@@ -11,9 +11,21 @@ Authentication validates token identity and state. Authorization decides whether
 - The default issuer is `backendbase-api`.
 - The default lifetime is 24 hours.
 
-`AuthorizationMiddleware` adds `authorizedUserId`, `authorizedUserData`, `clientTimezone`, and `Acl` request attributes.
+HTTP inputs depend on the `TokenIssuer` and `TokenValidator` application ports. The JWT adapter implements both ports.
+
+`AuthorizationStore` isolates Redis-backed token state from token orchestration.
+
+`AuthorizationMiddleware` adds `authorizedUserId`, `authorizedUserData`, `clientTimezone`, `Acl`, and `AccessControl` request attributes.
 
 `Acl::isAllowed()` accepts a named privilege, `full-privileges`, or the `system-admin` role. Denial uses status 403.
+
+Example write commands require `AccessControl`. Their application handlers check these privileges before side effects:
+
+- `example.add`
+- `example.change`
+- `example.remove`
+
+Keep privilege checks at the application handler boundary. Do not make this decision only in an HTTP controller.
 
 Protect new endpoints by default. Make public policy explicit in routing and OpenAPI.
 

@@ -18,6 +18,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCrite
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\CQRS\ContainerAwareCommandBus;
 use Backendbase\Shared\CQRS\ContainerAwareQueryBus;
 use Backendbase\Shared\Domain\DomainEventPublisher;
@@ -34,9 +35,10 @@ final class ExampleLifecycleTest extends TestCase
     #[Test]
     public function itRunsTheCompleteExampleLifecycleThroughTheBuses(): void
     {
-        $container  = $this->container();
-        $commandBus = new ContainerAwareCommandBus($container);
-        $queryBus   = new ContainerAwareQueryBus($container);
+        $container     = $this->container();
+        $commandBus    = new ContainerAwareCommandBus($container);
+        $queryBus      = new ContainerAwareQueryBus($container);
+        $accessControl = new Acl(['full-privileges']);
 
         $commandBus->handle(new AddNewExample(
             'first-id',
@@ -46,6 +48,7 @@ final class ExampleLifecycleTest extends TestCase
             true,
             'first-key',
             'first-value',
+            $accessControl,
             ['unit' => 'items'],
         ));
         $commandBus->handle(new AddNewExample(
@@ -56,6 +59,7 @@ final class ExampleLifecycleTest extends TestCase
             true,
             'second-key',
             'second-value',
+            $accessControl,
         ));
         $commandBus->handle(new AddNewExample(
             'user-id',
@@ -65,6 +69,7 @@ final class ExampleLifecycleTest extends TestCase
             true,
             'theme',
             'dark',
+            $accessControl,
         ));
 
         self::assertSame(
@@ -86,7 +91,7 @@ final class ExampleLifecycleTest extends TestCase
             null,
             'settings',
             'first-key',
-        ));
+        ), $accessControl);
         $change->setIsActive(false)->setValue('changed')->setDetails(['unit' => 'rows']);
         $commandBus->handle($change);
 
@@ -126,7 +131,7 @@ final class ExampleLifecycleTest extends TestCase
             null,
             'settings',
             'second-key',
-        )));
+        ), $accessControl));
         self::assertNull($queryBus->handle(new GetExampleIdByCriteria(
             ExampleType::SYSTEM,
             null,
@@ -159,7 +164,7 @@ final class ExampleLifecycleTest extends TestCase
             null,
             'settings',
             'second-key',
-        )));
+        ), $accessControl));
     }
 
     private function container(): Container

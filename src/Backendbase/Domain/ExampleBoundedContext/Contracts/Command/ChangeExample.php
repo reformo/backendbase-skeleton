@@ -6,6 +6,7 @@ namespace Backendbase\Domain\ExampleBoundedContext\Contracts\Command;
 
 use Backendbase\Domain\ExampleBoundedContext\Application\CommandHandlers\ChangeExampleHandler;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Override;
@@ -18,13 +19,20 @@ class ChangeExample implements Command
     /** @var array<string, mixed>|null */
     private array|null $details = null;
 
-    public function __construct(private ExampleIdentity $identity)
-    {
+    public function __construct(
+        private ExampleIdentity $identity,
+        private AccessControl $accessControl,
+    ) {
     }
 
     public function identity(): ExampleIdentity
     {
         return $this->identity;
+    }
+
+    public function accessControl(): AccessControl
+    {
+        return $this->accessControl;
     }
 
     public function isActive(): bool|null

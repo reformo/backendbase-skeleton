@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Http;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Shared\Authorization\AccessControl;
 use DateTimeImmutable;
 use DateTimeZone;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -25,7 +26,7 @@ use const DATE_ATOM;
 
 readonly class AuthorizationMiddleware implements Middleware
 {
-    public function __construct(private Jwt $jwt)
+    public function __construct(private TokenValidator $tokenValidator)
     {
     }
 
@@ -48,7 +49,7 @@ readonly class AuthorizationMiddleware implements Middleware
         }
 
         try {
-            $tokenData = $this->jwt->validateToken($accessToken);
+            $tokenData = $this->tokenValidator->validateToken($accessToken);
         } catch (Throwable $exception) {
             return new JsonResponse([
                 'code' => $exception->getCode(),
@@ -77,10 +78,12 @@ readonly class AuthorizationMiddleware implements Middleware
             $timezone = 'UTC';
         }
 
-        $request = $request->withAttribute('authorizedUserId', $userData['uuid'])
+        $accessControl = new Acl($privileges);
+        $request       = $request->withAttribute('authorizedUserId', $userData['uuid'])
             ->withAttribute('authorizedUserData', $userData)
             ->withAttribute('clientTimezone', new DateTimeZone($timezone))
-            ->withAttribute(Acl::class, new Acl($privileges));
+            ->withAttribute(Acl::class, $accessControl)
+            ->withAttribute(AccessControl::class, $accessControl);
 
         return $handler->handle($request);
     }

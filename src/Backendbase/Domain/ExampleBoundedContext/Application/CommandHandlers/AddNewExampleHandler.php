@@ -18,6 +18,8 @@ use Override;
 
 readonly class AddNewExampleHandler implements CommandHandler
 {
+    public const string REQUIRED_PRIVILEGE = 'example.add';
+
     public function __construct(
         private ExampleWriteRepository $exampleRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
@@ -29,6 +31,7 @@ readonly class AddNewExampleHandler implements CommandHandler
     #[Override]
     public function handle(Command $command): void
     {
+        $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
         $example = Example::create(
             $command->exampleId(),
             $command->type(),

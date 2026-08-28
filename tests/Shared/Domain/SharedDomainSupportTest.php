@@ -7,6 +7,7 @@ namespace Tests\Shared\Domain;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\DomainEvents\ExampleAdded;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\Domain\ContainerAwareDomainEventPublisher;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventTrait;
@@ -35,6 +36,7 @@ final class SharedDomainSupportTest extends TestCase
             true,
             'key',
             'value',
+            new Acl(['full-privileges']),
         );
         $event   = new ExampleAdded('example-id', $command);
         $aggregate->recordEvent($event);
@@ -57,6 +59,7 @@ final class SharedDomainSupportTest extends TestCase
             true,
             'key',
             'value',
+            new Acl(['full-privileges']),
         );
 
         $aggregate->recordEvent(new ExampleAdded('example-id', $command));
@@ -109,6 +112,7 @@ final class SharedDomainSupportTest extends TestCase
             true,
             'key',
             'value',
+            new Acl(['full-privileges']),
         );
 
         $this->expectException(UnexpectedValueException::class);

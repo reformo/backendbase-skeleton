@@ -66,7 +66,7 @@ Decide each layer independently:
 
 - API-key middleware controls access to the API surface.
 - Bearer middleware validates identity and supplies identity attributes.
-- ACL or another authorization service checks the requested privilege.
+- The application handler checks the requested privilege before side effects.
 - An OpenAPI operation is anonymous only when its runtime policy permits anonymous access and it declares `security: []`.
 
 An API-key-only route is not public. A bearer-protected route is not fully authorized when the use case also requires a named privilege.
@@ -107,7 +107,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `ExampleDetails` omits `typeTargetId`, while current OpenAPI declares it.
 - API-key and bearer failures return `400`, while current OpenAPI declares `401` and `403`.
 - The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
-- Current write routes use bearer middleware but do not perform a named ACL check in their actions.
+- Current write routes pass typed access control to commands. Their application handlers enforce named privileges before side effects.
 - `tests/ExampleApiTestCase.php` loads obsolete HTTP adapter paths. Use current focused tests or repair a full-stack helper only when the requested test needs it.
 - Existing path placeholder names predate the current repository naming instruction. Do not rename legacy routes during an unrelated endpoint change.
 

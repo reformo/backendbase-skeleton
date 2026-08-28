@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example;
 
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\Exception\InvalidUserInput;
 
 use function filter_var;
@@ -17,6 +19,15 @@ use const FILTER_VALIDATE_INT;
 
 final class ExampleRequestInput
 {
+    public static function accessControl(mixed $value): AccessControl
+    {
+        if (! $value instanceof AccessControl) {
+            throw AuthorizationExpired::create('The authorization context is missing.');
+        }
+
+        return $value;
+    }
+
     public static function type(mixed $value): ExampleType
     {
         $type = is_string($value) ? ExampleType::tryFrom($value) : null;
