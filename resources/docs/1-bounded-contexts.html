@@ -825,8 +825,8 @@
                     <ul>
                         <li>Read PSR-7 request data.</li>
                         <li>Sanitize and validate external input.</li>
-                        <li>Create a command or query.</li>
-                        <li>Dispatch a bus and shape an HTTP response.</li>
+                        <li>Create one command or query for the operation.</li>
+                        <li>Dispatch one bus and shape an HTTP response.</li>
                     </ul>
                 </article>
                 <article class="card blue">
@@ -839,7 +839,7 @@
                     </ul>
                 </article>
             </div>
-            <p><code>ExampleApi</code> is the only current consumer API. Its controllers import context contracts and domain enums, then use the shared command and query buses.</p>
+            <p><code>ExampleApi</code> is the only current consumer API. Each controller creates one context contract and dispatches it through the matching shared bus.</p>
         </section>
 
         <section id="testing">

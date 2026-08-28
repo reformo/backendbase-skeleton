@@ -14,7 +14,7 @@ interface IntegrationEventTransaction
      * The work can include database mutations and synchronous domain listeners.
      * It must not perform business-relevant network, process, or filesystem input and output.
      *
-     * @param callable(): void $transactionalWork
+     * @param callable(): IntegrationEvent $transactionalWork
      */
-    public function execute(IntegrationEvent $event, callable $transactionalWork): void;
+    public function execute(callable $transactionalWork): void;
 }

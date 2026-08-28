@@ -31,13 +31,13 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
     public function itCommitsTheMutationAndOutboxMessageTogether(): void
     {
         $this->createOutboxTable();
-        $event       = new ExampleRemoved('example-id');
         $transaction = new DoctrineIntegrationEventTransaction($this->connection);
 
         $transaction->execute(
-            $event,
-            function (): void {
+            function (): ExampleRemoved {
                 $this->connection->insert('aggregate_write', ['id' => 'example-id']);
+
+                return new ExampleRemoved('example-id');
             },
         );
 
@@ -60,9 +60,10 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
 
         try {
             $transaction->execute(
-                new ExampleRemoved('example-id'),
-                function (): void {
+                function (): ExampleRemoved {
                     $this->connection->insert('aggregate_write', ['id' => 'example-id']);
+
+                    return new ExampleRemoved('example-id');
                 },
             );
             self::fail('The missing outbox table must fail the transaction.');
@@ -81,8 +82,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
 
         try {
             $transaction->execute(
-                new ExampleRemoved('example-id'),
-                function (): void {
+                function (): ExampleRemoved {
                     $this->connection->insert('aggregate_write', ['id' => 'example-id']);
 
                     throw new RuntimeException('The synchronous listener failed.');

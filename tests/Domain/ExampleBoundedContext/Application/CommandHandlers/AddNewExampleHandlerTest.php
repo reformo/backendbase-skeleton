@@ -12,7 +12,6 @@ use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventPublisher;
-use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -48,13 +47,13 @@ final class AddNewExampleHandlerTest extends TestCase
         $transaction = $this->createMock(IntegrationEventTransaction::class);
         $transaction->expects(self::once())
             ->method('execute')
-            ->with(self::isInstanceOf(NewExampleAdded::class), self::anything())
+            ->with(self::anything())
             ->willReturnCallback(static function (
-                IntegrationEvent $_event,
                 callable $transactionalWork,
             ) use (&$calls): void {
                 $calls[] = 'transaction-start';
-                $transactionalWork();
+                $event   = $transactionalWork();
+                self::assertInstanceOf(NewExampleAdded::class, $event);
                 $calls[] = 'transaction-end';
             });
 

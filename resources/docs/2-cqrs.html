@@ -726,13 +726,13 @@ final class ChangeExample implements Command
                 <pre><code>#[CQRSHandler(RemoveExampleHandler::class)]
 readonly class RemoveExample implements Command
 {
-    public function __construct(private string $exampleId)
+    public function __construct(private ExampleIdentity $identity)
     {
     }
 
-    public function exampleId(): string
+    public function identity(): ExampleIdentity
     {
-        return $this-&gt;exampleId;
+        return $this-&gt;identity;
     }
 
     public function jsonSerialize(): mixed
@@ -742,7 +742,7 @@ readonly class RemoveExample implements Command
 
     public function toArray(): array
     {
-        return ['exampleId' =&gt; $this-&gt;exampleId];
+        return ['identity' =&gt; $this-&gt;identity-&gt;toArray()];
     }
 }</code></pre>
             </div>
@@ -760,15 +760,14 @@ readonly class RemoveExample implements Command
     /** @param RemoveExample $command */
     public function handle(Command $command): void
     {
-        $event = new ExampleRemoved($command-&gt;exampleId());
-
         $this-&gt;integrationEventTransaction-&gt;execute(
-            $event,
-            function () use ($command): void {
+            function () use ($command): ExampleRemoved {
                 $example = $this-&gt;exampleRepository
-                    -&gt;getActive($command-&gt;exampleId());
+                    -&gt;getActiveByIdentity($command-&gt;identity());
                 $example-&gt;remove();
                 $this-&gt;exampleRepository-&gt;save($example);
+
+                return new ExampleRemoved($example-&gt;id());
             },
         );
     }
@@ -780,6 +779,7 @@ readonly class RemoveExample implements Command
                 <li>Use intention-revealing names such as <code>AddNewExample</code> or <code>RemoveExample</code>.</li>
                 <li>Convert external primitives into enums, value objects, and validated values before construction.</li>
                 <li>Carry only the data needed for one use case.</li>
+                <li>Dispatch one command from the controller and resolve authoritative state in the handler.</li>
                 <li>Put business decisions on the aggregate, not in the controller.</li>
                 <li>Use the write repository port for aggregate persistence.</li>
                 <li>Start required transactions inside the handler or a called application service.</li>
@@ -890,7 +890,7 @@ final readonly class GetExampleByCriteriaHandler implements QueryHandler
 
         <section id="http-boundary">
             <h2>HTTP adapter boundary</h2>
-            <p class="lede">Controllers translate untrusted HTTP data into valid command and query contracts.</p>
+            <p class="lede">Controllers translate untrusted HTTP data into one valid command or query for the operation.</p>
 
             <ol class="steps">
                 <li><strong>Read route, query, or request-body values.</strong></li>
@@ -898,7 +898,7 @@ final readonly class GetExampleByCriteriaHandler implements QueryHandler
                 <li><strong>Validate types, formats, ranges, and enum values.</strong></li>
                 <li><strong>Create typed primitives such as <code>ExampleType</code> and <code>Pagination</code>.</strong></li>
                 <li><strong>Construct the command or query.</strong></li>
-                <li><strong>Dispatch through <code>CommandBus</code> or <code>QueryBus</code>.</strong></li>
+                <li><strong>Dispatch once through <code>CommandBus</code> or <code>QueryBus</code>.</strong></li>
                 <li><strong>Map the result into an HTTP response.</strong></li>
             </ol>
 
@@ -1047,7 +1047,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                         <tr><td>Read repository test</td><td>SQL filters, ordering, null handling, pagination, and row mapping are correct.</td><td>Doctrine repository tests.</td></tr>
                         <tr><td>Write repository test</td><td>Aggregate mapping and persistence preserve domain state.</td><td>Doctrine repository tests.</td></tr>
                         <tr><td>HTTP validation test</td><td>Invalid external input fails before either bus runs.</td><td><code>ExampleInputValidationTest</code></td></tr>
-                        <tr><td>HTTP not-found test</td><td>A missing query result prevents the command dispatch.</td><td><code>ExampleNotFoundTest</code></td></tr>
+                        <tr><td>HTTP not-found test</td><td>A missing write target from the command handler maps to the documented problem response.</td><td><code>ExampleNotFoundTest</code></td></tr>
                     </tbody>
                 </table>
             </div>

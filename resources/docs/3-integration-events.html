@@ -745,7 +745,7 @@
 
             <div class="callout warning">
                 <strong>The external flag is a convention, not a transaction guard</strong>
-                <code>DoctrineIntegrationEventTransaction</code> stores every event passed to <code>execute()</code>.
+                <code>DoctrineIntegrationEventTransaction</code> stores every event returned from the <code>execute()</code> callback.
                 It does not call <code>isExternal()</code> before insertion.
             </div>
         </section>
@@ -787,26 +787,26 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 
         <section id="producer">
             <h2>Producer pattern</h2>
-            <p class="lede">Create the complete payload before the transaction. Keep broker calls outside the command handler.</p>
+            <p class="lede">Create the complete payload after authoritative database work. Keep broker calls outside the command handler.</p>
 
             <div class="code-wrap">
-                <pre><code>$event = new ExampleChanged(new ExampleChangedPayload(
-    exampleId: $command-&gt;exampleId(),
-    isActive: $command-&gt;isActive(),
-    value: $command-&gt;value(),
-    details: $command-&gt;details(),
-));
-
-$this-&gt;integrationEventTransaction-&gt;execute(
-    $event,
-    function () use ($command): void {
-        $example = $this-&gt;exampleRepository-&gt;getActive($command-&gt;exampleId());
+                <pre><code>$this-&gt;integrationEventTransaction-&gt;execute(
+    function () use ($command): ExampleChanged {
+        $example = $this-&gt;exampleRepository
+            -&gt;getActiveByIdentity($command-&gt;identity());
         $example-&gt;change(
             $command-&gt;isActive(),
             $command-&gt;value(),
             $command-&gt;details(),
         );
         $this-&gt;exampleRepository-&gt;save($example);
+
+        return new ExampleChanged(new ExampleChangedPayload(
+            exampleId: $example-&gt;id(),
+            isActive: $command-&gt;isActive(),
+            value: $command-&gt;value(),
+            details: $command-&gt;details(),
+        ));
     },
 );</code></pre>
             </div>

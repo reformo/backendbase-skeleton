@@ -62,8 +62,9 @@ class ExampleServiceTest extends TestCase
 
         $transaction = self::createStub(IntegrationEventTransaction::class);
         $transaction->method('execute')->willReturnCallback(
-            static function (IntegrationEvent $_event, callable $mutation): void {
-                $mutation();
+            static function (callable $mutation): void {
+                $event = $mutation();
+                self::assertInstanceOf(IntegrationEvent::class, $event);
             },
         );
         $this->container->set(IntegrationEventTransaction::class, $transaction);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory;
 
 use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 
 final class ExampleStore
 {
@@ -23,6 +24,23 @@ final class ExampleStore
         }
 
         return clone $this->examples[$exampleId];
+    }
+
+    public function getByIdentity(ExampleIdentity $identity): Example|null
+    {
+        foreach ($this->examples as $example) {
+            if ($example->isRemoved()) {
+                continue;
+            }
+
+            if (! $example->hasIdentity($identity)) {
+                continue;
+            }
+
+            return clone $example;
+        }
+
+        return null;
     }
 
     /** @return list<Example> */

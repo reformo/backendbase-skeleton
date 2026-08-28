@@ -134,3 +134,4 @@ Basis: `resources/docs/0-project.html` through `resources/docs/16-shared-primiti
 - Use clear subject/verb/object constructions. Do not use cleft sentences, contrastive appositives, appended-glosses, or trailing clauses.
 - Assume I may edit documents myself. Especially markdown documents.
 - When writing markdown documents, don't include references to conversations or threads a reader would not know about.
+- Tautological tests considered harmful

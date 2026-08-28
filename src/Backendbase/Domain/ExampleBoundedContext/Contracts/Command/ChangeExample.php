@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleBoundedContext\Contracts\Command;
 
 use Backendbase\Domain\ExampleBoundedContext\Application\CommandHandlers\ChangeExampleHandler;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Override;
-
-use function get_object_vars;
 
 #[CQRSHandler(ChangeExampleHandler::class)]
 class ChangeExample implements Command
@@ -19,13 +18,13 @@ class ChangeExample implements Command
     /** @var array<string, mixed>|null */
     private array|null $details = null;
 
-    public function __construct(private string $exampleId)
+    public function __construct(private ExampleIdentity $identity)
     {
     }
 
-    public function exampleId(): string
+    public function identity(): ExampleIdentity
     {
-        return $this->exampleId;
+        return $this->identity;
     }
 
     public function isActive(): bool|null
@@ -75,6 +74,11 @@ class ChangeExample implements Command
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return get_object_vars($this);
+        return [
+            'identity' => $this->identity->toArray(),
+            'isActive' => $this->isActive,
+            'value' => $this->value,
+            'details' => $this->details,
+        ];
     }
 }

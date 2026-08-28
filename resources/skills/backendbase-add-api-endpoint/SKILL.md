@@ -32,7 +32,7 @@ Use the target framework, request types, namespace, command and query buses, res
 4. Add or reuse a small boundary validator for path, query, header, and body data.
 5. Sanitize where needed, then separately validate required state, types, formats, ranges, sizes, and allowed values before dispatch. Sanitization is not validation.
 6. Construct the typed command or query from validated values and dispatch it through the target bus.
-7. Avoid a controller query followed by a command when one command can own the operation. When a preflight query is unavoidable, treat it as non-atomic and make the command handler reload state and enforce current invariants.
+7. Dispatch one application message for one endpoint operation. Let a write command carry the public identity, and let its handler perform the authoritative lookup through a write port.
 8. Map the result to the exact documented response body, status, and headers.
 9. Register the route, then verify its API-key, bearer, and ACL policy across the complete stack. In an unmodified Backendbase API, default a new consumer operation to API key plus bearer unless the explicit target policy selects API-key-only or anonymous access. Use `security: []` only for an explicitly public operation.
 10. Reconcile the OpenAPI draft with the implemented route, middleware, validation, response, and errors. Update the affected request when the target maintains a Bruno collection.

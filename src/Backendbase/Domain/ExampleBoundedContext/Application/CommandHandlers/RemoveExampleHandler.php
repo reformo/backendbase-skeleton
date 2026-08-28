@@ -24,13 +24,14 @@ readonly class RemoveExampleHandler implements CommandHandler
     #[Override]
     public function handle(Command $command): void
     {
-        $event = new ExampleRemoved($command->exampleId());
         $this->integrationEventTransaction->execute(
-            $event,
-            function () use ($command): void {
-                $example = $this->exampleRepository->getActive($command->exampleId());
+            function () use ($command): ExampleRemoved {
+                $identity = $command->identity();
+                $example  = $this->exampleRepository->getActiveByIdentity($identity);
                 $example->remove();
                 $this->exampleRepository->save($example);
+
+                return new ExampleRemoved($example->id());
             },
         );
     }

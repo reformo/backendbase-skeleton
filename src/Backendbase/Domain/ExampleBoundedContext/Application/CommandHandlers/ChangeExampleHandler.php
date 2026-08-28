@@ -25,18 +25,22 @@ readonly class ChangeExampleHandler implements CommandHandler
     #[Override]
     public function handle(Command $command): void
     {
-        $event = new ExampleChanged(new ExampleChangedPayload(
-            exampleId: $command->exampleId(),
-            isActive: $command->isActive(),
-            value: $command->value(),
-            details: $command->details(),
-        ));
         $this->integrationEventTransaction->execute(
-            $event,
-            function () use ($command): void {
-                $example = $this->exampleRepository->getActive($command->exampleId());
-                $example->change($command->isActive(), $command->value(), $command->details());
+            function () use ($command): ExampleChanged {
+                $identity = $command->identity();
+                $example  = $this->exampleRepository->getActiveByIdentity($identity);
+                $isActive = $command->isActive();
+                $value    = $command->value();
+                $details  = $command->details();
+                $example->change($isActive, $value, $details);
                 $this->exampleRepository->save($example);
+
+                return new ExampleChanged(new ExampleChangedPayload(
+                    exampleId: $example->id(),
+                    isActive: $isActive,
+                    value: $value,
+                    details: $details,
+                ));
             },
         );
     }

@@ -4,11 +4,12 @@ The transactional outbox separates business completion from broker availability.
 
 ## Write and relay flow
 
-1. A command handler creates a versioned integration event.
-2. `IntegrationEventTransaction` commits business state and the outbox row together.
-3. The relay claims the oldest available row.
-4. The selected queue adapter publishes the message.
-5. The relay marks the row as published.
+1. A command handler passes authoritative database work to `IntegrationEventTransaction`.
+2. The callback changes business state and returns a versioned integration event.
+3. `IntegrationEventTransaction` commits business state and the outbox row together.
+4. The relay claims the oldest available row.
+5. The selected queue adapter publishes the message.
+6. The relay marks the row as published.
 
 MySQL uses `FOR UPDATE SKIP LOCKED`. Each relay also uses a 60-second claim token.
 

@@ -7,12 +7,11 @@ namespace Tests\Infrastructure\UseCase\ExampleApi;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\RemoveExample as RemoveExampleCommand;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\NewExample;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\RemoveExample;
-use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -81,19 +80,21 @@ final class ExampleWriteControllersTest extends TestCase
     #[Test]
     public function itChangesAnExistingExample(): void
     {
-        $queryBus = $this->createStub(QueryBus::class);
-        $queryBus->method('handle')->willReturn('example-id');
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::once())
             ->method('handle')
             ->with(self::callback(static function (ChangeExample $command): bool {
-                return $command->exampleId() === 'example-id'
+                $identity = $command->identity();
+
+                return $identity->type() === ExampleType::SYSTEM
+                    && $identity->typeTargetId() === null
+                    && $identity->group() === 'settings'
+                    && $identity->key() === 'page-size'
                     && $command->value() === '50'
                     && $command->isActive() === false
                     && $command->details() === ['unit' => 'rows'];
             }));
         $action  = new ChangeExampleDetails(
-            $queryBus,
             $commandBus,
             $this->createStub(LoggerInterface::class),
             null,
@@ -114,17 +115,18 @@ final class ExampleWriteControllersTest extends TestCase
     #[Test]
     public function itRemovesAnExistingExample(): void
     {
-        $queryBus = $this->createStub(QueryBus::class);
-        $queryBus->method('handle')->willReturn('example-id');
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::once())
             ->method('handle')
-            ->with(self::callback(static function (Command $command): bool {
-                return $command instanceof RemoveExampleCommand
-                    && $command->exampleId() === 'example-id';
+            ->with(self::callback(static function (RemoveExampleCommand $command): bool {
+                $identity = $command->identity();
+
+                return $identity->type() === ExampleType::SYSTEM
+                    && $identity->typeTargetId() === null
+                    && $identity->group() === 'settings'
+                    && $identity->key() === 'page-size';
             }));
         $action  = new RemoveExample(
-            $queryBus,
             $commandBus,
             $this->createStub(LoggerInterface::class),
             null,

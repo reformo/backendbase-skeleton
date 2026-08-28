@@ -709,7 +709,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <ul>
                         <li>Read path, query, header, and parsed-body data.</li>
                         <li>Sanitize and validate untrusted input.</li>
-                        <li>Create a command or query.</li>
+                        <li>Create one command or query for the operation.</li>
                         <li>Map a read model to the response schema.</li>
                         <li>Select the HTTP status and response headers.</li>
                     </ul>
@@ -775,14 +775,14 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <h3>Command action</h3>
                     <ol>
                         <li>Validate path and JSON data.</li>
-                        <li>Create or resolve the resource identifier.</li>
+                        <li>Create the typed public resource identity.</li>
                         <li>Create a typed command contract.</li>
                         <li>Call <code>CommandBus::handle()</code>.</li>
                         <li>Return status <code>204</code>.</li>
                     </ol>
                 </article>
             </div>
-            <p><code>ChangeExampleDetails</code> and <code>RemoveExample</code> first query for the internal example UUID. They return a resource-not-found problem without dispatching the command when the query returns null.</p>
+            <p><code>ChangeExampleDetails</code> and <code>RemoveExample</code> put <code>ExampleIdentity</code> in one command. Their handlers resolve the aggregate through the write repository and own the resource-not-found decision.</p>
             <div class="related">
                 <a href="2-cqrs.html">CQRS guide</a>
                 <a href="1-bounded-contexts.html">Bounded contexts guide</a>

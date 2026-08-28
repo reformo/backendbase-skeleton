@@ -6,6 +6,7 @@ namespace Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as ExampleWriteRepositoryContract;
 use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Shared\Exception\ResourceNotFound;
 
 final readonly class ExampleWriteRepository implements ExampleWriteRepositoryContract
@@ -23,6 +24,16 @@ final readonly class ExampleWriteRepository implements ExampleWriteRepositoryCon
     {
         $example = $this->store->get($exampleId);
         if ($example === null || $example->isRemoved()) {
+            throw ResourceNotFound::create('The example was not found.');
+        }
+
+        return $example;
+    }
+
+    public function getActiveByIdentity(ExampleIdentity $identity): Example
+    {
+        $example = $this->store->getByIdentity($identity);
+        if ($example === null) {
             throw ResourceNotFound::create('The example was not found.');
         }
 

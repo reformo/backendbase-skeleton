@@ -45,7 +45,7 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 - When an integration event is required, the persisted state and outbox row commit or roll back together.
 - Do not create a fake integration event only to obtain an outbox transaction. Use the target's ordinary transaction mechanism when atomic database work is required without an outbound fact.
 - Place synchronous domain-event publication inside the real transaction only when listener failure is part of command rollback semantics.
-- A preceding controller query is not atomic with the command. Reload state and enforce current invariants in the handler.
+- Keep authoritative write lookup and missing-state decisions in the handler. A controller must not use a query to translate public identity before dispatch.
 - Do not invent a result, table field, event, adapter, or timestamp outside the request.
 
 ## Verification

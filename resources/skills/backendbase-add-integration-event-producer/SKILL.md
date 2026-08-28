@@ -12,8 +12,8 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 1. Read applicable `AGENTS.md` files and discover the owning context, namespace, command handler, messaging contracts, transaction port, tests, and configured service identity.
 2. Confirm that the requested fact must cross a process or service boundary.
 3. Define a stable event name, explicit version, and typed JSON-compatible payload.
-4. Create the complete event before entering the transaction.
-5. Store the domain mutation and outbox row through the existing integration-event transaction.
+4. Run authoritative database reads and mutations inside the integration-event transaction callback.
+5. Return the complete event from the callback after required identifiers and state are known.
 6. Add schema, handler-order, and atomic rollback tests.
 
 ## Invariants

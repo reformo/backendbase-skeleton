@@ -152,7 +152,7 @@ Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase
 
 ### Example API
 
-`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers`. Handlers extend `Backendbase\Shared\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create commands or queries, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`.
+`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers`. Handlers extend `Backendbase\Shared\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
 
 When adding or changing an endpoint, use this adapter shape in each existing affected API. The current repository has only `ExampleApi`.
 
@@ -179,7 +179,7 @@ OpenAPI endpoint definition
 -> Bruno YAML E2E tests under resources/bruno when API E2E coverage is requested
 ```
 
-For new query endpoints, use Doctrine DBAL and plain SQL for read-side projections. Keep DBAL and SQL in a persistence/read adapter, not in Slim controllers or domain objects. For writes, let command handlers call behavior on domain aggregates. Pass aggregates through write repository ports. Let Doctrine adapters map, load, and save aggregate state only.
+For new query endpoints, use Doctrine DBAL and plain SQL for read-side projections. Keep DBAL and SQL in a persistence/read adapter, not in Slim controllers or domain objects. For writes, let command handlers resolve aggregates through write repository ports and call domain behavior. Do not query a read model in a controller to resolve a write target. Let Doctrine adapters map, load, and save aggregate state only.
 
 Create ORM repository test schemas with Doctrine `SchemaTool` and the production mapping metadata. Do not copy mapped tables into handwritten test DDL.
 
@@ -189,7 +189,7 @@ When a feature creates or updates Doctrine entities, run `bin/doctrine migration
 
 Database change boundary (hard rule): never create, alter, or drop any database table, column, index, or schema on your own initiative. Build ONLY the exact structure the user explicitly requested — no extra tables and no extra columns, not even "obvious" ones like timestamps, soft-delete, status, or audit fields, unless the user asked for them. If a feature seems to need a table or column the user did not mention, STOP and ask before creating it. When reviewing a generated `migrations:diff`, if it contains anything the user did not request, do not run `migrations:migrate` — report it and ask. The database structure is the user's decision, not yours.
 
-Command handlers may create integration events. Add producer event contracts under `Contracts/IntegrationEvents`. Use `IntegrationEventTransaction::execute()` to store the database mutation and outbox message in one transaction. Run synchronous domain listeners inside the transaction callback when their failure must roll back the command. Keep business-relevant external effects asynchronous through the outbox. Do not publish queue messages or call `EventManager::dispatchEvent()` directly from a command handler.
+Command handlers may create integration events. Add producer event contracts under `Contracts/IntegrationEvents`. Use `IntegrationEventTransaction::execute()` to store the database mutation and outbox message in one transaction. Perform authoritative database work in its callback and return the complete event. Run synchronous domain listeners inside the transaction callback when their failure must roll back the command. Keep business-relevant external effects asynchronous through the outbox. Do not publish queue messages or call `EventManager::dispatchEvent()` directly from a command handler.
 
 New integration event types must follow `{PascalCaseServiceName}_{PascalCaseEventClassName}`. Read the service name from the `service-name` key in `config/autoload/global.php`. The current default is `example`, so a new `ExampleChanged` event uses `Example_ExampleChanged`. Existing published names are compatibility contracts. Do not rename them without a migration plan.
 

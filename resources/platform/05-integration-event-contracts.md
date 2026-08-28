@@ -14,7 +14,7 @@ An integration event is a versioned business fact. Its name, version, and payloa
 - Create a new version for an incompatible released payload change.
 - Keep old contracts while old messages can still exist.
 
-Use `IntegrationEventTransaction::execute()` to commit the domain mutation and outbox row together. Do not perform network, filesystem, process, or direct broker work inside its callback.
+Use `IntegrationEventTransaction::execute()` to commit the domain mutation and outbox row together. Its callback performs authoritative database work and returns the complete event. Do not perform network, filesystem, process, or direct broker work inside the callback.
 
 Known issue: the version-one `NewExampleAdded` producer publishes a nested `command` object. Its registered consumer expects flat fields.
 

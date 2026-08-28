@@ -11,6 +11,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleByCriteri
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Shared\Primitives\Pagination;
 use PHPUnit\Framework\Attributes\Test;
@@ -34,8 +35,9 @@ final class CommandAndQueryContractsTest extends TestCase
         self::assertSame([], $add->details());
         self::assertSame($add->toArray(), $add->jsonSerialize());
 
-        $change = new ChangeExample('example-id');
-        self::assertSame('example-id', $change->exampleId());
+        $identity = new ExampleIdentity(ExampleType::USER, 42, 'settings', 'theme');
+        $change   = new ChangeExample($identity);
+        self::assertSame($identity, $change->identity());
         self::assertNull($change->isActive());
         self::assertNull($change->value());
         self::assertNull($change->details());
@@ -43,15 +45,20 @@ final class CommandAndQueryContractsTest extends TestCase
         self::assertSame($change, $change->setValue('light'));
         self::assertSame($change, $change->setDetails(['contrast' => 'high']));
         self::assertSame([
+            'identity' => [
+                'type' => 'user',
+                'typeTargetId' => 42,
+                'group' => 'settings',
+                'key' => 'theme',
+            ],
             'isActive' => false,
             'value' => 'light',
             'details' => ['contrast' => 'high'],
-            'exampleId' => 'example-id',
         ], $change->jsonSerialize());
 
-        $remove = new RemoveExample('example-id');
-        self::assertSame('example-id', $remove->exampleId());
-        self::assertSame(['exampleId' => 'example-id'], $remove->toArray());
+        $remove = new RemoveExample($identity);
+        self::assertSame($identity, $remove->identity());
+        self::assertSame(['identity' => $identity->toArray()], $remove->toArray());
         self::assertSame($remove->toArray(), $remove->jsonSerialize());
     }
 

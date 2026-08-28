@@ -121,6 +121,23 @@ final class Example
         return $this->state['removedAt'] !== null;
     }
 
+    public function hasIdentity(ExampleIdentity $identity): bool
+    {
+        if ($this->state['type'] !== $identity->type()) {
+            return false;
+        }
+
+        if ($this->state['typeTargetId'] !== $identity->typeTargetId()) {
+            return false;
+        }
+
+        if ($this->state['group'] !== $identity->group()) {
+            return false;
+        }
+
+        return $this->state['lookupKey'] === $identity->key();
+    }
+
     /** @return ExampleState */
     public function snapshot(): array
     {

@@ -15,7 +15,7 @@ discover affected API -> draft OpenAPI contract -> complete application path
 | Input validation | `ExampleRequestInput` validates enum and positive integers | Encode the requested external contract |
 | Create | `NewExample` sends a command and returns `204` plus insert ID | Select target create status and headers |
 | Read | `Examples` sends a query and maps a page | Use the target read model and schema |
-| Update/delete lookup | Current change and remove actions resolve an internal ID first | Prefer one authoritative command; otherwise recheck state in its handler |
+| Update/delete lookup | Change and remove actions send `ExampleIdentity` in one command | Resolve the aggregate and missing-state decision in the handler |
 | Routing | `ModuleConfig` names and protects routes | Match target operation ID and policy |
 | Tests | Input, read, write, security, and conditional not-found tests | Use focused target doubles |
 
@@ -56,7 +56,7 @@ The Backendbase shared headers are `Accept-Language`, `The-Timezone-IANA`, `X-Re
 
 ## Application and error boundaries
 
-Prefer one application message for one endpoint operation. A controller query followed by a command is not atomic. The command handler must reload state and enforce all write invariants even when a controller preflight query succeeded.
+Use one application message for one endpoint operation. Do not use a controller query to translate public identity for a write. Carry the identity in the command. Resolve the aggregate and enforce current invariants through a write port in the command handler.
 
 The shared `Action` catches known `ProblemDetailsException` values. The global HTTP error handler owns unexpected failures. Do not build ad hoc error arrays in a controller or expose internal exception details.
 
@@ -103,7 +103,6 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 
 - `NewExample` casts or reads some body values without complete required-field validation.
 - `PayloadSanitizer` is not a complete validator and includes special transformations for some field names.
-- Current change and remove actions perform a query before a command. This lookup is not an atomic write guard.
 - Runtime pagination accepts `pageSize` and `page`, while current OpenAPI omits them.
 - `ExampleDetails` omits `typeTargetId`, while current OpenAPI declares it.
 - API-key and bearer failures return `400`, while current OpenAPI declares `401` and `403`.
@@ -124,6 +123,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ExampleDetails.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/RemoveExample.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleIdentity.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ExampleReadControllersTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ExampleWriteControllersTest.php`

@@ -653,9 +653,10 @@
             </p>
 
             <ol class="steps">
-                <li>The command handler creates an <code>IntegrationEvent</code>.</li>
+                <li>The command handler passes database work to <code>IntegrationEventTransaction::execute()</code>.</li>
                 <li><code>IntegrationEventTransaction::execute()</code> starts a Doctrine transaction.</li>
-                <li>The callback changes domain state and can run synchronous domain listeners.</li>
+                <li>The callback reads or changes domain state and can run synchronous domain listeners.</li>
+                <li>The callback returns the complete <code>IntegrationEvent</code>.</li>
                 <li>The transaction inserts the event into <code>integration_event_outbox</code>.</li>
                 <li>The transaction commits both changes or rolls back both changes.</li>
                 <li>The relay later claims the oldest available row and publishes it.</li>
@@ -663,12 +664,11 @@
 
             <h3>Producer pattern</h3>
             <div class="code-wrap">
-                <pre><code>$event = new NewExampleAdded(new NewExampleAddedPayload(/* ... */));
-
-$this-&gt;integrationEventTransaction-&gt;execute(
-    $event,
-    function () use ($example): void {
+                <pre><code>$this-&gt;integrationEventTransaction-&gt;execute(
+    function () use ($example): NewExampleAdded {
         $this-&gt;exampleRepository-&gt;add($example);
+
+        return new NewExampleAdded(new NewExampleAddedPayload(/* ... */));
     },
 );</code></pre>
             </div>

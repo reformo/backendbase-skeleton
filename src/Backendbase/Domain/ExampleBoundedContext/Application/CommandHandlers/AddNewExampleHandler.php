@@ -39,20 +39,21 @@ readonly class AddNewExampleHandler implements CommandHandler
             $command->value(),
             $command->details(),
         );
-        $event   = new NewExampleAdded(new NewExampleAddedPayload(
-            exampleId: $command->exampleId(),
-            type: $command->type()->value,
-            typeTargetId: $command->typeTargetId(),
-            group: $command->group(),
-            isActive: $command->isActive(),
-            key: $command->key(),
-            value: $command->value(),
-            details: $command->details(),
-        ));
-        $this->integrationEventTransaction->execute($event, function () use ($command, $example): void {
+        $this->integrationEventTransaction->execute(function () use ($command, $example): NewExampleAdded {
             $this->exampleRepository->add($example);
             $domainEvent = new ExampleAdded($command->exampleId(), $command);
             $this->domainEventPublisher->publish($domainEvent);
+
+            return new NewExampleAdded(new NewExampleAddedPayload(
+                exampleId: $command->exampleId(),
+                type: $command->type()->value,
+                typeTargetId: $command->typeTargetId(),
+                group: $command->group(),
+                isActive: $command->isActive(),
+                key: $command->key(),
+                value: $command->value(),
+                details: $command->details(),
+            ));
         });
     }
 }

@@ -80,12 +80,14 @@ Use the target's production provider loader or a faithful test composition root.
 Use this branch only when another service must receive a business fact:
 
 ```php
-$transaction->execute($integrationEvent, function () use ($item): void {
+$transaction->execute(function () use ($item, $integrationEvent): IntegrationEvent {
     $this->repository->save($item);
+
+    return $integrationEvent;
 });
 ```
 
-The transaction must persist the business state and outbox row together. Keep database reads that control the write inside the same transaction when consistency needs locking. Pure in-memory validation or object construction can occur before it.
+The transaction must persist the business state and outbox row together. Return the complete event after database work. Keep database reads that control the write inside the same transaction. Pure in-memory validation or object construction can occur before it.
 
 Do not call the broker in the callback. Test both commit and rollback. Force the outbox insert to fail and prove that no business state remains committed.
 
@@ -96,9 +98,11 @@ Do not create an integration event only to gain access to `IntegrationEventTrans
 Use this branch only when same-process listener failure must participate in command rollback. Publish after the required persistence operation and before the transaction callback returns:
 
 ```php
-$transaction->execute($realIntegrationEvent, function () use ($item, $domainEvent): void {
+$transaction->execute(function () use ($item, $domainEvent, $realIntegrationEvent): IntegrationEvent {
     $this->repository->save($item);
     $this->domainEventPublisher->publish($domainEvent);
+
+    return $realIntegrationEvent;
 });
 ```
 
@@ -114,6 +118,7 @@ Test the required order and force listener failure. Verify that persisted state 
 - Current production handlers live in `Application/CommandHandlers`. Container config also contains older alternate glob patterns; do not select them when the target follows the current reference.
 - Current Example handlers use `IntegrationEventTransaction` because their use cases publish integration events. Do not create a fake event only to obtain a transaction.
 - `AddNewExampleHandler` persists the aggregate and publishes its synchronous domain event inside the `IntegrationEventTransaction` callback. Its handler test asserts `transaction-start`, repository, domain event, then `transaction-end`.
+- `ChangeExampleHandler` and `RemoveExampleHandler` resolve `ExampleIdentity` through the write repository inside the transaction callback. Each callback returns the integration event after it knows the aggregate identifier.
 - Patch-style nullable fields mean "not supplied" only when the public contract defines that meaning.
 
 ## Verification map
@@ -143,9 +148,13 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandler.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/RemoveExampleHandler.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleIdentity.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/DomainEvents/ExampleAdded.php`
 - `config/dependencies/modules.php`
 - `tests/Domain/ExampleBoundedContext/Contracts/CommandAndQueryContractsTest.php`
 - `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandlerTest.php`
 - `tests/Functional/ExampleLifecycleTest.php`
 - `.github/workflows/quality-gates.yml`

@@ -20,7 +20,7 @@ Do not copy `Backendbase\`, `ExampleBoundedContext`, `Example_*`, the default se
 | Wire schema | versioned payload class | Use explicit typed fields and JSON names. |
 | Occurrence time | event clock | Reuse the target clock abstraction or convention. |
 | Atomic write | `IntegrationEventTransaction` | Use the existing outbox transaction port. |
-| Producer | command handler | Create the event before executing transactional work. |
+| Producer | command handler | Return the event after transactional business work. |
 | Contract proof | schema test | Assert exact name, version, and payload. |
 
 ## Naming and versioning
@@ -88,18 +88,17 @@ Adapt trait initialization to the target. Backendbase uses its project clock hel
 
 ## Command-handler boundary
 
-Create the payload from explicit values before the transaction:
+Return the payload from the transaction callback after authoritative reads and writes:
 
 ```php
-$event = new InvoiceIssued(new InvoiceIssuedPayload(
-    invoiceId: $command->invoiceId(),
-    totalMinor: $command->totalMinor(),
-));
-
 $this->integrationEventTransaction->execute(
-    $event,
-    function () use ($invoice): void {
+    function () use ($invoice, $command): IntegrationEvent {
         $this->invoiceRepository->save($invoice);
+
+        return new InvoiceIssued(new InvoiceIssuedPayload(
+            invoiceId: $command->invoiceId(),
+            totalMinor: $command->totalMinor(),
+        ));
     },
 );
 ```
@@ -113,7 +112,7 @@ Do not pass the command or aggregate into the payload. The callback can mutate d
 3. Define a minimal typed payload from consumer needs, without exposing the aggregate.
 4. Create event and payload contracts in the owning context.
 5. Inject the existing transaction port into the handler.
-6. Move all required database mutation into its callback.
+6. Move authoritative database reads and required mutations into its callback, then return the event.
 7. Add exact schema and serialization tests.
 8. Add a handler-order test that proves repository and synchronous domain work occur inside the callback.
 9. Run atomic commit and rollback tests for the outbox adapter.
@@ -151,7 +150,7 @@ Report event identity, version, exact payload fields, occurrence-time source, ha
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified on 2026-08-28 from:
 
 - `src/Backendbase/Shared/Domain/Messaging/IntegrationEvent.php`
 - `src/Backendbase/Shared/Domain/Messaging/IntegrationEventTrait.php`

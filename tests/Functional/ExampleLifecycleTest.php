@@ -16,6 +16,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleByCriteri
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Shared\CQRS\ContainerAwareCommandBus;
 use Backendbase\Shared\CQRS\ContainerAwareQueryBus;
@@ -80,7 +81,12 @@ final class ExampleLifecycleTest extends TestCase
             )),
         );
 
-        $change = new ChangeExample('first-id');
+        $change = new ChangeExample(new ExampleIdentity(
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            'first-key',
+        ));
         $change->setIsActive(false)->setValue('changed')->setDetails(['unit' => 'rows']);
         $commandBus->handle($change);
 
@@ -115,7 +121,12 @@ final class ExampleLifecycleTest extends TestCase
         self::assertTrue($page->items()[0]->isActive());
         self::assertGreaterThan(0, $page->items()[0]->createdAt()->getTimestamp());
 
-        $commandBus->handle(new RemoveExample('second-id'));
+        $commandBus->handle(new RemoveExample(new ExampleIdentity(
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            'second-key',
+        )));
         self::assertNull($queryBus->handle(new GetExampleIdByCriteria(
             ExampleType::SYSTEM,
             null,
@@ -143,7 +154,12 @@ final class ExampleLifecycleTest extends TestCase
         );
 
         $this->expectException(ResourceNotFound::class);
-        $container->get(ExampleWriteRepositoryContract::class)->getActive('second-id');
+        $commandBus->handle(new RemoveExample(new ExampleIdentity(
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            'second-key',
+        )));
     }
 
     private function container(): Container
@@ -155,8 +171,9 @@ final class ExampleLifecycleTest extends TestCase
         $container->set(DomainEventPublisher::class, $this->createStub(DomainEventPublisher::class));
         $transaction = $this->createStub(IntegrationEventTransaction::class);
         $transaction->method('execute')->willReturnCallback(
-            static function (IntegrationEvent $_event, callable $work): void {
-                $work();
+            static function (callable $work): void {
+                $event = $work();
+                self::assertInstanceOf(IntegrationEvent::class, $event);
             },
         );
         $container->set(IntegrationEventTransaction::class, $transaction);

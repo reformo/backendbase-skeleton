@@ -8,6 +8,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleByCriteri
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Primitives\Pagination;
@@ -64,7 +65,9 @@ final class ExampleRepositoryTest extends DoctrineExampleRepositoryTestCase
     {
         $exampleId = Uuid::uuid7()->toString();
         $this->addExample($exampleId, 'settings', 'first', 'one');
-        $example = $this->writeRepository->getActive($exampleId);
+        $identity = new ExampleIdentity(ExampleType::SYSTEM, null, 'settings', 'first');
+        $example  = $this->writeRepository->getActiveByIdentity($identity);
+        self::assertSame($exampleId, $example->id());
         $example->change(false, 'changed', ['changed' => true]);
         $this->writeRepository->save($example);
 
@@ -85,7 +88,7 @@ final class ExampleRepositoryTest extends DoctrineExampleRepositoryTestCase
         self::assertNull($storedExampleId);
 
         $this->expectException(ResourceNotFound::class);
-        $this->writeRepository->getActive($exampleId);
+        $this->writeRepository->getActiveByIdentity($identity);
     }
 
     #[Test]

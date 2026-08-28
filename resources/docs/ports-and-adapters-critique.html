@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="Backendbase Core için kanıta dayalı Ports and Adapters mimari değerlendirmesi.">
+    <title>Backendbase Core — Ports and Adapters Mimari Kritik Raporu</title>
+    <style>
+        :root {
+            --page: #f3f5f3;
+            --surface: #ffffff;
+            --surface-soft: #f7f9f7;
+            --ink: #17231f;
+            --muted: #61706a;
+            --line: #d8e0dc;
+            --navy: #173b50;
+            --teal: #087b68;
+            --teal-soft: #e1f4ee;
+            --blue: #1e6492;
+            --blue-soft: #e8f1f8;
+            --amber: #9c5c08;
+            --amber-soft: #fff0d8;
+            --red: #a52f25;
+            --red-soft: #fbe8e5;
+            --green: #28744c;
+            --green-soft: #e5f3e9;
+            --code: #0d1c23;
+            --code-ink: #e8f2ef;
+            --shadow: 0 16px 44px rgba(26, 46, 38, 0.09);
+            --radius: 16px;
+            --max: 1200px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #0d1412;
+                --surface: #17211e;
+                --surface-soft: #1c2925;
+                --ink: #eef4f1;
+                --muted: #b4c1bc;
+                --line: #33433d;
+                --navy: #a8d6ec;
+                --teal: #74d9c5;
+                --teal-soft: #173a32;
+                --blue: #93c8ec;
+                --blue-soft: #1b3446;
+                --amber: #f0b66d;
+                --amber-soft: #47321b;
+                --red: #ff9e96;
+                --red-soft: #4a2522;
+                --green: #83d7a4;
+                --green-soft: #1b3828;
+                --code: #08120f;
+                --code-ink: #edf4f1;
+                --shadow: 0 16px 44px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background:
+                linear-gradient(rgba(23, 59, 80, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(23, 59, 80, 0.035) 1px, transparent 1px),
+                var(--page);
+            background-size: 32px 32px;
+            color: var(--ink);
+            font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        a { color: var(--blue); text-underline-offset: 3px; }
+        a:focus-visible, [tabindex]:focus-visible {
+            outline: 3px solid var(--amber);
+            outline-offset: 3px;
+        }
+
+        .skip-link {
+            position: fixed;
+            z-index: 20;
+            top: 10px;
+            left: 10px;
+            padding: 9px 13px;
+            transform: translateY(-160%);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .skip-link:focus { transform: translateY(0); }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+        code {
+            padding: 0.1rem 0.32rem;
+            border-radius: 5px;
+            background: var(--blue-soft);
+            color: var(--ink);
+            font-size: 0.89em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 5px solid #4ac2a4;
+            background: #102f3e;
+            color: #fff;
+        }
+
+        .hero::before {
+            position: absolute;
+            top: -230px;
+            right: -100px;
+            width: 700px;
+            height: 700px;
+            border: 110px solid rgba(78, 202, 170, 0.14);
+            border-radius: 50%;
+            content: "";
+        }
+
+        .hero::after {
+            position: absolute;
+            inset: 0 0 0 62%;
+            background: linear-gradient(145deg, rgba(35, 120, 163, 0.12), rgba(32, 141, 113, 0.48));
+            clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+            content: "";
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 58px 0 54px;
+        }
+
+        .eyebrow, .section-label {
+            margin: 0 0 10px;
+            color: #91e5cf;
+            font-size: 0.74rem;
+            font-weight: 850;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 { line-height: 1.17; }
+        h1 {
+            max-width: 940px;
+            margin: 0;
+            font-size: clamp(2.45rem, 5.6vw, 5.1rem);
+            letter-spacing: -0.052em;
+        }
+
+        .lede {
+            max-width: 880px;
+            margin: 18px 0 0;
+            color: #dbe9e5;
+            font-size: clamp(1.02rem, 2vw, 1.24rem);
+        }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 25px; }
+        .chip {
+            padding: 6px 11px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.09);
+            font-size: 0.82rem;
+            font-weight: 750;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            gap: 34px;
+            width: min(calc(100% - 40px), var(--max));
+            margin: 0 auto;
+            padding: 34px 0 78px;
+        }
+
+        nav {
+            position: sticky;
+            top: 18px;
+            align-self: start;
+            max-height: calc(100vh - 36px);
+            overflow-y: auto;
+            padding: 19px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        nav strong {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 0.74rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            display: block;
+            padding: 4px 0;
+            color: var(--muted);
+            font-size: 0.89rem;
+            line-height: 1.36;
+            text-decoration: none;
+        }
+
+        nav a:hover, nav a:focus-visible { color: var(--teal); }
+        main { min-width: 0; }
+        section {
+            margin-bottom: 26px;
+            padding: clamp(22px, 4vw, 36px);
+            scroll-margin-top: 18px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        section > :first-child { margin-top: 0; }
+        section > :last-child { margin-bottom: 0; }
+        h2 {
+            margin: 0 0 17px;
+            color: var(--navy);
+            font-size: clamp(1.5rem, 3vw, 2.25rem);
+            letter-spacing: -0.025em;
+        }
+
+        h3 { margin: 0 0 9px; font-size: 1.08rem; }
+        p { margin: 9px 0; }
+        ul, ol { padding-left: 1.25rem; }
+        li + li { margin-top: 6px; }
+        .section-label { color: var(--teal); }
+        .muted, .small { color: var(--muted); }
+        .small { font-size: 0.86rem; }
+
+        .callout {
+            margin: 17px 0;
+            padding: 15px 17px;
+            border-left: 5px solid var(--blue);
+            border-radius: 0 11px 11px 0;
+            background: var(--blue-soft);
+        }
+
+        .callout.good { border-left-color: var(--green); background: var(--green-soft); }
+        .callout.warning { border-left-color: var(--amber); background: var(--amber-soft); }
+        .callout.danger { border-left-color: var(--red); background: var(--red-soft); }
+
+        .summary-grid, .grid-2, .grid-3, .metrics { display: grid; gap: 15px; }
+        .summary-grid, .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+        .stat, .card, .finding, .phase {
+            min-width: 0;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: var(--surface-soft);
+        }
+
+        .stat { padding: 17px; }
+        .stat strong { display: block; color: var(--teal); font-size: 2rem; line-height: 1; }
+        .stat span { display: block; margin-top: 8px; color: var(--muted); font-size: 0.84rem; font-weight: 700; }
+        .card, .phase { padding: 18px; }
+        .card p:last-child, .phase ul:last-child { margin-bottom: 0; }
+
+        .diagram {
+            margin: 18px 0;
+            padding: 21px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: var(--surface-soft);
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: 1.1fr 44px 1fr 44px 1.3fr 44px 1fr 44px 1.15fr;
+            align-items: center;
+            min-width: 840px;
+        }
+
+        .node {
+            padding: 15px 11px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--surface);
+            text-align: center;
+        }
+
+        .node strong, .node small { display: block; }
+        .node small { margin-top: 5px; color: var(--muted); line-height: 1.35; }
+        .core { border-color: var(--teal); background: var(--teal-soft); }
+        .arrow { color: var(--teal); font-size: 1.7rem; font-weight: 900; text-align: center; }
+
+        .leak-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+            margin-top: 14px;
+        }
+
+        .leak {
+            padding: 13px 14px;
+            border: 1px solid color-mix(in srgb, var(--red) 35%, var(--line));
+            border-radius: 10px;
+            background: var(--red-soft);
+            font-size: 0.9rem;
+        }
+
+        figcaption { margin-top: 12px; color: var(--muted); font-size: 0.84rem; }
+
+        .table-wrap { margin: 17px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; }
+        table { width: 100%; min-width: 760px; border-collapse: collapse; background: var(--surface); font-size: 0.89rem; }
+        th, td { padding: 11px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+        th { background: var(--surface-soft); color: var(--muted); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        tr:last-child td { border-bottom: 0; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: var(--teal-soft);
+            color: var(--teal);
+            font-size: 0.73rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+
+        .badge.high { background: var(--red-soft); color: var(--red); }
+        .badge.medium { background: var(--amber-soft); color: var(--amber); }
+        .badge.strong { background: var(--green-soft); color: var(--green); }
+        .badge.partial { background: var(--amber-soft); color: var(--amber); }
+        .badge.weak { background: var(--red-soft); color: var(--red); }
+
+        .findings { display: grid; gap: 13px; }
+        .finding {
+            display: grid;
+            grid-template-columns: 120px minmax(0, 1.5fr) minmax(220px, 0.8fr);
+            gap: 22px;
+            padding: 22px;
+        }
+
+        .finding .action {
+            padding-left: 18px;
+            border-left: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .finding .action strong { display: block; margin-bottom: 6px; color: var(--teal); font-size: 0.75rem; letter-spacing: 0.07em; text-transform: uppercase; }
+        .evidence { color: var(--muted); font-size: 0.83rem; }
+        .evidence a { font-weight: 720; }
+
+        .steps { margin: 17px 0 0; padding: 0; list-style: none; counter-reset: steps; }
+        .steps li {
+            position: relative;
+            min-height: 51px;
+            margin: 0 0 11px;
+            padding: 12px 14px 12px 57px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--surface-soft);
+        }
+
+        .steps li::before {
+            position: absolute;
+            top: 10px;
+            left: 13px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--teal);
+            color: var(--surface);
+            content: counter(steps);
+            counter-increment: steps;
+            font-weight: 850;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        pre {
+            margin: 15px 0;
+            padding: 18px 19px;
+            overflow-x: auto;
+            border: 1px solid #263943;
+            border-radius: 11px;
+            background: var(--code);
+            color: var(--code-ink);
+            font-size: 0.83rem;
+            line-height: 1.62;
+        }
+
+        pre code { padding: 0; background: transparent; color: inherit; font-size: inherit; overflow-wrap: normal; }
+        footer { width: min(calc(100% - 40px), var(--max)); margin: -48px auto 0; padding: 0 0 34px 284px; color: var(--muted); font-size: 0.83rem; }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            nav { position: static; max-height: none; }
+            nav a { display: inline-block; margin-right: 13px; }
+            .summary-grid, .metrics { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: 1fr; }
+            .finding { grid-template-columns: 105px 1fr; }
+            .finding .action { grid-column: 2; }
+            footer { padding-left: 0; }
+        }
+
+        @media (max-width: 680px) {
+            body { font-size: 15px; }
+            .hero-inner { padding: 42px 0 39px; }
+            .layout { width: min(calc(100% - 24px), var(--max)); gap: 20px; padding-top: 21px; }
+            section { padding: 19px; margin-bottom: 19px; }
+            .grid-2, .summary-grid, .metrics, .leak-grid { grid-template-columns: 1fr; }
+            nav { padding: 16px; }
+            nav a { display: block; margin: 0; }
+            .finding { grid-template-columns: 1fr; gap: 12px; padding: 18px; }
+            .finding .action { grid-column: auto; padding: 13px 0 0; border-top: 1px solid var(--line); border-left: 0; }
+            footer { width: min(calc(100% - 24px), var(--max)); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+        }
+
+        @media print {
+            @page { size: A4; margin: 14mm; }
+            :root { color-scheme: light; }
+            body { background: #fff; font-size: 11pt; }
+            .hero { background: #102f3e !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .hero::before, .hero::after, .skip-link { display: none; }
+            .layout { display: block; width: 100%; padding: 22px 0 0; }
+            nav { display: none; }
+            section { box-shadow: none; break-inside: avoid; }
+            .finding, .card, .phase, .stat, tr { break-inside: avoid; }
+            thead { display: table-header-group; }
+            code, a { overflow-wrap: anywhere; }
+            a { color: inherit; text-decoration: none; }
+            footer { width: 100%; margin: 0; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Ana içeriğe geç</a>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase Core · Mimari değerlendirme · 28 Ağustos 2026</p>
+        <h1>Ports and Adapters Mimari Kritik Raporu</h1>
+        <p class="lede">Bağımlılık yönü, port sahipliği, adaptör sınırları, framework izolasyonu, adaptör eşdeğerliği ve mimari testler üzerine kanıta dayalı inceleme.</p>
+        <div class="chips" aria-label="Rapor özeti">
+            <span class="chip">Salt-okunur inceleme</span>
+            <span class="chip">3 yüksek öncelik</span>
+            <span class="chip">4 orta öncelik</span>
+            <span class="chip">6/6 mimari testi geçti</span>
+            <span class="chip">8/8 contract testi geçti</span>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <nav aria-label="İçindekiler">
+        <strong>İçindekiler</strong>
+        <a href="#verdict">1. Kısa hüküm</a>
+        <a href="#dependency-map">2. Bağımlılık haritası</a>
+        <a href="#scorecard">3. Değerlendirme tablosu</a>
+        <a href="#findings">4. Kritik bulgular</a>
+        <a href="#strengths">5. Güçlü taraflar</a>
+        <a href="#roadmap">6. Düzeltme sırası</a>
+        <a href="#verification">7. Doğrulama ve kapsam</a>
+    </nav>
+
+    <main id="main-content">
+        <section id="verdict">
+            <p class="section-label">01 · Kısa hüküm</p>
+            <h2>İyi bir temel var; bağımlılık yönü her sınırda korunmuyor</h2>
+            <div class="callout warning">
+                <strong>En doğru tanım:</strong> Proje, Ports and Adapters öğelerini kullanan modüler bir DDD/CQRS mimarisidir. Katı bir hexagonal mimari değildir.
+            </div>
+            <p><code>ExampleBoundedContext</code> içindeki read/write portları, Doctrine ayrımı, memory adaptörleri ve modül-içi CQRS handler eşleştirmesi proje kararlarıyla tutarlıdır. Başlıca sorunlar Identity and Access sınırı, Shared çekirdeği, HTTP orkestrasyonu, messaging portlarının biçimi ve adaptör eşdeğerliğidir.</p>
+            <div class="metrics" aria-label="Özet metrikler">
+                <div class="stat"><strong>7</strong><span>Öncelikli mimari bulgu</span></div>
+                <div class="stat"><strong>3</strong><span>Yüksek öncelikli bulgu</span></div>
+                <div class="stat"><strong>6/6</strong><span>Geçen mimari testi</span></div>
+                <div class="stat"><strong>0</strong><span>Değişen üretim kodu dosyası</span></div>
+            </div>
+        </section>
+
+        <section id="dependency-map">
+            <p class="section-label">02 · Bağımlılık haritası</p>
+            <h2>İdeal yön ile gözlenen ters oklar</h2>
+            <figure class="diagram">
+                <div role="img" aria-label="Giriş adaptörlerinden giriş portuna, application ve domain çekirdeğine, çıkış portuna ve çıkış adaptörlerine giden ideal bağımlılık yönü. Alt bölümde dört ters bağımlılık gösterilir.">
+                    <div class="flow">
+                        <div class="node"><strong>HTTP · CLI · Queue</strong><small>Giriş adaptörleri</small></div>
+                        <div class="arrow">→</div>
+                        <div class="node"><strong>Giriş portu</strong><small>Command, query veya use-case arayüzü</small></div>
+                        <div class="arrow">→</div>
+                        <div class="node core"><strong>Application + Domain</strong><small>Orkestrasyon, invariant ve politika</small></div>
+                        <div class="arrow">→</div>
+                        <div class="node"><strong>Çıkış portu</strong><small>Repository ve dış kabiliyet sözleşmesi</small></div>
+                        <div class="arrow">←</div>
+                        <div class="node"><strong>Doctrine · JWT · SQS</strong><small>Çıkış adaptörleri</small></div>
+                    </div>
+                    <div class="leak-grid" aria-label="Gözlenen bağımlılık kaçakları">
+                        <div class="leak"><strong>HTTP → query + karar + command</strong><br>Giriş adaptörü use-case sırasını ve kaynak çözümlemeyi yönetiyor.</div>
+                        <div class="leak"><strong>HTTP → concrete Jwt → Redis</strong><br>Kimlik akışı application portunu atlıyor.</div>
+                        <div class="leak"><strong>Domain exception → HTTP Problem Details</strong><br>Domain, transport durum kodlarını taşıyor.</div>
+                        <div class="leak"><strong>Doctrine relay → queue adapter</strong><br>Politika ve mekanizma concrete adaptörde birleşiyor.</div>
+                    </div>
+                </div>
+                <figcaption>Üst akış ideal dependency rule yönünü gösterir. Alt kartlar mevcut ters veya bulanık bağımlılıkları gösterir.</figcaption>
+            </figure>
+        </section>
+
+        <section id="scorecard">
+            <p class="section-label">03 · Değerlendirme tablosu</p>
+            <h2>Persistence sınırı güçlü; kimlik ve Shared sınırları zayıf</h2>
+            <div class="table-wrap">
+                <table>
+                    <caption class="sr-only">Ports and Adapters değerlendirme tablosu</caption>
+                    <thead>
+                    <tr><th scope="col">Alan</th><th scope="col">Durum</th><th scope="col">Değerlendirme</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td>Context-owned persistence portları</td><td><span class="badge strong">Güçlü</span></td><td>Read/write portları ayrılmış. Doctrine ve memory adaptörleri aynı arayüzleri uygular.</td></tr>
+                    <tr><td>Application handler yönü</td><td><span class="badge strong">Güçlü</span></td><td>Handler sınıfları SQL veya Doctrine yerine proje portlarına bağlıdır.</td></tr>
+                    <tr><td>Giriş portu disiplini</td><td><span class="badge partial">Kısmi</span></td><td>CQRS bus ve aynı context içindeki bire bir handler attribute eşleştirmesi bilinçli proje kararlarıdır. Ancak bazı controller’lar query, karar ve command adımlarını orkestre eder.</td></tr>
+                    <tr><td>Çıkış portu kalitesi</td><td><span class="badge partial">Kısmi</span></td><td>Bazı portlar dar ve tipli değildir. Queue portu iki yönü tek arayüzde birleştirir.</td></tr>
+                    <tr><td>Domain/framework izolasyonu</td><td><span class="badge weak">Zayıf</span></td><td>Shared domain Doctrine’a bağlıdır. Domain exception modeli HTTP biçimini taşır.</td></tr>
+                    <tr><td>Identity and Access sınırı</td><td><span class="badge weak">Zayıf</span></td><td>HTTP adaptörleri somut JWT/Redis uygulamasına doğrudan bağlıdır.</td></tr>
+                    <tr><td>Bileşim kökü</td><td><span class="badge partial">Kısmi güçlü</span></td><td>Merkezi DI dosyaları vardır. Bazı concrete bağlantılar hâlâ modül veya adaptör içinde kurulur.</td></tr>
+                    <tr><td>Mimari koruma testleri</td><td><span class="badge partial">Kısmi</span></td><td>Temel kurallar çalışır. Shared, adapter-to-adapter ve izin verilen attribute eşleştirmelerinin sınırları tam taranmaz.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="findings">
+            <p class="section-label">04 · Kritik bulgular</p>
+            <h2>Öncelik, bağımlılık yönü ve değişiklik etkisine göre verildi</h2>
+            <div class="callout good">
+                <strong>Kabul edilen CQRS kararı:</strong> Command ve query sözleşmeleri aynı bounded context içindeki tek handler sınıfını positional <code>CQRSHandler</code> attribute ile gösterir. Sözleşmeler bağımsız paket olarak dağıtılmaz. Bu nedenle eşleştirme bir sınır ihlali değil, testle korunması gereken modül-içi metadata kararıdır.
+            </div>
+            <div class="findings">
+                <article class="finding">
+                    <div><span class="badge high">Yüksek · 01</span></div>
+                    <div>
+                        <h3>Identity and Access application portunu atlıyor</h3>
+                        <p>HTTP controller ve middleware doğrudan somut <code>Jwt</code> adaptörüne bağlıdır. <code>Jwt</code>, token use case, JWT codec ve Redis store işlerini birleştirir.</p>
+                        <p>Middleware bir <code>Acl</code> nesnesini request içine koyar. Üretim kodunda <code>Acl::isAllowed()</code> çağrısı bulunmaz. Ayrıcalık kontrolü amaçlanıyorsa başka giriş adaptörleri bu kontrolü aşabilir.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Authenticate.php"><code>Authenticate.php:7,18</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php"><code>AuthorizationMiddleware.php:7,28,80-83</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/Jwt.php"><code>Jwt.php:20-24</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong><code>TokenIssuer</code>, <code>TokenValidator</code> ve <code>AuthorizationStore</code> portları ekleyin. Yetkilendirmeyi application handler sınırında uygulayın.</div>
+                </article>
+
+                <article class="finding">
+                    <div><span class="badge high">Yüksek · 02</span></div>
+                    <div>
+                        <h3>Domain ve Shared çekirdeği transport/framework bilgisi taşıyor</h3>
+                        <p>Domain exception sınıfları HTTP status ve Problem Details alanlarını taşır. <code>Shared\Domain\DomainEvents</code> Doctrine koleksiyonunu genişletir. Container-aware uygulamalar çekirdek ad alanlarında durur.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Shared/Domain/Exception/DomainException.php"><code>Shared/Domain/Exception/DomainException.php:7-17</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Exception/AuthorizationExpired.php"><code>AuthorizationExpired.php:11-14</code></a>, <a href="../../src/Backendbase/Shared/Domain/DomainEvents.php"><code>Shared/Domain/DomainEvents.php:7,12</code></a>, <a href="../../src/Backendbase/Shared/Domain/ContainerAwareDomainEventPublisher.php"><code>ContainerAwareDomainEventPublisher.php:9-38</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong>Saf domain hataları üretin. HTTP adapter içinde Problem Details eşlemesi yapın. Native collection kullanın. Container-aware sınıfları Infrastructure altına taşıyın.</div>
+                </article>
+
+                <article class="finding">
+                    <div><span class="badge high">Yüksek · 03</span></div>
+                    <div>
+                        <h3>HTTP adaptörleri use-case orkestrasyonu ve eksik doğrulama yapıyor</h3>
+                        <p>PATCH ve DELETE action’ları önce query çalıştırır, 404 kararı verir ve sonra command çalıştırır. Başka bir giriş adaptörü aynı akışı tekrar etmek zorunda kalır.</p>
+                        <p>PATCH alanları typed setter çağrısından önce doğrulanmaz. Hatalı dış girdi <code>TypeError</code> ve genel 500 yanıtı üretebilir.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php"><code>ChangeExampleDetails.php:38-54</code></a>, <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/RemoveExample.php"><code>RemoveExample.php:41-46</code></a>, <a href="../platform/07-http-api.md"><code>resources/platform/07-http-api.md:16</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong>Her action’dan tek bir application portu çağırın. Kimlik çözümleme ve hata kararını handler içine taşıyın. Tüm PATCH alanlarını sınırda doğrulayın.</div>
+                </article>
+
+                <article class="finding">
+                    <div><span class="badge medium">Orta · 04</span></div>
+                    <div>
+                        <h3>Portlar yön ve teknoloji ayrıntısını tam gizlemiyor</h3>
+                        <p><code>BackendbaseQueue</code> hem publish hem consume işlemini aynı arayüzde toplar. Ham diziler ve <code>mixed</code> kullanır. <code>Notify</code>, <code>getClient(): mixed</code> ile vendor client nesnesini dışarı açar.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Shared/Integrations/BackendbaseQueue.php"><code>BackendbaseQueue.php:9-18</code></a>, <a href="../../src/Backendbase/Shared/Integrations/Notify.php"><code>Notify.php:9-16</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong><code>MessagePublisher</code> ve <code>MessageConsumer</code> portlarını ayırın. Typed message/result nesneleri kullanın. Vendor client erişimini kaldırın.</div>
+                </article>
+
+                <article class="finding">
+                    <div><span class="badge medium">Orta · 05</span></div>
+                    <div>
+                        <h3>Politika concrete adaptörlerin içine yerleşmiş</h3>
+                        <p>Retry sayısı, permanent/transient kararları, outbox backoff ve yayın orkestrasyonu Doctrine adaptörlerinde uygulanır. Mekanizma ile politika aynı sınırlarda birleşir.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicy.php"><code>DoctrineQueueMessageFailurePolicy.php:14-43</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelay.php"><code>DoctrineOutboxRelay.php:18-44,124-142</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong>Retry ve relay kararlarını application servisine taşıyın. Persistence adapter yalnız claim, kayıt ve durum güncelleme mekanizmasını uygulasın.</div>
+                </article>
+
+                <article class="finding">
+                    <div><span class="badge medium">Orta · 06</span></div>
+                    <div>
+                        <h3>Adaptörler aynı port için eşdeğer davranış vermiyor</h3>
+                        <p>Memory store yalnız ID ile kayıt yapar. Doctrine aktif lookup alanlarında eşsizlik uygular. Memory tabanlı testler, üretimde reddedilecek duplicate veriyi kabul edebilir.</p>
+                        <p>Integration event üreticisi nested <code>command</code> alanı yayımlar. Kayıtlı external message DTO düz alanlar bekler. Producer → consumer uçtan uca contract testi yoktur.</p>
+                        <p class="evidence">Kanıt: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleStore.php"><code>Memory/ExampleStore.php:14-16</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php"><code>ExampleRecord.php:27-31</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php"><code>NewExampleAddedPayload.php:48-60</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php"><code>NewExampleAddedMessage.php:65-77</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong>Aynı repository contract test paketini iki adaptöre çalıştırın. Üretici payload’ını kayıtlı consumer DTO’ya gerçek dispatcher üzerinden map eden test ekleyin.</div>
+                </article>
+
+                <article class="finding">
+                    <div><span class="badge medium">Orta · 07</span></div>
+                    <div>
+                        <h3>Mimari testler gerçek kaçakların bir bölümünü görmüyor</h3>
+                        <p>Mevcut testler temel domain purity, context isolation ve adapter direction kurallarını denetler. Ancak Application → Infrastructure, Shared framework importları ve inbound-adapter → outbound-adapter ilişkileri kapsam dışındadır. Testler ayrıca attribute hedefinin aynı context içinde kalmasını ve doğru handler arayüzünü uygulamasını genel bir kuralla doğrulamaz.</p>
+                        <p class="evidence">Kanıt: <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php:17-29</code></a>, <a href="../../tests/Architecture/FrameworkImportBoundaryTest.php"><code>FrameworkImportBoundaryTest.php:33-41</code></a>, <a href="../../tests/Architecture/Support/BoundedContextDependencies.php"><code>BoundedContextDependencies.php:14-31</code></a>.</p>
+                    </div>
+                    <div class="action"><strong>Önerilen işlem</strong>Application, Shared core ve iki adaptör yönü için ayrı dependency testleri ekleyin. CQRS ve domain-listener attribute hedeflerini aynı context, tek positional hedef, doğru arayüz ve container çözümlemesi kurallarıyla koruyun.</div>
+                </article>
+            </div>
+        </section>
+
+        <section id="strengths">
+            <p class="section-label">05 · Güçlü taraflar</p>
+            <h2>Mevcut iyi sınırlar korunmalı</h2>
+            <div class="grid-3">
+                <article class="card">
+                    <h3>Context-owned repository portları</h3>
+                    <p>Application handler’lar Doctrine yerine bounded context sözleşmelerine bağlıdır.</p>
+                </article>
+                <article class="card">
+                    <h3>Read/write ayrımı</h3>
+                    <p>Read modelleri ile aggregate persistence davranışı farklı portlarda tutulur.</p>
+                </article>
+                <article class="card">
+                    <h3>ORM izolasyonu</h3>
+                    <p>Domain aggregate üzerinde Doctrine attribute yoktur. ORM record ayrı bir mapper görevi görür.</p>
+                </article>
+                <article class="card">
+                    <h3>Değiştirilebilir adaptör hedefi</h3>
+                    <p>Doctrine ve memory adaptörleri aynı proje arayüzlerini uygular.</p>
+                </article>
+                <article class="card">
+                    <h3>Transactional messaging</h3>
+                    <p>Outbox, inbox ve external-effect işlemleri proje-owned portlar ve transaction sınırları kullanır.</p>
+                </article>
+                <article class="card">
+                    <h3>Çalışan mimari korumalar</h3>
+                    <p>AST tabanlı testler temel yön ihlallerinin önemli bir bölümünü otomatik olarak yakalar.</p>
+                </article>
+            </div>
+            <p class="evidence">Örnek kanıt: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php"><code>AddNewExampleHandler.php:21-25</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php"><code>Doctrine/ExampleWriteRepository.php:13-34</code></a>, <a href="../../config/dependencies/doctrine.php"><code>config/dependencies/doctrine.php:47-53</code></a>.</p>
+        </section>
+
+        <section id="roadmap">
+            <p class="section-label">06 · Düzeltme sırası</p>
+            <h2>Önce kimlik ve Shared sınırları, sonra use-case akışı</h2>
+            <ol class="steps">
+                <li><strong>Identity and Access sınırını kurun.</strong> Token ve authorization portları ekleyin. HTTP, JWT ve Redis rollerini ayırın.</li>
+                <li><strong>Shared çekirdeğini saflaştırın.</strong> HTTP Problem Details eşlemesini dışarı taşıyın. Doctrine collection ve container-aware sınıfları çekirdekten çıkarın.</li>
+                <li><strong>Bir giriş, bir use case kuralını uygulayın.</strong> Controller içindeki query → command orkestrasyonunu application handler içine taşıyın.</li>
+                <li><strong>Messaging portlarını daraltın.</strong> Publish ve consume yönlerini ayırın. Ham diziler yerine typed message/result nesneleri kullanın.</li>
+                <li><strong>Adaptör eşdeğerliğini test edin.</strong> Memory/Doctrine contract suite ve producer/consumer message mapping testi ekleyin.</li>
+                <li><strong>Mimari testleri genişletin.</strong> Application, Shared core ve adapter-to-adapter bağımlılıklarını koruyun. İzin verilen attribute eşleştirmelerini aynı-context ve doğru-arayüz kurallarıyla sınırlandırın.</li>
+            </ol>
+            <div class="callout good">
+                <strong>Başarı ölçütü:</strong> HTTP, CLI veya queue adaptörü değiştiğinde application/domain kodu değişmemeli. Doctrine, Redis veya broker değiştiğinde giriş adaptörleri değişmemeli.
+            </div>
+        </section>
+
+        <section id="verification">
+            <p class="section-label">07 · Doğrulama ve kapsam</p>
+            <h2>Mevcut testler geçti; rapor kapsanmayan mimari kuralları gösterir</h2>
+            <div class="table-wrap">
+                <table>
+                    <caption class="sr-only">Doğrulama komutları ve sonuçları</caption>
+                    <thead>
+                    <tr><th scope="col">Kontrol</th><th scope="col">Sonuç</th><th scope="col">Açıklama</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Geçti</span></td><td>6 test ve 11 assertion geçti.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit --testdox tests/Domain/ExampleBoundedContext/Contracts tests/Domain/ExampleBoundedContext/ServiceProviderTest.php</code></td><td><span class="badge strong">Geçti</span></td><td>8 test ve 57 assertion geçti.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Geçti</span></td><td>7 test ve 36 assertion geçti. Mevcut yedi command/query eşleştirmesi bus üzerinden çalıştı.</td></tr>
+                    <tr><td>Dependency ve kaynak taraması</td><td><span class="badge strong">Tamamlandı</span></td><td>Domain, Application, Contracts, Shared, Infrastructure, config ve ilgili testler incelendi.</td></tr>
+                    <tr><td>Üretim kodu değişikliği</td><td><span class="badge strong">Yok</span></td><td>İnceleme ve bu revizyon yalnız dokümantasyon dosyasını değiştirdi.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="grid-2">
+                <aside class="callout warning">
+                    <strong>Test yorumu</strong>
+                    <p>Geçen testler mevcut kurallara uyumu kanıtlar. Bu raporda belirtilen eksik dependency kurallarını kanıtlamaz.</p>
+                </aside>
+                <aside class="callout">
+                    <strong>Kapsam sınırı</strong>
+                    <p>İnceleme canlı trafik, production incident kayıtları, dış servis çağrıları veya penetration test içermedi.</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>Backendbase Core · Ports and Adapters Mimari Kritik Raporu · 28 Ağustos 2026</footer>
+</body>
+</html>

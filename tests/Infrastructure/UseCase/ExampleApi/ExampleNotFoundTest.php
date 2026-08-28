@@ -9,6 +9,7 @@ use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\E
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\RemoveExample;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
+use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Http\Handlers\HttpErrorHandler;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -29,13 +30,15 @@ final class ExampleNotFoundTest extends TestCase
     {
         $queryBus = $this->createStub(QueryBus::class);
         $queryBus->method('handle')->willReturn(null);
-        $commandBus = $this->createMock(CommandBus::class);
-        $commandBus->expects(self::never())->method('handle');
+        $commandBus = $this->createStub(CommandBus::class);
+        $commandBus->method('handle')->willThrowException(
+            ResourceNotFound::create('The example was not found.'),
+        );
         $logger  = new Logger('example-not-found-test');
         $actions = [
             ['GET', new ExampleDetails($queryBus, $logger, null)],
-            ['PATCH', new ChangeExampleDetails($queryBus, $commandBus, $logger, null)],
-            ['DELETE', new RemoveExample($queryBus, $commandBus, $logger, null)],
+            ['PATCH', new ChangeExampleDetails($commandBus, $logger, null)],
+            ['DELETE', new RemoveExample($commandBus, $logger, null)],
         ];
 
         foreach ($actions as [$method, $action]) {

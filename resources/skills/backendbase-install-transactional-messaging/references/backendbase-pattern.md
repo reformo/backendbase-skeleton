@@ -33,8 +33,8 @@ Keep framework and vendor types out of these interfaces:
 ```php
 interface IntegrationEventTransaction
 {
-    /** @param callable(): void $transactionalWork */
-    public function execute(IntegrationEvent $event, callable $transactionalWork): void;
+    /** @param callable(): IntegrationEvent $transactionalWork */
+    public function execute(callable $transactionalWork): void;
 }
 
 interface InboxMessageTransaction
@@ -77,8 +77,8 @@ Do not apply migrations until the user authorizes the exact target database and 
 The callback runs before the outbox insert inside one database transaction:
 
 ```php
-$connection->transactional(static function () use ($event, $transactionalWork, $outbox): void {
-    $transactionalWork();
+$connection->transactional(static function () use ($transactionalWork, $outbox): void {
+    $event = $transactionalWork();
     $outbox->insert(
         $event->eventName(),
         $event->eventVersion(),
@@ -88,7 +88,7 @@ $connection->transactional(static function () use ($event, $transactionalWork, $
 });
 ```
 
-Allowed callback work is database mutation and synchronous domain work that must control rollback. Network, process, filesystem, and direct broker publication are not allowed.
+Allowed callback work is authoritative database reads, database mutation, and synchronous domain work that must control rollback. The callback returns the event after required state is known. Network, process, filesystem, and direct broker publication are not allowed.
 
 ## Relay state machine
 

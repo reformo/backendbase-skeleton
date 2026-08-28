@@ -23,6 +23,6 @@ The buses only resolve and call handlers. They provide no validation, authorizat
 
 Handler attributes and PHPDoc generics are not fully checked at runtime. Test each attribute link and concrete handler contract.
 
-A controller query followed by a command is not atomic. The command handler must reload state and enforce current invariants.
+Each HTTP action dispatches one command or query for one operation. A write action carries public identity in its command. The command handler resolves current state through a write port and owns missing-state decisions.
 
 Basis: `resources/docs/2-cqrs.html`.

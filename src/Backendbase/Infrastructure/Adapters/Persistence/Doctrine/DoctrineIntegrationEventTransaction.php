@@ -22,11 +22,12 @@ final readonly class DoctrineIntegrationEventTransaction implements IntegrationE
     {
     }
 
-    public function execute(IntegrationEvent $event, callable $transactionalWork): void
+    /** @param callable(): IntegrationEvent $transactionalWork */
+    public function execute(callable $transactionalWork): void
     {
-        $this->connection->transactional(static function (Connection $connection) use ($event, $transactionalWork): void {
-            $transactionalWork();
-            $now = DateTimeImmutable::create()->format('Y-m-d H:i:s.u');
+        $this->connection->transactional(static function (Connection $connection) use ($transactionalWork): void {
+            $event = $transactionalWork();
+            $now   = DateTimeImmutable::create()->format('Y-m-d H:i:s.u');
             $connection->insert(self::OUTBOX_TABLE, [
                 'id' => Uuid::uuid7()->toString(),
                 'event_name' => $event->eventName(),
