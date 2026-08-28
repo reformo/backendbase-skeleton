@@ -81,7 +81,8 @@ Bind the context read-port interface to the DBAL adapter in the target compositi
 - `ExampleReadRepository` uses DBAL and purpose-specific SQL against the same table as the write adapter.
 - It binds page size and offset as integers and orders pages by `created_at, id`.
 - `ExampleReadModelMapper` rejects invalid strings, integers, booleans, enums, dates, and JSON objects.
-- The memory adapter does not prove every DBAL ordering detail. Repository tests remain required.
+- The shared Example repository contract checks read results, filtering, ordering, pagination, and absence against memory and Doctrine adapters.
+- The memory adapter does not prove DBAL implementation details. Doctrine-specific repository tests remain required.
 - Existing SQLite metadata tests do not prove MySQL-specific index or optimizer behavior.
 
 ## Verification map

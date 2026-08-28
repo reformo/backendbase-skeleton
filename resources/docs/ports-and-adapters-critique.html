@@ -467,9 +467,9 @@
         <p class="lede">An evidence-based review of dependency direction, port ownership, adapter boundaries, framework isolation, adapter parity, and architecture tests.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Current code review</span>
-            <span class="chip">4 findings resolved</span>
+            <span class="chip">5 findings resolved</span>
             <span class="chip">No high-priority findings open</span>
-            <span class="chip">3 medium-priority findings open</span>
+            <span class="chip">2 medium-priority findings open</span>
             <span class="chip">9/9 architecture tests passed</span>
             <span class="chip">8/8 contract tests passed</span>
         </div>
@@ -496,14 +496,14 @@
                 <strong>Most accurate description:</strong> The project uses a modular Domain-Driven Design (DDD) and Command Query Responsibility Segregation (CQRS) architecture with Ports and Adapters elements. It is not a strict hexagonal architecture.
             </div>
             <div class="callout good">
-                <strong>Latest update:</strong> Findings 01 through 04 are closed. Messaging now uses direction-specific ports, typed messages, typed results, and notification adapters without vendor-client access.
+                <strong>Latest update:</strong> Findings 01 through 04 and finding 06 are closed. Memory and Doctrine repositories now pass one behavioral contract suite. The registered external carrier matches the producer payload through the real dispatcher.
             </div>
-            <p>The read/write ports in <code>ExampleBoundedContext</code>, Doctrine separation, memory adapters, token ports, pure Shared core, typed messaging ports, input validation, and internal CQRS handler mapping align with project decisions. The main open issues concern policy inside concrete adapters, adapter parity, and general architecture enforcement.</p>
+            <p>The read/write ports in <code>ExampleBoundedContext</code>, adapter parity, token ports, pure Shared core, typed messaging ports, input validation, and internal CQRS handler mapping align with project decisions. The main open issues concern policy inside concrete adapters and general architecture enforcement.</p>
             <div class="metrics" aria-label="Summary metrics">
-                <div class="stat"><strong>3</strong><span>Open architecture findings</span></div>
+                <div class="stat"><strong>2</strong><span>Open architecture findings</span></div>
                 <div class="stat"><strong>0</strong><span>Open high-priority findings</span></div>
                 <div class="stat"><strong>9/9</strong><span>Architecture tests passed</span></div>
-                <div class="stat"><strong>4</strong><span>Findings resolved</span></div>
+                <div class="stat"><strong>5</strong><span>Findings resolved</span></div>
             </div>
         </section>
 
@@ -511,7 +511,7 @@
             <p class="section-label">02 · Dependency map</p>
             <h2>Ideal direction, resolved identity flow, and remaining leaks</h2>
             <figure class="diagram">
-                <div role="img" aria-label="The ideal dependency direction from inbound adapters to an inbound port, the application and domain core, an outbound port, and outbound adapters. The lower section shows one open issue and four resolved flows.">
+                <div role="img" aria-label="The ideal dependency direction from inbound adapters to an inbound port, the application and domain core, an outbound port, and outbound adapters. The lower section shows one open issue and five resolved flows.">
                     <div class="flow">
                         <div class="node"><strong>HTTP · CLI · Queue</strong><small>Inbound adapters</small></div>
                         <div class="arrow">→</div>
@@ -528,10 +528,11 @@
                         <div class="leak resolved"><strong>Resolved: HTTP → token ports → Jwt</strong><br>Redis state is behind the <code>AuthorizationStore</code> port.</div>
                         <div class="leak resolved"><strong>Resolved: domain error → HTTP adapter</strong><br>The Infrastructure mapper owns every Problem Details contract.</div>
                         <div class="leak resolved"><strong>Resolved: typed messaging ports</strong><br>Publish, consume, and notification results hide vendor objects.</div>
+                        <div class="leak resolved"><strong>Resolved: adapter contract parity</strong><br>Memory and Doctrine repositories share one suite. Producer payloads map through the real dispatcher.</div>
                         <div class="leak"><strong>Doctrine relay → queue adapter</strong><br>Policy and mechanism are combined in a concrete adapter.</div>
                     </div>
                 </div>
-                <figcaption>The upper flow shows the ideal dependency rule. The lower cards show one open issue and four resolved flows.</figcaption>
+                <figcaption>The upper flow shows the ideal dependency rule. The lower cards show one open issue and five resolved flows.</figcaption>
             </figure>
         </section>
 
@@ -545,7 +546,7 @@
                     <tr><th scope="col">Area</th><th scope="col">Status</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Context-owned persistence ports</td><td><span class="badge strong">Strong</span></td><td>Read and write ports are separate. Doctrine and memory adapters implement the same interfaces.</td></tr>
+                    <tr><td>Context-owned persistence ports</td><td><span class="badge strong">Strong</span></td><td>Read and write ports are separate. Doctrine and memory adapters pass the same behavioral repository contract suite.</td></tr>
                     <tr><td>Application handler direction</td><td><span class="badge strong">Strong</span></td><td>Handlers depend on project ports instead of SQL or Doctrine. Write handlers check privileges before side effects.</td></tr>
                     <tr><td>Inbound port discipline</td><td><span class="badge strong">Strong</span></td><td>HTTP write actions validate input and dispatch one command. Resource resolution and missing-resource decisions are in the application handler.</td></tr>
                     <tr><td>Messaging outbound port quality</td><td><span class="badge strong">Strong</span></td><td>Publication and consumption use separate ports. Typed message and result objects hide vendor contracts.</td></tr>
@@ -619,14 +620,15 @@
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Medium · 06</span></div>
+                    <div><span class="badge strong">Resolved · 06</span></div>
                     <div>
-                        <h3>Adapters do not provide equivalent behavior for the same port</h3>
-                        <p>The memory store records data only by ID. Doctrine enforces uniqueness for active lookup fields. Memory-based tests can accept duplicate data that production rejects.</p>
-                        <p>The integration event producer publishes a nested <code>command</code> field. The registered external message data transfer object (DTO) expects flat fields. No end-to-end producer → consumer contract test exists.</p>
-                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleStore.php"><code>Memory/ExampleStore.php:14-16</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php"><code>ExampleRecord.php:27-31</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php"><code>NewExampleAddedPayload.php:48-60</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php"><code>NewExampleAddedMessage.php:65-77</code></a>.</p>
+                        <h3>Adapters provide equivalent behavior for the same port</h3>
+                        <p><code>ExampleRepositoryContract</code> now runs unchanged against memory and Doctrine adapters. It covers empty results, projections, ordering, pagination, active identity uniqueness, soft removal, and replacement.</p>
+                        <p><code>ExampleStore</code> enforces the same active lookup identity rule as Doctrine. Doctrine translates its constraint exception into the context-safe <code>ExampleAlreadyExists</code> error.</p>
+                        <p>The registered version-one external DTO now preserves the producer's nested <code>command</code> field. <code>ProducerConsumerContractTest</code> builds the real event and provider registration, then maps it through the real registry and dispatcher.</p>
+                        <p class="evidence">Evidence: <a href="../../tests/Domain/ExampleBoundedContext/Adapters/Persistence/ExampleRepositoryContract.php"><code>ExampleRepositoryContract.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleStore.php"><code>Memory/ExampleStore.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php"><code>Doctrine/ExampleWriteRepository.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php"><code>NewExampleAddedMessage.php</code></a>, <a href="../../tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php"><code>ProducerConsumerContractTest.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Recommended action</strong>Run the same repository contract test suite against both adapters. Add a test that maps the producer payload to the registered consumer DTO through the real dispatcher.</div>
+                    <div class="action"><strong>Implemented action</strong>Both repository adapters pass one contract suite. The producer payload maps into the registered typed carrier through the real dispatcher.</div>
                 </article>
 
                 <article class="finding">
@@ -684,14 +686,14 @@
 
         <section id="roadmap">
             <p class="section-label">06 · Remediation order</p>
-            <h2>Address adapter policy and parity</h2>
+            <h2>Address adapter policy and architecture enforcement</h2>
             <ol class="steps">
                 <li><strong>Completed — establish the Identity and Access boundary.</strong> Token and authorization ports were added. HTTP, JWT codec, and Redis store roles were separated. Authorization moved to the application handler boundary.</li>
                 <li><strong>Completed — make the Shared core pure.</strong> HTTP Problem Details mapping, the native event collection, and container-aware Infrastructure adapters now enforce the boundary.</li>
                 <li><strong>Completed — enforce one entry point for one use case.</strong> Controller orchestration was removed. PATCH fields are validated at the HTTP boundary.</li>
                 <li><strong>Completed — narrow the messaging ports.</strong> Publication and consumption are separate. Typed message, subscription, publication, and notification results replace raw port values.</li>
                 <li><strong>Remove policy from adapters.</strong> Move retry, dead-letter, and outbox backoff decisions to application services.</li>
-                <li><strong>Test adapter parity.</strong> Add a Memory/Doctrine contract suite and a producer/consumer message mapping test.</li>
+                <li><strong>Completed — test adapter parity.</strong> Memory and Doctrine pass one repository contract suite. The real dispatcher maps producer data into the registered consumer DTO.</li>
                 <li><strong>Expand architecture tests.</strong> Keep the new Identity boundary test. Cover Application, the Shared core, and general adapter-to-adapter dependencies.</li>
             </ol>
             <div class="callout good">
@@ -713,10 +715,10 @@
                     <tr><td><code>vendor/bin/phpunit --testdox tests/Domain/ExampleBoundedContext/Contracts tests/Domain/ExampleBoundedContext/ServiceProviderTest.php</code></td><td><span class="badge strong">Passed</span></td><td>8 tests and 57 assertions passed.</td></tr>
                     <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Passed</span></td><td>10 tests and 44 assertions passed. Architecture rules and the complete Example lifecycle worked together.</td></tr>
                     <tr><td><code>vendor/bin/phpunit tests/Domain/IdentityAndAccess tests/Domain/ExampleBoundedContext/Application/CommandHandlers</code></td><td><span class="badge strong">Passed</span></td><td>21 tests and 74 assertions passed. The scope covered token ports, middleware, and handler privilege rejection.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>262 tests and 1,062 assertions passed.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>269 tests and 1,091 assertions passed.</td></tr>
                     <tr><td><code>vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors.</td></tr>
                     <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Domain, Application, Contracts, Shared, Infrastructure, configuration, and related tests were reviewed.</td></tr>
-                    <tr><td>Production code change</td><td><span class="badge strong">Present</span></td><td>Token ports, pure domain errors, HTTP error mapping, native event collection, Infrastructure container adapters, typed PATCH validation, and typed messaging ports were added.</td></tr>
+                    <tr><td>Production code change</td><td><span class="badge strong">Present</span></td><td>Token ports, pure domain errors, HTTP error mapping, native event collection, Infrastructure container adapters, typed PATCH validation, typed messaging ports, repository parity, and aligned external event DTOs were added.</td></tr>
                     </tbody>
                 </table>
             </div>

@@ -8,6 +8,8 @@ Use the smallest check that proves the change. Expand checks as risk increases.
 - Keep shared, infrastructure, functional, and architecture tests under `tests`.
 - Use memory adapters for fast in-process lifecycle tests.
 - Use production Doctrine metadata and isolated schemas for repository tests.
+- Run the same behavioral repository contract suite against every adapter for one port.
+- Keep adapter-specific tests for storage details such as mapping and rollback.
 - Use deterministic doubles at network and provider boundaries.
 - Keep invalid input, rollback, retry, mapping, and not-found paths explicit.
 

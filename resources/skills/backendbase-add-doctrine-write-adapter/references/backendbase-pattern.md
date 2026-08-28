@@ -70,6 +70,8 @@ private CatalogItemType $type;
 - `save()` loads the current record, synchronizes domain state, and flushes.
 - Translate absence to the project's stable not-found exception.
 - Keep uniqueness and concurrency behavior explicit in schema and tests.
+- Translate database constraint failures into the same context-safe error used by other adapters.
+- Run one behavioral repository contract suite unchanged against Doctrine and memory adapters.
 
 ## Current source behavior and limitations
 
@@ -77,6 +79,7 @@ private CatalogItemType $type;
 - `PathFinder::doctrineEntityPaths()` discovers direct context entity directories and one nested level.
 - The Doctrine CLI schema filter currently collects table names only from direct context entity directories. Prefer direct context placement unless that CLI logic changes too.
 - The Example repository test builds an isolated SQLite schema from production metadata. This proves ORM mapping and many repository behaviors, but it does not prove every MySQL generated-column, lock, or migration behavior.
+- The Example repository contract suite runs unchanged against Doctrine and memory adapters.
 - Mapping changes do not authorize a migration. Generate one only after repository behavior is final and schema scope is approved.
 
 ## Verification map

@@ -6,6 +6,7 @@ namespace Tests\Infrastructure\Adapters\EventManager;
 
 use Backendbase\Domain\ExampleBoundedContext\Application\ExternalIntegrationEventSubscribers\ExampleBoundedContext\NewExampleAddedExternalSubscriber;
 use Backendbase\Domain\ExampleBoundedContext\Application\IntegrationEventSubscribers\NewExampleAddedSubscriber;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedCommand;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedMessage;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleRemoved;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\NewExampleAdded;
@@ -62,13 +63,16 @@ final class ContainerAwareEventManagerTest extends TestCase
             'Partner_ExampleAdded_Event',
             new NewExampleAddedMessage(
                 'example-id',
-                'system',
-                null,
-                'group',
-                true,
-                'key',
-                'value',
-                [],
+                new NewExampleAddedCommand(
+                    'example-id',
+                    'system',
+                    null,
+                    'group',
+                    true,
+                    'key',
+                    'value',
+                    [],
+                ),
             ),
         );
 
@@ -97,13 +101,16 @@ final class ContainerAwareEventManagerTest extends TestCase
             'Missing_Event',
             new NewExampleAddedMessage(
                 'example-id',
-                'system',
-                null,
-                'group',
-                true,
-                'key',
-                'value',
-                [],
+                new NewExampleAddedCommand(
+                    'example-id',
+                    'system',
+                    null,
+                    'group',
+                    true,
+                    'key',
+                    'value',
+                    [],
+                ),
             ),
         );
 
@@ -136,13 +143,16 @@ final class ContainerAwareEventManagerTest extends TestCase
             'Partner_Event',
             new NewExampleAddedMessage(
                 'example-id',
-                'system',
-                null,
-                'group',
-                true,
-                'key',
-                'value',
-                [],
+                new NewExampleAddedCommand(
+                    'example-id',
+                    'system',
+                    null,
+                    'group',
+                    true,
+                    'key',
+                    'value',
+                    [],
+                ),
             ),
         );
     }

@@ -33,7 +33,7 @@ Adapt SQL, selected fields, criteria, null semantics, filters, ordering, paginat
 7. Return the declared empty, nullable, scalar, list, page, or read-model result.
 8. Validate every persisted scalar, enum, date, boolean, and JSON shape before model construction.
 9. Bind the read port to the adapter in the target composition root and prove runtime resolution.
-10. Add tests for empty results, filters, nulls, ordering, pagination, malformed data, boundary values, and production binding.
+10. Run shared read behavior against every adapter for the port. Keep malformed persisted data and SQL details in Doctrine-specific tests.
 
 ## Backendbase invariants
 

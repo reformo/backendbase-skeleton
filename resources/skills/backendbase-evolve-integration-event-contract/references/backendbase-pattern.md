@@ -91,9 +91,8 @@ For breaking event-name changes, define dual publication or a controlled migrati
 - Registry identity is `eventName:eventVersion`.
 - Missing metadata, unknown versions, no subscriber, wrong subscriber interface, and mapping errors are permanent failures.
 - The current `NewExampleAdded` version-one producer publishes an outer `exampleId` plus a nested `command` object.
-- Its registered version-one carrier expects flat fields.
-- The mismatch becomes a permanent mapping failure. Do not copy this shape into a new project.
-- If version-one messages already exist, repair the carrier for the released shape or add a compatible version-two path. Do not rewrite history silently.
+- Its registered version-one carrier preserves the same outer and nested shape.
+- A real dispatcher contract test maps the producer arguments into the registered carrier. Preserve this evidence during contract changes.
 - Old messages can survive in outbox, primary queue, and dead-letter storage.
 
 ## Authorization boundary

@@ -8,7 +8,9 @@ use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\Entit
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as ExampleWriteRepositoryContract;
 use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
+use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
 use Backendbase\Shared\Exception\ResourceNotFound;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class ExampleWriteRepository implements ExampleWriteRepositoryContract
@@ -19,8 +21,15 @@ final readonly class ExampleWriteRepository implements ExampleWriteRepositoryCon
 
     public function add(Example $example): void
     {
-        $this->entityManager->persist(ExampleRecord::fromDomain($example));
-        $this->entityManager->flush();
+        try {
+            $this->entityManager->persist(ExampleRecord::fromDomain($example));
+            $this->entityManager->flush();
+        } catch (UniqueConstraintViolationException $exception) {
+            throw ExampleAlreadyExists::create(
+                'An active example already uses this identity.',
+                previous: $exception,
+            );
+        }
     }
 
     public function getActive(string $exampleId): Example

@@ -1051,24 +1051,31 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                         <tr><td>Registry test</td><td>Name and version resolve the expected message class. Unknown versions fail.</td><td><code>InMemoryExternalIntegrationEventRegistryTest</code></td></tr>
                         <tr><td>Mapping test</td><td>Valid producer payload maps. Missing, extra, and wrong-type fields fail.</td><td><code>ExternalIntegrationEventDispatcherTest</code></td></tr>
                         <tr><td>Processor test</td><td>Success acknowledges, duplicates do not dispatch, invalid input rejects, and transient failures retry.</td><td><code>ExternalIntegrationEventMessageProcessorTest</code></td></tr>
-                        <tr><td>End-to-end contract test</td><td>The actual producer payload maps into the registered consumer carrier.</td><td><strong>Missing for the current example.</strong></td></tr>
+                        <tr><td>End-to-end contract test</td><td>The actual producer payload maps into the carrier registered by the context provider.</td><td><code>ProducerConsumerContractTest</code></td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <h3>Recommended end-to-end contract assertion</h3>
+            <h3>Producer-to-consumer contract assertion</h3>
             <div class="code-wrap">
                 <pre><code>$event = new NewExampleAdded(new NewExampleAddedPayload(/* explicit values */));
 
-$message = (new MapperBuilder())
-    -&gt;allowPermissiveTypes()
-    -&gt;mapper()
-    -&gt;map(
-        NewExampleAddedMessage::class,
-        $event-&gt;getEventArguments(),
+$eventManager-&gt;expects(self::once())
+    -&gt;method('dispatchExternalEvent')
+    -&gt;with(
+        NewExampleAddedExternalSubscriber::EVENT_TYPE,
+        self::callback(static function (NewExampleAddedMessage $message) use ($event): bool {
+            self::assertSame($event-&gt;getEventArguments(), $message-&gt;toArray());
+
+            return true;
+        }),
     );
 
-self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
+$dispatcher-&gt;dispatch(
+    NewExampleAddedExternalSubscriber::EVENT_TYPE,
+    $event-&gt;eventVersion(),
+    $event-&gt;getEventArguments(),
+);</code></pre>
             </div>
 
             <h3>Focused test command</h3>
@@ -1077,6 +1084,7 @@ self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
   tests/Domain/ExampleBoundedContext/Contracts/IntegrationEvents \
   tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php \
   tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php \
+  tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php \
   tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php</code></pre>
             </div>
         </section>
@@ -1122,10 +1130,10 @@ self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
         </section>
 
         <section id="known-issue">
-            <h2>Known version-one contract issue</h2>
+            <h2>Aligned version-one contract</h2>
             <p class="lede">
-                The registered <code>NewExampleAdded</code> producer and external consumer use different payload shapes.
-                The actual Valinor mapping fails with eight errors.
+                The registered <code>NewExampleAdded</code> consumer now preserves the released producer payload shape.
+                The real dispatcher maps this payload into typed outer and nested data transfer objects (DTOs).
             </p>
 
             <div class="contract-pair">
@@ -1146,45 +1154,32 @@ self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
 }</code></pre></div>
                 </article>
 
-                <div class="contract-arrow" aria-hidden="true">≠</div>
+                <div class="contract-arrow" aria-hidden="true">=</div>
 
                 <article class="card">
                     <h3>Registered consumer shape</h3>
                     <div class="code-wrap"><pre><code>{
   "exampleId": "example-id",
-  "type": "system",
-  "typeTargetId": null,
-  "group": "settings",
-  "isActive": true,
-  "key": "page-size",
-  "value": "25",
-  "details": {}
+  "command": {
+    "exampleId": "example-id",
+    "type": "system",
+    "typeTargetId": null,
+    "group": "settings",
+    "isActive": true,
+    "key": "page-size",
+    "value": "25",
+    "details": {}
+  }
 }</code></pre></div>
                 </article>
             </div>
 
-            <div class="callout danger">
-                <strong>Runtime effect</strong>
-                The queue processor classifies the mapping error as permanent.
-                It records a delivery failure and returns <code>REJECT</code>.
-                RabbitMQ sends the message to its dead-letter queue. Amazon Simple Queue Service needs a redrive policy.
+            <div class="callout good">
+                <strong>Executable compatibility evidence</strong>
+                <code>ProducerConsumerContractTest</code> creates the real producer event, reads the registered carrier from <code>ServiceProvider</code>, and dispatches through <code>InMemoryExternalIntegrationEventRegistry</code> and <code>ExternalIntegrationEventDispatcher</code>.
             </div>
 
-            <h3>Resolution choices</h3>
-            <div class="grid">
-                <article class="card">
-                    <h3>Preserve the published version</h3>
-                    <p>Change the version-one consumer carrier to accept the nested <code>command</code> shape.</p>
-                    <p>Use this choice when version-one messages can already exist.</p>
-                </article>
-                <article class="card">
-                    <h3>Create a new version</h3>
-                    <p>Keep version one unchanged. Add aligned version-two producer and consumer contracts.</p>
-                    <p>Use this choice for an incompatible released-contract change.</p>
-                </article>
-            </div>
-
-            <p>This guide reports the issue. It does not change either contract.</p>
+            <p><code>NewExampleAddedMessage</code> validates the outer identifier against <code>NewExampleAddedCommand</code>. It keeps the existing version-one wire contract unchanged.</p>
         </section>
 
         <section id="checklist">
@@ -1221,6 +1216,7 @@ self::assertSame($event-&gt;exampleId(), $message-&gt;exampleId());</code></pre>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
                         <tr><td>Outbox publication</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php</code></td></tr>
                         <tr><td>Message processing and mapping</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
+                        <tr><td>Producer-to-consumer contract evidence</td><td><code>tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php</code></td></tr>
                         <tr><td>Version registry</td><td><code>InMemoryExternalIntegrationEventRegistry.php</code></td></tr>
                         <tr><td>Event manager</td><td><code>src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php</code></td></tr>
                         <tr><td>Container registration</td><td><code>config/dependencies/modules.php</code></td></tr>

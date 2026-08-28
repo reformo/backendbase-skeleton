@@ -28,8 +28,9 @@ Adapt storage keys, cloning, projection mapping, filters, ordering, pagination, 
 3. Clone stored and loaded mutable aggregates to prevent reference aliasing.
 4. Implement the write adapter with production-equivalent not-found and removal behavior.
 5. Implement only read methods required by the selected tests, with production-equivalent filtering and deterministic ordering.
-6. Bind adapters explicitly in tests, not in production `ServiceProvider` definitions.
-7. Add or update lifecycle tests through real command and query buses.
+6. Run the production adapter's behavioral repository contract suite against the memory adapter.
+7. Bind adapters explicitly in tests, not in production `ServiceProvider` definitions.
+8. Add or update lifecycle tests through real command and query buses.
 
 ## Backendbase invariants
 
@@ -37,7 +38,7 @@ Adapt storage keys, cloning, projection mapping, filters, ordering, pagination, 
 - Do not add business decisions or relax invariants.
 - Preserve `null`, empty, not-found, removal, ordering, and pagination semantics.
 - Keep tests deterministic and free of network or database calls.
-- Do not claim SQL, Doctrine mapping, uniqueness, transaction, or lock behavior from memory tests.
+- Match observable uniqueness behavior. Do not claim database constraint enforcement, SQL, Doctrine mapping, transaction, or lock behavior from memory tests.
 - Do not create a production adapter, schema field, or feature only to support the test double.
 
 ## Verification

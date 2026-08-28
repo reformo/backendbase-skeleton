@@ -779,7 +779,7 @@
                     </ul>
                 </article>
             </div>
-            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>ExampleStore</code> for isolated tests.</p>
+            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>ExampleStore</code> for isolated tests. The memory store enforces the same active lookup identity uniqueness as Doctrine.</p>
             <div class="callout">
                 <strong>Doctrine discovery</strong>
                 <code>PathFinder::doctrineEntityPaths()</code> discovers <code>Domain/*/Adapters/Persistence/Doctrine/Entity</code> and one additional nested module depth.
@@ -863,6 +863,7 @@
             <ul>
                 <li>Use memory adapters for fast use-case and lifecycle tests.</li>
                 <li>Use Doctrine <code>SchemaTool</code> and production metadata for ORM repository schemas.</li>
+                <li>Run one behavioral repository contract suite against both memory and Doctrine adapters.</li>
                 <li>Test command and query contracts as public entry points.</li>
                 <li>Test aggregate rules without transport or persistence dependencies.</li>
                 <li>Test event schemas when other services can consume them.</li>

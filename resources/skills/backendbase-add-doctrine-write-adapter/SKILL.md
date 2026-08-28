@@ -29,9 +29,10 @@ Adapt the port operations, identifier, table and column mapping, enum and JSON h
 3. Translate new aggregate state with `fromDomain()`, existing state with `synchronize()`, and persisted state with `toDomain()` or the target equivalents.
 4. Implement load and save operations through `EntityManagerInterface` without business decisions.
 5. Bind the port to the adapter in the context provider.
-6. Add repository tests using production mapping metadata and `SchemaTool`.
-7. Finalize mapping and repository behavior before generating a migration diff.
-8. Start migration work only when the user authorized the exact schema change.
+6. Run the behavioral repository contract suite against Doctrine and every other adapter for the port.
+7. Add Doctrine-specific mapping and rollback tests using production metadata and `SchemaTool`.
+8. Finalize mapping and repository behavior before generating a migration diff.
+9. Start migration work only when the user authorized the exact schema change.
 
 ## Backendbase invariants
 

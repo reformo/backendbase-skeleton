@@ -17,6 +17,7 @@ use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
 use function array_keys;
 use function array_slice;
 use function count;
+use function sort;
 
 final readonly class ExampleReadRepository implements ExampleReadRepositoryContract
 {
@@ -71,7 +72,10 @@ final readonly class ExampleReadRepository implements ExampleReadRepositoryContr
             $groups[$state['group']] = true;
         }
 
-        return array_keys($groups);
+        $groupNames = array_keys($groups);
+        sort($groupNames);
+
+        return $groupNames;
     }
 
     public function getExamplesByGroup(GetExamplesByGroup $query): ExamplePage

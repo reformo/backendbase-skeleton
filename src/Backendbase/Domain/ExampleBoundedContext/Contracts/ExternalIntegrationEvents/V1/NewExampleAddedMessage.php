@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1;
 
 use Backendbase\Shared\Domain\Messaging\EventMessage;
+use UnexpectedValueException;
 
 final readonly class NewExampleAddedMessage implements EventMessage
 {
-    /** @param array<string, mixed> $details */
     public function __construct(
         private string $exampleId,
-        private string $type,
-        private int|null $typeTargetId,
-        private string $group,
-        private bool $isActive,
-        private string $key,
-        private string $value,
-        private array $details,
+        private NewExampleAddedCommand $command,
     ) {
+        if ($exampleId !== $command->exampleId()) {
+            throw new UnexpectedValueException('The external example identifiers must match.');
+        }
     }
 
     public function exampleId(): string
@@ -28,38 +25,38 @@ final readonly class NewExampleAddedMessage implements EventMessage
 
     public function type(): string
     {
-        return $this->type;
+        return $this->command->type();
     }
 
     public function typeTargetId(): int|null
     {
-        return $this->typeTargetId;
+        return $this->command->typeTargetId();
     }
 
     public function group(): string
     {
-        return $this->group;
+        return $this->command->group();
     }
 
     public function isActive(): bool
     {
-        return $this->isActive;
+        return $this->command->isActive();
     }
 
     public function key(): string
     {
-        return $this->key;
+        return $this->command->key();
     }
 
     public function value(): string
     {
-        return $this->value;
+        return $this->command->value();
     }
 
     /** @return array<string, mixed> */
     public function details(): array
     {
-        return $this->details;
+        return $this->command->details();
     }
 
     /** @return array<string, mixed> */
@@ -67,17 +64,12 @@ final readonly class NewExampleAddedMessage implements EventMessage
     {
         return [
             'exampleId' => $this->exampleId,
-            'type' => $this->type,
-            'typeTargetId' => $this->typeTargetId,
-            'group' => $this->group,
-            'isActive' => $this->isActive,
-            'key' => $this->key,
-            'value' => $this->value,
-            'details' => $this->details,
+            'command' => $this->command->toArray(),
         ];
     }
 
-    public function jsonSerialize(): mixed
+    /** @return array<string, mixed> */
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

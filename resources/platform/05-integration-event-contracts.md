@@ -16,8 +16,8 @@ An integration event is a versioned business fact. Its name, version, and payloa
 
 Use `IntegrationEventTransaction::execute()` to commit the domain mutation and outbox row together. Its callback performs authoritative database work and returns the complete event. Do not perform network, filesystem, process, or direct broker work inside the callback.
 
-Known issue: the version-one `NewExampleAdded` producer publishes a nested `command` object. Its registered consumer expects flat fields.
+The version-one `NewExampleAdded` producer publishes an outer `exampleId` and a nested `command` object. Its registered consumer carrier preserves this released shape with typed outer and nested data transfer objects.
 
-Do not change that released shape silently. Align the version-one carrier or add a compatible version-two contract.
+Keep an executable producer-to-consumer contract test. Map the producer event arguments through the real registry and dispatcher into the registered carrier.
 
 Basis: `resources/docs/3-integration-events.html`.

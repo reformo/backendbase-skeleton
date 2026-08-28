@@ -6,8 +6,8 @@ namespace Tests\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleReadRepository;
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleWriteRepository;
-use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository as ExampleReadRepositoryContract;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as ExampleWriteRepositoryContract;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
@@ -43,23 +43,13 @@ abstract class DoctrineExampleRepositoryTestCase extends TestCase
         $this->writeRepository = new ExampleWriteRepository($entityManager);
     }
 
-    protected function addExample(
-        string $exampleId,
-        string $group,
-        string $key,
-        string $value,
-        int|null $typeTargetId = null,
-    ): void {
-        $example = Example::create(
-            $exampleId,
-            ExampleType::SYSTEM,
-            $typeTargetId,
-            $group,
-            true,
-            $key,
-            $value,
-            ['image' => 'example.png'],
-        );
-        $this->writeRepository->add($example);
+    protected function readRepository(): ExampleReadRepositoryContract
+    {
+        return $this->readRepository;
+    }
+
+    protected function writeRepository(): ExampleWriteRepositoryContract
+    {
+        return $this->writeRepository;
     }
 }

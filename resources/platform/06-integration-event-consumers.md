@@ -22,6 +22,6 @@ The inbox identity is `(consumer_name, message_id)`. A processed duplicate ackno
 
 Missing metadata, unknown versions, missing subscribers, wrong interfaces, and mapping errors are permanent failures. Other subscriber or infrastructure exceptions are transient failures.
 
-Test the actual producer payload against its registered consumer carrier.
+Test the actual producer payload against its registered consumer carrier. Derive the carrier registration from the real context service provider. Map through the real registry and dispatcher.
 
 Basis: `resources/docs/3-integration-events.html`.

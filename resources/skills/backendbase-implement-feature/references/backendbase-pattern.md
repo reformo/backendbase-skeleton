@@ -175,7 +175,7 @@ Backendbase discovers context service providers one directory below `src/Backend
 
 Do not copy these current source conditions into new work:
 
-- The sample version 1 producer nests data under `command`, while its registered carrier expects flat fields. Define one shape and test real producer-to-carrier mapping.
+- The sample version 1 producer and registered carrier use a nested `command` shape. Preserve exact producer-to-carrier mapping through the real dispatcher.
 - Some sample API runtime fields, pagination behavior, status codes, and OpenAPI declarations differ. Make the runtime, specification, and tests agree.
 - The sample aggregate does not automatically drain recorded events. Its command handler publishes a domain event explicitly.
 - New Backendbase migrations should extend `BackendbaseAbstractMigration`. Older migrations use a different base.

@@ -17,7 +17,7 @@ final readonly class ExampleWriteRepository implements ExampleWriteRepositoryCon
 
     public function add(Example $example): void
     {
-        $this->store->save($example);
+        $this->store->add($example);
     }
 
     public function getActive(string $exampleId): Example

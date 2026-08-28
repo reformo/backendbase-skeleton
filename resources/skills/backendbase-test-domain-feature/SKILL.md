@@ -27,7 +27,7 @@ Preserve the target project's test ownership, naming, fixtures, database setup, 
 2. Start with the narrowest changed or failing test file.
 3. For domain mode, test valid, invalid, boundary, and state-transition behavior without adapters.
 4. For CQRS mode, test contract serialization and handler use of ports, domain behavior, transactions, and events.
-5. For repository mode, use production Doctrine metadata and an isolated schema; test mapping, filters, ordering, pagination, malformed data, and rollback as relevant.
+5. For repository mode, define one behavioral contract suite and run it against every adapter for the port. Keep Doctrine-specific mapping and rollback tests separate.
 6. For lifecycle mode, bind memory adapters and deterministic doubles, then use real command and query buses.
 7. For composition and registration mode, build the real test container or runtime registry and prove the new handler, port, subscriber, module, or command is reachable.
 8. Expand to owning directories, architecture checks, static analysis, style, and the full suite in proportion to risk.
@@ -37,7 +37,8 @@ Preserve the target project's test ownership, naming, fixtures, database setup, 
 - Prefer the target project's established test ownership. In an unmodified Backendbase project, keep new movable context tests under the context `Tests` root and platform, shared, infrastructure, API, and architecture tests under root `tests`.
 - Treat existing root `tests/Domain/*` files as current evidence, not as authority to relocate new movable tests. Do not move existing tests during an unrelated change.
 - Do not use handwritten test DDL for mapped ORM records; use `SchemaTool` with production metadata.
-- Do not claim SQL, uniqueness, transaction, or MySQL behavior from memory tests.
+- Use production Doctrine metadata and an isolated schema for Doctrine repository tests.
+- Do not claim database constraint enforcement, SQL, transaction, or MySQL behavior from memory tests.
 - Do not make live network or provider calls.
 - Assert failure, invalid input, rollback, mapping, and not-found paths when they are part of the change.
 - Test event payloads and ordering when they are contracts.

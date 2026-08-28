@@ -160,8 +160,8 @@ For an external effect, also test provider idempotency-key propagation, duplicat
 - Registry identity is event name plus event version.
 - Duplicate registry keys fail construction.
 - The event manager rejects internal subscribers matched on the external path.
-- Backendbase version-one `NewExampleAdded` publishes a nested `command` object, but its registered carrier expects flat fields.
-- Runtime mapping rejects that mismatch permanently. Use the producer payload as truth; do not copy the flawed carrier.
+- Backendbase version-one `NewExampleAdded` publishes a nested `command` object. Its registered carrier now preserves that released shape with typed outer and nested DTOs.
+- `ProducerConsumerContractTest` maps the real producer arguments through the registered carrier and real dispatcher.
 - SQS reject behavior needs an infrastructure redrive policy.
 - `ExternalEffectInbox` blocks repeated calls after an unknown outcome, but current code does not reconcile that outcome automatically.
 
@@ -175,13 +175,14 @@ Do not start a live consumer, replay a message, alter inbox records, provision q
 vendor/bin/phpunit tests/Domain/ExampleBoundedContext/ServiceProviderTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrationEventRegistryTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php
 composer phpstan
 composer cs-check
 ```
 
-Run the target project's new subscriber and carrier tests first. The listed Backendbase paths show verified registration and dispatch roles. Add an end-to-end test that maps the actual producer payload into the registered carrier.
+Run the target project's new subscriber and carrier tests first. The listed Backendbase paths show verified registration and dispatch roles. Keep an end-to-end test that maps the actual producer payload into the registered carrier.
 
 ## Completion report
 

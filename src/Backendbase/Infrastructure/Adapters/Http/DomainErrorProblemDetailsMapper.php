@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Http;
 
+use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
@@ -22,6 +23,12 @@ final class DomainErrorProblemDetailsMapper
     public function map(DomainException $exception): ActionError
     {
         [$status, $title, $code, $type] = match (true) {
+            $exception instanceof ExampleAlreadyExists => [
+                409,
+                'Example Already Exists',
+                'example/already-exists',
+                'about:blank',
+            ],
             $exception instanceof AuthorizationExpired => [
                 401,
                 'Authorization Expired',

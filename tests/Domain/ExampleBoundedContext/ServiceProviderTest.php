@@ -8,6 +8,7 @@ use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\Examp
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleWriteRepository;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository as ReadRepositoryContract;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as WriteRepositoryContract;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedCommand;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedMessage;
 use Backendbase\Domain\ExampleBoundedContext\ServiceProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -43,13 +44,16 @@ final class ServiceProviderTest extends TestCase
     {
         $message = new NewExampleAddedMessage(
             'example-id',
-            'system',
-            42,
-            'settings',
-            true,
-            'page-size',
-            '25',
-            ['unit' => 'items'],
+            new NewExampleAddedCommand(
+                'example-id',
+                'system',
+                42,
+                'settings',
+                true,
+                'page-size',
+                '25',
+                ['unit' => 'items'],
+            ),
         );
 
         self::assertSame('example-id', $message->exampleId());

@@ -51,12 +51,12 @@ final class ExternalIntegrationEventDispatcherTest extends TestCase
         yield 'extra field' => [$extraField];
 
         $missingField = self::validVersionOnePayload();
-        unset($missingField['details']);
+        unset($missingField['command']['details']);
 
         yield 'missing field' => [$missingField];
 
-        $incorrectType             = self::validVersionOnePayload();
-        $incorrectType['isActive'] = 'true';
+        $incorrectType                        = self::validVersionOnePayload();
+        $incorrectType['command']['isActive'] = 'true';
 
         yield 'incorrect scalar type' => [$incorrectType];
     }
@@ -112,13 +112,16 @@ final class ExternalIntegrationEventDispatcherTest extends TestCase
     {
         return [
             'exampleId' => 'example-id',
-            'type' => 'system',
-            'typeTargetId' => null,
-            'group' => 'settings',
-            'isActive' => true,
-            'key' => 'key',
-            'value' => 'value',
-            'details' => [],
+            'command' => [
+                'exampleId' => 'example-id',
+                'type' => 'system',
+                'typeTargetId' => null,
+                'group' => 'settings',
+                'isActive' => true,
+                'key' => 'key',
+                'value' => 'value',
+                'details' => [],
+            ],
         ];
     }
 }

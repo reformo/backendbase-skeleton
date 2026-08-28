@@ -49,14 +49,16 @@ Clone mutable aggregates. Immutable aggregate designs can use the target project
 - Pagination uses the same offset and page-size contract.
 - Read models contain the same public data and types.
 - Save and reload do not share an accidental mutable reference.
+- The same behavioral repository contract suite passes against memory and production adapters.
 
 ## Current source behavior and limitations
 
 - Example memory read and write adapters share `ExampleStore`.
 - `ExampleStore` clones values on save and read.
+- `ExampleStore` enforces active lookup identity uniqueness with the same context-safe error as Doctrine.
 - The functional lifecycle test binds memory adapters to the production ports and uses real container-aware buses.
-- The current memory group list preserves insertion order while the DBAL adapter sorts groups. Do not treat that difference as a desired platform rule; match the target read contract explicitly.
-- Memory tests do not prove Doctrine metadata, SQL binding, unique constraints, rollback, or MySQL behavior.
+- The shared Example repository contract checks sorted groups, pagination, active uniqueness, soft removal, and replacement.
+- Memory tests do not prove Doctrine metadata, SQL binding, database constraint enforcement, rollback, or MySQL behavior.
 
 ## Verification map
 

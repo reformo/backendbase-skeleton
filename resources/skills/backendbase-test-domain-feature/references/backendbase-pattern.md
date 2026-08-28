@@ -43,11 +43,13 @@ Assert only ordering that is part of correctness.
 
 ## Repository setup
 
+- Define the shared result, absence, error, removal, uniqueness, filtering, ordering, and pagination behavior once.
+- Run that contract suite unchanged against every adapter for the port.
 - Register the same Doctrine custom types used by production.
 - Create ORM configuration from the production entity directory.
 - Build an isolated schema through `SchemaTool` and all production metadata.
-- Instantiate the production read and write adapters.
-- Cover mapping in both directions, nulls, JSON, enums, filters, stable ordering, pagination, malformed rows, not-found behavior, and rollback as applicable.
+- Instantiate each adapter behind the same read and write port accessors.
+- Keep mapping, null storage, malformed rows, SQL, generated columns, and rollback in Doctrine-specific tests.
 
 ## Lifecycle setup
 
@@ -82,6 +84,7 @@ For new work in an unmodified Backendbase project:
 
 ## Current source behavior and limitations
 
+- The Example repository contract suite runs unchanged against memory and Doctrine adapters. It proves active uniqueness, soft removal, replacement, read behavior, ordering, and pagination.
 - Doctrine repository tests use SQLite with production metadata. They do not prove every MySQL generated-column, lock, or migration behavior.
 - `.github/workflows/quality-gates.yml` runs Composer validation and audit, `composer test`, PHPStan, PHPCS, OpenAPI validation, generation, and a generated-file diff check.
 - `.github/workflows/security-checks.yml` runs Semgrep and a prepared OpenAPI-based dynamic application security test. These checks need their configured services and tools.
@@ -118,5 +121,7 @@ Use existing target paths. Report every skipped command and its blocker.
 - `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php`
 - `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
 - `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleRepositoryTest.php`
+- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/ExampleRepositoryContract.php`
 - `tests/Functional/ExampleLifecycleTest.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Tests/ExampleServiceTest.php`

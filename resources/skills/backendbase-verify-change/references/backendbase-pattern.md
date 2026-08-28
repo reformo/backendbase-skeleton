@@ -158,7 +158,7 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - `public/index.php` selects an API through `X-Source-Id` and `UseCaseTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
 - Some authentication failures return status 400 while the sample OpenAPI declares 401 or 403.
 - The sample detail response, pagination rules, and OpenAPI fields are not fully aligned.
-- The version 1 producer nests `command`; its registered carrier expects flat fields.
+- The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.
 - Internal integration subscribers are registered but are not automatically dispatched.
 - SQS `REJECT` relies on external redrive configuration. RabbitMQ retry immediately requeues. Outbox publish retry has no terminal limit.
 - Notification provider wiring is incomplete and notification payload logging is unsafe.

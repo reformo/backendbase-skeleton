@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Http;
 
+use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Shared\Domain\Exception\DomainException;
@@ -46,6 +47,16 @@ final class DomainErrorProblemDetailsMapperTest extends TestCase
     public static function mappedErrors(): iterable
     {
         $context = ['resourceId' => 'example-id'];
+
+        yield 'example already exists' => [
+            ExampleAlreadyExists::create('Failure.', $context),
+            [
+                'status' => 409,
+                'title' => 'Example Already Exists',
+                'code' => 'example/already-exists',
+                'type' => 'about:blank',
+            ],
+        ];
 
         yield 'authorization expired' => [
             AuthorizationExpired::create('Failure.', $context),

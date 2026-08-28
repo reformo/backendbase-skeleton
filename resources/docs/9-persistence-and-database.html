@@ -56,17 +56,19 @@
 <p><code>IntegrationEventTransaction</code> coordinates a domain mutation and the integration event outbox insert. Inbox adapters coordinate consumer deduplication and external-effect state.</p>
 <div class="related"><a href="3-integration-events.html">Integration Events</a><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>
-<section id="tests"><p class="section-label">10 · Database tests</p><h2>Use production metadata in repository tests</h2>
-<ul><li>Create ORM test schemas with Doctrine <code>SchemaTool</code> and production mapping metadata.</li><li>Test aggregate-to-record and record-to-aggregate mapping.</li>
+<section id="tests"><p class="section-label">10 · Database tests</p><h2>Prove shared behavior and storage details</h2>
+<p>Run one behavioral repository contract suite unchanged against every adapter for the same port. The Example suite runs against memory and Doctrine adapters.</p>
+<ul><li>Test active identity uniqueness, replacement after soft removal, lookup, filtering, ordering, and pagination in the shared suite.</li>
+<li>Create ORM test schemas with Doctrine <code>SchemaTool</code> and production mapping metadata.</li><li>Test aggregate-to-record and record-to-aggregate mapping.</li>
 <li>Test DBAL filtering, null handling, ordering, pagination, and malformed persisted data.</li><li>Test migration SQL and custom Doctrine functions.</li>
 <li>Test seeders twice to prove idempotency.</li><li>Test commit and rollback behavior for transaction adapters.</li></ul>
-<pre><code>vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine
+<pre><code>vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Adapters/Persistence
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine
 vendor/bin/phpunit tests/Shared/Persistence</code></pre>
 </section>
 <section id="rules"><p class="section-label">11 · Rules</p><h2>Keep storage rules explicit</h2>
 <ul><li>Handlers depend on ports, not concrete Doctrine classes.</li><li>Controllers do not run SQL or use the entity manager.</li><li>Read adapters validate persisted data before creating read models.</li>
-<li>Write adapters map aggregate state without business decisions.</li><li>Database changes require explicit feature scope and reviewed migrations.</li><li>Migration and seeder behavior has automated evidence.</li></ul>
+<li>Write adapters map aggregate state without business decisions.</li><li>Adapters for one port return the same results and context-safe errors for shared behavior.</li><li>Database changes require explicit feature scope and reviewed migrations.</li><li>Migration and seeder behavior has automated evidence.</li></ul>
 </section>
 <section id="commands"><p class="section-label">12 · Commands</p><h2>Common database commands</h2>
 <pre><code>bin/doctrine migrations:status
