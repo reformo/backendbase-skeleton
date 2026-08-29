@@ -15,8 +15,8 @@
 
     <rule ref="Generic.Metrics.CyclomaticComplexity">
         <properties>
-            <property name="complexity" value="15"/>
-            <property name="absoluteComplexity" value="15"/>
+            <property name="complexity" value="12"/>
+            <property name="absoluteComplexity" value="12"/>
         </properties>
     </rule>
 </ruleset>

@@ -32,6 +32,7 @@ jobs:
           php-version: '8.5'
           extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
           coverage: pcov
+          ini-values: zend.assertions=1
           tools: composer:2.10.3
 
       - name: Validate Composer files

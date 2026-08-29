@@ -37,7 +37,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Replaced weak Redis, RabbitMQ, SQS, and readiness numeric casts with explicit configuration failures.
 - Simplified queue-message metadata validation and removed unreachable failure guards.
 - Updated the quality, strengths, and Ports and Adapters reports with current verification, dependency, and supply-chain evidence.
-- Added a continuous-integration cyclomatic-complexity gate with a maximum of 15 per function or method.
+- Added a continuous-integration cyclomatic-complexity gate with a maximum of 12 per function or method.
 - Improved the quality report with a dependency profile, compact responsive navigation, mobile table cards, keyboard focus states, and print styles.
 - Kept ratio metrics on one line in the quality report evidence summary.
 - Reassessed dependency maintenance cost after removing unused packages and redundant direct requirements.
@@ -49,3 +49,4 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added S3-compatible endpoint and path-style request support to the object-store client.
 - Merged the strengths and weaknesses assessment into the light-only engineering quality report, then removed the obsolete standalone report.
 - Made PHPUnit use explicit test configuration instead of requiring an untracked `.env` file.
+- Enabled PHP assertions in the quality-gate runtime so PCOV measures assertion lines consistently.

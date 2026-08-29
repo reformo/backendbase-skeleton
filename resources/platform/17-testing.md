@@ -50,7 +50,7 @@ The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails 
 
 PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `public`, quality tools under `bin`, and `resources/database`.
 
-`composer complexity` fails when one function or method has cyclomatic complexity greater than 15.
+`composer complexity` fails when one function or method has cyclomatic complexity greater than 12.
 
 `composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
 
