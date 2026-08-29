@@ -24,11 +24,11 @@ variables:
     value: managed-secret
   - name: account-uuid
     value: ""
-  - name: typeSlug
+  - name: type-slug
     value: system
-  - name: exampleGroup
+  - name: example-group
     value: settings
-  - name: exampleKey
+  - name: example-key
     value: bruno-settings-max-list-item
   - name: typeTargetId
     value: ""

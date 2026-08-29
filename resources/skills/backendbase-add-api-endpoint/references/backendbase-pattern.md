@@ -109,7 +109,6 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
 - Current write routes pass typed access control to commands. Their application handlers enforce named privileges before side effects.
 - `tests/ExampleApiTestCase.php` loads obsolete HTTP adapter paths. Use current focused tests or repair a full-stack helper only when the requested test needs it.
-- Existing path placeholder names predate the current repository naming instruction. Do not rename legacy routes during an unrelated endpoint change.
 
 ## Exact source provenance
 

@@ -23,11 +23,11 @@ class ModuleConfig implements ModuleRoute
     #[Override]
     public function __invoke(RouteCollectorProxy $routeCollector): void
     {
-        $routeCollector->get('/{typeSlug}/groups', Handlers\ExampleGroups::class)
+        $routeCollector->get('/{type-slug}/groups', Handlers\ExampleGroups::class)
             ->setName('getExampleGroupsByType');
-        $routeCollector->get('/{typeSlug}/groups/{exampleGroup}/examples', Examples::class)
+        $routeCollector->get('/{type-slug}/groups/{example-group}/examples', Examples::class)
             ->setName('getExamplesByGroup');
-        $routeCollector->get('/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}', Handlers\ExampleDetails::class)
+        $routeCollector->get('/{type-slug}/groups/{example-group}/examples/{example-key}', Handlers\ExampleDetails::class)
             ->setName('getExampleByCriteria');
 
         /**
@@ -36,11 +36,11 @@ class ModuleConfig implements ModuleRoute
          * */
         /** @param RouteCollectorProxy<ContainerInterface> $group */
         $routeCollector->group('', function (RouteCollectorProxy $group): void {
-            $group->post('/{typeSlug}/groups/{exampleGroup}/examples', Handlers\NewExample::class)
+            $group->post('/{type-slug}/groups/{example-group}/examples', Handlers\NewExample::class)
                 ->setName('addNewExample');
-            $group->patch('/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}', Handlers\ChangeExampleDetails::class)
+            $group->patch('/{type-slug}/groups/{example-group}/examples/{example-key}', Handlers\ChangeExampleDetails::class)
                 ->setName('changeExampleDetails');
-            $group->delete('/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}', Handlers\RemoveExample::class)
+            $group->delete('/{type-slug}/groups/{example-group}/examples/{example-key}', Handlers\RemoveExample::class)
                 ->setName('removeExample');
         })->add(AuthorizationMiddleware::class);
     }

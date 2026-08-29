@@ -28,9 +28,9 @@ class ChangeExampleDetails extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('typeSlug'));
-        $group        = (string) $this->request->getAttribute('exampleGroup');
-        $exampleKey   = (string) $this->request->getAttribute('exampleKey');
+        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group        = (string) $this->request->getAttribute('example-group');
+        $exampleKey   = (string) $this->request->getAttribute('example-key');
         $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
         $lookupValue  = ExampleRequestInput::optionalStringOrNull($payload['lookupValue'] ?? null, 'lookupValue');

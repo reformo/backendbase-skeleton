@@ -10,7 +10,7 @@ get:
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
 
     - in: path
-      name: typeSlug
+      name: type-slug
       description: Type slug
       required: true
       schema:

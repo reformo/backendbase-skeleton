@@ -5,7 +5,7 @@ info:
 
 http:
   method: "PATCH"
-  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups/{{exampleGroup}}/examples/{{exampleKey}}"
+  url: "{{baseUrl}}/example-types/{{type-slug}}/groups/{{example-group}}/examples/{{example-key}}"
   headers:
     - name: "Backendbase-Api-Key"
       value: "{{apiKey}}"

@@ -640,12 +640,12 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <tr><td><span class="method post">POST</span></td><td><code>/accounts</code></td><td><code>RegisterAccount</code></td><td>Yes</td></tr>
                     <tr><td><span class="method patch">PATCH</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>ReviseAccount</code></td><td>Yes</td></tr>
                     <tr><td><span class="method delete">DELETE</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>RetireAccount</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups</code></td><td><code>ExampleGroups</code></td><td>No</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>Examples</code></td><td>No</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>ExampleDetails</code></td><td>No</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>NewExample</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>ChangeExampleDetails</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>RemoveExample</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups</code></td><td><code>ExampleGroups</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>Examples</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ExampleDetails</code></td><td>No</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>NewExample</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ChangeExampleDetails</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>RemoveExample</code></td><td>Yes</td></tr>
                     <tr><td><span class="method any">ANY</span></td><td><code>/{routes:.*}</code></td><td><code>NotFound</code></td><td>No</td></tr>
                     </tbody>
                 </table>
@@ -699,7 +699,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
     protected function action(): Response
     {
         $type = ExampleRequestInput::type(
-            $this-&gt;request-&gt;getAttribute('typeSlug'),
+            $this-&gt;request-&gt;getAttribute('type-slug'),
         );
         $params = PayloadSanitizer::sanitize(
             $this-&gt;request-&gt;getQueryParams(),

@@ -42,8 +42,8 @@ final class ExampleWriteControllersTest extends TestCase
             }));
         $action  = new NewExample($commandBus, $this->createStub(LoggerInterface::class));
         $request = $this->request('POST', '/examples')
-            ->withAttribute('typeSlug', 'system')
-            ->withAttribute('exampleGroup', 'settings')
+            ->withAttribute('type-slug', 'system')
+            ->withAttribute('example-group', 'settings')
             ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
             ->withParsedBody([
                 'lookupKey' => 'page-size',
@@ -73,8 +73,8 @@ final class ExampleWriteControllersTest extends TestCase
 
         foreach ($payloads as $payload) {
             $request = $this->request('POST', '/examples')
-                ->withAttribute('typeSlug', 'system')
-                ->withAttribute('exampleGroup', 'settings')
+                ->withAttribute('type-slug', 'system')
+                ->withAttribute('example-group', 'settings')
                 ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
                 ->withParsedBody($payload);
 
@@ -104,9 +104,9 @@ final class ExampleWriteControllersTest extends TestCase
             $this->createStub(LoggerInterface::class),
         );
         $request = $this->request('PATCH', '/examples/page-size')
-            ->withAttribute('typeSlug', 'system')
-            ->withAttribute('exampleGroup', 'settings')
-            ->withAttribute('exampleKey', 'page-size')
+            ->withAttribute('type-slug', 'system')
+            ->withAttribute('example-group', 'settings')
+            ->withAttribute('example-key', 'page-size')
             ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
             ->withParsedBody([
                 'lookupValue' => '50',
@@ -136,9 +136,9 @@ final class ExampleWriteControllersTest extends TestCase
             $this->createStub(LoggerInterface::class),
         );
         $request = $this->request('DELETE', '/examples/page-size')
-            ->withAttribute('typeSlug', 'system')
-            ->withAttribute('exampleGroup', 'settings')
-            ->withAttribute('exampleKey', 'page-size')
+            ->withAttribute('type-slug', 'system')
+            ->withAttribute('example-group', 'settings')
+            ->withAttribute('example-key', 'page-size')
             ->withAttribute(AccessControl::class, new Acl(['full-privileges']));
 
         self::assertSame(204, $this->invoke($action, $request)->getStatusCode());

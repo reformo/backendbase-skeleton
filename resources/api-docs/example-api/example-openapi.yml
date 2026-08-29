@@ -156,11 +156,11 @@ paths:
       security:
         - apiKey: [ ]
 
-  /example-types/{typeSlug}/groups:
+  /example-types/{type-slug}/groups:
     $ref: "./example/example-groups.yaml"
-  /example-types/{typeSlug}/groups/{exampleGroup}/examples:
+  /example-types/{type-slug}/groups/{example-group}/examples:
     $ref: "./example/examples.yaml"
-  /example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}:
+  /example-types/{type-slug}/groups/{example-group}/examples/{example-key}:
     $ref: "./example/example-details.yaml"
   /accounts:
     $ref: "./account/accounts.yaml"

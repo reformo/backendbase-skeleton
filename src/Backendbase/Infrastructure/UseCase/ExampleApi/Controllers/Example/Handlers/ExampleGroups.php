@@ -28,7 +28,7 @@ class ExampleGroups extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('typeSlug'));
+        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
         $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');

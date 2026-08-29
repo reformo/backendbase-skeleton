@@ -58,7 +58,7 @@ final class ExampleNotFoundTest extends TestCase
         $app = AppFactory::create();
         $app->map(
             [$method],
-            '/examples/{typeSlug}/{exampleGroup}/{exampleKey}',
+            '/examples/{type-slug}/{example-group}/{example-key}',
             $action,
         );
         $app->addRoutingMiddleware();

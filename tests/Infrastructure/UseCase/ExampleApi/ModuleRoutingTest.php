@@ -33,6 +33,18 @@ final class ModuleRoutingTest extends TestCase
         self::assertSame('example-types', $module->routeKey());
         self::assertCount(6, $app->getRouteCollector()->getRoutes());
         self::assertSame(
+            '/example-types/{type-slug}/groups',
+            $app->getRouteCollector()->getNamedRoute('getExampleGroupsByType')->getPattern(),
+        );
+        self::assertSame(
+            '/example-types/{type-slug}/groups/{example-group}/examples',
+            $app->getRouteCollector()->getNamedRoute('getExamplesByGroup')->getPattern(),
+        );
+        self::assertSame(
+            '/example-types/{type-slug}/groups/{example-group}/examples/{example-key}',
+            $app->getRouteCollector()->getNamedRoute('getExampleByCriteria')->getPattern(),
+        );
+        self::assertSame(
             'addNewExample',
             $app->getRouteCollector()->getNamedRoute('addNewExample')->getName(),
         );
@@ -56,6 +68,10 @@ final class ModuleRoutingTest extends TestCase
         self::assertCount(4, $app->getRouteCollector()->getRoutes());
         self::assertSame('registerAccount', $app->getRouteCollector()->getNamedRoute('registerAccount')->getName());
         self::assertSame('retireAccount', $app->getRouteCollector()->getNamedRoute('retireAccount')->getName());
+        self::assertSame(
+            '/accounts/{account-uuid}',
+            $app->getRouteCollector()->getNamedRoute('reviseAccount')->getPattern(),
+        );
 
         $modules = (new ModuleRoutes())->getModules();
         self::assertSame(AccountModuleConfig::class, $modules['accounts']);

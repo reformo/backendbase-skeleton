@@ -30,9 +30,9 @@ class ExampleDetails extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('typeSlug'));
-        $group        = (string) $this->request->getAttribute('exampleGroup');
-        $exampleKey   = (string) $this->request->getAttribute('exampleKey');
+        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group        = (string) $this->request->getAttribute('example-group');
+        $exampleKey   = (string) $this->request->getAttribute('example-key');
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
 

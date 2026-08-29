@@ -81,7 +81,7 @@ final class ExampleInputValidationTest extends TestCase
         $queryBus->expects(self::never())->method('handle');
         $logger = new Logger('input-test');
         $app    = AppFactory::create();
-        $app->get('/examples/{typeSlug}', new ExampleGroups($queryBus, $logger));
+        $app->get('/examples/{type-slug}', new ExampleGroups($queryBus, $logger));
         $app->addRoutingMiddleware();
         $errorMiddleware = $app->addErrorMiddleware(false, false, false);
         $errorMiddleware->setDefaultErrorHandler(new HttpErrorHandler(
@@ -105,7 +105,7 @@ final class ExampleInputValidationTest extends TestCase
         $logger = new Logger('patch-input-test');
         $app    = AppFactory::create();
         $app->patch(
-            '/examples/{typeSlug}/{exampleGroup}/{exampleKey}',
+            '/examples/{type-slug}/{example-group}/{example-key}',
             new ChangeExampleDetails($commandBus, $logger),
         );
         $app->addRoutingMiddleware();

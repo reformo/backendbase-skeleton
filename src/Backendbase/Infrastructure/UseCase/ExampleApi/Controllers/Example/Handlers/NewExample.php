@@ -32,8 +32,8 @@ class NewExample extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = (string) $this->request->getAttribute('typeSlug');
-        $group        = (string) $this->request->getAttribute('exampleGroup');
+        $type         = (string) $this->request->getAttribute('type-slug');
+        $group        = (string) $this->request->getAttribute('example-group');
         $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
         $exampleId    = Uuid::uuid7()->toString();

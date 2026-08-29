@@ -10,14 +10,14 @@ post:
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
 
     - in: path
-      name: typeSlug
+      name: type-slug
       description: Type slug
       required: true
       schema:
         type: string
         enum: [ 'system', 'user', 'expert', 'admin' ]
     - in: path
-      name: exampleGroup
+      name: example-group
       description: Example group
       required: true
       schema:
@@ -86,14 +86,14 @@ get:
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
 
     - in: path
-      name: typeSlug
+      name: type-slug
       description: Type slug
       required: true
       schema:
         type: string
         enum: [ 'system', 'user', 'expert', 'admin' ]
     - in: path
-      name: exampleGroup
+      name: example-group
       description: Example group
       required: true
       schema:

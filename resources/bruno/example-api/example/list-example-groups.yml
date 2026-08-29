@@ -5,7 +5,7 @@ info:
 
 http:
   method: "GET"
-  url: "{{baseUrl}}/example-types/{{typeSlug}}/groups"
+  url: "{{baseUrl}}/example-types/{{type-slug}}/groups"
   headers:
     - name: "Backendbase-Api-Key"
       value: "{{apiKey}}"

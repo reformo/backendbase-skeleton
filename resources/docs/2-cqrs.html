@@ -905,7 +905,7 @@ final readonly class GetExampleByCriteriaHandler implements QueryHandler
             <h3>Boundary example</h3>
             <div class="code-wrap">
                 <pre><code>$type = ExampleRequestInput::type(
-    $this-&gt;request-&gt;getAttribute('typeSlug'),
+    $this-&gt;request-&gt;getAttribute('type-slug'),
 );
 
 $params = PayloadSanitizer::sanitize(

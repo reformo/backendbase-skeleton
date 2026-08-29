@@ -9,20 +9,20 @@ get:
     - $ref: '../../common/components.yaml#/headers/X-Request-Id'
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
     - in: path
-      name: typeSlug
+      name: type-slug
       description: Type slug
       required: true
       schema:
         type: string
         enum: [ 'system', 'user', 'expert', 'admin' ]
     - in: path
-      name: exampleGroup
+      name: example-group
       description: Example group
       required: true
       schema:
         type: string
     - in: path
-      name: exampleKey
+      name: example-key
       description: Example key
       required: true
       schema:
@@ -101,20 +101,20 @@ patch:
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
 
     - in: path
-      name: typeSlug
+      name: type-slug
       description: Type slug
       required: true
       schema:
         type: string
         enum: [ 'system', 'user', 'expert', 'admin' ]
     - in: path
-      name: exampleGroup
+      name: example-group
       description: Example group
       required: true
       schema:
         type: string
     - in: path
-      name: exampleKey
+      name: example-key
       description: Example key
       required: true
       schema:
@@ -163,20 +163,20 @@ delete:
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
 
     - in: path
-      name: typeSlug
+      name: type-slug
       description: Type slug
       required: true
       schema:
         type: string
         enum: [ 'system', 'user', 'expert', 'admin' ]
     - in: path
-      name: exampleGroup
+      name: example-group
       description: Example group
       required: true
       schema:
         type: string
     - in: path
-      name: exampleKey
+      name: example-key
       description: Example key
       required: true
       schema:

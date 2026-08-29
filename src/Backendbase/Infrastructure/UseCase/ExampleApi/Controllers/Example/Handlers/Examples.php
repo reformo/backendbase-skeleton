@@ -34,8 +34,8 @@ class Examples extends Action
     protected function action(): Response
     {
         $cdnBaseUrl   = $this->settings->cdnBaseUrl();
-        $type         = ExampleRequestInput::type($this->request->getAttribute('typeSlug'));
-        $group        = (string) $this->request->getAttribute('exampleGroup');
+        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group        = (string) $this->request->getAttribute('example-group');
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
         $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
