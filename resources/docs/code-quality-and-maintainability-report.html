@@ -28,8 +28,8 @@
             --green-soft: #e8f5ed;
             --purple: #684ca8;
             --purple-soft: #f0ecfb;
-            --code: #16252e;
-            --code-ink: #f4f8fa;
+            --code: #f4f7f8;
+            --code-ink: #24343d;
             --shadow: 0 16px 42px rgba(28, 47, 59, .09);
             --radius: 16px;
             --max: 1180px;
@@ -148,6 +148,8 @@
             letter-spacing: .12em;
             text-transform: uppercase;
         }
+
+        pre { border-color: var(--line); }
 
         @media (max-width: 980px) {
             nav {
@@ -390,13 +392,14 @@
                 Static analysis and coding standards now cover operational PHP and database delivery code.
                 CI actions use immutable commit SHAs, and Composer uses an exact secure version. Complexity, documentation, report, and supply-chain checks now have executable gates.
             </div>
-            <div class="callout danger">
+            <div class="callout warning">
                 <strong>Production-readiness constraint:</strong>
                 <code>POST /auth</code> verifies database-backed Argon2id credentials. The release seeds no account credential, so provision the first account through an approved operation.
             </div>
             <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have strong automated verification.</p>
-            <p>The new authentication flow keeps its dependency direction. The HTTP controller calls an application service that depends on repository and token ports. Doctrine and JSON Web Token (JWT) code remain adapters.</p>
-            <p>Recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and an opt-in local AWS emulator. A weekly audit, CycloneDX SBOM, and reviewed package-content digests now protect Composer changes.</p>
+            <p>The account lifecycle keeps its dependency direction. Protected HTTP controllers call commands and a query. Their handlers depend on account repository, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapters.</p>
+            <p>Recent changes moved Identity and Access bindings into its context service provider. They also moved bearer middleware to the inbound HTTP adapter, revoked authorization state before account revision or retirement, and aligned path parameters on <code>kebab-case</code>.</p>
+            <p>Other recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and an opt-in local AWS emulator. A weekly audit, CycloneDX SBOM, and reviewed package-content digests protect Composer changes.</p>
             <p>The code-quality score excludes product readiness. Provision the first account with account-management privileges through an approved operation before non-local use. Other findings concern repeatability, dependency cost, and external deployment ownership.</p>
             <p>The architecture does not need a broad rewrite. Apply focused fixes with regression tests.</p>
         </section>
@@ -410,7 +413,7 @@
                     <tr><th scope="col">Area</th><th scope="col">Score</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests. The authentication use case depends on project-owned repository and token ports.</td></tr>
+                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests. The account lifecycle uses context-owned repository, token, and authorization-state ports.</td></tr>
                     <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold.</td></tr>
                     <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8, complexity, and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 12.</td></tr>
@@ -454,7 +457,9 @@
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
-                    <tr><td>Account authentication</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> reads active account data through a repository port, verifies Argon2id credentials, issues tokens through a token port, and returns 401 for invalid credentials.</td></tr>
+                    <tr><td>Account lifecycle</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> authenticates active accounts. Protected <code>GET /accounts</code>, <code>POST /accounts</code>, and <code>PATCH</code> or <code>DELETE /accounts/{account-uuid}</code> operations use typed commands, a query, access control, and repository ports.</td></tr>
+                    <tr><td>Authorization-state revocation</td><td><span class="badge">Pass</span></td><td>Account revision and retirement revoke active authorization state before the database mutation. Tests cover revocation failure without partial persistence.</td></tr>
+                    <tr><td>HTTP authorization and path contracts</td><td><span class="badge">Pass</span></td><td>Bearer and API-key failures return stable 401 responses. Runtime routes, OpenAPI, and Bruno use <code>{account-uuid}</code> and other <code>kebab-case</code> path parameters.</td></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
@@ -488,7 +493,7 @@
             <div class="grid-3">
                 <div class="card">
                     <h3>Architecture boundaries</h3>
-                    <p>Architecture tests enforce domain purity, adapter direction, bounded-context isolation, framework boundaries, Shared-layer direction, and identity port isolation.</p>
+                    <p>Architecture tests enforce domain purity, adapter direction, bounded-context isolation, framework boundaries, Shared-layer direction, and identity port isolation. Context service providers own their adapter bindings.</p>
                 </div>
                 <div class="card">
                     <h3>Failure-path testing</h3>
@@ -516,7 +521,7 @@
                 </div>
                 <div class="card">
                     <h3>API contract coverage</h3>
-                    <p>OpenAPI sources, generated output, controller tests, Bruno requests, and an authenticated ZAP workflow cover the example API contract.</p>
+                    <p>OpenAPI sources, generated output, controller tests, Bruno requests, and an authenticated ZAP workflow cover authentication, account management, and example operations.</p>
                 </div>
                 <div class="card">
                     <h3>Defensive delivery controls</h3>
@@ -532,7 +537,7 @@
 
         <section id="risks">
             <p class="section-label">05 · Risks and weaknesses</p>
-            <h2>One product risk is urgent. The remaining risks need active ownership.</h2>
+            <h2>Operational and maintenance risks need active ownership</h2>
             <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Engineering risks and weaknesses">
                 <table class="report-table risk-table">
                     <thead>
@@ -641,7 +646,7 @@ vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-mer
 bash tests/Deployment/deployment-scripts.sh</code></pre>
             <p>The assessment did not run the container-based dynamic security scan or the live Bruno API collection.</p>
             <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
-            <p>The assessment included the current repository snapshot and its identity, quality, dependency, deployment, skill, and documentation changes.</p>
+            <p>The assessment included the current account lifecycle, context-owned bindings, middleware placement, authorization revocation, path contracts, and quality evidence.</p>
         </section>
     </main>
 </div>

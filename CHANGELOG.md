@@ -29,6 +29,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Updated the engineering quality and Ports and Adapters reports for the current account lifecycle, architecture boundaries, verification evidence, and light-only presentation.
 - Standardized OpenAPI and runtime path parameter identifiers on `kebab-case` and synchronized Bruno and API documentation.
 - Revoked all active account authorization state before account revision or retirement.
 - Aligned API-key and bearer failures with stable 401 problem responses and validated authorization request state.
