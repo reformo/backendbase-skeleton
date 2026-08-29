@@ -132,6 +132,7 @@ final class ReadinessDependencyDefinitionsTest extends TestCase
                 'cdnBaseUrl' => 'https://cdn.example.com',
                 'credentials' => ['key' => 'test-key', 'secret' => 'test-secret'],
                 'region' => 'eu-central-1',
+                'endpoint' => '',
             ],
         ];
     }

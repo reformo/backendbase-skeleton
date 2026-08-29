@@ -43,7 +43,7 @@ Adapt storage keys, cloning, projection mapping, filters, ordering, pagination, 
 
 ## Verification
 
-Run the context-owned service tests, affected handler tests, and complete in-process lifecycle test. Run PHPStan and PHPCS when code changed.
+Run the context-owned service tests, affected handler tests, and complete in-process lifecycle test. Run PHPStan, the configured complexity check, and PHPCS when code changed.
 
 ## Completion report
 

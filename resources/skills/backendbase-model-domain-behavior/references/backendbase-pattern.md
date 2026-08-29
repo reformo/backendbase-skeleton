@@ -67,6 +67,7 @@ The class and state object are illustrative. Preserve the target project's estab
 vendor/bin/phpunit tests/Domain/Catalog/Domain
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

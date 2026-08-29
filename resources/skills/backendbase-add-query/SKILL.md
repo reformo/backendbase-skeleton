@@ -43,7 +43,7 @@ Preserve the target project's namespace, query naming, value objects, read-model
 
 ## Verification
 
-Run the query contract test, affected read-port or adapter tests, lifecycle tests, PHPStan level 8, and PHPCS. Run architecture tests when dependencies changed.
+Run the query contract test, affected read-port or adapter tests, lifecycle tests, PHPStan level 8, the configured complexity check, and PHPCS. Run architecture tests when dependencies changed.
 
 ## Completion report
 

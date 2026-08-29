@@ -38,18 +38,21 @@ jobs:
           php-version: '8.5'
           extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
           coverage: none
-          tools: composer:v2
+          tools: composer:2.10.3
 
       - name: Validate dependencies
         run: |
-          composer validate --strict --no-check-publish
-          composer audit --locked --no-interaction
+          composer validate --strict --no-check-publish --no-plugins --no-scripts
+          composer audit --locked --no-interaction --no-plugins --no-scripts
+          composer install --no-interaction --no-progress --prefer-dist --no-plugins --no-scripts
+          php bin/composer-supply-chain.php check
           composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
 
       - name: Run release gates
         run: |
           composer run test
           composer run phpstan
+          composer run complexity
           composer run cs-check
           composer run docs:check-links
           composer run reports:check
@@ -71,5 +74,7 @@ jobs:
           path: |
             artifacts/releases/backendbase-${{ steps.release.outputs.revision }}.tar.gz
             artifacts/releases/backendbase-${{ steps.release.outputs.revision }}.tar.gz.sha256
+            resources/security/composer-sbom.cdx.json
+            resources/security/composer-package-content.json
           if-no-files-found: error
           retention-days: 30

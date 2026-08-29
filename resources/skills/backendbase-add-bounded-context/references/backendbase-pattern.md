@@ -83,6 +83,7 @@ Architecture tests prove dependency direction. This composition test separately 
 vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

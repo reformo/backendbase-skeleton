@@ -45,7 +45,7 @@ Adapt namespace, error-code vocabulary, status, type, title, translation key, an
 
 ## Verification
 
-Run the focused exception test and affected HTTP action or handler tests, then PHPStan level 8 and PHPCS. Run architecture tests when placement or dependencies changed.
+Run the focused exception test and affected HTTP action or handler tests, then PHPStan level 8, the configured complexity check, and PHPCS. Run architecture tests when placement or dependencies changed.
 
 ## Completion report
 

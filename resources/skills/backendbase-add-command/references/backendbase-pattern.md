@@ -130,6 +130,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/CQRS
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

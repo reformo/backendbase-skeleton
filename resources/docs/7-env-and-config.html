@@ -746,6 +746,7 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
                     <tr><td><code>OBJECT_STORE_ACCESS_KEY</code></td><td>Empty</td><td>Object-store access credential.</td></tr>
                     <tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Empty</td><td>Object-store secret credential.</td></tr>
                     <tr><td><code>OBJECT_STORE_REGION</code></td><td>Empty</td><td>S3 client region.</td></tr>
+                    <tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td><code>AWS_ENDPOINT</code></td><td>Optional S3-compatible endpoint. Custom endpoints use path-style requests.</td></tr>
                     <tr><td><code>BUCKET_NAME</code></td><td>Empty</td><td>Target bucket.</td></tr>
                     <tr><td><code>CDN_BASE_URL</code></td><td>No default in object-store array</td><td>Public URL prefix for stored assets.</td></tr>
                     </tbody>
@@ -790,11 +791,12 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
 
         <section id="docker">
             <h2>Local Docker services</h2>
-            <p><code>docker-compose.yaml</code> provides three development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
+            <p><code>docker-compose.yaml</code> provides three default development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
             <div class="grid three">
                 <article class="card green"><span class="tag">Redis Stack 7.4.0-v8</span><h3>Ports 6379 and 8001</h3><p>Uses a pinned image digest, persists data under <code>var/docker-data/redis</code>, and has a health check.</p></article>
                 <article class="card blue"><span class="tag blue">MySQL 8.4</span><h3>Port 3306</h3><p>Creates the local database and user, persists data under <code>var/docker-data/mysql</code>, and has a health check.</p></article>
                 <article class="card amber"><span class="tag amber">RabbitMQ 4.3</span><h3>Ports 5672 and 15672</h3><p>Uses environment-backed credentials, a named volume, and a health check.</p></article>
+                <article class="card"><span class="tag">Moto 5.2.3</span><h3>Port 5000</h3><p>Provides stateless S3, SQS, and SNS endpoints only through the <code>integration</code> profile.</p></article>
             </div>
             <div class="table-wrap">
                 <table>
@@ -803,10 +805,12 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
                     <tr><td><code>BACKENDBASE_DEV_MYSQL_*</code></td><td>MySQL port, database, user, password, and root password.</td></tr>
                     <tr><td><code>BACKENDBASE_DEV_REDIS_*</code></td><td>Redis and Redis Insight host ports.</td></tr>
                     <tr><td><code>BACKENDBASE_DEV_RABBITMQ_*</code></td><td>RabbitMQ ports, user, password, and virtual host.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEV_AWS_PORT</code></td><td>AWS emulator host port.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="code-wrap"><pre><code>docker compose up -d
+docker compose --profile integration up -d
 docker compose ps</code></pre></div>
             <p>Docker Compose values are local development defaults. Application variables in <code>.env.example</code> reference the same development values. Do not copy them into stage or production secrets.</p>
         </section>
@@ -895,8 +899,8 @@ docker compose ps</code></pre></div>
                 <table>
                     <thead><tr><th>Observation</th><th>Impact</th></tr></thead>
                     <tbody>
-                    <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include queue driver, readiness timeout, base path, JWT audience, dead-letter settings, SQS and SNS settings, current object-store keys, Tolgee settings, and payment callback URL.</td></tr>
-                    <tr><td>The example file includes unused or legacy names.</td><td><code>BACKENDBASE_LOGGER_HANDLER</code>, <code>AWS_S3_BUCKET</code>, and <code>AWS_S3_CLOUD_FRONT</code> have no current consumer in the inspected source.</td></tr>
+                    <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include readiness timeout, base path, JWT audience, dead-letter settings, Tolgee settings, and payment callback URL.</td></tr>
+                    <tr><td>The example file includes one unused name.</td><td><code>BACKENDBASE_LOGGER_HANDLER</code> has no current consumer in the inspected source.</td></tr>
                     <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
                     <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
                     <tr><td>Public cached boot skips Dotenv.</td><td>A changed <code>.env</code> has no effect until cache is cleared.</td></tr>
@@ -910,7 +914,7 @@ docker compose ps</code></pre></div>
             <ol>
                 <li>Copy <code>.env.example</code> to an untracked <code>.env</code>.</li>
                 <li>Replace every secret-like sample with a new local-only value.</li>
-                <li>Add current variables that the example file omits.</li>
+                <li>Add required service-specific variables that the example file omits.</li>
                 <li>Select <code>BACKENDBASE_ENV=dev</code>.</li>
                 <li>Start MySQL, Redis, and the selected queue driver.</li>
                 <li>Clear stale runtime caches.</li>
@@ -919,6 +923,7 @@ docker compose ps</code></pre></div>
             </ol>
             <div class="code-wrap"><pre><code>cp .env.example .env
 docker compose up -d
+docker compose --profile integration up -d
 bin/backendbase clear-cache
 composer run start-apis</code></pre></div>
             <p>Do not use the example credentials for any shared, stage, or production environment.</p>

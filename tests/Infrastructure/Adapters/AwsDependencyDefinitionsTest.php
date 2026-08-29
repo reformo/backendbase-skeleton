@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters;
 
+use Aws\S3\S3ClientInterface;
 use Aws\Sns\SnsClient;
 use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
@@ -51,6 +52,9 @@ final class AwsDependencyDefinitionsTest extends TestCase
 
             self::assertInstanceOf(SqsClient::class, $container->get(SqsClient::class));
             self::assertInstanceOf(SnsClient::class, $container->get(SnsClient::class));
+            $s3Client = $container->get(S3ClientInterface::class);
+            self::assertSame('http://127.0.0.1:5000', (string) $s3Client->getEndpoint());
+            self::assertTrue($s3Client->getConfig('use_path_style_endpoint'));
             self::assertInstanceOf(SqsQueue::class, $container->get(MessagePublisher::class));
             self::assertInstanceOf(SqsQueue::class, $container->get(MessageConsumer::class));
 
@@ -92,6 +96,7 @@ final class AwsDependencyDefinitionsTest extends TestCase
                 'cdnBaseUrl' => 'https://cdn.example.com',
                 'credentials' => ['key' => 'test-key', 'secret' => 'test-secret'],
                 'region' => 'eu-central-1',
+                'endpoint' => 'http://127.0.0.1:5000',
             ],
             'queue' => ['driver' => 'sqs'],
             'rabbitmq' => [

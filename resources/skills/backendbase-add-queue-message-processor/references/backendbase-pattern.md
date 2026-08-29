@@ -146,6 +146,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineEx
 vendor/bin/phpunit tests/Application/Messaging/QueueMessageFailureServiceTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStoreTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

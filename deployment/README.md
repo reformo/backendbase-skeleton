@@ -12,9 +12,9 @@ The workflow repeats the release gates. It then runs:
 bin/deployment/build-release.sh <full-commit-sha> artifacts/releases
 ```
 
-The builder installs development tools to generate and validate OpenAPI. It then removes development packages with a final `composer install --no-dev` command.
+The builder first installs dependencies with plugins and scripts disabled. It verifies the reviewed package-content digests before any dependency code executes. It then enables trusted build scripts to generate and validate OpenAPI. A final `composer install --no-dev` command removes development packages.
 
-The archive contains production Composer dependencies, generated OpenAPI, and `release-manifest.json`. The manifest binds the commit, `composer.lock`, migration target, and rollback policy.
+The archive contains production Composer dependencies, generated OpenAPI, the CycloneDX SBOM, the package-content manifest, and `release-manifest.json`. The manifest binds the commit, `composer.lock`, both supply-chain evidence files, the migration target, and the rollback policy.
 
 Update `deployment/release.json` when a migration is added. Set `applicationRollbackSafe` to `true` only when the previous application can use the new schema.
 
@@ -72,7 +72,7 @@ bin/deployment/update-prod.sh \
 
 Use `update-test.sh` for stage. Override `BACKENDBASE_READINESS_URL` when the local readiness URL differs.
 
-The command verifies the checksum, manifest, Composer platform, environment, hooks, and migration plan. It holds a deployment lock. It activates the release with a symbolic-link rename. It restores the previous application release when activation or readiness fails.
+The command verifies the archive checksum, release manifest, Composer lock, supply-chain evidence, Composer platform, environment, hooks, and migration plan. It holds a deployment lock. It activates the release with a symbolic-link rename. It restores the previous application release when activation or readiness fails.
 
 ## Recover a migration
 

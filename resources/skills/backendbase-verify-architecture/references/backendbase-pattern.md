@@ -94,6 +94,7 @@ vendor/bin/phpunit tests/Architecture/AttributeTargetBoundaryTest.php
 vendor/bin/phpunit tests/Architecture
 vendor/bin/phpunit {RealCompositionTestPath}
 composer phpstan
+composer complexity
 ```
 
 Create or select `{RealCompositionTestPath}` for the changed provider, container, bus, route map, command list, or registry. Do not cite the partial current tests as full runtime reachability evidence.

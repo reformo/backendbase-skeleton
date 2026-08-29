@@ -472,6 +472,7 @@
             <span class="chip">5 weaknesses</span>
             <span class="chip">18/18 architecture tests passed</span>
             <span class="chip">PHPStan level 8 passed</span>
+            <span class="chip">Complexity ≤ 15 passed</span>
         </div>
     </div>
 </header>
@@ -499,6 +500,7 @@
                 <strong>Primary strength:</strong> Business code depends on project-owned ports. Framework and vendor code remain in adapters or composition roots. Eighteen architecture tests enforce these rules.
             </div>
             <p>The strongest boundaries are persistence, messaging, identity ports, and framework-free business logic. The main costs are metadata coupling, an untyped aggregate snapshot, and a broad <code>Shared</code> area with mixed ownership.</p>
+            <p>Recent complexity, Composer supply-chain, and release-manifest controls strengthen delivery. They do not change the application, domain, port, or adapter dependency direction.</p>
             <p>No weakness requires a large rewrite. Apply small changes when the affected area next changes.</p>
             <div class="metrics" aria-label="Summary metrics">
                 <div class="stat"><strong>6</strong><span>Strengths to preserve</span></div>
@@ -593,7 +595,7 @@
                     <div><span class="badge medium">Medium · 03</span></div>
                     <div>
                         <h3>The Shared area has mixed architectural ownership</h3>
-                        <p><code>Shared</code> contains 119 PHP files. It includes domain contracts and primitives beside Slim actions, Symfony console bases, Doctrine helpers, migrations, and object mapping support.</p>
+                        <p><code>Shared</code> contains 126 PHP files. It includes domain contracts and primitives beside Slim actions, Symfony console bases, Doctrine helpers, migrations, and object mapping support.</p>
                         <p>The architecture test protects a selected framework-free core by excluding named framework directories. This rule is effective, but the top-level namespace remains a broad container.</p>
                         <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Http/Actions/Action.php"><code>Shared/Http/Actions/Action.php</code></a>, <a href="../../src/Backendbase/Shared/Migrations/BackendbaseAbstractMigration.php"><code>Shared/Migrations/BackendbaseAbstractMigration.php</code></a>, <a href="../../tests/Architecture/SharedCoreFrameworkBoundaryTest.php"><code>SharedCoreFrameworkBoundaryTest.php:35-55</code></a>.</p>
                     </div>
@@ -683,11 +685,13 @@
                     </thead>
                     <tbody>
                     <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>18 tests and 103 assertions passed. This includes Application, Shared core, both adapter directions, attribute targets, Identity ports, context isolation, container-adapter placement, and vendor connection construction.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>287 tests and 1,242 assertions passed.</td></tr>
-                    <tr><td><code>vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 scanned 384 files and found no errors.</td></tr>
-                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The review covered 237 production PHP files, 119 Shared PHP files, 13 architecture test classes, configuration roots, and architecture documentation.</td></tr>
-                    <tr><td>Interactive architecture map</td><td><span class="badge strong">Passed</span></td><td>Nine of nine showcase checks passed. Fifteen source references matched revision <code>2c9bde9</code>. Automated containment passed at four desktop sizes.</td></tr>
-                    <tr><td>Production code change</td><td><span class="badge">None</span></td><td>This task changed documentation and generated architecture artifacts only.</td></tr>
+                    <tr><td><code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>351 tests and 1,438 assertions passed. The suite covered 3,471 of 3,471 executable lines.</td></tr>
+                    <tr><td><code>composer phpstan -- --no-progress</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors across the configured application, test, tool, and database-delivery scope.</td></tr>
+                    <tr><td><code>composer complexity</code></td><td><span class="badge strong">Passed</span></td><td>All 435 configured PHP files stayed at cyclomatic complexity 15 or less.</td></tr>
+                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The review covered 261 production PHP files, 126 Shared PHP files, 13 architecture test classes, configuration roots, and architecture documentation.</td></tr>
+                    <tr><td>Interactive architecture map</td><td><span class="badge">Reference</span></td><td>The linked map remains the validated revision <code>2c9bde9</code> snapshot. This report rechecked current dependency rules and source links separately.</td></tr>
+                    <tr><td>Recent delivery controls</td><td><span class="badge strong">No direction change</span></td><td>The Composer supply-chain checker, evidence files, and release-manifest verification remain in tooling and deployment boundaries.</td></tr>
+                    <tr><td>Architecture-impacting production change</td><td><span class="badge">None</span></td><td>Recent changes affect quality, dependency, and deployment tooling. They do not change business-layer or adapter dependency direction.</td></tr>
                     </tbody>
                 </table>
             </div>

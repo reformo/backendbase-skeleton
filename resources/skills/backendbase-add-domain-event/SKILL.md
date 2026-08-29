@@ -45,7 +45,7 @@ Adapt the event fact, payload fields, listener behavior, publish point, and tran
 
 ## Verification
 
-Run the event and listener tests, the publisher composition test, the affected command-handler test, the lifecycle test, architecture tests, PHPStan level 8, and PHPCS.
+Run the event and listener tests, the publisher composition test, the affected command-handler test, the lifecycle test, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS.
 
 ## Completion report
 

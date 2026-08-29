@@ -105,6 +105,7 @@ vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 vendor/bin/phpunit tests/Shared/Configuration/ErrorDetailConfigurationTest.php
 bin/backendbase clear-cache
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

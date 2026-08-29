@@ -188,6 +188,7 @@ composer audit --locked --no-interaction
 vendor/bin/phpunit <smallest relevant test path>
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 composer generate-example-api-spec
 composer validate-example-api-spec
@@ -203,7 +204,7 @@ Use `git diff --exit-code` for generated-file parity only on a clean checkout or
 
 The current workflows have distinct roles:
 
-- `.github/workflows/quality-gates.yml` runs Composer validation and audit, tests, PHPStan, PHPCS, source OpenAPI validation, generation, and generated-file parity.
+- `.github/workflows/quality-gates.yml` runs Composer validation and audit, tests, PHPStan, cyclomatic complexity, PHPCS, source OpenAPI validation, generation, and generated-file parity.
 - `.github/workflows/security-checks.yml` runs Semgrep and a service-backed OpenAPI dynamic application security test.
 - `.github/workflows/release-artifact.yml` repeats release gates and builds an immutable artifact for an exact reviewed revision.
 

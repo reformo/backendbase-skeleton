@@ -90,6 +90,7 @@ vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/ServiceProviderTest.php
 vendor/bin/phpunit tests/Architecture
 bin/doctrine orm:validate-schema
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

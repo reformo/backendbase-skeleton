@@ -45,15 +45,16 @@
 <section id="wiring"><p class="section-label">10 · S3 wiring</p><h2>Settings build the AWS client and project adapter</h2>
 <div class="table-wrap"><table><thead><tr><th>Environment key</th><th>Setting</th></tr></thead><tbody>
 <tr><td><code>OBJECT_STORE_ACCESS_KEY</code></td><td>Explicit S3 access key</td></tr><tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Explicit S3 secret</td></tr>
-<tr><td><code>OBJECT_STORE_REGION</code></td><td>AWS region</td></tr><tr><td><code>BUCKET_NAME</code></td><td>S3 bucket</td></tr><tr><td><code>CDN_BASE_URL</code></td><td>Optional direct delivery base URL</td></tr>
+<tr><td><code>OBJECT_STORE_REGION</code></td><td>AWS region</td></tr><tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td>Optional S3-compatible endpoint; falls back to <code>AWS_ENDPOINT</code></td></tr><tr><td><code>BUCKET_NAME</code></td><td>S3 bucket</td></tr><tr><td><code>CDN_BASE_URL</code></td><td>Optional direct delivery base URL</td></tr>
 </tbody></table></div>
-<p>The dependency container creates <code>S3ClientInterface</code> with explicit credentials. This differs from the SQS and SNS wiring, which can use the AWS credential provider chain when both credential values are empty.</p></section>
+<p>The dependency container creates <code>S3ClientInterface</code> with explicit credentials. A custom endpoint uses path-style requests. SQS and SNS can use the AWS credential provider chain when both credential values are empty.</p>
+<p>Run <code>docker compose --profile integration up -d</code> for stateless local S3, SQS, and SNS endpoints. Create each required resource in the integration test setup.</p></section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known integration and storage limits</h2>
-<ul><li>The S3 upload retry loop has no explicit attempt limit.</li><li>Signed browser uploads do not enforce the supplied content type.</li><li>Download signing forces an image response content type.</li><li>S3 always receives an explicit credential object, including empty values.</li><li>Object-store settings do not include an endpoint for local S3-compatible services.</li><li>No general external-service adapter exists as a live example.</li></ul></section>
-<section id="tests"><p class="section-label">12 · Tests</p><h2>Keep external calls out of automated tests</h2>
+<ul><li>The S3 upload retry loop has no explicit attempt limit.</li><li>Signed browser uploads do not enforce the supplied content type.</li><li>Download signing forces an image response content type.</li><li>S3 always receives an explicit credential object, including empty values.</li><li>No general external-service adapter exists as a live example.</li></ul></section>
+<section id="tests"><p class="section-label">12 · Tests</p><h2>Use doubles by default and opt in to emulator tests</h2>
 <pre><code>vendor/bin/phpunit tests/Infrastructure/Adapters/S3BucketTest.php
 vendor/bin/phpunit tests/Shared/Integrations</code></pre>
-<p>Use SDK and port doubles. Test empty keys, signed expiration, success mapping, malformed responses, timeouts, and exhausted retries.</p></section>
+<p>Use SDK and port doubles in the default suite. Use the <code>integration</code> profile for explicit S3, SQS, or SNS adapter integration tests. Test empty keys, signed expiration, success mapping, malformed responses, timeouts, and exhausted retries.</p></section>
 <section id="checklist"><p class="section-label">13 · Checklist</p><h2>Add an integration safely</h2>
 <ul><li>The owning context and external action are clear.</li><li>A project-owned port hides vendor types.</li><li>Configuration validates required values.</li><li>Network timeouts are finite.</li><li>Retries are bounded and idempotent.</li><li>External responses are validated.</li><li>Secrets and personal data stay out of logs.</li><li>Tests use deterministic doubles.</li></ul></section>
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>

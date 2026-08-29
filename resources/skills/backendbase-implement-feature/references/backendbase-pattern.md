@@ -198,6 +198,7 @@ Use target-project commands. The Backendbase equivalents are:
 vendor/bin/phpunit <smallest relevant path>
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 composer validate-example-api-spec
 composer test

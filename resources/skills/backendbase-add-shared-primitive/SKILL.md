@@ -50,6 +50,7 @@ Use the target namespace, identifier format, exception hierarchy, serialization 
 vendor/bin/phpunit tests/Shared/Primitives/{PrimitiveTest}.php
 vendor/bin/phpunit tests/Shared/Primitives
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

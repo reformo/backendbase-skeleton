@@ -141,6 +141,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/SqsQueueTest.php
 vendor/bin/phpunit tests/Infrastructure/Health
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

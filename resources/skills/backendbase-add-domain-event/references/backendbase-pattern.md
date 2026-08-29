@@ -97,6 +97,7 @@ vendor/bin/phpunit tests/Shared/Domain
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

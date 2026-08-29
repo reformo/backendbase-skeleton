@@ -30,6 +30,7 @@ use function is_string;
  * @phpstan-type ObjectStoreSettings array{
  *     credentials: array{key: string, secret: string},
  *     region: string,
+ *     endpoint: string,
  *     bucket: string,
  *     cdnBaseUrl: string|null
  * }
@@ -129,6 +130,7 @@ final class ValidatedAwsSettings
             || ! is_string($credentials['key'] ?? null)
             || ! is_string($credentials['secret'] ?? null)
             || ! is_string($settings['region'] ?? null)
+            || ! is_string($settings['endpoint'] ?? null)
             || ! is_string($settings['bucket'] ?? null)
             || (! is_string($settings['cdnBaseUrl'] ?? null) && ($settings['cdnBaseUrl'] ?? null) !== null)
         ) {
@@ -138,6 +140,7 @@ final class ValidatedAwsSettings
         return [
             'credentials' => ['key' => $credentials['key'], 'secret' => $credentials['secret']],
             'region' => $settings['region'],
+            'endpoint' => $settings['endpoint'],
             'bucket' => $settings['bucket'],
             'cdnBaseUrl' => $settings['cdnBaseUrl'] ?? null,
         ];

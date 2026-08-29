@@ -51,7 +51,7 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 
 ## Verification
 
-Run focused repository tests, migration status, dry-run SQL, schema validation, PHPStan, and PHPCS. When release migration metadata changed, run the release or deployment-script checks. Run the actual migration only on the explicitly approved prepared database.
+Run focused repository tests, migration status, dry-run SQL, schema validation, PHPStan, the configured complexity check, and PHPCS. When release migration metadata changed, run the release or deployment-script checks. Run the actual migration only on the explicitly approved prepared database.
 
 ## Completion report
 

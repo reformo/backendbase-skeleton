@@ -37,7 +37,7 @@ Do not return an SDK response or accept an SDK request object. Put vendor-specif
 ## Current source limitations
 
 - No populated general vendor-service subtree exists; object storage and notifications are the live adapter examples.
-- S3 composition differs from the shared AWS client helper and does not use its optional credential-chain or endpoint behavior.
+- S3 composition differs from the shared AWS client helper. It uses explicit credentials and path-style requests for a custom endpoint.
 - Some current adapters expose weak response validation or sensitive debug payloads. Do not copy those gaps.
 
 ## Exact source provenance

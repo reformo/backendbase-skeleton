@@ -3,7 +3,7 @@
 <title>Backendbase Testing and Quality Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Verification strategy</p><h1>Testing and Quality</h1>
 <p class="lede">Test ownership, fast feedback, database evidence, API checks, coverage, static analysis, coding standards, automation, and completion criteria.</p>
-<div class="chips"><span class="chip">PHPUnit 13</span><span class="chip">PHPStan level 8</span><span class="chip">PHPCS</span><span class="chip">Coverage</span><span class="chip">Architecture tests</span></div></div></header>
+<div class="chips"><span class="chip">PHPUnit 13</span><span class="chip">PHPStan level 8</span><span class="chip">Complexity ≤ 15</span><span class="chip">PHPCS</span><span class="chip">Coverage</span><span class="chip">Architecture tests</span></div></div></header>
 <div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
 <a href="#overview">1. Overview</a><a href="#layout">2. Suite layout</a><a href="#layers">3. Test layers</a><a href="#fast">4. Fast tests</a>
 <a href="#database">5. Database tests</a><a href="#api">6. API and contract</a><a href="#static">7. Static checks</a><a href="#coverage">8. Coverage</a>
@@ -11,7 +11,7 @@
 </nav><main>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
 <p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
-<div class="summary-grid"><div class="stat"><strong>73</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>3</strong><span>Main quality commands</span></div></div>
+<div class="summary-grid"><div class="stat"><strong>73</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
 </section>
 <section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
 <div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
@@ -31,6 +31,7 @@
 <section id="fast"><p class="section-label">04 · Fast tests</p><h2>Keep domain and application feedback deterministic</h2>
 <ul><li>Test value-object invalid, boundary, and valid inputs.</li><li>Test aggregate invariants before repository behavior.</li><li>Use memory repositories for complete in-process lifecycles.</li>
 <li>Stub ports at application boundaries.</li><li>Assert emitted events when the event is part of the use-case contract.</li><li>Do not make live network calls.</li></ul>
+<p>Use <code>docker compose --profile integration up -d</code> only for explicit S3, SQS, and SNS adapter integration tests. Keep the emulator outside the default suite.</p>
 </section>
 <section id="database"><p class="section-label">05 · Database tests</p><h2>Use real mapping metadata and isolated schemas</h2>
 <p>Doctrine repository tests use production mapping metadata. They verify state mapping, SQL filters, ordering, pagination, null behavior, JSON data, enums, and rollback.</p>
@@ -45,6 +46,7 @@
 <section id="static"><p class="section-label">07 · Static checks</p><h2>Run analysis and style after behavior passes</h2>
 <div class="table-wrap"><table><thead><tr><th>Tool</th><th>Configuration</th><th>Current scope</th></tr></thead><tbody>
 <tr><td>PHPStan</td><td><code>phpstan.neon</code></td><td><code>src</code>, <code>tests</code>, <code>config</code>, <code>public</code>, quality and Tolgee tools, and database PHP at level 8</td></tr>
+<tr><td>Cyclomatic complexity</td><td><code>phpcs-complexity.xml.dist</code></td><td>The same PHP scope, with a maximum of 15 per function or method</td></tr>
 <tr><td>PHPCS</td><td><code>phpcs.xml.dist</code></td><td>Doctrine Coding Standard for the same repository scope</td></tr>
 <tr><td>Qodana</td><td><code>qodana.yaml</code></td><td>PHP 8.5 starter profile and explicit inspections</td></tr>
 <tr><td>Rector</td><td>Not configured</td><td>No project configuration or direct Composer package exists</td></tr>
@@ -57,12 +59,12 @@
 </section>
 <section id="workflow"><p class="section-label">09 · Verification workflow</p><h2>Expand checks in proportion to risk</h2>
 <ol class="steps"><li>Run the smallest failing or changed test file.</li><li>Run the owning directory.</li><li>Run related persistence, API, or queue tests.</li>
-<li>Validate OpenAPI when the public contract changes.</li><li>Run PHPStan at level 8.</li><li>Run PHPCS.</li><li>Validate documentation links.</li><li>Verify report metrics.</li><li>Run the full suite for broad changes.</li>
+<li>Validate OpenAPI when the public contract changes.</li><li>Run PHPStan at level 8.</li><li>Run the complexity check.</li><li>Run PHPCS.</li><li>Validate documentation links.</li><li>Verify report metrics.</li><li>Verify supply-chain evidence when Composer metadata changes.</li><li>Run the full suite for broad changes.</li>
 <li>Run Bruno only with a prepared API, credentials, and data.</li></ol>
 </section>
 <section id="automation"><p class="section-label">10 · Automation state</p><h2>Local and continuous-integration gates use the same commands</h2>
-<p>GitHub Actions runs Composer validation, dependency audit, PHPUnit with the coverage gate, PHPStan, PHPCS, documentation-link validation, report-metric drift detection, and OpenAPI validation.</p>
-<div class="callout good"><strong>The supply-chain and documentation controls are executable.</strong> Workflow actions use immutable commit SHAs. Continuous integration rejects broken local documentation links and stale report metrics.</div>
+<p>GitHub Actions runs Composer self-diagnosis, validation, a weekly dependency audit, isolated package-content verification, PHPUnit with the coverage gate, PHPStan, cyclomatic complexity, PHPCS, documentation-link validation, report-metric drift detection, and OpenAPI validation.</p>
+<div class="callout good"><strong>The supply-chain and documentation controls are executable.</strong> Actions use immutable commit SHAs. Composer is pinned to 2.10.3. Isolated dependency review disables plugins and scripts before it verifies the SBOM and package digests.</div>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known quality-tool differences</h2>
 <ul><li>Rector is not configured or installed.</li><li>Bruno needs external runtime state and is not a self-contained suite.</li></ul>
@@ -75,9 +77,11 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi
 # Full suite and quality
 composer test
 composer phpstan
+composer complexity
 composer cs-check
 composer docs:check-links
 composer reports:check
+php bin/composer-supply-chain.php check &lt;isolated-vendor-directory&gt;
 
 # Refresh marked report values after test or inventory changes
 composer reports:update
@@ -91,9 +95,11 @@ bin/bruno example-api local
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Suite configuration</td><td><code>phpunit.xml</code></td></tr><tr><td>Static analysis</td><td><code>phpstan.neon</code></td></tr>
+<tr><td>Cyclomatic complexity</td><td><code>phpcs-complexity.xml.dist</code></td></tr>
 <tr><td>Coding standard</td><td><code>phpcs.xml.dist</code></td></tr><tr><td>Qodana</td><td><code>qodana.yaml</code></td></tr>
 <tr><td>Documentation-link validation</td><td><code>bin/check-documentation-links.php</code></td></tr>
 <tr><td>Quality-report metrics</td><td><code>bin/update-quality-report.php</code></td></tr>
+<tr><td>Composer supply-chain verification</td><td><code>bin/composer-supply-chain.php</code> and <code>resources/security</code></td></tr>
 <tr><td>Continuous integration</td><td><code>.github/workflows</code></td></tr>
 <tr><td>Project scripts and Rector status</td><td><code>composer.json</code></td></tr>
 <tr><td>Tests</td><td><code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code></td></tr>

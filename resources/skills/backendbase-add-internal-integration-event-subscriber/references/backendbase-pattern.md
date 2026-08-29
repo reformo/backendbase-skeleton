@@ -108,6 +108,7 @@ vendor/bin/phpunit tests/Domain/ExampleBoundedContext/ServiceProviderTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/EventManager
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

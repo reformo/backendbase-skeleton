@@ -29,7 +29,7 @@ Adapt namespace roots, directory selectors, framework prefixes, composition root
 4. Fix production direction when the rule is valid. Do not add an exclusion to hide the violation.
 5. Add or change architecture tests only when the user changed the policy or a stable untested boundary is in scope.
 6. When composition changed, run a separate runtime reachability test through the actual container, provider, bus, route map, or registry.
-7. Re-run focused architecture tests, PHPStan level 8, and affected behavior tests.
+7. Re-run focused architecture tests, PHPStan level 8, the configured complexity check, and affected behavior tests.
 
 ## Backendbase invariants
 
@@ -47,7 +47,7 @@ Adapt namespace roots, directory selectors, framework prefixes, composition root
 
 ## Verification
 
-Run the specific architecture test, then the full architecture directory and PHPStan. Run relevant behavior and composition tests separately because architecture checks do not prove behavior or reachability.
+Run the specific architecture test, then the full architecture directory, PHPStan, and the configured complexity check. Run relevant behavior and composition tests separately because architecture checks do not prove behavior or reachability.
 
 ## Completion report
 

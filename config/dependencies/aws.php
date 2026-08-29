@@ -30,6 +30,7 @@ return static function (ContainerBuilder $containerBuilder): void {
             $secretKey              = $objectStoreCredentials->secretKey();
             $timeoutSeconds         = $settings->readinessTimeoutSeconds();
             $region                 = $objectStoreSettings->region();
+            $endpoint               = $objectStoreSettings->endpoint();
             $credentials            = new Credentials(
                 $accessKey,
                 $secretKey,
@@ -37,6 +38,10 @@ return static function (ContainerBuilder $containerBuilder): void {
 
             return new S3Client([
                 'credentials' => $credentials,
+                ...($endpoint === '' ? [] : [
+                    'endpoint' => $endpoint,
+                    'use_path_style_endpoint' => true,
+                ]),
                 'http' => [
                     'connect_timeout' => $timeoutSeconds,
                     'timeout' => $timeoutSeconds,

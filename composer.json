@@ -87,10 +87,12 @@
     "config": {
         "process-timeout": 0,
         "sort-packages": true,
+        "policy": true,
+        "secure-http": true,
+        "source-fallback": false,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "malukenho/mcbumpface": true,
-            "php-http/discovery": true
+            "malukenho/mcbumpface": true
         }
     },
     "autoload": {
@@ -125,6 +127,7 @@
             "Aws\\Script\\Composer\\Composer::removeUnusedServices"
         ],
         "start-apis": "php -S 0.0.0.0:8080 -t public",
+        "complexity": "vendor/bin/phpcs --standard=phpcs-complexity.xml.dist --warning-severity=0",
         "cs-check": "vendor/bin/phpcs",
         "cs-fix": "vendor/bin/phpcbf -e -a",
         "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",

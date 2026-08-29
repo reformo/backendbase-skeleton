@@ -47,6 +47,7 @@ Use the target locale list, default locale, dictionary format, key ownership, pl
 php -l resources/i18n/{locale}.php
 vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

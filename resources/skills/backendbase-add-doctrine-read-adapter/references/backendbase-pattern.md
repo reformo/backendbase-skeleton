@@ -92,6 +92,7 @@ vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Adapters/Persistence/Doc
 vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/ServiceProviderTest.php
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

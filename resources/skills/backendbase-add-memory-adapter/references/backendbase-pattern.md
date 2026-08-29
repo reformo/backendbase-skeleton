@@ -67,6 +67,7 @@ vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests
 vendor/bin/phpunit tests/Domain/Catalog/Application
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

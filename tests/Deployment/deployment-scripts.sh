@@ -79,14 +79,24 @@ createArtifact() {
     local fixturePath="$temporaryDirectory/fixture-$revision"
     local archivePath="$artifactDirectory/backendbase-$revision.tar.gz"
     local composerLockSha256
+    local composerPackageContentSha256
+    local composerSbomSha256
     local archiveSha256
 
-    mkdir -p "$fixturePath/bin" "$fixturePath/vendor" "$artifactDirectory"
+    mkdir -p "$fixturePath/bin" "$fixturePath/vendor" "$fixturePath/resources/security" "$artifactDirectory"
     printf '{}\n' > "$fixturePath/composer.lock"
+    printf '{}\n' > "$fixturePath/resources/security/composer-sbom.cdx.json"
+    printf '{}\n' > "$fixturePath/resources/security/composer-package-content.json"
     printf '<?php\n' > "$fixturePath/vendor/autoload.php"
     composerLockSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$fixturePath/composer.lock")"
-    printf '{"revision":"%s","composerLockSha256":"%s","migrationTarget":"Backendbase\\\\Migrations\\\\Version20260825050000","applicationRollbackSafe":true}\n' \
-        "$revision" "$composerLockSha256" > "$fixturePath/release-manifest.json"
+    composerSbomSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$fixturePath/resources/security/composer-sbom.cdx.json")"
+    composerPackageContentSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$fixturePath/resources/security/composer-package-content.json")"
+    printf '{"revision":"%s","composerLockSha256":"%s","composerSbomSha256":"%s","composerPackageContentSha256":"%s","migrationTarget":"Backendbase\\\\Migrations\\\\Version20260825050000","applicationRollbackSafe":true}\n' \
+        "$revision" \
+        "$composerLockSha256" \
+        "$composerSbomSha256" \
+        "$composerPackageContentSha256" \
+        > "$fixturePath/release-manifest.json"
 
     cat > "$fixturePath/bin/doctrine" <<'EOF'
 #!/usr/bin/env bash

@@ -50,7 +50,7 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 
 ## Verification
 
-Run the contract test, handler test, real command-bus composition test, affected lifecycle test, architecture tests, PHPStan level 8, and PHPCS. For an outbox branch, force an outbox failure and verify the business write rolls back. For a transactional domain event, assert persistence and publication order inside the callback.
+Run the contract test, handler test, real command-bus composition test, affected lifecycle test, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS. For an outbox branch, force an outbox failure and verify the business write rolls back. For a transactional domain event, assert persistence and publication order inside the callback.
 
 ## Completion report
 

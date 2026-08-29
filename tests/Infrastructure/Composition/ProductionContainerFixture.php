@@ -68,6 +68,7 @@ final class ProductionContainerFixture
                 'cdnBaseUrl' => 'https://cdn.example.com',
                 'credentials' => ['key' => 'test-key', 'secret' => 'test-secret'],
                 'region' => 'eu-central-1',
+                'endpoint' => '',
             ],
             'jwt' => [
                 'alias' => 'test',

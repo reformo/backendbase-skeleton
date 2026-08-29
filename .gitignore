@@ -61,9 +61,9 @@ artifacts/
 var/logs/*
 var/docker-data/*
 !/logs/README.md
-!.env.example
 .env
 .env.*
+!.env.example
 update.sh
 .phpunit.result.cache
 *.sh

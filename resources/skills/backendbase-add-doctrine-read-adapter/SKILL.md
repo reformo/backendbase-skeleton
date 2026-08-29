@@ -51,7 +51,7 @@ Adapt SQL, selected fields, criteria, null semantics, filters, ordering, paginat
 
 ## Verification
 
-Run focused mapper and repository tests, the provider or container composition test, affected query or lifecycle tests, PHPStan level 8, and PHPCS. Run schema validation only against a prepared database.
+Run focused mapper and repository tests, the provider or container composition test, affected query or lifecycle tests, PHPStan level 8, the configured complexity check, and PHPCS. Run schema validation only against a prepared database.
 
 ## Completion report
 

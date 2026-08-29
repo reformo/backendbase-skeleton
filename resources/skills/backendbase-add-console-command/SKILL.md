@@ -14,7 +14,7 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 3. Classify the command as finite maintenance work or a supervised long-running worker.
 4. Define its inputs, validation, exit codes, output, dependencies, and side effects before writing code.
 5. Add the smallest command, registration entry, and focused `CommandTester` tests.
-6. Run focused tests, architecture tests when boundaries change, PHPStan level 8, and PHPCS.
+6. Run focused tests, architecture tests when boundaries change, PHPStan level 8, the configured complexity check, and PHPCS.
 
 ## Invariants
 

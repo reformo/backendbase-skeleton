@@ -5,17 +5,20 @@ A release changes code, dependencies, generated contracts, cache, schema, and ba
 ## Release gates
 
 - Select an exact reviewed revision.
-- Run tests, PHPStan, and PHPCS.
+- Run tests, PHPStan, cyclomatic complexity, and PHPCS.
 - Generate and validate OpenAPI.
 - Review each migration and recovery path.
 - Confirm target secrets and configuration.
 - Confirm consumers remain compatible with queued messages.
 - Create and verify the immutable release artifact and checksum.
+- Verify the Composer SBOM and package-content manifest before dependency code executes.
 - Apply only the approved migration manifest.
 - Switch the active release link atomically.
 - Verify readiness, outbox health, workers, and logs.
 
-The artifact builder installs development tools for contract generation. A final `composer install --no-dev` command removes them before archive creation.
+The artifact builder first installs dependencies without plugins or scripts. It verifies the reviewed package-content digests before it enables trusted build scripts. A final `composer install --no-dev` command removes development tools before archive creation.
+
+The release manifest binds the release to `composer.lock`, the CycloneDX SBOM, and the package-content manifest with SHA-256 checksums.
 
 Clear merged configuration, route, container, and Doctrine metadata caches when their sources change. Restart workers after activation.
 

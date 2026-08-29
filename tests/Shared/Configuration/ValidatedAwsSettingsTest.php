@@ -32,6 +32,7 @@ final class ValidatedAwsSettingsTest extends TestCase
         $objectStore = [
             'credentials' => ['key' => 'access-key', 'secret' => 'secret-key'],
             'region' => 'eu-central-1',
+            'endpoint' => 'https://s3.example.com',
             'bucket' => 'assets',
             'cdnBaseUrl' => null,
         ];
@@ -91,6 +92,17 @@ final class ValidatedAwsSettingsTest extends TestCase
         yield 'object store' => [
             ValidatedAwsSettings::objectStore(...),
             ['credentials' => []],
+            'The object-store settings are invalid.',
+        ];
+
+        yield 'object store endpoint' => [
+            ValidatedAwsSettings::objectStore(...),
+            [
+                'credentials' => ['key' => '', 'secret' => ''],
+                'region' => 'eu-central-1',
+                'endpoint' => 1,
+                'bucket' => 'assets',
+            ],
             'The object-store settings are invalid.',
         ];
     }

@@ -107,6 +107,7 @@ vendor/bin/phpunit tests/Infrastructure/Health
 vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi/HealthControllersTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

@@ -115,6 +115,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventM
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/SqsQueueTest.php
 bin/backendbase list queue
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

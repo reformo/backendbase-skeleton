@@ -66,9 +66,10 @@ Verify names, types, required state, nullability, defaults, version, and error b
 2. Run the complete feature or bounded-context test set.
 3. Run architecture tests.
 4. Run PHPStan at the target project's required level.
-5. Run the style check.
-6. Validate generated API contracts when HTTP behavior changes.
-7. Run the full suite when risk or project policy requires it.
+5. Run the target project's configured complexity check.
+6. Run the style check.
+7. Validate generated API contracts when HTTP behavior changes.
+8. Run the full suite when risk or project policy requires it.
 
 Do not execute a migration, deploy a release, replace tracked localization files, or mutate an external system without explicit authorization.
 

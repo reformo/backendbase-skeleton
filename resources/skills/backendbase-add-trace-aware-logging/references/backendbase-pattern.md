@@ -93,6 +93,7 @@ Run the newly added logger-factory test first. Then run the target equivalents o
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http
 vendor/bin/phpunit tests/Shared/Http/Actions
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

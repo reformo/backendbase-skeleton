@@ -179,6 +179,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ProducerConsumerContractT
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

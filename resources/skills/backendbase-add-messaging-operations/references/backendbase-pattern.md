@@ -116,6 +116,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOu
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/QueueMaintenanceCommandsTest.php
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/ShowOutboxStatusTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

@@ -168,6 +168,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 composer test
 ```

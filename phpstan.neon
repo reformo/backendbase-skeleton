@@ -8,6 +8,7 @@ parameters:
     - public/
     - bin/check-coverage.php
     - bin/check-documentation-links.php
+    - bin/composer-supply-chain.php
     - bin/update-quality-report.php
     - bin/tolgee/sync-support.php
     - resources/database/

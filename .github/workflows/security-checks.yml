@@ -99,13 +99,18 @@ jobs:
           php-version: '8.5'
           extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
           coverage: none
-          tools: composer:v2
+          tools: composer:2.10.3
 
       - name: Set up Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
           package-manager-cache: false
+
+      - name: Verify Composer package contents without executing dependency code
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist --no-plugins --no-scripts
+          php bin/composer-supply-chain.php check
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader

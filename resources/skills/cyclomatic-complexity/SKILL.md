@@ -28,7 +28,7 @@ Use these thresholds only when the project defines no threshold:
 | 11-15 | Refactor the function. |
 | 16 or more | Split the function before delivery. |
 
-For PHP, prefer a configured analyser. The current Backendbase reference project has no configured complexity command. Measure the affected functions manually or use the installed `sebastian/complexity` library outside the working tree. Do not add a dependency or a permanent script only to calculate one report.
+For PHP, prefer a configured analyser. An unmodified Backendbase project runs `composer complexity`. Its `phpcs-complexity.xml.dist` ruleset checks production, test, configuration, public, tool, and database PHP. It rejects each function or method with complexity greater than 15.
 
 ## Refactor in This Order
 
@@ -47,9 +47,9 @@ Preserve the target project's public signatures unless the user approves a contr
 2. Run the smallest relevant test before changing behavior when practical.
 3. Refactor one function at a time.
 4. Re-measure the changed functions.
-5. Run focused tests and the target project's static analysis and style checks.
+5. Run focused tests and the target project's complexity, static-analysis, and style checks.
 
-For an unmodified Backendbase project, run the focused PHPUnit test first, then run `composer phpstan` and `composer cs-check`. Run broader tests when the affected code crosses module, persistence, messaging, or HTTP boundaries.
+For an unmodified Backendbase project, run the focused PHPUnit test first. Then run `composer complexity`, `composer phpstan`, and `composer cs-check`. Run broader tests when the affected code crosses module, persistence, messaging, or HTTP boundaries.
 
 ## Completion Report
 
@@ -64,7 +64,7 @@ End the refactor with this report:
 
 Extracted: `validateHeader`, `resolveDiscount`
 
-Behavior verified: focused test, PHPStan, and code-style checks
+Behavior verified: focused test, complexity, PHPStan, and code-style checks
 ```
 
 State every skipped check and its blocker. Do not claim behavior verification without a successful check.

@@ -59,6 +59,7 @@ The expression is illustrative. Derive the real invariant from the requested dom
 vendor/bin/phpunit tests/Domain/Catalog/Domain/StockKeepingUnitTest.php
 vendor/bin/phpunit tests/Shared/Primitives
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

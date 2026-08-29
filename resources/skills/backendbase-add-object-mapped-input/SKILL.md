@@ -49,6 +49,7 @@ Use the target DTO style, mapper library and version, sanitizer, exception hiera
 ```sh
 vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

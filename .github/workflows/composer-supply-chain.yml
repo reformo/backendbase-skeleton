@@ -1,0 +1,80 @@
+name: Composer supply-chain checks
+
+on:
+  push:
+    branches:
+      - trunk
+    paths:
+      - composer.json
+      - composer.lock
+      - bin/composer-supply-chain.php
+      - resources/security/composer-package-content.json
+      - resources/security/composer-sbom.cdx.json
+      - .github/workflows/composer-supply-chain.yml
+  pull_request:
+    branches:
+      - trunk
+    paths:
+      - composer.json
+      - composer.lock
+      - bin/composer-supply-chain.php
+      - resources/security/composer-package-content.json
+      - resources/security/composer-sbom.cdx.json
+      - .github/workflows/composer-supply-chain.yml
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: composer-supply-chain-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-dependency-review:
+    name: Isolated dependency review
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up PHP and the reviewed Composer version
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          extensions: bcmath, dom, fileinfo, json, libxml, mbstring, redis
+          coverage: none
+          tools: composer:2.10.3
+
+      - name: Validate and audit locked dependencies
+        run: |
+          composer diagnose --no-interaction --no-plugins --no-scripts
+          composer validate --strict --no-check-publish --no-plugins --no-scripts
+          composer audit --locked --no-interaction --no-plugins --no-scripts
+
+      - name: Install without executing dependency code
+        run: >-
+          composer install
+          --no-interaction
+          --no-progress
+          --prefer-dist
+          --no-cache
+          --no-plugins
+          --no-scripts
+
+      - name: Verify SBOM and installed package contents
+        run: php bin/composer-supply-chain.php check
+
+      - name: Upload supply-chain evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: composer-supply-chain-${{ github.sha }}
+          path: |
+            resources/security/composer-sbom.cdx.json
+            resources/security/composer-package-content.json
+          if-no-files-found: error
+          retention-days: 30

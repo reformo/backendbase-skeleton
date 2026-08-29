@@ -139,6 +139,7 @@ vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Application/CommandHandler
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

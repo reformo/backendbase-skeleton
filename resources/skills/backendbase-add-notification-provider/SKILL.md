@@ -51,6 +51,7 @@ vendor/bin/phpunit tests/Shared/Primitives/Notification
 vendor/bin/phpunit tests/Infrastructure/Adapters/Notification
 vendor/bin/phpunit tests/Infrastructure/Adapters/AwsDependencyDefinitionsTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

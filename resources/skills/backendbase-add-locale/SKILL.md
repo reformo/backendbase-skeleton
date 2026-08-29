@@ -48,6 +48,7 @@ Use the target locale convention, default, dictionary format, key catalog, place
 php -l resources/i18n/{locale}.php
 vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

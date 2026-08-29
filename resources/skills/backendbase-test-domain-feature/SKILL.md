@@ -47,7 +47,7 @@ Preserve the target project's test ownership, naming, fixtures, database setup, 
 
 ## Verification
 
-Run the changed test file, its owning directory, related database or lifecycle tests, PHPStan level 8, PHPCS, and the full suite for broad changes.
+Run the changed test file, its owning directory, related database or lifecycle tests, PHPStan level 8, the configured complexity check, PHPCS, and the full suite for broad changes.
 
 ## Completion report
 

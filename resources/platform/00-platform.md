@@ -13,7 +13,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 - Redis stores JSON Web Token (JWT) state.
 - RabbitMQ or Amazon Simple Queue Service (SQS) transports messages.
 - OpenAPI defines HTTP contracts. Bruno runs executable API examples.
-- PHPUnit, PHPStan level 8, and PHPCS verify changes.
+- PHPUnit, PHPStan level 8, cyclomatic complexity, and PHPCS verify changes.
 
 ## Current reference surfaces
 
@@ -33,6 +33,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 backendbase-core/
 ├── .github/workflows/
 │   ├── quality-gates.yml              # Tests, analysis, style, docs, and report drift
+│   ├── composer-supply-chain.yml       # Weekly audit and isolated package review
 │   ├── release-artifact.yml           # Immutable release archive generation
 │   └── security-checks.yml            # Static and dynamic security checks
 ├── bin/
@@ -41,6 +42,7 @@ backendbase-core/
 │   ├── bruno                          # Bruno API end-to-end runner
 │   ├── check-coverage.php             # Executable-line coverage threshold
 │   ├── check-documentation-links.php  # Local documentation-link validation
+│   ├── composer-supply-chain.php       # SBOM and package-content verification
 │   ├── update-quality-report.php      # Generated quality-report metrics
 │   ├── deployment/                    # Release build, deployment, and rollback scripts
 │   ├── dev/                           # Local maintenance scripts
@@ -71,6 +73,7 @@ backendbase-core/
 │   │   └── Seeders/                   # Database seeders
 │   ├── docs/                          # Detailed project guides and reports
 │   ├── i18n/                          # Local translation dictionaries
+│   ├── security/                      # Composer SBOM and reviewed package digests
 │   └── platform/                      # Modular agent context and task routing
 ├── src/Backendbase/
 │   ├── Domain/
@@ -102,11 +105,12 @@ backendbase-core/
 ├── var/cache/                         # Runtime caches and generated proxies
 ├── AGENTS.md                          # Repository agent rules
 ├── composer.json                      # Dependencies and project commands
-├── docker-compose.yaml                # Local MySQL, Redis, and RabbitMQ services
+├── docker-compose.yaml                # Core services and the opt-in AWS emulator profile
 ├── migrations.json                    # Doctrine migration configuration
 ├── phpunit.xml                        # PHPUnit suite configuration
 ├── phpstan.neon                       # PHPStan level 8 configuration
-└── phpcs.xml.dist                     # Doctrine coding-standard configuration
+├── phpcs.xml.dist                     # Doctrine coding-standard configuration
+└── phpcs-complexity.xml.dist          # Cyclomatic-complexity limit
 ```
 
 ## Important entry points
@@ -136,6 +140,7 @@ backendbase-core/
 - PHPUnit suite configuration: `phpunit.xml`
 - PHPStan configuration: `phpstan.neon`
 - PHPCS configuration: `phpcs.xml.dist`
+- Cyclomatic-complexity configuration: `phpcs-complexity.xml.dist`
 - Composer dependencies and scripts: `composer.json`
 
 ## Common commands
@@ -149,6 +154,7 @@ composer run start-apis
 # Run tests and quality checks.
 composer test
 composer phpstan
+composer complexity
 composer cs-check
 composer docs:check-links
 composer reports:check

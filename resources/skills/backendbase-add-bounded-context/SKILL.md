@@ -47,7 +47,7 @@ Preserve the target project's namespace and established naming. Use Backendbase 
 
 ## Verification
 
-Run the new context's focused tests, its real provider composition test, the architecture suite, PHPStan level 8, and PHPCS. Run Doctrine schema validation only when the context has mapped records and a prepared database.
+Run the new context's focused tests, its real provider composition test, the architecture suite, PHPStan level 8, the configured complexity check, and PHPCS. Run Doctrine schema validation only when the context has mapped records and a prepared database.
 
 ## Completion report
 

@@ -106,6 +106,7 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/Console
 vendor/bin/phpunit tests/Architecture
 bin/backendbase list
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

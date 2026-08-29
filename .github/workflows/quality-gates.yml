@@ -32,13 +32,18 @@ jobs:
           php-version: '8.5'
           extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
           coverage: pcov
-          tools: composer:v2
+          tools: composer:2.10.3
 
       - name: Validate Composer files
-        run: composer validate --strict --no-check-publish
+        run: composer validate --strict --no-check-publish --no-plugins --no-scripts
 
       - name: Audit Composer dependencies
-        run: composer audit --locked --no-interaction
+        run: composer audit --locked --no-interaction --no-plugins --no-scripts
+
+      - name: Verify Composer package contents without executing dependency code
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist --no-plugins --no-scripts
+          php bin/composer-supply-chain.php check
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
@@ -48,6 +53,9 @@ jobs:
 
       - name: Run PHPStan
         run: composer run phpstan
+
+      - name: Check cyclomatic complexity
+        run: composer run complexity
 
       - name: Run PHPCS
         run: composer run cs-check

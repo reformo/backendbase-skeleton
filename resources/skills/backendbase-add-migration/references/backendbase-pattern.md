@@ -91,6 +91,7 @@ bin/doctrine migrations:migrate "$reviewedMigration" --no-interaction
 bin/doctrine orm:validate-schema
 bash tests/Deployment/deployment-scripts.sh
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

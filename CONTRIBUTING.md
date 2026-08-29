@@ -7,6 +7,7 @@ Thank you for contributing to Backendbase Core.
 - Use PHP 8.5 with the extensions listed in `composer.json`.
 - Install Composer dependencies with `composer install`.
 - Use `docker compose up -d` when your change needs MySQL, Redis, or RabbitMQ.
+- Use `docker compose --profile integration up -d` when your change needs local S3, SQS, or SNS.
 - Read `resources/docs/project.md` for the architecture and project workflow.
 - Report security issues through the private process in `SECURITY.md`.
 
@@ -30,6 +31,7 @@ Run the smallest relevant PHPUnit test first. Then run the full local quality ch
 ```sh
 composer test
 composer phpstan
+composer complexity
 composer cs-check
 composer docs:check-links
 composer reports:check
@@ -39,6 +41,8 @@ vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
 ```
 
 Run `composer reports:update` after test or inventory changes. Commit the updated report with the related change.
+
+When Composer metadata changes, use the isolated review procedure in `SECURITY.md`. Commit the reviewed SBOM and package-content manifest with the lock-file change.
 
 Run the Bruno collection when the change affects a running API:
 

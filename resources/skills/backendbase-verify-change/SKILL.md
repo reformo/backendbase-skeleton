@@ -48,6 +48,7 @@ Start with the smallest relevant test. Expand only after it passes or when the c
 - Run applicable composition and registration tests through the actual container, bus, provider, route map, or registry.
 - Run architecture tests.
 - Run PHPStan at the required level.
+- Run the configured complexity check.
 - Run the style check.
 - Generate and validate affected API specifications.
 - Review the generated contract diff and affected Bruno requests without running them against an unapproved target.

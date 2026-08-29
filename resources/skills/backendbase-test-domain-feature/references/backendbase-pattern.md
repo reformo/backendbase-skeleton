@@ -86,7 +86,7 @@ For new work in an unmodified Backendbase project:
 
 - The Example repository contract suite runs unchanged against memory and Doctrine adapters. It proves active uniqueness, soft removal, replacement, read behavior, ordering, and pagination.
 - Doctrine repository tests use SQLite with production metadata. They do not prove every MySQL generated-column, lock, or migration behavior.
-- `.github/workflows/quality-gates.yml` runs Composer validation and audit, `composer test`, PHPStan, PHPCS, OpenAPI validation, generation, and a generated-file diff check.
+- `.github/workflows/quality-gates.yml` runs Composer validation and audit, `composer test`, PHPStan, cyclomatic complexity, PHPCS, OpenAPI validation, generation, and a generated-file diff check.
 - `.github/workflows/security-checks.yml` runs Semgrep and a prepared OpenAPI-based dynamic application security test. These checks need their configured services and tools.
 - `.github/workflows/release-artifact.yml` repeats release gates before it builds an immutable artifact from a reviewed revision.
 - Rector is neither configured nor installed. Do not report it as passing.
@@ -100,6 +100,7 @@ vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 composer test
 ```

@@ -47,7 +47,7 @@ Adapt the port operations, identifier, table and column mapping, enum and JSON h
 
 ## Verification
 
-Run focused mapping and repository tests, the provider test, architecture tests, PHPStan level 8, and PHPCS. Run `orm:validate-schema` only against a prepared database. Memory tests do not prove ORM mapping. Use the migration skill only after production-metadata repository tests pass.
+Run focused mapping and repository tests, the provider test, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS. Run `orm:validate-schema` only against a prepared database. Memory tests do not prove ORM mapping. Use the migration skill only after production-metadata repository tests pass.
 
 ## Completion report
 

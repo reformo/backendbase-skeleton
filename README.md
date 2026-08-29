@@ -17,6 +17,31 @@ MySQL, Redis, Redis Insight, and RabbitMQ bind to <code>127.0.0.1</code> by defa
 
 RabbitMQ Management: http://127.0.0.1:15672
 
+Start the optional AWS integration profile when you need local S3, SQS, or SNS endpoints:
+
+```sh
+docker compose --profile integration up -d
+```
+
+The profile starts Moto on `http://127.0.0.1:5000`. The default command does not start or download this service.
+
+Use non-secret local credentials and the shared endpoint in `.env`:
+
+```dotenv
+BACKENDBASE_QUEUE_DRIVER=sqs
+AWS_ACCESS_KEY_ID=backendbase
+AWS_SECRET_ACCESS_KEY=backendbase
+AWS_REGION=eu-central-1
+AWS_ENDPOINT=http://127.0.0.1:5000
+AWS_SQS_QUEUE=backendbase-queue
+OBJECT_STORE_ACCESS_KEY=backendbase
+OBJECT_STORE_SECRET_KEY=backendbase
+OBJECT_STORE_REGION=eu-central-1
+BUCKET_NAME=backendbase-local
+```
+
+Moto starts without resources and does not persist them. Create required buckets, queues, and topics in each integration test setup.
+
 ## CLI Commands
 
 ###  Usage
@@ -52,7 +77,7 @@ Rejected queue messages move to the durable `<queue>.dead-letter` queue. Primary
 
 Set `BACKENDBASE_QUEUE_DRIVER=sqs` to bind `BackendbaseQueue` to Amazon SQS. Keep the default `rabbitmq` value to use RabbitMQ.
 
-Configure `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION` for local credentials. Leave both key values empty to use the standard AWS credential provider chain. Set `AWS_ENDPOINT` when using an AWS-compatible local service.
+Configure `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION` for local credentials. Leave both key values empty to use the standard AWS credential provider chain. Set `AWS_ENDPOINT` when using an AWS-compatible local service. Object storage uses `OBJECT_STORE_ENDPOINT` when set and otherwise uses `AWS_ENDPOINT`.
 
 `Notify` registers Amazon SNS as the `sms` provider. Send an SMS through the existing notification stack:
 

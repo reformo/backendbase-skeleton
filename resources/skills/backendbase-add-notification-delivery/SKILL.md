@@ -51,6 +51,7 @@ Use the target queue envelope, notification model, provider registry, inbox stor
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProcessorTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

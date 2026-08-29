@@ -61,6 +61,16 @@ composer install \
     --working-dir="$releaseRoot" \
     --no-interaction \
     --no-progress \
+    --prefer-dist \
+    --no-plugins \
+    --no-scripts
+
+php "$releaseRoot/bin/composer-supply-chain.php" check "$releaseRoot/vendor"
+
+composer install \
+    --working-dir="$releaseRoot" \
+    --no-interaction \
+    --no-progress \
     --prefer-dist
 
 (
@@ -79,11 +89,15 @@ composer install \
     --classmap-authoritative
 
 composerLockSha256="$(deploySha256 "$releaseRoot/composer.lock")"
+composerSbomSha256="$(deploySha256 "$releaseRoot/resources/security/composer-sbom.cdx.json")"
+composerPackageContentSha256="$(deploySha256 "$releaseRoot/resources/security/composer-package-content.json")"
 php -r '
     $configuration = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
     $manifest = [
         "revision" => $argv[3],
         "composerLockSha256" => $argv[4],
+        "composerSbomSha256" => $argv[5],
+        "composerPackageContentSha256" => $argv[6],
         "migrationTarget" => $configuration["migrationTarget"],
         "applicationRollbackSafe" => $configuration["applicationRollbackSafe"],
     ];
@@ -91,7 +105,13 @@ php -r '
         $argv[2],
         json_encode($manifest, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES) . PHP_EOL,
     );
-' "$releaseRoot/deployment/release.json" "$releaseRoot/release-manifest.json" "$expectedRevision" "$composerLockSha256"
+' \
+    "$releaseRoot/deployment/release.json" \
+    "$releaseRoot/release-manifest.json" \
+    "$expectedRevision" \
+    "$composerLockSha256" \
+    "$composerSbomSha256" \
+    "$composerPackageContentSha256"
 
 archiveName="backendbase-$expectedRevision.tar.gz"
 archivePath="$outputDirectory/$archiveName"

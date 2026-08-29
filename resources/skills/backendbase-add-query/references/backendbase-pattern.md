@@ -77,6 +77,7 @@ vendor/bin/phpunit tests/Domain/Catalog/Contracts
 vendor/bin/phpunit tests/Domain/Catalog/Adapters/Persistence/Doctrine
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

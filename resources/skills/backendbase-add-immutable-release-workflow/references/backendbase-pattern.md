@@ -138,7 +138,7 @@ The release job should:
 2. set up the exact supported PHP runtime and extensions;
 3. validate and audit dependency metadata;
 4. install dependencies;
-5. run tests, PHPStan level 8, PHPCS, and generated-contract checks;
+5. run tests, PHPStan level 8, cyclomatic complexity, PHPCS, and generated-contract checks;
 6. call the deterministic artifact builder;
 7. upload archive and checksum with finite retention;
 8. use read-only source permissions unless more are required.
@@ -197,6 +197,7 @@ Adapt generated-contract commands to the target, then run:
 bash tests/Deployment/deployment-scripts.sh
 composer test
 composer phpstan
+composer complexity
 composer cs-check
 composer validate --strict --no-check-publish
 ```

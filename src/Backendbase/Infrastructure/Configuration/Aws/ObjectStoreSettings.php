@@ -24,6 +24,11 @@ final readonly class ObjectStoreSettings
         return $this->values['region'];
     }
 
+    public function endpoint(): string
+    {
+        return $this->values['endpoint'];
+    }
+
     public function bucket(): string
     {
         return $this->values['bucket'];

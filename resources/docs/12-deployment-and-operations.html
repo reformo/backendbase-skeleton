@@ -14,7 +14,7 @@
 <div class="callout danger"><strong>Production boundary:</strong> Execute deployment scripts only with explicit release authority and verified backups.</div>
 </section>
 <section id="preflight"><p class="section-label">02 · Preflight</p><h2>Prove the release before it reaches a server</h2>
-<ul><li>Run focused and full tests for the change.</li><li>Run PHPStan and PHPCS.</li><li>Generate and validate OpenAPI.</li><li>Review every migration and its reverse operation.</li>
+<ul><li>Run focused and full tests for the change.</li><li>Run PHPStan, cyclomatic complexity, and PHPCS.</li><li>Verify the Composer SBOM and package-content manifest.</li><li>Generate and validate OpenAPI.</li><li>Review every migration and its reverse operation.</li>
 <li>Confirm required environment variables and secrets exist.</li><li>Confirm the target branch, release identifier, maintenance window, and rollback owner.</li><li>Confirm queue consumers remain compatible with existing messages.</li></ul>
 <div class="related"><a href="10-testing-and-quality.html">Testing and Quality</a><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
@@ -23,9 +23,9 @@
 </section>
 <section id="scripts"><p class="section-label">04 · Current scripts</p><h2>Stage and production deploy immutable release archives</h2>
 <div class="table-wrap"><table><thead><tr><th>Step</th><th>Test script</th><th>Production script</th></tr></thead><tbody>
-<tr><td>Artifact</td><td colspan="2">Exact commit archive plus SHA-256 checksum</td></tr><tr><td>Active path</td><td colspan="2"><code>/opt/backendbase/webroot/api</code> symbolic link</td></tr>
+<tr><td>Artifact</td><td colspan="2">Exact commit archive plus SHA-256 checksum, CycloneDX SBOM, and package-content manifest</td></tr><tr><td>Active path</td><td colspan="2"><code>/opt/backendbase/webroot/api</code> symbolic link</td></tr>
 <tr><td>Environment</td><td><code>shared/.env.stage</code></td><td><code>shared/.env.production</code></td></tr>
-<tr><td>Dependencies</td><td colspan="2">Build tools generate contracts before a final <code>composer install --no-dev</code> creates the production dependency set</td></tr>
+<tr><td>Dependencies</td><td colspan="2">An isolated install verifies package digests before build scripts run; a final <code>composer install --no-dev</code> creates the production dependency set</td></tr>
 <tr><td>Database</td><td colspan="2">Exact manifest target, dry run, required backup hook, and recovery record</td></tr>
 <tr><td>Activation</td><td colspan="2">Atomic link switch, process hook, and readiness gate</td></tr>
 <tr><td>Rollback</td><td colspan="2">Only the recorded previous release; schema remains expanded</td></tr>

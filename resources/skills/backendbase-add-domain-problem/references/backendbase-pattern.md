@@ -74,6 +74,7 @@ vendor/bin/phpunit tests/Domain/Catalog/Exception
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http
 vendor/bin/phpunit tests/Architecture
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

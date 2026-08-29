@@ -41,7 +41,7 @@ Adapt the invariant, normalization policy, exception type, equality needs, and s
 
 ## Verification
 
-Run the focused value-object tests, affected contract or mapper tests, PHPStan level 8, and PHPCS. Run architecture tests when placement or dependencies changed.
+Run the focused value-object tests, affected contract or mapper tests, PHPStan level 8, the configured complexity check, and PHPCS. Run architecture tests when placement or dependencies changed.
 
 ## Completion report
 

@@ -107,6 +107,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrati
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

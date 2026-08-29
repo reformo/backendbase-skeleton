@@ -601,6 +601,7 @@
                         <tr><td>Console</td><td>Symfony Console</td><td>8.1.5 through <code>bin/backendbase</code></td></tr>
                         <tr><td>Tests</td><td>PHPUnit</td><td>13.3.1</td></tr>
                         <tr><td>Static analysis</td><td>PHPStan</td><td>2.2.9 at level 8</td></tr>
+                        <tr><td>Cyclomatic complexity</td><td>PHP_CodeSniffer</td><td>Maximum 15 per function or method</td></tr>
                         <tr><td>Style</td><td>PHPCS</td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>API contract</td><td>OpenAPI and Bruno</td><td>Documentation and executable examples</td></tr>
                     </tbody>
@@ -835,7 +836,7 @@ bin/doctrine migrations:migrate</code></pre>
                 <li>Install PHP 8.5, Composer, Docker, and the required PHP extensions.</li>
                 <li>Install locked Composer dependencies.</li>
                 <li>Create <code>.env</code> from <code>.env.example</code>. Set local values.</li>
-                <li>Start MySQL, Redis Stack, and RabbitMQ.</li>
+                <li>Start MySQL, Redis Stack, and RabbitMQ. Enable the integration profile only when tests need AWS endpoints.</li>
                 <li>Apply Doctrine migrations.</li>
                 <li>Generate the merged Example API OpenAPI file.</li>
                 <li>Start the PHP development server.</li>
@@ -844,6 +845,7 @@ bin/doctrine migrations:migrate</code></pre>
             <pre><code>composer install
 cp .env.example .env
 docker compose up -d
+docker compose --profile integration up -d
 bin/doctrine migrations:migrate --no-interaction
 composer run generate-example-api-spec
 composer run start-apis</code></pre>
@@ -857,10 +859,11 @@ composer run start-apis</code></pre>
                         <tr><td>Redis Insight</td><td><code>8001</code></td><td>Local Redis interface</td></tr>
                         <tr><td>RabbitMQ AMQP</td><td><code>5672</code></td><td>Queue traffic</td></tr>
                         <tr><td>RabbitMQ management</td><td><code>15672</code></td><td>Queue administration interface</td></tr>
+                        <tr><td>AWS emulator</td><td><code>5000</code></td><td>Opt-in S3, SQS, and SNS integration endpoint</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p>Docker Compose binds each infrastructure port to <code>127.0.0.1</code> by default. Configure local ports and credentials with <code>BACKENDBASE_DEV_*</code> variables.</p>
+            <p>Docker Compose binds each infrastructure port to <code>127.0.0.1</code> by default. The AWS emulator uses the <code>integration</code> profile and does not start with the default command.</p>
         </section>
 
         <section id="api-contract">
@@ -912,6 +915,7 @@ bin/bruno example-api local</code></pre>
                         <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit with enforced 100% executable-line coverage, then deployment checks</td></tr>
                         <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared core frameworks, and annotated targets</td></tr>
                         <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Application, tests, configuration, public entry points, tools, and database PHP at level 8</td></tr>
+                        <tr><td>Cyclomatic complexity</td><td><code>composer complexity</code></td><td>Maximum of 15 per function or method in the configured PHP scope</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>Documentation links</td><td><code>composer docs:check-links</code></td><td>Local HTML and Markdown targets plus HTML fragments</td></tr>
                         <tr><td>Report metrics</td><td><code>composer reports:check</code></td><td>JUnit, Clover, and repository-inventory values</td></tr>
@@ -920,7 +924,7 @@ bin/bruno example-api local</code></pre>
                     </tbody>
                 </table>
             </div>
-            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes JUnit and Clover XML and enforces the 100% coverage threshold. Continuous integration validates documentation links and rejects stale generated report metrics.</p>
+            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes JUnit and Clover XML and enforces the 100% coverage threshold. Continuous integration enforces complexity 15, validates documentation links, rejects stale generated report metrics, and verifies Composer supply-chain evidence.</p>
         </section>
 
         <section id="deployment">
@@ -936,7 +940,7 @@ bin/bruno example-api local</code></pre>
                     <li><strong>Verify</strong><small>readiness, workers, and logs</small></li>
                 </ol>
             </div>
-            <p><code>build-release.sh</code> creates an exact commit archive and SHA-256 checksum. Stage and production wrappers select a protected environment file, then <code>deploy-release.sh</code> verifies the artifact, runs the approved migration target, clears cache, switches the active symbolic link, and gates success on readiness.</p>
+            <p><code>build-release.sh</code> verifies reviewed Composer package contents before dependency code executes. It creates an exact commit archive with a CycloneDX SBOM, package-content manifest, and SHA-256 checksum. Stage and production wrappers verify this evidence before migration and activation.</p>
             <div class="callout warning"><strong>Recovery note:</strong> Application rollback can select only the recorded previous release. The expanded database schema remains in place.</div>
         </section>
 
@@ -973,7 +977,7 @@ bin/bruno example-api local</code></pre>
                 <article class="guide-card"><h3><a href="7-env-and-config.html">7. Environment and Configuration</a></h3><p>Environment values, configuration merge, cache, container bindings, and external services.</p></article>
                 <article class="guide-card"><h3><a href="8-authentication-and-authorization.html">8. Authentication and Authorization</a></h3><p>Demo authentication, JWT lifecycle, middleware, ACL checks, API-key state, and security gaps.</p></article>
                 <article class="guide-card"><h3><a href="9-persistence-and-database.html">9. Persistence and Database</a></h3><p>Doctrine records, write and read adapters, migrations, custom types, seeders, and database operations.</p></article>
-                <article class="guide-card"><h3><a href="10-testing-and-quality.html">10. Testing and Quality</a></h3><p>Test layout, PHPUnit, PHPStan, coding standards, coverage, static analysis, and automation gaps.</p></article>
+                <article class="guide-card"><h3><a href="10-testing-and-quality.html">10. Testing and Quality</a></h3><p>Test layout, PHPUnit, PHPStan, complexity, coding standards, coverage, static analysis, and automation gaps.</p></article>
                 <article class="guide-card"><h3><a href="11-error-handling-and-observability.html">11. Error Handling and Observability</a></h3><p>Problem details, error handlers, shutdown handling, logs, trace identifiers, and health checks.</p></article>
                 <article class="guide-card"><h3><a href="12-deployment-and-operations.html">12. Deployment and Operations</a></h3><p>Update scripts, migration behavior, cache handling, process commands, risks, and rollback gaps.</p></article>
                 <article class="guide-card"><h3><a href="13-notifications.html">13. Notifications</a></h3><p>Email, push, and SMS models, provider dispatch, queue delivery, idempotency, and provider gaps.</p></article>
@@ -1004,6 +1008,7 @@ bin/bruno example-api local
 # Quality
 composer test
 composer phpstan
+composer complexity
 composer cs-check
 
 # Messaging operations
@@ -1036,6 +1041,7 @@ bin/backendbase list</code></pre>
                         <tr><td>Example API</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
                         <tr><td>Test suite</td><td><a href="../../phpunit.xml"><code>phpunit.xml</code></a></td></tr>
                         <tr><td>Static analysis</td><td><a href="../../phpstan.neon"><code>phpstan.neon</code></a></td></tr>
+                        <tr><td>Cyclomatic complexity</td><td><a href="../../phpcs-complexity.xml.dist"><code>phpcs-complexity.xml.dist</code></a></td></tr>
                         <tr><td>Coding standard</td><td><a href="../../phpcs.xml.dist"><code>phpcs.xml.dist</code></a></td></tr>
                         <tr><td>Environment contract</td><td><a href="../../.env.example"><code>.env.example</code></a></td></tr>
                     </tbody>

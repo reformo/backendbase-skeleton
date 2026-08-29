@@ -13,7 +13,7 @@ This repository is a PHP 8.5 Slim API project for Backendbase backend services. 
 - Persistence: Doctrine ORM and Doctrine DBAL
 - Database: MySQL 8
 - Tests: PHPUnit
-- Static analysis and style: PHPStan and PHPCS
+- Static analysis and style: PHPStan, cyclomatic complexity, and PHPCS
 - API docs: OpenAPI YAML under `resources/api-docs`
 - Console commands: Symfony Console-style commands through `bin/backendbase`
 
@@ -104,7 +104,8 @@ backendbase-core/
 ├── composer.json
 ├── phpunit.xml
 ├── phpstan.neon
-└── phpcs.xml.dist
+├── phpcs.xml.dist
+└── phpcs-complexity.xml.dist
 ```
 
 ## Architecture Map
@@ -228,6 +229,8 @@ The queue message processor converts a producer event name to an external subscr
 - Console command wiring: `config/commands.php`
 - PHPUnit suite config: `phpunit.xml`
 - Composer scripts: `composer.json`
+- Composer supply-chain verifier: `bin/composer-supply-chain.php`
+- Composer SBOM and reviewed package digests: `resources/security`
 
 ## Agent Skills In This Repository
 
@@ -248,6 +251,7 @@ Prefer project scripts when dependencies are installed:
 composer run start-apis
 composer test
 composer phpstan
+composer complexity
 composer cs-check
 composer docs:check-links
 composer reports:check

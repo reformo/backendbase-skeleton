@@ -63,6 +63,7 @@ composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
 git diff -- public/{api-slug}/docs/{api-slug}-merged.yml
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

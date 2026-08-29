@@ -46,6 +46,269 @@
             background: rgba(255, 255, 255, .72);
             color: #214640;
         }
+
+        html {
+            scroll-padding-top: 18px;
+            scrollbar-gutter: stable;
+        }
+
+        body { text-rendering: optimizeLegibility; }
+
+        .hero-inner { padding: 48px 0 46px; }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 26px;
+        }
+
+        section { margin-bottom: 0; }
+
+        a:focus-visible,
+        .table-wrap:focus-visible {
+            outline: 3px solid rgba(23, 105, 165, .48);
+            outline-offset: 3px;
+        }
+
+        nav a {
+            border-radius: 6px;
+            transition: background-color .16s ease, color .16s ease;
+        }
+
+        nav a:hover,
+        nav a:focus-visible {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .dependency-profile { margin-top: 17px; }
+
+        .dependency-profile .stat strong { font-size: 1.7rem; }
+
+        .stat strong > span {
+            display: inline;
+            margin: 0;
+            color: inherit;
+            font: inherit;
+        }
+
+        .ratio-stat strong {
+            font-size: 1.55rem;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -.035em;
+            white-space: nowrap;
+        }
+
+        .report-table tbody tr:not(.table-group):hover td {
+            background: rgba(229, 245, 241, .42);
+        }
+
+        .table-group th {
+            padding: 9px 13px;
+            border-bottom: 1px solid var(--line);
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: .69rem;
+            letter-spacing: .13em;
+        }
+
+        @media (max-width: 980px) {
+            nav {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                overflow-x: auto;
+                overscroll-behavior-inline: contain;
+                padding: 11px;
+                scrollbar-width: thin;
+            }
+
+            nav strong {
+                flex: 0 0 auto;
+                margin: 0 3px 0 0;
+                padding-left: 5px;
+                white-space: nowrap;
+            }
+
+            nav a {
+                flex: 0 0 auto;
+                margin: 0;
+                padding: 7px 10px;
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                background: var(--soft);
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .report-table-wrap {
+                overflow: visible;
+                border: 0;
+                border-radius: 0;
+            }
+
+            .report-table {
+                display: block;
+                width: 100%;
+                min-width: 0;
+                border-collapse: separate;
+                border-spacing: 0;
+                background: transparent;
+            }
+
+            .report-table thead {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                margin: -1px;
+                padding: 0;
+                overflow: hidden;
+                border: 0;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+            }
+
+            .report-table tbody {
+                display: grid;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .report-table tr,
+            .report-table td {
+                display: block;
+            }
+
+            .report-table tr {
+                overflow: hidden;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: var(--surface);
+            }
+
+            .report-table td {
+                display: grid;
+                grid-template-columns: minmax(88px, 34%) minmax(0, 1fr);
+                gap: 12px;
+                padding: 10px 12px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .report-table td:last-child { border-bottom: 0; }
+
+            .report-table td > .badge {
+                align-self: start;
+                justify-self: start;
+            }
+
+            .report-table td::before {
+                color: var(--muted);
+                content: "";
+                font-size: .67rem;
+                font-weight: 800;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+            }
+
+            .score-table td:nth-child(1)::before { content: "Area"; }
+            .score-table td:nth-child(2)::before { content: "Score"; }
+            .score-table td:nth-child(3)::before { content: "Assessment"; }
+            .evidence-table td:nth-child(1)::before { content: "Check"; }
+            .evidence-table td:nth-child(2)::before { content: "Result"; }
+            .evidence-table td:nth-child(3)::before { content: "Evidence"; }
+            .risk-table td:nth-child(1)::before { content: "Priority"; }
+            .risk-table td:nth-child(2)::before { content: "Risk"; }
+            .risk-table td:nth-child(3)::before { content: "Effect"; }
+            .risk-table td:nth-child(4)::before { content: "Evidence"; }
+
+            .evidence-table tr:not(.table-group) {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+            }
+
+            .evidence-table tr:not(.table-group) td {
+                display: block;
+                border: 0;
+            }
+
+            .evidence-table tr:not(.table-group) td::before { display: none; }
+
+            .evidence-table tr:not(.table-group) td:first-child {
+                padding-bottom: 8px;
+                font-weight: 750;
+            }
+
+            .evidence-table tr:not(.table-group) td:nth-child(2) {
+                padding-bottom: 8px;
+            }
+
+            .evidence-table tr:not(.table-group) td:last-child {
+                grid-column: 1 / -1;
+                padding-top: 9px;
+                border-top: 1px solid var(--line);
+                color: var(--muted);
+                font-size: .9rem;
+            }
+
+            .report-table .table-group {
+                overflow: visible;
+                margin: 8px 0 -2px;
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+            }
+
+            .report-table .table-group th {
+                display: block;
+                padding: 3px 1px;
+                border: 0;
+                background: transparent;
+                color: var(--accent);
+            }
+        }
+
+        @media (max-width: 660px) {
+            .hero-inner { padding: 31px 0 30px; }
+            .eyebrow { margin-bottom: 9px; font-size: .68rem; }
+            h1 { font-size: clamp(2.2rem, 10.4vw, 2.75rem); letter-spacing: -.045em; }
+            .lede { margin-top: 14px; font-size: .98rem; line-height: 1.55; }
+            .chips { gap: 7px; margin-top: 18px; }
+            .chip { padding: 4px 9px; font-size: .75rem; }
+            .layout { gap: 14px; }
+            main { gap: 19px; }
+            .dependency-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .dependency-profile .stat { padding: 14px; }
+            .dependency-profile .stat strong { font-size: 1.5rem; }
+            .report-table td { grid-template-columns: 82px minmax(0, 1fr); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            nav a { transition: none; }
+        }
+
+        @media print {
+            @page { margin: 14mm; }
+
+            body { background: #fff; font-size: 10pt; }
+            .hero { border-bottom-width: 2px; }
+            .hero::before, .hero::after, nav { display: none; }
+            .hero-inner, .layout, footer { width: 100%; }
+            .hero-inner { padding: 18px 0; }
+            .layout { display: block; padding: 18px 0; }
+            main { display: block; }
+            section { margin-bottom: 14px; box-shadow: none; break-inside: avoid; }
+            #evidence { break-inside: auto; }
+            .table-wrap { overflow: visible; }
+            .report-table { display: table; min-width: 0; }
+            .report-table thead { display: table-header-group; position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; white-space: normal; }
+            .report-table tbody { display: table-row-group; }
+            .report-table tr { display: table-row; border: 0; }
+            .report-table th, .report-table td { display: table-cell; }
+            .report-table td::before { display: none; }
+            footer { margin: 0; padding: 0; }
+        }
     </style>
 </head>
 <body>
@@ -56,10 +319,12 @@
         <p class="lede">A current assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Overall score: 9.4/10</span>
-            <span class="chip"><span data-quality-metric="tests">351</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">353</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
-            <span class="chip">No known dependency advisories</span>
+            <span class="chip">Complexity ≤ 15</span>
+            <span class="chip">134 package digests verified</span>
+            <span class="chip">0 advisories · 0 abandoned</span>
         </div>
     </div>
 </header>
@@ -83,10 +348,10 @@
             <div class="callout good">
                 <strong>Backendbase Core has a strong, production-focused foundation.</strong>
                 Static analysis and coding standards now cover operational PHP and database delivery code.
-                CI actions now use immutable commit SHAs. Documentation links and generated report metrics now have executable drift checks.
+                CI actions use immutable commit SHAs, and Composer uses an exact secure version. Complexity, documentation, report, and supply-chain checks now have executable gates.
             </div>
             <p>Architecture rules, failure paths, API contracts, and deployment behavior have strong automated verification.</p>
-            <p>Recent changes added typed settings, strict numeric parsing, observable queue failures, stronger quality gates, and a smaller dependency graph. These changes reduce runtime ambiguity, silent failure risk, and upgrade work without changing public contracts.</p>
+            <p>Recent changes added typed settings, strict numeric parsing, observable queue failures, stronger quality gates, and a smaller dependency graph. A weekly audit, CycloneDX SBOM, and reviewed package-content digests now protect Composer changes.</p>
             <p>The main deduction concerns the remaining optional integration dependency surface.</p>
             <p>No finding requires a large rewrite. Apply focused changes while the affected area is under active development.</p>
         </section>
@@ -94,20 +359,27 @@
         <section id="scorecard">
             <p class="section-label">02 · Scorecard</p>
             <h2>Quality is strong across the configured repository scope</h2>
-            <div class="table-wrap">
-                <table>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Quality scorecard">
+                <table class="report-table score-table">
                     <thead>
-                    <tr><th>Area</th><th>Score</th><th>Assessment</th></tr>
+                    <tr><th scope="col">Area</th><th scope="col">Score</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
                     <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests.</td></tr>
                     <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold.</td></tr>
-                    <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8 and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
-                    <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, and adapter settings dependencies are explicit.</td></tr>
-                    <tr><td>Operations and documentation</td><td><strong>9.6/10</strong></td><td>CI actions are pinned. Link validation, report drift detection, and the per-commit changelog rule are executable.</td></tr>
+                    <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8, complexity, and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
+                    <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 15.</td></tr>
+                    <tr><td>Operations and documentation</td><td><strong>9.7/10</strong></td><td>Actions and Composer are pinned. Supply-chain, complexity, link, report, release, and changelog controls are executable.</td></tr>
+                    <tr><td>Composer supply-chain controls</td><td><strong>9.0/10</strong></td><td>Exact tooling, policy checks, weekly audits, isolated installs, an SBOM, and package digests reduce the remaining risk to reviewed trust decisions.</td></tr>
                     <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>Thirty-three of 35 direct runtime packages are current. One safe AWS patch and one Guzzle major upgrade remain. The 97-package runtime graph keeps upgrade cost material.</td></tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="summary-grid dependency-profile" aria-label="Dependency maintenance profile">
+                <div class="stat"><strong>35</strong><span>Direct runtime packages</span></div>
+                <div class="stat"><strong>97</strong><span>Locked runtime packages</span></div>
+                <div class="stat"><strong>33/35</strong><span>Current direct packages</span></div>
+                <div class="stat"><strong>0</strong><span>Advisories or abandoned packages</span></div>
             </div>
         </section>
 
@@ -115,29 +387,38 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">351</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,438</span></strong><span>Passing assertions</span></div>
-                <div class="stat"><strong><span data-quality-metric="covered-lines">3,471</span>/<span data-quality-metric="total-lines">3,471</span></strong><span>Covered executable lines</span></div>
-                <div class="stat"><strong><span data-quality-metric="covered-methods">800</span>/<span data-quality-metric="total-methods">800</span></strong><span>Covered methods</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">353</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">1,452</span></strong><span>Passing assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">3,474</span>/<span data-quality-metric="total-lines">3,474</span></strong><span>Covered executable lines</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">801</span>/<span data-quality-metric="total-methods">801</span></strong><span>Covered methods</span></div>
             </div>
-            <div class="table-wrap">
-                <table>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
+                <table class="report-table evidence-table">
                     <thead>
-                    <tr><th>Check</th><th>Result</th><th>Evidence</th></tr>
+                    <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">351</span> tests and <span data-quality-metric="assertions">1,438</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,471</span> of <span data-quality-metric="total-lines">3,471</span> executable source lines were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">800</span> of <span data-quality-metric="total-methods">800</span> methods were covered.</td></tr>
+                    <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">353</span> tests and <span data-quality-metric="assertions">1,452</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,474</span> of <span data-quality-metric="total-lines">3,474</span> executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">801</span> of <span data-quality-metric="total-methods">801</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">434</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 15 across the configured PHP scope.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">436</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
+                    <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
+                    <tr class="table-group"><th colspan="3" scope="rowgroup">Delivery and dependency controls</th></tr>
                     <tr><td>CI action integrity</td><td><span class="badge">Pass</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
+                    <tr><td>Composer toolchain</td><td><span class="badge">Pass</span></td><td>CI pins Composer 2.10.3, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
+                    <tr><td>Isolated dependency review</td><td><span class="badge">Pass</span></td><td>Dependency review installs with plugins and scripts disabled before any trusted build step.</td></tr>
+                    <tr><td>Weekly dependency audit</td><td><span class="badge">Pass</span></td><td>The scheduled workflow audits the locked production and development dependency graph each Monday.</td></tr>
+                    <tr><td>Supply-chain evidence</td><td><span class="badge">Pass</span></td><td>The isolated install matched the CycloneDX 1.6 SBOM and SHA-256 content digests for all 134 locked packages.</td></tr>
+                    <tr><td>Release dependency integrity</td><td><span class="badge">Pass</span></td><td>The release manifest records checksums for <code>composer.lock</code>, the SBOM, and the package-content manifest. Deployment verifies all three before activation.</td></tr>
                     <tr><td>Documentation links</td><td><span class="badge">Pass</span></td><td><code>composer docs:check-links</code> validates local HTML and Markdown targets plus HTML fragments.</td></tr>
                     <tr><td>Generated report metrics</td><td><span class="badge">Pass</span></td><td><code>composer reports:check</code> compares marked report values with JUnit, Clover, and repository inventory data.</td></tr>
                     <tr><td>SQS failure diagnostics</td><td><span class="badge">Pass</span></td><td>Swallowed handler exceptions record safe queue and message context before the message remains available for retry.</td></tr>
@@ -172,7 +453,7 @@
                 </div>
                 <div class="card">
                     <h3>Strong automated gates</h3>
-                    <p>Continuous integration runs tests with a 100% line gate, static analysis, coding standards, dependency audit, security checks, and OpenAPI validation.</p>
+                    <p>Continuous integration runs tests with a 100% line gate, static analysis, complexity, coding standards, isolated dependency verification, security checks, and OpenAPI validation.</p>
                 </div>
                 <div class="card">
                     <h3>Typed configuration boundaries</h3>
@@ -190,16 +471,20 @@
                     <h3>Smaller dependency graph</h3>
                     <p>Composer removed three unused packages and two redundant direct requirements. Build-only OpenAPI packages moved to development. Proxy Manager now supports Redis lazy injection.</p>
                 </div>
+                <div class="card">
+                    <h3>Reviewed dependency contents</h3>
+                    <p>CI audits the lock file each week. Isolated installs verify the SBOM and package digests before Composer plugins or scripts execute.</p>
+                </div>
             </div>
         </section>
 
         <section id="risks">
             <p class="section-label">05 · Maintainability risks</p>
             <h2>The main risks are bounded and actionable</h2>
-            <div class="table-wrap">
-                <table>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Maintainability risks">
+                <table class="report-table risk-table">
                     <thead>
-                    <tr><th>Priority</th><th>Risk</th><th>Effect</th><th>Evidence</th></tr>
+                    <tr><th scope="col">Priority</th><th scope="col">Risk</th><th scope="col">Effect</th><th scope="col">Evidence</th></tr>
                     </thead>
                     <tbody>
                     <tr>
@@ -207,6 +492,12 @@
                         <td>Optional integration dependency surface</td>
                         <td>Projects maintain database, queue, cache, notification, cloud, and API packages even when they do not enable every capability.</td>
                         <td>35 direct and 97 locked runtime packages remain. All are maintained, and 33 direct packages are current.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge">Low</span></td>
+                        <td>Dependency review still requires human judgment</td>
+                        <td>A content digest detects a package change but cannot determine whether the changed code is safe.</td>
+                        <td>Reviewers must explain lock, SBOM, and content-digest changes before approval.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -220,6 +511,7 @@
                 <li>Apply the safe AWS and PHPUnit patch updates through the normal full verification workflow.</li>
                 <li>Test Guzzle 8 separately across Tolgee, AWS, and Firebase. Upgrade Doctrine Coding Standard and PHP_CodeSniffer as one development-tool change.</li>
                 <li>Measure production install size and advisory work before splitting optional integrations into separate packages or distributions.</li>
+                <li>Add signed release provenance when the delivery platform has a maintained signing and verification process.</li>
             </ol>
             <div class="callout warning">
                 <strong>Keep changes focused.</strong>
@@ -234,9 +526,11 @@
             <p>The assessment ran these checks on 29 August 2026:</p>
             <pre><code>composer test
 vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G --no-progress
+composer complexity
 vendor/bin/phpcs
-composer validate --strict --no-check-publish
-composer audit --locked --no-interaction
+composer validate --strict --no-check-publish --no-plugins --no-scripts
+composer audit --locked --no-interaction --no-plugins --no-scripts
+php bin/composer-supply-chain.php check &lt;isolated-vendor-directory&gt;
 composer outdated --direct --format=json --no-interaction
 composer prohibits guzzlehttp/guzzle 8.1.0
 composer prohibits doctrine/coding-standard 14.0.0
@@ -248,7 +542,7 @@ vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-mer
 bash tests/Deployment/deployment-scripts.sh</code></pre>
             <p>The assessment did not run the container-based dynamic security scan or the live Bruno API collection.</p>
             <p>The separate strengths and weaknesses report covers product and delivery risks, including the sample authentication boundary.</p>
-            <p>Existing uncommitted documentation artifacts were not part of the score.</p>
+            <p>The assessment included the current working tree, including its uncommitted quality, dependency, deployment, skill, and documentation changes.</p>
         </section>
     </main>
 </div>

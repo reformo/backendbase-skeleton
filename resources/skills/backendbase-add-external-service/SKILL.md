@@ -51,6 +51,7 @@ Use the target context, namespace, port location, SDK, container, config keys, e
 vendor/bin/phpunit tests/Infrastructure/Adapters/{AdapterTest}.php
 vendor/bin/phpunit tests/Infrastructure/Adapters
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

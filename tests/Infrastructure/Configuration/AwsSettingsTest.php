@@ -35,6 +35,7 @@ final class AwsSettingsTest extends TestCase
             'objectStore' => [
                 'credentials' => ['key' => 'access-key', 'secret' => 'secret-key'],
                 'region' => 'eu-central-1',
+                'endpoint' => 'https://s3.example.com',
                 'bucket' => 'assets',
                 'cdnBaseUrl' => null,
             ],
@@ -55,6 +56,7 @@ final class AwsSettingsTest extends TestCase
         self::assertSame('Backendbase', $settings->sns()->senderId());
         self::assertSame('access-key', $settings->objectStore()->credentials()->accessKey());
         self::assertSame('eu-central-1', $settings->objectStore()->region());
+        self::assertSame('https://s3.example.com', $settings->objectStore()->endpoint());
         self::assertSame('assets', $settings->objectStore()->bucket());
         self::assertNull($settings->objectStore()->cdnBaseUrl());
         self::assertSame(2.0, $settings->readinessTimeoutSeconds());
@@ -95,6 +97,7 @@ final class AwsSettingsTest extends TestCase
             'objectStore' => [
                 'credentials' => ['key' => '', 'secret' => ''],
                 'region' => '',
+                'endpoint' => '',
                 'bucket' => '',
                 'cdnBaseUrl' => null,
             ],

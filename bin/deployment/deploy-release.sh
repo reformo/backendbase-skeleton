@@ -81,14 +81,26 @@ manifestPath="$stagingPath/release-manifest.json"
 [[ -f "$manifestPath" ]] || deployFail 'The release manifest is unavailable.'
 revision="$(deployManifestValue "$manifestPath" revision)"
 composerLockSha256="$(deployManifestValue "$manifestPath" composerLockSha256)"
+composerSbomSha256="$(deployManifestValue "$manifestPath" composerSbomSha256)"
+composerPackageContentSha256="$(deployManifestValue "$manifestPath" composerPackageContentSha256)"
 migrationTarget="$(deployManifestValue "$manifestPath" migrationTarget)"
 rollbackSafe="$(deployManifestValue "$manifestPath" applicationRollbackSafe)"
 
 [[ "$revision" =~ ^[0-9a-f]{40}$ ]] || deployFail 'The release revision is invalid.'
 [[ "$composerLockSha256" =~ ^[0-9a-f]{64}$ ]] || deployFail 'The Composer lock checksum is invalid.'
+[[ "$composerSbomSha256" =~ ^[0-9a-f]{64}$ ]] || deployFail 'The Composer SBOM checksum is invalid.'
+[[ "$composerPackageContentSha256" =~ ^[0-9a-f]{64}$ ]] \
+    || deployFail 'The Composer package-content checksum is invalid.'
 [[ "$migrationTarget" =~ ^Backendbase\\Migrations\\Version[0-9]{14}$ ]] || deployFail 'The migration target is invalid.'
 [[ "$rollbackSafe" == 'true' ]] || deployFail 'This release requires a maintenance deployment because application rollback is not schema-safe.'
+[[ -f "$stagingPath/resources/security/composer-sbom.cdx.json" ]] || deployFail 'The Composer SBOM is unavailable.'
+[[ -f "$stagingPath/resources/security/composer-package-content.json" ]] \
+    || deployFail 'The Composer package-content manifest is unavailable.'
 [[ "$(deploySha256 "$stagingPath/composer.lock")" == "$composerLockSha256" ]] || deployFail 'composer.lock does not match the release manifest.'
+[[ "$(deploySha256 "$stagingPath/resources/security/composer-sbom.cdx.json")" == "$composerSbomSha256" ]] \
+    || deployFail 'The Composer SBOM does not match the release manifest.'
+[[ "$(deploySha256 "$stagingPath/resources/security/composer-package-content.json")" == "$composerPackageContentSha256" ]] \
+    || deployFail 'The Composer package-content manifest does not match the release manifest.'
 [[ -f "$stagingPath/vendor/autoload.php" ]] || deployFail 'Production dependencies are absent from the release.'
 [[ -x "$stagingPath/bin/doctrine" ]] || deployFail 'The Doctrine command is unavailable in the release.'
 [[ -x "$stagingPath/bin/backendbase" ]] || deployFail 'The Backendbase command is unavailable in the release.'

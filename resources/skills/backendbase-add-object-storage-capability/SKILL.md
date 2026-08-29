@@ -51,6 +51,7 @@ Use the target port, provider SDK, storage terminology, key policy, container wi
 vendor/bin/phpunit tests/Infrastructure/Adapters/S3BucketTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/AwsDependencyDefinitionsTest.php
 composer phpstan
+composer complexity
 composer cs-check
 ```
 

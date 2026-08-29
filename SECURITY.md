@@ -28,3 +28,27 @@ Allow the maintainers time to confirm and repair the issue before public disclos
 ## Security Boundaries
 
 Dependency audits cover known published advisories only. They do not replace secret scanning, configuration review, threat modeling, or runtime security testing.
+
+## Composer Supply-Chain Controls
+
+Continuous integration uses Composer 2.10.3. The repository enables Composer policy checks, secure HTTP, and disables distribution-to-source fallback.
+
+The weekly supply-chain workflow checks the pinned Composer executable and audits `composer.lock`. Pull requests that change Composer metadata run the same workflow.
+
+The workflow installs packages with `--no-plugins --no-scripts` in a read-only job. It then verifies two committed files:
+
+- [`resources/security/composer-sbom.cdx.json`](resources/security/composer-sbom.cdx.json) is the CycloneDX Software Bill of Materials (SBOM).
+- [`resources/security/composer-package-content.json`](resources/security/composer-package-content.json) records one SHA-256 content digest for each locked package.
+
+Regenerate both files only after you review `composer.json`, `composer.lock`, and the dependency source changes:
+
+```sh
+reviewDirectory="$(mktemp -d "${TMPDIR:-/tmp}/backendbase-composer-review.XXXXXX")"
+COMPOSER_VENDOR_DIR="$reviewDirectory/vendor" composer install \
+    --no-interaction --no-progress --prefer-dist --no-plugins --no-scripts
+php bin/composer-supply-chain.php generate "$reviewDirectory/vendor"
+php bin/composer-supply-chain.php check "$reviewDirectory/vendor"
+rm -rf -- "$reviewDirectory"
+```
+
+Do not approve an unexplained digest change. A matching digest proves that package content matches the reviewed baseline. It does not prove that the package code is safe.

@@ -42,7 +42,7 @@ Keep the target project's aggregate style, identifier type, clock, state represe
 
 ## Verification
 
-Run the changed domain test, its owning domain directory, architecture tests, PHPStan level 8, and PHPCS. Add persistence checks only when mapping changed.
+Run the changed domain test, its owning domain directory, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS. Add persistence checks only when mapping changed.
 
 ## Completion report
 
