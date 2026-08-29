@@ -269,24 +269,26 @@ jobs:
           validPayload='{"lookupKey":"boundary-test","lookupValue":"value","typeTargetId":null}'
           writeUrl='http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples'
 
-          assertStatus 400 'Missing API key' \
+          assertStatus 401 'Missing API key' \
             --header 'X-Source-Id: example' \
             http://127.0.0.1:8080/example-api/
-          assertStatus 400 'Invalid API key' \
+          assertStatus 401 'Invalid API key' \
             --header 'Backendbase-Api-Key: invalid-api-key' \
             --header 'X-Source-Id: example' \
             http://127.0.0.1:8080/example-api/
-          assertStatus 400 'Missing bearer token' \
+          assertStatus 401 'Missing bearer token' \
             --request POST \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
             --header 'X-Source-Id: example' \
+            --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
             --data "$validPayload" \
             "$writeUrl"
-          assertStatus 400 'Invalid bearer token' \
+          assertStatus 401 'Invalid bearer token' \
             --request POST \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
             --header 'X-Source-Id: example' \
+            --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Authorization: Bearer invalid-token' \
             --header 'Content-Type: application/json' \
             --data "$validPayload" \
@@ -295,6 +297,7 @@ jobs:
             --request POST \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
             --header 'X-Source-Id: example' \
+            --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header "Authorization: $ZAP_AUTH_HEADER_VALUE" \
             --header 'Content-Type: application/json' \
             --data '{"lookupValue":[]}' \
