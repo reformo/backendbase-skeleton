@@ -17,6 +17,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added immutable AWS, SQS, SNS, RabbitMQ, HTTP, JWT, and application runtime settings types.
 - Added local documentation-link validation for HTML and Markdown files.
 - Added generated quality-report metrics from PHPUnit, Clover coverage, and repository inventory.
+- Added safe SQS handler-failure diagnostics with queue and message identifiers.
 
 ### Changed
 
@@ -26,5 +27,6 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Limited AWS Software Development Kit arrays to the external client-construction boundary.
 - Pinned all GitHub Actions to immutable commit SHAs with version comments.
 - Added documentation-link and generated-report drift checks to quality and release workflows.
+- Preserved SQS retry behavior while making swallowed handler exceptions observable.
 - Simplified queue-message metadata validation and removed unreachable failure guards.
 - Updated the light-themed quality and strengths reports with current verification results and resolved findings.

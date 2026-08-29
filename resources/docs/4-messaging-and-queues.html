@@ -921,6 +921,7 @@
                         <tr><td>Retention</td><td>Primary queue messages expire after 604,800,000 ms, or 7 days.</td><td>Configure retention in AWS infrastructure.</td></tr>
                         <tr><td>Dead-letter setup</td><td>The adapter declares <code>&lt;queue&gt;.dead-letter</code>.</td><td>The application does not create a dead-letter queue.</td></tr>
                         <tr><td>Routing</td><td>Direct exchange by default. Routing key defaults to the queue name.</td><td>One queue URL. The tag remains envelope metadata.</td></tr>
+                        <tr><td>Handler failure diagnostics</td><td>The message processor records the failure before retry or rejection.</td><td>The transport records safe exception, queue, and message context before leaving the message for retry.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1311,7 +1312,7 @@ ORDER BY received_at DESC;</code></pre>
                         <tr><td>RabbitMQ settings</td><td><code>config/autoload/rabbitmq.global.php</code></td></tr>
                         <tr><td>SQS settings</td><td><code>config/autoload/aws.global.php</code></td></tr>
                         <tr><td>RabbitMQ adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php</code></td></tr>
-                        <tr><td>SQS adapter and envelope</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php</code>, <code>SqsMessageMapper.php</code></td></tr>
+                        <tr><td>SQS adapter, transport diagnostics, and envelope</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php</code>, <code>SqsTransport.php</code>, <code>SqsMessageMapper.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
                         <tr><td>Relay policy and orchestration</td><td><code>src/Backendbase/Application/Messaging/OutboxRelayService.php</code>, <code>OutboxRetryPolicy.php</code></td></tr>
                         <tr><td>Relay persistence and publication adapters</td><td><code>DoctrineOutboxMessageStore.php</code>, <code>OutboxMessagePublisher.php</code></td></tr>

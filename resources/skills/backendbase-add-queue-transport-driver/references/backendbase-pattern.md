@@ -70,6 +70,8 @@ For each new driver, define and test:
 
 Backendbase RabbitMQ acknowledges, requeues RETRY immediately, and rejects without requeue to a declared dead-letter route. Backendbase SQS deletes only ACK; RETRY and REJECT remain until visibility and redrive policies act.
 
+When a driver catches a handler exception, log safe transport context before applying retry semantics. Include stable queue and message identifiers. Exclude message bodies, receipt handles, credentials, and tokens.
+
 ## Small adapter decision skeleton
 
 ```php
@@ -122,6 +124,7 @@ Keep secrets outside source and logs. Use neutral values in local examples.
 - One stable message ID reaches every processor.
 - Publishing uses durable settings available from the vendor when the contract requires durability.
 - Resource cleanup runs on success and failure.
+- Caught handler exceptions produce transport-level diagnostic evidence without sensitive message content.
 - Poll bounds must obey vendor limits.
 - Outbox publication in Backendbase uses the configured default route. Per-event routing is not stored in each outbox row.
 - A new driver changes readiness and deployment configuration.
@@ -160,6 +163,7 @@ Verified on 2026-08-29 from:
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/RabbitMQMessageMapper.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/RabbitMQTopology.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php`
+- `src/Backendbase/Infrastructure/Adapters/Queue/SqsTransport.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/SqsMessageMapper.php`
 - `config/dependencies/queue.php`
 - `config/dependencies/rabbitmq.php`

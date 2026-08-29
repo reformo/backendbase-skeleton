@@ -16,6 +16,8 @@ The composition root configures the RabbitMQ readiness connection factory. The r
 
 RabbitMQ declares a dead-letter queue. SQS requires an infrastructure redrive policy. The application has no automatic replay command.
 
+When an SQS handler throws, the transport logs the exception type, queue name, message identifier, location, and trace. It does not log the message body or receipt handle. The adapter does not acknowledge the message, so the visibility timeout still controls retry.
+
 The outbox uses the configured default queue or route. It does not select a route per row.
 
 ## Processes

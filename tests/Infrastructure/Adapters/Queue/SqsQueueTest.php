@@ -9,6 +9,7 @@ use Aws\MockHandler;
 use Aws\Result;
 use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
+use Backendbase\Infrastructure\Adapters\Queue\SqsTransport;
 use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
 use Backendbase\Shared\Configuration\ValidatedAwsSettings;
 use Backendbase\Shared\Integrations\Messaging\Message;
@@ -16,6 +17,8 @@ use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 use UnexpectedValueException;
 
@@ -48,7 +51,7 @@ final class SqsQueueTest extends TestCase
                 return new Result(['MessageId' => 'sqs-message-1']);
             },
         ]);
-        $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
+        $queue   = self::queue($handler);
 
         $result = $queue->publish(new Message(
             'Collection_Item_Added',
@@ -83,7 +86,7 @@ final class SqsQueueTest extends TestCase
                 return new Result();
             },
         ]);
-        $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
+        $queue   = self::queue($handler);
 
         $queue->consume(new MessageSubscription('events'), static function (Message $message): QueueMessageHandlingOutcome {
             self::assertSame('Collection_Item_Added', $message->body());
@@ -102,18 +105,12 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itIgnoresMalformedReceiveMessageCollections(): void
     {
-        $invalidCollection = new SqsQueue(
-            new MalformedSqsClient(new Result(['Messages' => 'invalid'])),
-            self::settings(),
-        );
+        $invalidCollection = self::malformedQueue(new Result(['Messages' => 'invalid']));
         $invalidCollection->consume(new MessageSubscription('events'), static function (): never {
             self::fail('A malformed collection must not reach the handler.');
         });
 
-        $invalidMessage = new SqsQueue(
-            new MalformedSqsClient(new Result(['Messages' => ['invalid']])),
-            self::settings(),
-        );
+        $invalidMessage = self::malformedQueue(new Result(['Messages' => ['invalid']]));
         $invalidMessage->consume(new MessageSubscription('events'), static function (): never {
             self::fail('A malformed message must not reach the handler.');
         });
@@ -122,7 +119,51 @@ final class SqsQueueTest extends TestCase
     }
 
     #[Test]
-    public function itLeavesFailedAndRetryableMessagesOnTheQueue(): void
+    public function itClampsReceiveOptionsToSqsLimits(): void
+    {
+        $minimumHandler = new MockHandler([
+            static function (CommandInterface $command): Result {
+                self::assertSame(1, $command['MaxNumberOfMessages']);
+                self::assertSame(0, $command['VisibilityTimeout']);
+                self::assertSame(0, $command['WaitTimeSeconds']);
+
+                return new Result();
+            },
+        ]);
+        self::queue($minimumHandler)->consume(
+            new MessageSubscription('events', -1, 0, -1),
+            static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::RETRY,
+        );
+
+        $maximumHandler = new MockHandler([
+            static function (CommandInterface $command): Result {
+                self::assertSame(10, $command['MaxNumberOfMessages']);
+                self::assertSame(43200, $command['VisibilityTimeout']);
+                self::assertSame(20, $command['WaitTimeSeconds']);
+
+                return new Result();
+            },
+        ]);
+        self::queue($maximumHandler)->consume(
+            new MessageSubscription('events', 21, 11, 43201),
+            static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::RETRY,
+        );
+
+        $fractionalHandler = new MockHandler([
+            static function (CommandInterface $command): Result {
+                self::assertSame(1, $command['WaitTimeSeconds']);
+
+                return new Result();
+            },
+        ]);
+        self::queue($fractionalHandler)->consume(
+            new MessageSubscription('events', 1.9),
+            static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::RETRY,
+        );
+    }
+
+    #[Test]
+    public function itLogsHandlerFailuresAndLeavesRetryableMessagesOnTheQueue(): void
     {
         $handler = new MockHandler([
             new Result([
@@ -132,15 +173,35 @@ final class SqsQueueTest extends TestCase
                 ],
             ]),
         ]);
-        $calls   = 0;
-        $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
+        $failure = new RuntimeException('Handler failed.');
+        $logger  = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
+            ->method('error')
+            ->with(
+                'SQS message handling failed. The message remains available for retry.',
+                self::callback(static function (array $context) use ($failure): bool {
+                    self::assertSame(RuntimeException::class, $context['exception']);
+                    self::assertSame('Handler failed.', $context['message']);
+                    self::assertSame('first', $context['message_id']);
+                    self::assertSame('events', $context['queue_name']);
+                    self::assertSame($failure->getFile(), $context['file']);
+                    self::assertSame($failure->getLine(), $context['line']);
+                    self::assertSame($failure->getTraceAsString(), $context['trace']);
+                    self::assertArrayNotHasKey('message_body', $context);
+                    self::assertArrayNotHasKey('receipt_handle', $context);
 
-        $queue->consume(new MessageSubscription('events'), static function (Message $message) use (&$calls): QueueMessageHandlingOutcome {
+                    return true;
+                }),
+            );
+        $calls = 0;
+        $queue = self::queue($handler, [], $logger);
+
+        $queue->consume(new MessageSubscription('events'), static function (Message $message) use (&$calls, $failure): QueueMessageHandlingOutcome {
             ++$calls;
             if ($calls === 1) {
                 self::assertSame('{', $message->body());
 
-                throw new RuntimeException('Handler failed.');
+                throw $failure;
             }
 
             self::assertSame('1', $message->body());
@@ -158,7 +219,7 @@ final class SqsQueueTest extends TestCase
         $handler = new MockHandler([
             new Result(['Messages' => [['Body' => '{}', 'MessageId' => 'message-id']]]),
         ]);
-        $queue   = new SqsQueue(self::sqsClient($handler), self::settings());
+        $queue   = self::queue($handler);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -185,7 +246,7 @@ final class SqsQueueTest extends TestCase
                 return new Result(['MessageId' => 'message-id']);
             },
         ]);
-        $queue   = new SqsQueue(self::sqsClient($handler), self::settings(['queueUrl' => '']));
+        $queue   = self::queue($handler, ['queueUrl' => '']);
 
         self::assertSame(
             'message-id',
@@ -196,10 +257,7 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itRejectsAnUnresolvedQueueUrl(): void
     {
-        $queue = new SqsQueue(
-            self::sqsClient(new MockHandler([new Result()])),
-            self::settings(['queueUrl' => '']),
-        );
+        $queue = self::queue(new MockHandler([new Result()]), ['queueUrl' => '']);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -209,10 +267,7 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itRequiresAQueueNameWhenResolvingAUrl(): void
     {
-        $queue = new SqsQueue(
-            self::sqsClient(new MockHandler()),
-            self::settings(['queue' => '', 'queueUrl' => '']),
-        );
+        $queue = self::queue(new MockHandler(), ['queue' => '', 'queueUrl' => '']);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -242,5 +297,28 @@ final class SqsQueueTest extends TestCase
             'region' => 'eu-central-1',
             'version' => 'latest',
         ]);
+    }
+
+    /** @param array<string, bool|int|string> $overrides */
+    private static function queue(
+        MockHandler $handler,
+        array $overrides = [],
+        LoggerInterface|null $logger = null,
+    ): SqsQueue {
+        $logger ??= new NullLogger();
+
+        return new SqsQueue(
+            new SqsTransport(self::sqsClient($handler), $logger),
+            self::settings($overrides),
+        );
+    }
+
+    /** @param Result<mixed> $result */
+    private static function malformedQueue(Result $result): SqsQueue
+    {
+        return new SqsQueue(
+            new SqsTransport(new MalformedSqsClient($result), new NullLogger()),
+            self::settings(),
+        );
     }
 }

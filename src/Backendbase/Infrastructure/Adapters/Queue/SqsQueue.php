@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
-use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
 use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\MessagePublisher;
@@ -16,14 +15,14 @@ use Override;
 use Throwable;
 use UnexpectedValueException;
 
-use function is_array;
+use function floor;
 use function is_string;
 use function max;
 use function min;
 
 final readonly class SqsQueue implements MessageConsumer, MessagePublisher
 {
-    public function __construct(private SqsClient $client, private SqsSettings $settings)
+    public function __construct(private SqsTransport $transport, private SqsSettings $settings)
     {
     }
 
@@ -33,13 +32,9 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
         $destination = $message->destination();
         $queueUrl    = $this->queueUrl($destination);
         $messageBody = SqsMessageMapper::outgoing($message);
-        $result      = $this->client->sendMessage([
-            'QueueUrl' => $queueUrl,
-            'MessageBody' => $messageBody,
-        ]);
-        $messageId   = $result['MessageId'] ?? null;
+        $messageId   = $this->transport->publish($queueUrl, $messageBody);
 
-        return new MessagePublicationResult(is_string($messageId) ? $messageId : null);
+        return new MessagePublicationResult($messageId);
     }
 
     /** @param callable(Message): QueueMessageHandlingOutcome $handler */
@@ -67,29 +62,13 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
         $visibilityTimeout   ??= $this->settings->visibilityTimeoutSeconds();
         $waitTimeSeconds       = $subscription->waitTimeSeconds();
         $waitTimeSeconds     ??= $this->settings->waitTimeSeconds();
-        $result                = $this->client->receiveMessage([
-            'AttributeNames' => ['All'],
-            'MaxNumberOfMessages' => min(10, max(1, $maxNumberOfMessages)),
-            'MessageAttributeNames' => ['All'],
-            'QueueUrl' => $queueUrl,
-            'VisibilityTimeout' => min(43200, max(0, $visibilityTimeout)),
-            'WaitTimeSeconds' => min(20, max(0, $waitTimeSeconds)),
-        ]);
-        $messages              = $result['Messages'] ?? [];
-        if (! is_array($messages)) {
-            return [];
-        }
 
-        $validMessages = [];
-        foreach ($messages as $message) {
-            if (! is_array($message)) {
-                continue;
-            }
-
-            $validMessages[] = $message;
-        }
-
-        return $validMessages;
+        return $this->transport->receive(
+            $queueUrl,
+            min(10, max(1, $maxNumberOfMessages)),
+            min(43200, max(0, $visibilityTimeout)),
+            $this->normalizeSqsWaitTimeSeconds($waitTimeSeconds),
+        );
     }
 
     /**
@@ -104,7 +83,11 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
     ): void {
         try {
             $outcome = $handler(SqsMessageMapper::incoming($message, $queueName));
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            $messageId = $message['MessageId'] ?? null;
+            $messageId = is_string($messageId) ? $messageId : null;
+            $this->transport->reportHandlingFailure($exception, $queueName, $messageId);
+
             return;
         }
 
@@ -117,7 +100,7 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
             throw new UnexpectedValueException('The SQS receipt handle is missing.');
         }
 
-        $this->client->deleteMessage(['QueueUrl' => $queueUrl, 'ReceiptHandle' => $receiptHandle]);
+        $this->transport->acknowledge($queueUrl, $receiptHandle);
     }
 
     private function queueUrl(string|null $queueName): string
@@ -128,9 +111,8 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
         }
 
         $queueName = $this->queueName($queueName);
-        $result    = $this->client->getQueueUrl(['QueueName' => $queueName]);
-        $queueUrl  = $result['QueueUrl'] ?? null;
-        if (! is_string($queueUrl) || $queueUrl === '') {
+        $queueUrl  = $this->transport->queueUrl($queueName);
+        if ($queueUrl === null || $queueUrl === '') {
             throw new UnexpectedValueException('The SQS queue URL was not resolved.');
         }
 
@@ -145,5 +127,18 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
         }
 
         return $queueName;
+    }
+
+    private function normalizeSqsWaitTimeSeconds(float|int $waitTimeSeconds): int
+    {
+        if ($waitTimeSeconds <= 0) {
+            return 0;
+        }
+
+        if ($waitTimeSeconds >= 20) {
+            return 20;
+        }
+
+        return (int) floor($waitTimeSeconds);
     }
 }

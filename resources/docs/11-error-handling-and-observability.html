@@ -50,6 +50,7 @@
 <section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>
 <p>The configured logger name is <code>backendbase-app</code>. It writes to standard output when the <code>docker</code> environment key exists. Otherwise, it writes to <code>var/logs/app.log</code>.</p>
 <p>Unexpected failures log the exception class, message, file, line, and trace. Protect log access and retention because this context can contain internal data.</p>
+<p>When an SQS handler throws, <code>SqsTransport</code> records safe exception, queue, and message context. It excludes the message body and receipt handle. <code>SqsQueue</code> leaves the message available for retry.</p>
 <p><code>BACKENDBASE_LOGGER_LEVEL</code> is the primary level input. <code>BACKENDBASE_DEBUG</code> is the fallback.</p>
 <div class="callout warning">Use valid Monolog level names. Invalid names fail while configuration is evaluated.</div>
 </section>
@@ -63,7 +64,7 @@
 <tr><td>Liveness</td><td><code>GET /_status</code></td><td>Tests only that the application process can return a response.</td></tr>
 <tr><td>Readiness</td><td><code>GET /_status/ready</code></td><td>Tests MySQL, Redis, the selected queue, and the object store.</td></tr>
 <tr><td>Outbox status</td><td><code>outbox:status</code></td><td>Pending, retried, and oldest pending event state.</td></tr>
-<tr><td>Queue failures</td><td>Delivery failure log and dead-letter queue</td><td>Permanent or exhausted delivery problems.</td></tr>
+<tr><td>Queue failures</td><td>Delivery failure log, SQS transport log, and dead-letter queue</td><td>Handler, permanent, or exhausted delivery problems.</td></tr>
 <tr><td>Dependency failures</td><td>Typed adapter exceptions and logs</td><td>Redis, database, queue, AWS, or provider failure.</td></tr>
 </tbody></table></div>
 <div class="callout"><code>/_status/ready</code> returns only safe status values. Bounded connection checks use <code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code>.</div>
@@ -80,14 +81,16 @@
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Verify public safety and internal evidence</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Http/Actions
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http
+vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/SqsQueueTest.php
 vendor/bin/phpunit tests/Shared/Http/ResponseEmitter
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console</code></pre>
-<p>Test status mappings, content type, safe production bodies, detailed development bodies, logging calls, shutdown behavior, CORS headers, output buffer handling, and unhealthy outbox exit codes.</p>
+<p>Test status mappings, safe bodies, logging calls, SQS retry diagnostics, shutdown behavior, CORS headers, output buffers, and unhealthy outbox exit codes.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Known problems</td><td><code>Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php</code></td></tr><tr><td>HTTP error handling</td><td><code>Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
 <tr><td>Shutdown failures</td><td><code>Shared/Http/Handlers/ShutdownHandler.php</code></td></tr><tr><td>Response emission</td><td><code>Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
 <tr><td>Logger config</td><td><code>config/autoload/logger.global.php</code></td></tr><tr><td>Health actions</td><td><code>ExampleApi/Controllers/Root/Liveness.php</code> and <code>Readiness.php</code></td></tr>
+<tr><td>SQS handler diagnostics</td><td><code>Infrastructure/Adapters/Queue/SqsTransport.php</code> and <code>SqsQueue.php</code></td></tr>
 <tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Error handling and observability guide</footer></body></html>

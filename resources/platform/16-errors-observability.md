@@ -15,12 +15,14 @@ Monolog uses channel `backendbase-app`. It writes `extra.trace_id` from `X-Reque
 
 Log exception type, stable operation, message ID, and trace ID. Do not log credentials, tokens, notification content, or unnecessary personal data.
 
+When an SQS handler throws, `SqsTransport` records safe exception, queue, and message identifiers. It does not record the message body or receipt handle. `SqsQueue` leaves the message unacknowledged for retry after the visibility timeout.
+
 ## Health signals
 
 - `GET /_status` checks process liveness.
 - `GET /_status/ready` checks MySQL, Redis, the selected queue, and object storage.
 - `outbox:status` checks pending and retried publication state.
-- Delivery records and dead-letter queues show consumer failures.
+- Delivery records, SQS transport logs, and dead-letter queues show consumer failures.
 
 No metrics, trace exporter, dashboard, or alert configuration exists in the repository.
 

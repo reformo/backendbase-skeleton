@@ -11,6 +11,7 @@ use Backendbase\Infrastructure\Adapters\Aws\AwsClientConfigurationBuilder;
 use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
 use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
+use Backendbase\Infrastructure\Adapters\Queue\SqsTransport;
 use Backendbase\Infrastructure\Adapters\S3Bucket;
 use Backendbase\Infrastructure\Configuration\AwsSettings;
 use Backendbase\Shared\Integrations\BucketService;
@@ -79,12 +80,18 @@ return static function (ContainerBuilder $containerBuilder): void {
                 $timeoutSeconds,
             ));
         },
+        SqsTransport::class => static function (ContainerInterface $container) {
+            $client = $container->get(SqsClient::class);
+            $logger = $container->get(LoggerInterface::class);
+
+            return new SqsTransport($client, $logger);
+        },
         SqsQueue::class => static function (ContainerInterface $container) {
             $settings    = $container->get(AwsSettings::class);
-            $client      = $container->get(SqsClient::class);
+            $transport   = $container->get(SqsTransport::class);
             $sqsSettings = $settings->sqs();
 
-            return new SqsQueue($client, $sqsSettings);
+            return new SqsQueue($transport, $sqsSettings);
         },
         SnsNotifier::class => static function (ContainerInterface $container) {
             $settings    = $container->get(AwsSettings::class);

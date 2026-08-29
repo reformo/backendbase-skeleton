@@ -13,7 +13,7 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 2. Define publish durability, route resolution, normalized incoming envelope, and acknowledgment semantics.
 3. Keep vendor SDK types inside the infrastructure adapter.
 4. Add validated configuration, a focused dependency provider, and a bounded readiness check.
-5. Test publish, receive, ACK, RETRY, REJECT, malformed input, timeout, and resource cleanup.
+5. Test publish, receive, ACK, RETRY, REJECT, handler exceptions, malformed input, timeout, and resource cleanup.
 6. Document broker-owned dead-letter and retention resources without creating them.
 
 ## Invariants
@@ -22,6 +22,7 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 - Make REJECT behavior explicit; it can differ from RETRY by broker.
 - Use finite connection, read, write, and poll timeouts.
 - Keep credentials out of source and logs.
+- Record safe transport diagnostics before a caught handler exception leaves a message for retry.
 - Do not provision queues or dead-letter resources without explicit authorization.
 
 ## Completion report
