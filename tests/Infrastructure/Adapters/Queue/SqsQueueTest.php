@@ -9,6 +9,8 @@ use Aws\MockHandler;
 use Aws\Result;
 use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
+use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
+use Backendbase\Shared\Configuration\ValidatedAwsSettings;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
@@ -169,7 +171,7 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itResolvesTheQueueUrlFromTheQueueName(): void
     {
-        $handler  = new MockHandler([
+        $handler = new MockHandler([
             static function (CommandInterface $command): Result {
                 self::assertSame('GetQueueUrl', $command->getName());
                 self::assertSame('events', $command['QueueName']);
@@ -183,9 +185,7 @@ final class SqsQueueTest extends TestCase
                 return new Result(['MessageId' => 'message-id']);
             },
         ]);
-        $settings = self::settings();
-        unset($settings['queueUrl']);
-        $queue = new SqsQueue(self::sqsClient($handler), $settings);
+        $queue   = new SqsQueue(self::sqsClient($handler), self::settings(['queueUrl' => '']));
 
         self::assertSame(
             'message-id',
@@ -196,11 +196,9 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itRejectsAnUnresolvedQueueUrl(): void
     {
-        $settings = self::settings();
-        unset($settings['queueUrl']);
         $queue = new SqsQueue(
             self::sqsClient(new MockHandler([new Result()])),
-            $settings,
+            self::settings(['queueUrl' => '']),
         );
 
         $this->expectException(UnexpectedValueException::class);
@@ -211,19 +209,20 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itRequiresAQueueNameWhenResolvingAUrl(): void
     {
-        $settings = self::settings();
-        unset($settings['queue'], $settings['queueUrl']);
-        $queue = new SqsQueue(self::sqsClient(new MockHandler()), $settings);
+        $queue = new SqsQueue(
+            self::sqsClient(new MockHandler()),
+            self::settings(['queue' => '', 'queueUrl' => '']),
+        );
 
         $this->expectException(UnexpectedValueException::class);
 
         $queue->publish(new Message('Event'));
     }
 
-    /** @return array<string, mixed> */
-    private static function settings(): array
+    /** @param array<string, bool|int|string> $overrides */
+    private static function settings(array $overrides = []): SqsSettings
     {
-        return [
+        $values = [
             'continuous' => false,
             'maxNumberOfMessages' => 10,
             'queue' => 'events',
@@ -231,6 +230,8 @@ final class SqsQueueTest extends TestCase
             'visibilityTimeout' => 30,
             'waitTimeSeconds' => 20,
         ];
+
+        return new SqsSettings(ValidatedAwsSettings::sqs([...$values, ...$overrides]));
     }
 
     private static function sqsClient(MockHandler $handler): SqsClient

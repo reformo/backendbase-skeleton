@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Http\ResponseEmitter;
 
+use Backendbase\Shared\Configuration\HttpHeaderSettings;
 use Backendbase\Shared\Http\ResponseEmitter\ResponseEmitter;
 use Backendbase\Shared\Services\Settings;
 use Laminas\Diactoros\Response;
@@ -22,12 +23,13 @@ final class ResponseEmitterTest extends TestCase
         $_SERVER['HTTP_ORIGIN'] = 'https://app.example.com';
         $response               = new Response();
         $response->getBody()->write('response-body');
-        $emitter = new ResponseEmitter(new Settings([
+        $settings = new Settings([
             'headers' => [
                 'Access-Control-Allow-Origin' => 'https://other.example.com, https://app.example.com',
                 'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
             ],
-        ]));
+        ]);
+        $emitter  = new ResponseEmitter(new HttpHeaderSettings($settings));
 
         ob_start();
         echo 'stale-output';
@@ -50,12 +52,13 @@ final class ResponseEmitterTest extends TestCase
         unset($_SERVER['HTTP_ORIGIN']);
         $response = new Response();
         $response->getBody()->write('fallback-body');
-        $emitter = new ResponseEmitter(new Settings([
+        $settings = new Settings([
             'headers' => [
                 'Access-Control-Allow-Origin' => 'https://app.example.com',
                 'Access-Control-Allow-Headers' => 'Content-Type',
             ],
-        ]));
+        ]);
+        $emitter  = new ResponseEmitter(new HttpHeaderSettings($settings));
 
         ob_start();
         $emitter->emit($response);

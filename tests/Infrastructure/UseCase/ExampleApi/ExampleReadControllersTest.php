@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleDetails;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleListItem;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExamplePage;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ExampleDetails as ExampleDetailsAction;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ExampleGroups;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\Examples;
@@ -71,7 +72,7 @@ final class ExampleReadControllersTest extends TestCase
             ->method('handle')
             ->with(self::isInstanceOf(GetExamplesByGroup::class))
             ->willReturn(new ExamplePage([$item], 1));
-        $settings = new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']);
+        $settings = new ApplicationRuntimeSettings(new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']));
         $action   = new Examples($queryBus, $settings, $this->createStub(LoggerInterface::class));
         $request  = $this->request('/example-types/system/groups/settings/examples')
             ->withAttribute('typeSlug', 'system')

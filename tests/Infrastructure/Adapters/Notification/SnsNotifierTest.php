@@ -9,6 +9,7 @@ use Aws\MockHandler;
 use Aws\Result;
 use Aws\Sns\SnsClient;
 use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
+use Backendbase\Infrastructure\Configuration\Aws\SnsSettings;
 use Backendbase\Shared\Primitives\Notification\EmailNotification;
 use Backendbase\Shared\Primitives\Notification\SmsNotification;
 use PHPUnit\Framework\Attributes\Test;
@@ -39,7 +40,7 @@ final class SnsNotifierTest extends TestCase
         ]);
         $notifier = new SnsNotifier(
             self::snsClient($handler),
-            ['smsType' => 'Transactional', 'senderId' => 'Backendbase'],
+            new SnsSettings('Transactional', 'Backendbase'),
         );
 
         $result = $notifier->notify(
@@ -63,7 +64,7 @@ final class SnsNotifierTest extends TestCase
                 return new Result(['MessageId' => 'sns-message-2']);
             },
         ]);
-        $notifier = new SnsNotifier(self::snsClient($handler), ['senderId' => '']);
+        $notifier = new SnsNotifier(self::snsClient($handler), new SnsSettings('Transactional', null));
 
         self::assertSame(
             'sns-message-2',
@@ -74,7 +75,10 @@ final class SnsNotifierTest extends TestCase
     #[Test]
     public function itRejectsAnUnsupportedNotification(): void
     {
-        $notifier = new SnsNotifier(self::snsClient(new MockHandler()), []);
+        $notifier = new SnsNotifier(
+            self::snsClient(new MockHandler()),
+            new SnsSettings('Transactional', null),
+        );
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -84,14 +88,9 @@ final class SnsNotifierTest extends TestCase
     #[Test]
     public function itRejectsAnInvalidSmsType(): void
     {
-        $notifier = new SnsNotifier(
-            self::snsClient(new MockHandler()),
-            ['smsType' => 'invalid'],
-        );
-
         $this->expectException(UnexpectedValueException::class);
 
-        $notifier->notify(new SmsNotification('+905551112233', 'Message'));
+        new SnsSettings('invalid', null);
     }
 
     private static function snsClient(MockHandler $handler): SnsClient

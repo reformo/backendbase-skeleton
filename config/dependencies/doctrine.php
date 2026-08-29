@@ -12,6 +12,8 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessa
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMonitor;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineQueueMessageFailureStore;
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
+use Backendbase\Infrastructure\Configuration\DatabaseSettings;
 use Backendbase\Shared\Helpers\PathFinder;
 use Backendbase\Shared\Integrations\IntegrationMessageLogCleaner;
 use Backendbase\Shared\Integrations\OutboxMonitor;
@@ -25,7 +27,6 @@ use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
-use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -61,12 +62,10 @@ return static function (ContainerBuilder $containerBuilder): void {
         QueueMessageFailurePolicy::class => autowire(QueueMessageFailureService::class),
         QueueMessageFailureStore::class => autowire(DoctrineQueueMessageFailureStore::class),
         Configuration::class => static function (ContainerInterface $container) {
-            $environment = $container->get(Settings::class)->env();
-            if ($environment instanceof Environment) {
-                $environment = $environment->value;
-            }
+            $runtimeSettings = $container->get(ApplicationRuntimeSettings::class);
+            $environment     = $runtimeSettings->environment();
 
-            if ($environment !== Environment::DEV->value) {
+            if ($environment !== Environment::DEV) {
                 $cache = new PhpFilesAdapter('orm-cache', 0, 'var/cache/doctrine');
             } else {
                 $cache = new ArrayAdapter();
@@ -74,7 +73,7 @@ return static function (ContainerBuilder $containerBuilder): void {
 
             $configuration = ORMSetup::createAttributeMetadataConfiguration(
                 paths: PathFinder::doctrineEntityPaths(),
-                isDevMode: $environment === Environment::DEV->value,
+                isDevMode: $environment === Environment::DEV,
                 cache: $cache,
             );
             $configuration->enableNativeLazyObjects(true);
@@ -82,8 +81,8 @@ return static function (ContainerBuilder $containerBuilder): void {
             return $configuration;
         },
         Connection::class => static function (ContainerInterface $container) {
-            $settings      = $container->get(Settings::class);
-            $configuration = $container->get(Configuration::class);
+            $databaseSettings = $container->get(DatabaseSettings::class);
+            $configuration    = $container->get(Configuration::class);
             assert($configuration instanceof Configuration);
             $configuration->addCustomStringFunction(FirstFunction::FUNCTION_NAME, FirstFunction::class);
             $configuration->addCustomStringFunction(JsonExtract::FUNCTION_NAME, JsonExtract::class);
@@ -96,10 +95,8 @@ return static function (ContainerBuilder $containerBuilder): void {
             $configuration->addCustomStringFunction('CAST', Cast::class);
 
             $dsnParser                                              = new DsnParser(['mysql' => 'pdo_mysql']);
-            $connectionSettings                                     = $dsnParser->parse($settings->get('doctrine')['connect']);
-            $readinessSettings                                      = $settings->get('readiness');
-            $timeoutSeconds                                         = max(1, (int) ceil((float) ($readinessSettings['timeoutSeconds'] ?? 2)));
-            $connectionSettings['driverOptions'][PDO::ATTR_TIMEOUT] = $timeoutSeconds;
+            $connectionSettings                                     = $dsnParser->parse($databaseSettings->dsn());
+            $connectionSettings['driverOptions'][PDO::ATTR_TIMEOUT] = $databaseSettings->connectionTimeoutSeconds();
 
             return DriverManager::getConnection($connectionSettings, $configuration);
         },

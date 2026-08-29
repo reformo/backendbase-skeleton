@@ -7,6 +7,7 @@ namespace Backendbase\Infrastructure\Adapters\Queue;
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ\RabbitMQConnection;
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ\RabbitMQMessageMapper;
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ\RabbitMQTopology;
+use Backendbase\Infrastructure\Configuration\Queue\RabbitMQTopologySettings;
 use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Messaging\Message;
@@ -27,8 +28,7 @@ class RabbitMQ implements MessageConsumer, MessagePublisher
     private readonly RabbitMQConnection $connection;
     private readonly RabbitMQTopology $topology;
 
-    /** @param array<string, mixed> $settings */
-    public function __construct(AbstractConnection $connection, array $settings)
+    public function __construct(AbstractConnection $connection, RabbitMQTopologySettings $settings)
     {
         $this->connection = new RabbitMQConnection($connection);
         $this->topology   = new RabbitMQTopology($settings);

@@ -17,7 +17,9 @@ Thank you for contributing to Backendbase Core.
 3. Preserve the dependency rules in `resources/docs/project.md`.
 4. Add or update tests for changed behavior.
 5. Update OpenAPI and Bruno cases when an API contract changes.
-6. Update `CHANGELOG.md` for a user-visible change.
+6. Update the `Unreleased` section of `CHANGELOG.md` in every commit.
+
+Include the changelog entry in the same commit as the related code or documentation change.
 
 Do not add database structures that are not part of the requested change. Review every generated migration before you run it.
 
@@ -29,10 +31,14 @@ Run the smallest relevant PHPUnit test first. Then run the full local quality ch
 composer test
 composer phpstan
 composer cs-check
+composer docs:check-links
+composer reports:check
 composer audit --locked
 composer validate --strict
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
 ```
+
+Run `composer reports:update` after test or inventory changes. Commit the updated report with the related change.
 
 Run the Bruno collection when the change affects a running API:
 

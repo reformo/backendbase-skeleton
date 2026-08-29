@@ -60,6 +60,11 @@ When code changes affect documented behavior, update every related document in t
 - Update architecture, contracts, configuration, workflows, examples, operations, limitations, and file paths when applicable.
 - Do not omit a required documentation change when the related code changes.
 
+### Changelog synchronization
+
+- Update the `Unreleased` section of `CHANGELOG.md` for every commit.
+- Include the changelog entry in the same commit as the related code or documentation change.
+
 The test: Every changed line should trace directly to the user's request.
 
 ### Portable skill authoring

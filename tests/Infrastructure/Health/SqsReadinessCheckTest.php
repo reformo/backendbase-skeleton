@@ -8,7 +8,9 @@ use Aws\CommandInterface;
 use Aws\MockHandler;
 use Aws\Result;
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
 use Backendbase\Infrastructure\Health\SqsReadinessCheck;
+use Backendbase\Shared\Configuration\ValidatedAwsSettings;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use UnexpectedValueException;
@@ -29,7 +31,7 @@ final class SqsReadinessCheckTest extends TestCase
             },
         ]);
 
-        $check = new SqsReadinessCheck(self::client($handler), ['queueUrl' => self::QUEUE_URL]);
+        $check = new SqsReadinessCheck(self::client($handler), self::settings(['queueUrl' => self::QUEUE_URL]));
 
         self::assertSame('queue', $check->name());
         $check->check();
@@ -43,7 +45,10 @@ final class SqsReadinessCheckTest extends TestCase
             new Result(['Attributes' => ['QueueArn' => 'arn:aws:sqs:eu-central-1:123456789012:events']]),
         ]);
 
-        new SqsReadinessCheck(self::client($handler), ['queue' => 'events', 'queueUrl' => ''])->check();
+        new SqsReadinessCheck(
+            self::client($handler),
+            self::settings(['queue' => 'events', 'queueUrl' => '']),
+        )->check();
 
         self::assertCount(0, $handler);
     }
@@ -51,14 +56,14 @@ final class SqsReadinessCheckTest extends TestCase
     #[Test]
     public function itRejectsInvalidQueueResponses(): void
     {
-        $this->assertCheckFails(new SqsReadinessCheck(self::client(new MockHandler()), []));
+        $this->assertCheckFails(new SqsReadinessCheck(self::client(new MockHandler()), self::settings([])));
         $this->assertCheckFails(new SqsReadinessCheck(
             self::client(new MockHandler([new Result()])),
-            ['queue' => 'events'],
+            self::settings(['queue' => 'events']),
         ));
         $this->assertCheckFails(new SqsReadinessCheck(
             self::client(new MockHandler([new Result()])),
-            ['queueUrl' => self::QUEUE_URL],
+            self::settings(['queueUrl' => self::QUEUE_URL]),
         ));
     }
 
@@ -80,5 +85,11 @@ final class SqsReadinessCheckTest extends TestCase
             'region' => 'eu-central-1',
             'version' => 'latest',
         ]);
+    }
+
+    /** @param array<string, string> $values */
+    private static function settings(array $values): SqsSettings
+    {
+        return new SqsSettings(ValidatedAwsSettings::sqs($values));
     }
 }

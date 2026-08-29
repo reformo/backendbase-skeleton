@@ -5,6 +5,8 @@
 | Bounded contexts | `src/Backendbase/Domain/{ContextName}` |
 | Shared contracts and services | `src/Backendbase/Shared` |
 | Technology and HTTP adapters | `src/Backendbase/Infrastructure` |
+| Typed runtime and adapter settings | `src/Backendbase/Infrastructure/Configuration` |
+| Shared HTTP, JWT, and configuration validation | `src/Backendbase/Shared/Configuration` |
 | Example API adapter | `src/Backendbase/Infrastructure/UseCase/ExampleApi` |
 | Shared configuration | `config/autoload` |
 | Example API configuration | `config/example-api` |
@@ -19,6 +21,7 @@
 | Runtime cache | `var/cache` |
 | Console entry point | `bin/backendbase` |
 | Doctrine entry point | `bin/doctrine` |
+| Coverage, documentation-link, and report checks | `bin/check-coverage.php`, `bin/check-documentation-links.php`, `bin/update-quality-report.php` |
 
 Use the current `Infrastructure/UseCase` directories to find affected APIs. Scaffold an API before adding controllers to a non-existent API.
 

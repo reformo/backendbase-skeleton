@@ -20,7 +20,10 @@ use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Configuration\Migration\JsonFile;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Doctrine\Migrations\Tools\Console\Command;
+use Backendbase\Infrastructure\Configuration\DatabaseSettings;
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Shared\Helpers\PathFinder;
+use Backendbase\Shared\Services\Settings as SettingsValue;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonExtract;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch;
 
@@ -38,9 +41,11 @@ $configGenerator = new ConfigAggregator([
     new PhpFileProvider('config/example-api/*'),
     new PhpFileProvider('config/console/*')
 ]);
-$settings = $configGenerator->getMergedConfig();
+$settings            = new SettingsValue($configGenerator->getMergedConfig());
+$databaseSettings    = new DatabaseSettings($settings);
+$runtimeSettings     = new ApplicationRuntimeSettings($settings);
 
-if ($settings['env'] === Environment::DEV->value) {
+if ($runtimeSettings->environment() === Environment::DEV) {
     $cache = new ArrayAdapter();
 } else {
     $cache = new PhpFilesAdapter('orm-cache',0, 'var/cache/doctrine');
@@ -48,7 +53,7 @@ if ($settings['env'] === Environment::DEV->value) {
 
 $configuration = ORMSetup::createAttributeMetadataConfiguration(
     paths: PathFinder::doctrineEntityPaths(),
-    isDevMode: $settings['env'] === Environment::DEV->value,
+    isDevMode: $runtimeSettings->environment() === Environment::DEV,
     proxyDir: $projectRoot . '/var/cache/doctrine/proxies',
     cache: $cache
 );
@@ -57,7 +62,7 @@ $configuration->addCustomStringFunction(JsonExtract::FUNCTION_NAME, JsonExtract:
 $configuration->addCustomStringFunction(JsonSearch::FUNCTION_NAME, JsonSearch::class);
 
 $dsnParser  = new DsnParser(['mysql' => 'pdo_mysql']);
-$connection = DriverManager::getConnection($dsnParser->parse($settings['doctrine']['connect']), $configuration);
+$connection = DriverManager::getConnection($dsnParser->parse($databaseSettings->dsn()), $configuration);
 
 $entityFiles = glob($projectRoot . '/src/Backendbase/Domain/*/Adapters/Persistence/Doctrine/Entity/*.php', GLOB_NOSORT);
 

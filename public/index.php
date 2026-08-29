@@ -8,13 +8,14 @@ require 'vendor/autoload.php';
 
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
+use Backendbase\Shared\Configuration\HttpHeaderSettings;
 use Backendbase\Shared\Http\Bootstrap\RequestUriNormalizer;
 use Backendbase\Shared\Http\Bootstrap\UseCaseTarget;
 use Backendbase\Shared\Http\Handlers\ShutdownHandler;
 use Backendbase\Shared\Http\ResponseEmitter\ResponseEmitter;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Translator;
-use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
 use Laminas\ConfigAggregator\ConfigAggregator;
@@ -94,9 +95,8 @@ $dependencies($containerBuilder);
 $container = $containerBuilder->build();
 
 
-$settings = $container->get(Settings::class);
-assert($settings instanceof Settings);
-$routeCacheFile = $settings->get('route-cache-file');
+$runtimeSettings = $container->get(ApplicationRuntimeSettings::class);
+$routeCacheFile  = $runtimeSettings->routeCacheFile();
 
 // Instantiate the app
 AppFactory::setContainer($container);
@@ -117,10 +117,11 @@ $middleware($app);
 // Register routes
 $routes = require $webroot . '/routes.php';
 $routes($app);
-$app->setBasePath($settings->get('base-path'));
-$displayErrorDetails = $settings->get('displayErrorDetails');
-$logError            = $settings->get('logError');
-$logErrorDetails     = $settings->get('logErrorDetails');
+$basePath = $runtimeSettings->basePath();
+$app->setBasePath($basePath);
+$displayErrorDetails = $runtimeSettings->displaysErrorDetails();
+$logError            = $runtimeSettings->logsErrors();
+$logErrorDetails     = $runtimeSettings->logsErrorDetails();
 
 // Create Request object from globals
 $serverRequestCreator = ServerRequestCreatorFactory::create();
@@ -139,7 +140,8 @@ $errorHandler    = new HttpErrorHandler(
 );
 
 // Create Shutdown Handler
-$shutdownHandler = new ShutdownHandler($request, $errorHandler, $settings, $displayErrorDetails, $logger);
+$headerSettings  = $container->get(HttpHeaderSettings::class);
+$shutdownHandler = new ShutdownHandler($request, $errorHandler, $headerSettings, $displayErrorDetails, $logger);
 register_shutdown_function($shutdownHandler);
 
 $app->addBodyParsingMiddleware();
@@ -154,5 +156,5 @@ $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 // Run App & Emit Response
 $response        = $app->handle($request);
-$responseEmitter = new ResponseEmitter($settings);
+$responseEmitter = new ResponseEmitter($headerSettings);
 $responseEmitter->emit($response);

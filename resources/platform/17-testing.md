@@ -24,22 +24,30 @@ Use the smallest check that proves the change. Expand checks as risk increases.
 4. Validate OpenAPI when the public contract changes.
 5. Run PHPStan level 8.
 6. Run PHPCS.
-7. Run the full suite for broad changes.
-8. Run Bruno only against a prepared running API.
+7. Validate documentation links.
+8. Verify generated report metrics.
+9. Run the full suite for broad changes.
+10. Run Bruno only against a prepared running API.
 
 ```sh
 vendor/bin/phpunit <path>
 composer phpstan
 composer cs-check
+composer docs:check-links
+composer reports:check
 composer test
 ```
 
-`composer test` runs PHPUnit, requires 100% executable-line coverage, then runs deployment checks.
+`composer test` runs PHPUnit, writes JUnit and Clover XML, requires 100% executable-line coverage, then runs deployment checks.
 
 The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails when one executable source line is uncovered.
 
-PHPStan and PHPCS check `src`, `tests`, `config`, `public`, both PHP scripts under `bin`, and `resources/database`.
+PHPStan and PHPCS check `src`, `tests`, `config`, `public`, quality tools under `bin`, and `resources/database`.
 
-GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Rector has no project configuration or direct Composer package.
+`composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
+
+`composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the quality reports. `composer reports:check` fails when committed metrics are stale.
+
+GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.
 
 Basis: `resources/docs/10-testing-and-quality.html`.

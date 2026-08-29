@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 
+use Backendbase\Infrastructure\Configuration\Queue\RabbitMQTopologySettings;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -11,36 +12,43 @@ use PhpAmqpLib\Wire\AMQPTable;
 
 final class RabbitMQTopology
 {
-    /** @param array<string, mixed> $settings */
-    public function __construct(private readonly array $settings)
+    public function __construct(private readonly RabbitMQTopologySettings $settings)
     {
     }
 
     /** @return array{queue: string, exchange: string, routingKey: string} */
     public function publicationRoute(Message $message): array
     {
-        $queue = $message->destination() ?? (string) $this->settings['queue'];
+        $queue      = $message->destination();
+        $queue    ??= $this->settings->queueName();
+        $exchange   = $this->settings->exchangeName();
+        $routingKey = $message->routingKey() ?? $queue;
 
         return [
             'queue' => $queue,
-            'exchange' => (string) $this->settings['exchange'],
-            'routingKey' => $message->routingKey() ?? $queue,
+            'exchange' => $exchange,
+            'routingKey' => $routingKey,
         ];
     }
 
     /** @return array{queue: string, exchange: string, routingKey: string} */
     public function subscriptionRoute(MessageSubscription $subscription): array
     {
+        $destination = $subscription->destination();
+        $exchange    = $this->settings->exchangeName();
+
         return [
-            'queue' => $subscription->destination(),
-            'exchange' => (string) $this->settings['exchange'],
-            'routingKey' => $subscription->destination(),
+            'queue' => $destination,
+            'exchange' => $exchange,
+            'routingKey' => $destination,
         ];
     }
 
     public function prefetchCount(MessageSubscription $subscription): int
     {
-        return $subscription->maxNumberOfMessages() ?? (int) $this->settings['prefetchCount'];
+        $prefetchCount = $subscription->maxNumberOfMessages();
+
+        return $prefetchCount ?? $this->settings->prefetchCount();
     }
 
     public function waitTimeout(MessageSubscription $subscription): float
@@ -51,8 +59,9 @@ final class RabbitMQTopology
     /** @param array{queue: string, exchange: string, routingKey: string} $route */
     public function declare(AMQPChannel $channel, array $route): void
     {
-        $deadLetterExchange = (string) $this->settings['deadLetterExchange'];
-        $deadLetterQueue    = $route['queue'] . (string) $this->settings['deadLetterQueueSuffix'];
+        $deadLetterExchange = $this->settings->deadLetterExchangeName();
+        $deadLetterQueue    = $route['queue'] . $this->settings->deadLetterQueueSuffix();
+        $messageRetention   = $this->settings->messageRetentionMilliseconds();
         $channel->exchange_declare($deadLetterExchange, 'direct', false, true, false);
         $channel->queue_declare($deadLetterQueue, false, true, false, false);
         $channel->queue_bind($deadLetterQueue, $deadLetterExchange, $route['routingKey']);
@@ -66,7 +75,7 @@ final class RabbitMQTopology
             new AMQPTable([
                 'x-dead-letter-exchange' => $deadLetterExchange,
                 'x-dead-letter-routing-key' => $route['routingKey'],
-                'x-message-ttl' => (int) $this->settings['messageRetentionMilliseconds'],
+                'x-message-ttl' => $messageRetention,
             ]),
         );
 
@@ -74,9 +83,10 @@ final class RabbitMQTopology
             return;
         }
 
+        $exchangeType = $this->settings->exchangeType();
         $channel->exchange_declare(
             $route['exchange'],
-            (string) $this->settings['exchangeType'],
+            $exchangeType,
             false,
             true,
             false,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Authenticate;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\NotFound;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Root;
@@ -29,8 +30,9 @@ final class RootControllersTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('info')->with('Root endpoint called');
-        $action  = new Root(new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']), $logger);
-        $request = (new ServerRequestFactory())->createServerRequest('GET', '/');
+        $settings = new ApplicationRuntimeSettings(new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']));
+        $action   = new Root($settings, $logger);
+        $request  = (new ServerRequestFactory())->createServerRequest('GET', '/');
 
         $response = $action($request, new Response(), []);
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);

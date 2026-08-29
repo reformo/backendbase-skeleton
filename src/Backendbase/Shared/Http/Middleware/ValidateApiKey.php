@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Http\Middleware;
 
-use Backendbase\Shared\Settings;
+use Backendbase\Shared\Configuration\ApiKeySettings;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
@@ -13,11 +13,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
+use function is_string;
 use function str_starts_with;
 
 readonly class ValidateApiKey implements Middleware
 {
-    public function __construct(private Settings $settings)
+    public function __construct(private ApiKeySettings $settings)
     {
     }
 
@@ -56,10 +57,7 @@ readonly class ValidateApiKey implements Middleware
         }
 
         $apiName = $request->getAttribute('apiName');
-
-        $settings = $this->settings->get($apiName);
-        $apiKey   = $settings['api-key'];
-        if (empty($apiKey) || $requestApiKey !== $apiKey) {
+        if (! is_string($apiName) || ! $this->settings->accepts($apiName, $requestApiKey)) {
             return new JsonResponse([
                 'code' => 'identity-and-access/api-key-not-found',
                 'title' => 'Api Key Not Validated',

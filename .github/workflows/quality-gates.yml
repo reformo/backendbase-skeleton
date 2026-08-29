@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.5'
           extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
@@ -51,6 +51,12 @@ jobs:
 
       - name: Run PHPCS
         run: composer run cs-check
+
+      - name: Validate documentation links
+        run: composer run docs:check-links
+
+      - name: Verify generated report metrics
+        run: composer run reports:check
 
       - name: Validate OpenAPI
         run: |

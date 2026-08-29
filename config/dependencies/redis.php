@@ -9,9 +9,10 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtTokenConfigu
 use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
+use Backendbase\Infrastructure\Configuration\RedisSettings;
+use Backendbase\Shared\Configuration\JwtSettings;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Primitives\HealthCheckData;
-use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Lcobucci\Clock\SystemClock;
 use Psr\Container\ContainerInterface;
@@ -21,18 +22,18 @@ use Redislabs\Module\RedisJson\RedisJsonInterface;
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         RedisJsonInterface::class => static function (ContainerInterface $container) {
-            $settings        = $container->get(Settings::class);
-            $redisConfig     = $settings->get('redis');
-            $readinessConfig = $settings->get('readiness');
-            $timeoutSeconds  = (float) ($readinessConfig['timeoutSeconds'] ?? 2);
+            $redisSettings = $container->get(RedisSettings::class);
             try {
                 $redisClient = new Redis();
+                $host        = $redisSettings->host();
+                $port        = $redisSettings->port();
+                $timeout     = $redisSettings->readinessTimeoutSeconds();
                 $redisClient->connect(
-                    $redisConfig['host'] ?? '127.0.0.1',
-                    $redisConfig['port'] ?? 6379,
-                    $timeoutSeconds,
+                    $host,
+                    $port,
+                    $timeout,
                 );
-                $redisClient->setOption(Redis::OPT_READ_TIMEOUT, $timeoutSeconds);
+                $redisClient->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
             } catch (Throwable) {
                 $healthStatus = new HealthCheckData();
                 $healthStatus->setStatus(503);
@@ -44,9 +45,7 @@ return static function (ContainerBuilder $containerBuilder): void {
             return new RedisJson(new \Redislabs\RedisClient\Redis($redisClient));
         },
         JwtTokenConfiguration::class => static function (ContainerInterface $container) {
-            $settings = $container->get(Settings::class);
-
-            return new JwtTokenConfiguration($settings->get('jwt'));
+            return new JwtTokenConfiguration($container->get(JwtSettings::class));
         },
         JwtTokenCodec::class => static fn (ContainerInterface $container) => new JwtTokenCodec(
             $container->get(JwtTokenConfiguration::class),

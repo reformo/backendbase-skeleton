@@ -417,7 +417,7 @@
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Operations Guide</p>
         <h1>Environment and Configuration</h1>
-        <p class="lede">Understand how environment values become merged settings, how runtime modes change caches and error output, and which services validate configuration only when they start.</p>
+        <p class="lede">Understand how environment values become merged settings, how runtime modes change caches and error output, and how dependency settings validate nested values.</p>
         <div class="chips" aria-label="Guide topics">
             <span class="chip">Value precedence</span>
             <span class="chip">Config merge</span>
@@ -458,7 +458,7 @@
     <main>
         <section id="overview">
             <h2>Overview</h2>
-            <p>Backendbase stores configuration as PHP arrays. Environment variables supply deployment values. <code>ConfigAggregator</code> merges shared files with one API-specific directory. PHP-DI then exposes the merged array through <code>Backendbase\Shared\Settings</code>.</p>
+            <p>Backendbase loads configuration from PHP arrays. Environment variables supply deployment values. <code>ConfigAggregator</code> merges shared files with one API-specific directory. Typed configuration objects validate the merged values and expose focused settings to runtime services.</p>
             <div class="grid three">
                 <article class="card green">
                     <span class="tag">Read</span>
@@ -473,7 +473,7 @@
                 <article class="card amber">
                     <span class="tag amber">Consume</span>
                     <h3>Container services</h3>
-                    <p>Factories read top-level settings and validate some values only when their services are resolved.</p>
+                    <p>Factories resolve typed settings and inject focused objects into runtime services.</p>
                 </article>
             </div>
             <div class="callout danger">
@@ -487,7 +487,7 @@
             <figure class="diagram">
                 <svg viewBox="0 0 1120 560" role="img" aria-label="Backendbase environment and configuration flow">
                     <title>Backendbase environment and configuration flow</title>
-                    <desc>Existing process values and an optional dot env file feed the environment helper. Shared and API PHP configuration files form merged settings, which PHP-DI provides to service factories. Public API configuration can be cached.</desc>
+                    <desc>Existing process values and an optional dot env file feed the environment helper. Shared and API PHP configuration files form merged settings. Typed settings validate the values before PHP-DI injects them into runtime services. Public API configuration can be cached.</desc>
                     <defs>
                         <marker id="cfg-arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#65bf91"/></marker>
                         <marker id="cfg-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#69a6e4"/></marker>
@@ -522,12 +522,12 @@
                     <text x="862" y="326" text-anchor="middle" fill="#d0d8e7" font-size="12">public API only</text>
 
                     <rect x="520" y="330" width="190" height="92" rx="13" fill="#20392c" stroke="#65bf91"/>
-                    <text x="615" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Settings service</text>
-                    <text x="615" y="389" text-anchor="middle" fill="#cee9d9" font-size="12">top-level get() · env()</text>
+                    <text x="615" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Typed settings</text>
+                    <text x="615" y="389" text-anchor="middle" fill="#cee9d9" font-size="12">validate · expose leaf values</text>
 
                     <rect x="272" y="330" width="190" height="92" rx="13" fill="#1c3048" stroke="#69a6e4"/>
                     <text x="367" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">PHP-DI factories</text>
-                    <text x="367" y="389" text-anchor="middle" fill="#cadcf0" font-size="12">validate and construct</text>
+                    <text x="367" y="389" text-anchor="middle" fill="#cadcf0" font-size="12">inject and construct</text>
 
                     <rect x="34" y="330" width="180" height="92" rx="13" fill="#3b301c" stroke="#d0a655"/>
                     <text x="124" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Runtime services</text>
@@ -544,7 +544,7 @@
                     <line x1="520" y1="376" x2="464" y2="376" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
                     <line x1="272" y1="376" x2="216" y2="376" stroke="#d0a655" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
                 </svg>
-                <figcaption>Figure 1. Values become settings before a container factory constructs a technology service.</figcaption>
+                <figcaption>Figure 1. Raw values become typed settings before a container factory constructs a runtime service.</figcaption>
             </figure>
         </section>
 
@@ -561,8 +561,8 @@
                     <tr><td><code>redis.global.php</code></td><td>Redis host and port.</td><td>JWT state and Redis consumers</td></tr>
                     <tr><td><code>object-store.global.php</code></td><td>Object-store credentials, region, bucket, and CDN URL.</td><td>S3-compatible storage</td></tr>
                     <tr><td><code>config/example-api/*</code></td><td>API key, route cache, CORS, and JWT values.</td><td>ExampleApi</td></tr>
-                    <tr><td><code>config/settings.php</code></td><td>Binds the merged array to the shared <code>Settings</code> interface.</td><td>PHP-DI</td></tr>
-                    <tr><td><code>config/dependencies.php</code> and <code>config/dependencies/*</code></td><td>Load focused providers that read settings and construct runtime services.</td><td>Runtime container</td></tr>
+                    <tr><td><code>config/settings.php</code></td><td>Binds the merged array and registers typed configuration boundary objects.</td><td>PHP-DI</td></tr>
+                    <tr><td><code>config/dependencies.php</code> and <code>config/dependencies/*</code></td><td>Load focused providers that inject typed settings into runtime services.</td><td>Runtime container</td></tr>
                     <tr><td><code>.env.example</code></td><td>Local convenience list. It is not complete and is not authoritative.</td><td>Developer reference</td></tr>
                     </tbody>
                 </table>
@@ -576,7 +576,7 @@
                 <div class="step"><span class="step-number">02</span><strong><code>getenv($key)</code></strong><br><span class="muted">Use the process value when <code>$_ENV</code> has no key.</span></div>
                 <div class="step"><span class="step-number">03</span><strong>Code default</strong><br><span class="muted">Use the supplied fallback when the variable is absent.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Explicit cast</strong><br><span class="muted">Some config files cast integer, float, or boolean values.</span></div>
-                <div class="step"><span class="step-number">05</span><strong>Consumer validation</strong><br><span class="muted">A service factory can reject invalid values later.</span></div>
+                <div class="step"><span class="step-number">05</span><strong>Typed boundary</strong><br><span class="muted">A settings object validates the merged value before adapter construction.</span></div>
             </div>
             <div class="code-wrap"><pre><code>function backendbaseEnv(string $key, mixed $default = null): mixed
 {
@@ -593,8 +593,12 @@
                 <li>Most environment values remain strings.</li>
                 <li>Ports, counts, and timeouts use explicit casts in their configuration file.</li>
                 <li><code>AWS_SQS_CONTINUOUS</code> uses <code>FILTER_VALIDATE_BOOL</code>.</li>
-                <li><code>Settings::get()</code> returns <code>mixed</code> and reads one top-level key.</li>
+                <li><code>Settings::get()</code> remains inside configuration boundary objects.</li>
+                <li>Runtime code uses typed settings for application, database, queue, AWS, Redis, logging, HTTP, and JWT values.</li>
+                <li>SQS, SNS, RabbitMQ, readiness, and AWS client adapters receive immutable leaf settings objects.</li>
+                <li>External Software Development Kit builders create arrays only at the vendor call boundary.</li>
             </ul>
+            <p>Numeric configuration files still use PHP casts. For example, a nonnumeric port can become zero. Supply valid numeric values until strict environment parsing replaces these casts.</p>
             <p><code>Dotenv::createUnsafeImmutable()</code> loads local values without replacing values that the process already supplied.</p>
         </section>
 
@@ -864,19 +868,19 @@ docker compose ps</code></pre></div>
 
         <section id="validation">
             <h2>Validation and failure behavior</h2>
-            <p>There is no central configuration schema. Validation is distributed across casts, enum conversion, service factories, and external clients.</p>
+            <p>There is no single configuration schema. Focused settings objects validate merged values when PHP-DI resolves each object. Runtime services receive typed leaf settings instead of generic configuration arrays.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Configuration</th><th>Validation time</th><th>Failure behavior</th></tr></thead>
                     <tbody>
-                    <tr><td>Environment mode</td><td>Early public bootstrap and <code>Settings::env()</code></td><td>Unknown values can select production early and fail later.</td></tr>
+                    <tr><td>Environment mode</td><td><code>ApplicationRuntimeSettings</code> resolution</td><td>An unknown value fails enum conversion.</td></tr>
                     <tr><td>Logger level</td><td>Config file load</td><td>An invalid Monolog level name fails configuration evaluation.</td></tr>
-                    <tr><td>Database DSN</td><td>Connection resolution</td><td>DBAL parsing or connection error.</td></tr>
-                    <tr><td>Redis</td><td><code>RedisJsonInterface</code> resolution</td><td>Connection failure becomes a service error.</td></tr>
-                    <tr><td>Queue driver</td><td><code>MessagePublisher</code> or <code>MessageConsumer</code> resolution</td><td>Rejects drivers other than <code>rabbitmq</code> and <code>sqs</code>.</td></tr>
-                    <tr><td>AWS region and credential pair</td><td>AWS client resolution</td><td>Rejects missing region, invalid types, or a partial credential pair.</td></tr>
-                    <tr><td>JWT signing key</td><td><code>Jwt</code> resolution</td><td>JWT configuration construction fails for invalid key data.</td></tr>
-                    <tr><td>Missing Settings key</td><td><code>Settings::get()</code></td><td>Direct array access has no dedicated missing-key exception.</td></tr>
+                    <tr><td>Database DSN</td><td><code>DatabaseSettings</code> resolution</td><td>Rejects a missing or invalid DSN before DBAL receives it.</td></tr>
+                    <tr><td>Redis</td><td><code>RedisSettings</code> resolution</td><td>Rejects invalid host, port, or readiness values before client construction.</td></tr>
+                    <tr><td>Queue driver</td><td><code>QueueSettings</code> resolution</td><td>Rejects drivers other than <code>rabbitmq</code> and <code>sqs</code>.</td></tr>
+                    <tr><td>AWS region and credential pair</td><td><code>AwsSettings</code> resolution</td><td>Rejects missing region, invalid types, or a partial credential pair.</td></tr>
+                    <tr><td>JWT signing key</td><td><code>JwtSettings</code> resolution</td><td>Rejects invalid signing-key values before token services receive them.</td></tr>
+                    <tr><td>Missing configuration key</td><td>Typed settings resolution</td><td>The boundary object throws a focused configuration exception before adapter construction.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -894,7 +898,7 @@ docker compose ps</code></pre></div>
                     <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
                     <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
                     <tr><td>Public cached boot skips Dotenv.</td><td>A changed <code>.env</code> has no effect until cache is cleared.</td></tr>
-                    <tr><td>Settings are untyped arrays.</td><td>Type and presence errors can occur far from configuration load.</td></tr>
+                    <tr><td>Some environment values use weak PHP scalar casts before typed settings validate the merged configuration.</td><td>Malformed numeric text can become a valid-looking value before boundary validation.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -952,8 +956,10 @@ composer run start-apis</code></pre></div>
                     <tr><td>Settings contract and implementation</td><td><code>src/Backendbase/Shared/Settings.php</code> and <code>Shared/Services/Settings.php</code></td></tr>
                     <tr><td>Shared configuration</td><td><code>config/autoload</code></td></tr>
                     <tr><td>ExampleApi configuration</td><td><code>config/example-api</code></td></tr>
+                    <tr><td>Runtime, database, logging, Redis, AWS, and queue settings</td><td><code>src/Backendbase/Infrastructure/Configuration</code></td></tr>
+                    <tr><td>HTTP and JWT settings plus boundary validators</td><td><code>src/Backendbase/Shared/Configuration</code></td></tr>
                     <tr><td>Settings registration</td><td><code>config/settings.php</code></td></tr>
-                    <tr><td>Service factories and validation</td><td><code>config/dependencies</code></td></tr>
+                    <tr><td>Service factories and typed settings injection</td><td><code>config/dependencies</code></td></tr>
                     <tr><td>Public configuration bootstrap</td><td><code>public/index.php</code></td></tr>
                     <tr><td>Console bootstrap</td><td><code>bin/backendbase</code></td></tr>
                     <tr><td>Doctrine bootstrap</td><td><code>bin/doctrine</code></td></tr>

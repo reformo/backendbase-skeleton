@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Aws\S3\S3ClientInterface;
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Configuration\AwsSettings;
+use Backendbase\Infrastructure\Configuration\Queue\QueueDriver;
+use Backendbase\Infrastructure\Configuration\QueueSettings;
 use Backendbase\Infrastructure\Health\MySQLReadinessCheck;
 use Backendbase\Infrastructure\Health\ObjectStoreReadinessCheck;
 use Backendbase\Infrastructure\Health\RabbitMQConnectionFactory;
@@ -13,7 +16,6 @@ use Backendbase\Infrastructure\Health\SqsReadinessCheck;
 use Backendbase\Shared\Health\DeferredReadinessCheck;
 use Backendbase\Shared\Health\ReadinessCheck;
 use Backendbase\Shared\Health\ReadinessChecks;
-use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
@@ -24,15 +26,13 @@ return static function (ContainerBuilder $containerBuilder): void {
         ReadinessChecks::class => static function (ContainerInterface $container) {
             /** @return ReadinessCheck */
             $queueCheck = static function () use ($container) {
-                $settings      = $container->get(Settings::class);
-                $queueSettings = $settings->get('queue');
-                $driver        = $queueSettings['driver'] ?? null;
-                if ($driver === 'sqs') {
-                    return new SqsReadinessCheck($container->get(SqsClient::class), $settings->get('aws')['sqs']);
-                }
+                $queueSettings = $container->get(QueueSettings::class);
+                if ($queueSettings->driver() === QueueDriver::SQS) {
+                    $awsSettings = $container->get(AwsSettings::class);
+                    $client      = $container->get(SqsClient::class);
+                    $sqsSettings = $awsSettings->sqs();
 
-                if ($driver !== 'rabbitmq') {
-                    throw new UnexpectedValueException('The queue driver must be rabbitmq or sqs.');
+                    return new SqsReadinessCheck($client, $sqsSettings);
                 }
 
                 return new RabbitMQReadinessCheck($container->get(RabbitMQConnectionFactory::class));
@@ -51,11 +51,14 @@ return static function (ContainerBuilder $containerBuilder): void {
                 new DeferredReadinessCheck(
                     'objectStore',
                     static function () use ($container): ReadinessCheck {
-                        $objectStoreSettings = $container->get(Settings::class)->get('objectStore');
+                        $awsSettings         = $container->get(AwsSettings::class);
+                        $objectStoreSettings = $awsSettings->objectStore();
+                        $client              = $container->get(S3ClientInterface::class);
+                        $bucket              = $objectStoreSettings->bucket();
 
                         return new ObjectStoreReadinessCheck(
-                            $container->get(S3ClientInterface::class),
-                            $objectStoreSettings['bucket'],
+                            $client,
+                            $bucket,
                         );
                     },
                 ),

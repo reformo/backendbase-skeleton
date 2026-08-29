@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
+use Backendbase\Infrastructure\Configuration\Queue\QueueDriver;
+use Backendbase\Infrastructure\Configuration\QueueSettings;
 use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\MessagePublisher;
-use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use PhpAmqpLib\Connection\AbstractConnection;
 use Psr\Container\ContainerInterface;
@@ -14,26 +15,15 @@ use Psr\Container\ContainerInterface;
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         MessagePublisher::class => static function (ContainerInterface $container) {
-            $queueSettings = $container->get(Settings::class)->get('queue');
-            if (! is_array($queueSettings)) {
-                throw new UnexpectedValueException('The queue settings are invalid.');
-            }
-
-            $driver = $queueSettings['driver'] ?? null;
-            if ($driver === 'sqs') {
+            $queueSettings = $container->get(QueueSettings::class);
+            if ($queueSettings->driver() === QueueDriver::SQS) {
                 return $container->get(SqsQueue::class);
             }
 
-            if ($driver !== 'rabbitmq') {
-                throw new UnexpectedValueException('The queue driver must be rabbitmq or sqs.');
-            }
+            $connection = $container->get(AbstractConnection::class);
+            $topology   = $queueSettings->rabbitMqTopology();
 
-            $rabbitMQSettings = $container->get(Settings::class)->get('rabbitmq');
-            if (! is_array($rabbitMQSettings)) {
-                throw new UnexpectedValueException('The RabbitMQ settings are invalid.');
-            }
-
-            return new RabbitMQ($container->get(AbstractConnection::class), $rabbitMQSettings);
+            return new RabbitMQ($connection, $topology);
         },
         MessageConsumer::class => static fn (ContainerInterface $container): MessageConsumer => $container->get(
             MessagePublisher::class,

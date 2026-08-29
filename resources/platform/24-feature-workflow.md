@@ -16,7 +16,8 @@ Start from the user-visible outcome. Add only the layers that the requested beha
 10. Generate and review a migration only for an approved schema change.
 11. Add affected API controllers and routes.
 12. Update OpenAPI and Bruno together.
-13. Run focused tests, PHPStan level 8, PHPCS, and affected contract checks.
+13. Update the `Unreleased` section of `CHANGELOG.md` in the same commit.
+14. Run focused tests, PHPStan level 8, PHPCS, and affected contract checks.
 
 Every changed line must support the requested outcome. Do not refactor adjacent code or add speculative abstractions.
 

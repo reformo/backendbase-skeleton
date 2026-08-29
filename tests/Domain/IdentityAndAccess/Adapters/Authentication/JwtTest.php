@@ -9,6 +9,8 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtAuthorizatio
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtTokenCodec;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtTokenConfiguration;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Shared\Configuration\JwtSettings;
+use Backendbase\Shared\Services\Settings;
 use DateInterval;
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -219,7 +221,8 @@ class JwtTest extends TestCase
 
     private function jwt(RedisJsonInterface $redisJson, string $permittedFor, FrozenClock|null $clock = null): Jwt
     {
-        $configuration = new JwtTokenConfiguration(self::jwtConfig($permittedFor));
+        $settings      = new Settings(['jwt' => self::jwtConfig($permittedFor)]);
+        $configuration = new JwtTokenConfiguration(new JwtSettings($settings));
 
         return new Jwt(
             new JwtTokenCodec($configuration, $clock ?? SystemClock::fromUTC()),

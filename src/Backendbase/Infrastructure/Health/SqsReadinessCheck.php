@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Health;
 
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
 use Backendbase\Shared\Health\ReadinessCheck;
 use Override;
 use UnexpectedValueException;
@@ -13,8 +14,7 @@ use function is_string;
 
 final readonly class SqsReadinessCheck implements ReadinessCheck
 {
-    /** @param array<string, mixed> $settings */
-    public function __construct(private SqsClient $client, private array $settings)
+    public function __construct(private SqsClient $client, private SqsSettings $settings)
     {
     }
 
@@ -40,13 +40,13 @@ final readonly class SqsReadinessCheck implements ReadinessCheck
 
     private function queueUrl(): string
     {
-        $queueUrl = $this->settings['queueUrl'] ?? null;
-        if (is_string($queueUrl) && $queueUrl !== '') {
+        $queueUrl = $this->settings->queueUrl();
+        if ($queueUrl !== null && $queueUrl !== '') {
             return $queueUrl;
         }
 
-        $queueName = $this->settings['queue'] ?? null;
-        if (! is_string($queueName) || $queueName === '') {
+        $queueName = $this->settings->queueName();
+        if ($queueName === null || $queueName === '') {
             throw new UnexpectedValueException('The SQS readiness queue is not configured.');
         }
 

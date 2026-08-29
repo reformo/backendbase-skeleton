@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
 use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Messaging\Message;
@@ -22,19 +23,21 @@ use function min;
 
 final readonly class SqsQueue implements MessageConsumer, MessagePublisher
 {
-    /** @param array<string, mixed> $settings */
-    public function __construct(private SqsClient $client, private array $settings)
+    public function __construct(private SqsClient $client, private SqsSettings $settings)
     {
     }
 
     #[Override]
     public function publish(Message $message): MessagePublicationResult
     {
-        $result    = $this->client->sendMessage([
-            'QueueUrl' => $this->queueUrl($message->destination()),
-            'MessageBody' => SqsMessageMapper::outgoing($message),
+        $destination = $message->destination();
+        $queueUrl    = $this->queueUrl($destination);
+        $messageBody = SqsMessageMapper::outgoing($message);
+        $result      = $this->client->sendMessage([
+            'QueueUrl' => $queueUrl,
+            'MessageBody' => $messageBody,
         ]);
-        $messageId = $result['MessageId'] ?? null;
+        $messageId   = $result['MessageId'] ?? null;
 
         return new MessagePublicationResult(is_string($messageId) ? $messageId : null);
     }
@@ -43,9 +46,10 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
     #[Override]
     public function consume(MessageSubscription $subscription, callable $handler): void
     {
-        $queueName  = $subscription->destination();
-        $queueUrl   = $this->queueUrl($queueName);
-        $continuous = $subscription->continuous() ?? (bool) ($this->settings['continuous'] ?? true);
+        $queueName    = $subscription->destination();
+        $queueUrl     = $this->queueUrl($queueName);
+        $continuous   = $subscription->continuous();
+        $continuous ??= $this->settings->continuous();
 
         do {
             foreach ($this->receiveMessages($subscription, $queueUrl) as $message) {
@@ -57,15 +61,21 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
     /** @return list<array<string, mixed>> */
     private function receiveMessages(MessageSubscription $subscription, string $queueUrl): array
     {
-        $result   = $this->client->receiveMessage([
+        $maxNumberOfMessages   = $subscription->maxNumberOfMessages();
+        $maxNumberOfMessages ??= $this->settings->maxNumberOfMessages();
+        $visibilityTimeout     = $subscription->visibilityTimeout();
+        $visibilityTimeout   ??= $this->settings->visibilityTimeoutSeconds();
+        $waitTimeSeconds       = $subscription->waitTimeSeconds();
+        $waitTimeSeconds     ??= $this->settings->waitTimeSeconds();
+        $result                = $this->client->receiveMessage([
             'AttributeNames' => ['All'],
-            'MaxNumberOfMessages' => min(10, max(1, $subscription->maxNumberOfMessages() ?? (int) ($this->settings['maxNumberOfMessages'] ?? 1))),
+            'MaxNumberOfMessages' => min(10, max(1, $maxNumberOfMessages)),
             'MessageAttributeNames' => ['All'],
             'QueueUrl' => $queueUrl,
-            'VisibilityTimeout' => min(43200, max(0, $subscription->visibilityTimeout() ?? (int) ($this->settings['visibilityTimeout'] ?? 30))),
-            'WaitTimeSeconds' => min(20, max(0, (int) ($subscription->waitTimeSeconds() ?? $this->settings['waitTimeSeconds'] ?? 20))),
+            'VisibilityTimeout' => min(43200, max(0, $visibilityTimeout)),
+            'WaitTimeSeconds' => min(20, max(0, $waitTimeSeconds)),
         ]);
-        $messages = $result['Messages'] ?? [];
+        $messages              = $result['Messages'] ?? [];
         if (! is_array($messages)) {
             return [];
         }
@@ -112,13 +122,14 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
 
     private function queueUrl(string|null $queueName): string
     {
-        $queueUrl = $this->settings['queueUrl'] ?? null;
-        if (is_string($queueUrl) && $queueUrl !== '') {
+        $queueUrl = $this->settings->queueUrl();
+        if ($queueUrl !== null && $queueUrl !== '') {
             return $queueUrl;
         }
 
-        $result   = $this->client->getQueueUrl(['QueueName' => $this->queueName($queueName)]);
-        $queueUrl = $result['QueueUrl'] ?? null;
+        $queueName = $this->queueName($queueName);
+        $result    = $this->client->getQueueUrl(['QueueName' => $queueName]);
+        $queueUrl  = $result['QueueUrl'] ?? null;
         if (! is_string($queueUrl) || $queueUrl === '') {
             throw new UnexpectedValueException('The SQS queue URL was not resolved.');
         }
@@ -128,8 +139,8 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
 
     private function queueName(string|null $queueName): string
     {
-        $queueName ??= $this->settings['queue'] ?? null;
-        if (! is_string($queueName) || $queueName === '') {
+        $queueName ??= $this->settings->queueName();
+        if ($queueName === null || $queueName === '') {
             throw new UnexpectedValueException('The SQS queue name is missing.');
         }
 

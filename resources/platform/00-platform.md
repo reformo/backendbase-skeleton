@@ -32,13 +32,16 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 ```text
 backendbase-core/
 ├── .github/workflows/
-│   ├── quality-gates.yml              # Tests, static analysis, and code style
+│   ├── quality-gates.yml              # Tests, analysis, style, docs, and report drift
 │   ├── release-artifact.yml           # Immutable release archive generation
 │   └── security-checks.yml            # Static and dynamic security checks
 ├── bin/
 │   ├── backendbase                    # Console entry point
 │   ├── doctrine                       # Doctrine tooling entry point
 │   ├── bruno                          # Bruno API end-to-end runner
+│   ├── check-coverage.php             # Executable-line coverage threshold
+│   ├── check-documentation-links.php  # Local documentation-link validation
+│   ├── update-quality-report.php      # Generated quality-report metrics
 │   ├── deployment/                    # Release build, deployment, and rollback scripts
 │   ├── dev/                           # Local maintenance scripts
 │   └── tolgee/                        # Translation synchronization scripts
@@ -147,6 +150,8 @@ composer run start-apis
 composer test
 composer phpstan
 composer cs-check
+composer docs:check-links
+composer reports:check
 
 # Generate and validate the ExampleApi OpenAPI document.
 composer run generate-example-api-spec

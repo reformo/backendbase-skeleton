@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Http\Middleware;
 
+use Backendbase\Shared\Configuration\ApiKeySettings;
 use Backendbase\Shared\Http\Middleware\ValidateApiKey;
 use Backendbase\Shared\Services\Settings;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -18,7 +19,7 @@ final class ValidateApiKeyTest extends TestCase
     #[Test]
     public function itAcceptsOptionsAndPublicPaths(): void
     {
-        $middleware = new ValidateApiKey(new Settings([]));
+        $middleware = new ValidateApiKey(new ApiKeySettings(new Settings([])));
         $handler    = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::once())->method('handle')->willReturn(new EmptyResponse(204));
 
@@ -31,7 +32,7 @@ final class ValidateApiKeyTest extends TestCase
     #[Test]
     public function itValidatesIdentifierBasedApiKeys(): void
     {
-        $middleware = new ValidateApiKey(new Settings([]));
+        $middleware = new ValidateApiKey(new ApiKeySettings(new Settings([])));
         $handler    = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::once())->method('handle')->willReturn(new EmptyResponse(204));
         $request = $this->request('GET', '/private')
@@ -48,9 +49,10 @@ final class ValidateApiKeyTest extends TestCase
     #[Test]
     public function itValidatesConfiguredApiKeys(): void
     {
-        $middleware = new ValidateApiKey(new Settings([
+        $settings   = new Settings([
             'exampleApi' => ['api-key' => 'expected-key'],
-        ]));
+        ]);
+        $middleware = new ValidateApiKey(new ApiKeySettings($settings));
         $handler    = $this->createMock(RequestHandlerInterface::class);
         $handler->expects(self::once())->method('handle')->willReturn(new EmptyResponse(204));
         $request = $this->request('GET', '/private')

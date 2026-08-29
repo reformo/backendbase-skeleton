@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Notification;
 
 use Aws\Sns\SnsClient;
+use Backendbase\Infrastructure\Configuration\Aws\SnsSettings;
 use Backendbase\Shared\Integrations\Notify;
 use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
@@ -12,15 +13,13 @@ use Backendbase\Shared\Primitives\Notification\SmsNotification;
 use Override;
 use UnexpectedValueException;
 
-use function in_array;
 use function is_string;
 
 final readonly class SnsNotifier implements Notify
 {
     public const string TYPE = 'sms';
 
-    /** @param array<string, mixed> $settings */
-    public function __construct(private SnsClient $client, private array $settings)
+    public function __construct(private SnsClient $client, private SnsSettings $settings)
     {
     }
 
@@ -54,19 +53,15 @@ final readonly class SnsNotifier implements Notify
     /** @return array<string, array{DataType: string, StringValue: string}> */
     private function messageAttributes(): array
     {
-        $smsType = $this->settings['smsType'] ?? 'Transactional';
-        if (! is_string($smsType) || ! in_array($smsType, ['Promotional', 'Transactional'], true)) {
-            throw new UnexpectedValueException('The SNS SMS type is invalid.');
-        }
-
+        $smsType    = $this->settings->smsType();
         $attributes = [
             'AWS.SNS.SMS.SMSType' => [
                 'DataType' => 'String',
                 'StringValue' => $smsType,
             ],
         ];
-        $senderId   = $this->settings['senderId'] ?? null;
-        if (! is_string($senderId) || $senderId === '') {
+        $senderId   = $this->settings->senderId();
+        if ($senderId === null || $senderId === '') {
             return $attributes;
         }
 

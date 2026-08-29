@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Backendbase\Shared\Settings;
+use Backendbase\Infrastructure\Configuration\LoggingSettings;
 use DI\ContainerBuilder;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
@@ -15,9 +15,9 @@ use Ramsey\Uuid\Uuid;
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         LoggerInterface::class => static function (ContainerInterface $container) {
-            $loggerSettings = $container->get(Settings::class)->get('logger');
-            $logger         = new Logger($loggerSettings['name']);
-            $traceId        = $_SERVER['HTTP_X_REQUEST_ID'] ?? Uuid::uuid7()->toString();
+            $settings = $container->get(LoggingSettings::class);
+            $logger   = new Logger($settings->name());
+            $traceId  = $_SERVER['HTTP_X_REQUEST_ID'] ?? Uuid::uuid7()->toString();
 
             $logger->pushProcessor(static function (LogRecord $record) use ($traceId) {
                 $record->extra['trace_id'] = $traceId;
@@ -26,7 +26,7 @@ return static function (ContainerBuilder $containerBuilder): void {
             });
 
             $output    = "[%datetime%] [%extra.trace_id%] %channel%.%level_name%: %message% %context%\n";
-            $handler   = new StreamHandler($loggerSettings['path'], $loggerSettings['level']);
+            $handler   = new StreamHandler($settings->path(), $settings->level());
             $formatter = new LineFormatter($output);
             $handler->setFormatter($formatter);
             $logger->pushHandler($handler);

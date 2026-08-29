@@ -612,7 +612,7 @@
             <p class="section-label">04 · Repository map</p>
             <h2>Find the correct change surface</h2>
             <pre class="tree" aria-label="Project folder tree">backendbase-core/
-├── bin/                         # API, Doctrine, Bruno, maintenance, deployment
+├── bin/                         # Runtime, deployment, and quality tools
 ├── config/                      # shared and ExampleApi configuration
 ├── public/                      # HTTP entry points and generated API documentation
 ├── resources/
@@ -823,6 +823,7 @@ bin/doctrine migrations:migrate</code></pre>
                 </article>
             </div>
             <p>The bootstrap loads <code>.env</code> when the compiled configuration cache does not exist. It merges shared providers with the selected API providers.</p>
+            <p>Typed settings objects validate application runtime, database, queue, AWS, Redis, logging, HTTP, and JWT values. Adapters receive immutable leaf settings instead of configuration arrays.</p>
             <div class="callout danger"><strong>Secret rule:</strong> Keep real keys, tokens, passwords, and service credentials out of version control. Use <code>.env.example</code> only as a variable contract.</div>
             <p>See the environment guide for precedence, cache behavior, queue selection, AWS validation, and common failure modes.</p>
         </section>
@@ -912,12 +913,14 @@ bin/bruno example-api local</code></pre>
                         <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared core frameworks, and annotated targets</td></tr>
                         <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Application, tests, configuration, public entry points, tools, and database PHP at level 8</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
+                        <tr><td>Documentation links</td><td><code>composer docs:check-links</code></td><td>Local HTML and Markdown targets plus HTML fragments</td></tr>
+                        <tr><td>Report metrics</td><td><code>composer reports:check</code></td><td>JUnit, Clover, and repository-inventory values</td></tr>
                         <tr><td>OpenAPI validation</td><td><code>php-openapi validate</code></td><td>Generated contract structure</td></tr>
                         <tr><td>API E2E</td><td><code>bin/bruno example-api local</code></td><td>Running API and local data</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes <code>clover.xml</code> and enforces the 100% coverage threshold.</p>
+            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes JUnit and Clover XML and enforces the 100% coverage threshold. Continuous integration validates documentation links and rejects stale generated report metrics.</p>
         </section>
 
         <section id="deployment">
@@ -954,6 +957,7 @@ bin/bruno example-api local</code></pre>
                     </tbody>
                 </table>
             </div>
+            <div class="callout good"><strong>Changelog rule:</strong> Update the <code>Unreleased</code> section of <code>CHANGELOG.md</code> in the same commit as every change.</div>
         </section>
 
         <section id="guides">

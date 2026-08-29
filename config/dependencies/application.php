@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\ObjectMapper;
 use Backendbase\Shared\Services\Translator;
-use Backendbase\Shared\Settings;
 use Backendbase\Utility\Pipeline\Pipeline;
 use Backendbase\Utility\Pipeline\PipelineInterface;
 use CuyZ\Valinor\Cache\FileSystemCache;
@@ -17,14 +17,10 @@ return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         PipelineInterface::class => static fn (ContainerInterface $container) => Pipeline::withContainer($container),
         ObjectMapper::class => static function (ContainerInterface $container) {
-            $settings    = $container->get(Settings::class);
-            $cache       = new FileSystemCache('var/cache/valinor');
-            $environment = $settings->get('env');
-            if ($environment instanceof Environment) {
-                $environment = $environment->value;
-            }
+            $settings = $container->get(ApplicationRuntimeSettings::class);
+            $cache    = new FileSystemCache('var/cache/valinor');
 
-            if ($environment === Environment::DEV->value) {
+            if ($settings->environment() === Environment::DEV) {
                 $cache = new FileWatchingCache($cache);
             }
 

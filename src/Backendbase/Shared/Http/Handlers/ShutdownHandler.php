@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Http\Handlers;
 
+use Backendbase\Shared\Configuration\HttpHeaderSettings;
 use Backendbase\Shared\Http\ResponseEmitter\ResponseEmitter;
-use Backendbase\Shared\Settings;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
 use Slim\Exception\HttpInternalServerErrorException;
@@ -25,7 +25,7 @@ readonly class ShutdownHandler
     public function __construct(
         private Request $request,
         private ErrorHandlerInterface $errorHandler,
-        private Settings $settings,
+        private HttpHeaderSettings $settings,
         private bool $displayErrorDetails,
         private LoggerInterface $logger,
     ) {

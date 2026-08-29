@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Authentication;
 
+use Backendbase\Shared\Configuration\JwtSettings;
 use DateInterval;
 use DateTimeImmutable;
 use Lcobucci\Clock\Clock;
@@ -27,12 +28,12 @@ final class JwtTokenConfiguration
 
     private readonly Configuration $configuration;
 
-    /** @param array<string, mixed> $config */
-    public function __construct(private readonly array $config)
+    public function __construct(private readonly JwtSettings $settings)
     {
+        $signingKey          = $this->settings->signingKey();
         $this->configuration = Configuration::forSymmetricSigner(
             new Sha256(),
-            InMemory::base64Encoded($config['sign-key']),
+            InMemory::base64Encoded($signingKey),
         );
     }
 
@@ -42,33 +43,52 @@ final class JwtTokenConfiguration
      */
     public function issue(string $claimKey, mixed $claimValue, string $tokenId, DateTimeImmutable $issuedAt): string
     {
-        $config = $this->config;
+        $issuer       = $this->settings->issuer();
+        $permittedFor = $this->settings->permittedFor();
+        $duration     = $this->settings->duration();
+        $signer       = $this->configuration->signer();
+        $signingKey   = $this->configuration->signingKey();
 
         return new JwtFacade(clock: new FrozenClock($issuedAt))->issue(
-            $this->configuration->signer(),
-            $this->configuration->signingKey(),
-            static function (Builder $builder, DateTimeImmutable $issuedAt) use ($config, $tokenId, $claimKey, $claimValue) {
+            $signer,
+            $signingKey,
+            static function (
+                Builder $builder,
+                DateTimeImmutable $issuedAt,
+            ) use (
+                $issuer,
+                $permittedFor,
+                $duration,
+                $tokenId,
+                $claimKey,
+                $claimValue,
+            ) {
                 return $builder
-                    ->issuedBy($config['issuer'])
-                    ->permittedFor($config['permitted-for'])
+                    ->issuedBy($issuer)
+                    ->permittedFor($permittedFor)
                     ->identifiedBy($tokenId)
                     ->withClaim($claimKey, $claimValue)
-                    ->expiresAt($issuedAt->add(new DateInterval($config['duration'])));
+                    ->expiresAt($issuedAt->add($duration));
             },
         )->toString();
     }
 
     public function expirationTime(DateTimeImmutable $issuedAt): DateTimeImmutable
     {
-        return $issuedAt->add(new DateInterval($this->config['duration']));
+        $duration = $this->settings->duration();
+
+        return $issuedAt->add($duration);
     }
 
     /** @param non-empty-string $jwtToken */
     public function parse(string $jwtToken, Clock $clock): UnencryptedToken
     {
+        $signer     = $this->configuration->signer();
+        $signingKey = $this->configuration->signingKey();
+
         return new JwtFacade()->parse(
             $jwtToken,
-            new Constraint\SignedWith($this->configuration->signer(), $this->configuration->signingKey()),
+            new Constraint\SignedWith($signer, $signingKey),
             new Constraint\StrictValidAt($clock, new DateInterval(self::CLOCK_LEEWAY)),
         );
     }
@@ -76,24 +96,34 @@ final class JwtTokenConfiguration
     /** @param non-empty-string $tokenId */
     public function assertValid(UnencryptedToken $token, string $tokenId, Clock $clock): void
     {
+        $issuer        = $this->settings->issuer();
+        $permittedFor  = $this->settings->permittedFor();
+        $signer        = $this->configuration->signer();
+        $signingKey    = $this->configuration->signingKey();
         $configuration = $this->configuration->withValidationConstraints(
-            new SignedWith($this->configuration->signer(), $this->configuration->signingKey()),
+            new SignedWith($signer, $signingKey),
             new StrictValidAt($clock, new DateInterval(self::CLOCK_LEEWAY)),
-            new IssuedBy($this->config['issuer']),
+            new IssuedBy($issuer),
             new Constraint\IdentifiedBy($tokenId),
-            new Constraint\PermittedFor($this->config['permitted-for']),
+            new Constraint\PermittedFor($permittedFor),
         );
-        $configuration->validator()->assert($token, ...$configuration->validationConstraints());
+        $validator     = $configuration->validator();
+        $constraints   = $configuration->validationConstraints();
+        $validator->assert($token, ...$constraints);
     }
 
     /** @param non-empty-string $tokenId */
     public function tokenRedisKey(string $tokenId): string
     {
-        return 'JWT:' . $this->config['alias'] . ':' . $tokenId;
+        $alias = $this->settings->alias();
+
+        return 'JWT:' . $alias . ':' . $tokenId;
     }
 
     public function userRedisKey(mixed $userId): string
     {
-        return strtolower((string) $this->config['alias']) . ':' . $userId;
+        $alias = $this->settings->alias();
+
+        return strtolower($alias) . ':' . $userId;
     }
 }

@@ -25,6 +25,9 @@ backendbase-core/
 │   ├── backendbase                     # CLI entry point
 │   ├── doctrine                       # Doctrine tooling entry point
 │   ├── bruno                          # Bruno API end-to-end runner
+│   ├── check-coverage.php             # Executable-line coverage threshold
+│   ├── check-documentation-links.php  # Local documentation-link validation
+│   ├── update-quality-report.php      # Generated quality-report metrics
 │   ├── deployment/                    # Deployment scripts
 │   ├── dev/                           # Local maintenance scripts
 │   └── tolgee/                        # Translation synchronization scripts
@@ -77,6 +80,7 @@ backendbase-core/
 │   │   └── IdentityAndAccess/         # Authentication and authorization context
 │   ├── Infrastructure/
 │   │   ├── Adapters/                  # Notification, persistence, queue, and object-store adapters
+│   │   ├── Configuration/             # Typed runtime, AWS, queue, database, Redis, and logging settings
 │   │   ├── Health/                    # Bounded dependency readiness checks
 │   │   └── UseCase/
 │   │       ├── ExampleApi/
@@ -87,6 +91,7 @@ backendbase-core/
 │   │           ├── GoodHousekeeping/
 │   │           └── Queue/
 │   └── Shared/
+│       ├── Configuration/             # Shared HTTP, JWT, and configuration validation types
 │       ├── CQRS/                      # Command and query buses
 │       ├── Domain/                    # Domain events and base domain types
 │       ├── Http/                      # HTTP actions, middleware, and error handling
@@ -244,6 +249,8 @@ composer run start-apis
 composer test
 composer phpstan
 composer cs-check
+composer docs:check-links
+composer reports:check
 composer generate-example-api-spec
 bin/doctrine migrations:diff
 bin/doctrine migrations:migrate
@@ -263,5 +270,6 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests
 - Treat `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example` as the HTTP module reference.
 - The current repository contains only `ExampleApi`. Scaffold another API before adding adapters for it.
 - Update `resources/api-docs/example-api` and `resources/bruno/example-api` when a public ExampleApi route changes.
+- Update the `Unreleased` section of `CHANGELOG.md` in every commit.
 - Use targeted tests under `tests/Infrastructure/UseCase/ExampleApi` for HTTP adapter behavior.
 - Report skipped checks with exact commands and blockers when local dependencies, extensions, services, or environment variables are unavailable.

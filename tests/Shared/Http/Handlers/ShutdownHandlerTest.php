@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Http\Handlers;
 
+use Backendbase\Shared\Configuration\HttpHeaderSettings;
 use Backendbase\Shared\Http\Handlers\ShutdownHandler;
 use Backendbase\Shared\Services\Settings;
 use Laminas\Diactoros\Response;
@@ -122,12 +123,12 @@ final class ShutdownHandlerTest extends TestCase
         return new ShutdownHandler(
             (new ServerRequestFactory())->createServerRequest('GET', '/resource'),
             $errorHandler,
-            new Settings([
+            new HttpHeaderSettings(new Settings([
                 'headers' => [
                     'Access-Control-Allow-Origin' => 'https://app.example.com',
                     'Access-Control-Allow-Headers' => 'Content-Type',
                 ],
-            ]),
+            ])),
             $displayDetails,
             $this->createStub(LoggerInterface::class),
         );

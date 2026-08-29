@@ -12,9 +12,9 @@ use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
 use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
 use Backendbase\Infrastructure\Adapters\S3Bucket;
+use Backendbase\Infrastructure\Configuration\AwsSettings;
 use Backendbase\Shared\Integrations\BucketService;
 use Backendbase\Shared\Integrations\Notify;
-use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -22,73 +22,81 @@ use Psr\Log\LoggerInterface;
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         S3ClientInterface::class => static function (ContainerInterface $container) {
-            $settings            = $container->get(Settings::class);
-            $objectStoreSettings = $settings->get('objectStore');
-            $readinessSettings   = $settings->get('readiness');
-            $timeoutSeconds      = (float) ($readinessSettings['timeoutSeconds'] ?? 2);
-            $credentials         = new Credentials(
-                $objectStoreSettings['credentials']['key'],
-                $objectStoreSettings['credentials']['secret'],
+            $settings               = $container->get(AwsSettings::class);
+            $objectStoreSettings    = $settings->objectStore();
+            $objectStoreCredentials = $objectStoreSettings->credentials();
+            $accessKey              = $objectStoreCredentials->accessKey();
+            $secretKey              = $objectStoreCredentials->secretKey();
+            $timeoutSeconds         = $settings->readinessTimeoutSeconds();
+            $region                 = $objectStoreSettings->region();
+            $credentials            = new Credentials(
+                $accessKey,
+                $secretKey,
             );
 
             return new S3Client([
                 'credentials' => $credentials,
-                'http' => ['connect_timeout' => $timeoutSeconds, 'timeout' => $timeoutSeconds],
-                'region' => $objectStoreSettings['region'],
+                'http' => [
+                    'connect_timeout' => $timeoutSeconds,
+                    'timeout' => $timeoutSeconds,
+                ],
+                'region' => $region,
                 'version' => 'latest',
             ]);
         },
         BucketService::class => static function (ContainerInterface $container) {
-            $objectStoreSettings = $container->get(Settings::class)->get('objectStore');
+            $awsSettings         = $container->get(AwsSettings::class);
+            $objectStoreSettings = $awsSettings->objectStore();
             $s3Client            = $container->get(S3ClientInterface::class);
+            $bucket              = $objectStoreSettings->bucket();
+            $cdnBaseUrl          = $objectStoreSettings->cdnBaseUrl();
 
-            return new S3Bucket($s3Client, $objectStoreSettings['bucket'], $objectStoreSettings['cdnBaseUrl'] ?? null);
+            return new S3Bucket(
+                $s3Client,
+                $bucket,
+                $cdnBaseUrl,
+            );
         },
         SqsClient::class => static function (ContainerInterface $container) {
-            $settings    = $container->get(Settings::class);
-            $awsSettings = $settings->get('aws');
-            if (! is_array($awsSettings)) {
-                throw new UnexpectedValueException('The AWS settings are invalid.');
-            }
+            $settings       = $container->get(AwsSettings::class);
+            $configuration  = $container->get(AwsClientConfigurationBuilder::class);
+            $clientSettings = $settings->client();
+            $timeoutSeconds = $settings->readinessTimeoutSeconds();
 
-            $readinessSettings = $settings->get('readiness');
-            $timeoutSeconds    = (float) ($readinessSettings['timeoutSeconds'] ?? 2);
-            $configuration     = $container->get(AwsClientConfigurationBuilder::class);
-
-            return new SqsClient($configuration->build($awsSettings, $timeoutSeconds));
+            return new SqsClient($configuration->build(
+                $clientSettings,
+                $timeoutSeconds,
+            ));
         },
         SnsClient::class => static function (ContainerInterface $container) {
-            $settings    = $container->get(Settings::class);
-            $awsSettings = $settings->get('aws');
-            if (! is_array($awsSettings)) {
-                throw new UnexpectedValueException('The AWS settings are invalid.');
-            }
+            $settings       = $container->get(AwsSettings::class);
+            $configuration  = $container->get(AwsClientConfigurationBuilder::class);
+            $clientSettings = $settings->client();
+            $timeoutSeconds = $settings->readinessTimeoutSeconds();
 
-            $readinessSettings = $settings->get('readiness');
-            $timeoutSeconds    = (float) ($readinessSettings['timeoutSeconds'] ?? 2);
-            $configuration     = $container->get(AwsClientConfigurationBuilder::class);
-
-            return new SnsClient($configuration->build($awsSettings, $timeoutSeconds));
+            return new SnsClient($configuration->build(
+                $clientSettings,
+                $timeoutSeconds,
+            ));
         },
         SqsQueue::class => static function (ContainerInterface $container) {
-            $awsSettings = $container->get(Settings::class)->get('aws');
-            if (! is_array($awsSettings) || ! is_array($awsSettings['sqs'] ?? null)) {
-                throw new UnexpectedValueException('The AWS SQS settings are invalid.');
-            }
+            $settings    = $container->get(AwsSettings::class);
+            $client      = $container->get(SqsClient::class);
+            $sqsSettings = $settings->sqs();
 
-            return new SqsQueue($container->get(SqsClient::class), $awsSettings['sqs']);
+            return new SqsQueue($client, $sqsSettings);
         },
         SnsNotifier::class => static function (ContainerInterface $container) {
-            $awsSettings = $container->get(Settings::class)->get('aws');
-            if (! is_array($awsSettings) || ! is_array($awsSettings['sns'] ?? null)) {
-                throw new UnexpectedValueException('The AWS SNS settings are invalid.');
-            }
+            $settings    = $container->get(AwsSettings::class);
+            $client      = $container->get(SnsClient::class);
+            $snsSettings = $settings->sns();
 
-            return new SnsNotifier($container->get(SnsClient::class), $awsSettings['sns']);
+            return new SnsNotifier($client, $snsSettings);
         },
         Notify::class => static function (ContainerInterface $container) {
-            $notifier = new StackNotifier($container->get(LoggerInterface::class));
-            $notifier->add($container->get(SnsNotifier::class));
+            $notifier    = new StackNotifier($container->get(LoggerInterface::class));
+            $snsNotifier = $container->get(SnsNotifier::class);
+            $notifier->add($snsNotifier);
 
             return $notifier;
         },

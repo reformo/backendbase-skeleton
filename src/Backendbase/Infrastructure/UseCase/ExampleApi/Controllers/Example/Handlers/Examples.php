@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
+use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Primitives\Pagination;
-use Backendbase\Shared\Settings;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
@@ -24,7 +24,7 @@ class Examples extends Action
 {
     public function __construct(
         private readonly QueryBus $queryBus,
-        private readonly Settings $settings,
+        private readonly ApplicationRuntimeSettings $settings,
         protected LoggerInterface $logger,
     ) {
         parent::__construct($logger);
@@ -33,7 +33,7 @@ class Examples extends Action
     #[Override]
     protected function action(): Response
     {
-        $cdnBaseUrl   = $this->settings->get('cdnBaseUrl');
+        $cdnBaseUrl   = $this->settings->cdnBaseUrl();
         $type         = ExampleRequestInput::type($this->request->getAttribute('typeSlug'));
         $group        = (string) $this->request->getAttribute('exampleGroup');
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());

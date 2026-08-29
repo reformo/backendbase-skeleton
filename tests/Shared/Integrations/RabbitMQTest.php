@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Shared\Integrations;
 
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
+use Backendbase\Infrastructure\Configuration\Queue\RabbitMQTopologySettings;
+use Backendbase\Shared\Configuration\ValidatedQueueSettings;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
@@ -241,10 +243,9 @@ class RabbitMQTest extends TestCase
     #[Test]
     public function itUsesTheDefaultExchangeWithoutBindingTheMainQueue(): void
     {
-        $channel              = $this->createMock(AMQPChannel::class);
-        $connection           = $this->connection($channel);
-        $settings             = $this->settings();
-        $settings['exchange'] = '';
+        $channel    = $this->createMock(AMQPChannel::class);
+        $connection = $this->connection($channel);
+        $settings   = $this->settings('');
 
         $channel->expects(self::once())->method('exchange_declare');
         $channel->expects(self::once())->method('queue_bind');
@@ -311,17 +312,18 @@ class RabbitMQTest extends TestCase
         return $connection;
     }
 
-    /** @return array<string, mixed> */
-    private function settings(): array
+    private function settings(string $exchange = 'backendbase'): RabbitMQTopologySettings
     {
-        return [
+        $values = ValidatedQueueSettings::rabbitMQTopology([
             'queue' => 'backendbase-queue',
-            'exchange' => 'backendbase',
+            'exchange' => $exchange,
             'exchangeType' => 'direct',
             'deadLetterExchange' => 'backendbase.dead-letter',
             'deadLetterQueueSuffix' => '.dead-letter',
             'messageRetentionMilliseconds' => 604800000,
             'prefetchCount' => 1,
-        ];
+        ]);
+
+        return new RabbitMQTopologySettings($values);
     }
 }

@@ -7,5 +7,7 @@ parameters:
     - config/
     - public/
     - bin/check-coverage.php
+    - bin/check-documentation-links.php
+    - bin/update-quality-report.php
     - bin/tolgee/sync-support.php
     - resources/database/
