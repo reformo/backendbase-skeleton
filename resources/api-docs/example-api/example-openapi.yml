@@ -122,6 +122,7 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               required:
                 - email
                 - password
@@ -129,9 +130,11 @@ paths:
                 email:
                   type: string
                   format: email
+                  maxLength: 254
                 password:
                   type: string
                   minLength: 1
+                  maxLength: 1024
 
       responses:
         201:

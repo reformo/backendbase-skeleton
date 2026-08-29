@@ -12,6 +12,7 @@ use function array_merge;
 use function dirname;
 use function in_array;
 use function sort;
+use function str_contains;
 
 final class VendorConnectionConstructionBoundaryTest extends TestCase
 {
@@ -41,6 +42,10 @@ final class VendorConnectionConstructionBoundaryTest extends TestCase
         $violations    = [];
 
         foreach ($constructions as $file => $fileConstructions) {
+            if (str_contains($file, '/Tests/')) {
+                continue;
+            }
+
             foreach ($fileConstructions as $construction) {
                 $approvedLocations = self::APPROVED_LOCATIONS[$construction] ?? null;
                 if ($approvedLocations === null || in_array($file, $approvedLocations, true)) {

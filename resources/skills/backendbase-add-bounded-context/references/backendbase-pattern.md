@@ -75,7 +75,7 @@ Architecture tests prove dependency direction. This composition test separately 
 - Provider glob order is unsorted. Duplicate port keys can overwrite one another.
 - `PathFinder::doctrineEntityPaths()` sees direct context entities and one nested module level.
 - The Doctrine CLI schema filter currently collects service table names only from direct context entity folders. Prefer direct context placement unless the CLI is updated too.
-- `ExampleBoundedContext` is the complete source reference. No `Content` context currently exists. `IdentityAndAccess` uses different wiring.
+- `ExampleBoundedContext` is the complete source reference. No `Content` context currently exists. `IdentityAndAccess` also owns its port bindings through a context service provider.
 
 ## Verification map
 

@@ -110,7 +110,7 @@ schemas:
         type: string
         description: |
           Unique string value within the project that can be used to issue's id
-        example: 'identity-and-access/forbidden'
+        example: 'identity-access/restricted'
       title:
         type: string
         description: |
@@ -155,5 +155,5 @@ schemas:
     apiKey:
       type: apiKey
       description: User Id for request
-      name: X-Example-Api-Key
+      name: Backendbase-Api-Key
       in: header

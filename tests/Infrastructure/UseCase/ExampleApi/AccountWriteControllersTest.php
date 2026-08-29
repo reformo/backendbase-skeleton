@@ -27,7 +27,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use SensitiveParameterValue;
 
+use function array_fill;
 use function json_decode;
+use function str_repeat;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -46,7 +48,7 @@ final class AccountWriteControllersTest extends TestCase
 
                 self::assertSame('account@example.com', $command->email()->toString());
                 self::assertSame(['account.register'], $command->privileges()->slugs());
-                self::assertTrue($command->passwordHash()->verifyHash(new SensitiveParameterValue('secret')));
+                self::assertTrue($command->passwordHash()->verifyHash(new SensitiveParameterValue('secret-secret')));
 
                 return true;
             }));
@@ -54,7 +56,7 @@ final class AccountWriteControllersTest extends TestCase
 
         $response = $this->invoke($action, $this->request('POST', '/accounts', [
             'email' => 'account@example.com',
-            'password' => 'secret',
+            'password' => 'secret-secret',
             'privilegeSlugs' => ['account.register'],
         ]));
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
@@ -149,6 +151,12 @@ final class AccountWriteControllersTest extends TestCase
                 static fn () => AccountRequestInput::privilegeSlugs([null]),
                 static fn () => AccountRequestInput::registrationPayload(['invalid']),
                 static fn () => AccountRequestInput::registrationPayload(['unsupported' => true]),
+                static fn () => AccountRequestInput::email(str_repeat('a', 255)),
+                static fn () => AccountRequestInput::passwordHash(str_repeat('a', 11)),
+                static fn () => AccountRequestInput::passwordHash(str_repeat('a', 1025)),
+                static fn () => AccountRequestInput::privilegeSlugs(array_fill(0, 101, 'account.list')),
+                static fn () => AccountRequestInput::privilegeSlugs(['account.list', 'account.list']),
+                static fn () => AccountRequestInput::privilegeSlugs([str_repeat('a', 101)]),
             ] as $invalidInput
         ) {
             try {

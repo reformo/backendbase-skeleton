@@ -27,15 +27,19 @@ patch:
             email:
               type: string
               format: email
+              maxLength: 254
             password:
               type: string
-              minLength: 1
+              minLength: 12
+              maxLength: 1024
             privilegeSlugs:
               type: array
+              maxItems: 100
               uniqueItems: true
               items:
                 type: string
                 minLength: 1
+                maxLength: 100
   responses:
     204:
       description: Account revised

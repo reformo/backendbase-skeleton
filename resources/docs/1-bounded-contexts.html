@@ -901,7 +901,7 @@
                     <tr><td>Glob order is not sorted.</td><td>Duplicate definition keys are overwritten during iteration. Do not let contexts claim the same port.</td></tr>
                     <tr><td>Provider data is trusted.</td><td>A wrong class name or malformed subscriber entry can fail container construction or event registration.</td></tr>
                     <tr><td>Architecture enforcement is static.</td><td>The suite checks declared PHP dependencies. It does not prove runtime registration, dynamic lookups, or business behavior.</td></tr>
-                    <tr><td>Identity and access has mixed wiring.</td><td>JWT components use main configuration. The account authentication, read, and write repositories use the context service provider.</td></tr>
+                    <tr><td>Identity and access owns its port wiring.</td><td>Its context service provider binds account repositories, authorization state, and JWT token ports.</td></tr>
                     <tr><td>One context is the full example.</td><td>New contexts must use <code>ExampleBoundedContext</code>, not empty or partial directories, as the implementation reference.</td></tr>
                     </tbody>
                 </table>

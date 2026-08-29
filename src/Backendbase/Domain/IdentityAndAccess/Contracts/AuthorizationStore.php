@@ -20,13 +20,13 @@ interface AuthorizationStore
      * @param array<string, mixed> $data
      * @param IssuedToken          $issuedToken
      */
-    public function store(string $claimKey, mixed $claimValue, array $data, array $issuedToken): void;
+    public function store(string $claimKey, string $claimValue, array $data, array $issuedToken): void;
 
     /** @param non-empty-string $tokenId */
     public function isActive(string $tokenId): bool;
 
     /** @return array<string, mixed>|null */
-    public function byUserId(mixed $userId): array|null;
+    public function byUserId(string $userId): array|null;
 
     /** @param non-empty-string $tokenId */
     public function revoke(string $tokenId): void;

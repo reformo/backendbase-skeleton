@@ -28,6 +28,9 @@
     <include>
       <directory suffix=".php">./src</directory>
     </include>
+    <exclude>
+      <directory suffix=".php">./src/Backendbase/Domain/*/Tests</directory>
+    </exclude>
   </source>
   <coverage>
     <report>

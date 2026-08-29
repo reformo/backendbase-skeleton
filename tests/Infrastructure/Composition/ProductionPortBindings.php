@@ -16,6 +16,7 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineA
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountReadRepository;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountWriteRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationRepository;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthorizationState;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountReadRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountWriteRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
@@ -64,6 +65,7 @@ final class ProductionPortBindings
     {
         return [
             AccountAuthenticationRepository::class => DoctrineAccountAuthenticationRepository::class,
+            AccountAuthorizationState::class => JwtAuthorizationStore::class,
             AccountReadRepository::class => DoctrineAccountReadRepository::class,
             AccountWriteRepository::class => DoctrineAccountWriteRepository::class,
             AuthorizationStore::class => JwtAuthorizationStore::class,

@@ -10,6 +10,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added Doctrine ORM account write metadata and shared Doctrine and memory repository contract tests.
 - Added database-backed example account authentication and ACL privilege seeds.
 - Added account registration, revision, retirement, and listing operations with ACL checks.
 - Added this changelog and the per-commit maintenance rule.
@@ -28,6 +29,13 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Revoked all active account authorization state before account revision or retirement.
+- Aligned API-key and bearer failures with stable 401 problem responses and validated authorization request state.
+- Allowed replacement registration after account retirement through active-email uniqueness.
+- Moved ExampleApi bearer middleware into infrastructure and moved IdentityAndAccess tests into the context.
+- Moved IdentityAndAccess port bindings into its context service provider.
+- Added strict account email, password, and privilege input limits to runtime and OpenAPI contracts.
+- Updated reusable security and bounded-context skill references for the corrected runtime paths and behavior.
 - Made platform and skill routing mandatory before implementation, after scope changes, and during final verification.
 - Reduced direct runtime dependencies from 42 packages to 37 packages.
 - Expanded PHPStan level 8 and PHPCS coverage to operational tools and database PHP.

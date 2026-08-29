@@ -28,7 +28,7 @@ final class JwtTokenCodec
     }
 
     /** @return array{token: string, id: non-empty-string, issuedAt: DateTimeImmutable, expiresAt: DateTimeImmutable} */
-    public function issue(string $claimKey, mixed $claimValue): array
+    public function issue(string $claimKey, string $claimValue): array
     {
         if ($claimKey === '') {
             throw new InvalidArgumentException('JWT claim key cannot be empty.');

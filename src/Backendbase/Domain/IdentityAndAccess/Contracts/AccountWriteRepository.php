@@ -14,6 +14,4 @@ interface AccountWriteRepository
     public function getActive(AccountId $accountId): Account;
 
     public function save(Account $account): void;
-
-    public function retire(Account $account): void;
 }

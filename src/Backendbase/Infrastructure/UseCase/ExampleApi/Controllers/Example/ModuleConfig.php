@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Http\AuthorizationMiddleware;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\Examples;
+use Backendbase\Infrastructure\UseCase\ExampleApi\Middleware\AuthorizationMiddleware;
 use Backendbase\Shared\Http\Actions\ModuleRoute;
 use Override;
 use Psr\Container\ContainerInterface;

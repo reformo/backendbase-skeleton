@@ -66,8 +66,7 @@ Keep bypasses limited to routes owned by the target API. A public operation need
 
 These conditions are audit prompts. Do not reproduce them as target behavior.
 
-- `ValidateApiKey` is active in current source, despite one older HTML statement that says it is commented out.
-- API-key failures return `400`, while OpenAPI declares security failures as `401` or `403`.
+- `ValidateApiKey` is active in current source.
 - The public-path list includes paths that are not part of the Example API route set.
 - OPTIONS returns an empty `200`; the fallback action returns `204` for OPTIONS. Keep one intentional contract.
 - The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
@@ -78,13 +77,13 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
 - `src/Backendbase/Shared/Http/Middleware/ValidateApiKey.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php`
 - `config/example-api/http-headers.global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/common/components.yaml`
 - `resources/bruno/example-api/`
 - `tests/Shared/Http/Middleware/ValidateApiKeyTest.php`
-- `tests/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddlewareTest.php`
+- `tests/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
 - `resources/docs/project.md`
 - `resources/platform/07-http-api.md`

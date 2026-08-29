@@ -742,7 +742,7 @@
                     <p>The root routes provide API metadata, liveness, readiness, and authentication. <code>ModuleRoutes</code> registers the protected Account and Example modules. A final route handles missing paths.</p>
                 </article>
             </div>
-            <div class="callout warning"><strong>Current security state:</strong> ExampleApi middleware validates <code>Backendbase-Api-Key</code>. Protected module routes also use authorization middleware. Both middleware paths currently return status <code>400</code> for authentication failures.</div>
+            <div class="callout good"><strong>Current security state:</strong> ExampleApi middleware validates <code>Backendbase-Api-Key</code>. Protected module routes also validate bearer authorization. Missing or invalid credentials return status <code>401</code>.</div>
         </section>
 
         <section id="feature-flow">

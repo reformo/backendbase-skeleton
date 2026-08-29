@@ -41,7 +41,7 @@ final class JwtTokenConfiguration
      * @param non-empty-string $claimKey
      * @param non-empty-string $tokenId
      */
-    public function issue(string $claimKey, mixed $claimValue, string $tokenId, DateTimeImmutable $issuedAt): string
+    public function issue(string $claimKey, string $claimValue, string $tokenId, DateTimeImmutable $issuedAt): string
     {
         $issuer       = $this->settings->issuer();
         $permittedFor = $this->settings->permittedFor();
@@ -120,7 +120,7 @@ final class JwtTokenConfiguration
         return 'JWT:' . $alias . ':' . $tokenId;
     }
 
-    public function userRedisKey(mixed $userId): string
+    public function userRedisKey(string $userId): string
     {
         $alias = $this->settings->alias();
 

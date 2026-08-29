@@ -4,12 +4,25 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Domain;
 
+use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
 use Backendbase\Shared\Primitives\Email;
 use Backendbase\Shared\Primitives\PasswordHash;
+use DateTimeImmutable;
+
+/**
+ * @phpstan-type AccountState array{
+ *     id: AccountId,
+ *     email: Email,
+ *     passwordHash: PasswordHash,
+ *     privileges: AccountPrivileges,
+ *     retiredAt: DateTimeImmutable|null
+ * }
+ */
 
 final class Account
 {
-    private function __construct(private AccountId $id, private AccountProfile $profile)
+    /** @param AccountState $state */
+    private function __construct(private array $state)
     {
     }
 
@@ -19,7 +32,13 @@ final class Account
         PasswordHash $passwordHash,
         AccountPrivileges $privileges,
     ): self {
-        return new self($id, new AccountProfile(new AccountCredentials($email, $passwordHash), $privileges));
+        return new self([
+            'id' => $id,
+            'email' => $email,
+            'passwordHash' => $passwordHash,
+            'privileges' => $privileges,
+            'retiredAt' => null,
+        ]);
     }
 
     public static function reconstitute(
@@ -27,32 +46,56 @@ final class Account
         Email $email,
         PasswordHash $passwordHash,
         AccountPrivileges $privileges,
+        DateTimeImmutable|null $retiredAt = null,
     ): self {
-        return self::register($id, $email, $passwordHash, $privileges);
+        return new self([
+            'id' => $id,
+            'email' => $email,
+            'passwordHash' => $passwordHash,
+            'privileges' => $privileges,
+            'retiredAt' => $retiredAt,
+        ]);
     }
 
     public function revise(Email|null $email, PasswordHash|null $passwordHash, AccountPrivileges|null $privileges): void
     {
-        $this->profile = $this->profile->revise($email, $passwordHash, $privileges);
+        $this->state['email']        = $email ?? $this->state['email'];
+        $this->state['passwordHash'] = $passwordHash ?? $this->state['passwordHash'];
+        $this->state['privileges']   = $privileges ?? $this->state['privileges'];
+    }
+
+    public function retire(): void
+    {
+        $this->state['retiredAt'] = DateTimeImmutableFactory::create();
+    }
+
+    public function isRetired(): bool
+    {
+        return $this->state['retiredAt'] !== null;
+    }
+
+    public function retiredAt(): DateTimeImmutable|null
+    {
+        return $this->state['retiredAt'];
     }
 
     public function id(): AccountId
     {
-        return $this->id;
+        return $this->state['id'];
     }
 
     public function email(): Email
     {
-        return $this->profile->credentials()->email();
+        return $this->state['email'];
     }
 
     public function passwordHash(): PasswordHash
     {
-        return $this->profile->credentials()->passwordHash();
+        return $this->state['passwordHash'];
     }
 
     public function privileges(): AccountPrivileges
     {
-        return $this->profile->privileges();
+        return $this->state['privileges'];
     }
 }

@@ -24,6 +24,7 @@ use stdClass;
 
 use function json_decode;
 use function password_hash;
+use function str_repeat;
 
 use const JSON_THROW_ON_ERROR;
 use const PASSWORD_ARGON2ID;
@@ -119,6 +120,9 @@ final class RootControllersTest extends TestCase
             ['email' => 'not-an-email', 'password' => 'secret'],
             ['email' => 'user@example.com'],
             ['email' => 'user@example.com', 'password' => []],
+            ['email' => str_repeat('a', 255) . '@example.com', 'password' => 'secret'],
+            ['email' => 'user@example.com', 'password' => str_repeat('a', 1025)],
+            ['email' => 'user@example.com', 'password' => 'secret', 'extra' => true],
         ];
 
         foreach ($payloads as $payload) {

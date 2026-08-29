@@ -787,7 +787,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
     bearerAuth: []</code></pre>
             </div>
             <p>Both keys in one security requirement mean logical AND. Separate list items would mean logical OR.</p>
-            <div class="callout warning"><strong>Current runtime difference:</strong> Example API key validation is active, but a missing or invalid key returns status <code>400</code>. The contract lists <code>401</code> and <code>403</code> security responses.</div>
+            <div class="callout good"><strong>Runtime alignment:</strong> Missing or invalid API keys and bearer tokens return status <code>401</code>. ACL denials return status <code>403</code>.</div>
         </section>
 
         <section id="generation">
@@ -982,9 +982,6 @@ runtime:
                     <thead><tr><th>Priority</th><th>Area</th><th>Current difference</th><th>Suggested action</th></tr></thead>
                     <tbody>
                         <tr><td><span class="badge note">Medium</span></td><td>Bruno report data</td><td>The report must remain safe to share.</td><td>Keep credentials and request and response bodies excluded.</td></tr>
-                        <tr><td><span class="badge risk">High</span></td><td>API-key status</td><td>OpenAPI and Bruno require an API key. Invalid API keys return status <code>400</code>.</td><td>Align middleware status codes and problem schemas.</td></tr>
-                        <tr><td><span class="badge risk">High</span></td><td>Error status</td><td>The contract lists 401 and 403. Current authorization failures return 400.</td><td>Align middleware status codes and problem schemas.</td></tr>
-                        <tr><td><span class="badge note">Medium</span></td><td>Security scheme name</td><td>The root contract uses <code>Backendbase-Api-Key</code>. A duplicate common scheme uses <code>X-Example-Api-Key</code>.</td><td>Keep one authoritative security scheme.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Response fields</td><td>OpenAPI includes <code>typeTargetId</code> in details. The current controller omits it.</td><td>Change the response or the contract.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Pagination</td><td>Runtime list handlers accept <code>pageSize</code> and <code>page</code>. OpenAPI omits these query parameters.</td><td>Document both parameters and their limits.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Body properties do not declare complete required-field rules.</td><td>Match schema requirements to boundary validation.</td></tr>

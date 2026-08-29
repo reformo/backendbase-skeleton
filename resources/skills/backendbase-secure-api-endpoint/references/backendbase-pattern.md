@@ -54,12 +54,9 @@ Compare each result with the OpenAPI status and problem body. Include configured
 
 ## Current source limitations
 
-- Missing, malformed, expired, and invalid bearer values return `400`, not the intended `401`.
-- API-key failures return `400`, while OpenAPI lists `401` and `403`.
-- The authentication action uses fixed demonstration user data and does not verify the submitted password.
-- The timezone header is passed directly to `DateTimeZone`; invalid values need boundary handling.
-- Existing read routes omit bearer middleware but still require the global API key outside configured bypasses.
-- JWT validation exceptions are returned with their messages. Do not copy provider or internal exception detail into a public response.
+- Existing Example read routes omit bearer middleware but still require the global API key outside configured bypasses.
+- The API-key public-path list includes paths that are not part of the Example API route set.
+- The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
 - Do not encode these gaps as reusable policy.
 
 ## Exact source provenance
@@ -71,7 +68,7 @@ Compare each result with the OpenAPI status and problem body. Include configured
 - `src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenIssuer.php`
 - `src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenValidator.php`
 - `src/Backendbase/Domain/IdentityAndAccess/Contracts/AuthorizationStore.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php`
+- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php`
 - `src/Backendbase/Domain/IdentityAndAccess/Authorization/Acl.php`
 - `src/Backendbase/Shared/Authorization/AccessControl.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/`
@@ -83,9 +80,9 @@ Compare each result with the OpenAPI status and problem body. Include configured
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/example-api/example/`
 - `resources/bruno/example-api/example/`
-- `tests/Domain/IdentityAndAccess/Adapters/Authentication/JwtTest.php`
-- `tests/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddlewareTest.php`
-- `tests/Domain/IdentityAndAccess/Authorization/AclTest.php`
+- `src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Authentication/JwtTest.php`
+- `tests/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
+- `src/Backendbase/Domain/IdentityAndAccess/Tests/Authorization/AclTest.php`
 - `tests/Shared/Http/Middleware/ValidateApiKeyTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
 - `resources/docs/project.md`

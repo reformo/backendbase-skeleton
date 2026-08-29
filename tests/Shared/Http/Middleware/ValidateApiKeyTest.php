@@ -39,7 +39,7 @@ final class ValidateApiKeyTest extends TestCase
             ->withAttribute('apiKeyHeaderName', 'X-Api-Key')
             ->withAttribute('useIdentifierAsApiKey', true);
 
-        self::assertSame(400, $middleware->process($request, $handler)->getStatusCode());
+        self::assertSame(401, $middleware->process($request, $handler)->getStatusCode());
         self::assertSame(
             204,
             $middleware->process($request->withHeader('X-Api-Key', 'identifier'), $handler)->getStatusCode(),
@@ -60,12 +60,13 @@ final class ValidateApiKeyTest extends TestCase
             ->withAttribute('useIdentifierAsApiKey', false)
             ->withAttribute('apiName', 'exampleApi');
 
-        self::assertSame(400, $middleware->process($request, $handler)->getStatusCode());
+        self::assertSame(401, $middleware->process($this->request('GET', '/private'), $handler)->getStatusCode());
+        self::assertSame(401, $middleware->process($request, $handler)->getStatusCode());
         self::assertSame(
             204,
             $middleware->process($request->withHeader('X-Api-Key', 'expected-key'), $handler)->getStatusCode(),
         );
-        self::assertSame(400, $middleware->process($request->withUri($request->getUri()->withPath('/')), $handler)->getStatusCode());
+        self::assertSame(401, $middleware->process($request->withUri($request->getUri()->withPath('/')), $handler)->getStatusCode());
     }
 
     private function request(string $method, string $path): ServerRequestInterface

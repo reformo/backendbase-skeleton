@@ -15,16 +15,21 @@ use SensitiveParameterValue;
 
 use function array_is_list;
 use function array_key_exists;
-use function array_keys;
-use function in_array;
+use function array_unique;
+use function count;
 use function is_array;
 use function is_string;
+use function mb_strlen;
+
+use const SORT_REGULAR;
 
 final class AccountRequestInput
 {
-    private const array REGISTRATION_FIELDS = ['email', 'password', 'privilegeSlugs'];
+    private const int MAX_EMAIL_LENGTH = 254;
 
-    private const array REVISION_FIELDS = ['email', 'password', 'privilegeSlugs'];
+    private const int MAX_PASSWORD_LENGTH = 1024;
+
+    private const int MIN_PASSWORD_LENGTH = 12;
 
     public static function accessControl(mixed $value): AccessControl
     {
@@ -51,11 +56,7 @@ final class AccountRequestInput
      */
     public static function registrationPayload(array|object|null $value): array
     {
-        $payload = self::payload($value);
-        self::rejectUnexpectedFields($payload, self::REGISTRATION_FIELDS);
-        self::requireFields($payload, self::REGISTRATION_FIELDS);
-
-        return $payload;
+        return AccountPayload::registration($value);
     }
 
     /**
@@ -65,18 +66,12 @@ final class AccountRequestInput
      */
     public static function revisionPayload(array|object|null $value): array
     {
-        $payload = self::payload($value);
-        self::rejectUnexpectedFields($payload, self::REVISION_FIELDS);
-        if ($payload === []) {
-            throw InvalidUserInput::create('The account revision payload must contain a field.');
-        }
-
-        return $payload;
+        return AccountPayload::revision($value);
     }
 
     public static function email(mixed $value): Email
     {
-        if (! is_string($value)) {
+        if (! is_string($value) || mb_strlen($value) > self::MAX_EMAIL_LENGTH) {
             throw InvalidUserInput::create('The email value must be a valid email address.');
         }
 
@@ -95,8 +90,12 @@ final class AccountRequestInput
 
     public static function passwordHash(mixed $value): PasswordHash
     {
-        if (! is_string($value) || $value === '') {
-            throw InvalidUserInput::create('The password value must be a non-empty string.');
+        if (
+            ! is_string($value)
+            || mb_strlen($value) < self::MIN_PASSWORD_LENGTH
+            || mb_strlen($value) > self::MAX_PASSWORD_LENGTH
+        ) {
+            throw InvalidUserInput::create('The password length must be between 12 and 1024 characters.');
         }
 
         return PasswordHash::fromPassword(new SensitiveParameterValue($value));
@@ -118,10 +117,14 @@ final class AccountRequestInput
             throw InvalidUserInput::create('The privilegeSlugs value must be an array of privilege slugs.');
         }
 
+        if (count($value) > AccountPrivileges::MAX_COUNT || count(array_unique($value, SORT_REGULAR)) !== count($value)) {
+            throw InvalidUserInput::create('The privilegeSlugs value must contain at most 100 unique values.');
+        }
+
         $slugs = [];
         foreach ($value as $slug) {
-            if (! is_string($slug) || $slug === '') {
-                throw InvalidUserInput::create('Each privilege slug must be a non-empty string.');
+            if (! is_string($slug) || $slug === '' || mb_strlen($slug) > AccountPrivileges::MAX_SLUG_LENGTH) {
+                throw InvalidUserInput::create('Each privilege slug must contain between 1 and 100 characters.');
             }
 
             $slugs[] = $slug;
@@ -138,54 +141,5 @@ final class AccountRequestInput
         }
 
         return self::privilegeSlugs($payload['privilegeSlugs']);
-    }
-
-    /**
-     * @param array<array-key, mixed>|object|null $value
-     *
-     * @return array<string, mixed>
-     */
-    private static function payload(array|object|null $value): array
-    {
-        if (! is_array($value)) {
-            throw InvalidUserInput::create('The account payload must be an object.');
-        }
-
-        $payload = [];
-        foreach ($value as $field => $fieldValue) {
-            if (! is_string($field)) {
-                throw InvalidUserInput::create('The account payload contains an unsupported field.');
-            }
-
-            $payload[$field] = $fieldValue;
-        }
-
-        return $payload;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @param list<string>         $allowedFields
-     */
-    private static function rejectUnexpectedFields(array $payload, array $allowedFields): void
-    {
-        foreach (array_keys($payload) as $field) {
-            if (! in_array($field, $allowedFields, true)) {
-                throw InvalidUserInput::create('The account payload contains an unsupported field.');
-            }
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @param list<string>         $requiredFields
-     */
-    private static function requireFields(array $payload, array $requiredFields): void
-    {
-        foreach ($requiredFields as $field) {
-            if (! array_key_exists($field, $payload)) {
-                throw InvalidUserInput::create('The ' . $field . ' value is required.');
-            }
-        }
     }
 }

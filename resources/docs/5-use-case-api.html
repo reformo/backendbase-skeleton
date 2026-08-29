@@ -679,9 +679,9 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
             <p>The shared bootstrap also adds body parsing, routing, error middleware, a shutdown handler, and the response emitter.</p>
             <div class="callout warning">
                 <strong>API-key validation is active</strong>
-                <code>ExampleApi/middleware.php</code> adds <code>ValidateApiKey::class</code>. It validates <code>Backendbase-Api-Key</code> on non-public paths and currently returns status <code>400</code> for a missing or invalid key.
+                <code>ExampleApi/middleware.php</code> adds <code>ValidateApiKey::class</code>. It validates <code>Backendbase-Api-Key</code> on non-public paths and returns status <code>401</code> for a missing or invalid key.
             </div>
-            <p>Protected routes expect <code>Authorization: Bearer &lt;accessToken&gt;</code>. Missing or invalid bearer data currently returns status <code>400</code>.</p>
+            <p>Protected routes expect <code>Authorization: Bearer &lt;accessToken&gt;</code>. Missing or invalid bearer data returns status <code>401</code>.</p>
         </section>
 
         <section id="controllers">
@@ -958,10 +958,8 @@ bin/bruno example-api local</code></pre></div>
                 <table>
                     <thead><tr><th>Current behavior</th><th>Impact</th></tr></thead>
                     <tbody>
-                    <tr><td>API-key failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>
                     <tr><td>The CORS allow-header list omits <code>Accept-Language</code>.</td><td>Browser preflight can reject requests that send this documented header.</td></tr>
                     <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
-                    <tr><td>Bearer failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>
                     <tr><td><code>Authenticate</code> verifies an active account and its Argon2id password hash.</td><td>The protected Account module registers, revises, retires, and lists accounts through ACL-checked commands and a query.</td></tr>
                     <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
                     <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
@@ -1004,7 +1002,7 @@ composer complexity</code></pre></div>
                     <tr><td>Module registry</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php</code></td></tr>
                     <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example</code></td></tr>
                     <tr><td>Shared action base</td><td><code>src/Backendbase/Shared/Http/Actions/Action.php</code></td></tr>
-                    <tr><td>Authorization middleware</td><td><code>src/Backendbase/Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php</code></td></tr>
+                    <tr><td>Authorization middleware</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php</code></td></tr>
                     <tr><td>Error handler</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
                     <tr><td>Response emitter</td><td><code>src/Backendbase/Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
                     <tr><td>API configuration</td><td><code>config/example-api</code></td></tr>

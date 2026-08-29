@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace Backendbase\Migrations;
 
 use Backendbase\Seeders\IdentityAndAccessPrivilegeSeeder;
+use Backendbase\Shared\Migrations\BackendbaseAbstractMigration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
-final class Version20260829010000 extends AbstractMigration
+final class Version20260829010000 extends BackendbaseAbstractMigration
 {
     public function getDescription(): string
     {
         return 'Add identity and access account tables and privileges.';
-    }
-
-    public function isTransactional(): bool
-    {
-        return false;
     }
 
     public function up(Schema $schema): void
@@ -35,8 +30,10 @@ final class Version20260829010000 extends AbstractMigration
             . 'password_hash VARCHAR(255) NOT NULL, '
             . 'created_at DATETIME(6) NOT NULL, '
             . 'deleted_at DATETIME(6) DEFAULT NULL, '
+            . 'active_uniqueness_key TINYINT UNSIGNED '
+            . 'GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) STORED, '
             . 'UNIQUE INDEX example_accounts_uuid_unq (uuid), '
-            . 'UNIQUE INDEX example_accounts_email_unq (email), '
+            . 'UNIQUE INDEX example_accounts_active_email_unq (email, active_uniqueness_key), '
             . 'PRIMARY KEY (id)'
             . ') DEFAULT CHARACTER SET utf8mb4',
         );

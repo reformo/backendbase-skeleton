@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
+use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\ModuleConfig as AccountModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\ModuleRoutes;
@@ -90,9 +91,28 @@ final class ModuleRoutingTest extends TestCase
         );
         $liveness       = $app->handle($requestFactory->createServerRequest('GET', '/_status'));
 
-        self::assertSame(400, $unprotected->getStatusCode());
+        self::assertSame(401, $unprotected->getStatusCode());
         self::assertSame(200, $protected->getStatusCode());
         self::assertSame(200, $liveness->getStatusCode());
+    }
+
+    #[Test]
+    public function itProtectsAccountRoutesWithBearerAuthorization(): void
+    {
+        AppFactory::setContainer($this->container());
+        $app        = AppFactory::create();
+        $middleware = require dirname(__DIR__, 4)
+            . '/src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php';
+        $routes     = require dirname(__DIR__, 4)
+            . '/src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php';
+        $middleware($app);
+        $routes($app);
+        $app->addRoutingMiddleware();
+
+        $request = (new ServerRequestFactory())->createServerRequest('GET', '/accounts')
+            ->withHeader('Backendbase-Api-Key', 'example-api-key');
+
+        self::assertSame(401, $app->handle($request)->getStatusCode());
     }
 
     private function container(): ContainerInterface
@@ -104,6 +124,7 @@ final class ModuleRoutingTest extends TestCase
                 'cdnBaseUrl' => '',
             ]),
             LoggerInterface::class => new NullLogger(),
+            TokenValidator::class => $this->createStub(TokenValidator::class),
         ]);
 
         return $containerBuilder->build();

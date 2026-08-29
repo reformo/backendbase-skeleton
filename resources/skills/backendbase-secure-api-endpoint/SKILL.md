@@ -56,7 +56,8 @@ Use the target identity model, claims, issuer, audience, key storage, revocation
 ## Verification
 
 ```sh
-vendor/bin/phpunit tests/Domain/IdentityAndAccess
+vendor/bin/phpunit src/Backendbase/Domain/IdentityAndAccess/Tests
+vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/Middleware
 vendor/bin/phpunit tests/Shared/Http/Middleware/ValidateApiKeyTest.php
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/ModuleRoutingTest.php
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml

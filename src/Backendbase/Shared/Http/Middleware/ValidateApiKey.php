@@ -43,28 +43,36 @@ readonly class ValidateApiKey implements Middleware
         }
 
         $apiKeyHeaderName = $request->getAttribute('apiKeyHeaderName');
-        $requestApiKey    = $request->getHeaderLine($apiKeyHeaderName);
-        if (empty($requestApiKey) && $request->getAttribute('useIdentifierAsApiKey')) {
-            return new JsonResponse([
-                'code' => 'identity-and-access/api-key-not-found',
-                'title' => 'Api Key Not Validated',
-                'detail' => 'Invalid Api Key',
-            ], 400);
+        if (! is_string($apiKeyHeaderName) || $apiKeyHeaderName === '') {
+            return self::failureResponse();
         }
 
-        if ($request->getAttribute('useIdentifierAsApiKey')) {
+        $requestApiKey  = $request->getHeaderLine($apiKeyHeaderName);
+        $usesIdentifier = $request->getAttribute('useIdentifierAsApiKey') === true;
+        if (empty($requestApiKey) && $usesIdentifier) {
+            return self::failureResponse();
+        }
+
+        if ($usesIdentifier) {
             return $handler->handle($request);
         }
 
         $apiName = $request->getAttribute('apiName');
         if (! is_string($apiName) || ! $this->settings->accepts($apiName, $requestApiKey)) {
-            return new JsonResponse([
-                'code' => 'identity-and-access/api-key-not-found',
-                'title' => 'Api Key Not Validated',
-                'detail' => 'Invalid Api Key',
-            ], 400);
+            return self::failureResponse();
         }
 
         return $handler->handle($request);
+    }
+
+    private static function failureResponse(): JsonResponse
+    {
+        return new JsonResponse([
+            'type' => 'about:blank',
+            'code' => 'identity-access/api-key-invalid',
+            'title' => 'API Key Invalid',
+            'status' => 401,
+            'detail' => 'The API key is missing or invalid.',
+        ], 401, ['Content-Type' => 'application/problem+json']);
     }
 }
