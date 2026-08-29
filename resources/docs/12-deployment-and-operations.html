@@ -25,7 +25,7 @@
 <div class="table-wrap"><table><thead><tr><th>Step</th><th>Test script</th><th>Production script</th></tr></thead><tbody>
 <tr><td>Artifact</td><td colspan="2">Exact commit archive plus SHA-256 checksum</td></tr><tr><td>Active path</td><td colspan="2"><code>/opt/backendbase/webroot/api</code> symbolic link</td></tr>
 <tr><td>Environment</td><td><code>shared/.env.stage</code></td><td><code>shared/.env.production</code></td></tr>
-<tr><td>Dependencies</td><td colspan="2">Installed in the reviewed artifact by the release workflow</td></tr>
+<tr><td>Dependencies</td><td colspan="2">Build tools generate contracts before a final <code>composer install --no-dev</code> creates the production dependency set</td></tr>
 <tr><td>Database</td><td colspan="2">Exact manifest target, dry run, required backup hook, and recovery record</td></tr>
 <tr><td>Activation</td><td colspan="2">Atomic link switch, process hook, and readiness gate</td></tr>
 <tr><td>Rollback</td><td colspan="2">Only the recorded previous release; schema remains expanded</td></tr>

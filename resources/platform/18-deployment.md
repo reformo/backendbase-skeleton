@@ -15,6 +15,8 @@ A release changes code, dependencies, generated contracts, cache, schema, and ba
 - Switch the active release link atomically.
 - Verify readiness, outbox health, workers, and logs.
 
+The artifact builder installs development tools for contract generation. A final `composer install --no-dev` command removes them before archive creation.
+
 Clear merged configuration, route, container, and Doctrine metadata caches when their sources change. Restart workers after activation.
 
 Keep the recorded previous release available. Prefer forward repair after partially committed MySQL data-definition changes.

@@ -46,11 +46,12 @@ Backendbase uses full Git commit SHA values and SHA-256. Adapt source revision a
 3. Reject staged or unstaged changes.
 4. Verify release policy and the latest migration target.
 5. Export tracked source from the exact revision into a temporary directory.
-6. Install production dependencies with an authoritative autoloader.
+6. Install locked build and development dependencies.
 7. Generate and validate public contracts.
-8. Write the release manifest.
-9. Create the archive and separate checksum file.
-10. Upload only the archive and checksum through the selected CI artifact mechanism.
+8. Reinstall locked production dependencies without development packages and use an authoritative autoloader.
+9. Write the release manifest.
+10. Create the archive and separate checksum file.
+11. Upload only the archive and checksum through the selected CI artifact mechanism.
 
 Small revision guard:
 
@@ -166,6 +167,7 @@ Tests must never use a production deploy root or live database.
 
 - Build input is a full 40-character commit SHA.
 - The release policy target must equal the latest migration class.
+- Build tools generate and validate OpenAPI before the final production-only Composer install.
 - The archive includes production Composer dependencies and generated OpenAPI.
 - The manifest binds revision, `composer.lock` digest, migration target, and rollback policy.
 - Deployment requires checksum validation, safe extraction, backup and activation hooks, migration dry run, cache clear, atomic link switch, and readiness.

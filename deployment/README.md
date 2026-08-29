@@ -12,6 +12,8 @@ The workflow repeats the release gates. It then runs:
 bin/deployment/build-release.sh <full-commit-sha> artifacts/releases
 ```
 
+The builder installs development tools to generate and validate OpenAPI. It then removes development packages with a final `composer install --no-dev` command.
+
 The archive contains production Composer dependencies, generated OpenAPI, and `release-manifest.json`. The manifest binds the commit, `composer.lock`, migration target, and rollback policy.
 
 Update `deployment/release.json` when a migration is added. Set `applicationRollbackSafe` to `true` only when the previous application can use the new schema.

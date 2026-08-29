@@ -59,11 +59,9 @@ git archive "$expectedRevision" | tar -xf - -C "$releaseRoot"
 
 composer install \
     --working-dir="$releaseRoot" \
-    --no-dev \
     --no-interaction \
     --no-progress \
-    --prefer-dist \
-    --classmap-authoritative
+    --prefer-dist
 
 (
     cd "$releaseRoot"
@@ -71,6 +69,14 @@ composer install \
     composer run validate-example-api-spec
     vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 )
+
+composer install \
+    --working-dir="$releaseRoot" \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist \
+    --classmap-authoritative
 
 composerLockSha256="$(deploySha256 "$releaseRoot/composer.lock")"
 php -r '
