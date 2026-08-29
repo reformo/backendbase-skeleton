@@ -48,7 +48,7 @@
 <div class="callout danger"><strong>Hard boundary:</strong> Do not add unrequested tables, columns, indexes, timestamps, status fields, or audit fields.</div>
 </section>
 <section id="seeders"><p class="section-label">08 · Seeders</p><h2>Seed only approved reference data</h2>
-<p>Seeders use the <code>Backendbase\Seeders</code> namespace and live under <code>resources/database/Seeders</code>. A migration can call a seeder at the end of <code>up()</code>.</p>
+<p>Seeders use the <code>Backendbase\Seeders</code> namespace and live under <code>resources/database/Seeders</code>. When a migration queues schema SQL with <code>addSql()</code>, call its seeder from <code>postUp()</code> after Doctrine executes that SQL.</p>
 <ul><li>Make each seeder idempotent with an existence check.</li><li>Seed reference or lookup data only.</li><li>Do not put environment-specific or test-only data in production seeders.</li>
 <li>Do not invoke the reference <code>ExampleSeeder</code> unless the feature explicitly needs that data.</li></ul>
 </section>

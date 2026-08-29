@@ -59,7 +59,7 @@ The table, index, version, and description are illustrative. Generate them from 
 
 Do not add data because the new schema appears to need a default. Confirm each stable reference or lookup row and its identity first. Use the target project's seeder workflow only after explicit approval. Keep the seeder idempotent and test a repeated run.
 
-In an unmodified Backendbase project, seeders live under `resources/database/Seeders` and use namespace `Backendbase\Seeders`. Invoke a requested release-owned seeder from the owning migration only when that invocation is part of the approved change. Do not seed test, environment, tenant, user, credential, or secret data.
+In an unmodified Backendbase project, seeders live under `resources/database/Seeders` and use namespace `Backendbase\Seeders`. Invoke a requested release-owned seeder from the owning migration's `postUp()` method when `up()` queues schema SQL with `addSql()`. Do not seed test, environment, tenant, user, credential, or secret data.
 
 ## Release-manifest gate
 

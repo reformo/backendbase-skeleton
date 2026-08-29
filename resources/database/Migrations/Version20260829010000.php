@@ -69,7 +69,10 @@ final class Version20260829010000 extends BackendbaseAbstractMigration
             . 'FOREIGN KEY (privilege_id) REFERENCES example_privileges (id)'
             . ') DEFAULT CHARACTER SET utf8mb4',
         );
+    }
 
+    public function postUp(Schema $schema): void
+    {
         (new IdentityAndAccessPrivilegeSeeder())->seed($this->connection);
     }
 

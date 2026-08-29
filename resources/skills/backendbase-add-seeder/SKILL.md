@@ -27,7 +27,7 @@ Adapt the seeder namespace, table, bound values, identity generation, natural-ke
 2. Add a seeder in the discovered autoloaded seeder directory.
 3. Use parameterized existence checks and return when data already exists.
 4. Insert only the approved fields using the target project's date and identifier policy.
-5. If requested, invoke the seeder as the final step of the owning migration's `up()` method.
+5. If requested, invoke the seeder from the owning migration's `postUp()` method when `up()` queues schema SQL with `addSql()`; Doctrine executes that SQL after `up()` returns.
 6. Add a database test that runs the seeder twice and proves one correct result.
 7. Verify migration behavior separately when the seeder is release-invoked.
 

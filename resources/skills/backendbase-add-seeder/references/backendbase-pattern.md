@@ -7,7 +7,7 @@
 | Seeder class | `resources/database/Seeders` |
 | Seeder namespace | `Backendbase\Seeders` |
 | Autoload mapping | Composer `autoload.psr-4` |
-| Optional release invocation | Final statement of an approved migration `up()` |
+| Optional release invocation | `postUp()` of an approved migration after queued schema SQL |
 | Idempotency evidence | Context Doctrine seeder test |
 
 ## Small idempotent example
@@ -41,9 +41,15 @@ The table and values illustrate idempotency roles only. Use only rows and fields
 public function up(Schema $schema): void
 {
     $this->addSql('CREATE TABLE IF NOT EXISTS catalog_status (...)');
+}
+
+public function postUp(Schema $schema): void
+{
     (new CatalogStatusSeeder())->seed($this->connection);
 }
 ```
+
+Doctrine executes SQL queued by `addSql()` after `up()` returns. Run a seeder from `postUp()` when it reads a table created by that SQL.
 
 Call a seeder only when the migration owns both the approved schema and reference-data release. Do not add a migration only to call a seeder unless the user requested that release path.
 

@@ -14,7 +14,7 @@ use Ramsey\Uuid\Uuid;
  *
  * Pattern:
  * - Seeders live in this folder and are autoloaded as `Backendbase\Seeders` (see composer.json).
- * - A seeder is invoked from a Doctrine migration's up() as its final statement:
+ * - When a migration queues schema SQL with addSql(), invoke the seeder from its postUp() method:
  *       (new ExampleSeeder())->seed($this->connection);
  *   Migrations run automatically on deploy, so approved seed data ships with the release.
  * - Every seeder MUST be idempotent — guard each insert with an existence check so
