@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
+use Backendbase\Domain\IdentityAndAccess\Application\AuthenticateAccount;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthentication;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root\Authenticate;
@@ -20,8 +23,10 @@ use Psr\Log\LoggerInterface;
 use stdClass;
 
 use function json_decode;
+use function password_hash;
 
 use const JSON_THROW_ON_ERROR;
+use const PASSWORD_ARGON2ID;
 
 final class RootControllersTest extends TestCase
 {
@@ -60,20 +65,30 @@ final class RootControllersTest extends TestCase
     #[Test]
     public function itIssuesAnAuthenticationToken(): void
     {
+        $account                         = new AccountAuthentication(
+            '7d9f6812-34f8-4bce-9396-82e97c9dd0ce',
+            'user@example.com',
+            password_hash('secret', PASSWORD_ARGON2ID),
+            ['example.add', 'example.change', 'example.remove'],
+        );
+        $accountAuthenticationRepository = $this->createMock(AccountAuthenticationRepository::class);
+        $accountAuthenticationRepository->expects(self::once())
+            ->method('findByEmail')
+            ->with($account->email())
+            ->willReturn($account);
         $tokenIssuer = $this->createMock(TokenIssuer::class);
         $tokenIssuer->expects(self::once())
             ->method('issueNewToken')
             ->with(
                 'userId',
-                '019ee8a6-903a-75cf-b9a4-e19d6d0db533',
-                self::callback(static function (array $user): bool {
-                    return $user['email'] === 'user@example.com'
-                        && $user['firstName'] === 'Jane'
-                        && $user['privileges'] === ['example.add', 'example.change', 'example.remove'];
-                }),
+                $account->uuid(),
+                ['uuid' => $account->uuid(), 'email' => $account->email(), 'privileges' => $account->privileges()],
             )
             ->willReturn('access-token');
-        $action  = new Authenticate($tokenIssuer, $this->createStub(LoggerInterface::class));
+        $action  = new Authenticate(
+            new AuthenticateAccount($accountAuthenticationRepository, $tokenIssuer),
+            $this->createStub(LoggerInterface::class),
+        );
         $request = (new ServerRequestFactory())
             ->createServerRequest('POST', '/authenticate')
             ->withParsedBody(['email' => 'user@example.com', 'password' => 'secret']);
@@ -88,9 +103,14 @@ final class RootControllersTest extends TestCase
     #[Test]
     public function itRejectsInvalidAuthenticationInput(): void
     {
+        $accountAuthenticationRepository = $this->createMock(AccountAuthenticationRepository::class);
+        $accountAuthenticationRepository->expects(self::never())->method('findByEmail');
         $tokenIssuer = $this->createMock(TokenIssuer::class);
         $tokenIssuer->expects(self::never())->method('issueNewToken');
-        $action   = new Authenticate($tokenIssuer, $this->createStub(LoggerInterface::class));
+        $action   = new Authenticate(
+            new AuthenticateAccount($accountAuthenticationRepository, $tokenIssuer),
+            $this->createStub(LoggerInterface::class),
+        );
         $factory  = new ServerRequestFactory();
         $payloads = [
             null,

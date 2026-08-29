@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Adapters\Http;
 
 use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Exception\CommandFailed;
@@ -33,6 +34,12 @@ final class DomainErrorProblemDetailsMapper
                 401,
                 'Authorization Expired',
                 'identity-access/authorization-expired',
+                'about:blank',
+            ],
+            $exception instanceof InvalidCredentials => [
+                401,
+                'Authentication Failed',
+                'identity-access/invalid-credentials',
                 'about:blank',
             ],
             $exception instanceof CommandFailed => [500, 'Command failed', 'general/command-failed', 'about:blank'],

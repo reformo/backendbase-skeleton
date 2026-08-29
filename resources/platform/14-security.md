@@ -15,6 +15,8 @@ HTTP inputs depend on the `TokenIssuer` and `TokenValidator` application ports. 
 
 `AuthorizationStore` isolates Redis-backed token state from token orchestration.
 
+`POST /auth` validates a non-deleted account from `example_accounts`. It verifies the stored Argon2id password hash. It stores active privilege slugs in the JWT authorization state.
+
 `AuthorizationMiddleware` adds `authorizedUserId`, `authorizedUserData`, `clientTimezone`, `Acl`, and `AccessControl` request attributes.
 
 `Acl::isAllowed()` accepts a named privilege, `full-privileges`, or the `system-admin` role. Denial uses status 403.
@@ -31,6 +33,6 @@ Protect new endpoints by default. Make public policy explicit in routing and Ope
 
 ExampleApi middleware currently adds `ValidateApiKey`. It validates `Backendbase-Api-Key` outside configured public paths and returns status 400 on failure.
 
-Current security gaps include placeholder credential authentication and bearer failures that use status 400 instead of 401.
+Invalid credentials return status 401. Bearer failures still return status 400 instead of 401.
 
 Basis: `resources/docs/5-use-case-api.html`, `resources/docs/7-env-and-config.html`, `resources/docs/8-authentication-and-authorization.html`.

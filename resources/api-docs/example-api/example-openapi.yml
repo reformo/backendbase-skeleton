@@ -110,7 +110,7 @@ paths:
       tags:
         - Identity & Access
       operationId: authenticateUser
-      description: Authenticate user
+      description: Authenticate an account and issue an access token
       parameters:
         - $ref: '../common/components.yaml#/headers/Accept-Language'
         - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
@@ -139,6 +139,8 @@ paths:
           content:
             application/json:
               schema:
+                required:
+                  - accessToken
                 properties:
                   accessToken:
                     type: "string"

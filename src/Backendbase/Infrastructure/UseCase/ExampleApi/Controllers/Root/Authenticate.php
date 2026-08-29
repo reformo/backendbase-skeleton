@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
+use Backendbase\Domain\IdentityAndAccess\Application\AuthenticateAccount;
 use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
+use SensitiveParameterValue;
 
 class Authenticate extends Action
 {
     public function __construct(
-        private readonly TokenIssuer $tokenIssuer,
+        private readonly AuthenticateAccount $authenticateAccount,
         LoggerInterface $logger,
     ) {
         parent::__construct($logger);
@@ -23,20 +24,10 @@ class Authenticate extends Action
     #[Override]
     protected function action(): Response
     {
-        $payload = AuthenticationRequestInput::payload($this->request->getParsedBody());
-        $email   = AuthenticationRequestInput::email($payload['email'] ?? null);
-        AuthenticationRequestInput::password($payload['password'] ?? null);
-
-        $userId      = '019ee8a6-903a-75cf-b9a4-e19d6d0db533';
-        $userData    = [
-            'id' => 1,
-            'uuid' => $userId,
-            'email' => $email,
-            'firstName' => 'Jane',
-            'familyName' => 'Doe',
-            'privileges' => ['example.add', 'example.change', 'example.remove'],
-        ];
-        $accessToken = $this->tokenIssuer->issueNewToken('userId', $userId, $userData);
+        $payload     = AuthenticationRequestInput::payload($this->request->getParsedBody());
+        $email       = AuthenticationRequestInput::email($payload['email'] ?? null);
+        $password    = AuthenticationRequestInput::password($payload['password'] ?? null);
+        $accessToken = $this->authenticateAccount->authenticate($email, new SensitiveParameterValue($password));
 
         return new JsonResponse(['accessToken' => $accessToken], 201);
     }

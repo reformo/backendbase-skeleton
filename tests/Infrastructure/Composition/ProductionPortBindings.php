@@ -12,6 +12,8 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository as 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as ExampleWriteRepositoryPort;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtAuthorizationStore;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountAuthenticationRepository;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
@@ -57,6 +59,7 @@ final class ProductionPortBindings
     public static function all(): array
     {
         return [
+            AccountAuthenticationRepository::class => DoctrineAccountAuthenticationRepository::class,
             AuthorizationStore::class => JwtAuthorizationStore::class,
             BucketService::class => S3Bucket::class,
             CommandBus::class => ContainerAwareCommandBus::class,

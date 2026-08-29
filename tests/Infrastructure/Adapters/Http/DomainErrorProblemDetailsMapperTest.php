@@ -6,6 +6,7 @@ namespace Tests\Infrastructure\Adapters\Http;
 
 use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
@@ -64,6 +65,16 @@ final class DomainErrorProblemDetailsMapperTest extends TestCase
                 'status' => 401,
                 'title' => 'Authorization Expired',
                 'code' => 'identity-access/authorization-expired',
+                'type' => 'about:blank',
+            ],
+        ];
+
+        yield 'invalid credentials' => [
+            InvalidCredentials::create('Failure.', $context),
+            [
+                'status' => 401,
+                'title' => 'Authentication Failed',
+                'code' => 'identity-access/invalid-credentials',
                 'type' => 'about:blank',
             ],
         ];

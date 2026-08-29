@@ -10,6 +10,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added database-backed example account authentication and ACL privilege seeds.
 - Added this changelog and the per-commit maintenance rule.
 - Added a strict 100% executable-line coverage gate to `composer test`.
 - Added focused tests for previously uncovered validation, persistence, messaging, HTTP, AWS, and collection behavior.
