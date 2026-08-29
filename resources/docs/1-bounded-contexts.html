@@ -625,7 +625,7 @@
             </figure>
             <div class="callout">
                 <strong>Enforced platform boundary</strong>
-                <code>SharedDependencyBoundaryTest</code> prevents <code>Shared</code> from importing <code>Domain</code> or <code>Infrastructure</code>. This keeps the shared runtime below application modules.
+                <code>SharedDependencyBoundaryTest</code> prevents <code>Shared</code> from importing <code>Application</code>, <code>Domain</code>, or <code>Infrastructure</code>. This keeps the shared runtime below application modules.
             </div>
         </section>
 
@@ -682,7 +682,7 @@
                 <strong>Current routing exception</strong>
                 Command and query contracts use <code>#[CQRSHandler(HandlerClass::class)]</code>. The contract therefore names its application handler for bus routing.
             </div>
-            <p class="muted">Architecture tests parse PHP symbols and enforce domain purity, bounded-context isolation, adapter direction, framework-import boundaries, and the <code>Shared</code> dependency boundary.</p>
+            <p class="muted">Architecture tests parse PHP symbols and enforce domain purity, bounded-context isolation, Application direction, both adapter directions, Shared core framework isolation, attribute-target integrity, and the <code>Shared</code> dependency boundary.</p>
         </section>
 
         <section id="registration">

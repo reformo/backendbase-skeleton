@@ -673,7 +673,7 @@
                     <text x="670" y="59" text-anchor="middle" fill="#4f5f59" font-size="14" font-weight="700">Shared supplies CQRS, HTTP, domain, persistence, integration, primitive, and service building blocks</text>
                 </svg>
             </div>
-            <p>The architecture suite enforces domain purity, bounded-context isolation, adapter direction, framework-import boundaries, and the rule that <code>Shared</code> must not depend on <code>Domain</code> or <code>Infrastructure</code>.</p>
+            <p>The architecture suite enforces Domain and Application direction, bounded-context isolation, both adapter directions, Shared core framework isolation, annotated target integrity, and the rule that <code>Shared</code> must not depend on <code>Application</code>, <code>Domain</code>, or <code>Infrastructure</code>.</p>
         </section>
 
         <section id="boundaries">
@@ -909,7 +909,7 @@ bin/bruno example-api local</code></pre>
                     <tbody>
                         <tr><td>Focused PHPUnit</td><td><code>vendor/bin/phpunit &lt;path&gt;</code></td><td>Changed module or adapter</td></tr>
                         <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit suites with coverage, then deployment script checks</td></tr>
-                        <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, context, adapter, framework, and Shared dependency rules</td></tr>
+                        <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared core frameworks, and annotated targets</td></tr>
                         <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Source and tests at level 8</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>OpenAPI validation</td><td><code>php-openapi validate</code></td><td>Generated contract structure</td></tr>

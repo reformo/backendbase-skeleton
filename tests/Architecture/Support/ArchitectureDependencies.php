@@ -8,7 +8,11 @@ use function array_filter;
 use function array_push;
 use function dirname;
 use function sort;
+use function str_ends_with;
+use function str_replace;
 use function str_starts_with;
+use function strlen;
+use function substr;
 
 use const ARRAY_FILTER_USE_BOTH;
 
@@ -24,6 +28,22 @@ final class ArchitectureDependencies
     public static function shared(): array
     {
         return PhpDependencyScanner::dependenciesByFile(self::projectRoot(), 'src/Backendbase/Shared');
+    }
+
+    /** @return array<string, list<string>> */
+    public static function source(): array
+    {
+        return PhpDependencyScanner::dependenciesByFile(self::projectRoot(), 'src/Backendbase');
+    }
+
+    public static function className(string $file): string
+    {
+        $relativeClass = substr($file, strlen('src/Backendbase/'));
+        if (! str_ends_with($relativeClass, '.php')) {
+            return 'Backendbase\\Invalid';
+        }
+
+        return 'Backendbase\\' . str_replace('/', '\\', substr($relativeClass, 0, -4));
     }
 
     /**

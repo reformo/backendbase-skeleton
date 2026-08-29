@@ -104,7 +104,7 @@ When metadata is absent, reject without attempting a persistent key that cannot 
 | Unexpected application or infrastructure failure | retry until bounded limit |
 | Bounded limit reached | reject and mark terminal |
 
-Backendbase uses five attempts for transient consumer failures. Select the target value with the broker redrive policy.
+Backendbase uses five attempts for transient consumer failures. `QueueMessageFailureService` owns this decision. Select the target value with the broker redrive policy.
 
 ## Workflow
 
@@ -121,7 +121,7 @@ Backendbase uses five attempts for transient consumer failures. Select the targe
 
 - Integration mapping errors and missing metadata are permanent.
 - Ordinary throwables use the transient failure policy.
-- The persistent policy rejects after attempt five.
+- The application failure service rejects after attempt five. The persistence adapter only stores supplied failure state.
 - Database inbox identity is `(consumer_name, message_id)`.
 - External-effect claims use 300 seconds in the reference.
 - RabbitMQ RETRY immediately requeues.
@@ -143,7 +143,8 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventM
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProcessorTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransactionTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php
-vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicyTest.php
+vendor/bin/phpunit tests/Application/Messaging/QueueMessageFailureServiceTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStoreTest.php
 composer phpstan
 composer cs-check
 ```
@@ -166,6 +167,7 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Infrastructure/Adapters/Queue/NotificationMessageProcessor.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php`
-- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicy.php`
+- `src/Backendbase/Application/Messaging/QueueMessageFailureService.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStore.php`
 - `resources/platform/12-messaging-consumers.md`
 - `resources/docs/4-messaging-and-queues.html`

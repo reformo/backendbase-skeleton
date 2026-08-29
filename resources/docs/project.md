@@ -123,10 +123,14 @@ Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `Example
 Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-parser`. They enforce these rules:
 
 - Domain core code cannot depend on Application or Infrastructure.
+- Application code cannot depend on Infrastructure.
 - Business layers cannot depend on concrete Adapters.
 - A bounded context cannot depend on another bounded context.
 - Business layers cannot import HTTP, persistence, messaging, dependency-injection, or vendor framework namespaces.
-- Shared code cannot depend on Domain or Infrastructure.
+- Shared code cannot depend on Application, Domain, or Infrastructure.
+- Shared core code cannot import framework namespaces.
+- Inbound and outbound adapters cannot depend on each other.
+- CQRS and domain-listener attributes use one positional same-context target that implements the correct interface and resolves from the production container.
 
 `Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts can reference their handlers through `CQRSHandler` attributes.
 

@@ -17,7 +17,7 @@ final class SharedDependencyBoundaryTest extends TestCase
     {
         $violations = ArchitectureDependencies::prefixViolations(
             ArchitectureDependencies::shared(),
-            ['Backendbase\\Domain\\', 'Backendbase\\Infrastructure\\'],
+            ['Backendbase\\Application\\', 'Backendbase\\Domain\\', 'Backendbase\\Infrastructure\\'],
         );
 
         self::assertSame([], $violations);

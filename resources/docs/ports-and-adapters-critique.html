@@ -467,10 +467,10 @@
         <p class="lede">An evidence-based review of dependency direction, port ownership, adapter boundaries, framework isolation, adapter parity, and architecture tests.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Current code review</span>
-            <span class="chip">5 findings resolved</span>
+            <span class="chip">7 findings resolved</span>
             <span class="chip">No high-priority findings open</span>
-            <span class="chip">2 medium-priority findings open</span>
-            <span class="chip">9/9 architecture tests passed</span>
+            <span class="chip">No medium-priority findings open</span>
+            <span class="chip">16/16 architecture tests passed</span>
             <span class="chip">8/8 contract tests passed</span>
         </div>
     </div>
@@ -491,27 +491,27 @@
     <main id="main-content">
         <section id="verdict">
             <p class="section-label">01 · Executive verdict</p>
-            <h2>Core and messaging boundaries are stronger; adapter policy debt remains</h2>
+            <h2>All assessed boundary findings are resolved</h2>
             <div class="callout warning">
                 <strong>Most accurate description:</strong> The project uses a modular Domain-Driven Design (DDD) and Command Query Responsibility Segregation (CQRS) architecture with Ports and Adapters elements. It is not a strict hexagonal architecture.
             </div>
             <div class="callout good">
-                <strong>Latest update:</strong> Findings 01 through 04 and finding 06 are closed. Memory and Doctrine repositories now pass one behavioral contract suite. The registered external carrier matches the producer payload through the real dispatcher.
+                <strong>Latest update:</strong> All seven findings are closed. Application services own messaging policy. New architecture tests protect Application, Shared core, both adapter directions, and annotated targets.
             </div>
-            <p>The read/write ports in <code>ExampleBoundedContext</code>, adapter parity, token ports, pure Shared core, typed messaging ports, input validation, and internal CQRS handler mapping align with project decisions. The main open issues concern policy inside concrete adapters and general architecture enforcement.</p>
+            <p>The read/write ports, adapter parity, token ports, pure Shared core, typed messaging ports, input validation, application-owned messaging policy, and internal handler mapping align with project decisions.</p>
             <div class="metrics" aria-label="Summary metrics">
-                <div class="stat"><strong>2</strong><span>Open architecture findings</span></div>
+                <div class="stat"><strong>0</strong><span>Open architecture findings</span></div>
                 <div class="stat"><strong>0</strong><span>Open high-priority findings</span></div>
-                <div class="stat"><strong>9/9</strong><span>Architecture tests passed</span></div>
-                <div class="stat"><strong>5</strong><span>Findings resolved</span></div>
+                <div class="stat"><strong>16/16</strong><span>Architecture tests passed</span></div>
+                <div class="stat"><strong>7</strong><span>Findings resolved</span></div>
             </div>
         </section>
 
         <section id="dependency-map">
             <p class="section-label">02 · Dependency map</p>
-            <h2>Ideal direction, resolved identity flow, and remaining leaks</h2>
+            <h2>Ideal direction and resolved dependency flows</h2>
             <figure class="diagram">
-                <div role="img" aria-label="The ideal dependency direction from inbound adapters to an inbound port, the application and domain core, an outbound port, and outbound adapters. The lower section shows one open issue and five resolved flows.">
+                <div role="img" aria-label="The ideal dependency direction from inbound adapters to an inbound port, the application and domain core, an outbound port, and outbound adapters. The lower section shows seven resolved flows.">
                     <div class="flow">
                         <div class="node"><strong>HTTP · CLI · Queue</strong><small>Inbound adapters</small></div>
                         <div class="arrow">→</div>
@@ -529,10 +529,11 @@
                         <div class="leak resolved"><strong>Resolved: domain error → HTTP adapter</strong><br>The Infrastructure mapper owns every Problem Details contract.</div>
                         <div class="leak resolved"><strong>Resolved: typed messaging ports</strong><br>Publish, consume, and notification results hide vendor objects.</div>
                         <div class="leak resolved"><strong>Resolved: adapter contract parity</strong><br>Memory and Doctrine repositories share one suite. Producer payloads map through the real dispatcher.</div>
-                        <div class="leak"><strong>Doctrine relay → queue adapter</strong><br>Policy and mechanism are combined in a concrete adapter.</div>
+                        <div class="leak resolved"><strong>Resolved: application messaging policy</strong><br>Application services own retry and relay decisions. Doctrine only persists supplied state.</div>
+                        <div class="leak resolved"><strong>Resolved: architecture enforcement</strong><br>Application, Shared core, both adapter directions, and attribute targets have explicit rules.</div>
                     </div>
                 </div>
-                <figcaption>The upper flow shows the ideal dependency rule. The lower cards show one open issue and five resolved flows.</figcaption>
+                <figcaption>The upper flow shows the ideal dependency rule. The lower cards show seven resolved flows.</figcaption>
             </figure>
         </section>
 
@@ -553,7 +554,7 @@
                     <tr><td>Domain/framework isolation</td><td><span class="badge strong">Strong</span></td><td>Domain errors contain no transport fields. Domain events use a native collection. Container-aware implementations are Infrastructure adapters.</td></tr>
                     <tr><td>Identity and Access boundary</td><td><span class="badge strong">Strong</span></td><td>HTTP entry points depend on token ports. The composition root separates the JWT codec and Redis store.</td></tr>
                     <tr><td>Composition root</td><td><span class="badge partial">Partially strong</span></td><td>Central dependency injection files exist. Some concrete connections are still created inside modules or adapters.</td></tr>
-                    <tr><td>Architecture enforcement tests</td><td><span class="badge partial">Partial</span></td><td>Core rules, Shared framework isolation, container-adapter placement, and the HTTP → concrete Jwt ban work. General adapter-to-adapter and attribute mapping rules do not yet scan all cases.</td></tr>
+                    <tr><td>Architecture enforcement tests</td><td><span class="badge strong">Strong</span></td><td>Rules cover Domain, Application, Shared core, bounded contexts, both adapter directions, identity ports, and annotated handler or listener targets.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -610,13 +611,14 @@
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Medium · 05</span></div>
+                    <div><span class="badge strong">Resolved · 05</span></div>
                     <div>
-                        <h3>Policy is inside concrete adapters</h3>
-                        <p>Doctrine adapters implement retry counts, permanent/transient decisions, outbox backoff, and publication orchestration. Mechanism and policy are combined at the same boundaries.</p>
-                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicy.php"><code>DoctrineQueueMessageFailurePolicy.php:14-43</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelay.php"><code>DoctrineOutboxRelay.php:18-44,124-142</code></a>.</p>
+                        <h3>Application services own retry and relay policy</h3>
+                        <p><code>OutboxRelayService</code> owns the relay loop and publication decisions. <code>OutboxRetryPolicy</code> owns the 60-second claim and exponential delay. <code>QueueMessageFailureService</code> owns permanent, transient, and five-attempt outcomes.</p>
+                        <p><code>DoctrineOutboxMessageStore</code> and <code>DoctrineQueueMessageFailureStore</code> only claim, record, mark, clear, and apply supplied status values.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>, <a href="../../src/Backendbase/Application/Messaging/QueueMessageFailureService.php"><code>QueueMessageFailureService.php</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php"><code>DoctrineOutboxMessageStore.php</code></a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStore.php"><code>DoctrineQueueMessageFailureStore.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Recommended action</strong>Move retry and relay decisions to an application service. Let the persistence adapter implement only claim, record, and status-update mechanisms.</div>
+                    <div class="action"><strong>Implemented action</strong>Policy moved to framework-free application services. Doctrine adapters now implement persistence mechanisms only.</div>
                 </article>
 
                 <article class="finding">
@@ -632,14 +634,14 @@
                 </article>
 
                 <article class="finding">
-                    <div><span class="badge medium">Medium · 07</span></div>
+                    <div><span class="badge strong">Resolved · 07</span></div>
                     <div>
-                        <h3>Architecture test coverage is broader; general leaks remain open</h3>
-                        <p>The new <code>IdentityAndAccessPortBoundaryTest</code> scans Infrastructure HTTP entry points and authorization middleware. It prevents these entry points from depending on the concrete <code>Jwt</code> adapter.</p>
-                        <p>Application → Infrastructure, Shared framework imports, and general inbound-adapter → outbound-adapter relations remain outside the test scope. No general rule verifies that an attribute target stays in the same context and implements the correct handler interface.</p>
-                        <p class="evidence">Evidence: <a href="../../tests/Architecture/IdentityAndAccessPortBoundaryTest.php"><code>IdentityAndAccessPortBoundaryTest.php:18-34</code></a>, <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php:17-29</code></a>, <a href="../../tests/Architecture/FrameworkImportBoundaryTest.php"><code>FrameworkImportBoundaryTest.php:33-41</code></a>, <a href="../../tests/Architecture/Support/BoundedContextDependencies.php"><code>BoundedContextDependencies.php:14-31</code></a>.</p>
+                        <h3>Architecture tests protect general dependency and metadata rules</h3>
+                        <p>Separate tests reject Application → Infrastructure and framework imports in the Shared core. Direction-specific tests reject inbound → outbound and outbound → inbound adapter dependencies.</p>
+                        <p><code>AttributeTargetBoundaryTest</code> checks one positional target, same-context placement, the required handler interface, and production-container resolution for every CQRS and domain-listener attribute.</p>
+                        <p class="evidence">Evidence: <a href="../../tests/Architecture/ApplicationDependencyBoundaryTest.php"><code>ApplicationDependencyBoundaryTest.php</code></a>, <a href="../../tests/Architecture/SharedCoreFrameworkBoundaryTest.php"><code>SharedCoreFrameworkBoundaryTest.php</code></a>, <a href="../../tests/Architecture/InboundAdapterDependencyBoundaryTest.php"><code>InboundAdapterDependencyBoundaryTest.php</code></a>, <a href="../../tests/Architecture/OutboundAdapterDependencyBoundaryTest.php"><code>OutboundAdapterDependencyBoundaryTest.php</code></a>, <a href="../../tests/Architecture/AttributeTargetBoundaryTest.php"><code>AttributeTargetBoundaryTest.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Recommended action</strong>Add separate dependency tests for Application, the Shared core, and both adapter directions. Protect CQRS and domain-listener attribute targets with rules for the same context, one positional target, the correct interface, and container resolution.</div>
+                    <div class="action"><strong>Implemented action</strong>Five focused architecture test classes now protect the previously open dependency and attribute rules.</div>
                 </article>
             </div>
         </section>
@@ -686,15 +688,15 @@
 
         <section id="roadmap">
             <p class="section-label">06 · Remediation order</p>
-            <h2>Address adapter policy and architecture enforcement</h2>
+            <h2>All assessed remediation steps are complete</h2>
             <ol class="steps">
                 <li><strong>Completed — establish the Identity and Access boundary.</strong> Token and authorization ports were added. HTTP, JWT codec, and Redis store roles were separated. Authorization moved to the application handler boundary.</li>
                 <li><strong>Completed — make the Shared core pure.</strong> HTTP Problem Details mapping, the native event collection, and container-aware Infrastructure adapters now enforce the boundary.</li>
                 <li><strong>Completed — enforce one entry point for one use case.</strong> Controller orchestration was removed. PATCH fields are validated at the HTTP boundary.</li>
                 <li><strong>Completed — narrow the messaging ports.</strong> Publication and consumption are separate. Typed message, subscription, publication, and notification results replace raw port values.</li>
-                <li><strong>Remove policy from adapters.</strong> Move retry, dead-letter, and outbox backoff decisions to application services.</li>
+                <li><strong>Completed — remove policy from adapters.</strong> Application services own retry, dead-letter, relay, claim-duration, and backoff decisions.</li>
                 <li><strong>Completed — test adapter parity.</strong> Memory and Doctrine pass one repository contract suite. The real dispatcher maps producer data into the registered consumer DTO.</li>
-                <li><strong>Expand architecture tests.</strong> Keep the new Identity boundary test. Cover Application, the Shared core, and general adapter-to-adapter dependencies.</li>
+                <li><strong>Completed — expand architecture tests.</strong> Separate tests cover Application, Shared core, both adapter directions, and attribute targets.</li>
             </ol>
             <div class="callout good">
                 <strong>Success criterion:</strong> Application and domain code must not change when an HTTP, CLI, or queue adapter changes. Inbound adapters must not change when Doctrine, Redis, or the broker changes.
@@ -703,7 +705,7 @@
 
         <section id="verification">
             <p class="section-label">07 · Verification and scope</p>
-            <h2>Current tests passed; remaining architecture gaps are explicit</h2>
+            <h2>Current tests pass and enforce the assessed boundaries</h2>
             <div class="table-wrap">
                 <table>
                     <caption class="sr-only">Verification commands and results</caption>
@@ -711,21 +713,21 @@
                     <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Description</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>9 tests and 14 assertions passed. This includes Identity port, Shared framework, and container-adapter placement checks.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>16 tests and 98 assertions passed. This includes Application, Shared core, both adapter directions, attribute targets, Identity ports, context isolation, and container-adapter placement.</td></tr>
                     <tr><td><code>vendor/bin/phpunit --testdox tests/Domain/ExampleBoundedContext/Contracts tests/Domain/ExampleBoundedContext/ServiceProviderTest.php</code></td><td><span class="badge strong">Passed</span></td><td>8 tests and 57 assertions passed.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Passed</span></td><td>10 tests and 44 assertions passed. Architecture rules and the complete Example lifecycle worked together.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Passed</span></td><td>17 tests and 128 assertions passed. Architecture rules and the complete Example lifecycle worked together.</td></tr>
                     <tr><td><code>vendor/bin/phpunit tests/Domain/IdentityAndAccess tests/Domain/ExampleBoundedContext/Application/CommandHandlers</code></td><td><span class="badge strong">Passed</span></td><td>21 tests and 74 assertions passed. The scope covered token ports, middleware, and handler privilege rejection.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>269 tests and 1,091 assertions passed.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>283 tests and 1,207 assertions passed.</td></tr>
                     <tr><td><code>vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors.</td></tr>
                     <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Domain, Application, Contracts, Shared, Infrastructure, configuration, and related tests were reviewed.</td></tr>
-                    <tr><td>Production code change</td><td><span class="badge strong">Present</span></td><td>Token ports, pure domain errors, HTTP error mapping, native event collection, Infrastructure container adapters, typed PATCH validation, typed messaging ports, repository parity, and aligned external event DTOs were added.</td></tr>
+                    <tr><td>Production code change</td><td><span class="badge strong">Present</span></td><td>Application messaging policies, mechanism-only Doctrine stores, general architecture rules, a native Shared collection, typed messaging, repository parity, and aligned HTTP and event contracts were added.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="grid-2">
-                <aside class="callout warning">
+                <aside class="callout">
                     <strong>Test interpretation</strong>
-                    <p>The passed tests verify Identity and Shared core boundaries. They do not verify general Application → Infrastructure or adapter-to-adapter bans.</p>
+                    <p>The static rules verify dependency structure. The attribute rule also resolves every target from the production container. Focused behavior tests verify retry and persistence outcomes separately.</p>
                 </aside>
                 <aside class="callout">
                     <strong>Scope limit</strong>

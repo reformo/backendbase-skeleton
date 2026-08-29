@@ -8,8 +8,9 @@ Integration consumers use an inbox transaction. External-effect consumers use a 
 - A processed duplicate returns acknowledge without repeated work.
 - Success commits consumer database work and `processed_at` together.
 - Permanent contract failures reject the message.
-- Transient failures retry through the failure policy.
-- Delivery failures become terminal after five attempts.
+- Transient failures retry through `QueueMessageFailureService`.
+- The application service makes delivery failures terminal after five attempts.
+- `DoctrineQueueMessageFailureStore` only records, marks, and clears supplied failure state.
 
 ## External effects
 

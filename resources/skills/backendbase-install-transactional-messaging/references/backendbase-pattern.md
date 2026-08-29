@@ -19,11 +19,13 @@ Do not assume the `Backendbase\` namespace, Doctrine, MySQL, UUIDv7, table names
 | Producer contract | `IntegrationEvent` | Stable name, version, time, and JSON object. |
 | Atomic write port | `IntegrationEventTransaction` | Commit business work and outbox row together. |
 | Outbox adapter | `DoctrineIntegrationEventTransaction` | Use the business database transaction manager. |
-| Relay | `DoctrineOutboxRelay` | Claim, publish, mark, and retry. |
+| Relay application service | `OutboxRelayService` | Orchestrate claims and publication. Decide claim duration and retry delay. |
+| Outbox persistence adapter | `DoctrineOutboxMessageStore` | Claim rows and apply supplied publication or failure state. |
 | Publisher | `OutboxMessagePublisher` | Map an outbox row to the project queue port. |
 | Database inbox | `InboxMessageTransaction` | Deduplicate and commit database work atomically. |
 | External-effect inbox | `ExternalEffectInbox` | Lease non-transactional provider effects. |
-| Failure policy | `QueueMessageFailurePolicy` | Classify permanent and bounded transient failures. |
+| Failure application service | `QueueMessageFailureService` | Decide permanent and bounded transient outcomes. |
+| Failure persistence adapter | `DoctrineQueueMessageFailureStore` | Record, mark, and clear supplied failure state. |
 | Operations | relay, status, cleanup commands | Expose finite, monitorable work. |
 
 ## Minimal project-owned contracts
@@ -184,10 +186,12 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Shared/Persistence/InboxMessageTransaction.php`
 - `src/Backendbase/Shared/Persistence/ExternalEffectInbox.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php`
-- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelay.php`
+- `src/Backendbase/Application/Messaging/OutboxRelayService.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php`
-- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailurePolicy.php`
+- `src/Backendbase/Application/Messaging/QueueMessageFailureService.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php`
 - `resources/database/Migrations/Version20260825000000.php` through `Version20260825040000.php`
 - `resources/platform/11-messaging-outbox.md`

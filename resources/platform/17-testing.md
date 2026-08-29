@@ -12,6 +12,8 @@ Use the smallest check that proves the change. Expand checks as risk increases.
 - Keep adapter-specific tests for storage details such as mapping and rollback.
 - Use deterministic doubles at network and provider boundaries.
 - Keep invalid input, rollback, retry, mapping, and not-found paths explicit.
+- Keep dependency-direction tests separate for Application, Shared core, inbound adapters, and outbound adapters.
+- Verify CQRS and domain-listener attribute targets for shape, context, interface, and production-container resolution.
 
 ## Verification order
 

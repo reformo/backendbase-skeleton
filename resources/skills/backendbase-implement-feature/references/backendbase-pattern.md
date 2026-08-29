@@ -92,6 +92,11 @@ Backendbase enforces these rules in:
 - `tests/Architecture/BoundedContextIsolationTest.php`
 - `tests/Architecture/FrameworkImportBoundaryTest.php`
 - `tests/Architecture/SharedDependencyBoundaryTest.php`
+- `tests/Architecture/ApplicationDependencyBoundaryTest.php`
+- `tests/Architecture/SharedCoreFrameworkBoundaryTest.php`
+- `tests/Architecture/InboundAdapterDependencyBoundaryTest.php`
+- `tests/Architecture/OutboundAdapterDependencyBoundaryTest.php`
+- `tests/Architecture/AttributeTargetBoundaryTest.php`
 
 Do not import Doctrine, Slim, Symfony, AWS, PSR HTTP, or other framework types into business layers. Define a port and place the framework adapter outside the core.
 

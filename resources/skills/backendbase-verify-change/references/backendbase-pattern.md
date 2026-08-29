@@ -60,7 +60,11 @@ Backendbase tests these rules directly:
 - Business layers do not depend on adapters.
 - A bounded context does not import another bounded context directly.
 - Business layers do not import framework packages.
-- Shared code does not import domain modules or infrastructure.
+- Shared code does not import application services, domain modules, or infrastructure.
+- Application code does not import infrastructure.
+- Shared core code does not import frameworks.
+- Inbound and outbound adapters do not import each other.
+- CQRS and domain-listener attributes have one positional same-context target with the correct interface and production-container binding.
 
 Equivalent current tests are:
 
@@ -70,11 +74,16 @@ tests/Architecture/AdapterDirectionTest.php
 tests/Architecture/BoundedContextIsolationTest.php
 tests/Architecture/FrameworkImportBoundaryTest.php
 tests/Architecture/SharedDependencyBoundaryTest.php
+tests/Architecture/ApplicationDependencyBoundaryTest.php
+tests/Architecture/SharedCoreFrameworkBoundaryTest.php
+tests/Architecture/InboundAdapterDependencyBoundaryTest.php
+tests/Architecture/OutboundAdapterDependencyBoundaryTest.php
+tests/Architecture/AttributeTargetBoundaryTest.php
 ```
 
 Also check object-calisthenics or local design constraints from the target project. Do not refactor unrelated code during verification.
 
-Current Backendbase architecture policy deliberately permits `Psr\Log\LoggerInterface` as an application port. It also permits command and query contracts to reference same-context handlers through one positional `CQRSHandler` attribute. Confirm the target project's policy before treating either direction as valid.
+Current Backendbase architecture policy deliberately permits `Psr\Log\LoggerInterface` as an application port. It permits CQRS and domain-event contracts to reference one same-context handler or listener through a positional attribute. Confirm the target project's policy before treating either direction as valid.
 
 ## Trust-Boundary Checks
 

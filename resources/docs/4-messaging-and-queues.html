@@ -730,6 +730,11 @@
                     <p>A publish can succeed before the database marks the row published. The next relay can publish it again.</p>
                 </article>
             </div>
+            <div class="callout">
+                <strong>Policy and mechanism are separate</strong>
+                <code>OutboxRelayService</code> owns the relay loop, claim duration, publication outcome, and retry delay.
+                <code>DoctrineOutboxMessageStore</code> only claims rows and applies supplied status updates.
+            </div>
         </section>
 
         <section id="message-envelope">
@@ -743,7 +748,10 @@
   "eventVersion()": "1.0",
   "data()": {
     "exampleId": "0198...",
-    "type": "system"
+    "command": {
+      "exampleId": "0198...",
+      "type": "system"
+    }
   },
   "id()": "0198...",
   "destination()": "backendbase-queue",
@@ -876,6 +884,7 @@
                 <li>The event manager dispatches only <code>ExternalIntegrationEventSubscriber</code> implementations.</li>
                 <li>The inbox commits the database mutation and <code>processed_at</code> in one transaction.</li>
             </ul>
+            <p><code>QueueMessageFailureService</code> owns permanent, transient, and five-attempt decisions. <code>DoctrineQueueMessageFailureStore</code> only records, marks, and clears failure state.</p>
 
             <h3>External effects</h3>
             <p>
@@ -1304,10 +1313,11 @@ ORDER BY received_at DESC;</code></pre>
                         <tr><td>RabbitMQ adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php</code></td></tr>
                         <tr><td>SQS adapter and envelope</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php</code>, <code>SqsMessageMapper.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
-                        <tr><td>Relay and publisher</td><td><code>DoctrineOutboxRelay.php</code>, <code>OutboxMessagePublisher.php</code></td></tr>
+                        <tr><td>Relay policy and orchestration</td><td><code>src/Backendbase/Application/Messaging/OutboxRelayService.php</code>, <code>OutboxRetryPolicy.php</code></td></tr>
+                        <tr><td>Relay persistence and publication adapters</td><td><code>DoctrineOutboxMessageStore.php</code>, <code>OutboxMessagePublisher.php</code></td></tr>
                         <tr><td>Integration consumer</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
                         <tr><td>Inbox controls</td><td><code>DoctrineInboxMessageTransaction.php</code>, <code>DoctrineExternalEffectInbox.php</code></td></tr>
-                        <tr><td>Failure policy</td><td><code>DoctrineQueueMessageFailurePolicy.php</code></td></tr>
+                        <tr><td>Failure policy and persistence</td><td><code>QueueMessageFailureService.php</code>, <code>DoctrineQueueMessageFailureStore.php</code></td></tr>
                         <tr><td>Operations commands</td><td><code>src/Backendbase/Infrastructure/UseCase/Console/Queue/</code></td></tr>
                         <tr><td>Database schema</td><td><code>resources/database/Migrations/Version20260825000000.php</code> through <code>Version20260825040000.php</code></td></tr>
                         <tr><td>Reference event</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/</code></td></tr>

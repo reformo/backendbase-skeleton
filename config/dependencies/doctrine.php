@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
+use Backendbase\Application\Messaging\OutboxRelayService;
+use Backendbase\Application\Messaging\QueueMessageFailureService;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineExternalEffectInbox;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineInboxMessageTransaction;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventTransaction;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationMessageLogCleaner;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessageStore;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMonitor;
-use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxRelay;
-use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineQueueMessageFailurePolicy;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineQueueMessageFailureStore;
+use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Shared\Helpers\PathFinder;
 use Backendbase\Shared\Integrations\IntegrationMessageLogCleaner;
 use Backendbase\Shared\Integrations\OutboxMonitor;
+use Backendbase\Shared\Integrations\OutboxPublisher;
 use Backendbase\Shared\Integrations\OutboxRelay;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Options\System\Environment;
@@ -19,6 +23,8 @@ use Backendbase\Shared\Persistence\Doctrine\DQL\FirstFunction;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
+use Backendbase\Shared\Persistence\OutboxMessageStore;
+use Backendbase\Shared\Persistence\QueueMessageFailureStore;
 use Backendbase\Shared\Settings;
 use DI\ContainerBuilder;
 use Doctrine\DBAL\Connection;
@@ -47,10 +53,13 @@ return static function (ContainerBuilder $containerBuilder): void {
         IntegrationEventTransaction::class => autowire(DoctrineIntegrationEventTransaction::class),
         InboxMessageTransaction::class => autowire(DoctrineInboxMessageTransaction::class),
         ExternalEffectInbox::class => autowire(DoctrineExternalEffectInbox::class),
-        OutboxRelay::class => autowire(DoctrineOutboxRelay::class),
+        OutboxRelay::class => autowire(OutboxRelayService::class),
+        OutboxMessageStore::class => autowire(DoctrineOutboxMessageStore::class),
+        OutboxPublisher::class => autowire(OutboxMessagePublisher::class),
         IntegrationMessageLogCleaner::class => autowire(DoctrineIntegrationMessageLogCleaner::class),
         OutboxMonitor::class => autowire(DoctrineOutboxMonitor::class),
-        QueueMessageFailurePolicy::class => autowire(DoctrineQueueMessageFailurePolicy::class),
+        QueueMessageFailurePolicy::class => autowire(QueueMessageFailureService::class),
+        QueueMessageFailureStore::class => autowire(DoctrineQueueMessageFailureStore::class),
         Configuration::class => static function (ContainerInterface $container) {
             $environment = $container->get(Settings::class)->env();
             if ($environment instanceof Environment) {

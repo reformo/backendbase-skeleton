@@ -111,7 +111,8 @@ Do not install cron entries, create platform jobs, restart workers, replay messa
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageOperationsTest.php
-vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelayTest.php
+vendor/bin/phpunit tests/Application/Messaging/OutboxRelayServiceTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStoreTest.php
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/QueueMaintenanceCommandsTest.php
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/ShowOutboxStatusTest.php
 composer phpstan
@@ -131,7 +132,8 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Shared/Integrations/OutboxRelay.php`
 - `src/Backendbase/Shared/Integrations/OutboxMonitor.php`
 - `src/Backendbase/Shared/Integrations/IntegrationMessageLogCleaner.php`
-- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxRelay.php`
+- `src/Backendbase/Application/Messaging/OutboxRelayService.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMonitor.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageLogCleaner.php`
 - `src/Backendbase/Infrastructure/UseCase/Console/Queue/RelayOutboxMessages.php`
