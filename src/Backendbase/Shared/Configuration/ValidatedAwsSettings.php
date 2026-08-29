@@ -40,8 +40,9 @@ final class ValidatedAwsSettings
     /** @return AwsClientSettings */
     public static function client(mixed $settings): array
     {
-        $credentials = is_array($settings) ? ($settings['credentials'] ?? null) : null;
-        $region      = is_array($settings) ? ($settings['region'] ?? null) : null;
+        $settingsArray = is_array($settings) ? $settings : [];
+        $credentials   = $settingsArray['credentials'] ?? null;
+        $region        = $settingsArray['region'] ?? null;
         if (! is_string($region) || $region === '') {
             throw new UnexpectedValueException('The AWS region is missing.');
         }

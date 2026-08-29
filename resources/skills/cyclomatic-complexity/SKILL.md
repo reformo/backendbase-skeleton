@@ -28,7 +28,7 @@ Use these thresholds only when the project defines no threshold:
 | 11-15 | Refactor the function. |
 | 16 or more | Split the function before delivery. |
 
-For PHP, prefer a configured analyser. An unmodified Backendbase project runs `composer complexity`. Its `phpcs-complexity.xml.dist` ruleset checks production, test, configuration, public, tool, and database PHP. It rejects each function or method with complexity greater than 15.
+For PHP, prefer a configured analyser. An unmodified Backendbase project runs `composer complexity`. Its `phpcs-complexity.xml.dist` ruleset checks production, test, configuration, public, tool, and database PHP. It rejects each function or method with complexity greater than 12.
 
 ## Refactor in This Order
 

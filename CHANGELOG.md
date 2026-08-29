@@ -50,3 +50,4 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Merged the strengths and weaknesses assessment into the light-only engineering quality report, then removed the obsolete standalone report.
 - Made PHPUnit use explicit test configuration instead of requiring an untracked `.env` file.
 - Enabled PHP assertions in the quality-gate runtime so PCOV measures assertion lines consistently.
+- Reduced the affected configuration and adapter methods to meet the maximum cyclomatic complexity of 12.

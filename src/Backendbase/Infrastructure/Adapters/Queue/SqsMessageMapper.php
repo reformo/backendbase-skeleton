@@ -30,7 +30,7 @@ final class SqsMessageMapper
     /** @param array<string, mixed> $message */
     public static function incoming(array $message, string $queueName): Message
     {
-        $body        = is_string($message['Body'] ?? null) ? $message['Body'] : '';
+        $body        = self::stringOrDefault($message['Body'] ?? null, '');
         $payload     = self::payload($body);
         $messageBody = $payload['messageBody'] ?? $body;
         $messageId   = $payload['messageId'] ?? $message['MessageId'] ?? null;
@@ -38,13 +38,29 @@ final class SqsMessageMapper
         $routingKey  = $payload['tag'] ?? $queueName;
 
         return new Message(
-            is_string($messageBody) ? $messageBody : $body,
-            is_array($payload['data'] ?? null) ? $payload['data'] : [],
-            is_string($messageId) ? $messageId : null,
-            is_string($version) ? $version : null,
+            self::stringOrDefault($messageBody, $body),
+            self::arrayOrEmpty($payload['data'] ?? null),
+            self::nullableString($messageId),
+            self::nullableString($version),
             $queueName,
-            is_string($routingKey) ? $routingKey : $queueName,
+            self::stringOrDefault($routingKey, $queueName),
         );
+    }
+
+    private static function stringOrDefault(mixed $value, string $default): string
+    {
+        return is_string($value) ? $value : $default;
+    }
+
+    /** @return array<string, mixed> */
+    private static function arrayOrEmpty(mixed $value): array
+    {
+        return is_array($value) ? $value : [];
+    }
+
+    private static function nullableString(mixed $value): string|null
+    {
+        return is_string($value) ? $value : null;
     }
 
     /** @return array<string, mixed> */

@@ -601,7 +601,7 @@
                         <tr><td>Console</td><td>Symfony Console</td><td>8.1.5 through <code>bin/backendbase</code></td></tr>
                         <tr><td>Tests</td><td>PHPUnit</td><td>13.3.1</td></tr>
                         <tr><td>Static analysis</td><td>PHPStan</td><td>2.2.9 at level 8</td></tr>
-                        <tr><td>Cyclomatic complexity</td><td>PHP_CodeSniffer</td><td>Maximum 15 per function or method</td></tr>
+                        <tr><td>Cyclomatic complexity</td><td>PHP_CodeSniffer</td><td>Maximum 12 per function or method</td></tr>
                         <tr><td>Style</td><td>PHPCS</td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>API contract</td><td>OpenAPI and Bruno</td><td>Documentation and executable examples</td></tr>
                     </tbody>
@@ -915,7 +915,7 @@ bin/bruno example-api local</code></pre>
                         <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit with enforced 100% executable-line coverage, then deployment checks</td></tr>
                         <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared core frameworks, and annotated targets</td></tr>
                         <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Application, tests, configuration, public entry points, tools, and database PHP at level 8</td></tr>
-                        <tr><td>Cyclomatic complexity</td><td><code>composer complexity</code></td><td>Maximum of 15 per function or method in the configured PHP scope</td></tr>
+                        <tr><td>Cyclomatic complexity</td><td><code>composer complexity</code></td><td>Maximum of 12 per function or method in the configured PHP scope</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>Documentation links</td><td><code>composer docs:check-links</code></td><td>Local HTML and Markdown targets plus HTML fragments</td></tr>
                         <tr><td>Report metrics</td><td><code>composer reports:check</code></td><td>JUnit, Clover, and repository-inventory values</td></tr>
@@ -924,7 +924,7 @@ bin/bruno example-api local</code></pre>
                     </tbody>
                 </table>
             </div>
-            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes JUnit and Clover XML and enforces the 100% coverage threshold. Continuous integration enforces complexity 15, validates documentation links, rejects stale generated report metrics, and verifies Composer supply-chain evidence.</p>
+            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes JUnit and Clover XML and enforces the 100% coverage threshold. Continuous integration enforces complexity 12, validates documentation links, rejects stale generated report metrics, and verifies Composer supply-chain evidence.</p>
         </section>
 
         <section id="deployment">

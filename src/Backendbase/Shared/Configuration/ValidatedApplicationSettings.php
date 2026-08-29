@@ -98,12 +98,21 @@ final class ValidatedApplicationSettings
     /** @return RuntimeSettings */
     public static function runtime(mixed $settings): array
     {
-        $basePath            = is_array($settings) ? ($settings['base-path'] ?? '') : null;
-        $cdnBaseUrl          = is_array($settings) ? ($settings['cdnBaseUrl'] ?? '') : null;
-        $displayErrorDetails = is_array($settings) ? ($settings['displayErrorDetails'] ?? false) : null;
-        $logError            = is_array($settings) ? ($settings['logError'] ?? true) : null;
-        $logErrorDetails     = is_array($settings) ? ($settings['logErrorDetails'] ?? true) : null;
-        $routeCacheFile      = is_array($settings) ? ($settings['route-cache-file'] ?? null) : null;
+        $basePath            = null;
+        $cdnBaseUrl          = null;
+        $displayErrorDetails = null;
+        $logError            = null;
+        $logErrorDetails     = null;
+        $routeCacheFile      = null;
+        if (is_array($settings)) {
+            $basePath            = $settings['base-path'] ?? '';
+            $cdnBaseUrl          = $settings['cdnBaseUrl'] ?? '';
+            $displayErrorDetails = $settings['displayErrorDetails'] ?? false;
+            $logError            = $settings['logError'] ?? true;
+            $logErrorDetails     = $settings['logErrorDetails'] ?? true;
+            $routeCacheFile      = $settings['route-cache-file'] ?? null;
+        }
+
         if (
             ! is_string($basePath)
             || ! is_string($cdnBaseUrl)

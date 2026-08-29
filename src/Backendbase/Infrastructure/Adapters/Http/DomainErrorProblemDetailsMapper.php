@@ -66,25 +66,7 @@ final class DomainErrorProblemDetailsMapper
                 'system/too-many-requests',
                 'about:blank',
             ],
-            $exception instanceof InvalidEmailAddress => [
-                400,
-                'Invalid Email Address',
-                'email/invalid-email-address',
-                'https://httpstatus.es/400',
-            ],
-            $exception instanceof InvalidName => [
-                400,
-                'Invalid Name',
-                'name/invalid-name',
-                'https://httpstatus.es/400',
-            ],
-            $exception instanceof DomainRecordNotFound => [
-                404,
-                'NotFound',
-                'domain/not-found',
-                'about:blank',
-            ],
-            default => [500, 'Server Error', 'server/server-error', 'about:blank'],
+            default => self::fallbackDetails($exception),
         };
 
         return new ActionError(
@@ -95,5 +77,21 @@ final class DomainErrorProblemDetailsMapper
             $exception->getMessage(),
             $exception->context(),
         );
+    }
+
+    /** @return array{int, string, string, string} */
+    private static function fallbackDetails(DomainException $exception): array
+    {
+        return match (true) {
+            $exception instanceof InvalidEmailAddress => [
+                400,
+                'Invalid Email Address',
+                'email/invalid-email-address',
+                'https://httpstatus.es/400',
+            ],
+            $exception instanceof InvalidName => [400, 'Invalid Name', 'name/invalid-name', 'https://httpstatus.es/400'],
+            $exception instanceof DomainRecordNotFound => [404, 'NotFound', 'domain/not-found', 'about:blank'],
+            default => [500, 'Server Error', 'server/server-error', 'about:blank'],
+        };
     }
 }

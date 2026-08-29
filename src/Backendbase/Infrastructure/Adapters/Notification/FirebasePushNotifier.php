@@ -57,14 +57,11 @@ class FirebasePushNotifier implements Notify
         }
 
         if (array_key_exists('data', $params)) {
-            foreach ($params['data'] as $key => $value) {
-                $params['data'][$key] = (string) $params['data'][$key];
-            }
-
+            $params['data']             = self::stringData($params['data']);
             $payload['message']['data'] = $params['data'];
         }
 
-        if (array_key_exists('data', $params) && array_key_exists('notificationImage', $params['data'])) {
+        if (self::hasNotificationImage($params)) {
             $payload['message']['android'] = [
                 'notification' => ['image' => $this->cdnBaseUrl . $params['data']['notificationImage']],
             ];
@@ -103,5 +100,25 @@ class FirebasePushNotifier implements Notify
             $notificationType,
             is_string($messageId) ? $messageId : null,
         );
+    }
+
+    /** @param array{data?: array<string, mixed>} $params */
+    private static function hasNotificationImage(array $params): bool
+    {
+        return array_key_exists('notificationImage', $params['data'] ?? []);
+    }
+
+    /**
+     * @param array<non-empty-string, mixed> $data
+     *
+     * @return array<non-empty-string, string>
+     */
+    private static function stringData(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            $data[$key] = (string) $value;
+        }
+
+        return $data;
     }
 }

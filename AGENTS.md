@@ -47,7 +47,7 @@ When editing existing code:
 - Match existing style, even if you'd do it differently.
 - If you notice unrelated dead code, mention it - don't delete it.
 - Run phpstan with level 8 for your changes and fix all errors.
-- Run `composer complexity` for code changes. Keep each function and method at cyclomatic complexity 15 or less.
+- Run `composer complexity` for code changes. Keep each function and method at cyclomatic complexity 12 or less.
 
 When your changes create orphans:
 - Remove imports/variables/functions that YOUR changes made unused.
@@ -112,7 +112,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 7. Keep classes small — no more than 150 lines per class file and no more than 10 class files per namespace directory.
 8. Use no more than two instance properties per class.
 9. Do not expose public properties or trivial getters and setters for callers to make business decisions; put that behavior on the object (Tell, don't ask).
-10. Keep cyclomatic complexity at 15 or less for each function and method.
+10. Keep cyclomatic complexity at 12 or less for each function and method.
 
 
 ## 6. Coding Style
