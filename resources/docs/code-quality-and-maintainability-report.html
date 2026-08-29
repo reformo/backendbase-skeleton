@@ -105,7 +105,7 @@
                     <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8 and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, and adapter settings dependencies are explicit.</td></tr>
                     <tr><td>Operations and documentation</td><td><strong>9.6/10</strong></td><td>CI actions are pinned. Link validation, report drift detection, and the per-commit changelog rule are executable.</td></tr>
-                    <tr><td>Dependency and upgrade cost</td><td><strong>8.2/10</strong></td><td>Dependency pruning removed unused packages, redundant constraints, and build tools from production. Thirty-five direct runtime packages remain.</td></tr>
+                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>Thirty-three of 35 direct runtime packages are current. One safe AWS patch and one Guzzle major upgrade remain. The 97-package runtime graph keeps upgrade cost material.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -143,8 +143,9 @@
                     <tr><td>SQS failure diagnostics</td><td><span class="badge">Pass</span></td><td>Swallowed handler exceptions record safe queue and message context before the message remains available for retry.</td></tr>
                     <tr><td>Changelog policy</td><td><span class="badge">Pass</span></td><td><code>CHANGELOG.md</code> exists, and contributor and agent guidance require each commit to update its <code>Unreleased</code> section.</td></tr>
                     <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
-                    <tr><td>Dependency pruning</td><td><span class="badge">Pass</span></td><td>Direct runtime requirements fell from 42 to 35. Locked runtime packages fell from 105 to 97.</td></tr>
-                    <tr><td>Dependency audit</td><td><span class="badge">Pass</span></td><td>Composer reported no known security advisories.</td></tr>
+                    <tr><td>Dependency pruning</td><td><span class="badge">Pass</span></td><td>Direct runtime requirements fell from 42 to 35. Locked runtime packages fell from 105 to 97. OpenAPI build tools moved to development-only installation.</td></tr>
+                    <tr><td>Dependency freshness</td><td><span class="badge">Pass</span></td><td>Thirty-three direct runtime packages are current. AWS has a safe patch. Guzzle 8 resolves through three coordinated updates and one transitive removal. Development has one PHPUnit patch and one coordinated coding-tool major upgrade.</td></tr>
+                    <tr><td>Dependency audit</td><td><span class="badge">Pass</span></td><td>Composer reported no known security advisories and no abandoned packages.</td></tr>
                     <tr><td>OpenAPI</td><td><span class="badge">Pass</span></td><td>Source and merged API specifications passed validation.</td></tr>
                     <tr><td>Deployment tests</td><td><span class="badge">Pass</span></td><td>Deployment, failure recovery, and rollback scenarios passed.</td></tr>
                     </tbody>
@@ -187,7 +188,7 @@
                 </div>
                 <div class="card">
                     <h3>Smaller dependency graph</h3>
-                    <p>Composer removed three unused packages. Two redundant requirements now resolve transitively. Build-only OpenAPI packages no longer enter production installations.</p>
+                    <p>Composer removed three unused packages and two redundant direct requirements. Build-only OpenAPI packages moved to development. Proxy Manager now supports Redis lazy injection.</p>
                 </div>
             </div>
         </section>
@@ -204,8 +205,8 @@
                     <tr>
                         <td><span class="badge">Low</span></td>
                         <td>Optional integration dependency surface</td>
-                        <td>The template still installs 35 direct runtime packages for database, queue, cache, notification, cloud, and API capabilities.</td>
-                        <td><code>composer.json</code> and <code>composer.lock</code></td>
+                        <td>Projects maintain database, queue, cache, notification, cloud, and API packages even when they do not enable every capability.</td>
+                        <td>35 direct and 97 locked runtime packages remain. All are maintained, and 33 direct packages are current.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -216,7 +217,8 @@
             <p class="section-label">06 · Recommendations</p>
             <h2>Reduce the remaining maintenance cost</h2>
             <ol class="steps">
-                <li>Extend Tolgee tests to API response validation and atomic file replacement.</li>
+                <li>Apply the safe AWS and PHPUnit patch updates through the normal full verification workflow.</li>
+                <li>Test Guzzle 8 separately across Tolgee, AWS, and Firebase. Upgrade Doctrine Coding Standard and PHP_CodeSniffer as one development-tool change.</li>
                 <li>Measure production install size and advisory work before splitting optional integrations into separate packages or distributions.</li>
             </ol>
             <div class="callout warning">
@@ -235,6 +237,10 @@ vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G --no-progress
 vendor/bin/phpcs
 composer validate --strict --no-check-publish
 composer audit --locked --no-interaction
+composer outdated --direct --format=json --no-interaction
+composer prohibits guzzlehttp/guzzle 8.1.0
+composer prohibits doctrine/coding-standard 14.0.0
+composer prohibits squizlabs/php_codesniffer 4.0.4
 composer docs:check-links
 composer reports:check
 composer run validate-example-api-spec
