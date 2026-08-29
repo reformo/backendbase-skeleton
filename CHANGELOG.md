@@ -22,6 +22,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Reduced direct runtime dependencies from 42 packages to 37 packages.
 - Expanded PHPStan level 8 and PHPCS coverage to operational tools and database PHP.
 - Replaced direct nested settings reads in infrastructure composition with validated typed settings objects.
 - Replaced runtime `Settings::get()` access and adapter configuration arrays with typed settings injection.

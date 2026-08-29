@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "496141fd152dcc752e49b4e49b852256",
+    "content-hash": "353f9109799a5e3f85778d719c1cd2cb",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -3518,65 +3518,6 @@
             "time": "2025-10-17T11:30:53+00:00"
         },
         {
-            "name": "malukenho/mcbumpface",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/malukenho/mcbumpface.git",
-                "reference": "af986cc6598bf7362584783a455ff39493e9b123"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/malukenho/mcbumpface/zipball/af986cc6598bf7362584783a455ff39493e9b123",
-                "reference": "af986cc6598bf7362584783a455ff39493e9b123",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0.0 || ^2.0.0",
-                "php": "^7.2 || ~8.0 || ~8.1 || ~8.2"
-            },
-            "require-dev": {
-                "composer/composer": "^1.9.3 || ^2.0.2",
-                "doctrine/coding-standard": "^9.0.2",
-                "ext-json": "*",
-                "ext-zip": "*",
-                "infection/infection": "^0.26.19",
-                "phpunit/phpunit": "^9.6.4",
-                "staabm/annotate-pull-request-from-checkstyle": "^1.8.3"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Malukenho\\McBumpface\\BumpInto"
-            },
-            "autoload": {
-                "psr-4": {
-                    "Malukenho\\McBumpface\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jefersson Nathan",
-                    "email": "malukenho@phpse.net"
-                }
-            ],
-            "description": "Bumping into packages",
-            "support": {
-                "issues": "https://github.com/malukenho/mcbumpface/issues",
-                "source": "https://github.com/malukenho/mcbumpface/tree/1.2.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/malukenho",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-02-27T19:23:58+00:00"
-        },
-        {
             "name": "marc-mabe/php-enum",
             "version": "v4.7.2",
             "source": {
@@ -5021,57 +4962,6 @@
             "time": "2024-09-11T13:17:53+00:00"
         },
         {
-            "name": "psr/simple-cache",
-            "version": "3.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/simple-cache.git",
-                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/764e0b3939f5ca87cb904f570ef9be2d78a07865",
-                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.0.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\SimpleCache\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common interfaces for simple caching",
-            "keywords": [
-                "cache",
-                "caching",
-                "psr",
-                "psr-16",
-                "simple-cache"
-            ],
-            "support": {
-                "source": "https://github.com/php-fig/simple-cache/tree/3.0.0"
-            },
-            "time": "2021-10-29T13:26:27+00:00"
-        },
-        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -5352,59 +5242,6 @@
                 }
             ],
             "time": "2024-05-27T00:00:21+00:00"
-        },
-        {
-            "name": "reformo/backendbase-specification",
-            "version": "1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reformo/backendbase-specification.git",
-                "reference": "24f056fad589a823050b496565f440cb8622e84d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/reformo/backendbase-specification/zipball/24f056fad589a823050b496565f440cb8622e84d",
-                "reference": "24f056fad589a823050b496565f440cb8622e84d",
-                "shasum": ""
-            },
-            "require": {
-                "malukenho/mcbumpface": "^1.2.0",
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "doctrine/coding-standard": "^12.0.0",
-                "phpstan/phpstan": "^1.11",
-                "phpunit/phpunit": "^11.2.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Backendbase\\Specification\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Hirofumi Tanigami",
-                    "email": "tanigami@gmail.com",
-                    "homepage": "https://tanigami.wtf",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Mehmet Korkmaz",
-                    "email": "mehmet@mkorkmaz.com",
-                    "homepage": "https://mkorkmaz.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Basic classes for Specification pattern with Notification pattern in PHP.",
-            "support": {
-                "source": "https://github.com/reformo/backendbase-specification/tree/1.0"
-            },
-            "time": "2024-07-25T12:22:26+00:00"
         },
         {
             "name": "reformo/backendbase-utility",
@@ -7301,66 +7138,6 @@
             "time": "2026-08-21T12:16:08+00:00"
         },
         {
-            "name": "talleu/php-redis-om",
-            "version": "v1.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/clementtalleu/php-redis-om.git",
-                "reference": "3dbfb4c064086349836969bd236872aa4a970661"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/clementtalleu/php-redis-om/zipball/3dbfb4c064086349836969bd236872aa4a970661",
-                "reference": "3dbfb4c064086349836969bd236872aa4a970661",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=8.2"
-            },
-            "require-dev": {
-                "api-platform/core": "^4.1",
-                "friendsofphp/php-cs-fixer": "^3.75",
-                "phpstan/phpstan": "^1.12",
-                "phpunit/phpunit": "^11.0",
-                "predis/predis": "^2.0||^3.0",
-                "symfony/browser-kit": "^7.2",
-                "symfony/framework-bundle": "^7.2",
-                "symfony/http-client": "^7.2",
-                "symfony/var-dumper": "^7.0",
-                "symfony/yaml": "^7.2"
-            },
-            "suggest": {
-                "ext-redis": "To use the php extension for Redis (phpredis)",
-                "predis/predis": "To use Predis as a Redis PHP client"
-            },
-            "bin": [
-                "bin/redisMigration"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Talleu\\RedisOm\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Clément Talleu",
-                    "email": "clement.talleu@gmail.com"
-                }
-            ],
-            "description": "A PHP object mapper library for Redis",
-            "support": {
-                "issues": "https://github.com/clementtalleu/php-redis-om/issues",
-                "source": "https://github.com/clementtalleu/php-redis-om/tree/v1.1.2"
-            },
-            "time": "2026-05-07T08:19:22+00:00"
-        },
-        {
             "name": "vlucas/phpdotenv",
             "version": "v5.7.0",
             "source": {
@@ -7656,6 +7433,65 @@
                 "source": "https://github.com/doctrine/coding-standard/tree/13.0.1"
             },
             "time": "2025-05-14T10:54:19+00:00"
+        },
+        {
+            "name": "malukenho/mcbumpface",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/malukenho/mcbumpface.git",
+                "reference": "af986cc6598bf7362584783a455ff39493e9b123"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/malukenho/mcbumpface/zipball/af986cc6598bf7362584783a455ff39493e9b123",
+                "reference": "af986cc6598bf7362584783a455ff39493e9b123",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0.0 || ^2.0.0",
+                "php": "^7.2 || ~8.0 || ~8.1 || ~8.2"
+            },
+            "require-dev": {
+                "composer/composer": "^1.9.3 || ^2.0.2",
+                "doctrine/coding-standard": "^9.0.2",
+                "ext-json": "*",
+                "ext-zip": "*",
+                "infection/infection": "^0.26.19",
+                "phpunit/phpunit": "^9.6.4",
+                "staabm/annotate-pull-request-from-checkstyle": "^1.8.3"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Malukenho\\McBumpface\\BumpInto"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Malukenho\\McBumpface\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jefersson Nathan",
+                    "email": "malukenho@phpse.net"
+                }
+            ],
+            "description": "Bumping into packages",
+            "support": {
+                "issues": "https://github.com/malukenho/mcbumpface/issues",
+                "source": "https://github.com/malukenho/mcbumpface/tree/1.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/malukenho",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-02-27T19:23:58+00:00"
         },
         {
             "name": "myclabs/deep-copy",
