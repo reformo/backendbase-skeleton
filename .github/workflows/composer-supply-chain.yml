@@ -10,6 +10,8 @@ on:
       - bin/composer-supply-chain.php
       - resources/security/composer-package-content.json
       - resources/security/composer-sbom.cdx.json
+      - resources/security/composer-dev-public-key.pem
+      - resources/security/composer-tags-public-key.pem
       - .github/workflows/composer-supply-chain.yml
   pull_request:
     branches:
@@ -20,6 +22,8 @@ on:
       - bin/composer-supply-chain.php
       - resources/security/composer-package-content.json
       - resources/security/composer-sbom.cdx.json
+      - resources/security/composer-dev-public-key.pem
+      - resources/security/composer-tags-public-key.pem
       - .github/workflows/composer-supply-chain.yml
   schedule:
     - cron: '17 4 * * 1'
@@ -50,13 +54,25 @@ jobs:
           coverage: none
           tools: composer:2.10.3
 
+      - name: Install reviewed Composer public keys
+        env:
+          COMPOSER_HOME: ${{ runner.temp }}/composer
+        run: |
+          install -d -m 0700 "$COMPOSER_HOME"
+          install -m 0600 resources/security/composer-dev-public-key.pem "$COMPOSER_HOME/keys.dev.pub"
+          install -m 0600 resources/security/composer-tags-public-key.pem "$COMPOSER_HOME/keys.tags.pub"
+
       - name: Validate and audit locked dependencies
+        env:
+          COMPOSER_HOME: ${{ runner.temp }}/composer
         run: |
           composer diagnose --no-interaction --no-plugins --no-scripts
           composer validate --strict --no-check-publish --no-plugins --no-scripts
           composer audit --locked --no-interaction --no-plugins --no-scripts
 
       - name: Install without executing dependency code
+        env:
+          COMPOSER_HOME: ${{ runner.temp }}/composer
         run: >-
           composer install
           --no-interaction

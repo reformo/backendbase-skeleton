@@ -22,6 +22,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added a weekly Composer audit and isolated dependency-review workflow.
 - Added a CycloneDX SBOM and reviewed SHA-256 content digests for all locked Composer packages.
 - Added an opt-in Moto integration profile and a tracked environment example for local S3, SQS, and SNS endpoints.
+- Added reviewed Composer public keys for deterministic isolated self-diagnosis.
 
 ### Changed
 
@@ -46,3 +47,5 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Pinned Composer 2.10.3 in CI and release workflows, enabled explicit security policy, and removed an unused plugin permission.
 - Bound Composer supply-chain evidence to release manifests and verify dependency contents before plugins or scripts execute.
 - Added S3-compatible endpoint and path-style request support to the object-store client.
+- Merged the strengths and weaknesses assessment into the light-only engineering quality report, then removed the obsolete standalone report.
+- Made PHPUnit use explicit test configuration instead of requiring an untracked `.env` file.

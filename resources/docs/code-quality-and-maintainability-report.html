@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
-    <meta name="description" content="Evidence-based code quality and maintainability assessment for Backendbase Core.">
-    <title>Backendbase Core Code Quality and Maintainability Report</title>
+    <meta name="description" content="Evidence-based engineering quality, strengths, weaknesses, and maintainability assessment for Backendbase Core.">
+    <title>Backendbase Core Engineering Quality, Strengths, and Risks Report</title>
     <link rel="stylesheet" href="documentation.css">
     <style>
         :root {
-            color-scheme: light;
+            color-scheme: only light;
             --page: #f4f7f8;
             --surface: #ffffff;
             --soft: #f7fafb;
@@ -26,9 +26,13 @@
             --red-soft: #fff0ee;
             --green: #23764b;
             --green-soft: #e8f5ed;
+            --purple: #684ca8;
+            --purple-soft: #f0ecfb;
             --code: #16252e;
             --code-ink: #f4f8fa;
             --shadow: 0 16px 42px rgba(28, 47, 59, .09);
+            --radius: 16px;
+            --max: 1180px;
         }
 
         .hero {
@@ -53,6 +57,24 @@
         }
 
         body { text-rendering: optimizeLegibility; }
+
+        h1, h2, h3 { text-wrap: balance; }
+        section > p, .card p, .callout, td { text-wrap: pretty; }
+
+        .skip-link {
+            position: fixed;
+            z-index: 20;
+            top: 10px;
+            left: 10px;
+            padding: 9px 13px;
+            transform: translateY(-160%);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .skip-link:focus { transform: translateY(0); }
 
         .hero-inner { padding: 48px 0 46px; }
 
@@ -110,6 +132,21 @@
             color: var(--accent);
             font-size: .69rem;
             letter-spacing: .13em;
+        }
+
+        .badge.high { background: var(--red-soft); color: var(--red); }
+        .badge.medium { background: var(--amber-soft); color: var(--amber); }
+        .risk-table td:nth-child(2) { font-weight: 750; }
+        .risk-table .cell-content { min-width: 0; overflow-wrap: anywhere; }
+        .outcome-grid, .priority-roadmap { margin-top: 17px; }
+        .phase-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-size: .7rem;
+            font-weight: 850;
+            letter-spacing: .12em;
+            text-transform: uppercase;
         }
 
         @media (max-width: 980px) {
@@ -276,6 +313,7 @@
             .chips { gap: 7px; margin-top: 18px; }
             .chip { padding: 4px 9px; font-size: .75rem; }
             .layout { gap: 14px; }
+            nav { flex-wrap: wrap; overflow-x: visible; }
             main { gap: 19px; }
             .dependency-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .dependency-profile .stat { padding: 14px; }
@@ -312,13 +350,15 @@
     </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Assessment · 29 August 2026</p>
-        <h1>Code Quality and Maintainability Report</h1>
-        <p class="lede">A current assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
+        <h1>Engineering Quality, Strengths, and Risks</h1>
+        <p class="lede">One current assessment of code quality, architecture, operational strengths, product risks, maintenance cost, and automated evidence.</p>
         <div class="chips" aria-label="Report summary">
-            <span class="chip">Overall score: 9.4/10</span>
+            <span class="chip">Code quality: 9.4/10</span>
+            <span class="chip">1 high product risk</span>
             <span class="chip"><span data-quality-metric="tests">353</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
@@ -335,25 +375,29 @@
         <a href="#verdict">1. Verdict</a>
         <a href="#scorecard">2. Scorecard</a>
         <a href="#evidence">3. Verification evidence</a>
-        <a href="#strengths">4. Main strengths</a>
-        <a href="#risks">5. Maintainability risks</a>
-        <a href="#recommendations">6. Recommendations</a>
+        <a href="#strengths">4. Strengths and outcomes</a>
+        <a href="#risks">5. Risks and weaknesses</a>
+        <a href="#recommendations">6. Recommended order</a>
         <a href="#scope">7. Scope and method</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Overall score: 9.4 out of 10</h2>
+            <h2>Code quality is strong. One sample boundary blocks production readiness.</h2>
             <div class="callout good">
-                <strong>Backendbase Core has a strong, production-focused foundation.</strong>
+                <strong>Code quality and maintainability score: 9.4 out of 10.</strong>
                 Static analysis and coding standards now cover operational PHP and database delivery code.
                 CI actions use immutable commit SHAs, and Composer uses an exact secure version. Complexity, documentation, report, and supply-chain checks now have executable gates.
             </div>
-            <p>Architecture rules, failure paths, API contracts, and deployment behavior have strong automated verification.</p>
-            <p>Recent changes added typed settings, strict numeric parsing, observable queue failures, stronger quality gates, and a smaller dependency graph. A weekly audit, CycloneDX SBOM, and reviewed package-content digests now protect Composer changes.</p>
-            <p>The main deduction concerns the remaining optional integration dependency surface.</p>
-            <p>No finding requires a large rewrite. Apply focused changes while the affected area is under active development.</p>
+            <div class="callout danger">
+                <strong>Production-readiness exception:</strong>
+                <code>POST /auth</code> issues a token after input validation, but it does not verify the supplied credentials.
+            </div>
+            <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have strong automated verification.</p>
+            <p>Recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and an opt-in local AWS emulator. A weekly audit, CycloneDX SBOM, and reviewed package-content digests now protect Composer changes.</p>
+            <p>The code-quality score excludes product readiness. The sample authentication route remains the first remediation priority. Other findings concern repeatability, dependency cost, and external deployment ownership.</p>
+            <p>The architecture does not need a broad rewrite. Apply focused fixes with regression tests.</p>
         </section>
 
         <section id="scorecard">
@@ -371,14 +415,14 @@
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 15.</td></tr>
                     <tr><td>Operations and documentation</td><td><strong>9.7/10</strong></td><td>Actions and Composer are pinned. Supply-chain, complexity, link, report, release, and changelog controls are executable.</td></tr>
                     <tr><td>Composer supply-chain controls</td><td><strong>9.0/10</strong></td><td>Exact tooling, policy checks, weekly audits, isolated installs, an SBOM, and package digests reduce the remaining risk to reviewed trust decisions.</td></tr>
-                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>Thirty-three of 35 direct runtime packages are current. One safe AWS patch and one Guzzle major upgrade remain. The 97-package runtime graph keeps upgrade cost material.</td></tr>
+                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>Thirty-four of 35 direct runtime packages are current. The AWS and PHPUnit patches are complete. One Guzzle major upgrade remains. The 97-package runtime graph keeps upgrade cost material.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="summary-grid dependency-profile" aria-label="Dependency maintenance profile">
                 <div class="stat"><strong>35</strong><span>Direct runtime packages</span></div>
                 <div class="stat"><strong>97</strong><span>Locked runtime packages</span></div>
-                <div class="stat"><strong>33/35</strong><span>Current direct packages</span></div>
+                <div class="stat"><strong>34/35</strong><span>Current direct packages</span></div>
                 <div class="stat"><strong>0</strong><span>Advisories or abandoned packages</span></div>
             </div>
         </section>
@@ -412,9 +456,10 @@
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
+                    <tr><td>Local AWS integration profile</td><td><span class="badge">Pass</span></td><td>An opt-in, digest-pinned Moto profile provides local S3, SQS, and SNS endpoints. Composition tests keep it outside the default service stack.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Delivery and dependency controls</th></tr>
                     <tr><td>CI action integrity</td><td><span class="badge">Pass</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
-                    <tr><td>Composer toolchain</td><td><span class="badge">Pass</span></td><td>CI pins Composer 2.10.3, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
+                    <tr><td>Composer toolchain</td><td><span class="badge">Pass</span></td><td>CI pins Composer 2.10.3, installs reviewed public keys into an isolated Composer home, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
                     <tr><td>Isolated dependency review</td><td><span class="badge">Pass</span></td><td>Dependency review installs with plugins and scripts disabled before any trusted build step.</td></tr>
                     <tr><td>Weekly dependency audit</td><td><span class="badge">Pass</span></td><td>The scheduled workflow audits the locked production and development dependency graph each Monday.</td></tr>
                     <tr><td>Supply-chain evidence</td><td><span class="badge">Pass</span></td><td>The isolated install matched the CycloneDX 1.6 SBOM and SHA-256 content digests for all 134 locked packages.</td></tr>
@@ -425,7 +470,7 @@
                     <tr><td>Changelog policy</td><td><span class="badge">Pass</span></td><td><code>CHANGELOG.md</code> exists, and contributor and agent guidance require each commit to update its <code>Unreleased</code> section.</td></tr>
                     <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
                     <tr><td>Dependency pruning</td><td><span class="badge">Pass</span></td><td>Direct runtime requirements fell from 42 to 35. Locked runtime packages fell from 105 to 97. OpenAPI build tools moved to development-only installation.</td></tr>
-                    <tr><td>Dependency freshness</td><td><span class="badge">Pass</span></td><td>Thirty-three direct runtime packages are current. AWS has a safe patch. Guzzle 8 resolves through three coordinated updates and one transitive removal. Development has one PHPUnit patch and one coordinated coding-tool major upgrade.</td></tr>
+                    <tr><td>Dependency freshness</td><td><span class="badge">Pass</span></td><td>Thirty-four direct runtime packages are current. The AWS and PHPUnit patch updates are installed. Guzzle 8 remains a coordinated runtime upgrade. Doctrine Coding Standard 14 and PHP_CodeSniffer 4 remain a coordinated development-tool upgrade.</td></tr>
                     <tr><td>Dependency audit</td><td><span class="badge">Pass</span></td><td>Composer reported no known security advisories and no abandoned packages.</td></tr>
                     <tr><td>OpenAPI</td><td><span class="badge">Pass</span></td><td>Source and merged API specifications passed validation.</td></tr>
                     <tr><td>Deployment tests</td><td><span class="badge">Pass</span></td><td>Deployment, failure recovery, and rollback scenarios passed.</td></tr>
@@ -436,9 +481,9 @@
         </section>
 
         <section id="strengths">
-            <p class="section-label">04 · Main strengths</p>
-            <h2>The project makes important rules executable</h2>
-            <div class="grid-2">
+            <p class="section-label">04 · Strengths and outcomes</p>
+            <h2>The project connects design rules to operational outcomes</h2>
+            <div class="grid-3">
                 <div class="card">
                     <h3>Architecture boundaries</h3>
                     <p>Architecture tests enforce domain purity, adapter direction, bounded-context isolation, framework boundaries, and Shared-layer direction.</p>
@@ -448,8 +493,8 @@
                     <p>Tests cover invalid input, rollback, retry exhaustion, duplicate messages, malformed data, and deployment recovery.</p>
                 </div>
                 <div class="card">
-                    <h3>Small production files</h3>
-                    <p>The median production PHP file is 38 lines. The largest production file is 149 lines.</p>
+                    <h3>Static guardrails</h3>
+                    <p>PHPStan level 8, the Doctrine coding standard, and a complexity limit of 15 cover production, tests, tools, and database delivery code.</p>
                 </div>
                 <div class="card">
                     <h3>Strong automated gates</h3>
@@ -457,47 +502,76 @@
                 </div>
                 <div class="card">
                     <h3>Typed configuration boundaries</h3>
-                    <p>Focused objects validate application, database, queue, AWS, Redis, logging, HTTP, and JWT values. Adapters receive immutable leaf settings.</p>
+                    <p>Focused objects validate runtime values. Adapters receive immutable settings. Redis opens its socket only when the first command runs.</p>
                 </div>
                 <div class="card">
                     <h3>Reliable integration design</h3>
                     <p>Inbox, outbox, retry, external-effect, and dead-letter behavior is explicit and well tested.</p>
                 </div>
                 <div class="card">
-                    <h3>Useful contributor guidance</h3>
-                    <p>Modular guides describe architecture, feature work, persistence, messaging, testing, security, deployment, and per-commit changelog maintenance.</p>
+                    <h3>Health and local infrastructure</h3>
+                    <p>Liveness stays cheap. Readiness uses bounded checks. Digest-pinned local services include an opt-in Moto profile for S3, SQS, and SNS.</p>
                 </div>
                 <div class="card">
-                    <h3>Smaller dependency graph</h3>
-                    <p>Composer removed three unused packages and two redundant direct requirements. Build-only OpenAPI packages moved to development. Proxy Manager now supports Redis lazy injection.</p>
+                    <h3>API contract coverage</h3>
+                    <p>OpenAPI sources, generated output, controller tests, Bruno requests, and an authenticated ZAP workflow cover the example API contract.</p>
                 </div>
                 <div class="card">
-                    <h3>Reviewed dependency contents</h3>
-                    <p>CI audits the lock file each week. Isolated installs verify the SBOM and package digests before Composer plugins or scripts execute.</p>
+                    <h3>Defensive delivery controls</h3>
+                    <p>Release scripts verify manifests and checksums. Weekly audits and isolated installs verify the SBOM and 134 package-content digests.</p>
                 </div>
+            </div>
+            <div class="grid-3 outcome-grid" aria-label="Engineering outcomes">
+                <div class="callout good"><strong>Change risk is visible early.</strong><br>Architecture, type, behavior, and contract drift become repeatable failures.</div>
+                <div class="callout good"><strong>Message delivery favors consistency.</strong><br>Outbox, inbox, retry, and external-effect claims have explicit failure behavior.</div>
+                <div class="callout good"><strong>Operations have stop conditions.</strong><br>Readiness, backup hooks, manifests, activation checks, and rollback checks define failure gates.</div>
             </div>
         </section>
 
         <section id="risks">
-            <p class="section-label">05 · Maintainability risks</p>
-            <h2>The main risks are bounded and actionable</h2>
-            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Maintainability risks">
+            <p class="section-label">05 · Risks and weaknesses</p>
+            <h2>One product risk is urgent. The remaining risks need active ownership.</h2>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Engineering risks and weaknesses">
                 <table class="report-table risk-table">
                     <thead>
                     <tr><th scope="col">Priority</th><th scope="col">Risk</th><th scope="col">Effect</th><th scope="col">Evidence</th></tr>
                     </thead>
                     <tbody>
                     <tr>
+                        <td><span class="badge high">High</span></td>
+                        <td>Sample authentication does not authenticate</td>
+                        <td><span class="cell-content"><code>POST /auth</code> assigns a fixed user identifier and issues a JSON Web Token without verifying either credential.</span></td>
+                        <td><span class="cell-content"><a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Authenticate.php">Authenticate.php</a> and the <a href="../../resources/api-docs/example-api/example-openapi.yml">example OpenAPI contract</a>.</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge medium">Medium</span></td>
+                        <td>Mutable security scanner image</td>
+                        <td><span class="cell-content">The Semgrep container uses a version tag without an image digest. GitHub Action references already use immutable commit SHAs.</span></td>
+                        <td><span class="cell-content"><a href="../../.github/workflows/security-checks.yml">security-checks.yml</a>.</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge medium">Medium</span></td>
+                        <td>No local Firebase integration profile</td>
+                        <td><span class="cell-content">Moto provides local S3, SQS, and SNS endpoints. Firebase still requires an external service or a separate emulator.</span></td>
+                        <td><span class="cell-content"><a href="../../docker-compose.yaml">docker-compose.yaml</a> and <a href="../../src/Backendbase/Infrastructure/Adapters/Notification/FirebasePushNotifier.php">FirebasePushNotifier.php</a>.</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge medium">Medium</span></td>
+                        <td>Deployment safety depends on external hooks</td>
+                        <td><span class="cell-content">The flow requires backup and activation hooks. The repository cannot verify each server's backup, PHP reload, or worker restart implementation.</span></td>
+                        <td><span class="cell-content"><a href="../../deployment/README.md">deployment guide</a> and <a href="../../bin/deployment/deploy-release.sh">deploy-release.sh</a>.</span></td>
+                    </tr>
+                    <tr>
                         <td><span class="badge">Low</span></td>
                         <td>Optional integration dependency surface</td>
-                        <td>Projects maintain database, queue, cache, notification, cloud, and API packages even when they do not enable every capability.</td>
-                        <td>35 direct and 97 locked runtime packages remain. All are maintained, and 33 direct packages are current.</td>
+                        <td><span class="cell-content">Projects maintain database, queue, cache, notification, cloud, and API packages even when they do not enable every capability.</span></td>
+                        <td><span class="cell-content">35 direct and 97 locked runtime packages remain. All are maintained, and 34 direct packages are current.</span></td>
                     </tr>
                     <tr>
                         <td><span class="badge">Low</span></td>
                         <td>Dependency review still requires human judgment</td>
-                        <td>A content digest detects a package change but cannot determine whether the changed code is safe.</td>
-                        <td>Reviewers must explain lock, SBOM, and content-digest changes before approval.</td>
+                        <td><span class="cell-content">A content digest detects a package change but cannot determine whether the changed code is safe.</span></td>
+                        <td><span class="cell-content">Reviewers must explain lock, SBOM, and content-digest changes before approval.</span></td>
                     </tr>
                     </tbody>
                 </table>
@@ -505,24 +579,47 @@
         </section>
 
         <section id="recommendations">
-            <p class="section-label">06 · Recommendations</p>
-            <h2>Reduce the remaining maintenance cost</h2>
-            <ol class="steps">
-                <li>Apply the safe AWS and PHPUnit patch updates through the normal full verification workflow.</li>
-                <li>Test Guzzle 8 separately across Tolgee, AWS, and Firebase. Upgrade Doctrine Coding Standard and PHP_CodeSniffer as one development-tool change.</li>
-                <li>Measure production install size and advisory work before splitting optional integrations into separate packages or distributions.</li>
-                <li>Add signed release provenance when the delivery platform has a maintained signing and verification process.</li>
-            </ol>
+            <p class="section-label">06 · Recommended order</p>
+            <h2>Reduce product risk before maintenance cost</h2>
+            <div class="grid-3 priority-roadmap">
+                <article class="card">
+                    <span class="phase-label">Now</span>
+                    <h3>Protect trust boundaries</h3>
+                    <ul>
+                        <li>Remove, restrict, or implement <code>POST /auth</code>.</li>
+                        <li>Add invalid-credential tests.</li>
+                        <li>Pin the Semgrep image by digest.</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <span class="phase-label">Next</span>
+                    <h3>Strengthen repeatability</h3>
+                    <ul>
+                        <li>Version and rehearse deployment hook examples.</li>
+                        <li>Test Guzzle 8 across Tolgee, AWS, and Firebase.</li>
+                        <li>Upgrade both coding tools as one change.</li>
+                    </ul>
+                </article>
+                <article class="card">
+                    <span class="phase-label">Then</span>
+                    <h3>Reduce adoption cost</h3>
+                    <ul>
+                        <li>Measure production install size and advisory work.</li>
+                        <li>Add local Firebase only when tests justify its maintenance cost.</li>
+                        <li>Add signed release provenance when the platform supports verification.</li>
+                    </ul>
+                </article>
+            </div>
             <div class="callout warning">
                 <strong>Keep changes focused.</strong>
-                The architecture does not need a broad rewrite. The highest-value remaining work is reducing dependency upgrade cost.
+                The architecture does not need a broad rewrite. Make each improvement through a focused change with a regression test.
             </div>
         </section>
 
         <section id="scope">
             <p class="section-label">07 · Scope and method</p>
             <h2>This score describes the inspected workspace</h2>
-            <p>The assessment reviewed production source, tests, architecture rules, quality configuration, continuous integration, documentation, changelog policy, selected integration boundaries, and the latest dependency changes.</p>
+            <p>The assessment reviewed production source, tests, architecture rules, quality configuration, continuous integration, documentation, product boundaries, local infrastructure, deployment controls, and current dependencies.</p>
             <p>The assessment ran these checks on 29 August 2026:</p>
             <pre><code>composer test
 vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G --no-progress
@@ -541,12 +638,12 @@ composer run validate-example-api-spec
 vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 bash tests/Deployment/deployment-scripts.sh</code></pre>
             <p>The assessment did not run the container-based dynamic security scan or the live Bruno API collection.</p>
-            <p>The separate strengths and weaknesses report covers product and delivery risks, including the sample authentication boundary.</p>
-            <p>The assessment included the current working tree, including its uncommitted quality, dependency, deployment, skill, and documentation changes.</p>
+            <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
+            <p>The assessment included the current repository snapshot and its quality, dependency, deployment, skill, and documentation changes.</p>
         </section>
     </main>
 </div>
 
-<footer>Backendbase Core · Code quality and maintainability report · 29 August 2026</footer>
+<footer>Backendbase Core · Engineering quality, strengths, and risks · 29 August 2026</footer>
 </body>
 </html>

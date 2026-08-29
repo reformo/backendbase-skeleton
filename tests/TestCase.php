@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests;
 
 use DI\ContainerBuilder;
-use Dotenv\Dotenv;
 use Exception;
 use Laminas\ConfigAggregator\ConfigAggregator;
 use Laminas\ConfigAggregator\PhpFileProvider;
@@ -13,8 +12,6 @@ use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Factory\AppFactory;
-
-use function dirname;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -27,9 +24,6 @@ class TestCase extends PHPUnit_TestCase
     {
         // Instantiate PHP-DI ContainerBuilder
         $containerBuilder = new ContainerBuilder();
-
-        $dotenv = Dotenv::createUnsafeImmutable(dirname(__DIR__));
-        $dotenv->load();
 
         // Container intentionally not compiled for tests.
         $configGenerator = new ConfigAggregator(

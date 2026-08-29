@@ -37,5 +37,9 @@
   </coverage>
   <php>
     <ini name="memory_limit" value="312M"/>
+    <env name="BACKENDBASE_ENV" value="test"/>
+    <env name="BACKENDBASE_DB_DSN" value="pdo-sqlite:///:memory:"/>
+    <env name="BACKENDBASE_JWT_SIGN_KEY" value="dGVzdC1zaWduaW5nLWtleS0zMi1ieXRlcy1sb25nISE="/>
+    <env name="EXAMPLE_API_KEY" value="test-api-key"/>
   </php>
 </phpunit>

@@ -38,7 +38,6 @@ use const STDERR;
 use const STDOUT;
 
 const REPORTS          = ['resources/docs/code-quality-and-maintainability-report.html'];
-const OPTIONAL_REPORTS = ['resources/docs/project-strengths-and-weaknesses.html'];
 const REQUIRED_METRICS = [
     'tests',
     'assertions',
@@ -64,11 +63,10 @@ try {
     $metrics      = reportMetrics($root, $coverageFile, $junitFile);
     $changed      = [];
 
-    $reports = reportFiles($root);
+    $reports = REPORTS;
     foreach ($reports as $report) {
-        $reportFile        = $root . '/' . $report;
-        $requireAllMetrics = in_array($report, REPORTS, true);
-        if (! updateReport($reportFile, $metrics, $checkOnly, $requireAllMetrics)) {
+        $reportFile = $root . '/' . $report;
+        if (! updateReport($reportFile, $metrics, $checkOnly, true)) {
             continue;
         }
 
@@ -82,7 +80,7 @@ try {
     }
 
     $verb = $checkOnly ? 'verified' : 'updated';
-    fwrite(STDOUT, sprintf('Quality report metrics %s for %d reports.', $verb, count($reports)) . "\n");
+    fwrite(STDOUT, sprintf('Quality report metrics %s. Reports checked: %d.', $verb, count($reports)) . "\n");
 } catch (RuntimeException $exception) {
     fwrite(STDERR, $exception->getMessage() . "\n");
     exit(1);
@@ -134,21 +132,6 @@ function commandArguments(): array
     }
 
     return $validated;
-}
-
-/** @return list<string> */
-function reportFiles(string $root): array
-{
-    $reports = REPORTS;
-    foreach (OPTIONAL_REPORTS as $report) {
-        if (! is_file($root . '/' . $report)) {
-            continue;
-        }
-
-        $reports[] = $report;
-    }
-
-    return $reports;
 }
 
 /** @return array<string, string> */

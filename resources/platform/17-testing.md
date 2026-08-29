@@ -54,11 +54,11 @@ PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `publi
 
 `composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
 
-`composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the quality reports. `composer reports:check` fails when committed metrics are stale.
+`composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the canonical engineering quality report. `composer reports:check` fails when committed metrics are stale.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.
 
-The Composer supply-chain workflow runs each week and for dependency changes. It pins and diagnoses Composer 2.10.3, disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
+The Composer supply-chain workflow runs each week and for dependency changes. It copies reviewed Composer public keys into an isolated Composer home before it diagnoses Composer 2.10.3. It disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
 
 Generate supply-chain evidence only from a new isolated install with `--no-plugins --no-scripts`. Review every lock, SBOM, and digest change before approval. A digest detects changed content. It does not establish that new content is safe.
 
