@@ -1,0 +1,40 @@
+info:
+  name: "Register Account"
+  type: "http"
+  seq: 20
+
+http:
+  method: "POST"
+  url: "{{baseUrl}}/accounts"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+    - name: "Content-Type"
+      value: "application/json"
+  body:
+    type: "json"
+    data: |-
+      {
+        "email": "{{accountEmail}}",
+        "password": "{{accountPassword}}",
+        "privilegeSlugs": ["example.add"]
+      }
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(201);
+        const body = res.getBody();
+        expect(body.accountUuid).to.be.a("string").and.not.be.empty;
+        bru.setEnvVar("account-uuid", body.accountUuid);

@@ -1,0 +1,78 @@
+parameters:
+  - name: account-uuid
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+patch:
+  tags:
+    - Identity & Access
+  operationId: reviseAccount
+  description: Revise account credentials or active privileges. Requires the account.revise privilege.
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: false
+          minProperties: 1
+          properties:
+            email:
+              type: string
+              format: email
+            password:
+              type: string
+              minLength: 1
+            privilegeSlugs:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+                minLength: 1
+  responses:
+    204:
+      description: Account revised
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+    409:
+      $ref: '../../common/components.yaml#/schemas/409'
+  security:
+    - apiKey: []
+      bearerAuth: []
+delete:
+  tags:
+    - Identity & Access
+  operationId: retireAccount
+  description: Retire an account. Requires the account.retire privilege.
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  responses:
+    204:
+      description: Account retired
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    404:
+      $ref: '../../common/components.yaml#/schemas/404'
+  security:
+    - apiKey: []
+      bearerAuth: []

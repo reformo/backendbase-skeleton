@@ -109,7 +109,7 @@ paths:
     post:
       tags:
         - Identity & Access
-      operationId: authenticateUser
+      operationId: authenticateAccount
       description: Authenticate an account and issue an access token
       parameters:
         - $ref: '../common/components.yaml#/headers/Accept-Language'
@@ -159,6 +159,10 @@ paths:
     $ref: "./example/examples.yaml"
   /example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}:
     $ref: "./example/example-details.yaml"
+  /accounts:
+    $ref: "./account/accounts.yaml"
+  /accounts/{account-uuid}:
+    $ref: "./account/account-by-uuid.yaml"
 
 components:
   schemas:
@@ -203,4 +207,5 @@ components:
       name: Backendbase-Api-Key
 tags:
   - name: System
+  - name: Identity & Access
   - name: Example

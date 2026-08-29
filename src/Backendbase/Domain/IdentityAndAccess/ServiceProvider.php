@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountAuthenticationRepository;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountReadRepository;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountWriteRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationRepository;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountReadRepository;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountWriteRepository;
 use Backendbase\Shared\ServiceProvider as PlatformServiceProvider;
 use Override;
 
@@ -17,6 +21,8 @@ final class ServiceProvider implements PlatformServiceProvider
     {
         return [
             AccountAuthenticationRepository::class => DoctrineAccountAuthenticationRepository::class,
+            AccountReadRepository::class => DoctrineAccountReadRepository::class,
+            AccountWriteRepository::class => DoctrineAccountWriteRepository::class,
         ];
     }
 

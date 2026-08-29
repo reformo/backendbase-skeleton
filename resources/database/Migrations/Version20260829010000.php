@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Migrations;
 
-use Backendbase\Seeders\ExampleIdentitySeeder;
+use Backendbase\Seeders\IdentityAndAccessPrivilegeSeeder;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
@@ -13,7 +13,7 @@ final class Version20260829010000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add example account authentication and privilege data.';
+        return 'Add identity and access account tables and privileges.';
     }
 
     public function isTransactional(): bool
@@ -73,7 +73,7 @@ final class Version20260829010000 extends AbstractMigration
             . ') DEFAULT CHARACTER SET utf8mb4',
         );
 
-        (new ExampleIdentitySeeder())->seed($this->connection);
+        (new IdentityAndAccessPrivilegeSeeder())->seed($this->connection);
     }
 
     public function down(Schema $schema): void

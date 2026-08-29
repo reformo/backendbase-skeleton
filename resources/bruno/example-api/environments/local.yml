@@ -18,6 +18,12 @@ variables:
     value: admin@example.com
   - name: password
     value: secret
+  - name: accountEmail
+    value: managed-account@example.com
+  - name: accountPassword
+    value: managed-secret
+  - name: account-uuid
+    value: ""
   - name: typeSlug
     value: system
   - name: exampleGroup

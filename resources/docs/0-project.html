@@ -576,7 +576,7 @@
                         <tr><td>Identity</td><td><code>IdentityAndAccess</code></td><td>JWT and authorization support</td></tr>
                         <tr><td>Placeholder</td><td><code>Content</code></td><td>Empty; do not use as a reference</td></tr>
                         <tr><td>Queue drivers</td><td>RabbitMQ or Amazon SQS</td><td>Selected by environment configuration</td></tr>
-                        <tr><td>API E2E collection</td><td>Ten Bruno requests</td><td>System, authentication, and Example module lifecycle</td></tr>
+                        <tr><td>API E2E collection</td><td>Fourteen Bruno requests</td><td>System, authentication, Account module lifecycle, and Example module lifecycle</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -705,11 +705,11 @@
                 </article>
                 <article class="card">
                     <h3>IdentityAndAccess</h3>
-                    <p>Provides database-backed account authentication, JWT access control, HTTP authorization middleware, and authorization exceptions.</p>
+                    <p>Provides account registration, revision, retirement, listing, database-backed authentication, JWT access control, HTTP authorization middleware, and authorization exceptions.</p>
                 </article>
                 <article class="card">
                     <h3>ExampleApi</h3>
-                    <p>Provides the current HTTP adapter. It contains root controllers, the Example controller module, middleware, and routes.</p>
+                    <p>Provides the current HTTP adapter. It contains root controllers, Account and Example controller modules, middleware, and routes.</p>
                 </article>
                 <article class="card">
                     <h3>Service providers</h3>
@@ -739,7 +739,7 @@
                 </article>
                 <article class="card">
                     <h3>Routes</h3>
-                    <p>The root routes provide API metadata, liveness, readiness, and authentication. <code>ModuleRoutes</code> registers the Example module. A final route handles missing paths.</p>
+                    <p>The root routes provide API metadata, liveness, readiness, and authentication. <code>ModuleRoutes</code> registers the protected Account and Example modules. A final route handles missing paths.</p>
                 </article>
             </div>
             <div class="callout warning"><strong>Current security state:</strong> ExampleApi middleware validates <code>Backendbase-Api-Key</code>. Protected module routes also use authorization middleware. Both middleware paths currently return status <code>400</code> for authentication failures.</div>

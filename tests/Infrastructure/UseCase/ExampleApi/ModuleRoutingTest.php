@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
+use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\ModuleConfig as AccountModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\ModuleRoutes;
 use Backendbase\Shared\Services\Settings as SettingsValue;
@@ -44,13 +45,29 @@ final class ModuleRoutingTest extends TestCase
     }
 
     #[Test]
+    public function itRegistersAllAccountModuleRoutes(): void
+    {
+        $app    = AppFactory::create();
+        $module = new AccountModuleConfig();
+        $app->group('/accounts', $module);
+
+        self::assertSame('accounts', $module->routeKey());
+        self::assertCount(4, $app->getRouteCollector()->getRoutes());
+        self::assertSame('registerAccount', $app->getRouteCollector()->getNamedRoute('registerAccount')->getName());
+        self::assertSame('retireAccount', $app->getRouteCollector()->getNamedRoute('retireAccount')->getName());
+
+        $modules = (new ModuleRoutes())->getModules();
+        self::assertSame(AccountModuleConfig::class, $modules['accounts']);
+    }
+
+    #[Test]
     public function itRegistersTheCompleteApiRouteFile(): void
     {
         $app    = AppFactory::create();
         $routes = require dirname(__DIR__, 4) . '/src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php';
         $routes($app);
 
-        self::assertCount(11, $app->getRouteCollector()->getRoutes());
+        self::assertCount(15, $app->getRouteCollector()->getRoutes());
     }
 
     #[Test]

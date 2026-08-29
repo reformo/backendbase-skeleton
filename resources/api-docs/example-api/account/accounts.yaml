@@ -1,0 +1,111 @@
+get:
+  tags:
+    - Identity & Access
+  operationId: listAccounts
+  description: List active accounts. Requires the account.list privilege.
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  responses:
+    200:
+      description: Active accounts
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - accounts
+            properties:
+              accounts:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - uuid
+                    - email
+                    - privilegeSlugs
+                    - createdAt
+                  properties:
+                    uuid:
+                      type: string
+                      format: uuid
+                    email:
+                      type: string
+                      format: email
+                    privilegeSlugs:
+                      type: array
+                      uniqueItems: true
+                      items:
+                        type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+  security:
+    - apiKey: []
+      bearerAuth: []
+post:
+  tags:
+    - Identity & Access
+  operationId: registerAccount
+  description: Register an account. Requires the account.register privilege.
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties: false
+          required:
+            - email
+            - password
+            - privilegeSlugs
+          properties:
+            email:
+              type: string
+              format: email
+            password:
+              type: string
+              minLength: 1
+            privilegeSlugs:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+                minLength: 1
+  responses:
+    201:
+      description: Account registered
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - accountUuid
+            properties:
+              accountUuid:
+                type: string
+                format: uuid
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+    409:
+      $ref: '../../common/components.yaml#/schemas/409'
+  security:
+    - apiKey: []
+      bearerAuth: []

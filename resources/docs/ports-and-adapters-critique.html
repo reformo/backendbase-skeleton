@@ -90,9 +90,9 @@
         .hero {
             position: relative;
             overflow: hidden;
-            border-bottom: 5px solid #4ac2a4;
-            background: #102f3e;
-            color: #fff;
+            border-bottom: 5px solid #43a89e;
+            background: linear-gradient(135deg, #f8fcfb 0%, #e8f5f2 56%, #e9f2f8 100%);
+            color: var(--ink);
         }
 
         .hero::before {
@@ -101,7 +101,7 @@
             right: -100px;
             width: 700px;
             height: 700px;
-            border: 110px solid rgba(78, 202, 170, 0.14);
+            border: 110px solid rgba(23, 111, 103, 0.1);
             border-radius: 50%;
             content: "";
         }
@@ -109,7 +109,7 @@
         .hero::after {
             position: absolute;
             inset: 0 0 0 62%;
-            background: linear-gradient(145deg, rgba(35, 120, 163, 0.12), rgba(32, 141, 113, 0.48));
+            background: linear-gradient(145deg, rgba(23, 105, 165, 0.04), rgba(23, 111, 103, 0.12));
             clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
             content: "";
         }
@@ -124,7 +124,7 @@
 
         .eyebrow, .section-label {
             margin: 0 0 10px;
-            color: #91e5cf;
+            color: var(--teal);
             font-size: 0.74rem;
             font-weight: 850;
             letter-spacing: 0.16em;
@@ -142,16 +142,17 @@
         .lede {
             max-width: 880px;
             margin: 18px 0 0;
-            color: #dbe9e5;
+            color: var(--muted);
             font-size: clamp(1.02rem, 2vw, 1.24rem);
         }
 
         .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 25px; }
         .chip {
             padding: 6px 11px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(8, 123, 104, 0.24);
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.09);
+            background: rgba(255, 255, 255, 0.72);
+            color: #214640;
             font-size: 0.82rem;
             font-weight: 750;
         }
@@ -475,7 +476,7 @@
             @page { size: A4; margin: 14mm; }
             :root { color-scheme: only light; }
             body { background: #fff; font-size: 11pt; }
-            .hero { background: #102f3e !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .hero { background: #f8fcfb !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
             .hero::before, .hero::after, .skip-link { display: none; }
             .layout { display: block; width: 100%; padding: 22px 0 0; }
             nav { display: none; }
@@ -502,7 +503,7 @@
             <span class="chip">5 weaknesses</span>
             <span class="chip">18/18 architecture tests passed</span>
             <span class="chip">PHPStan level 8 passed</span>
-            <span class="chip">Complexity ≤ 15 passed</span>
+            <span class="chip">Complexity ≤ 12 passed</span>
         </div>
     </div>
 </header>
@@ -530,7 +531,8 @@
                 <strong>Primary strength:</strong> Business code depends on project-owned ports. Framework and vendor code remain in adapters or composition roots. Eighteen architecture tests enforce these rules.
             </div>
             <p>The strongest boundaries are persistence, messaging, identity ports, and framework-free business logic. The main costs are metadata coupling, an untyped aggregate snapshot, and a broad <code>Shared</code> area with mixed ownership.</p>
-            <p>Recent quality gates strengthen delivery. The lazy Redis proxy and opt-in Moto profile remain in composition and adapter code. They preserve the application, domain, port, and adapter dependency direction.</p>
+            <p>The account lifecycle preserves the dependency direction. HTTP controllers call account commands and a query. Their handlers depend on account repository ports. Doctrine and JWT code remain adapter details.</p>
+            <p>Recent quality gates strengthen delivery. The lazy Redis proxy and opt-in Moto profile remain in composition and adapter code.</p>
             <p>No weakness requires a large rewrite. Apply small changes when the affected area next changes.</p>
             <div class="metrics" aria-label="Summary metrics">
                 <div class="stat"><strong>6</strong><span>Strengths to preserve</span></div>
@@ -557,7 +559,7 @@
                         <div class="node"><strong>Doctrine · Redis · Broker · AWS</strong><small>Outbound adapters</small></div>
                     </div>
                     <div class="leak-grid" aria-label="Observed strengths and weaknesses">
-                        <div class="leak resolved"><strong>Strength: dependency inversion</strong><br>Handlers use repository, messaging, token, and transaction ports.</div>
+                        <div class="leak resolved"><strong>Strength: dependency inversion</strong><br>Application services use repository, messaging, token, and transaction ports.</div>
                         <div class="leak resolved"><strong>Strength: adapter parity</strong><br>Memory and Doctrine repositories share one behavioral contract suite.</div>
                         <div class="leak resolved"><strong>Strength: executable rules</strong><br>Architecture tests protect core, adapter, context, and composition boundaries.</div>
                         <div class="leak"><strong>Weakness: contract metadata</strong><br>Commands and queries name their concrete application handlers.</div>
@@ -579,7 +581,7 @@
                     <tr><th scope="col">Area</th><th scope="col">Status</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Dependency inversion</td><td><span class="badge strong">Strong</span></td><td>Application handlers use project-owned repository, transaction, messaging, and identity ports.</td></tr>
+                    <tr><td>Dependency inversion</td><td><span class="badge strong">Strong</span></td><td>Application handlers and authentication services use project-owned repository, transaction, messaging, and token ports.</td></tr>
                     <tr><td>Domain/framework isolation</td><td><span class="badge strong">Strong</span></td><td>The domain core does not import HTTP, Doctrine, container, queue, or application implementation code.</td></tr>
                     <tr><td>Adapter replaceability</td><td><span class="badge strong">Strong</span></td><td>Doctrine and memory adapters implement the same repository ports and pass the same behavior suite.</td></tr>
                     <tr><td>Architecture enforcement</td><td><span class="badge strong">Strong</span></td><td>Tests cover core direction, context isolation, both adapter directions, attributes, Shared rules, and connection construction.</td></tr>
@@ -647,9 +649,9 @@
                     <div><span class="badge">Low · 05</span></div>
                     <div>
                         <h3>Package names blur use cases, adapters, and composition</h3>
-                        <p><code>Infrastructure/UseCase</code> contains HTTP controllers and console commands, which are inbound adapters. A bounded-context <code>ServiceProvider</code> sits under <code>Domain</code> and imports Doctrine adapters.</p>
+                        <p><code>Infrastructure/UseCase</code> contains HTTP controllers and console commands, which are inbound adapters. Bounded-context <code>ServiceProvider</code> classes sit under <code>Domain</code> and import Doctrine adapters.</p>
                         <p>The architecture tests handle these exceptions explicitly. The names can still teach a less clear mental model to new contributors.</p>
-                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/NewExample.php"><code>Infrastructure/UseCase/.../NewExample.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php"><code>ExampleBoundedContext/ServiceProvider.php:7-26</code></a>, <a href="../../tests/Architecture/Support/BoundedContextDependencies.php"><code>BoundedContextDependencies.php:14-20</code></a>.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/NewExample.php"><code>Infrastructure/UseCase/.../NewExample.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php"><code>ExampleBoundedContext/ServiceProvider.php:7-26</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/ServiceProvider.php"><code>IdentityAndAccess/ServiceProvider.php:7-20</code></a>, and <a href="../../tests/Architecture/Support/BoundedContextDependencies.php"><code>BoundedContextDependencies.php:14-20</code></a>.</p>
                     </div>
                     <div class="action"><strong>Recommended action</strong>Document the taxonomy now. Consider clearer adapter and composition namespaces only during a planned compatibility change.</div>
                 </article>
@@ -667,7 +669,7 @@
                 </article>
                 <article class="card">
                     <h3>Context-owned ports</h3>
-                    <p>Read and write contracts belong to the bounded context. Handlers depend on these contracts instead of Doctrine.</p>
+                    <p>Repository and identity contracts belong to their bounded contexts. Application services depend on these contracts instead of Doctrine or JWT adapters.</p>
                 </article>
                 <article class="card">
                     <h3>Framework-free domain</h3>
@@ -686,7 +688,7 @@
                     <p>Focused tests detect core, context, adapter, metadata, Shared, and vendor-connection boundary drift. Lazy connections remain a composition concern.</p>
                 </article>
             </div>
-            <p class="evidence">Example evidence: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php"><code>AddNewExampleHandler.php:19-60</code></a>, <a href="../../tests/Domain/ExampleBoundedContext/Adapters/Persistence/ExampleRepositoryContract.php"><code>ExampleRepositoryContract.php</code></a>, <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>, <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php</code></a>.</p>
+            <p class="evidence">Example evidence: <a href="../../src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php"><code>AddNewExampleHandler.php:19-60</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/AuthenticateAccount.php"><code>AuthenticateAccount.php:13-33</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/AccountAuthenticationRepository.php"><code>AccountAuthenticationRepository.php</code></a>, <a href="../../tests/Domain/ExampleBoundedContext/Adapters/Persistence/ExampleRepositoryContract.php"><code>ExampleRepositoryContract.php</code></a>, <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>, and <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php</code></a>.</p>
         </section>
 
         <section id="roadmap">
@@ -715,13 +717,14 @@
                     </thead>
                     <tbody>
                     <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>18 tests and 103 assertions passed. This includes Application, Shared core, both adapter directions, attribute targets, Identity ports, context isolation, container-adapter placement, and vendor connection construction.</td></tr>
-                    <tr><td><code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>353 tests and 1,452 assertions passed. The suite covered 3,474 of 3,474 executable lines.</td></tr>
+                    <tr><td><code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>362 tests and 1,488 assertions passed. The suite covered 3,525 of 3,525 executable lines.</td></tr>
                     <tr><td><code>composer phpstan -- --no-progress</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors across the configured application, test, tool, and database-delivery scope.</td></tr>
-                    <tr><td><code>composer complexity</code></td><td><span class="badge strong">Passed</span></td><td>All 436 configured PHP files stayed at cyclomatic complexity 12 or less.</td></tr>
-                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The review covered 261 production PHP files, 126 Shared PHP files, 13 architecture test classes, configuration roots, and architecture documentation.</td></tr>
+                    <tr><td><code>composer complexity</code></td><td><span class="badge strong">Passed</span></td><td>All 448 configured PHP files stayed at cyclomatic complexity 12 or less.</td></tr>
+                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The review covered 268 production PHP files, 126 Shared PHP files, 13 architecture test classes, configuration roots, and architecture documentation.</td></tr>
                     <tr><td>Interactive architecture map</td><td><span class="badge">Reference</span></td><td>The linked map remains the validated revision <code>2c9bde9</code> snapshot. This report rechecked current dependency rules and source links separately.</td></tr>
                     <tr><td>Recent delivery controls</td><td><span class="badge strong">No direction change</span></td><td>The Composer supply-chain checker, evidence files, and release-manifest verification remain in tooling and deployment boundaries.</td></tr>
                     <tr><td>Recent production composition</td><td><span class="badge strong">Boundary preserved</span></td><td>The lazy Redis proxy remains in the dependency definitions. Moto endpoint and path-style settings remain in Infrastructure. Business layers do not import either vendor.</td></tr>
+                    <tr><td>Recent authentication flow</td><td><span class="badge strong">Boundary preserved</span></td><td>The controller uses <code>AuthenticateAccount</code>. The application service uses <code>AccountAuthenticationRepository</code> and <code>TokenIssuer</code>. Doctrine and JWT remain adapter details.</td></tr>
                     </tbody>
                 </table>
             </div>

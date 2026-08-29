@@ -11,6 +11,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 ### Added
 
 - Added database-backed example account authentication and ACL privilege seeds.
+- Added account registration, revision, retirement, and listing operations with ACL checks.
 - Added this changelog and the per-commit maintenance rule.
 - Added a strict 100% executable-line coverage gate to `composer test`.
 - Added focused tests for previously uncovered validation, persistence, messaging, HTTP, AWS, and collection behavior.
@@ -51,4 +52,5 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Merged the strengths and weaknesses assessment into the light-only engineering quality report, then removed the obsolete standalone report.
 - Made PHPUnit use explicit test configuration instead of requiring an untracked `.env` file.
 - Enabled PHP assertions in the quality-gate runtime so PCOV measures assertion lines consistently.
+- Updated the engineering quality and Ports and Adapters reports for database-backed authentication and the complexity limit of 12.
 - Reduced the affected configuration and adapter methods to meet the maximum cyclomatic complexity of 12.

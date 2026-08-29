@@ -24,6 +24,11 @@ class PasswordHash
         return new self($hash);
     }
 
+    public static function fromPassword(SensitiveParameterValue $password): self
+    {
+        return new self(password_hash((string) $password->getValue(), self::HASH_ALGO));
+    }
+
     public static function validatePassword(SensitiveParameterValue $password): void
     {
     }
@@ -40,9 +45,8 @@ class PasswordHash
 
     public function changeHashWithNewPassword(SensitiveParameterValue $newPassword): self
     {
-        $hash      = password_hash((string) $newPassword->getValue(), self::HASH_ALGO);
         $new       = clone $this;
-        $new->hash = $hash;
+        $new->hash = self::fromPassword($newPassword)->toString();
 
         return $new;
     }

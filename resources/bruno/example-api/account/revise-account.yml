@@ -1,0 +1,35 @@
+info:
+  name: "Revise Account"
+  type: "http"
+  seq: 22
+
+http:
+  method: "PATCH"
+  url: "{{baseUrl}}/accounts/{{account-uuid}}"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+    - name: "Content-Type"
+      value: "application/json"
+  body:
+    type: "json"
+    data: |-
+      {
+        "privilegeSlugs": ["example.add", "example.change"]
+      }
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(204);

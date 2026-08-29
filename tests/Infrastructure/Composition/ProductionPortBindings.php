@@ -13,7 +13,11 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtAuthorizationStore;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountAuthenticationRepository;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountReadRepository;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountWriteRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationRepository;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountReadRepository;
+use Backendbase\Domain\IdentityAndAccess\Contracts\AccountWriteRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
@@ -60,6 +64,8 @@ final class ProductionPortBindings
     {
         return [
             AccountAuthenticationRepository::class => DoctrineAccountAuthenticationRepository::class,
+            AccountReadRepository::class => DoctrineAccountReadRepository::class,
+            AccountWriteRepository::class => DoctrineAccountWriteRepository::class,
             AuthorizationStore::class => JwtAuthorizationStore::class,
             BucketService::class => S3Bucket::class,
             CommandBus::class => ContainerAwareCommandBus::class,

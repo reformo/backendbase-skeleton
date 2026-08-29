@@ -17,6 +17,8 @@ HTTP inputs depend on the `TokenIssuer` and `TokenValidator` application ports. 
 
 `POST /auth` validates a non-deleted account from `example_accounts`. It verifies the stored Argon2id password hash. It stores active privilege slugs in the JWT authorization state.
 
+The protected `/accounts` module registers, revises, retires, and lists accounts. Registration hashes the supplied password with Argon2id before it reaches the command. Revision can replace active privilege grants. Retirement sets `deleted_at`, so later authentication cannot load the account.
+
 `AuthorizationMiddleware` adds `authorizedUserId`, `authorizedUserData`, `clientTimezone`, `Acl`, and `AccessControl` request attributes.
 
 `Acl::isAllowed()` accepts a named privilege, `full-privileges`, or the `system-admin` role. Denial uses status 403.
@@ -26,6 +28,10 @@ Example write commands require `AccessControl`. Their application handlers check
 - `example.add`
 - `example.change`
 - `example.remove`
+- `account.register`
+- `account.revise`
+- `account.retire`
+- `account.list`
 
 Keep privilege checks at the application handler boundary. Do not make this decision only in an HTTP controller.
 

@@ -106,6 +106,9 @@ final class PrimitiveValueObjectsTest extends TestCase
         $changed = $initial->changeHashWithNewPassword(new SensitiveParameterValue('secret'));
         self::assertNotSame($initial->toString(), $changed->toString());
         self::assertTrue($changed->verifyHash(new SensitiveParameterValue('secret')));
+
+        $registered = PasswordHash::fromPassword(new SensitiveParameterValue('registered-secret'));
+        self::assertTrue($registered->verifyHash(new SensitiveParameterValue('registered-secret')));
     }
 
     #[Test]

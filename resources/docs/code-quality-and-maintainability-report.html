@@ -358,11 +358,11 @@
         <p class="lede">One current assessment of code quality, architecture, operational strengths, product risks, maintenance cost, and automated evidence.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
-            <span class="chip">1 bootstrap credential risk</span>
-            <span class="chip"><span data-quality-metric="tests">362</span> tests</span>
+            <span class="chip">Account provisioning is external</span>
+            <span class="chip"><span data-quality-metric="tests">393</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
-            <span class="chip">Complexity ≤ 15</span>
+            <span class="chip">Complexity ≤ 12</span>
             <span class="chip">134 package digests verified</span>
             <span class="chip">0 advisories · 0 abandoned</span>
         </div>
@@ -384,19 +384,20 @@
     <main id="main-content">
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Code quality is strong. One sample boundary blocks production readiness.</h2>
+            <h2>Code quality is strong. Account provisioning remains an operational requirement.</h2>
             <div class="callout good">
                 <strong>Code quality and maintainability score: 9.4 out of 10.</strong>
                 Static analysis and coding standards now cover operational PHP and database delivery code.
                 CI actions use immutable commit SHAs, and Composer uses an exact secure version. Complexity, documentation, report, and supply-chain checks now have executable gates.
             </div>
             <div class="callout danger">
-                <strong>Production-readiness exception:</strong>
-                <code>POST /auth</code> verifies database-backed Argon2id credentials. The release also creates a bootstrap account with a known initial password.
+                <strong>Production-readiness constraint:</strong>
+                <code>POST /auth</code> verifies database-backed Argon2id credentials. The release seeds no account credential, so provision the first account through an approved operation.
             </div>
             <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have strong automated verification.</p>
+            <p>The new authentication flow keeps its dependency direction. The HTTP controller calls an application service that depends on repository and token ports. Doctrine and JSON Web Token (JWT) code remain adapters.</p>
             <p>Recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and an opt-in local AWS emulator. A weekly audit, CycloneDX SBOM, and reviewed package-content digests now protect Composer changes.</p>
-            <p>The code-quality score excludes product readiness. Rotate the release-owned bootstrap credential outside local development. Other findings concern repeatability, dependency cost, and external deployment ownership.</p>
+            <p>The code-quality score excludes product readiness. Provision the first account with account-management privileges through an approved operation before non-local use. Other findings concern repeatability, dependency cost, and external deployment ownership.</p>
             <p>The architecture does not need a broad rewrite. Apply focused fixes with regression tests.</p>
         </section>
 
@@ -409,7 +410,7 @@
                     <tr><th scope="col">Area</th><th scope="col">Score</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests.</td></tr>
+                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests. The authentication use case depends on project-owned repository and token ports.</td></tr>
                     <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold.</td></tr>
                     <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8, complexity, and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 12.</td></tr>
@@ -431,10 +432,10 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">362</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,488</span></strong><span>Passing assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">3,525</span>/<span data-quality-metric="total-lines">3,525</span></strong><span>Covered executable lines</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">820</span>/<span data-quality-metric="total-methods">820</span></strong><span>Covered methods</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">393</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">1,644</span></strong><span>Passing assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">3,885</span>/<span data-quality-metric="total-lines">3,885</span></strong><span>Covered executable lines</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">918</span>/<span data-quality-metric="total-methods">918</span></strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
                 <table class="report-table evidence-table">
@@ -443,16 +444,17 @@
                     </thead>
                     <tbody>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">362</span> tests and <span data-quality-metric="assertions">1,488</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,525</span> of <span data-quality-metric="total-lines">3,525</span> executable source lines were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">820</span> of <span data-quality-metric="total-methods">820</span> methods were covered.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">393</span> tests and <span data-quality-metric="assertions">1,644</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,885</span> of <span data-quality-metric="total-lines">3,885</span> executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">918</span> of <span data-quality-metric="total-methods">918</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">448</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">487</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
+                    <tr><td>Account authentication</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> reads active account data through a repository port, verifies Argon2id credentials, issues tokens through a token port, and returns 401 for invalid credentials.</td></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
@@ -486,7 +488,7 @@
             <div class="grid-3">
                 <div class="card">
                     <h3>Architecture boundaries</h3>
-                    <p>Architecture tests enforce domain purity, adapter direction, bounded-context isolation, framework boundaries, and Shared-layer direction.</p>
+                    <p>Architecture tests enforce domain purity, adapter direction, bounded-context isolation, framework boundaries, Shared-layer direction, and identity port isolation.</p>
                 </div>
                 <div class="card">
                     <h3>Failure-path testing</h3>
@@ -538,10 +540,10 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><span class="badge high">High</span></td>
-                        <td>Release-owned bootstrap credential</td>
-                        <td><span class="cell-content">The release migration seeds one known account credential. Rotate it before any non-local deployment.</span></td>
-                        <td><span class="cell-content"><a href="../../resources/database/Seeders/ExampleIdentitySeeder.php">ExampleIdentitySeeder.php</a> and the <a href="../../resources/database/Migrations/Version20260829010000.php">migration</a>.</span></td>
+                        <td><span class="badge medium">Medium</span></td>
+                        <td>Account provisioning is external</td>
+                        <td><span class="cell-content">The release seeds no account. An approved operational process must provision credentials before authentication can succeed.</span></td>
+                        <td><span class="cell-content"><a href="../../resources/database/Migrations/Version20260829010000.php">migration</a> and the <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/AuthenticateAccount.php">authentication service</a>.</span></td>
                     </tr>
                     <tr>
                         <td><span class="badge medium">Medium</span></td>
@@ -586,7 +588,7 @@
                     <span class="phase-label">Now</span>
                     <h3>Protect trust boundaries</h3>
                     <ul>
-                        <li>Rotate the release-owned bootstrap credential before production use.</li>
+                        <li>Define an approved process to provision the first account-management identity.</li>
                         <li>Keep invalid-credential tests.</li>
                         <li>Pin the Semgrep image by digest.</li>
                     </ul>
@@ -639,7 +641,7 @@ vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-mer
 bash tests/Deployment/deployment-scripts.sh</code></pre>
             <p>The assessment did not run the container-based dynamic security scan or the live Bruno API collection.</p>
             <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
-            <p>The assessment included the current repository snapshot and its quality, dependency, deployment, skill, and documentation changes.</p>
+            <p>The assessment included the current repository snapshot and its identity, quality, dependency, deployment, skill, and documentation changes.</p>
         </section>
     </main>
 </div>

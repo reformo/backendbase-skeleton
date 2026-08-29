@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Http;
 
 use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
+use Backendbase\Domain\IdentityAndAccess\Exception\AccountAlreadyRegistered;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
+use Backendbase\Domain\IdentityAndAccess\Exception\UnknownAccountPrivilege;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Exception\CommandFailed;
@@ -90,6 +92,18 @@ final class DomainErrorProblemDetailsMapper
     private static function fallbackDetails(DomainException $exception): array
     {
         return match (true) {
+            $exception instanceof AccountAlreadyRegistered => [
+                409,
+                'Account Already Registered',
+                'identity-access/account-already-registered',
+                'about:blank',
+            ],
+            $exception instanceof UnknownAccountPrivilege => [
+                400,
+                'Unknown Account Privilege',
+                'identity-access/unknown-account-privilege',
+                'about:blank',
+            ],
             $exception instanceof InvalidEmailAddress => [
                 400,
                 'Invalid Email Address',

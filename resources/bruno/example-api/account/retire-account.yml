@@ -1,0 +1,27 @@
+info:
+  name: "Retire Account"
+  type: "http"
+  seq: 23
+
+http:
+  method: "DELETE"
+  url: "{{baseUrl}}/accounts/{{account-uuid}}"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(204);

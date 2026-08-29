@@ -30,7 +30,7 @@
         <article class="card"><h3>Authorization middleware</h3><p>Reads the bearer token and adds user, time zone, and access-control attributes to the request.</p></article>
         <article class="card"><h3>ACL</h3><p>Allows a named privilege, full privileges, or the <code>system-admin</code> role.</p></article>
     </div>
-    <div class="callout warning"><strong>Current scope:</strong> <code>POST /auth</code> verifies database-backed credentials. The service has no account lifecycle operations.</div>
+    <div class="callout warning"><strong>Current scope:</strong> <code>POST /auth</code> verifies database-backed credentials. Protected <code>/accounts</code> operations register, revise, retire, and list accounts.</div>
 </section>
 <section id="map"><p class="section-label">02 · Component map</p><h2>Identity code and HTTP security are separate</h2>
     <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th><th>State</th></tr></thead><tbody>
@@ -38,6 +38,8 @@
         <tr><td><code>TokenValidator</code></td><td>Application input port for token validation and revocation.</td><td>Token validation contract</td></tr>
         <tr><td><code>AuthorizationStore</code></td><td>Application output port for authorization state.</td><td>Redis adapter</td></tr>
         <tr><td><code>AccountAuthenticationRepository</code></td><td>Read an active account and its active privilege slugs.</td><td>Doctrine DBAL adapter</td></tr>
+        <tr><td><code>AccountWriteRepository</code></td><td>Register, load, revise, and retire active accounts.</td><td>Doctrine DBAL adapter</td></tr>
+        <tr><td><code>AccountReadRepository</code></td><td>List active account projections and active privilege slugs.</td><td>Doctrine DBAL adapter</td></tr>
         <tr><td><code>AuthenticateAccount</code></td><td>Verify an Argon2id password hash and issue a token.</td><td>Application service</td></tr>
         <tr><td><code>Jwt</code></td><td>Coordinate the JWT codec and authorization store.</td><td>Signed token plus port calls</td></tr>
         <tr><td><code>AuthorizationMiddleware</code></td><td>Validate the bearer header and enrich the request.</td><td>PSR-7 attributes</td></tr>
@@ -72,7 +74,7 @@
 <section id="acl"><p class="section-label">06 · Access control</p><h2>Check one named privilege at the application boundary</h2>
     <pre><code>$command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);</code></pre>
     <p>The check succeeds when the user has the requested privilege, has <code>full-privileges</code>, or uses role <code>system-admin</code>. A denied check throws <code>ResourceAccessForbidden</code> with HTTP status 403.</p>
-    <p>Example write handlers require <code>example.add</code>, <code>example.change</code>, or <code>example.remove</code>. They check access before transaction or repository work.</p>
+    <p>Example write handlers require <code>example.add</code>, <code>example.change</code>, or <code>example.remove</code>. Account operations require <code>account.register</code>, <code>account.revise</code>, <code>account.retire</code>, or <code>account.list</code>. They check access before repository work.</p>
     <div class="callout warning">Do not read the raw privilege array in controllers. Pass typed access control through the application input and enforce it in the handler.</div>
 </section>
 <section id="api-key"><p class="section-label">07 · API keys</p><h2>API-key validation depends on request attributes</h2>
@@ -125,6 +127,8 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
         <tr><td>JWT adapter</td><td><code>Domain/IdentityAndAccess/Adapters/Authentication/Jwt.php</code></td></tr>
         <tr><td>Account authentication</td><td><code>Domain/IdentityAndAccess/Application/AuthenticateAccount.php</code></td></tr>
         <tr><td>Account authentication repository</td><td><code>Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineAccountAuthenticationRepository.php</code></td></tr>
+        <tr><td>Account lifecycle handlers</td><td><code>Domain/IdentityAndAccess/Application/CommandHandlers/</code></td></tr>
+        <tr><td>Account repositories</td><td><code>Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineAccountReadRepository.php</code> and <code>DoctrineAccountWriteRepository.php</code></td></tr>
         <tr><td>Authorization store adapter</td><td><code>Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php</code></td></tr>
         <tr><td>Bearer middleware</td><td><code>Domain/IdentityAndAccess/Adapters/Http/AuthorizationMiddleware.php</code></td></tr>
         <tr><td>Access-control contract</td><td><code>Shared/Authorization/AccessControl.php</code></td></tr>

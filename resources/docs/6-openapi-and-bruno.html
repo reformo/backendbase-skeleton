@@ -586,9 +586,9 @@
             <h2>One contract, three representations</h2>
             <p>The OpenAPI source defines the public contract. The generated YAML gives tools one complete file. Bruno sends example requests to the running API.</p>
             <div class="summary-grid">
-                <div class="stat"><strong>3</strong><span>OpenAPI source groups</span></div>
-                <div class="stat"><strong>10</strong><span>Documented operations</span></div>
-                <div class="stat"><strong>10</strong><span>Bruno API requests</span></div>
+                <div class="stat"><strong>4</strong><span>OpenAPI source groups</span></div>
+                <div class="stat"><strong>14</strong><span>Documented operations</span></div>
+                <div class="stat"><strong>14</strong><span>Bruno API requests</span></div>
                 <div class="stat"><strong>1</strong><span>Bruno environment</span></div>
             </div>
             <div class="callout good"><strong>Verified state:</strong> <code>public/example-api/docs/example-api-merged.yml</code> validates against the OpenAPI 3.0 schema.</div>
@@ -603,6 +603,9 @@
 │   ├── common/components.yaml                  # shared headers and responses
 │   └── example-api/
 │       ├── example-openapi.yml                 # root contract and servers
+│       ├── account/
+│       │   ├── accounts.yaml                    # list and register
+│       │   └── account-by-uuid.yaml             # revise and retire
 │       └── example/
 │           ├── example-groups.yaml             # group list
 │           ├── examples.yaml                   # example list and create
@@ -612,6 +615,7 @@
     ├── environments/local.yml                   # local values
     ├── system/*.yml                             # metadata and status requests
     ├── auth/*.yml                               # authentication request
+    ├── account/*.yml                             # account lifecycle requests
     └── example/*.yml                            # example lifecycle requests
 
 public/example-api/docs/
@@ -892,6 +896,10 @@ runtime:
             <div class="diagram-wrap">
                 <ol class="flow-list" aria-label="Bruno request sequence">
                     <li><strong>10 · Authenticate</strong><small>capture access token</small></li>
+                    <li><strong>20 · Register account</strong><small>capture account UUID</small></li>
+                    <li><strong>21 · List accounts</strong><small>check account projection</small></li>
+                    <li><strong>22 · Revise account</strong><small>replace privileges</small></li>
+                    <li><strong>23 · Retire account</strong><small>soft remove account</small></li>
                     <li><strong>40 · List groups</strong><small>confirm fixture group</small></li>
                     <li><strong>41 · Add</strong><small>create by exampleKey</small></li>
                     <li><strong>42 · List</strong><small>check collection</small></li>

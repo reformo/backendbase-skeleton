@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Http;
 
 use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
+use Backendbase\Domain\IdentityAndAccess\Exception\AccountAlreadyRegistered;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
+use Backendbase\Domain\IdentityAndAccess\Exception\UnknownAccountPrivilege;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
@@ -69,12 +71,32 @@ final class DomainErrorProblemDetailsMapperTest extends TestCase
             ],
         ];
 
+        yield 'account already registered' => [
+            AccountAlreadyRegistered::create('Failure.', $context),
+            [
+                'status' => 409,
+                'title' => 'Account Already Registered',
+                'code' => 'identity-access/account-already-registered',
+                'type' => 'about:blank',
+            ],
+        ];
+
         yield 'invalid credentials' => [
             InvalidCredentials::create('Failure.', $context),
             [
                 'status' => 401,
                 'title' => 'Authentication Failed',
                 'code' => 'identity-access/invalid-credentials',
+                'type' => 'about:blank',
+            ],
+        ];
+
+        yield 'unknown account privilege' => [
+            UnknownAccountPrivilege::create('Failure.', $context),
+            [
+                'status' => 400,
+                'title' => 'Unknown Account Privilege',
+                'code' => 'identity-access/unknown-account-privilege',
                 'type' => 'about:blank',
             ],
         ];

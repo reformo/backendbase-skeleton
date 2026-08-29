@@ -517,8 +517,12 @@ src/Backendbase/Infrastructure/UseCase/ExampleApi/
 └── Controllers/
     ├── ModuleRoutes.php              # Module registry
     ├── Root/                          # Health, authentication, not found
+    ├── Account/
+    │   ├── ModuleConfig.php           # Four protected account routes
+    │   ├── AccountRequestInput.php    # Boundary validation helpers
+    │   └── Handlers/                  # HTTP actions
     └── Example/
-        ├── ModuleConfig.php           # Six example routes
+        ├── ModuleConfig.php           # Six Example routes
         ├── ExampleRequestInput.php    # Boundary validation helpers
         └── Handlers/                  # HTTP actions
 
@@ -625,13 +629,17 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
         <section id="routing">
             <h2>Routing and modules</h2>
-            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> currently registers one module at <code>/example-types</code>.</p>
+            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers protected modules at <code>/accounts</code> and <code>/example-types</code>.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Method</th><th>Path</th><th>Action</th><th>Bearer middleware</th></tr></thead>
                     <tbody>
                     <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>Root</code></td><td>No</td></tr>
                     <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>Authenticate</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/accounts</code></td><td><code>Accounts</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/accounts</code></td><td><code>RegisterAccount</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method patch">PATCH</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>ReviseAccount</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>RetireAccount</code></td><td>Yes</td></tr>
                     <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups</code></td><td><code>ExampleGroups</code></td><td>No</td></tr>
                     <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples</code></td><td><code>Examples</code></td><td>No</td></tr>
                     <tr><td><span class="method get">GET</span></td><td><code>/example-types/{typeSlug}/groups/{exampleGroup}/examples/{exampleKey}</code></td><td><code>ExampleDetails</code></td><td>No</td></tr>
@@ -880,14 +888,14 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                         <li>Missing resources stop command dispatch.</li>
                         <li>Read actions map projections.</li>
                         <li>Write actions create correct commands.</li>
-                        <li>Module routing has six module and eleven total routes.</li>
+                        <li>Module routing has four Account routes, six Example routes, and fifteen total routes.</li>
                         <li>Root, authentication, and fallback responses are stable.</li>
                     </ul>
                 </article>
                 <article class="card purple">
                     <span class="tag">Bruno</span>
                     <h3>End-to-end collection</h3>
-                    <p>Ten YAML requests cover system status, authentication, and the Example lifecycle.</p>
+                    <p>Fourteen YAML requests cover system status, authentication, the account lifecycle, and the Example lifecycle.</p>
                     <p>The local environment points to <code>http://127.0.0.1:8080/example-api</code>.</p>
                     <p>Each run writes an HTML report under <code>artifacts/bruno/example-api</code>.</p>
                 </article>
@@ -954,7 +962,7 @@ bin/bruno example-api local</code></pre></div>
                     <tr><td>The CORS allow-header list omits <code>Accept-Language</code>.</td><td>Browser preflight can reject requests that send this documented header.</td></tr>
                     <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
                     <tr><td>Bearer failures return <code>400</code>.</td><td>OpenAPI documents <code>401</code> and <code>403</code>, so runtime and specification differ.</td></tr>
-                    <tr><td><code>Authenticate</code> verifies an active account and its Argon2id password hash.</td><td>The route issues a token with the account's active Example privileges. It does not provide account lifecycle operations.</td></tr>
+                    <tr><td><code>Authenticate</code> verifies an active account and its Argon2id password hash.</td><td>The protected Account module registers, revises, retires, and lists accounts through ACL-checked commands and a query.</td></tr>
                     <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
                     <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
                     <tr><td>Group pagination metadata is accepted without slicing the group list.</td><td>The response reports page values, while the current query returns the repository list.</td></tr>
