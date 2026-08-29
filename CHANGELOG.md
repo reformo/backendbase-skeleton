@@ -35,3 +35,4 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Updated the light-themed quality and strengths reports with current verification results and resolved findings.
 - Reassessed dependency maintenance cost after removing unused packages and redundant direct requirements.
 - Moved OpenAPI and YAML build tools to development dependencies while keeping release contract generation deterministic.
+- Deferred the Redis socket until the first Redis command by injecting a lazy RedisJSON proxy.

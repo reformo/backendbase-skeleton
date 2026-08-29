@@ -16,12 +16,16 @@ use Backendbase\Shared\Primitives\HealthCheckData;
 use DI\ContainerBuilder;
 use Lcobucci\Clock\SystemClock;
 use Psr\Container\ContainerInterface;
+use Redislabs\Interfaces\RedisClientInterface;
 use Redislabs\Module\RedisJson\RedisJson;
 use Redislabs\Module\RedisJson\RedisJsonInterface;
 
+use function DI\create;
+use function DI\get;
+
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
-        RedisJsonInterface::class => static function (ContainerInterface $container) {
+        RedisClientInterface::class => static function (ContainerInterface $container): RedisClientInterface {
             $redisSettings = $container->get(RedisSettings::class);
             try {
                 $redisClient = new Redis();
@@ -42,8 +46,11 @@ return static function (ContainerBuilder $containerBuilder): void {
                 throw ResourceNotFound::create('rcon', $healthStatus->jsonSerialize());
             }
 
-            return new RedisJson(new \Redislabs\RedisClient\Redis($redisClient));
+            return new \Redislabs\RedisClient\Redis($redisClient);
         },
+        RedisJsonInterface::class => create(RedisJson::class)
+            ->constructor(get(RedisClientInterface::class))
+            ->lazy(),
         JwtTokenConfiguration::class => static function (ContainerInterface $container) {
             return new JwtTokenConfiguration($container->get(JwtSettings::class));
         },

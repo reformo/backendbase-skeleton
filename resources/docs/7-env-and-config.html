@@ -731,6 +731,7 @@
                 </table>
             </div>
             <p>JWT token state is stored in Redis. Token issue and validation therefore require a working Redis connection.</p>
+            <p>PHP-DI injects a lazy <code>RedisJsonInterface</code> proxy. Resolving JWT services does not construct the native Redis client or open a socket. The first Redis command initializes the client and connection. The readiness <code>PING</code> intentionally performs this initialization.</p>
             <div class="code-wrap"><pre><code># Generate a new base64 value outside source control.
 # Put the generated value in the deployment secret store.
 BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
@@ -877,7 +878,7 @@ docker compose ps</code></pre></div>
                     <tr><td>Numeric environment values</td><td>Config file load</td><td>Rejects malformed integer text, malformed float text, and non-finite floats before settings merge.</td></tr>
                     <tr><td>Logger level</td><td>Config file load</td><td>An invalid Monolog level name fails configuration evaluation.</td></tr>
                     <tr><td>Database DSN</td><td><code>DatabaseSettings</code> resolution</td><td>Rejects a missing or invalid DSN before DBAL receives it.</td></tr>
-                    <tr><td>Redis</td><td><code>RedisSettings</code> resolution</td><td>Rejects invalid host, port, or readiness values before client construction.</td></tr>
+                    <tr><td>Redis</td><td>First Redis command or readiness probe</td><td>Resolves <code>RedisSettings</code>, rejects invalid host, port, or readiness values, and then constructs the client.</td></tr>
                     <tr><td>Queue driver</td><td><code>QueueSettings</code> resolution</td><td>Rejects drivers other than <code>rabbitmq</code> and <code>sqs</code>.</td></tr>
                     <tr><td>AWS region and credential pair</td><td><code>AwsSettings</code> resolution</td><td>Rejects missing region, invalid types, or a partial credential pair.</td></tr>
                     <tr><td>JWT signing key</td><td><code>JwtSettings</code> resolution</td><td>Rejects invalid signing-key values before token services receive them.</td></tr>

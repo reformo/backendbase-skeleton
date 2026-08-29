@@ -14,7 +14,7 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 3. Find the closest configuration and service-resolution tests.
 4. Define the setting owner, type, default, validation point, secret classification, and affected processes.
 5. Change only the required configuration, service factory, local example, documentation, and tests.
-6. Verify uncached loading and resolve each affected lazy service.
+6. Verify uncached loading. Execute the first operation for each affected lazy proxy.
 
 ## Invariants
 

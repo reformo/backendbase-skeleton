@@ -56,7 +56,7 @@
         <p class="lede">A current assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Overall score: 9.4/10</span>
-            <span class="chip"><span data-quality-metric="tests">350</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">351</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">No known dependency advisories</span>
@@ -115,8 +115,8 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">350</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,432</span></strong><span>Passing assertions</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">351</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">1,438</span></strong><span>Passing assertions</span></div>
                 <div class="stat"><strong><span data-quality-metric="covered-lines">3,471</span>/<span data-quality-metric="total-lines">3,471</span></strong><span>Covered executable lines</span></div>
                 <div class="stat"><strong><span data-quality-metric="covered-methods">800</span>/<span data-quality-metric="total-methods">800</span></strong><span>Covered methods</span></div>
             </div>
@@ -126,15 +126,16 @@
                     <tr><th>Check</th><th>Result</th><th>Evidence</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">350</span> tests and <span data-quality-metric="assertions">1,432</span> assertions passed.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">351</span> tests and <span data-quality-metric="assertions">1,438</span> assertions passed.</td></tr>
                     <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,471</span> of <span data-quality-metric="total-lines">3,471</span> executable source lines were covered.</td></tr>
                     <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">800</span> of <span data-quality-metric="total-methods">800</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">433</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">434</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
+                    <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
                     <tr><td>CI action integrity</td><td><span class="badge">Pass</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
                     <tr><td>Documentation links</td><td><span class="badge">Pass</span></td><td><code>composer docs:check-links</code> validates local HTML and Markdown targets plus HTML fragments.</td></tr>

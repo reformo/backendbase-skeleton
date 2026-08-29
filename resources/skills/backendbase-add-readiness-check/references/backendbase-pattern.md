@@ -91,6 +91,7 @@ Do not return exception text from the check controller.
 - HTTP readiness returns 200 only when all checks pass. It returns 503 otherwise.
 - Liveness returns a static process result and does not execute dependency checks.
 - The global readiness timeout is validated from 0.1 through 10 seconds.
+- RedisJSON uses a lazy PHP-DI proxy. Its readiness `PING` initializes the client and opens the bounded connection.
 - The composition root configures a typed RabbitMQ connection factory for readiness.
 - RabbitMQ readiness uses the factory for a temporary bounded connection and closes its channel and connection.
 - Queue readiness selects RabbitMQ or SQS from the configured driver.
@@ -117,21 +118,24 @@ Report the dependency, operation, check name, timeout, registration, public resp
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified on 2026-08-29 from:
 
 - `src/Backendbase/Shared/Health/ReadinessCheck.php`
 - `src/Backendbase/Shared/Health/DeferredReadinessCheck.php`
 - `src/Backendbase/Shared/Health/ReadinessChecks.php`
 - `src/Backendbase/Infrastructure/Health/MySQLReadinessCheck.php`
+- `src/Backendbase/Infrastructure/Health/RedisReadinessCheck.php`
 - `src/Backendbase/Infrastructure/Health/RabbitMQConnectionFactory.php`
 - `src/Backendbase/Infrastructure/Health/RabbitMQReadinessCheck.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/PhpAmqpLibRabbitMQConnectionFactory.php`
 - `src/Backendbase/Infrastructure/Health/SqsReadinessCheck.php`
 - `config/dependencies/rabbitmq.php`
+- `config/dependencies/redis.php`
 - `config/dependencies/readiness.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Liveness.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Readiness.php`
 - `tests/Infrastructure/Health/ReadinessDependencyDefinitionsTest.php`
+- `tests/Infrastructure/Adapters/RedisDependencyDefinitionsTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/HealthControllersTest.php`
 - `resources/platform/16-errors-observability.md`
 - `resources/docs/11-error-handling-and-observability.html`

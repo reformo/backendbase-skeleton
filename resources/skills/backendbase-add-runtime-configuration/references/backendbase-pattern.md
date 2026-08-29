@@ -47,7 +47,7 @@ The public API merges shared providers before API-specific providers. Its cached
 5. Validate required nested arrays again in a lazy service factory before use.
 6. Add the focused provider to the existing dependency loader.
 7. Update the local example and every affected contract or operations document.
-8. Test precedence, empty input, boundaries, invalid types, and actual lazy service resolution.
+8. Test precedence, empty input, boundaries, invalid types, and the first operation of each lazy proxy.
 9. Record cache and worker restart requirements.
 
 ## Small configuration example
@@ -87,6 +87,7 @@ if (! is_array($search) || ! is_float($search['timeoutSeconds'] ?? null)) {
 - Secret values stay outside source, logs, exceptions, test fixtures committed with real values, and completion reports.
 - Use exact supported environment modes. Backendbase aliases can select development during early bootstrap while raw settings later reject them.
 - Lazy container creation means a successful container build does not prove every service setting is valid.
+- A lazy proxy can defer its client factory beyond service resolution. Invoke one safe operation to test initialization.
 - `.env.example` is a local aid, not an authoritative secret catalog.
 - Configuration, route, container, and Doctrine caches can retain old values.
 - Long-running workers keep old settings until restart.
@@ -107,7 +108,7 @@ composer phpstan
 composer cs-check
 ```
 
-Run the newly added dependency-definition test before this broader set. Run `clear-cache` only in an authorized target environment. Add a focused test that resolves the affected lazy service.
+Run the newly added dependency-definition test before this broader set. Run `clear-cache` only in an authorized target environment. Add a focused test that resolves the affected service without client initialization, then invokes one safe operation.
 
 ## Completion report
 
@@ -122,7 +123,7 @@ Report:
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified on 2026-08-29 from:
 
 - `src/Backendbase/Shared/Helpers/functions.php`
 - `src/Backendbase/Shared/Options/System/Environment.php`
@@ -130,11 +131,13 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Shared/Services/Settings.php`
 - `config/settings.php`
 - `config/dependencies.php`
+- `config/dependencies/redis.php`
 - `config/autoload/global.php`
 - `config/autoload/aws.global.php`
 - `public/index.php`
 - `bin/backendbase`
 - `tests/Shared/Helpers/HelpersTest.php`
 - `tests/Shared/Services/SharedServicesTest.php`
+- `tests/Infrastructure/Adapters/RedisDependencyDefinitionsTest.php`
 - `resources/platform/15-configuration.md`
 - `resources/docs/7-env-and-config.html`

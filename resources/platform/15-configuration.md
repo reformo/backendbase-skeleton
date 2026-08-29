@@ -27,6 +27,8 @@ A cached public boot skips Dotenv. Restart long-running workers after configurat
 
 There is no single configuration schema. Focused settings objects validate required nested values when PHP-DI resolves each lazy dependency.
 
+`RedisJsonInterface` uses a PHP-DI lazy proxy. Resolving JWT services does not construct the native Redis client or open a socket. The first Redis command initializes the proxy and connection. The Redis readiness `PING` intentionally performs this initialization. Doctrine DBAL also delays its MySQL socket until the first database operation.
+
 Runtime components do not call `Settings::get()`. Configuration boundary objects are the only application classes that read the generic merged settings.
 
 Numeric configuration uses strict integer and finite-float parsers. Error messages identify the invalid key without exposing its value.
