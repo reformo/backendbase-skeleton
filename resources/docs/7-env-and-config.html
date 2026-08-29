@@ -575,7 +575,7 @@
                 <div class="step"><span class="step-number">01 · FIRST</span><strong><code>$_ENV[$key]</code></strong><br><span class="muted">An existing environment array value wins.</span></div>
                 <div class="step"><span class="step-number">02</span><strong><code>getenv($key)</code></strong><br><span class="muted">Use the process value when <code>$_ENV</code> has no key.</span></div>
                 <div class="step"><span class="step-number">03</span><strong>Code default</strong><br><span class="muted">Use the supplied fallback when the variable is absent.</span></div>
-                <div class="step"><span class="step-number">04</span><strong>Explicit cast</strong><br><span class="muted">Some config files cast integer, float, or boolean values.</span></div>
+                <div class="step"><span class="step-number">04</span><strong>Strict parser</strong><br><span class="muted">Numeric helpers reject malformed integer and float text.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Typed boundary</strong><br><span class="muted">A settings object validates the merged value before adapter construction.</span></div>
             </div>
             <div class="code-wrap"><pre><code>function backendbaseEnv(string $key, mixed $default = null): mixed
@@ -591,14 +591,14 @@
             <ul>
                 <li>An empty string is a present value. It does not activate the default.</li>
                 <li>Most environment values remain strings.</li>
-                <li>Ports, counts, and timeouts use explicit casts in their configuration file.</li>
+                <li>Ports, counts, and timeouts use strict integer or finite-float environment helpers.</li>
                 <li><code>AWS_SQS_CONTINUOUS</code> uses <code>FILTER_VALIDATE_BOOL</code>.</li>
                 <li><code>Settings::get()</code> remains inside configuration boundary objects.</li>
                 <li>Runtime code uses typed settings for application, database, queue, AWS, Redis, logging, HTTP, and JWT values.</li>
                 <li>SQS, SNS, RabbitMQ, readiness, and AWS client adapters receive immutable leaf settings objects.</li>
                 <li>External Software Development Kit builders create arrays only at the vendor call boundary.</li>
             </ul>
-            <p>Numeric configuration files still use PHP casts. For example, a nonnumeric port can become zero. Supply valid numeric values until strict environment parsing replaces these casts.</p>
+            <p>Malformed numeric text fails during configuration loading. Error messages identify the environment key without including its value.</p>
             <p><code>Dotenv::createUnsafeImmutable()</code> loads local values without replacing values that the process already supplied.</p>
         </section>
 
@@ -874,6 +874,7 @@ docker compose ps</code></pre></div>
                     <thead><tr><th>Configuration</th><th>Validation time</th><th>Failure behavior</th></tr></thead>
                     <tbody>
                     <tr><td>Environment mode</td><td><code>ApplicationRuntimeSettings</code> resolution</td><td>An unknown value fails enum conversion.</td></tr>
+                    <tr><td>Numeric environment values</td><td>Config file load</td><td>Rejects malformed integer text, malformed float text, and non-finite floats before settings merge.</td></tr>
                     <tr><td>Logger level</td><td>Config file load</td><td>An invalid Monolog level name fails configuration evaluation.</td></tr>
                     <tr><td>Database DSN</td><td><code>DatabaseSettings</code> resolution</td><td>Rejects a missing or invalid DSN before DBAL receives it.</td></tr>
                     <tr><td>Redis</td><td><code>RedisSettings</code> resolution</td><td>Rejects invalid host, port, or readiness values before client construction.</td></tr>
@@ -898,7 +899,6 @@ docker compose ps</code></pre></div>
                     <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
                     <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
                     <tr><td>Public cached boot skips Dotenv.</td><td>A changed <code>.env</code> has no effect until cache is cleared.</td></tr>
-                    <tr><td>Some environment values use weak PHP scalar casts before typed settings validate the merged configuration.</td><td>Malformed numeric text can become a valid-looking value before boundary validation.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -927,6 +927,7 @@ composer run start-apis</code></pre></div>
             <h2>Review checklist</h2>
             <ul class="checklist">
                 <li>The environment mode uses an exact enum value.</li>
+                <li>Numeric environment values contain valid integer or finite decimal text.</li>
                 <li>Every required secret comes from a protected source.</li>
                 <li>No tracked file contains a live credential.</li>
                 <li>The database DSN points to the intended database.</li>
@@ -951,7 +952,7 @@ composer run start-apis</code></pre></div>
                 <table>
                     <thead><tr><th>Purpose</th><th>Source</th></tr></thead>
                     <tbody>
-                    <tr><td>Environment helper</td><td><code>src/Backendbase/Shared/Helpers/functions.php</code></td></tr>
+                    <tr><td>Environment and numeric parser helpers</td><td><code>src/Backendbase/Shared/Helpers/functions.php</code></td></tr>
                     <tr><td>Environment enum</td><td><code>src/Backendbase/Shared/Options/System/Environment.php</code></td></tr>
                     <tr><td>Settings contract and implementation</td><td><code>src/Backendbase/Shared/Settings.php</code> and <code>Shared/Services/Settings.php</code></td></tr>
                     <tr><td>Shared configuration</td><td><code>config/autoload</code></td></tr>
@@ -966,7 +967,7 @@ composer run start-apis</code></pre></div>
                     <tr><td>Cache command</td><td><code>src/Backendbase/Infrastructure/UseCase/Console/GoodHousekeeping/ClearCache.php</code></td></tr>
                     <tr><td>Local variable reference</td><td><code>.env.example</code></td></tr>
                     <tr><td>Local services</td><td><code>docker-compose.yaml</code></td></tr>
-                    <tr><td>Helper and settings tests</td><td><code>tests/Shared/Helpers/HelpersTest.php</code> and <code>tests/Shared/Services/SharedServicesTest.php</code></td></tr>
+                    <tr><td>Helper and numeric configuration tests</td><td><code>tests/Shared/Helpers/HelpersTest.php</code> and <code>tests/Shared/Configuration/NumericEnvironmentConfigurationTest.php</code></td></tr>
                     <tr><td>AWS configuration test</td><td><code>tests/Infrastructure/Adapters/AwsDependencyDefinitionsTest.php</code></td></tr>
                     <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
                     </tbody>

@@ -12,7 +12,8 @@ AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, read
 - An empty string is present and does not activate the default.
 - Shared `config/autoload` providers load before the selected API providers.
 - Process values are not replaced by local Dotenv values.
-- Most values remain strings unless configuration casts them.
+- Most values remain strings unless configuration parses them.
+- `backendbaseIntegerEnvironmentValue()` and `backendbaseFloatEnvironmentValue()` reject malformed numeric text during configuration loading.
 
 Use exact `BACKENDBASE_ENV` values: `dev`, `test`, `ci`, `stage`, or `production`.
 
@@ -28,7 +29,7 @@ There is no single configuration schema. Focused settings objects validate requi
 
 Runtime components do not call `Settings::get()`. Configuration boundary objects are the only application classes that read the generic merged settings.
 
-Some configuration files still cast raw environment strings before validation. A nonnumeric value can become zero. Use valid numeric environment values until strict environment parsing replaces these casts.
+Numeric configuration uses strict integer and finite-float parsers. Error messages identify the invalid key without exposing its value.
 
 Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep database, broker, AWS, JWT, API, object-store, and Tolgee secrets outside source and logs.
 

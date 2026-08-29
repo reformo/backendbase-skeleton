@@ -10,11 +10,8 @@ $displayErrorDetails = match (Environment::fromValue((string) $environment)) {
     Environment::DEV, Environment::TEST => true,
     default => false,
 };
-$readinessTimeout = filter_var(
-    backendbaseEnv('BACKENDBASE_READINESS_TIMEOUT_SECONDS', 2),
-    FILTER_VALIDATE_FLOAT,
-);
-if ($readinessTimeout === false || $readinessTimeout < 0.1 || $readinessTimeout > 10.0) {
+$readinessTimeout = backendbaseFloatEnvironmentValue('BACKENDBASE_READINESS_TIMEOUT_SECONDS', 2.0);
+if ($readinessTimeout < 0.1 || $readinessTimeout > 10.0) {
     throw new UnexpectedValueException('The readiness timeout must be between 0.1 and 10 seconds.');
 }
 

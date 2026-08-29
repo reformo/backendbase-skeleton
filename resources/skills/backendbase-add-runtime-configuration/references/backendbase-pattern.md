@@ -16,7 +16,7 @@ Do not copy `BACKENDBASE_*`, `EXAMPLE_API_*`, JWT keys, queue credentials, servi
 
 | Role | Backendbase reference | Target decision |
 | --- | --- | --- |
-| Environment read | `backendbaseEnv()` | Reuse the target precedence helper. |
+| Environment read | `backendbaseEnv()` and typed numeric helpers | Reuse the target precedence and strict parsing helpers. |
 | Shared structure | `config/autoload/*.php` | Place cross-entry-point settings in shared config. |
 | API structure | `config/{api-slug}/*.php` | Keep delivery-specific settings with that delivery adapter. |
 | Settings access | `Shared\\Settings` | Follow the target typed or array settings contract. |
@@ -32,7 +32,9 @@ Backendbase reads values in this order:
 2. `getenv($key)` when available;
 3. the code default.
 
-An empty string is present. It does not activate the default. Most environment values remain strings until a configuration provider casts or validates them.
+An empty string is present. It does not activate the default. Most environment values remain strings until a configuration provider parses or validates them.
+
+Backendbase uses `backendbaseIntegerEnvironmentValue()` and `backendbaseFloatEnvironmentValue()` for numeric configuration. These helpers reject malformed text before the settings merge. Their exceptions name the key without including its value.
 
 The public API merges shared providers before API-specific providers. Its cached bootstrap can skip Dotenv. Console and Doctrine entry points load Dotenv independently.
 
@@ -81,6 +83,7 @@ if (! is_array($search) || ! is_float($search['timeoutSeconds'] ?? null)) {
 ## Invariants and risks
 
 - Configuration is external input.
+- Numeric configuration must reject malformed and non-finite values instead of coercing them to zero.
 - Secret values stay outside source, logs, exceptions, test fixtures committed with real values, and completion reports.
 - Use exact supported environment modes. Backendbase aliases can select development during early bootstrap while raw settings later reject them.
 - Lazy container creation means a successful container build does not prove every service setting is valid.

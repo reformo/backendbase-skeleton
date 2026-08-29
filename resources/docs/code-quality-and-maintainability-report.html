@@ -55,8 +55,8 @@
         <h1>Code Quality and Maintainability Report</h1>
         <p class="lede">A current assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
         <div class="chips" aria-label="Report summary">
-            <span class="chip">Overall score: 9.3/10</span>
-            <span class="chip"><span data-quality-metric="tests">338</span> tests</span>
+            <span class="chip">Overall score: 9.4/10</span>
+            <span class="chip"><span data-quality-metric="tests">350</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">No known dependency advisories</span>
@@ -79,14 +79,14 @@
     <main>
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Overall score: 9.3 out of 10</h2>
+            <h2>Overall score: 9.4 out of 10</h2>
             <div class="callout good">
                 <strong>Backendbase Core has a strong, production-focused foundation.</strong>
                 Static analysis and coding standards now cover operational PHP and database delivery code.
                 CI actions now use immutable commit SHAs. Documentation links and generated report metrics now have executable drift checks.
             </div>
             <p>Architecture rules, failure paths, API contracts, and deployment behavior have strong automated verification.</p>
-            <p>The main deductions concern weak numeric environment conversion and dependency upgrade cost.</p>
+            <p>The main deduction concerns dependency upgrade cost.</p>
             <p>No finding requires a large rewrite. Apply focused changes while the affected area is under active development.</p>
         </section>
 
@@ -101,7 +101,7 @@
                     <tbody>
                     <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests.</td></tr>
                     <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold.</td></tr>
-                    <tr><td>Type safety and style</td><td><strong>9.7/10</strong></td><td>PHPStan level 8 and PHPCS pass. Runtime consumers receive typed configuration objects.</td></tr>
+                    <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8 and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, and adapter settings dependencies are explicit.</td></tr>
                     <tr><td>Operations and documentation</td><td><strong>9.6/10</strong></td><td>CI actions are pinned. Link validation, report drift detection, and the per-commit changelog rule are executable.</td></tr>
                     <tr><td>Dependency and upgrade cost</td><td><strong>7.6/10</strong></td><td>Forty-two direct runtime packages create a broad maintenance surface.</td></tr>
@@ -114,9 +114,9 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">338</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,415</span></strong><span>Passing assertions</span></div>
-                <div class="stat"><strong><span data-quality-metric="covered-lines">3,455</span>/<span data-quality-metric="total-lines">3,455</span></strong><span>Covered executable lines</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">350</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">1,432</span></strong><span>Passing assertions</span></div>
+                <div class="stat"><strong><span data-quality-metric="covered-lines">3,471</span>/<span data-quality-metric="total-lines">3,471</span></strong><span>Covered executable lines</span></div>
                 <div class="stat"><strong><span data-quality-metric="covered-methods">800</span>/<span data-quality-metric="total-methods">800</span></strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap">
@@ -125,15 +125,16 @@
                     <tr><th>Check</th><th>Result</th><th>Evidence</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">338</span> tests and <span data-quality-metric="assertions">1,415</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,455</span> of <span data-quality-metric="total-lines">3,455</span> executable source lines were covered.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">350</span> tests and <span data-quality-metric="assertions">1,432</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,471</span> of <span data-quality-metric="total-lines">3,471</span> executable source lines were covered.</td></tr>
                     <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">800</span> of <span data-quality-metric="total-methods">800</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">432</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">433</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
+                    <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
                     <tr><td>CI action integrity</td><td><span class="badge">Pass</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
                     <tr><td>Documentation links</td><td><span class="badge">Pass</span></td><td><code>composer docs:check-links</code> validates local HTML and Markdown targets plus HTML fragments.</td></tr>
                     <tr><td>Generated report metrics</td><td><span class="badge">Pass</span></td><td><code>composer reports:check</code> compares marked report values with JUnit, Clover, and repository inventory data.</td></tr>
@@ -195,12 +196,6 @@
                     <tbody>
                     <tr>
                         <td><span class="badge">Low</span></td>
-                        <td>Weak numeric environment conversion</td>
-                        <td>Some configuration files cast raw environment strings. A nonnumeric value can become zero before typed validation.</td>
-                        <td><code>config/autoload/redis.global.php</code> and <code>config/autoload/rabbitmq.global.php</code></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge">Low</span></td>
                         <td>Broad direct dependency surface</td>
                         <td>Forty-two direct runtime packages increase update work and supply-chain exposure for every installation.</td>
                         <td><code>composer.json</code></td>
@@ -212,15 +207,14 @@
 
         <section id="recommendations">
             <p class="section-label">06 · Recommendations</p>
-            <h2>Close the control gaps before adding more structure</h2>
+            <h2>Reduce the remaining maintenance cost</h2>
             <ol class="steps">
-                <li>Replace weak numeric environment casts with strict parsing and range validation.</li>
                 <li>Extend Tolgee tests to API response validation and atomic file replacement.</li>
                 <li>Review whether optional integrations must remain direct runtime dependencies.</li>
             </ol>
             <div class="callout warning">
                 <strong>Keep changes focused.</strong>
-                The architecture does not need a broad rewrite. The highest-value remaining work is strict environment parsing.
+                The architecture does not need a broad rewrite. The highest-value remaining work is reducing dependency upgrade cost.
             </div>
         </section>
 

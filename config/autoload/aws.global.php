@@ -16,9 +16,9 @@ return [
         'sqs' => [
             'queue' => backendbaseEnv('AWS_SQS_QUEUE', 'backendbase-queue'),
             'queueUrl' => backendbaseEnv('AWS_SQS_QUEUE_URL', ''),
-            'maxNumberOfMessages' => (int) backendbaseEnv('AWS_SQS_MAX_NUMBER_OF_MESSAGES', 10),
-            'waitTimeSeconds' => (int) backendbaseEnv('AWS_SQS_WAIT_TIME_SECONDS', 20),
-            'visibilityTimeout' => (int) backendbaseEnv('AWS_SQS_VISIBILITY_TIMEOUT', 30),
+            'maxNumberOfMessages' => backendbaseIntegerEnvironmentValue('AWS_SQS_MAX_NUMBER_OF_MESSAGES', 10),
+            'waitTimeSeconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_WAIT_TIME_SECONDS', 20),
+            'visibilityTimeout' => backendbaseIntegerEnvironmentValue('AWS_SQS_VISIBILITY_TIMEOUT', 30),
             'continuous' => filter_var(
                 backendbaseEnv('AWS_SQS_CONTINUOUS', 'true'),
                 FILTER_VALIDATE_BOOL,
