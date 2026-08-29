@@ -25,6 +25,21 @@ Before implementing:
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 
+### Mandatory project guidance
+
+Complete this guidance check before design or implementation:
+
+- Read every applicable `AGENTS.md` file.
+- Open `resources/platform/README.md` when it exists. Load its mandatory and task-specific platform files.
+- Find every matching repository skill. Read each `SKILL.md` and each reference that it requires.
+- Treat platform design rules and skill invariants as requirements. Local convenience does not override them.
+- Do not replace a required platform choice with another valid choice without explicit user authorization.
+- If current code conflicts with a platform rule, report the conflict before choosing an implementation.
+
+Repeat this check when the user expands or changes the task scope. Reassess decisions made for the earlier scope.
+
+Before completion, map each changed surface to its platform files and skills. Verify that the implementation follows them.
+
 ## 2. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**

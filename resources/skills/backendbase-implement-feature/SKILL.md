@@ -7,6 +7,8 @@ description: Coordinate an end-to-end Backendbase-style feature across several a
 
 Use this skill as an orchestrator. Keep each feature slice small and select only the specialized skills that the request needs.
 
+Platform rules and selected skill invariants are implementation requirements. Do not replace them with a locally convenient alternative. Report any conflict before choosing a deviation.
+
 ## Start With Evidence
 
 1. Read the target project's agent instructions.
@@ -33,6 +35,12 @@ Use a narrower `backendbase-*` skill for every artifact when it is available:
 - Verification: domain tests, architecture rules, and cross-layer change verification.
 
 If the request needs only one artifact, stop using this orchestrator and use the matching narrow skill.
+
+## Recheck Changed Scope
+
+Repeat target-project guidance and skill routing when the user request or discovered behavior adds a new architectural surface. Read each newly applicable guide before continuing.
+
+Reassess decisions made for the earlier scope. Do not assume that an earlier adapter, framework choice, contract, or test strategy remains valid.
 
 ## Build the Feature
 
@@ -62,14 +70,16 @@ Verify names, types, required state, nullability, defaults, version, and error b
 
 ## Verify in Layers
 
-1. Run the smallest tests for each changed artifact.
-2. Run the complete feature or bounded-context test set.
-3. Run architecture tests.
-4. Run PHPStan at the target project's required level.
-5. Run the target project's configured complexity check.
-6. Run the style check.
-7. Validate generated API contracts when HTTP behavior changes.
-8. Run the full suite when risk or project policy requires it.
+1. Map every changed surface to its selected platform files and specialized skills.
+2. Confirm that each implementation choice follows their design rules and invariants.
+3. Run the smallest tests for each changed artifact.
+4. Run the complete feature or bounded-context test set.
+5. Run architecture tests.
+6. Run PHPStan at the target project's required level.
+7. Run the target project's configured complexity check.
+8. Run the style check.
+9. Validate generated API contracts when HTTP behavior changes.
+10. Run the full suite when risk or project policy requires it.
 
 Do not execute a migration, deploy a release, replace tracked localization files, or mutate an external system without explicit authorization.
 

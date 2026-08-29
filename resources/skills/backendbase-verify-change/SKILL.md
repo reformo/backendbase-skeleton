@@ -10,11 +10,13 @@ Review the change against target-project rules first. Use Backendbase as a refer
 ## Establish the Review Scope
 
 1. Read the target project's agent instructions.
-2. Inspect the working-tree status and the complete relevant diff.
-3. Identify changed behavior, public contracts, persisted data, external effects, and operational steps.
-4. When application behavior changed, enumerate the target project's existing delivery APIs and identify every affected one. Do not assume an API exists from its name.
-5. Inspect the nearest unchanged implementation and its tests.
-6. Read [the Backendbase verification pattern](references/backendbase-pattern.md).
+2. Read the target project's platform or task-routing guide when present. Read every task-specific architecture file for the changed surfaces.
+3. Identify every available skill that applies to the changed artifacts. Read each skill and its required references.
+4. Inspect the working-tree status and the complete relevant diff.
+5. Identify changed behavior, public contracts, persisted data, external effects, and operational steps.
+6. When application behavior changed, enumerate the target project's existing delivery APIs and identify every affected one. Do not assume an API exists from its name.
+7. Inspect the nearest unchanged implementation and its tests.
+8. Read [the Backendbase verification pattern](references/backendbase-pattern.md).
 
 For a review-only request, do not edit files or mutate external systems. For an implementation request, keep fixes limited to verified findings.
 
@@ -26,18 +28,23 @@ Trace every changed value or state transition through:
 
 Mark absent surfaces as not applicable. Do not invent work for them.
 
+For each present surface, record its platform file, matching skill, applicable rule, and implementation evidence. Treat an omitted matching skill as a verification finding.
+
 ## Review in Risk Order
 
-1. Check data loss, authorization, secrets, external effects, and incompatible contracts.
-2. Check domain invariants and transaction boundaries.
-3. Check dependency direction and bounded-context isolation.
-4. Check HTTP, console, configuration, persistence, and messaging boundaries.
-5. Audit each affected endpoint as one route, middleware, controller, OpenAPI, executable example, and test contract.
-6. Check registration and runtime discovery with composition tests, not static inspection alone.
-7. Check release-manifest parity when a migration or rollback policy changed.
-8. Check tests, static analysis, style, generated contracts, and synchronized documentation.
+1. Check compliance with selected platform design rules and skill invariants.
+2. Check data loss, authorization, secrets, external effects, and incompatible contracts.
+3. Check domain invariants and transaction boundaries.
+4. Check dependency direction and bounded-context isolation.
+5. Check HTTP, console, configuration, persistence, and messaging boundaries.
+6. Audit each affected endpoint as one route, middleware, controller, OpenAPI, executable example, and test contract.
+7. Check registration and runtime discovery with composition tests, not static inspection alone.
+8. Check release-manifest parity when a migration or rollback policy changed.
+9. Check tests, static analysis, style, generated contracts, and synchronized documentation.
 
 Use the narrow `backendbase-*` verification or artifact skill when a finding needs detailed rules for one surface.
+
+A passing test suite does not override a platform rule. Require explicit user authorization for each intentional deviation.
 
 ## Run Proportionate Verification
 

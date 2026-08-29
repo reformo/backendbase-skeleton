@@ -11,6 +11,18 @@ Use this directory as modular prompt context for Backendbase Core. Each file cov
 
 Do not include this whole directory by default. That action reduces prompt focus and repeats some context.
 
+## Mandatory compliance gate
+
+Complete task routing and skill routing before design or implementation. Do not skip this gate because the task appears small.
+
+Treat platform design rules and skill invariants as requirements. A nearby implementation or working alternative does not override them.
+
+When task scope changes, stop and repeat both routing passes for every new surface. Read the added files before continuing. Reassess earlier decisions against the expanded scope.
+
+If source behavior conflicts with a design rule, report the conflict. Do not choose a deviation without explicit user authorization.
+
+Before completion, list each changed surface and confirm compliance with its selected platform files and skills. Successful tests do not replace this review.
+
 ## Task routing
 
 | Task | Add these files |
@@ -34,6 +46,8 @@ Do not include this whole directory by default. That action reduces prompt focus
 When a task matches a skill below, open its linked `SKILL.md` and follow it before implementation. Read its referenced pattern file when directed.
 
 Select the smallest skill that covers the task. Use `backendbase-implement-feature` only when several architectural surfaces must change together. Adapt all Backendbase examples to the target project.
+
+Do not omit a matching skill because another selected skill covers part of the same feature. Use each narrow skill for its affected artifact.
 
 ### Orchestration and verification
 
