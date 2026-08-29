@@ -613,10 +613,18 @@
 └── bruno/example-api/
     ├── opencollection.yml                       # collection root
     ├── environments/local.yml                   # local values
-    ├── system/*.yml                             # metadata and status requests
-    ├── auth/*.yml                               # authentication request
-    ├── account/*.yml                             # account lifecycle requests
-    └── example/*.yml                            # example lifecycle requests
+    ├── system/                                  # ordered metadata and status requests
+    │   ├── folder.yml                           # collection sequence 1
+    │   └── *.yml
+    ├── auth/                                    # ordered authentication request
+    │   ├── folder.yml                           # collection sequence 2
+    │   └── *.yml
+    ├── account/                                 # ordered account lifecycle requests
+    │   ├── folder.yml                           # collection sequence 3
+    │   └── *.yml
+    └── example/                                 # ordered example lifecycle requests
+        ├── folder.yml                           # collection sequence 4
+        └── *.yml
 
 public/example-api/docs/
 ├── example-api-merged.yml                      # generated, single-file contract
@@ -887,7 +895,7 @@ runtime:
                     <p>The authentication request captures <code>accessToken</code> for protected lifecycle requests.</p>
                 </article>
             </div>
-            <p>The lifecycle uses <code>example-key</code> as its deterministic resource identifier.</p>
+            <p>The lifecycle generates a run-unique <code>example-key</code> before it creates the example.</p>
         </section>
 
         <section id="run-sequence">
@@ -901,7 +909,7 @@ runtime:
                     <li><strong>22 · Revise account</strong><small>replace privileges</small></li>
                     <li><strong>23 · Retire account</strong><small>soft remove account</small></li>
                     <li><strong>40 · List groups</strong><small>confirm fixture group</small></li>
-                    <li><strong>41 · Add</strong><small>create by example-key</small></li>
+                    <li><strong>41 · Add</strong><small>create by the generated example-key</small></li>
                     <li><strong>42 · List</strong><small>check collection</small></li>
                     <li><strong>43 · Get</strong><small>check details</small></li>
                     <li><strong>44 · Change</strong><small>update values</small></li>
@@ -914,7 +922,7 @@ runtime:
             </div>
             <p>The wrapper changes to <code>resources/bruno/example-api</code>, runs Bruno, and writes <code>artifacts/bruno/example-api/local.html</code>.</p>
             <div class="callout"><strong>Report privacy:</strong> The HTML report omits request and response bodies, bearer tokens, and API keys.</div>
-            <div class="callout warning"><strong>Repeat-run risk:</strong> The collection uses a fixed <code>example-key</code>. A stopped run can leave data that makes the next create request fail.</div>
+            <div class="callout"><strong>Account preparation:</strong> The local environment needs an account with the listed privileges. The DAST workflow provisions an ephemeral account after migrations.</div>
         </section>
 
         <section id="environments">
@@ -987,7 +995,6 @@ runtime:
                         <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Body properties do not declare complete required-field rules.</td><td>Match schema requirements to boundary validation.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>CORS</td><td>Allowed headers omit <code>Accept-Language</code>.</td><td>Align CORS with the public header contract.</td></tr>
                         <tr><td><span class="badge">Low</span></td><td>Tags</td><td><code>Identity &amp; Access</code> is used but absent from the root tag catalog.</td><td>Add the tag definition.</td></tr>
-                        <tr><td><span class="badge">Low</span></td><td>Collection data</td><td>The fixed <code>example-key</code> can collide after an incomplete run.</td><td>Use a run-unique key or guaranteed cleanup.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1061,9 +1068,10 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
                         <tr><td>Documentation viewer</td><td><a href="../../public/example-api/docs/index.php"><code>public/example-api/docs/index.php</code></a></td></tr>
                         <tr><td>Bruno collection root</td><td><a href="../bruno/example-api/opencollection.yml"><code>resources/bruno/example-api/opencollection.yml</code></a></td></tr>
                         <tr><td>Bruno environment</td><td><a href="../bruno/example-api/environments/local.yml"><code>resources/bruno/example-api/environments/local.yml</code></a></td></tr>
-                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/{system,auth,example}/*.yml</code></td></tr>
+                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/{system,auth,account,example}/*.yml</code></td></tr>
                         <tr><td>Bruno HTML report</td><td><code>artifacts/bruno/example-api/local.html</code></td></tr>
                         <tr><td>Bruno wrapper</td><td><a href="../../bin/bruno"><code>bin/bruno</code></a></td></tr>
+                        <tr><td>DAST account fixture</td><td><code>.github/scripts/provision-dast-account.php</code></td></tr>
                         <tr><td>Related runtime guide</td><td><a href="5-use-case-api.html"><code>resources/docs/5-use-case-api.html</code></a></td></tr>
                         <tr><td>Related configuration guide</td><td><a href="7-env-and-config.html"><code>resources/docs/7-env-and-config.html</code></a></td></tr>
                     </tbody>

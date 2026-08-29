@@ -644,7 +644,7 @@ composer reports:check
 composer run validate-example-api-spec
 vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 bash tests/Deployment/deployment-scripts.sh</code></pre>
-            <p>The assessment did not run the container-based dynamic security scan or the live Bruno API collection.</p>
+            <p>The assessment did not run the container-based dynamic security scan. The live Bruno collection passed all 14 requests against an isolated MySQL database with an ephemeral account.</p>
             <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
             <p>The assessment included the current account lifecycle, context-owned bindings, middleware placement, authorization revocation, path contracts, and quality evidence.</p>
         </section>

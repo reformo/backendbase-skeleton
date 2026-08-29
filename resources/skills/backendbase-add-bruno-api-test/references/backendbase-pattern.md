@@ -67,8 +67,8 @@ A passing Bruno request proves only the assertions it contains. It does not prov
 
 These conditions are audit prompts. Do not copy their values or behavior into the target collection.
 
-- The checked `local.yml` contains a token-shaped value. Do not copy it.
-- The current lifecycle uses a fixed `exampleKey`; an interrupted run can make the next create fail.
+- The checked `local.yml` keeps token and runtime identifier values empty. Do not add live values.
+- The lifecycle generates a run-unique `example-key`; an interrupted run does not block the next create.
 - The current create request does not capture or assert the documented insert-ID response header.
 - Current list requests do not exercise all runtime pagination inputs.
 - Bruno proves selected behavior against a running target. It does not prove complete schema conformance or every failure path.

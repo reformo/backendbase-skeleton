@@ -49,6 +49,9 @@ jobs:
       BACKENDBASE_RABBITMQ_EXCHANGE: backendbase
       BACKENDBASE_JWT_SIGN_KEY: ZGFzdC1zaWduaW5nLWtleS0zMi1ieXRlcy1sb25nISE=
       EXAMPLE_API_KEY: dast-example-api-key
+      BACKENDBASE_DAST_FIXTURE: 'true'
+      BACKENDBASE_DAST_ACCOUNT_EMAIL: dast@example.com
+      BACKENDBASE_DAST_ACCOUNT_PASSWORD: dast
       docker: '1'
 
     services:
@@ -121,6 +124,9 @@ jobs:
       - name: Run database migrations
         run: bin/doctrine migrations:migrate --no-interaction
 
+      - name: Provision ephemeral DAST account
+        run: php .github/scripts/provision-dast-account.php
+
       - name: Generate and validate OpenAPI
         run: |
           composer generate-example-api-spec
@@ -185,7 +191,12 @@ jobs:
           exit 1
 
       - name: Run Bruno authenticated write sequence
-        run: bin/bruno example-api local --env-var "apiKey=$EXAMPLE_API_KEY" --bail
+        run: >-
+          bin/bruno example-api local
+          --env-var "apiKey=$EXAMPLE_API_KEY"
+          --env-var "email=$BACKENDBASE_DAST_ACCOUNT_EMAIL"
+          --env-var "password=$BACKENDBASE_DAST_ACCOUNT_PASSWORD"
+          --bail
 
       - name: Create DAST session and write fixture
         id: dast-session
@@ -196,7 +207,10 @@ jobs:
               --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
               --header 'X-Source-Id: example' \
               --header 'Content-Type: application/json' \
-              --data '{"email":"dast@example.com","password":"dast"}' \
+              --data "$(jq --null-input --compact-output \
+                --arg email "$BACKENDBASE_DAST_ACCOUNT_EMAIL" \
+                --arg password "$BACKENDBASE_DAST_ACCOUNT_PASSWORD" \
+                '{email: $email, password: $password}')" \
               http://127.0.0.1:8080/example-api/auth \
             | jq --exit-status --raw-output '.accessToken'
           )"

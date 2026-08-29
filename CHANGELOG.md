@@ -10,6 +10,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added deterministic Bruno folder ordering and an ephemeral DAST account fixture for authenticated API coverage.
 - Added Doctrine ORM account write metadata and shared Doctrine and memory repository contract tests.
 - Added database-backed example account authentication and ACL privilege seeds.
 - Added account registration, revision, retirement, and listing operations with ACL checks.
@@ -29,6 +30,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Made Bruno authentication and account captures runtime-only, generated run-unique example keys, and removed the tracked token placeholder.
 - Updated the engineering quality and Ports and Adapters reports for the current account lifecycle, architecture boundaries, verification evidence, and light-only presentation.
 - Standardized OpenAPI and runtime path parameter identifiers on `kebab-case` and synchronized Bruno and API documentation.
 - Revoked all active account authorization state before account revision or retirement.

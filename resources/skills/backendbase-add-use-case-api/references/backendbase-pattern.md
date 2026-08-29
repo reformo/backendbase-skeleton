@@ -41,7 +41,7 @@ A new API normally needs all of these roles:
 - `public/example-api/index.php` assigns `$useCaseSlug` and `$useCaseName`, but current `public/index.php` does not read them. The dedicated path still needs a valid `X-Source-Id`. Do not copy those unused assignments as a headerless-selection mechanism.
 - API-key and bearer failures currently return `400`, while OpenAPI declares `401` and `403`.
 - The source selector writes a problem body for an invalid source but does not set the HTTP status explicitly.
-- The checked Bruno local environment contains a token-shaped value. Use placeholders or runtime token capture instead.
+- The checked Bruno local environment keeps the access token empty. Use placeholders or runtime token capture instead.
 
 ## Exact source provenance
 

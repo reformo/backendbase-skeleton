@@ -24,6 +24,12 @@ http:
 
 runtime:
   scripts:
+    - type: "before-request"
+      code: |
+        if (!bru.hasVar("example-key")) {
+          const suffix = Math.random().toString(36).slice(2, 10);
+          bru.setVar("example-key", `bruno-${Date.now()}-${suffix}`);
+        }
     - type: "tests"
       code: |
         expect(res.status).to.equal(200);

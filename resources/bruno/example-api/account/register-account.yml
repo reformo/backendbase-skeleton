@@ -37,4 +37,4 @@ runtime:
         expect(res.status).to.equal(201);
         const body = res.getBody();
         expect(body.accountUuid).to.be.a("string").and.not.be.empty;
-        bru.setEnvVar("account-uuid", body.accountUuid);
+        bru.setVar("account-uuid", body.accountUuid);

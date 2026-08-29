@@ -5,7 +5,7 @@ variables:
   - name: apiKey
     value: local-api-key
   - name: accessToken
-    value: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3ODc2NjQ3OTgsIm5iZiI6MTc4NzY2NDc5OCwiZXhwIjoxNzg3NzUxMTk4LCJpc3MiOiJiYWNrZW5kYmFzZS1hcGkiLCJhdWQiOiJleGFtcGxlLWFwaSIsImp0aSI6IjdVMnVkVWc3eVJDeTNYeWQ1dFNTMlpodGUyYWR0aFFWU1Z4aXpaVG16YVEiLCJ1c2VySWQiOiIwMTllZThhNi05MDNhLTc1Y2YtYjlhNC1lMTlkNmQwZGI1MzMifQ.D7ZvErTvnAnwGhdxwTkJ2O0yMLBdT5MCUaNJMGJ0m6I
+    value: ""
   - name: acceptLanguage
     value: tr-TR
   - name: timezone
@@ -29,7 +29,7 @@ variables:
   - name: example-group
     value: settings
   - name: example-key
-    value: bruno-settings-max-list-item
+    value: ""
   - name: typeTargetId
     value: ""
   - name: exampleLookupValue
