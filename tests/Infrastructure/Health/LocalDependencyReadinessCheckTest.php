@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Health;
 
 use Backendbase\Infrastructure\Health\MySQLReadinessCheck;
+use Backendbase\Infrastructure\Health\RabbitMQConnectionFactory;
 use Backendbase\Infrastructure\Health\RabbitMQReadinessCheck;
 use Backendbase\Infrastructure\Health\RedisReadinessCheck;
 use Doctrine\DBAL\Connection;
@@ -62,8 +63,10 @@ final class LocalDependencyReadinessCheckTest extends TestCase
         $connection->expects(self::once())->method('channel')->willReturn($channel);
         $connection->expects(self::once())->method('isConnected')->willReturn(true);
         $connection->expects(self::once())->method('close');
+        $connectionFactory = $this->createMock(RabbitMQConnectionFactory::class);
+        $connectionFactory->expects(self::once())->method('create')->willReturn($connection);
 
-        $check = new RabbitMQReadinessCheck(self::rabbitMQSettings(), static fn () => $connection);
+        $check = new RabbitMQReadinessCheck($connectionFactory);
 
         self::assertSame('queue', $check->name());
         $check->check();
@@ -77,12 +80,11 @@ final class LocalDependencyReadinessCheckTest extends TestCase
         $connection = $this->createStub(AbstractConnection::class);
         $connection->method('channel')->willReturn($channel);
         $connection->method('isConnected')->willReturn(false);
+        $connectionFactory = $this->createStub(RabbitMQConnectionFactory::class);
+        $connectionFactory->method('create')->willReturn($connection);
 
         $this->assertCheckFails(
-            static fn () => new RabbitMQReadinessCheck(
-                self::rabbitMQSettings(),
-                static fn () => $connection,
-            )->check(),
+            static fn () => new RabbitMQReadinessCheck($connectionFactory)->check(),
         );
     }
 
@@ -94,18 +96,5 @@ final class LocalDependencyReadinessCheckTest extends TestCase
         } catch (UnexpectedValueException) {
             $this->addToAssertionCount(1);
         }
-    }
-
-    /** @return array<string, mixed> */
-    private static function rabbitMQSettings(): array
-    {
-        return [
-            'host' => '127.0.0.1',
-            'port' => 5672,
-            'user' => 'backendbase',
-            'password' => 'backendbase',
-            'vhost' => '/',
-            'readinessTimeoutSeconds' => 2,
-        ];
     }
 }

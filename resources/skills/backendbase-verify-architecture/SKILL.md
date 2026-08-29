@@ -42,6 +42,7 @@ Adapt namespace roots, directory selectors, framework prefixes, composition root
 - Current command and query contracts can reference their same-context handlers through one positional `CQRSHandler` attribute. This exception does not permit domain-core or cross-context dependencies.
 - Tests are excluded from production dependency scans.
 - `ServiceProvider.php` is a composition root and is excluded from some business-layer checks.
+- Vendor connections must be created in `config/dependencies` or an explicitly approved connection factory.
 - Static dependency tests do not prove runtime registration, dynamic lookup, or business behavior.
 
 ## Verification

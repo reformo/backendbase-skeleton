@@ -162,9 +162,12 @@ Verified on 2026-08-29 from:
 - `src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/SqsMessageMapper.php`
 - `config/dependencies/queue.php`
+- `config/dependencies/rabbitmq.php`
 - `config/autoload/rabbitmq.global.php`
 - `config/autoload/aws.global.php`
+- `src/Backendbase/Infrastructure/Health/RabbitMQConnectionFactory.php`
 - `src/Backendbase/Infrastructure/Health/RabbitMQReadinessCheck.php`
+- `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/PhpAmqpLibRabbitMQConnectionFactory.php`
 - `src/Backendbase/Infrastructure/Health/SqsReadinessCheck.php`
 - `tests/Shared/Integrations/RabbitMQTest.php`
 - `tests/Infrastructure/Adapters/Queue/SqsQueueTest.php`

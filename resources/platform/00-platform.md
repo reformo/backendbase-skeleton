@@ -22,6 +22,11 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 - `IdentityAndAccess` supplies authentication and authorization components.
 - Run project commands from the repository root.
 
+## Composition roots
+
+- Each bounded context must own its composition root and concrete adapter bindings.
+- The global composition root must only assemble platform dependencies and discover bounded-context composition roots.
+
 ## Repository structure
 
 ```text

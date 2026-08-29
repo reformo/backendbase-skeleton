@@ -6,6 +6,8 @@ namespace Tests\Infrastructure\Health;
 
 use Aws\S3\S3ClientInterface;
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ\PhpAmqpLibRabbitMQConnectionFactory;
+use Backendbase\Infrastructure\Health\RabbitMQConnectionFactory;
 use Backendbase\Shared\Health\ReadinessChecks;
 use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Settings as SettingsInterface;
@@ -61,10 +63,18 @@ final class ReadinessDependencyDefinitionsTest extends TestCase
             S3ClientInterface::class => $this->createStub(S3ClientInterface::class),
             SqsClient::class => $this->createStub(SqsClient::class),
         ]);
-        $provider = require 'config/dependencies/readiness.php';
-        $provider($containerBuilder);
+        $rabbitMQProvider = require 'config/dependencies/rabbitmq.php';
+        $rabbitMQProvider($containerBuilder);
+        $readinessProvider = require 'config/dependencies/readiness.php';
+        $readinessProvider($containerBuilder);
 
-        return $containerBuilder->build()->get(ReadinessChecks::class);
+        $container = $containerBuilder->build();
+        self::assertInstanceOf(
+            PhpAmqpLibRabbitMQConnectionFactory::class,
+            $container->get(RabbitMQConnectionFactory::class),
+        );
+
+        return $container->get(ReadinessChecks::class);
     }
 
     /** @return array<string, mixed> */

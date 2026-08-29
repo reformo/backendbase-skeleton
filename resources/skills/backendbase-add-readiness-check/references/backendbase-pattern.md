@@ -91,7 +91,8 @@ Do not return exception text from the check controller.
 - HTTP readiness returns 200 only when all checks pass. It returns 503 otherwise.
 - Liveness returns a static process result and does not execute dependency checks.
 - The global readiness timeout is validated from 0.1 through 10 seconds.
-- RabbitMQ readiness uses a temporary bounded connection and closes its channel and connection.
+- The composition root configures a typed RabbitMQ connection factory for readiness.
+- RabbitMQ readiness uses the factory for a temporary bounded connection and closes its channel and connection.
 - Queue readiness selects RabbitMQ or SQS from the configured driver.
 
 ## Authorization boundary
@@ -122,8 +123,11 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Shared/Health/DeferredReadinessCheck.php`
 - `src/Backendbase/Shared/Health/ReadinessChecks.php`
 - `src/Backendbase/Infrastructure/Health/MySQLReadinessCheck.php`
+- `src/Backendbase/Infrastructure/Health/RabbitMQConnectionFactory.php`
 - `src/Backendbase/Infrastructure/Health/RabbitMQReadinessCheck.php`
+- `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ/PhpAmqpLibRabbitMQConnectionFactory.php`
 - `src/Backendbase/Infrastructure/Health/SqsReadinessCheck.php`
+- `config/dependencies/rabbitmq.php`
 - `config/dependencies/readiness.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Liveness.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Readiness.php`

@@ -68,6 +68,7 @@ Do not weaken an architecture rule because composition fails. Fix the registrati
 ## Current source behavior and limitations
 
 - The scanner uses `nikic/php-parser`, resolves PHP names, and ignores strings that only look like class names.
+- A separate scanner finds constructor and static factory calls for the vendor-connection boundary.
 - Domain purity currently targets directories named `Domain`, `Authorization`, and `Exception` under each context.
 - Business-layer checks exclude `/Adapters/` and root `ServiceProvider.php` files.
 - Bounded-context isolation derives context names from direct children of `src/Backendbase/Domain`.

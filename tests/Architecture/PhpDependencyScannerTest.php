@@ -7,6 +7,7 @@ namespace Tests\Architecture;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Architecture\Support\PhpConstructionScanner;
 use Tests\Architecture\Support\PhpDependencyScanner;
 
 use function bin2hex;
@@ -35,6 +36,7 @@ final class PhpDependencyScannerTest extends TestCase
 namespace Fixture;
 
 use Laminas\Diactoros\Response\{EmptyResponse as NoContent, JsonResponse};
+use PhpAmqpLib\Connection\AMQPConnectionFactory;
 use Psr\Http\Message\ResponseInterface;
 
 final class Example extends JsonResponse
@@ -46,6 +48,12 @@ final class Example extends JsonResponse
     public function response(): ResponseInterface
     {
         throw new \RuntimeException();
+    }
+
+    public function connect(mixed $configuration): void
+    {
+        new JsonResponse([]);
+        AMQPConnectionFactory::create($configuration);
     }
 }
 PHP));
@@ -75,6 +83,19 @@ PHP));
         self::assertContains('Laminas\Diactoros\Response\JsonResponse', $dependencies);
         self::assertContains('Psr\Http\Message\ResponseInterface', $dependencies);
         self::assertNotContains('Slim\App', $dependencies);
+    }
+
+    #[Test]
+    public function itFindsConstructorsAndStaticFactories(): void
+    {
+        $constructionsByFile = PhpConstructionScanner::constructionsByFile(
+            $this->temporaryDirectory,
+            'source',
+        );
+        $constructions       = $constructionsByFile['source/Fixture.php'];
+
+        self::assertContains('new Laminas\Diactoros\Response\JsonResponse', $constructions);
+        self::assertContains('PhpAmqpLib\Connection\AMQPConnectionFactory::create', $constructions);
     }
 
     private function fixturePath(): string

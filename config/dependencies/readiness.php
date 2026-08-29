@@ -6,6 +6,7 @@ use Aws\S3\S3ClientInterface;
 use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Health\MySQLReadinessCheck;
 use Backendbase\Infrastructure\Health\ObjectStoreReadinessCheck;
+use Backendbase\Infrastructure\Health\RabbitMQConnectionFactory;
 use Backendbase\Infrastructure\Health\RabbitMQReadinessCheck;
 use Backendbase\Infrastructure\Health\RedisReadinessCheck;
 use Backendbase\Infrastructure\Health\SqsReadinessCheck;
@@ -23,10 +24,9 @@ return static function (ContainerBuilder $containerBuilder): void {
         ReadinessChecks::class => static function (ContainerInterface $container) {
             /** @return ReadinessCheck */
             $queueCheck = static function () use ($container) {
-                $settings          = $container->get(Settings::class);
-                $readinessSettings = $settings->get('readiness');
-                $queueSettings     = $settings->get('queue');
-                $driver            = $queueSettings['driver'] ?? null;
+                $settings      = $container->get(Settings::class);
+                $queueSettings = $settings->get('queue');
+                $driver        = $queueSettings['driver'] ?? null;
                 if ($driver === 'sqs') {
                     return new SqsReadinessCheck($container->get(SqsClient::class), $settings->get('aws')['sqs']);
                 }
@@ -35,10 +35,7 @@ return static function (ContainerBuilder $containerBuilder): void {
                     throw new UnexpectedValueException('The queue driver must be rabbitmq or sqs.');
                 }
 
-                $rabbitMQSettings                            = $settings->get('rabbitmq');
-                $rabbitMQSettings['readinessTimeoutSeconds'] = $readinessSettings['timeoutSeconds'] ?? 2;
-
-                return new RabbitMQReadinessCheck($rabbitMQSettings);
+                return new RabbitMQReadinessCheck($container->get(RabbitMQConnectionFactory::class));
             };
 
             return new ReadinessChecks([

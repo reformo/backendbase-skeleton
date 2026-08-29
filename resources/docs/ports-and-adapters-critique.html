@@ -553,8 +553,8 @@
                     <tr><td>Messaging outbound port quality</td><td><span class="badge strong">Strong</span></td><td>Publication and consumption use separate ports. Typed message and result objects hide vendor contracts.</td></tr>
                     <tr><td>Domain/framework isolation</td><td><span class="badge strong">Strong</span></td><td>Domain errors contain no transport fields. Domain events use a native collection. Container-aware implementations are Infrastructure adapters.</td></tr>
                     <tr><td>Identity and Access boundary</td><td><span class="badge strong">Strong</span></td><td>HTTP entry points depend on token ports. The composition root separates the JWT codec and Redis store.</td></tr>
-                    <tr><td>Composition root</td><td><span class="badge partial">Partially strong</span></td><td>Central dependency injection files exist. Some concrete connections are still created inside modules or adapters.</td></tr>
-                    <tr><td>Architecture enforcement tests</td><td><span class="badge strong">Strong</span></td><td>Rules cover Domain, Application, Shared core, bounded contexts, both adapter directions, identity ports, and annotated handler or listener targets.</td></tr>
+                    <tr><td>Composition root</td><td><span class="badge strong">Strong</span></td><td>The global root owns platform connections and discovers bounded-context roots. Each context owns its adapter bindings. A typed factory owns the temporary RabbitMQ readiness connection.</td></tr>
+                    <tr><td>Architecture enforcement tests</td><td><span class="badge strong">Strong</span></td><td>Rules cover Domain, Application, Shared core, bounded contexts, both adapter directions, identity ports, annotated targets, and vendor connection construction.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -713,11 +713,11 @@
                     <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Description</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>16 tests and 98 assertions passed. This includes Application, Shared core, both adapter directions, attribute targets, Identity ports, context isolation, and container-adapter placement.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit --testdox tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>18 tests and 103 assertions passed. This includes Application, Shared core, both adapter directions, attribute targets, Identity ports, context isolation, container-adapter placement, and vendor connection construction.</td></tr>
                     <tr><td><code>vendor/bin/phpunit --testdox tests/Domain/ExampleBoundedContext/Contracts tests/Domain/ExampleBoundedContext/ServiceProviderTest.php</code></td><td><span class="badge strong">Passed</span></td><td>8 tests and 57 assertions passed.</td></tr>
                     <tr><td><code>vendor/bin/phpunit tests/Architecture tests/Functional/ExampleLifecycleTest.php</code></td><td><span class="badge strong">Passed</span></td><td>17 tests and 128 assertions passed. Architecture rules and the complete Example lifecycle worked together.</td></tr>
                     <tr><td><code>vendor/bin/phpunit tests/Domain/IdentityAndAccess tests/Domain/ExampleBoundedContext/Application/CommandHandlers</code></td><td><span class="badge strong">Passed</span></td><td>21 tests and 74 assertions passed. The scope covered token ports, middleware, and handler privilege rejection.</td></tr>
-                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>283 tests and 1,207 assertions passed.</td></tr>
+                    <tr><td><code>vendor/bin/phpunit</code></td><td><span class="badge strong">Passed</span></td><td>287 tests and 1,242 assertions passed.</td></tr>
                     <tr><td><code>vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors.</td></tr>
                     <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Domain, Application, Contracts, Shared, Infrastructure, configuration, and related tests were reviewed.</td></tr>
                     <tr><td>Production code change</td><td><span class="badge strong">Present</span></td><td>Application messaging policies, mechanism-only Doctrine stores, general architecture rules, a native Shared collection, typed messaging, repository parity, and aligned HTTP and event contracts were added.</td></tr>
