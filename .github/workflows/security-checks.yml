@@ -231,6 +231,7 @@ jobs:
             --request POST \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
             --header 'X-Source-Id: example' \
+            --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header "Authorization: Bearer $accessToken" \
             --header 'Content-Type: application/json' \
             --data "$fixturePayload" \
@@ -240,6 +241,7 @@ jobs:
             --request PATCH \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
             --header 'X-Source-Id: example' \
+            --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header "Authorization: Bearer $accessToken" \
             --header 'Content-Type: application/json' \
             --data '{"lookupValue":"ZAP patched value","typeTargetId":null}' \

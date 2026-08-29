@@ -30,6 +30,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Added the required IANA timezone header to the authenticated DAST fixture requests.
 - Made Bruno authentication and account captures runtime-only, generated run-unique example keys, and removed the tracked token placeholder.
 - Updated the engineering quality and Ports and Adapters reports for the current account lifecycle, architecture boundaries, verification evidence, and light-only presentation.
 - Standardized OpenAPI and runtime path parameter identifiers on `kebab-case` and synchronized Bruno and API documentation.
