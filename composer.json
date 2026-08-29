@@ -134,7 +134,8 @@
         "cs-fix": "vendor/bin/phpcbf -e -a",
         "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",
         "test": [
-            "vendor/bin/phpunit --testdox --coverage-clover clover.xml",
+            "vendor/bin/phpunit --testdox --fail-on-warning --coverage-clover clover.xml",
+            "php bin/check-coverage.php clover.xml",
             "bash tests/Deployment/deployment-scripts.sh"
         ],
         "generate-example-api-spec": "vendor/bin/php-openapi inline resources/api-docs/example-api/example-openapi.yml public/example-api/docs/example-api-merged.yml",

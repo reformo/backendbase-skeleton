@@ -38,6 +38,8 @@ final class PrimitiveValueObjectsTest extends TestCase
 
         $collection = new JsonSerializableArrayCollection(['first', 'second']);
         self::assertSame(['first', 'second'], $collection->jsonSerialize());
+        self::assertCount(2, $collection);
+        self::assertSame(['first', 'second'], [...$collection]);
     }
 
     #[Test]

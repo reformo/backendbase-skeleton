@@ -13,6 +13,8 @@ use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Settings as SettingsInterface;
 use DI\ContainerBuilder;
 use Doctrine\DBAL\Connection;
+use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Connection\AMQPConnectionConfig;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Redislabs\Module\RedisJson\RedisJsonInterface;
@@ -51,6 +53,17 @@ final class ReadinessDependencyDefinitionsTest extends TestCase
                 $_ENV[$key] = $existing;
             }
         }
+    }
+
+    #[Test]
+    public function itCreatesALazyRabbitMQConnection(): void
+    {
+        $configuration = new AMQPConnectionConfig();
+        $configuration->setIsLazy(true);
+
+        $connection = new PhpAmqpLibRabbitMQConnectionFactory($configuration)->create();
+
+        self::assertInstanceOf(AbstractConnection::class, $connection);
     }
 
     private function checks(string $driver): ReadinessChecks

@@ -908,16 +908,16 @@ bin/bruno example-api local</code></pre>
                     <thead><tr><th>Check</th><th>Command</th><th>Scope</th></tr></thead>
                     <tbody>
                         <tr><td>Focused PHPUnit</td><td><code>vendor/bin/phpunit &lt;path&gt;</code></td><td>Changed module or adapter</td></tr>
-                        <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit suites with coverage, then deployment script checks</td></tr>
+                        <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit with enforced 100% executable-line coverage, then deployment checks</td></tr>
                         <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared core frameworks, and annotated targets</td></tr>
-                        <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Source and tests at level 8</td></tr>
+                        <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Application, tests, configuration, public entry points, tools, and database PHP at level 8</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>
                         <tr><td>OpenAPI validation</td><td><code>php-openapi validate</code></td><td>Generated contract structure</td></tr>
                         <tr><td>API E2E</td><td><code>bin/bruno example-api local</code></td><td>Running API and local data</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p><code>phpunit.xml</code> includes both <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. Coverage output belongs under <code>artifacts</code>.</p>
+            <p><code>phpunit.xml</code> includes <code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code>. <code>composer test</code> writes <code>clover.xml</code> and enforces the 100% coverage threshold.</p>
         </section>
 
         <section id="deployment">

@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use RuntimeException;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpForbiddenException;
+use Slim\Exception\HttpGoneException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotImplementedException;
@@ -85,6 +86,7 @@ final class HttpErrorHandlerTest extends TestCase
             [new HttpForbiddenException($request), 'http/insufficient-privileges'],
             [new HttpBadRequestException($request), 'http/bad-request'],
             [new HttpNotImplementedException($request), 'http/not-implemented'],
+            [new HttpGoneException($request), 'server/internal-error'],
         ];
 
         foreach ($cases as [$exception, $expectedCode]) {

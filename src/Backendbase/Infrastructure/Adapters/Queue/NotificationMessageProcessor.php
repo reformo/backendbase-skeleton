@@ -41,7 +41,16 @@ final readonly class NotificationMessageProcessor
         $messageId    = $message->id();
         try {
             [$validatedConsumerName, $validatedMessageId] = $this->metadata($consumerName, $messageId);
+        } catch (UnexpectedValueException $exception) {
+            $this->logger->error('Notification queue message is invalid.', [
+                'message_id' => $messageId,
+                'message' => $exception->getMessage(),
+            ]);
 
+            return QueueMessageHandlingOutcome::REJECT;
+        }
+
+        try {
             $notification = $this->notification($message->body());
             $this->externalEffectInbox->processOnce(
                 $validatedConsumerName,
@@ -67,13 +76,9 @@ final readonly class NotificationMessageProcessor
                 'message' => $exception->getMessage(),
             ]);
 
-            if (! is_string($consumerName) || ! is_string($messageId)) {
-                return QueueMessageHandlingOutcome::REJECT;
-            }
-
             return $this->failurePolicy->permanentFailure(
-                $consumerName,
-                $messageId,
+                $validatedConsumerName,
+                $validatedMessageId,
                 $exception::class,
             );
         } catch (JsonException | UnexpectedValueException $exception) {
@@ -82,13 +87,9 @@ final readonly class NotificationMessageProcessor
                 'message' => $exception->getMessage(),
             ]);
 
-            if (! is_string($consumerName) || ! is_string($messageId)) {
-                return QueueMessageHandlingOutcome::REJECT;
-            }
-
             return $this->failurePolicy->permanentFailure(
-                $consumerName,
-                $messageId,
+                $validatedConsumerName,
+                $validatedMessageId,
                 $exception::class,
             );
         } catch (Throwable $exception) {
@@ -98,13 +99,9 @@ final readonly class NotificationMessageProcessor
                 'message' => $exception->getMessage(),
             ]);
 
-            if (! is_string($consumerName) || ! is_string($messageId)) {
-                return QueueMessageHandlingOutcome::REJECT;
-            }
-
             return $this->failurePolicy->transientFailure(
-                $consumerName,
-                $messageId,
+                $validatedConsumerName,
+                $validatedMessageId,
                 $exception::class,
             );
         }

@@ -13,6 +13,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents
 use Backendbase\Domain\ExampleBoundedContext\ServiceProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use UnexpectedValueException;
 
 final class ServiceProviderTest extends TestCase
 {
@@ -65,5 +66,25 @@ final class ServiceProviderTest extends TestCase
         self::assertSame('25', $message->value());
         self::assertSame(['unit' => 'items'], $message->details());
         self::assertSame($message->toArray(), $message->jsonSerialize());
+    }
+
+    #[Test]
+    public function itRejectsMismatchedExternalMessageIdentifiers(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+
+        new NewExampleAddedMessage(
+            'message-example-id',
+            new NewExampleAddedCommand(
+                'command-example-id',
+                'system',
+                null,
+                'settings',
+                true,
+                'page-size',
+                '25',
+                [],
+            ),
+        );
     }
 }

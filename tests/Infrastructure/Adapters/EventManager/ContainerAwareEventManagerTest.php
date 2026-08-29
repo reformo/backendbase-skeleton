@@ -12,6 +12,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\Example
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\NewExampleAdded;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\V1\NewExampleAddedPayload;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
+use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareSubscriberRegistry;
 use DI\Container;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -168,6 +169,19 @@ final class ContainerAwareEventManagerTest extends TestCase
 
         self::assertArrayHasKey('Exact_Event', $subscribers);
         self::assertArrayHasKey('Wildcard_*', $subscribers);
+    }
+
+    #[Test]
+    public function itResolvesABuiltInConstructorArgumentByName(): void
+    {
+        $container = new Container();
+        $container->set('subscriberName', 'resolved-subscriber');
+        $registry = new ContainerAwareSubscriberRegistry($container);
+
+        $subscriber = $registry->resolve(NamedArgumentSubscriber::class);
+
+        self::assertInstanceOf(NamedArgumentSubscriber::class, $subscriber);
+        self::assertSame('resolved-subscriber', $subscriber->subscriberName());
     }
 
     /** @return array{ContainerAwareEventManager, TestHandler} */

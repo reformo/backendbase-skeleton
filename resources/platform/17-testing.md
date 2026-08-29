@@ -34,9 +34,11 @@ composer cs-check
 composer test
 ```
 
-`composer test` runs PHPUnit with coverage, then the deployment shell-script checks.
+`composer test` runs PHPUnit, requires 100% executable-line coverage, then runs deployment checks.
 
-PHPStan and PHPCS check `src`, `tests`, `config`, `public`, `bin/tolgee/sync-support.php`, and `resources/database`.
+The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails when one executable source line is uncovered.
+
+PHPStan and PHPCS check `src`, `tests`, `config`, `public`, both PHP scripts under `bin`, and `resources/database`.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Rector has no project configuration or direct Composer package.
 

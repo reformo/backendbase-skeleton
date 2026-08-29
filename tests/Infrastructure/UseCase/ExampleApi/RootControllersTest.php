@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 use function json_decode;
 
@@ -90,6 +91,8 @@ final class RootControllersTest extends TestCase
         $action   = new Authenticate($tokenIssuer, $this->createStub(LoggerInterface::class));
         $factory  = new ServerRequestFactory();
         $payloads = [
+            null,
+            new stdClass(),
             [],
             ['email' => 'not-an-email', 'password' => 'secret'],
             ['email' => 'user@example.com'],

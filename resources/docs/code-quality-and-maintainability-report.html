@@ -55,9 +55,9 @@
         <h1>Code Quality and Maintainability Report</h1>
         <p class="lede">A current assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
         <div class="chips" aria-label="Report summary">
-            <span class="chip">Overall score: 8.8/10</span>
-            <span class="chip">291 tests</span>
-            <span class="chip">99.37% statement coverage</span>
+            <span class="chip">Overall score: 9.0/10</span>
+            <span class="chip">303 tests</span>
+            <span class="chip">100% line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">No known dependency advisories</span>
         </div>
@@ -79,13 +79,13 @@
     <main>
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Overall score: 8.8 out of 10</h2>
+            <h2>Overall score: 9.0 out of 10</h2>
             <div class="callout good">
                 <strong>Backendbase Core has a strong, production-focused foundation.</strong>
                 Static analysis and coding standards now cover operational PHP and database delivery code.
             </div>
             <p>Architecture rules, failure paths, API contracts, and deployment behavior have strong automated verification.</p>
-            <p>The main deductions concern weakly typed configuration, silent queue failures, missing coverage enforcement, and dependency upgrade cost.</p>
+            <p>The main deductions concern weakly typed configuration, silent queue failures, and dependency upgrade cost.</p>
             <p>No finding requires a large rewrite. Apply focused changes while the affected area is under active development.</p>
         </section>
 
@@ -99,7 +99,7 @@
                     </thead>
                     <tbody>
                     <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests.</td></tr>
-                    <tr><td>Testing</td><td><strong>9.6/10</strong></td><td>Tests cover behavior, failure paths, transactions, messaging, tools, and deployment recovery.</td></tr>
+                    <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold.</td></tr>
                     <tr><td>Type safety and style</td><td><strong>9.2/10</strong></td><td>PHPStan level 8 and PHPCS pass across application, tool, and database PHP.</td></tr>
                     <tr><td>Readability</td><td><strong>8.8/10</strong></td><td>Production classes are small and names are generally clear.</td></tr>
                     <tr><td>Operations and documentation</td><td><strong>8.5/10</strong></td><td>Automation and guides are strong, with minor process-document drift.</td></tr>
@@ -113,10 +113,10 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong>291</strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong>1,250</strong><span>Passing assertions</span></div>
-                <div class="stat"><strong>3,004/3,023</strong><span>Covered statements</span></div>
-                <div class="stat"><strong>676/690</strong><span>Covered methods</span></div>
+                <div class="stat"><strong>303</strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong>1,276</strong><span>Passing assertions</span></div>
+                <div class="stat"><strong>3,035/3,035</strong><span>Covered executable lines</span></div>
+                <div class="stat"><strong>691/691</strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap">
                 <table>
@@ -124,11 +124,12 @@
                     <tr><th>Check</th><th>Result</th><th>Evidence</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td>291 tests and 1,250 assertions passed.</td></tr>
-                    <tr><td>Statement coverage</td><td><span class="badge">99.37%</span></td><td>3,004 of 3,023 executable statements were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge">97.97%</span></td><td>676 of 690 methods were covered.</td></tr>
-                    <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, Tolgee support, migrations, and seeders.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All 394 checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td>303 tests and 1,276 assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge">100%</span></td><td>All 3,035 executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge">100%</span></td><td>All 691 methods were covered.</td></tr>
+                    <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
+                    <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All 397 checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
@@ -159,7 +160,7 @@
                 </div>
                 <div class="card">
                     <h3>Strong automated gates</h3>
-                    <p>Continuous integration runs tests, static analysis, coding standards, dependency audit, security checks, and OpenAPI validation.</p>
+                    <p>Continuous integration runs tests with a 100% line gate, static analysis, coding standards, dependency audit, security checks, and OpenAPI validation.</p>
                 </div>
                 <div class="card">
                     <h3>Reliable integration design</h3>
@@ -194,12 +195,6 @@
                         <td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php:95</code></td>
                     </tr>
                     <tr>
-                        <td><span class="badge warning">Medium</span></td>
-                        <td>No coverage threshold</td>
-                        <td>Continuous integration generates coverage reports but does not reject a coverage decrease.</td>
-                        <td><code>phpunit.xml:32</code></td>
-                    </tr>
-                    <tr>
                         <td><span class="badge">Low</span></td>
                         <td>Broad direct dependency surface</td>
                         <td>Forty-two direct runtime packages increase update work and supply-chain exposure for every installation.</td>
@@ -222,7 +217,6 @@
             <ol class="steps">
                 <li>Introduce typed configuration objects for database, queue, AWS, Redis, and logging settings.</li>
                 <li>Add explicit diagnostics for queue transport exceptions.</li>
-                <li>Set a continuous-integration coverage threshold below the current result.</li>
                 <li>Extend Tolgee tests to API response validation and atomic file replacement.</li>
                 <li>Create <code>CHANGELOG.md</code>, or remove the requirement from project documentation.</li>
                 <li>Review whether optional integrations must remain direct runtime dependencies.</li>
@@ -238,7 +232,7 @@
             <h2>This score describes the inspected workspace</h2>
             <p>The assessment reviewed production source, tests, architecture rules, quality configuration, continuous integration, documentation, and selected integration boundaries.</p>
             <p>The assessment ran these checks on 29 August 2026:</p>
-            <pre><code>vendor/bin/phpunit --testdox
+            <pre><code>composer test
 vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G --no-progress
 vendor/bin/phpcs
 composer validate --strict --no-check-publish

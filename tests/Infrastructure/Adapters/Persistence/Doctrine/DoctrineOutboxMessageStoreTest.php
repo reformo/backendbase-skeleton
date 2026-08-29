@@ -88,6 +88,17 @@ final class DoctrineOutboxMessageStoreTest extends TestCase
     }
 
     #[Test]
+    public function itReturnsNullWhenNoMessageIsAvailable(): void
+    {
+        $message = $this->store->claimNext(
+            new DateTimeImmutable('1999-12-31 23:59:59 UTC'),
+            new DateTimeImmutable('2000-01-01 00:00:59 UTC'),
+        );
+
+        self::assertNull($message);
+    }
+
+    #[Test]
     public function itLocksClaimsOnDatabasesThatSupportSkipLocked(): void
     {
         $property = new ReflectionProperty(Connection::class, 'platform');

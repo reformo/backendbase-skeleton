@@ -30,38 +30,8 @@ final readonly class ExternalIntegrationEventMessageProcessor
         $consumerName = $message->destination();
         $messageId    = $message->id();
         try {
-            $eventType = $message->body();
-            if ($eventType === '') {
-                throw new UnexpectedValueException('The queue message event name is missing.');
-            }
-
-            if (! is_string($messageId) || $messageId === '') {
-                throw new UnexpectedValueException('The queue message ID is missing.');
-            }
-
-            if (! is_string($consumerName) || $consumerName === '') {
-                throw new UnexpectedValueException('The queue consumer name is missing.');
-            }
-
-            $eventVersion = $message->eventVersion();
-            if (! is_string($eventVersion) || $eventVersion === '') {
-                throw new UnexpectedValueException('The queue message event version is missing.');
-            }
-
-            $eventName   = $eventType . '_Event';
-            $messageData = $message->data();
-            $this->inboxMessageTransaction->processOnce(
-                $consumerName,
-                $messageId,
-                $eventName,
-                function () use ($messageData, $eventName, $eventVersion): void {
-                    $this->eventDispatcher->dispatch($eventName, $eventVersion, $messageData);
-                },
-            );
-            $this->failurePolicy->succeeded($consumerName, $messageId);
-
-            return QueueMessageHandlingOutcome::ACKNOWLEDGE;
-        } catch (MappingError | UnexpectedValueException $exception) {
+            [$eventType, $eventVersion, $validatedConsumerName, $validatedMessageId] = $this->metadata($message);
+        } catch (UnexpectedValueException $exception) {
             $this->logger->error('Queue message mapping failed.', [
                 'message_id' => $messageId,
                 'message' => $exception->getMessage(),
@@ -76,6 +46,33 @@ final readonly class ExternalIntegrationEventMessageProcessor
                 $messageId,
                 $exception::class,
             );
+        }
+
+        try {
+            $eventName   = $eventType . '_Event';
+            $messageData = $message->data();
+            $this->inboxMessageTransaction->processOnce(
+                $validatedConsumerName,
+                $validatedMessageId,
+                $eventName,
+                function () use ($messageData, $eventName, $eventVersion): void {
+                    $this->eventDispatcher->dispatch($eventName, $eventVersion, $messageData);
+                },
+            );
+            $this->failurePolicy->succeeded($validatedConsumerName, $validatedMessageId);
+
+            return QueueMessageHandlingOutcome::ACKNOWLEDGE;
+        } catch (MappingError | UnexpectedValueException $exception) {
+            $this->logger->error('Queue message mapping failed.', [
+                'message_id' => $messageId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return $this->failurePolicy->permanentFailure(
+                $validatedConsumerName,
+                $validatedMessageId,
+                $exception::class,
+            );
         } catch (Throwable $exception) {
             $this->logger->error('Queue message processing failed.', [
                 'exception' => $exception::class,
@@ -86,15 +83,37 @@ final readonly class ExternalIntegrationEventMessageProcessor
                 'trace' => $exception->getTraceAsString(),
             ]);
 
-            if (! is_string($consumerName) || ! is_string($messageId)) {
-                return QueueMessageHandlingOutcome::REJECT;
-            }
-
             return $this->failurePolicy->transientFailure(
-                $consumerName,
-                $messageId,
+                $validatedConsumerName,
+                $validatedMessageId,
                 $exception::class,
             );
         }
+    }
+
+    /** @return array{string, string, string, string} */
+    private function metadata(Message $message): array
+    {
+        $eventType = $message->body();
+        if ($eventType === '') {
+            throw new UnexpectedValueException('The queue message event name is missing.');
+        }
+
+        $messageId = $message->id();
+        if (! is_string($messageId) || $messageId === '') {
+            throw new UnexpectedValueException('The queue message ID is missing.');
+        }
+
+        $consumerName = $message->destination();
+        if (! is_string($consumerName) || $consumerName === '') {
+            throw new UnexpectedValueException('The queue consumer name is missing.');
+        }
+
+        $eventVersion = $message->eventVersion();
+        if (! is_string($eventVersion) || $eventVersion === '') {
+            throw new UnexpectedValueException('The queue message event version is missing.');
+        }
+
+        return [$eventType, $eventVersion, $consumerName, $messageId];
     }
 }

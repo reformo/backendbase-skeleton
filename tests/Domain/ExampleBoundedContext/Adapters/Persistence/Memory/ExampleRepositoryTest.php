@@ -9,6 +9,11 @@ use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory\Example
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory\ExampleWriteRepository;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository as ExampleReadRepositoryContract;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as ExampleWriteRepositoryContract;
+use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
+use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
+use Backendbase\Shared\Exception\ResourceNotFound;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Domain\ExampleBoundedContext\Adapters\Persistence\ExampleRepositoryContract;
 
@@ -34,5 +39,47 @@ final class ExampleRepositoryTest extends TestCase
     protected function writeRepository(): ExampleWriteRepositoryContract
     {
         return $this->writeRepository;
+    }
+
+    #[Test]
+    public function itRejectsAddingTheSameExampleTwice(): void
+    {
+        $example = Example::create(
+            'example-id',
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            true,
+            'page-size',
+            '25',
+            [],
+        );
+        $this->writeRepository->add($example);
+
+        $this->expectException(ExampleAlreadyExists::class);
+
+        $this->writeRepository->add($example);
+    }
+
+    #[Test]
+    public function itRejectsReadingARemovedExampleByIdentifier(): void
+    {
+        $example = Example::create(
+            'example-id',
+            ExampleType::SYSTEM,
+            null,
+            'settings',
+            true,
+            'page-size',
+            '25',
+            [],
+        );
+        $this->writeRepository->add($example);
+        $example->remove();
+        $this->writeRepository->save($example);
+
+        $this->expectException(ResourceNotFound::class);
+
+        $this->writeRepository->getActive('example-id');
     }
 }

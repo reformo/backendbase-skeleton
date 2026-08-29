@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
@@ -49,6 +50,14 @@ final class ExampleInputValidationTest extends TestCase
         $this->expectException(InvalidUserInput::class);
 
         ExampleRequestInput::positiveInteger([], 'page');
+    }
+
+    #[Test]
+    public function itRejectsAMissingAuthorizationContext(): void
+    {
+        $this->expectException(AuthorizationExpired::class);
+
+        ExampleRequestInput::accessControl(null);
     }
 
     #[Test]
