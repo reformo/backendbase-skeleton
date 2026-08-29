@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\Architecture\Support\ArchitectureDependencies;
 use Tests\Architecture\Support\PhpDependencyScanner;
 
-use function array_merge;
 use function dirname;
 
 final class IdentityAndAccessPortBoundaryTest extends TestCase
@@ -19,12 +18,9 @@ final class IdentityAndAccessPortBoundaryTest extends TestCase
     public function httpInputsDoNotDependOnTheJwtAdapter(): void
     {
         $projectRoot  = dirname(__DIR__, 2);
-        $dependencies = array_merge(
-            PhpDependencyScanner::dependenciesByFile($projectRoot, 'src/Backendbase/Infrastructure/UseCase'),
-            PhpDependencyScanner::dependenciesByFile(
-                $projectRoot,
-                'src/Backendbase/Domain/IdentityAndAccess/Adapters/Http',
-            ),
+        $dependencies = PhpDependencyScanner::dependenciesByFile(
+            $projectRoot,
+            'src/Backendbase/Infrastructure/UseCase',
         );
         $violations   = ArchitectureDependencies::violations(
             $dependencies,

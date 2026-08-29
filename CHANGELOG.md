@@ -35,6 +35,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Aligned API-key and bearer failures with stable 401 problem responses and validated authorization request state.
 - Allowed replacement registration after account retirement through active-email uniqueness.
 - Moved ExampleApi bearer middleware into infrastructure and moved IdentityAndAccess tests into the context.
+- Updated the IdentityAndAccess port-boundary test to scan the current infrastructure HTTP input path.
 - Moved IdentityAndAccess port bindings into its context service provider.
 - Added strict account email, password, and privilege input limits to runtime and OpenAPI contracts.
 - Updated reusable security and bounded-context skill references for the corrected runtime paths and behavior.
