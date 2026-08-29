@@ -6,3 +6,5 @@ parameters:
     - tests/
     - config/
     - public/
+    - bin/tolgee/sync-support.php
+    - resources/database/

@@ -13,6 +13,8 @@
     <file>tests</file>
     <file>config</file>
     <file>public</file>
+    <file>bin/tolgee/sync-support.php</file>
+    <file>resources/database</file>
 
     <!-- Include full Doctrine Coding Standard -->
     <rule ref="Doctrine">

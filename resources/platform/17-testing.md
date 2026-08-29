@@ -6,6 +6,7 @@ Use the smallest check that proves the change. Expand checks as risk increases.
 
 - Keep movable context tests under `src/Backendbase/Domain/*/Tests`.
 - Keep shared, infrastructure, functional, and architecture tests under `tests`.
+- Keep operational-tool tests under `tests/Tools`.
 - Use memory adapters for fast in-process lifecycle tests.
 - Use production Doctrine metadata and isolated schemas for repository tests.
 - Run the same behavioral repository contract suite against every adapter for one port.
@@ -34,6 +35,8 @@ composer test
 ```
 
 `composer test` runs PHPUnit with coverage, then the deployment shell-script checks.
+
+PHPStan and PHPCS check `src`, `tests`, `config`, `public`, `bin/tolgee/sync-support.php`, and `resources/database`.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Rector has no project configuration or direct Composer package.
 

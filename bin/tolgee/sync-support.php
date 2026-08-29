@@ -10,6 +10,49 @@ use JsonException;
 use RuntimeException;
 use Throwable;
 
+use function array_fill_keys;
+use function array_shift;
+use function backendbaseEnv;
+use function chmod;
+use function count;
+use function dirname;
+use function explode;
+use function file_put_contents;
+use function fileperms;
+use function filter_var;
+use function fwrite;
+use function glob;
+use function http_build_query;
+use function in_array;
+use function is_array;
+use function is_dir;
+use function is_file;
+use function is_int;
+use function is_string;
+use function json_decode;
+use function ksort;
+use function pathinfo;
+use function rename;
+use function rtrim;
+use function sort;
+use function sprintf;
+use function str_contains;
+use function str_starts_with;
+use function strlen;
+use function substr;
+use function tempnam;
+use function trim;
+use function unlink;
+use function var_export;
+
+use const FILTER_VALIDATE_URL;
+use const GLOB_NOSORT;
+use const JSON_THROW_ON_ERROR;
+use const PATHINFO_FILENAME;
+use const PHP_QUERY_RFC3986;
+use const STDERR;
+use const STDOUT;
+
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 /** @return array{root: string, directory: string, service: string, client: Client} */
@@ -18,10 +61,10 @@ function context(): array
     $root = dirname(__DIR__, 2);
     Dotenv::createUnsafeImmutable($root)->safeLoad();
 
-    $config = require $root . '/config/autoload/global.php';
+    $config  = require $root . '/config/autoload/global.php';
     $service = $config['service-name'] ?? null;
-    $apiKey = backendbaseEnv('TOLGEE_API_KEY');
-    $apiUrl = backendbaseEnv('TOLGEE_API_URL', 'https://app.tolgee.io');
+    $apiKey  = backendbaseEnv('TOLGEE_API_KEY');
+    $apiUrl  = backendbaseEnv('TOLGEE_API_URL', 'https://app.tolgee.io');
 
     if (! is_string($service) || trim($service) === '') {
         throw new RuntimeException('config/autoload/global.php must define a non-empty "service-name".');
@@ -55,7 +98,7 @@ function context(): array
 function runLocalSync(): int
 {
     return runSafely(static function (): void {
-        $context = context();
+        $context           = context();
         $translationsByKey = [];
 
         foreach (translationFiles($context['directory']) as $file) {
@@ -68,7 +111,7 @@ function runLocalSync(): int
 
         ksort($translationsByKey);
         $remoteKeys = array_fill_keys(getRemoteKeyNames($context['client']), true);
-        $created = 0;
+        $created    = 0;
 
         foreach ($translationsByKey as $key => $translations) {
             if (isset($remoteKeys[$key])) {
@@ -98,12 +141,12 @@ function runLocalSync(): int
 function runRemoteSync(): int
 {
     return runSafely(static function (): void {
-        $context = context();
-        $prefix = $context['service'] . '.';
+        $context       = context();
+        $prefix        = $context['service'] . '.';
         $renderedFiles = [];
 
         foreach (translationFiles($context['directory']) as $file) {
-            $locale = pathinfo($file, PATHINFO_FILENAME);
+            $locale            = pathinfo($file, PATHINFO_FILENAME);
             $localTranslations = [];
 
             foreach (exportRemoteTranslations($context['client'], $locale, $prefix) as $key => $translation) {
@@ -150,14 +193,14 @@ function runRemoteSync(): int
 /** @return list<string> */
 function getRemoteKeyNames(Client $client): array
 {
-    $page = 0;
+    $page  = 0;
     $names = [];
 
     do {
         $response = requestJson($client, 'GET', 'v2/projects/keys', [
             'query' => ['page' => $page, 'size' => 100, 'sort' => 'id,ASC'],
         ]);
-        $keys = $response['_embedded']['keys'] ?? [];
+        $keys     = $response['_embedded']['keys'] ?? [];
 
         if (! is_array($keys)) {
             throw new RuntimeException('Tolgee returned an invalid keys response.');
@@ -185,7 +228,7 @@ function getRemoteKeyNames(Client $client): array
 /** @return array<string, string> */
 function exportRemoteTranslations(Client $client, string $locale, string $prefix): array
 {
-    $query = http_build_query([
+    $query        = http_build_query([
         'languages' => $locale,
         'format' => 'JSON',
         'structureDelimiter' => '',
@@ -195,6 +238,7 @@ function exportRemoteTranslations(Client $client, string $locale, string $prefix
     ], '', '&', PHP_QUERY_RFC3986);
     $translations = requestJson($client, 'GET', 'v2/projects/export?' . $query);
 
+    $validatedTranslations = [];
     foreach ($translations as $key => $translation) {
         if (! is_string($key) || ! is_string($translation)) {
             throw new RuntimeException(sprintf(
@@ -202,17 +246,18 @@ function exportRemoteTranslations(Client $client, string $locale, string $prefix
                 $locale,
             ));
         }
+
+        $validatedTranslations[$key] = $translation;
     }
 
-    /** @var array<string, string> $translations */
-    return $translations;
+    return $validatedTranslations;
 }
 
 /**
  * @param array<string, mixed> $options
- * @param list<int> $successStatuses
+ * @param list<int>            $successStatuses
  *
- * @return array<string, mixed>
+ * @return array<array-key, mixed>
  */
 function requestJson(
     Client $client,
@@ -222,11 +267,11 @@ function requestJson(
     array $successStatuses = [200],
 ): array {
     $response = $client->request($method, $uri, $options);
-    $status = $response->getStatusCode();
-    $body = (string) $response->getBody();
+    $status   = $response->getStatusCode();
+    $body     = (string) $response->getBody();
 
     if (! in_array($status, $successStatuses, true)) {
-        $error = json_decode($body, true);
+        $error   = json_decode($body, true);
         $message = is_array($error) && is_string($error['code'] ?? null)
             ? $error['code']
             : trim($body);
@@ -262,7 +307,7 @@ function flatten(array $values, string $source, string $prefix = ''): array
 
     foreach ($values as $key => $value) {
         $segment = (string) $key;
-        $path = $prefix === '' ? $segment : $prefix . '.' . $segment;
+        $path    = $prefix === '' ? $segment : $prefix . '.' . $segment;
 
         if ($segment === '' || str_contains($segment, '.')) {
             throw new RuntimeException(sprintf(
@@ -303,25 +348,45 @@ function expand(array $translations): array
             throw new RuntimeException(sprintf('Translation key "%s" contains an empty path segment.', $key));
         }
 
-        $leaf = array_pop($segments);
-        $cursor = &$expanded;
+        $expanded = insertExpandedTranslation($expanded, $segments, $translation, $key);
+    }
 
-        foreach ($segments as $segment) {
-            if (isset($cursor[$segment]) && ! is_array($cursor[$segment])) {
-                throw new RuntimeException(sprintf('Translation key "%s" conflicts with a leaf key.', $key));
-            }
+    return $expanded;
+}
 
-            $cursor[$segment] ??= [];
-            $cursor = &$cursor[$segment];
-        }
+/**
+ * @param array<array-key, mixed> $expanded
+ * @param list<string>            $segments
+ *
+ * @return array<array-key, mixed>
+ */
+function insertExpandedTranslation(
+    array $expanded,
+    array $segments,
+    string $translation,
+    string $key,
+): array {
+    $segment = array_shift($segments);
+    if ($segment === null) {
+        throw new RuntimeException(sprintf('Translation key "%s" has no path segments.', $key));
+    }
 
-        if (isset($cursor[$leaf]) && is_array($cursor[$leaf])) {
+    if ($segments === []) {
+        if (isset($expanded[$segment]) && is_array($expanded[$segment])) {
             throw new RuntimeException(sprintf('Translation key "%s" conflicts with a nested key.', $key));
         }
 
-        $cursor[$leaf] = $translation;
-        unset($cursor);
+        $expanded[$segment] = $translation;
+
+        return $expanded;
     }
+
+    $branch = $expanded[$segment] ?? [];
+    if (! is_array($branch)) {
+        throw new RuntimeException(sprintf('Translation key "%s" conflicts with a leaf key.', $key));
+    }
+
+    $expanded[$segment] = insertExpandedTranslation($branch, $segments, $translation, $key);
 
     return $expanded;
 }
@@ -345,7 +410,7 @@ function translationFiles(string $directory): array
 
     sort($files);
 
-    return array_values($files);
+    return $files;
 }
 
 /** @return array<array-key, mixed> */

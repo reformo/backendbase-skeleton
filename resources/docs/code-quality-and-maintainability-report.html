@@ -3,21 +3,61 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <meta name="description" content="Evidence-based code quality and maintainability assessment for Backendbase Core.">
     <title>Backendbase Core Code Quality and Maintainability Report</title>
     <link rel="stylesheet" href="documentation.css">
+    <style>
+        :root {
+            color-scheme: light;
+            --page: #f4f7f8;
+            --surface: #ffffff;
+            --soft: #f7fafb;
+            --ink: #192630;
+            --muted: #64727d;
+            --line: #dbe3e8;
+            --accent: #176f67;
+            --accent-soft: #e5f5f1;
+            --blue: #1769a5;
+            --blue-soft: #eaf3fa;
+            --amber: #98540d;
+            --amber-soft: #fff1de;
+            --red: #b42318;
+            --red-soft: #fff0ee;
+            --green: #23764b;
+            --green-soft: #e8f5ed;
+            --code: #16252e;
+            --code-ink: #f4f8fa;
+            --shadow: 0 16px 42px rgba(28, 47, 59, .09);
+        }
+
+        .hero {
+            border-bottom-color: #43a89e;
+            background: linear-gradient(135deg, #f8fcfb 0%, #e8f5f2 56%, #e9f2f8 100%);
+            color: var(--ink);
+        }
+
+        .hero::before { border-color: rgba(23, 111, 103, .1); }
+        .hero::after { background: linear-gradient(145deg, rgba(23, 105, 165, .04), rgba(23, 111, 103, .12)); }
+        .eyebrow { color: var(--accent); }
+        .lede { color: #4b5d68; }
+        .chip {
+            border-color: rgba(23, 111, 103, .24);
+            background: rgba(255, 255, 255, .72);
+            color: #214640;
+        }
+    </style>
 </head>
 <body>
 <header class="hero">
     <div class="hero-inner">
-        <p class="eyebrow">Backendbase Core · Assessment · 25 August 2026</p>
+        <p class="eyebrow">Backendbase Core · Assessment · 29 August 2026</p>
         <h1>Code Quality and Maintainability Report</h1>
-        <p class="lede">An evidence-based assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
-        <div class="chips">
-            <span class="chip">Overall score: 9.1/10</span>
-            <span class="chip">243 tests</span>
-            <span class="chip">99.96% statement coverage</span>
+        <p class="lede">A current assessment of architecture, tests, type safety, readability, maintenance cost, documentation, and automated quality gates.</p>
+        <div class="chips" aria-label="Report summary">
+            <span class="chip">Overall score: 8.8/10</span>
+            <span class="chip">291 tests</span>
+            <span class="chip">99.37% statement coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">No known dependency advisories</span>
         </div>
@@ -39,30 +79,31 @@
     <main>
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Overall score: 9.1 out of 10</h2>
+            <h2>Overall score: 8.8 out of 10</h2>
             <div class="callout good">
-                <strong>Backendbase Core is a high-quality PHP codebase.</strong>
-                Its strongest areas are automated verification, architecture control, and consistent code structure.
+                <strong>Backendbase Core has a strong, production-focused foundation.</strong>
+                Static analysis and coding standards now cover operational PHP and database delivery code.
             </div>
-            <p>The project is ready for serious production work. The remaining deductions concern long-term simplicity and documentation consistency, not present correctness.</p>
-            <p>The architecture is suitable for a service template with complex integration requirements. The same architecture can impose unnecessary maintenance cost on a small service.</p>
+            <p>Architecture rules, failure paths, API contracts, and deployment behavior have strong automated verification.</p>
+            <p>The main deductions concern weakly typed configuration, silent queue failures, missing coverage enforcement, and dependency upgrade cost.</p>
+            <p>No finding requires a large rewrite. Apply focused changes while the affected area is under active development.</p>
         </section>
 
         <section id="scorecard">
             <p class="section-label">02 · Scorecard</p>
-            <h2>Quality is consistently high across the project</h2>
+            <h2>Quality is strong across the configured repository scope</h2>
             <div class="table-wrap">
                 <table>
                     <thead>
                     <tr><th>Area</th><th>Score</th><th>Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Architecture</td><td><strong>9.5/10</strong></td><td>Clear boundaries with automated dependency tests.</td></tr>
-                    <tr><td>Testing</td><td><strong>9.8/10</strong></td><td>Broad behavior and failure-path coverage with 99.96% statement coverage.</td></tr>
-                    <tr><td>Type safety and style</td><td><strong>9.5/10</strong></td><td>Strict types, PHPStan level 8, and a clean PHPCS result.</td></tr>
-                    <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Small classes and clear names, with one visible naming defect.</td></tr>
-                    <tr><td>Maintainability</td><td><strong>8.7/10</strong></td><td>Strong controls offset the cost of a large shared kernel and architectural ceremony.</td></tr>
-                    <tr><td>Documentation</td><td><strong>8.5/10</strong></td><td>Detailed guides exist, but some paths and quality statements have drifted.</td></tr>
+                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests.</td></tr>
+                    <tr><td>Testing</td><td><strong>9.6/10</strong></td><td>Tests cover behavior, failure paths, transactions, messaging, tools, and deployment recovery.</td></tr>
+                    <tr><td>Type safety and style</td><td><strong>9.2/10</strong></td><td>PHPStan level 8 and PHPCS pass across application, tool, and database PHP.</td></tr>
+                    <tr><td>Readability</td><td><strong>8.8/10</strong></td><td>Production classes are small and names are generally clear.</td></tr>
+                    <tr><td>Operations and documentation</td><td><strong>8.5/10</strong></td><td>Automation and guides are strong, with minor process-document drift.</td></tr>
+                    <tr><td>Dependency and upgrade cost</td><td><strong>7.6/10</strong></td><td>Forty-two direct runtime packages create a broad maintenance surface.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -70,12 +111,12 @@
 
         <section id="evidence">
             <p class="section-label">03 · Verification evidence</p>
-            <h2>All declared quality checks passed</h2>
+            <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong>243</strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong>943</strong><span>Passing assertions</span></div>
-                <div class="stat"><strong>2,729/2,730</strong><span>Covered statements</span></div>
-                <div class="stat"><strong>607/608</strong><span>Covered methods</span></div>
+                <div class="stat"><strong>291</strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong>1,250</strong><span>Passing assertions</span></div>
+                <div class="stat"><strong>3,004/3,023</strong><span>Covered statements</span></div>
+                <div class="stat"><strong>676/690</strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap">
                 <table>
@@ -83,18 +124,21 @@
                     <tr><th>Check</th><th>Result</th><th>Evidence</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td>243 tests and 943 assertions passed.</td></tr>
-                    <tr><td>Statement coverage</td><td><span class="badge">99.96%</span></td><td>2,729 of 2,730 executable statements were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge">99.84%</span></td><td>607 of 608 methods were covered.</td></tr>
-                    <tr><td>PHPStan</td><td><span class="badge">Pass</span></td><td>Level 8 analysis completed with no errors.</td></tr>
-                    <tr><td>PHPCS</td><td><span class="badge">Pass</span></td><td>All 335 checked files passed the coding standard.</td></tr>
-                    <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> is valid under strict validation.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td>291 tests and 1,250 assertions passed.</td></tr>
+                    <tr><td>Statement coverage</td><td><span class="badge">99.37%</span></td><td>3,004 of 3,023 executable statements were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge">97.97%</span></td><td>676 of 690 methods were covered.</td></tr>
+                    <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, Tolgee support, migrations, and seeders.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All 394 checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
+                    <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
+                    <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
                     <tr><td>Dependency audit</td><td><span class="badge">Pass</span></td><td>Composer reported no known security advisories.</td></tr>
+                    <tr><td>OpenAPI</td><td><span class="badge">Pass</span></td><td>Source and merged API specifications passed validation.</td></tr>
                     <tr><td>Deployment tests</td><td><span class="badge">Pass</span></td><td>Deployment, failure recovery, and rollback scenarios passed.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="small">The assessment used the current workspace. Generated coverage files and local artifacts were not treated as source files.</p>
+            <p class="small">The normal Composer quality commands now enforce the expanded repository scope.</p>
         </section>
 
         <section id="strengths">
@@ -107,30 +151,30 @@
                 </div>
                 <div class="card">
                     <h3>Failure-path testing</h3>
-                    <p>Tests cover invalid input, transaction rollback, retry exhaustion, duplicate messages, dead-letter behavior, malformed external data, and deployment recovery.</p>
+                    <p>Tests cover invalid input, rollback, retry exhaustion, duplicate messages, malformed data, and deployment recovery.</p>
                 </div>
                 <div class="card">
-                    <h3>Small production classes</h3>
-                    <p>The largest PHP class under <code>src</code> is 149 lines. This limit keeps individual units easier to review and change.</p>
+                    <h3>Small production files</h3>
+                    <p>The median production PHP file is 38 lines. The largest production file is 149 lines.</p>
                 </div>
                 <div class="card">
                     <h3>Strong automated gates</h3>
-                    <p>Continuous integration runs Composer validation, dependency auditing, PHPUnit, PHPStan, PHPCS, and OpenAPI validation.</p>
+                    <p>Continuous integration runs tests, static analysis, coding standards, dependency audit, security checks, and OpenAPI validation.</p>
                 </div>
                 <div class="card">
-                    <h3>Clear integration design</h3>
-                    <p>Inbox, outbox, retry, and external-effect behavior is explicit. Database transactions protect state changes and message records.</p>
+                    <h3>Reliable integration design</h3>
+                    <p>Inbox, outbox, retry, external-effect, and dead-letter behavior is explicit and well tested.</p>
                 </div>
                 <div class="card">
                     <h3>Useful contributor guidance</h3>
-                    <p>The repository describes its folder structure, dependency rules, feature flow, database boundary, and verification commands.</p>
+                    <p>Modular guides describe architecture, feature work, persistence, messaging, testing, security, and deployment.</p>
                 </div>
             </div>
         </section>
 
         <section id="risks">
             <p class="section-label">05 · Maintainability risks</p>
-            <h2>Most risks concern future change cost</h2>
+            <h2>The main risks are bounded and actionable</h2>
             <div class="table-wrap">
                 <table>
                     <thead>
@@ -139,45 +183,33 @@
                     <tbody>
                     <tr>
                         <td><span class="badge warning">Medium</span></td>
-                        <td>Stateful HTTP action base</td>
-                        <td><code>Action</code> stores request, response, and route arguments on the object. This couples handlers to one request lifecycle and makes concurrent reuse unsafe.</td>
-                        <td><code>src/Backendbase/Shared/Http/Actions/Action.php:27</code></td>
+                        <td>Weakly typed configuration</td>
+                        <td><code>Settings::get()</code> returns <code>mixed</code>. Nested string keys delay missing-value and rename failures until runtime.</td>
+                        <td><code>src/Backendbase/Shared/Services/Settings.php:19</code></td>
                     </tr>
                     <tr>
                         <td><span class="badge warning">Medium</span></td>
-                        <td>Architectural ceremony</td>
-                        <td>DDD, CQRS, ports, adapters, inbox, outbox, and event contracts create a high learning cost for small changes.</td>
-                        <td>Project-wide design</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge warning">Medium</span></td>
-                        <td>Large Shared layer</td>
-                        <td>The Shared area contains 116 PHP files. It can become a broad common package with unclear ownership.</td>
-                        <td><code>src/Backendbase/Shared</code></td>
+                        <td>Silent queue transport failures</td>
+                        <td>The SQS transport catches every <code>Throwable</code> without transport-level logging. Diagnosis depends on the handler.</td>
+                        <td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php:95</code></td>
                     </tr>
                     <tr>
                         <td><span class="badge warning">Medium</span></td>
                         <td>No coverage threshold</td>
-                        <td>Continuous integration generates coverage but does not fail when coverage decreases.</td>
-                        <td><code>.github/workflows/quality-gates.yml</code></td>
+                        <td>Continuous integration generates coverage reports but does not reject a coverage decrease.</td>
+                        <td><code>phpunit.xml:32</code></td>
                     </tr>
                     <tr>
                         <td><span class="badge">Low</span></td>
-                        <td>Misspelled class name</td>
-                        <td><code>NotifiyReciever</code> misspells both “Notify” and “Receiver.” The name is already used by configuration and tests.</td>
-                        <td><code>src/Backendbase/Infrastructure/UseCase/Console/Queue/NotifiyReciever.php:15</code></td>
+                        <td>Broad direct dependency surface</td>
+                        <td>Forty-two direct runtime packages increase update work and supply-chain exposure for every installation.</td>
+                        <td><code>composer.json</code></td>
                     </tr>
                     <tr>
                         <td><span class="badge">Low</span></td>
-                        <td>Documentation path drift</td>
-                        <td>The project guide points to <code>resources/docs/add-api</code>. The current path is <code>resources/docs/skills/add-api</code>.</td>
-                        <td><code>resources/docs/project.md:141</code></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge">Low</span></td>
-                        <td>Untracked contributor guides</td>
-                        <td><code>resources/docs/skills</code> was untracked at assessment time. Other contributors will not receive these files until they are committed.</td>
-                        <td>Working-tree status</td>
+                        <td>Process-document drift</td>
+                        <td>The README and contributor guide require <code>CHANGELOG.md</code>, but the file does not exist.</td>
+                        <td><code>README.md:97</code><br><code>CONTRIBUTING.md:20</code></td>
                     </tr>
                     </tbody>
                 </table>
@@ -186,36 +218,40 @@
 
         <section id="recommendations">
             <p class="section-label">06 · Recommendations</p>
-            <h2>Protect the current quality with small changes</h2>
+            <h2>Close the control gaps before adding more structure</h2>
             <ol class="steps">
-                <li>Make HTTP actions request-local or pass request data directly to action methods.</li>
-                <li>Add a continuous-integration coverage threshold below the current percentage.</li>
-                <li>Set ownership rules for additions to <code>Shared</code>. Prefer bounded-context ownership when possible.</li>
-                <li>Rename <code>NotifiyReciever</code> to <code>NotifyReceiver</code> in one focused compatibility change.</li>
-                <li>Correct the skill paths in <code>resources/docs/project.md</code>.</li>
-                <li>Commit the contributor skill files when they are ready for shared use.</li>
+                <li>Introduce typed configuration objects for database, queue, AWS, Redis, and logging settings.</li>
+                <li>Add explicit diagnostics for queue transport exceptions.</li>
+                <li>Set a continuous-integration coverage threshold below the current result.</li>
+                <li>Extend Tolgee tests to API response validation and atomic file replacement.</li>
+                <li>Create <code>CHANGELOG.md</code>, or remove the requirement from project documentation.</li>
+                <li>Review whether optional integrations must remain direct runtime dependencies.</li>
             </ol>
             <div class="callout warning">
-                <strong>Do not add more architecture only to improve the score.</strong>
-                The best next improvement is lower maintenance cost while the existing checks stay green.
+                <strong>Keep changes focused.</strong>
+                The architecture does not need a broad rewrite. The highest-value work is typed configuration and explicit queue-failure diagnostics.
             </div>
         </section>
 
         <section id="scope">
             <p class="section-label">07 · Scope and method</p>
             <h2>This score describes the inspected workspace</h2>
-            <p>The assessment reviewed project structure, production source, tests, architecture tests, contributor documentation, quality configuration, continuous integration, and selected HTTP, queue, and persistence boundaries.</p>
-            <p>The assessment ran these commands on 25 August 2026:</p>
-            <pre><code>composer test
-composer phpstan
-composer cs-check
-composer validate --strict
-composer audit --locked</code></pre>
-            <p>The score does not measure production traffic, operational incident history, team onboarding time, or the behavior of unavailable external services.</p>
+            <p>The assessment reviewed production source, tests, architecture rules, quality configuration, continuous integration, documentation, and selected integration boundaries.</p>
+            <p>The assessment ran these checks on 29 August 2026:</p>
+            <pre><code>vendor/bin/phpunit --testdox
+vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G --no-progress
+vendor/bin/phpcs
+composer validate --strict --no-check-publish
+composer audit --locked --no-interaction
+composer run validate-example-api-spec
+vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
+bash tests/Deployment/deployment-scripts.sh</code></pre>
+            <p>The assessment did not run the container-based dynamic security scan or the live Bruno API collection.</p>
+            <p>Existing uncommitted documentation artifacts were not part of the score.</p>
         </section>
     </main>
 </div>
 
-<footer>Backendbase Core · Code quality and maintainability report · 25 August 2026</footer>
+<footer>Backendbase Core · Code quality and maintainability report · 29 August 2026</footer>
 </body>
 </html>

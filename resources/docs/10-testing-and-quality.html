@@ -21,6 +21,7 @@
 <tr><td><code>tests/Infrastructure</code></td><td>External adapters and use cases</td><td>Queue, notification, persistence, API controllers</td></tr>
 <tr><td><code>tests/Functional</code></td><td>Complete in-process flows</td><td>Example lifecycle through both buses</td></tr>
 <tr><td><code>tests/Architecture</code></td><td>Parsed-symbol dependency and attribute rules</td><td>Domain and Application direction, context isolation, both adapter directions, Shared core framework imports, and resolvable handler or listener targets</td></tr>
+<tr><td><code>tests/Tools</code></td><td>Operational support code</td><td>Tolgee translation synchronization helpers</td></tr>
 </tbody></table></div>
 </section>
 <section id="layers"><p class="section-label">03 · Test layers</p><h2>Each layer proves a different contract</h2>
@@ -43,8 +44,8 @@
 </section>
 <section id="static"><p class="section-label">07 · Static checks</p><h2>Run analysis and style after behavior passes</h2>
 <div class="table-wrap"><table><thead><tr><th>Tool</th><th>Configuration</th><th>Current scope</th></tr></thead><tbody>
-<tr><td>PHPStan</td><td><code>phpstan.neon</code></td><td><code>src</code> and <code>tests</code>, level 8</td></tr>
-<tr><td>PHPCS</td><td><code>phpcs.xml.dist</code></td><td>Doctrine Coding Standard for <code>src</code> and <code>tests</code></td></tr>
+<tr><td>PHPStan</td><td><code>phpstan.neon</code></td><td><code>src</code>, <code>tests</code>, <code>config</code>, <code>public</code>, Tolgee support, and database PHP at level 8</td></tr>
+<tr><td>PHPCS</td><td><code>phpcs.xml.dist</code></td><td>Doctrine Coding Standard for the same repository scope</td></tr>
 <tr><td>Qodana</td><td><code>qodana.yaml</code></td><td>PHP 8.5 starter profile and explicit inspections</td></tr>
 <tr><td>Rector</td><td>Not configured</td><td>No project configuration or direct Composer package exists</td></tr>
 </tbody></table></div>
