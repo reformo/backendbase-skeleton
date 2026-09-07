@@ -45,7 +45,7 @@
 <section id="wiring"><p class="section-label">10 · S3 wiring</p><h2>Settings build the AWS client and project adapter</h2>
 <div class="table-wrap"><table><thead><tr><th>Environment key</th><th>Setting</th></tr></thead><tbody>
 <tr><td><code>OBJECT_STORE_ACCESS_KEY</code></td><td>Explicit S3 access key</td></tr><tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Explicit S3 secret</td></tr>
-<tr><td><code>OBJECT_STORE_REGION</code></td><td>AWS region</td></tr><tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td>Optional S3-compatible endpoint; falls back to <code>AWS_ENDPOINT</code></td></tr><tr><td><code>BUCKET_NAME</code></td><td>S3 bucket</td></tr><tr><td><code>CDN_BASE_URL</code></td><td>Optional direct delivery base URL</td></tr>
+<tr><td><code>OBJECT_STORE_REGION</code></td><td>AWS region</td></tr><tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td>Optional S3-compatible endpoint; uses <code>AWS_ENDPOINT</code> when unset or empty</td></tr><tr><td><code>BUCKET_NAME</code></td><td>S3 bucket</td></tr><tr><td><code>CDN_BASE_URL</code></td><td>Optional direct delivery base URL</td></tr>
 </tbody></table></div>
 <p>The dependency container creates <code>S3ClientInterface</code> with explicit credentials. A custom endpoint uses path-style requests. SQS and SNS can use the AWS credential provider chain when both credential values are empty.</p>
 <p>Run <code>docker compose --profile integration up -d</code> for stateless local S3, SQS, and SNS endpoints. Create each required resource in the integration test setup.</p></section>

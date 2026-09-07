@@ -96,7 +96,7 @@ composer cs-check
 
 The Doctrine command needs a prepared database and target configuration.
 
-For new movable context tests in an unmodified Backendbase project, use the context `Tests` root. Existing root `tests/Domain/ExampleBoundedContext` files remain adapter-aware source evidence; do not move them during unrelated work.
+For movable context tests in an unmodified Backendbase project, use the context `Tests` root. Keep platform and integration tests under root `tests`.
 
 ## Source provenance
 
@@ -110,5 +110,5 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `src/Backendbase/Shared/Helpers/PathFinder.php`
 - `config/dependencies/doctrine.php`
 - `bin/doctrine`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`

@@ -8,7 +8,7 @@
 | Business enum or value object | `Catalog/Domain` |
 | Use-case orchestration | `Catalog/Application` |
 | Persistence translation | `Catalog/Adapters/Persistence` |
-| Pure behavior tests | `tests/Domain/Catalog/Domain` or the context-owned `Tests` root |
+| Pure behavior tests | The context-owned `Tests/Domain` area |
 
 `Catalog` is illustrative. Use the discovered owning context.
 
@@ -64,7 +64,7 @@ The class and state object are illustrative. Preserve the target project's estab
 ## Verification map
 
 ```sh
-vendor/bin/phpunit tests/Domain/Catalog/Domain
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Domain
 vendor/bin/phpunit tests/Architecture
 composer phpstan
 composer complexity
@@ -79,7 +79,7 @@ composer cs-check
 - `src/Backendbase/Domain/ExampleBoundedContext/Domain/Example.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleType.php`
 - `src/Backendbase/Shared/Domain/Aggregate.php`
-- `tests/Domain/ExampleBoundedContext/Domain/ExampleTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Domain/ExampleTest.php`
 - `tests/Shared/Domain/SharedDomainSupportTest.php`
 - `tests/Architecture/DomainPurityTest.php`
 - `tests/Architecture/FrameworkImportBoundaryTest.php`

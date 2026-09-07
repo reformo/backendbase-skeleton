@@ -746,7 +746,7 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
                     <tr><td><code>OBJECT_STORE_ACCESS_KEY</code></td><td>Empty</td><td>Object-store access credential.</td></tr>
                     <tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Empty</td><td>Object-store secret credential.</td></tr>
                     <tr><td><code>OBJECT_STORE_REGION</code></td><td>Empty</td><td>S3 client region.</td></tr>
-                    <tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td><code>AWS_ENDPOINT</code></td><td>Optional S3-compatible endpoint. Custom endpoints use path-style requests.</td></tr>
+                    <tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td><code>AWS_ENDPOINT</code> when unset or empty</td><td>Optional S3-compatible endpoint. Custom endpoints use path-style requests.</td></tr>
                     <tr><td><code>BUCKET_NAME</code></td><td>Empty</td><td>Target bucket.</td></tr>
                     <tr><td><code>CDN_BASE_URL</code></td><td>No default in object-store array</td><td>Public URL prefix for stored assets.</td></tr>
                     </tbody>

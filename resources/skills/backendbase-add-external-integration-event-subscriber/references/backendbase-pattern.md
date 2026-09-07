@@ -172,7 +172,7 @@ Do not start a live consumer, replay a message, alter inbox records, provision q
 ## Verification
 
 ```sh
-vendor/bin/phpunit tests/Domain/ExampleBoundedContext/ServiceProviderTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrationEventRegistryTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php

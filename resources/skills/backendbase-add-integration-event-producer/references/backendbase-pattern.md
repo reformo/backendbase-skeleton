@@ -134,8 +134,8 @@ Creating producer code and migrations is separate from applying schema changes, 
 ## Verification
 
 ```sh
-vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php
-vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
@@ -158,8 +158,8 @@ Verified on 2026-08-28 from:
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/NewExampleAdded.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php`
-- `tests/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php`
-- `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
 - `resources/platform/05-integration-event-contracts.md`
 - `resources/platform/11-messaging-outbox.md`
 - `resources/docs/3-integration-events.html`

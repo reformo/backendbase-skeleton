@@ -92,8 +92,6 @@ Backendbase operations reference `Accept-Language`, `The-Timezone-IANA`, `X-Requ
 These differences are semantic audit prompts. Do not reproduce them as target behavior.
 
 - API-key and bearer failures return `400`; the contract declares `401` and `403`.
-- Details schema includes `typeTargetId`; the controller omits it.
-- Runtime list handlers accept `pageSize` and `page`; feature files omit them.
 - Some request bodies lack complete `required` declarations.
 - Some response fields and timestamp formats do not fully match controller output.
 - CORS allowed headers omit `Accept-Language`.

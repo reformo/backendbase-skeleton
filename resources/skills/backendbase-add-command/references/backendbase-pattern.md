@@ -9,7 +9,7 @@
 | Business change | `Catalog/Domain` |
 | Write capability | A context-owned repository or service port |
 | Production implementation | `Catalog/Adapters` |
-| Contract and handler tests | Context-owned `Tests`; existing root context tests remain source evidence |
+| Contract and handler tests | Context-owned `Tests` |
 
 `Catalog` is illustrative. Use the discovered owning context.
 
@@ -134,7 +134,7 @@ composer complexity
 composer cs-check
 ```
 
-For new movable context tests in an unmodified Backendbase project, use the context `Tests` root. Existing root Example tests remain verified behavior evidence; do not relocate them during this change.
+For movable context tests in an unmodified Backendbase project, use the context `Tests` root.
 
 ## Source provenance
 
@@ -154,8 +154,8 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleIdentity.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/DomainEvents/ExampleAdded.php`
 - `config/dependencies/modules.php`
-- `tests/Domain/ExampleBoundedContext/Contracts/CommandAndQueryContractsTest.php`
-- `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php`
-- `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/CommandAndQueryContractsTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/ChangeExampleHandlerTest.php`
 - `tests/Functional/ExampleLifecycleTest.php`
 - `.github/workflows/quality-gates.yml`

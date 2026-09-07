@@ -30,6 +30,13 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Made new-table migrations fail on unexpected existing tables instead of hiding schema drift.
+- Removed the incomplete email notification consumer until a complete message contract and provider exist.
+- Applied named privilege guidance to sensitive commands and queries.
+- Moved every Example context test into its module-owned test suite.
+- Made an empty object-store endpoint use the shared AWS endpoint as documented.
+- Aligned Example API details and pagination contracts with runtime behavior.
+- Limited repository contract suites to behavior declared by each port.
 - Corrected DAST boundary expectations for missing and invalid API keys and bearer tokens.
 - Added the required IANA timezone header to authenticated DAST fixture and boundary requests.
 - Made Bruno authentication and account captures runtime-only, generated run-unique example keys, and removed the tracked token placeholder.

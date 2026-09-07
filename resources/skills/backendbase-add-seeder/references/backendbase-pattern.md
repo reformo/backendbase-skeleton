@@ -40,7 +40,7 @@ The table and values illustrate idempotency roles only. Use only rows and fields
 ```php
 public function up(Schema $schema): void
 {
-    $this->addSql('CREATE TABLE IF NOT EXISTS catalog_status (...)');
+    $this->addSql('CREATE TABLE catalog_status (...)');
 }
 
 public function postUp(Schema $schema): void
@@ -78,8 +78,8 @@ Also assert the approved field values. A count alone does not prove correct data
 ## Verification map
 
 ```sh
-vendor/bin/phpunit tests/Domain/Catalog/Adapters/Persistence/Doctrine/CatalogStatusSeederTest.php
-vendor/bin/phpunit tests/Domain/Catalog/Adapters/Persistence/Doctrine
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Adapters/Persistence/Doctrine/CatalogStatusSeederTest.php
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Adapters/Persistence/Doctrine
 ```
 
 ## Source provenance
@@ -88,4 +88,4 @@ vendor/bin/phpunit tests/Domain/Catalog/Adapters/Persistence/Doctrine
 - `resources/platform/10-schema-changes.md`
 - `composer.json`
 - `resources/database/Seeders/ExampleSeeder.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleSeederTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleSeederTest.php`

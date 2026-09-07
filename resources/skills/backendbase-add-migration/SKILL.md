@@ -30,7 +30,7 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 4. Inspect the generated file and every SQL statement. Remove unrelated changes.
 5. Use the project's current migration base. In Backendbase MySQL services, use the non-transactional Backendbase base class for new DDL migrations.
 6. Add a useful description, platform guard, safe preconditions, and reverse operation when supported.
-7. Use `CREATE TABLE IF NOT EXISTS` for an authorized new table, as required by current platform guidance.
+7. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.
 8. Update the target project's release migration configuration when releases pin an exact migration. Record rollback compatibility truthfully.
 9. Review locks, rolling-deployment compatibility, failure recovery, and data-definition implicit commits.
 10. Run a dry run against a prepared target. Apply only with explicit authority for that database.

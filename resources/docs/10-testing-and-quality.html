@@ -15,8 +15,7 @@
 </section>
 <section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
 <div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
-<tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Module service tests</td></tr>
-<tr><td><code>tests/Domain</code></td><td>Cross-module or adapter-aware domain behavior</td><td>Aggregates, handlers, repositories, identity</td></tr>
+<tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Aggregates, handlers, contracts, repositories, and provider tests</td></tr>
 <tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS, primitives, HTTP, persistence, services</td></tr>
 <tr><td><code>tests/Infrastructure</code></td><td>External adapters and use cases</td><td>Queue, notification, persistence, API controllers</td></tr>
 <tr><td><code>tests/Functional</code></td><td>Complete in-process flows</td><td>Example lifecycle through both buses</td></tr>

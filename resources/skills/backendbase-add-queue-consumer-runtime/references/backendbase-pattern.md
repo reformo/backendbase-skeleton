@@ -10,7 +10,7 @@ This pattern exposes an existing message processor through a console worker. It 
 4. Determine whether `consume()` is continuous, batch-based, push-based, or controlled by the command.
 5. Record current worker shutdown, signal, and restart conventions.
 
-Do not copy `bin/backendbase`, `backendbase-queue`, `backendbase-queue-email`, service names, host paths, or polling values without target discovery.
+Do not copy `bin/backendbase`, `backendbase-queue`, service names, host paths, or polling values without target discovery.
 
 ## Role to target mapping
 
@@ -133,7 +133,6 @@ Verified on 2026-08-29 from:
 - `src/Backendbase/Shared/Integrations/Messaging/Message.php`
 - `src/Backendbase/Shared/Integrations/Messaging/MessageSubscription.php`
 - `src/Backendbase/Infrastructure/UseCase/Console/Queue/ContainerAwareQueueConsumer.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/NotifyReceiver.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php`
 - `config/commands.php`

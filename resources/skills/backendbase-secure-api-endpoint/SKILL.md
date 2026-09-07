@@ -29,7 +29,7 @@ Use the target identity model, claims, issuer, audience, key storage, revocation
 1. State whether the operation is anonymous, API-key-only, bearer-authenticated, or privilege-protected. For a new operation in an unmodified Backendbase consumer API, select API key plus bearer unless an explicit policy requires another mode.
 2. Apply only the API-key and bearer layers selected in step 1, at the narrowest correct scope.
 3. Pass the established typed authorization context through the input contract for each named privilege.
-4. Enforce the named privilege at the application handler boundary before side effects.
+4. Enforce the named privilege at the application handler boundary before protected work.
 5. Keep credential parsing and token validation outside controllers.
 6. Use `security: []` only when all applicable runtime security layers intentionally permit anonymous access.
 7. Declare identical API-key and bearer requirements and failure responses in OpenAPI.
@@ -43,8 +43,8 @@ Use the target identity model, claims, issuer, audience, key storage, revocation
 - New consumer endpoints are protected by default.
 - In an unmodified Backendbase consumer API, a new operation requires API key plus bearer by default. API-key-only or anonymous access requires an explicit policy.
 - In an unmodified Backendbase API, `AuthorizationMiddleware` supplies identity data and typed `AccessControl`.
-- In an unmodified Backendbase API, write commands require `AccessControl`.
-- In an unmodified Backendbase API, application handlers ask `AccessControl` for the named privilege before side effects.
+- In an unmodified Backendbase API, commands and queries that need a named privilege require `AccessControl`.
+- In an unmodified Backendbase API, application handlers ask `AccessControl` for the named privilege before protected work.
 - Other projects must use their equivalent typed authorization service at the discovered application boundary.
 - API-key validation, bearer authentication, and ACL authorization are independent policy layers.
 - An API-key-only operation is protected; an anonymous operation uses `security: []` and a matching runtime bypass.

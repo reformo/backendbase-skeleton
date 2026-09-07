@@ -4,7 +4,7 @@
 
 | Role | Backendbase component | Target equivalent |
 | --- | --- | --- |
-| Queue envelope parser | `NotificationMessageProcessor` | Target consumer boundary |
+| Queue envelope parser | Target-owned notification processor | Target consumer boundary |
 | External-effect claim | `ExternalEffectInbox` | Target idempotency store |
 | Delivery port | `Notify` and `StackNotifier` | Target provider registry |
 | Failure classifier | `QueueMessageFailurePolicy` | Target retry and dead-letter policy |
@@ -45,21 +45,19 @@ The inbox must distinguish completed, active, and unknown external outcomes. A d
 
 ## Current source limitations
 
-- `NotificationMessageProcessor` always constructs an email notification.
+- Backendbase has no registered notification queue processor.
 - The inspected container registers only `SnsNotifier`, which supports SMS.
-- The processor creates an email with only HTML body populated, while other typed fields can remain uninitialized.
-- New delivery code must close this producer-model-provider mismatch rather than copy it.
+- Email has a model but no registered provider.
+- New delivery code must define a complete message, model, and provider contract.
 
 ## Exact source provenance
 
-- `src/Backendbase/Infrastructure/Adapters/Queue/NotificationMessageProcessor.php`
 - `src/Backendbase/Shared/Persistence/ExternalEffectInbox.php`
 - `src/Backendbase/Shared/Persistence/ExternalEffectInProgress.php`
 - `src/Backendbase/Shared/Persistence/ExternalEffectOutcomeUnknown.php`
 - `src/Backendbase/Shared/Integrations/QueueMessageFailurePolicy.php`
 - `src/Backendbase/Shared/Integrations/Operation/QueueMessageHandlingOutcome.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php`
-- `tests/Infrastructure/Adapters/Queue/NotificationMessageProcessorTest.php`
 - `tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php`
 - `resources/platform/20-notifications.md`
 

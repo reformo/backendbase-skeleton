@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence\ExampleRepositoryContract;
 use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
-use Tests\Domain\ExampleBoundedContext\Adapters\Persistence\ExampleRepositoryContract;
 
 final class ExampleRepositoryTest extends DoctrineExampleRepositoryTestCase
 {

@@ -25,7 +25,7 @@ Account revision and retirement revoke all Redis-backed authorization state befo
 
 `Acl::isAllowed()` accepts a named privilege, `full-privileges`, or the `system-admin` role. Denial uses status 403.
 
-Example write commands require `AccessControl`. Their application handlers check these privileges before side effects:
+These commands and queries require `AccessControl`. Their application handlers check these privileges before protected work:
 
 - `example.add`
 - `example.change`

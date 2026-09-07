@@ -25,6 +25,6 @@ bin/bruno example-api local
 
 Bruno environment files must contain placeholders, not live secrets. Assertions must check the status and important response fields.
 
-Current alignment risks include security status codes, `typeTargetId`, pagination parameters, body requirements, and CORS headers.
+Current alignment risks include body requirements and CORS headers.
 
 Basis: `resources/docs/6-openapi-and-bruno.html`.

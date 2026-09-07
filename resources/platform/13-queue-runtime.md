@@ -26,9 +26,10 @@ The outbox uses the configured default queue or route. It does not select a rout
 bin/backendbase outbox:relay --limit=100
 bin/backendbase outbox:status --max-pending-age=300
 bin/backendbase queue:consume backendbase-queue
-bin/backendbase queue:notify-consumer backendbase-queue-email
 bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000
 ```
+
+No notification queue consumer is registered. Add one only with a complete message schema and a compatible provider.
 
 Supervise long-running consumers. Schedule finite relay, status, and cleanup commands. Prevent overlapping relay and cleanup runs.
 

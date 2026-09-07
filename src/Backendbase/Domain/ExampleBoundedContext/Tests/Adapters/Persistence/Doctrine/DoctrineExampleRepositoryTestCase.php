@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleReadRepository;
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleWriteRepository;
@@ -32,7 +32,7 @@ abstract class DoctrineExampleRepositoryTestCase extends TestCase
         }
 
         $configuration = ORMSetup::createAttributeMetadataConfiguration([
-            dirname(__DIR__, 6) . '/src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity',
+            dirname(__DIR__, 4) . '/Adapters/Persistence/Doctrine/Entity',
         ], true);
         $configuration->enableNativeLazyObjects(true);
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], $configuration);

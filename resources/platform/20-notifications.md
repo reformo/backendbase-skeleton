@@ -11,9 +11,9 @@ Shared notification models define provider-independent email, push, and SMS requ
 - `FirebasePushNotifier` maps push requests, but container registration is absent.
 - Email has a model, but no registered email provider exists.
 
-The current notification queue creates email work. It cannot deliver that work until an email notifier is registered.
+No notification queue consumer is registered. Add one only after the message supplies every required field and the container registers a compatible provider.
 
-Notification delivery uses `ExternalEffectInbox`. Treat an unknown provider outcome as permanent until an operator proves whether delivery occurred.
+Queued notification delivery must use `ExternalEffectInbox`. Treat an unknown provider outcome as permanent until an operator proves whether delivery occurred.
 
 Use provider doubles in tests. Never send live email, push, or SMS from automated tests.
 

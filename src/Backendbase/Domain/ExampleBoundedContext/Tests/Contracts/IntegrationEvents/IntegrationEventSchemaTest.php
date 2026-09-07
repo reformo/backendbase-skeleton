@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Contracts\IntegrationEvents;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Contracts\IntegrationEvents;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleChanged;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\NewExampleAdded;

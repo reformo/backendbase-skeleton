@@ -21,7 +21,7 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 - Validate rows before creating immutable read models.
 - Never return Doctrine records or raw rows across the port.
 
-Define one repository contract suite for behavior that every adapter must provide. Run it unchanged against memory and Doctrine adapters. Include active uniqueness, soft removal, replacement, lookup, filtering, ordering, and pagination behavior.
+Define one repository contract suite for behavior declared by the port. Run it unchanged against memory and Doctrine adapters. Include only applicable behavior, such as lookup, filtering, ordering, pagination, uniqueness, replacement, or removal.
 
 Doctrine repository tests must also use production mapping metadata and Doctrine `SchemaTool`. Test storage mapping, nulls, malformed data, and rollback at this adapter boundary.
 

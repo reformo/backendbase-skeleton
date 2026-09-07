@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Contracts;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Contracts;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;

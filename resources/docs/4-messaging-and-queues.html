@@ -961,11 +961,6 @@
                             <td>Default queue: <code>backendbase-queue</code>. Wait: 20 seconds.</td>
                             <td>Long-running process. Stop it with the process supervisor.</td>
                         </tr>
-                        <tr>
-                            <td><code>bin/backendbase queue:notify-consumer [queue-name]</code></td>
-                            <td>Default queue: <code>backendbase-queue-email</code>. Wait: 20 seconds.</td>
-                            <td>Long-running process. See the notification limit below.</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -973,10 +968,7 @@
             <h3>Consumer process examples</h3>
             <div class="code-wrap">
                 <pre><code># Integration events
-bin/backendbase queue:consume backendbase-queue
-
-# Notification queue
-bin/backendbase queue:notify-consumer backendbase-queue-email</code></pre>
+bin/backendbase queue:consume backendbase-queue</code></pre>
             </div>
 
             <div class="callout">
@@ -1257,12 +1249,9 @@ ORDER BY received_at DESC;</code></pre>
 
             <div class="grid">
                 <article class="card">
-                    <h3>Notification provider mismatch</h3>
-                    <p>
-                        <code>NotificationMessageProcessor</code> creates an email notification.
-                        The dependency container registers only <code>SnsNotifier</code>, which supports SMS.
-                    </p>
-                    <p><strong>Result:</strong> The notification consumer cannot deliver email until an email notifier is registered.</p>
+                    <h3>Notification consumer is absent</h3>
+                    <p>The source does not register a notification queue consumer or define a complete queued notification message.</p>
+                    <p><strong>Result:</strong> Add a consumer only with a complete message contract and a compatible provider.</p>
                 </article>
                 <article class="card">
                     <h3>SQS REJECT does not delete</h3>

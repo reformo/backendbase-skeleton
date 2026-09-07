@@ -14,6 +14,7 @@ use Override;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 
+use function array_slice;
 use function count;
 
 class ExampleGroups extends Action
@@ -35,11 +36,13 @@ class ExampleGroups extends Action
         $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
 
         $result = $this->queryBus->handle(new GetExampleGroupsByType($type, $typeTargetId));
+        $total  = count($result);
+        $result = array_slice($result, ($page - 1) * $pageSize, $pageSize);
 
         return new JsonResponse([
             'pageSize' => $pageSize,
             'page' => $page,
-            'total' => count($result),
+            'total' => $total,
             'exampleGroups' => $result,
         ], 200);
     }

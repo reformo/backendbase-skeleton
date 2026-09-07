@@ -105,6 +105,22 @@ get:
         type: integer
         format: int64
         nullable: true
+    - in: query
+      name: pageSize
+      description: Number of examples requested per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1000
+    - in: query
+      name: page
+      description: Requested page number
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
   responses:
     200:
       description: "OK"

@@ -10,6 +10,7 @@ AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, read
 
 - `backendbaseEnv()` reads `$_ENV`, then the process environment, then a code default.
 - An empty string is present and does not activate the default.
+- Object-storage configuration explicitly treats an empty `OBJECT_STORE_ENDPOINT` as a request to use `AWS_ENDPOINT`.
 - Shared `config/autoload` providers load before the selected API providers.
 - Process values are not replaced by local Dotenv values.
 - Most values remain strings unless configuration parses them.

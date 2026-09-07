@@ -35,7 +35,7 @@ Preserve the target project's test ownership, naming, fixtures, database setup, 
 ## Backendbase invariants
 
 - Prefer the target project's established test ownership. In an unmodified Backendbase project, keep new movable context tests under the context `Tests` root and platform, shared, infrastructure, API, and architecture tests under root `tests`.
-- Treat existing root `tests/Domain/*` files as current evidence, not as authority to relocate new movable tests. Do not move existing tests during an unrelated change.
+- Keep movable domain, application, contract, repository, and provider tests under the context `Tests` root.
 - Do not use handwritten test DDL for mapped ORM records; use `SchemaTool` with production metadata.
 - Use production Doctrine metadata and an isolated schema for Doctrine repository tests.
 - Do not claim database constraint enforcement, SQL, transaction, or MySQL behavior from memory tests.

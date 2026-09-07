@@ -102,7 +102,7 @@ Do not purge queues, delete old outbox or inbox records, replay dead letters, ch
 ## Verification
 
 ```sh
-vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Contracts/IntegrationEvents
+vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrationEventRegistryTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php

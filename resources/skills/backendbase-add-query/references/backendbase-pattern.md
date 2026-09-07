@@ -73,8 +73,8 @@ final readonly class GetCatalogItemHandler implements QueryHandler
 ## Verification map
 
 ```sh
-vendor/bin/phpunit tests/Domain/Catalog/Contracts
-vendor/bin/phpunit tests/Domain/Catalog/Adapters/Persistence/Doctrine
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Contracts
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Adapters/Persistence/Doctrine
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 composer phpstan
 composer complexity
@@ -92,5 +92,5 @@ composer cs-check
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ReadModel`
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExampleReadRepository.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Application/QueryHandlers`
-- `tests/Domain/ExampleBoundedContext/Contracts/CommandAndQueryContractsTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/CommandAndQueryContractsTest.php`
 - `tests/Functional/ExampleLifecycleTest.php`

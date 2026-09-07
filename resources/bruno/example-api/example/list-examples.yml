@@ -21,6 +21,12 @@ http:
     - name: "typeTargetId"
       value: "{{typeTargetId}}"
       type: "query"
+    - name: "pageSize"
+      value: "1000"
+      type: "query"
+    - name: "page"
+      value: "1"
+      type: "query"
 
 runtime:
   scripts:
@@ -28,8 +34,8 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
-        expect(body).to.have.property("pageSize");
-        expect(body).to.have.property("page");
+        expect(body.pageSize).to.equal(1000);
+        expect(body.page).to.equal(1);
         expect(body).to.have.property("total");
         expect(body.examples).to.be.an("array");
         if (body.examples.length > 0) {

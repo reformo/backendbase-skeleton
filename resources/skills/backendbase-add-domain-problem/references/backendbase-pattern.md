@@ -70,7 +70,7 @@ Include `itemId` only when the identifier is safe and the public contract needs 
 ## Verification map
 
 ```sh
-vendor/bin/phpunit tests/Domain/Catalog/Exception
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Exception
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http
 vendor/bin/phpunit tests/Architecture
 composer phpstan

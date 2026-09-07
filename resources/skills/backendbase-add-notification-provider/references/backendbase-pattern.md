@@ -42,7 +42,7 @@ Do not expose the vendor client or vendor response through the project port.
 
 ## Current source limitations
 
-- The notification queue creates email work, but only the SMS provider is registered.
+- No notification queue producer or consumer contract is registered.
 - The Firebase adapter exists without container registration.
 - `EmailNotification` has mutable typed fields that can remain uninitialized.
 - `PushNotification` does not fully enforce required target and body rules.

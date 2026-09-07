@@ -5,7 +5,7 @@
 ```text
 API selection -> Slim route match -> API context -> API-key middleware
 -> route-level bearer identity -> typed authorization context -> controller
--> command -> application-handler authorization -> side effects
+-> command or query -> application-handler authorization -> protected work
 ```
 
 This is the effective current Backendbase order. Slim routing is added after the API middleware registrations, so last-in, first-out execution matches the route before those middleware run. Recompute the order for a target framework instead of copying source registration order.
@@ -15,8 +15,8 @@ This is the effective current Backendbase order. Slim routing is added after the
 | API key | Compares a configured API secret except explicit public paths | Header, lookup, public policy, failure status |
 | JWT | HMAC SHA-256 with Base64 key; validates claims and Redis state | Target algorithm and revocation contract |
 | Request identity | Adds user, timezone, and typed access-control attributes | Target typed identity context |
-| Application authorization | Handler checks the named privilege before side effects | Target privilege and role model |
-| OpenAPI | Write operations declare API key and bearer together | Exact target scheme semantics |
+| Application authorization | Handler checks the named privilege before protected work | Target privilege and role model |
+| OpenAPI | Privileged operations declare API key and bearer together | Exact target scheme semantics |
 
 ## Policy matrix
 
@@ -29,7 +29,7 @@ This is the effective current Backendbase order. Slim routing is added after the
 
 Two schemes in one OpenAPI requirement are logical AND. Two separate requirement objects are logical OR. Do not call an API-key-only route public.
 
-A protected route group adds the established `AuthorizationMiddleware`. The controller passes the typed context into the command. The application handler keeps the decision explicit:
+A protected route group adds the established `AuthorizationMiddleware`. The controller passes the typed context into the command or query. The application handler keeps the decision explicit:
 
 ```php
 $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);

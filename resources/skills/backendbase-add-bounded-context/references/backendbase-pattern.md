@@ -12,7 +12,7 @@ Use this reference after target-project discovery. It is a decision guide, not a
 | Doctrine and memory implementations | `src/Backendbase/Domain/Catalog/Adapters` |
 | Production bindings and subscriber metadata | `src/Backendbase/Domain/Catalog/ServiceProvider.php` |
 | Movable module tests | `src/Backendbase/Domain/Catalog/Tests` |
-| Existing root adapter-aware evidence and architecture policy | `tests/Domain/ExampleBoundedContext` and `tests/Architecture` |
+| Existing context-owned evidence and architecture policy | `src/Backendbase/Domain/ExampleBoundedContext/Tests` and `tests/Architecture` |
 
 `Catalog` is an illustrative context name. Resolve the real name from the requested business capability. Create only rows required by that capability.
 
@@ -51,7 +51,7 @@ Current `phpunit.xml` includes both root `tests` and `src/Backendbase/Domain/*/T
 
 - Put new tests that must move with a bounded context under that context's `Tests` directory.
 - Put platform, Shared, infrastructure, API, functional, and architecture tests under root `tests`.
-- The current repository also contains legacy and adapter-aware Example tests under `tests/Domain/ExampleBoundedContext`. Use them as behavior references for their test role.
+- The current repository keeps Example domain, application, contract, and persistence tests under `src/Backendbase/Domain/ExampleBoundedContext/Tests`.
 - Do not move existing tests only to normalize layout during an unrelated context change.
 
 Adapt these ownership rules to the target project's configured test roots. Do not create a source-owned test directory if the target runner cannot discover it.
@@ -106,7 +106,7 @@ This pattern was checked against:
 - `config/dependencies/modules.php`
 - `src/Backendbase/Shared/Helpers/PathFinder.php`
 - `phpunit.xml`
-- `tests/Domain/ExampleBoundedContext/ServiceProviderTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Tests/ExampleServiceTest.php`
 - `tests/Architecture`
 - `.github/workflows/quality-gates.yml`

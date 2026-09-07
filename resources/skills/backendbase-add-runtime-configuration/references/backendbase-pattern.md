@@ -34,6 +34,8 @@ Backendbase reads values in this order:
 
 An empty string is present. It does not activate the default. Most environment values remain strings until a configuration provider parses or validates them.
 
+Object-storage configuration is an explicit exception. It normalizes an empty `OBJECT_STORE_ENDPOINT` to `AWS_ENDPOINT`.
+
 Backendbase uses `backendbaseIntegerEnvironmentValue()` and `backendbaseFloatEnvironmentValue()` for numeric configuration. These helpers reject malformed text before the settings merge. Their exceptions name the key without including its value.
 
 The public API merges shared providers before API-specific providers. Its cached bootstrap can skip Dotenv. Console and Doctrine entry points load Dotenv independently.

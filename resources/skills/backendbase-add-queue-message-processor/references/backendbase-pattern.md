@@ -32,7 +32,7 @@ Discover the target envelope. Do not add unused fields only to imitate Backendba
 | Role | Backendbase reference | Target responsibility |
 | --- | --- | --- |
 | Processor | `ExternalIntegrationEventMessageProcessor` | Validate, transact, dispatch, classify. |
-| Special effect processor | `NotificationMessageProcessor` | Use external-effect leasing. |
+| External-effect processor | Target-owned processor | Use external-effect leasing. |
 | Outcome | `QueueMessageHandlingOutcome` | Return acknowledge, retry, or reject. |
 | Database deduplication | `InboxMessageTransaction` | Commit database work and completion together. |
 | Provider deduplication | `ExternalEffectInbox` | Claim, call, and record with unknown-outcome handling. |
@@ -126,7 +126,7 @@ Backendbase uses five attempts for transient consumer failures. `QueueMessageFai
 - External-effect claims use 300 seconds in the reference.
 - RabbitMQ RETRY immediately requeues.
 - SQS RETRY and REJECT both leave the message until visibility or redrive acts.
-- The reference notification processor builds email work, while the current container registers only an SMS notifier. Do not use it as proof of a complete provider path.
+- Backendbase has no registered notification processor. Add one only with a complete message and provider contract.
 
 ## Diagnostic safety
 
@@ -140,7 +140,6 @@ Do not consume, publish, replay, delete, or alter live messages while implementi
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php
-vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProcessorTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransactionTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php
 vendor/bin/phpunit tests/Application/Messaging/QueueMessageFailureServiceTest.php
@@ -165,7 +164,6 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Shared/Persistence/InboxMessageTransaction.php`
 - `src/Backendbase/Shared/Persistence/ExternalEffectInbox.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php`
-- `src/Backendbase/Infrastructure/Adapters/Queue/NotificationMessageProcessor.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php`
 - `src/Backendbase/Application/Messaging/QueueMessageFailureService.php`

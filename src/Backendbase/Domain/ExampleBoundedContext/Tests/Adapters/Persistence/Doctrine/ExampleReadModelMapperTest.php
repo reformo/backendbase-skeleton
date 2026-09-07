@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleReadModelMapper;
 use PHPUnit\Framework\Attributes\Test;

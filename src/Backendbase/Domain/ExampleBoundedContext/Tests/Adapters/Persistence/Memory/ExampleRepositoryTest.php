@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Adapters\Persistence\Memory;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence\Memory;
 
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory\ExampleReadRepository;
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory\ExampleStore;
@@ -12,10 +12,10 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as
 use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
+use Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence\ExampleRepositoryContract;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Domain\ExampleBoundedContext\Adapters\Persistence\ExampleRepositoryContract;
 
 final class ExampleRepositoryTest extends TestCase
 {

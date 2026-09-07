@@ -118,7 +118,7 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `src/Backendbase/Shared/Domain/Attributes/DomainEventListener.php`
 - `src/Backendbase/Shared/Domain/Aggregate.php`
 - `config/dependencies/modules.php`
-- `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
 - `tests/Shared/Domain/SharedDomainSupportTest.php`
 - `tests/Shared/DomainEventsTest.php`
 - `.github/workflows/quality-gates.yml`

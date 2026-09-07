@@ -12,7 +12,6 @@ return static function (ContainerBuilder $containerBuilder) {
     $commands = [
         Queue\ContainerAwareQueueConsumer::class => autowire(Queue\ContainerAwareQueueConsumer::class),
         Queue\CleanupIntegrationMessages::class => autowire(Queue\CleanupIntegrationMessages::class),
-        Queue\NotifyReceiver::class => autowire(Queue\NotifyReceiver::class),
         Queue\RelayOutboxMessages::class => autowire(Queue\RelayOutboxMessages::class),
         Queue\ShowOutboxStatus::class => autowire(Queue\ShowOutboxStatus::class),
         ClearCache::class => autowire(ClearCache::class),

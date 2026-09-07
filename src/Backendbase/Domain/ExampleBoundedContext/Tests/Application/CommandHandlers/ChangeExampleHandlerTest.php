@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Application\CommandHandlers;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Application\CommandHandlers;
 
 use Backendbase\Domain\ExampleBoundedContext\Application\CommandHandlers\ChangeExampleHandler;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;

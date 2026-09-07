@@ -853,9 +853,8 @@
                 </article>
                 <article class="card blue">
                     <h3>Platform and integration tests</h3>
-                    <p>Keep architecture, shared, infrastructure, Doctrine adapter, and API-level tests under root <code>tests/</code>.</p>
+                    <p>Keep architecture, shared, infrastructure, functional, and API-level tests under root <code>tests/</code>.</p>
                     <div class="code-wrap"><pre><code>vendor/bin/phpunit \
-  tests/Domain/ExampleBoundedContext \
   tests/Functional/ExampleLifecycleTest.php \
   tests/Architecture/SharedDependencyBoundaryTest.php</code></pre></div>
                 </article>
@@ -863,7 +862,7 @@
             <ul>
                 <li>Use memory adapters for fast use-case and lifecycle tests.</li>
                 <li>Use Doctrine <code>SchemaTool</code> and production metadata for ORM repository schemas.</li>
-                <li>Run one behavioral repository contract suite against both memory and Doctrine adapters.</li>
+                <li>Run one port-specific repository contract suite against both memory and Doctrine adapters.</li>
                 <li>Test command and query contracts as public entry points.</li>
                 <li>Test aggregate rules without transport or persistence dependencies.</li>
                 <li>Test event schemas when other services can consume them.</li>
@@ -945,7 +944,7 @@
                     <tr><td>Memory adapters</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory</code></td></tr>
                     <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
                     <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Tests</code></td></tr>
-                    <tr><td>Context and adapter suites</td><td><code>tests/Domain/ExampleBoundedContext</code></td></tr>
+                    <tr><td>Functional lifecycle suite</td><td><code>tests/Functional/ExampleLifecycleTest.php</code></td></tr>
                     <tr><td>Architecture boundaries</td><td><code>tests/Architecture</code></td></tr>
                     <tr><td>Project architecture rules</td><td><code>resources/docs/project.md</code></td></tr>
                     </tbody>

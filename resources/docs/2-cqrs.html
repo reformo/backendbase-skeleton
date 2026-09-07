@@ -852,9 +852,15 @@ final readonly class GetExampleByCriteriaHandler implements QueryHandler
                 <li>Repeat query and result types on <code>QueryHandler</code>.</li>
                 <li>Return explicit read models, pages, scalars, lists, or <code>null</code>.</li>
                 <li>Use Doctrine Database Abstraction Layer (DBAL) and plain SQL for read projections.</li>
+                <li>Carry typed <code>AccessControl</code> when a query needs a named privilege. Check it in the handler before the read.</li>
                 <li>Do not load or change aggregates on the query path.</li>
                 <li>Do not create integration events from query handlers.</li>
             </ul>
+
+            <div class="callout warning">
+                <strong>Authorization is not write-only</strong>
+                Apply handler authorization to every sensitive command or query. The <code>account.list</code> operation is a protected query.
+            </div>
 
             <div class="callout">
                 <strong>Generics are static-analysis metadata</strong>
@@ -1055,8 +1061,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
             <h3>Focused test command</h3>
             <div class="code-wrap">
                 <pre><code>vendor/bin/phpunit \
-  tests/Domain/ExampleBoundedContext/Contracts/CommandAndQueryContractsTest.php \
-  tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php \
+  src/Backendbase/Domain/ExampleBoundedContext/Tests \
   tests/Functional/ExampleLifecycleTest.php \
   tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php \
   tests/Infrastructure/UseCase/ExampleApi/ExampleNotFoundTest.php</code></pre>

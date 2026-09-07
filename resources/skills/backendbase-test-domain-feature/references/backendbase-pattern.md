@@ -43,7 +43,7 @@ Assert only ordering that is part of correctness.
 
 ## Repository setup
 
-- Define the shared result, absence, error, removal, uniqueness, filtering, ordering, and pagination behavior once.
+- Define only the result, absence, error, and other behavior declared by the port.
 - Run that contract suite unchanged against every adapter for the port.
 - Register the same Doctrine custom types used by production.
 - Create ORM configuration from the production entity directory.
@@ -73,18 +73,17 @@ A direct handler unit test proves orchestration only. An architecture test prove
 
 ## Test ownership in the current repository
 
-`phpunit.xml` includes both root `tests` and `src/Backendbase/Domain/*/Tests`. Current Example evidence is split between a context-owned service test and root domain, adapter, and lifecycle tests.
+`phpunit.xml` includes both root `tests` and `src/Backendbase/Domain/*/Tests`. All movable Example context tests are context-owned.
 
 For new work in an unmodified Backendbase project:
 
 - Keep tests that must move with a bounded context under that context's `Tests` directory.
 - Keep platform, Shared, infrastructure, API, functional, and architecture tests under root `tests`.
-- Use existing root `tests/Domain/ExampleBoundedContext` files as verified examples for their test roles.
-- Do not relocate existing tests only to normalize layout during another feature.
+- Use `src/Backendbase/Domain/ExampleBoundedContext/Tests` files as verified examples for their test roles.
 
 ## Current source behavior and limitations
 
-- The Example repository contract suite runs unchanged against memory and Doctrine adapters. It proves active uniqueness, soft removal, replacement, read behavior, ordering, and pagination.
+- The Example repository contract suite runs unchanged against memory and Doctrine adapters. Its behavior is specific to the Example port.
 - Doctrine repository tests use SQLite with production metadata. They do not prove every MySQL generated-column, lock, or migration behavior.
 - `.github/workflows/quality-gates.yml` runs Composer validation and audit, `composer test`, PHPStan, cyclomatic complexity, PHPCS, OpenAPI validation, generation, and a generated-file diff check.
 - `.github/workflows/security-checks.yml` runs Semgrep and a prepared OpenAPI-based dynamic application security test. These checks need their configured services and tools.
@@ -117,12 +116,12 @@ Use existing target paths. Report every skipped command and its blocker.
 - `.github/workflows/quality-gates.yml`
 - `.github/workflows/security-checks.yml`
 - `.github/workflows/release-artifact.yml`
-- `tests/Domain/ExampleBoundedContext/Domain/ExampleTest.php`
-- `tests/Domain/ExampleBoundedContext/Contracts/CommandAndQueryContractsTest.php`
-- `tests/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandlerTest.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleRepositoryTest.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/ExampleRepositoryContract.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Domain/ExampleTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/CommandAndQueryContractsTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Memory/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/ExampleRepositoryContract.php`
 - `tests/Functional/ExampleLifecycleTest.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Tests/ExampleServiceTest.php`

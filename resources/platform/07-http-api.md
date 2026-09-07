@@ -16,7 +16,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 - When an action dispatches application behavior, read and validate its PSR-7 input before creating one command or query.
 - For PATCH input, preserve omitted nullable fields and reject supplied values with invalid types before command construction.
 - Dispatch one command or query for one endpoint operation. For writes, put the public resource identity in the command and keep authoritative lookup in its handler.
-- Pass typed `AccessControl` into a privileged command. Keep the named privilege decision in its application handler.
+- Pass typed `AccessControl` into a privileged command or query. Keep the named privilege decision in its application handler.
 - Map the result to the documented response shape.
 - Select the documented status and headers.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.

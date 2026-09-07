@@ -23,7 +23,7 @@ final class Version20260829010000 extends BackendbaseAbstractMigration
             'This migration supports MySQL only.',
         );
         $this->addSql(
-            'CREATE TABLE IF NOT EXISTS example_accounts ('
+            'CREATE TABLE example_accounts ('
             . 'id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, '
             . 'uuid CHAR(36) NOT NULL, '
             . 'email VARCHAR(254) NOT NULL, '
@@ -38,7 +38,7 @@ final class Version20260829010000 extends BackendbaseAbstractMigration
             . ') DEFAULT CHARACTER SET utf8mb4',
         );
         $this->addSql(
-            'CREATE TABLE IF NOT EXISTS example_privileges ('
+            'CREATE TABLE example_privileges ('
             . 'id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, '
             . 'uuid CHAR(36) NOT NULL, '
             . 'title VARCHAR(160) NOT NULL, '
@@ -51,7 +51,7 @@ final class Version20260829010000 extends BackendbaseAbstractMigration
             . ') DEFAULT CHARACTER SET utf8mb4',
         );
         $this->addSql(
-            'CREATE TABLE IF NOT EXISTS example_account_privileged ('
+            'CREATE TABLE example_account_privileged ('
             . 'id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, '
             . 'uuid CHAR(36) NOT NULL, '
             . 'account_id BIGINT UNSIGNED NOT NULL, '

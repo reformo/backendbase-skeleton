@@ -43,7 +43,7 @@
 </section>
 <section id="migrations"><p class="section-label">07 · Migrations</p><h2>Generate, review, and execute approved schema changes</h2>
 <ol class="steps"><li>Finish the domain record and repository behavior.</li><li>Make repository tests pass.</li><li>Run <code>bin/doctrine migrations:diff</code>.</li>
-<li>Review every generated SQL statement.</li><li>Keep only the schema requested by the feature.</li><li>Use <code>CREATE TABLE IF NOT EXISTS</code> for new table statements.</li>
+<li>Review every generated SQL statement.</li><li>Keep only the schema requested by the feature.</li><li>Use plain <code>CREATE TABLE</code> so unexpected existing tables stop the migration.</li><li>Use <code>IF NOT EXISTS</code> only with an explicit adoption plan and exact schema validation.</li>
 <li>Run the migration and verify the resulting schema.</li></ol>
 <div class="callout danger"><strong>Hard boundary:</strong> Do not add unrequested tables, columns, indexes, timestamps, status fields, or audit fields.</div>
 </section>
@@ -58,11 +58,11 @@
 </section>
 <section id="tests"><p class="section-label">10 · Database tests</p><h2>Prove shared behavior and storage details</h2>
 <p>Run one behavioral repository contract suite unchanged against every adapter for the same port. The Example suite runs against memory and Doctrine adapters.</p>
-<ul><li>Test active identity uniqueness, replacement after soft removal, lookup, filtering, ordering, and pagination in the shared suite.</li>
+<ul><li>Test only behavior declared by the port. Applicable examples include lookup, filtering, ordering, pagination, uniqueness, replacement, and removal.</li>
 <li>Create ORM test schemas with Doctrine <code>SchemaTool</code> and production mapping metadata.</li><li>Test aggregate-to-record and record-to-aggregate mapping.</li>
 <li>Test DBAL filtering, null handling, ordering, pagination, and malformed persisted data.</li><li>Test migration SQL and custom Doctrine functions.</li>
 <li>Test seeders twice to prove idempotency.</li><li>Test commit and rollback behavior for transaction adapters.</li></ul>
-<pre><code>vendor/bin/phpunit tests/Domain/ExampleBoundedContext/Adapters/Persistence
+<pre><code>vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine
 vendor/bin/phpunit tests/Shared/Persistence</code></pre>
 </section>

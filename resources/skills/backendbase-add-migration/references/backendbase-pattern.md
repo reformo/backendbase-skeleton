@@ -47,7 +47,7 @@ The table, index, version, and description are illustrative. Generate them from 
 
 - The repository behavior and metadata tests pass before diff generation.
 - The diff contains only requested objects.
-- New table SQL uses `CREATE TABLE IF NOT EXISTS` under current platform guidance.
+- New table SQL uses plain `CREATE TABLE` so an unexpected existing table stops the migration.
 - Names use database `snake_case`.
 - Existing data satisfies new non-null, unique, or foreign-key constraints.
 - Long-running locks and rolling-deployment compatibility were reviewed.
@@ -74,7 +74,7 @@ Edit source release configuration, not generated release artifacts. Adapt the ma
 - `migrations.json` sets `all_or_nothing` to false and global `transactional` to true.
 - `BackendbaseAbstractMigration` overrides `isTransactional()` to false because MySQL DDL can implicitly commit and break Doctrine savepoints.
 - The shared migration base is tested, but the seven existing migration files still extend Doctrine `AbstractMigration`. Treat those files as historical SQL references, not the preferred new base.
-- Existing migrations do not consistently use `CREATE TABLE IF NOT EXISTS`; current platform documentation requires it for new tables.
+- Use `IF NOT EXISTS` only when the migration has an explicit adoption plan and validates the complete existing schema.
 - `bin/doctrine` uses relative paths and must run from the repository root.
 - The CLI schema filter discovers direct context service tables and the Doctrine metadata table. Nested context entity discovery is not fully symmetric.
 - SQLite metadata tests cannot prove MySQL DDL, generated-column, locking, or deployment behavior.
@@ -118,4 +118,4 @@ For new movable repository tests in an unmodified Backendbase project, use the c
 - `tests/Shared/Persistence/Doctrine/DqlAndMigrationTest.php`
 - `resources/database/Migrations/Version20260825050000.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`

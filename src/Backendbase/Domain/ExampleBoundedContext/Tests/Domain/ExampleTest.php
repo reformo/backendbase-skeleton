@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Domain;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Domain;
 
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\Entity\ExampleRecord;
 use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Memory\ExampleStore;

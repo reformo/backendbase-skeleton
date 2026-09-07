@@ -990,8 +990,6 @@ runtime:
                     <thead><tr><th>Priority</th><th>Area</th><th>Current difference</th><th>Suggested action</th></tr></thead>
                     <tbody>
                         <tr><td><span class="badge note">Medium</span></td><td>Bruno report data</td><td>The report must remain safe to share.</td><td>Keep credentials and request and response bodies excluded.</td></tr>
-                        <tr><td><span class="badge note">Medium</span></td><td>Response fields</td><td>OpenAPI includes <code>typeTargetId</code> in details. The current controller omits it.</td><td>Change the response or the contract.</td></tr>
-                        <tr><td><span class="badge note">Medium</span></td><td>Pagination</td><td>Runtime list handlers accept <code>pageSize</code> and <code>page</code>. OpenAPI omits these query parameters.</td><td>Document both parameters and their limits.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Body properties do not declare complete required-field rules.</td><td>Match schema requirements to boundary validation.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>CORS</td><td>Allowed headers omit <code>Accept-Language</code>.</td><td>Align CORS with the public header contract.</td></tr>
                         <tr><td><span class="badge">Low</span></td><td>Tags</td><td><code>Identity &amp; Access</code> is used but absent from the root tag catalog.</td><td>Add the tag definition.</td></tr>

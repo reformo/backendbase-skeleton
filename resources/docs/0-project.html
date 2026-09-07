@@ -896,7 +896,6 @@ bin/bruno example-api local</code></pre>
                         <tr><td><code>bin/backendbase outbox:relay --limit=100</code></td><td>Publish pending outbox messages</td><td>Schedule or run as a worker</td></tr>
                         <tr><td><code>bin/backendbase outbox:status --max-pending-age=300</code></td><td>Report pending and retried messages</td><td>Returns failure for unhealthy state</td></tr>
                         <tr><td><code>bin/backendbase queue:consume [name]</code></td><td>Consume external integration events</td><td>Default queue is <code>backendbase-queue</code></td></tr>
-                        <tr><td><code>bin/backendbase queue:notify-consumer [name]</code></td><td>Consume notification messages</td><td>Default email queue is configured in code</td></tr>
                         <tr><td><code>bin/backendbase integration-messages:cleanup</code></td><td>Delete old completed message logs</td><td>Minimum retention is 30 days</td></tr>
                     </tbody>
                 </table>

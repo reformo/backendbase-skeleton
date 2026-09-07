@@ -9,13 +9,13 @@ Commands change state and return no result. Queries read data and return a decla
 - Carry only data required by one use case.
 - Validate HTTP input before contract construction.
 - Convert business values into enums or value objects at the boundary.
-- Require typed `AccessControl` in write commands that need a named privilege.
+- Require typed `AccessControl` in each command or query that needs a named privilege.
 - Keep serialization stable through `toArray()`.
 
 ## Handler rules
 
 - Command handlers load aggregates through write ports.
-- Command handlers enforce named privileges before transactions, repository calls, or external effects.
+- Privileged command and query handlers enforce named privileges before repository calls or external effects.
 - Command handlers invoke aggregate behavior and control required transactions.
 - Query handlers use read ports and return read models, pages, scalars, lists, or `null`.
 - Query handlers must not mutate aggregates or create integration events.

@@ -64,7 +64,7 @@ Clone mutable aggregates. Immutable aggregate designs can use the target project
 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests
-vendor/bin/phpunit tests/Domain/Catalog/Application
+vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Application
 vendor/bin/phpunit tests/Functional/CatalogLifecycleTest.php
 composer phpstan
 composer complexity

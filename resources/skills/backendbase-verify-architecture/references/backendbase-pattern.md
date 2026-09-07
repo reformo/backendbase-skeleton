@@ -124,7 +124,7 @@ Create or select `{RealCompositionTestPath}` for the changed provider, container
 - `tests/Architecture/Support/ArchitectureDependencies.php`
 - `tests/Architecture/Support/BoundedContextDependencies.php`
 - `tests/Architecture/Support/PhpDependencyScanner.php`
-- `tests/Domain/ExampleBoundedContext/ServiceProviderTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php`
 - `tests/Infrastructure/Adapters/CQRS`
 - `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
 - `.github/workflows/quality-gates.yml`

@@ -45,14 +45,14 @@ final class ExampleReadControllersTest extends TestCase
         $action  = new ExampleGroups($queryBus, $this->createStub(LoggerInterface::class));
         $request = $this->request('/example-types/user/groups')
             ->withAttribute('type-slug', 'user')
-            ->withQueryParams(['typeTargetId' => 42, 'pageSize' => 10, 'page' => 2]);
+            ->withQueryParams(['typeTargetId' => 42, 'pageSize' => 1, 'page' => 2]);
 
         $payload = $this->payload($this->invoke($action, $request));
 
-        self::assertSame(10, $payload['pageSize']);
+        self::assertSame(1, $payload['pageSize']);
         self::assertSame(2, $payload['page']);
         self::assertSame(2, $payload['total']);
-        self::assertSame(['settings', 'preferences'], $payload['exampleGroups']);
+        self::assertSame(['preferences'], $payload['exampleGroups']);
     }
 
     #[Test]
@@ -117,6 +117,8 @@ final class ExampleReadControllersTest extends TestCase
         $payload = $this->payload($this->invoke($action, $request));
 
         self::assertSame('example-id', $payload['example']['uuid']);
+        self::assertArrayHasKey('typeTargetId', $payload['example']);
+        self::assertNull($payload['example']['typeTargetId']);
         self::assertSame('25', $payload['example']['lookupValue']);
         self::assertSame('2026-08-25T11:00:00+00:00', $payload['example']['updatedAt']);
     }

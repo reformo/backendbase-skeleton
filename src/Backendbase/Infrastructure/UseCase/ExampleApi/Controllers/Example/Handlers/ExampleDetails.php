@@ -45,7 +45,7 @@ class ExampleDetails extends Action
         $data    = [
             'uuid' => $example->uuid(),
             'type' => $example->type()->value,
-            //   'typeTargetId' => $example->typeTargetId(),
+            'typeTargetId' => $example->typeTargetId(),
             'exampleGroup' => $example->group(),
             'lookupKey' => $example->lookupKey(),
             'lookupValue' => $example->lookupValue(),

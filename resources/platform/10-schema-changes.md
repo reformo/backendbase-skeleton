@@ -9,7 +9,7 @@ Database structure requires explicit feature scope. Do not add tables, columns, 
 3. Run `bin/doctrine migrations:diff` from the project root.
 4. Review every generated SQL statement.
 5. Remove unrelated generated changes.
-6. Use `CREATE TABLE IF NOT EXISTS` for new tables.
+6. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.
 7. Run `bin/doctrine migrations:migrate --dry-run --no-interaction` against an identified, prepared target.
 8. Apply with `bin/doctrine migrations:migrate --no-interaction` only with explicit authority for that target database.
 9. Verify the resulting schema and repository behavior.

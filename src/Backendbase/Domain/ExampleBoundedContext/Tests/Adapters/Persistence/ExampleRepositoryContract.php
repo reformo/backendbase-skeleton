@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Domain\ExampleBoundedContext\Adapters\Persistence;
+namespace Backendbase\Domain\ExampleBoundedContext\Tests\Adapters\Persistence;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository;

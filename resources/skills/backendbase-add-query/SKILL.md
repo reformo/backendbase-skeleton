@@ -28,8 +28,9 @@ Preserve the target project's namespace, query naming, value objects, read-model
 3. Reuse an existing scalar, list, page, or read model when it exactly matches the use case. Otherwise add the smallest immutable result model.
 4. Add or extend a context-owned read port for the requested capability.
 5. Add the query handler with matching `QueryHandler<TQuery, TResult>` PHPDoc.
-6. Delegate the read to the port. Keep SQL and row mapping in the adapter.
-7. Test serialization, handler-to-port delegation, result semantics, and the affected lifecycle.
+6. Carry typed access control when the query needs a named privilege. Check it in the handler before the read.
+7. Delegate the read to the port. Keep SQL and row mapping in the adapter.
+8. Test serialization, handler-to-port delegation, result semantics, and the affected lifecycle.
 
 ## Backendbase invariants
 
@@ -37,6 +38,7 @@ Preserve the target project's namespace, query naming, value objects, read-model
 - Declare the query result with PHPDoc generics on both query and handler.
 - Return a read model, page, scalar, list, or `null`; never return a Doctrine record or raw row.
 - Query handlers must not load or mutate aggregates, control write transactions, or create events.
+- A privileged query handler checks typed access control before repository or external work.
 - Keep SQL in a DBAL read adapter.
 - Treat `QueryBus::handle()` generics as static-analysis metadata; runtime return type is `mixed`.
 - Do not add persistence, schema, events, or response fields outside the request.

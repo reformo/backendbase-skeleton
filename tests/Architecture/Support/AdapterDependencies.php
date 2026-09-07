@@ -50,7 +50,6 @@ final class AdapterDependencies
         return str_starts_with($file, 'src/Backendbase/Infrastructure/UseCase/')
             || preg_match('#^src/Backendbase/Domain/[^/]+/Adapters/Http/#', $file) === 1
             || str_ends_with($file, '/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php')
-            || str_ends_with($file, '/Adapters/Queue/NotificationMessageProcessor.php')
             || str_ends_with($file, '/Adapters/Queue/ExternalIntegrationEventDispatcher.php');
     }
 

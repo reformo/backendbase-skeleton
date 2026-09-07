@@ -28,7 +28,7 @@ The S3 adapter owns `S3ClientInterface`, commands, presigned requests, upload st
 - Multipart recovery has no explicit attempt limit.
 - Signed POST accepts `contentType` but does not include it in policy.
 - Signed download forces `image/jpeg`.
-- Object-store settings use `OBJECT_STORE_ENDPOINT` or fall back to `AWS_ENDPOINT` for compatible services.
+- Object-store settings use `OBJECT_STORE_ENDPOINT`, or use `AWS_ENDPOINT` when the object-store value is unset or empty.
 - S3 composition always creates explicit credentials, including empty values, instead of using the shared AWS credential-chain behavior.
 - Do not preserve these behaviors unless the target contract explicitly requires them.
 

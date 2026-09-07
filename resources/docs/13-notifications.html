@@ -2,18 +2,18 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>Backendbase Notifications Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · External effects</p><h1>Notifications</h1>
-<p class="lede">Email, push, and SMS models; provider dispatch; SNS and Firebase adapters; queue consumption; idempotency; failure policy; configuration; and current provider gaps.</p>
+<p class="lede">Email, push, and SMS models; provider dispatch; SNS and Firebase adapters; idempotency; failure policy; configuration; and current provider gaps.</p>
 <div class="chips"><span class="chip">Email</span><span class="chip">Push</span><span class="chip">SMS</span><span class="chip">SNS</span><span class="chip">Firebase</span></div></div></header>
 <div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
 <a href="#overview">1. Overview</a><a href="#flow">2. Delivery flow</a><a href="#models">3. Notification models</a><a href="#stack">4. Provider stack</a>
-<a href="#sms">5. SMS with SNS</a><a href="#push">6. Push with Firebase</a><a href="#email">7. Email state</a><a href="#queue">8. Queue consumer</a>
+<a href="#sms">5. SMS with SNS</a><a href="#push">6. Push with Firebase</a><a href="#email">7. Email state</a><a href="#queue">8. Queue delivery requirements</a>
 <a href="#idempotency">9. Idempotency</a><a href="#configuration">10. Configuration</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
 </nav><main>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Notification models are independent from providers</h2>
 <p>Shared notification primitives describe the delivery request. Infrastructure adapters translate those models to one provider. <code>StackNotifier</code> selects a provider by notification type.</p>
 <div class="grid-3"><article class="card"><h3>Email</h3><p>Addresses, sender, subject, HTML, template data, and attachments.</p></article><article class="card"><h3>Push</h3><p>Title, body, topic, device token, image, and string-compatible data.</p></article><article class="card"><h3>SMS</h3><p>E.164 phone number and non-empty message.</p></article></div>
 </section>
-<section id="flow"><p class="section-label">02 · Delivery flow</p><h2>Queue delivery uses an external-effect inbox</h2>
+<section id="flow"><p class="section-label">02 · Delivery flow</p><h2>Queued delivery requires an external-effect inbox</h2>
 <div class="diagram-wrap"><ol class="flow"><li><strong>Message</strong><small>contains notification body</small></li><li><strong>Consumer</strong><small>validates metadata</small></li><li><strong>Primitive</strong><small>builds typed work</small></li><li><strong>Inbox</strong><small>claims external effect</small></li><li><strong>Provider</strong><small>sends notification</small></li><li><strong>Outcome</strong><small>ack, retry, or reject</small></li></ol></div>
 </section>
 <section id="models"><p class="section-label">03 · Notification models</p><h2>Validate data before provider calls</h2>
@@ -40,9 +40,10 @@
 </section>
 <section id="email"><p class="section-label">07 · Email state</p><h2>Email has a model but no registered provider</h2>
 <p><code>EmailNotification</code> supports direct HTML, templates, recipients, sender data, and attachments. The repository has environment placeholders for SendGrid and Pusher, but no inspected email notifier adapter is registered.</p>
-<div class="callout danger"><strong>Runtime mismatch:</strong> <code>NotificationMessageProcessor</code> always builds an email notification. The container registers only <code>SnsNotifier</code>, which accepts SMS.</div>
+<div class="callout warning"><strong>No email runtime:</strong> The container has no email provider, and no notification queue consumer is registered.</div>
 </section>
-<section id="queue"><p class="section-label">08 · Queue consumer</p><h2>Classify failures before acknowledging the message</h2>
+<section id="queue"><p class="section-label">08 · Queue delivery requirements</p><h2>Add a consumer only with a complete contract</h2>
+<p>The current source does not register a notification queue consumer. A future consumer must define every required message field and use a compatible provider.</p>
 <div class="table-wrap"><table><thead><tr><th>Failure</th><th>Outcome</th></tr></thead><tbody>
 <tr><td>Already in progress</td><td>Retry</td></tr><tr><td>External outcome unknown</td><td>Permanent failure policy</td></tr>
 <tr><td>Invalid JSON or value</td><td>Reject when metadata is missing; otherwise permanent failure</td></tr>
@@ -63,13 +64,12 @@
 <div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known notification limits</h2>
-<ul><li>The notification queue produces email work without an email provider.</li><li>Firebase adapter registration is absent.</li><li>Email properties use mutable fields that can remain uninitialized.</li>
+<ul><li>No notification queue producer or consumer contract exists.</li><li>Firebase adapter registration is absent.</li><li>Email properties use mutable fields that can remain uninitialized.</li>
 <li>The Firebase adapter debug message contains a spelling error.</li><li>Provider payload logging can include notification content.</li><li>No end-to-end notification provider test exists.</li></ul>
 </section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Test primitives, mapping, provider calls, and outcomes</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Primitives/Notification
-vendor/bin/phpunit tests/Infrastructure/Adapters/Notification
-vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProcessorTest.php</code></pre>
+    vendor/bin/phpunit tests/Infrastructure/Adapters/Notification</code></pre>
 <p>Use deterministic provider doubles. Do not send real email, push, or SMS in automated tests.</p>
 </section>
 <section id="checklist"><p class="section-label">13 · Checklist</p><h2>Add a notification type safely</h2>
@@ -79,7 +79,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/NotificationMessageProces
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Models</td><td><code>Shared/Primitives/Notification</code></td></tr><tr><td>Provider port and result</td><td><code>Shared/Integrations/Notify.php</code>, <code>Shared/Integrations/Operation/NotificationResult.php</code></td></tr>
 <tr><td>Provider selection</td><td><code>Infrastructure/Adapters/Notification/StackNotifier.php</code></td></tr><tr><td>SMS</td><td><code>SnsNotifier.php</code></td></tr>
-<tr><td>Push</td><td><code>FirebasePushNotifier.php</code></td></tr><tr><td>Queue consumer</td><td><code>Queue/NotificationMessageProcessor.php</code></td></tr>
+<tr><td>Push</td><td><code>FirebasePushNotifier.php</code></td></tr>
 <tr><td>Container wiring</td><td><code>config/dependencies/aws.php</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Notifications guide</footer></body></html>

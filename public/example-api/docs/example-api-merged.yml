@@ -532,6 +532,24 @@ paths:
             type: integer
             format: int64
             nullable: true
+        -
+          name: pageSize
+          in: query
+          description: 'Number of groups requested per page'
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 1000
+        -
+          name: page
+          in: query
+          description: 'Requested page number'
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 1
       responses:
         '200':
           description: OK
@@ -726,6 +744,24 @@ paths:
             type: integer
             format: int64
             nullable: true
+        -
+          name: pageSize
+          in: query
+          description: 'Number of examples requested per page'
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 1000
+        -
+          name: page
+          in: query
+          description: 'Requested page number'
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 1
       responses:
         '200':
           description: OK

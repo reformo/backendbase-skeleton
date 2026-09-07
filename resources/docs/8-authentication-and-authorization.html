@@ -75,7 +75,7 @@
 <section id="acl"><p class="section-label">06 · Access control</p><h2>Check one named privilege at the application boundary</h2>
     <pre><code>$command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);</code></pre>
     <p>The check succeeds when the user has the requested privilege, has <code>full-privileges</code>, or uses role <code>system-admin</code>. A denied check throws <code>ResourceAccessForbidden</code> with HTTP status 403.</p>
-    <p>Example write handlers require <code>example.add</code>, <code>example.change</code>, or <code>example.remove</code>. Account operations require <code>account.register</code>, <code>account.revise</code>, <code>account.retire</code>, or <code>account.list</code>. They check access before repository work.</p>
+    <p>Example command handlers require <code>example.add</code>, <code>example.change</code>, or <code>example.remove</code>. Account command and query handlers require <code>account.register</code>, <code>account.revise</code>, <code>account.retire</code>, or <code>account.list</code>. They check access before repository work.</p>
     <div class="callout warning">Do not read the raw privilege array in controllers. Pass typed access control through the application input and enforce it in the handler.</div>
 </section>
 <section id="api-key"><p class="section-label">07 · API keys</p><h2>API-key validation depends on request attributes</h2>

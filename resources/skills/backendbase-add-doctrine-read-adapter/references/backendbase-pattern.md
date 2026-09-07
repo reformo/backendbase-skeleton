@@ -96,7 +96,7 @@ composer complexity
 composer cs-check
 ```
 
-For new movable context tests in an unmodified Backendbase project, use the context `Tests` root. Existing root `tests/Domain/ExampleBoundedContext` files remain source evidence; do not copy their ownership into a new context automatically.
+For movable context tests in an unmodified Backendbase project, use the context `Tests` root. Keep platform and integration tests under root `tests`.
 
 ## Source provenance
 
@@ -107,5 +107,5 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ReadModel`
 - `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadRepository.php`
 - `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadModelMapper.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadModelMapperTest.php`
-- `tests/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleReadModelMapperTest.php`
+- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
