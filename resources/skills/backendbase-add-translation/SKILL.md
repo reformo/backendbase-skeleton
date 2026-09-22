@@ -9,12 +9,14 @@ description: Add or change local translation keys and placeholders in a Backendb
 
 Add one stable dotted translation key with matching structure and placeholders in every supported locale, without adding runtime network work.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, architecture layers, container definitions, tests, locale loading, default locale, all dictionary files, and the nearest translation call.
+2. Inspect the affected dictionaries, supported locales, key structure, placeholders, and relevant catalog checks. Inspect loading or callers only when their behavior is affected.
 3. Resolve the key owner, intended text, placeholder names, supported locales, and whether the value is a string or structured array.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not invent a new locale, key namespace, remote synchronization, or wording that requires product approval.
 
@@ -43,6 +45,8 @@ Use the target locale list, default locale, dictionary format, key ownership, pl
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 php -l resources/i18n/{locale}.php
 vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
@@ -55,4 +59,4 @@ Compare key paths and placeholders across every locale, not only the changed fil
 
 ## Completion report
 
-Report the key, locales changed, placeholders, lookup tests, catalog consistency check, and skipped checks.
+Report the key, locales changed, placeholders, lookup tests, catalog consistency check, and blocked required checks.

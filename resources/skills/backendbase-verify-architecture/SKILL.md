@@ -9,12 +9,14 @@ description: Review and verify Backendbase domain purity, bounded-context isolat
 
 Show that production dependencies still point toward domain rules and project-owned contracts, or report each concrete violation with its owner.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespace, layer and container layout, test roots, architecture-test helpers, composition roots, and the nearest boundary and registration tests.
+2. Inspect the affected dependency rules, changed imports, architecture-test helpers, and relevant registration tests.
 3. Read the changed production files and resolve their declared PHP dependencies.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Distinguish an implementation violation from an explicitly requested architecture-policy change.
 
 ## Target-project adaptation
@@ -47,7 +49,9 @@ Adapt namespace roots, directory selectors, framework prefixes, composition root
 
 ## Verification
 
-Run the specific architecture test, then the full architecture directory, PHPStan, and the configured complexity check. Run relevant behavior and composition tests separately because architecture checks do not prove behavior or reachability.
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Run the affected architecture tests. Use the full architecture directory for broad boundary changes. Run PHPStan and the configured complexity check when code changed or the requested review requires them. Run relevant behavior and composition tests separately because architecture checks do not prove behavior or reachability.
 
 ## Completion report
 

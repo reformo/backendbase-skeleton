@@ -9,13 +9,15 @@ description: Add or change queued notification delivery with message validation,
 
 Deliver one notification message at most once through the external-effect boundary, with explicit acknowledge, retry, reject, and unknown-outcome behavior.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, architecture layers, container definitions, queue and persistence adapters, test layout, and the nearest external-effect processor.
+2. Inspect the notification contract, queue processor, external-effect persistence, registration, and focused failure-path tests.
 3. Trace the producer schema, topic, message identifier, registered provider type, inbox transaction, and failure policy.
 4. Resolve malformed, transient, permanent, in-progress, duplicate, and unknown-outcome behavior.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not create a new queue, provider, topic, schema, or external mutation outside the requested delivery path.
 
@@ -47,6 +49,8 @@ Use the target queue envelope, notification model, provider registry, inbox stor
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit <target-notification-processor-test>
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInboxTest.php
@@ -57,4 +61,4 @@ composer cs-check
 
 ## Completion report
 
-Report the message schema, notification type, inbox boundary, outcome table, provider compatibility, tests, and skipped checks.
+Report the message schema, notification type, inbox boundary, outcome table, provider compatibility, tests, and blocked required checks.

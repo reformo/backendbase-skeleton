@@ -9,12 +9,14 @@ description: Add a synchronous Backendbase domain event and one in-process liste
 
 Publish one typed in-process fact to one resolvable listener at an explicit point in the owning use case.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, layers, container wiring, test roots, and the nearest production domain event.
+2. Inspect the nearest domain event, publication owner, listener registration, transaction boundary, and affected tests.
 3. Trace the command transaction, publisher binding, listener autowiring, composition root, and failure semantics.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Confirm that synchronous same-service handling is required. Use an integration-event workflow for durable or cross-service delivery.
 
 ## Target-project adaptation
@@ -45,8 +47,10 @@ Adapt the event fact, payload fields, listener behavior, publish point, and tran
 
 ## Verification
 
-Run the event and listener tests, the publisher composition test, the affected command-handler test, the lifecycle test, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS.
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Run focused event, listener, and affected command tests. Verify composition when registration changes, lifecycle behavior when state transitions change, and architecture when dependencies change. Run PHPStan level 8, the configured complexity check, and PHPCS.
 
 ## Completion report
 
-Report the fact, payload, publish point, transaction effect, listener behavior, commands run, and skipped checks.
+Report the fact, payload, publish point, transaction effect, listener behavior, commands run, and blocked required checks.

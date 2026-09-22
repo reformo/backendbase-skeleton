@@ -9,14 +9,16 @@ description: Add a route-prefix module to an existing Backendbase-style Use Case
 
 Add one cohesive HTTP module whose route prefix, handlers, authorization groups, contract paths, and tests are registered in an existing API.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
 2. Discover the actual API surfaces from the selector, use-case directories, route registries, OpenAPI roots, and Bruno collections. Do not assume a fixed API list.
-3. Inspect Composer autoloading, namespaces, architecture layers, container definitions, test layout, and the nearest route module.
+3. Inspect the owning API selector, nearest route module, registration, public contract, and focused tests.
 4. Confirm the target API already exists and identify each explicitly affected API surface.
 5. Resolve the module owner, route prefix, operations, route names, complete application paths, and public or protected policy.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not create a new API or speculative endpoints to justify a module.
 
@@ -55,8 +57,11 @@ Use the target API namespace, routing framework, module interface, naming rules,
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/{ModuleRoutingTest}.php
+# Use the owning directory instead when the change needs broader coverage.
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
 composer run generate-{api-slug}-spec
@@ -71,4 +76,4 @@ Update route-count assertions to the intended total. Do not weaken them only to 
 
 ## Completion report
 
-Report the module prefix, registered operations, security grouping, contract files, tests, and skipped checks.
+Report the module prefix, registered operations, security grouping, contract files, tests, and blocked required checks.

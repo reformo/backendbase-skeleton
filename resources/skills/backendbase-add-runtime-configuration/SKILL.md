@@ -5,7 +5,9 @@ description: Add or change environment-backed runtime configuration in a Backend
 
 # Add Backendbase runtime configuration
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 
@@ -26,4 +28,4 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 
 ## Completion report
 
-Report each added key, its type and validation, affected services and caches, changed documentation, tests run, and skipped checks.
+Report each added key, its type and validation, affected services and caches, changed documentation, tests run, and blocked required checks.

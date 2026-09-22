@@ -9,13 +9,15 @@ description: Generate, review, and verify a Backendbase Doctrine migration for a
 
 Produce one reviewed migration whose SQL matches the authorized schema change and has an explicit forward and recovery plan.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespace, layer and container layout, test roots, migration configuration, Doctrine CLI, database platform, and nearest reviewed migration.
+2. Inspect migration configuration, the Doctrine entry point, database platform, affected metadata, and nearest reviewed migration.
 3. Read the final mapped record and passing repository tests.
 4. Inspect the migration base class, release migration configuration or manifest, current schema status, and target database identity.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 6. Restate the exact authorized tables, columns, indexes, constraints, and data transformation. Stop if any item is unclear.
 
 ## Target-project adaptation
@@ -51,8 +53,10 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run focused repository tests, migration status, dry-run SQL, schema validation, PHPStan, the configured complexity check, and PHPCS. When release migration metadata changed, run the release or deployment-script checks. Run the actual migration only on the explicitly approved prepared database.
 
 ## Completion report
 
-Report the exact schema delta, generated and removed SQL, seeder decision, release migration target, rollback policy, platform and transaction decisions, recovery path, target used, commands run, and skipped checks.
+Report the exact schema delta, generated and removed SQL, seeder decision, release migration target, rollback policy, platform and transaction decisions, recovery path, target used, commands run, and blocked required checks.

@@ -5,7 +5,9 @@ description: Add a new versioned integration-event producer and transactional ou
 
 # Add an integration-event producer
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 

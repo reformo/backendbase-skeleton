@@ -9,12 +9,14 @@ description: Add or change Backendbase aggregate behavior, factories, invariants
 
 Implement one requested business behavior in domain objects that remain valid without HTTP, persistence, queues, or a container.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read all target-project `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, layer rules, container layout, test roots, and the nearest production aggregate.
+2. Inspect the nearest aggregate, affected invariant, callers, reconstitution path, and focused domain tests.
 3. Read the aggregate's callers, persistence reconstitution path, and focused tests.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. State the invariant, accepted inputs, state transition, and failure behavior before editing.
 
 ## Target-project adaptation
@@ -42,8 +44,10 @@ Keep the target project's aggregate style, identifier type, clock, state represe
 
 ## Verification
 
-Run the changed domain test, its owning domain directory, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS. Add persistence checks only when mapping changed.
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Run focused domain regression tests. Expand to the owning directory when the affected behavior requires it. Run architecture tests when dependencies change. Run PHPStan level 8, the configured complexity check, and PHPCS. Add persistence checks only when mapping changed.
 
 ## Completion report
 
-Report the invariant, state transition, changed domain files, affected mappings, commands run, and skipped checks with exact blockers.
+Report the invariant, state transition, changed domain files, affected mappings, commands run, and blocked required checks and their causes.

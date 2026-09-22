@@ -4,6 +4,8 @@ This reference covers environment values, merged PHP configuration, settings, de
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, environment helpers, configuration providers, settings objects, dependency registration, HTTP and console entry points, caches, and tests.
 3. Find the nearest setting with the same type and scope.
@@ -97,9 +99,11 @@ if (! is_array($search) || ! is_float($search['timeoutSeconds'] ?? null)) {
 
 ## Authorization boundary
 
-Code and example-file changes do not authorize changing protected environment values, clearing a shared cache, restarting workers, or resolving a live external service. Request permission first.
+Code and example-file changes do not authorize changing protected environment values, clearing a shared cache, restarting workers, or resolving a live external service. Reuse explicit authority for the same operation, target, and effects. Ask only when that authority is missing or the scope changes.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit tests/Shared/Helpers/HelpersTest.php
@@ -111,7 +115,7 @@ composer complexity
 composer cs-check
 ```
 
-Run the newly added dependency-definition test before this broader set. Run `clear-cache` only in an authorized target environment. Add a focused test that resolves the affected service without client initialization, then invokes one safe operation.
+Select the affected dependency-definition tests. Use broader coverage when configuration or registration changes require it. Run `clear-cache` only in an authorized target environment. Add a focused test that resolves the affected service without client initialization, then invokes one safe operation.
 
 ## Completion report
 
@@ -122,7 +126,7 @@ Report:
 - secret classification;
 - affected service factories and processes;
 - cache invalidation and restart requirements;
-- tests run and skipped live checks.
+- tests run and blocked required live checks.
 
 ## Provenance
 

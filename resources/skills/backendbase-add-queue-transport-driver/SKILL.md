@@ -5,7 +5,9 @@ description: Add a broker transport adapter to a Backendbase-style queue port, i
 
 # Add a queue transport driver
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 
@@ -27,4 +29,4 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 
 ## Completion report
 
-Report driver selection value, envelope mapping, delivery semantics, timeouts, readiness, infrastructure prerequisites, tests, and skipped live checks.
+Report driver selection value, envelope mapping, delivery semantics, timeouts, readiness, infrastructure prerequisites, tests, and required live checks that could not run.

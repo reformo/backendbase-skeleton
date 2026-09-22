@@ -9,13 +9,15 @@ description: Add and register a provider adapter for an existing or requested no
 
 Add one provider-independent notification model or reuse an existing one, map it to a vendor adapter, register the stable type, and prove configuration and failure behavior with doubles.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading and provider SDKs, namespaces, architecture layers, container definitions, configuration, test layout, and the nearest notifier.
+2. Inspect the notification port, installed provider client, nearest notifier, configuration, registration, and focused tests.
 3. Trace every producer and consumer that can create the notification type.
 4. Resolve the stable type name, required fields, sensitive content, provider response, credentials, timeout, and failure semantics.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not add a provider, channel, credential, or delivery route that the user did not request.
 
@@ -46,6 +48,8 @@ Use the target notification contract, provider SDK, config keys, container, mode
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Shared/Primitives/Notification
 vendor/bin/phpunit tests/Infrastructure/Adapters/Notification
@@ -59,4 +63,4 @@ Use the target container test when the provider is not AWS-backed.
 
 ## Completion report
 
-Report the notification type, model invariants, adapter, container registration, sensitive logging review, tests, and skipped checks.
+Report the notification type, model invariants, adapter, container registration, sensitive logging review, tests, and blocked required checks.

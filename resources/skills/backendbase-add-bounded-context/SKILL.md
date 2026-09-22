@@ -9,12 +9,14 @@ description: Create a new Backendbase-style bounded context with its domain boun
 
 Create the smallest movable module that owns one business language and integrates with the target project without crossing architecture boundaries.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, the root namespace, domain layout, provider discovery, container wiring, PHPUnit test roots, and the nearest composition test.
+2. Resolve the new context's namespace, dependency boundaries, autoloading, provider discovery, and test ownership from target conventions.
 3. Find the nearest complete bounded context. Reject empty modules and partial legacy modules as references.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Confirm the requested capability, required ports, persistence, events, and schema scope. Do not infer any of them.
 
 ## Target-project adaptation
@@ -47,8 +49,10 @@ Preserve the target project's namespace and established naming. Use Backendbase 
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run the new context's focused tests, its real provider composition test, the architecture suite, PHPStan level 8, the configured complexity check, and PHPCS. Run Doctrine schema validation only when the context has mapped records and a prepared database.
 
 ## Completion report
 
-Report the capability boundary, created paths, port bindings, subscriber registrations, documentation changes, commands run, and each skipped check with its blocker.
+Report the capability boundary, created paths, port bindings, subscriber registrations, documentation changes, commands run, and any blocked required check and its blocker.

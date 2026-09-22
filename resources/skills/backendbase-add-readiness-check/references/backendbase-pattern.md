@@ -4,6 +4,8 @@ Use this pattern to prove that a dependency can support new work without exposin
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read applicable `AGENTS.md` files.
 2. Inspect Composer dependencies, PSR-4 roots, health contracts, dependency factories, routes, logger behavior, and tests.
 3. Find the target's liveness and readiness distinction.
@@ -102,6 +104,8 @@ Do not create remote resources, change permissions, rotate credentials, or probe
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Health
 vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi/HealthControllersTest.php
@@ -111,11 +115,11 @@ composer complexity
 composer cs-check
 ```
 
-Add the new focused test file to the first command. A live readiness request is optional and requires an authorized running service.
+Use the new focused test file or its owning directory according to the affected behavior. A live readiness request is optional and requires an authorized running service.
 
 ## Completion report
 
-Report the dependency, operation, check name, timeout, registration, public response impact, resource cleanup, tests, and skipped live probe.
+Report the dependency, operation, check name, timeout, registration, public response impact, resource cleanup, tests, and any required live probe that could not run.
 
 ## Provenance
 

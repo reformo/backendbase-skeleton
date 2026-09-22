@@ -9,13 +9,15 @@ description: Add or change a Backendbase Doctrine ORM write port implementation,
 
 Persist and reconstitute an aggregate through a context-owned port while keeping Doctrine and storage decisions outside the domain.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespace, layer and container layout, test roots, Doctrine configuration, and the nearest write adapter.
+2. Inspect the write port, nearest Doctrine adapter, production metadata, provider binding, and repository tests.
 3. Read the aggregate creation, reconstitution, identity, snapshot, removal, and failure behavior.
 4. Inspect entity discovery, custom Doctrine types, provider bindings, and repository-test setup.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 6. Confirm the requested persistence behavior and authorized schema scope before mapping fields.
 
 ## Target-project adaptation
@@ -47,8 +49,10 @@ Adapt the port operations, identifier, table and column mapping, enum and JSON h
 
 ## Verification
 
-Run focused mapping and repository tests, the provider test, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS. Run `orm:validate-schema` only against a prepared database. Memory tests do not prove ORM mapping. Use the migration skill only after production-metadata repository tests pass.
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Run focused mapping and repository tests. Test provider composition when bindings change and architecture when dependencies change. Run PHPStan level 8, the configured complexity check, and PHPCS. Run `orm:validate-schema` only against a prepared database. Memory tests do not prove ORM mapping. Use the migration skill only after production-metadata repository tests pass.
 
 ## Completion report
 
-Report the port, mapping decisions, aggregate translation, binding, schema impact, tests, commands run, and skipped checks.
+Report the port, mapping decisions, aggregate translation, binding, schema impact, tests, commands run, and blocked required checks.

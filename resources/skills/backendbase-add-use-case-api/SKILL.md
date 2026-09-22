@@ -9,13 +9,15 @@ description: Scaffold a distinct Backendbase-style consumer Use Case API with se
 
 Create one complete API surface that boots, resolves configuration, registers middleware and routes, publishes a valid contract, and has focused tests.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files before editing.
-2. Inspect Composer autoloading, namespaces, architecture layers, container definitions, test layout, and deployment scripts.
+2. Inspect the API selector, nearest API bootstrap, route and container registration, contract tooling, tests, and release packaging.
 3. Find the nearest working API and trace its selector, bootstrap, middleware order, routes, configuration, generated documentation, and tests.
 4. Resolve the requested API class name, slug, source identifier, base path, public operations, security policy, and health dependencies.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before implementation.
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Stop and ask when a missing public surface or security decision would materially change the API.
 
@@ -47,7 +49,9 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 
 ## Verification
 
-Run the smallest matching commands, then expand:
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Choose the commands that prove the affected bootstrap, routing, and contract behavior:
 
 ```sh
 vendor/bin/phpunit tests/Shared/Http/Bootstrap
@@ -63,4 +67,4 @@ Run Bruno only against a prepared service with safe credentials and data. Clear 
 
 ## Completion report
 
-Report the selected API identity, added roots, public and protected policy, contract generation result, tests run, and every skipped check with its exact blocker.
+Report the selected API identity, added roots, public and protected policy, contract generation result, tests run, and any blocked required check and its exact blocker.

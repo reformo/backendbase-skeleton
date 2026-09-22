@@ -9,14 +9,16 @@ description: Implement one endpoint in an existing Backendbase-style API module,
 
 Implement one requested HTTP operation that validates external input, invokes the correct use case, returns the documented response, and has focused failure-path tests.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read all applicable `AGENTS.md` files.
 2. Discover the actual API surfaces from the target selector, use-case directories, route registries, OpenAPI roots, and Bruno collections. Do not assume a fixed API list.
-3. Inspect Composer autoloading, namespaces, layer boundaries, container definitions, test layout, and the nearest endpoint of the same method and response type.
+3. Inspect the nearest endpoint, its application path, route policy, contract, and focused tests. Resolve unknown namespace or registration details only when affected.
 4. Confirm the owning API and module already exist and identify every explicitly affected API surface.
 5. Resolve the complete command or query use case, authorization policy, input rules, empty or not-found behavior, status, headers, and response fields.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Ask before inventing a public route, resource contract, or domain behavior.
 
@@ -53,8 +55,11 @@ Use the target framework, request types, namespace, command and query buses, res
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/{EndpointTest}.php
+# Use the owning directory instead when the change needs broader coverage.
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
@@ -67,4 +72,4 @@ For a collection response, test empty results, pagination bounds, defaults, and 
 
 ## Completion report
 
-Report the method and path, dispatched contract, security policy, response, tests, contract status, and skipped checks.
+Report the method and path, dispatched contract, security policy, response, tests, contract status, and blocked required checks.

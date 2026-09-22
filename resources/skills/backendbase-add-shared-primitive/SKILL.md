@@ -9,13 +9,15 @@ description: Add a stable cross-context value, identifier, query value, or seria
 
 Add one small type with stable cross-context meaning, enforced construction invariants, one public representation, and focused invalid-boundary and serialization tests.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, architecture boundaries, container definitions, tests, the owning contexts, and the nearest primitive.
+2. Inspect the owning contexts, Shared dependency rules, nearest primitive, representation, and focused tests.
 3. Prove that the meaning is stable across contexts rather than merely duplicated.
 4. Resolve construction, normalization, comparison, serialization, exception, nullability, and sensitive-value rules.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Keep the type in its bounded context when status, role, limit, lifecycle, or policy belongs to one model.
 
@@ -46,8 +48,11 @@ Use the target namespace, identifier format, exception hierarchy, serialization 
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Shared/Primitives/{PrimitiveTest}.php
+# Use the owning directory instead when the change needs broader coverage.
 vendor/bin/phpunit tests/Shared/Primitives
 composer phpstan
 composer complexity
@@ -56,4 +61,4 @@ composer cs-check
 
 ## Completion report
 
-Report the ownership decision, invariant, public representation, exception, boundary tests, and skipped checks.
+Report the ownership decision, invariant, public representation, exception, boundary tests, and blocked required checks.

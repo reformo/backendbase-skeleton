@@ -9,12 +9,14 @@ description: Add focused Backendbase tests for domain values, aggregates, CQRS c
 
 Add the smallest deterministic test layer that proves the requested behavior and its important failure paths.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, layer and container layout, PHPUnit configuration, test roots, and the nearest test at the same boundary.
+2. Inspect the behavior under test, nearest test at the same boundary, test configuration, fixture isolation, and test ownership.
 3. Trace the production contract, current failure behavior, ports, adapters, and event or transaction boundaries.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Select the test mode: domain, CQRS, repository, lifecycle, or composition and registration. Use multiple modes only when each proves a different risk.
 
 ## Target-project adaptation
@@ -47,8 +49,10 @@ Preserve the target project's test ownership, naming, fixtures, database setup, 
 
 ## Verification
 
-Run the changed test file, its owning directory, related database or lifecycle tests, PHPStan level 8, the configured complexity check, PHPCS, and the full suite for broad changes.
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Run the changed test file or its owning directory according to the affected behavior. Add database or lifecycle tests for affected contracts. Run PHPStan level 8, the configured complexity check, and PHPCS. Run the full suite for broad changes.
 
 ## Completion report
 
-Report the behavior proven at each test layer, commands and results, remaining untested risks, and skipped checks with blockers.
+Report the behavior proven at each test layer, commands and results, remaining untested risks, and blocked required checks and their causes.

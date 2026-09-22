@@ -30,6 +30,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Made narrow reusable skills select relevant discovery, reference sections, and verification. Preserved existing operation authority across skill steps and moved skill-authoring rules into scoped guidance.
+- Scoped agent guidance and feature verification to affected behavior, reused valid discovery and check results, and preserved existing authorization for unchanged targets and scope. Added a five-task comparison with recorded measurements and acceptance evidence.
 - Serialized account authentication, revision, and retirement with a shared account-row transaction and refreshed privilege state.
 - Removed the 1,000-group result cap and applied group pagination in both persistence adapters.
 - Rejected invalid pagination sizes and overflowing offsets before query dispatch.

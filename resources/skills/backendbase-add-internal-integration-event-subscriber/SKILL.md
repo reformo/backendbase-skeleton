@@ -5,7 +5,9 @@ description: Add a synchronous in-process subscriber for an existing Backendbase
 
 # Add an internal integration-event subscriber
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 

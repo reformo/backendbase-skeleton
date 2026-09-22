@@ -2,41 +2,29 @@
 
 Start from the user-visible outcome. Add only the layers that the requested behavior needs.
 
-## Mandatory guidance gate
+## Select guidance
 
-Complete these steps before design or implementation:
+Follow the task-scoped loading and authorization rules in the root `AGENTS.md`. Use `resources/platform/README.md` to resolve affected constraints and unknown project facts.
 
-1. Read every applicable `AGENTS.md` file.
-2. Load the mandatory platform files from `resources/platform/README.md`.
-3. Load each task-specific platform file for every affected surface.
-4. Open every matching skill and each reference that it requires.
-5. State the selected guidance and its implementation constraints.
+Use the feature skill for a change across several layers. Add a narrow skill only for a required procedure or invariant not already covered. Read the reference sections relevant to the change.
 
-Repeat this gate when task scope changes. Reassess all earlier design decisions against the new scope before continuing.
+When scope expands, inspect the added surface and reassess affected decisions. Reuse valid discovery and verification for unchanged surfaces.
 
-Do not substitute local preference for a platform design rule or skill invariant. Report conflicts and request authorization for any deviation.
+Platform rules remain requirements. Report a conflict before choosing a deviation. Existing explicit authority remains valid for the same action, target, and scope.
 
-## Recommended sequence
+## Deliver the requested behavior
 
-1. Define or update the public OpenAPI operation when HTTP is affected.
-2. Choose or create the owning bounded context.
-3. Add a command for a write or a query for a read.
-4. Add domain behavior and value objects for business rules.
-5. Add narrow persistence or external-service ports.
-6. Implement Doctrine or vendor adapters.
-7. Implement the application handler.
-8. Add a transactional integration event only when required.
-9. Add focused domain, handler, adapter, and lifecycle tests.
-10. Generate and review a migration only for an approved schema change.
-11. Add affected API controllers and routes.
-12. Update OpenAPI and Bruno together.
-13. Update the `Unreleased` section of `CHANGELOG.md` in the same commit.
-14. Run focused tests, PHPStan level 8, cyclomatic complexity, PHPCS, and affected contract checks.
+- Define the observable outcome and completion checks. Resolve material contract or policy decisions before dependent implementation.
+- Add domain behavior, commands or queries, ports, handlers, and adapters only where the feature requires them.
+- Align affected HTTP routes, authorization, OpenAPI, and maintained Bruno examples. Add transactional integration events only when required.
+- Establish mapping and repository behavior before generating an authorized schema migration. Review its SQL and release metadata. Apply it only with authority for the identified database.
+- Update affected documentation and the `Unreleased` section of `CHANGELOG.md` in the same commit.
+- Select verification through `17-testing.md`. Reuse each successful result across selected skills while its relevant inputs remain unchanged.
 
 Every changed line must support the requested outcome. Do not refactor adjacent code or add speculative abstractions.
 
-Before completion, map each changed surface to its platform files and skills. Confirm that the result follows every applicable rule.
+Continue through implementation, required checks, and correction of failures caused by the change. Finish when the requested behavior, applicable rules, and affected documentation are verified.
 
-Report each skipped verification command and its exact blocker.
+Report concrete blockers and required checks that could not run. Do not report unrelated checks as skipped work or request review while authorized work remains.
 
 Basis: `resources/docs/0-project.html` and all topic guides.

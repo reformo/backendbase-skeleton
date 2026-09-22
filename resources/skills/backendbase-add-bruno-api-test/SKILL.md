@@ -9,14 +9,16 @@ description: Add an executable Bruno request or lifecycle test for an existing B
 
 Add a safe, repeatable Bruno request that uses environment variables, asserts the important contract, and fits the collection's authentication and lifecycle order.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read applicable `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, architecture, container and test layout, even when no PHP edit is expected.
+2. Inspect the affected API contract, nearest Bruno request, runner, environment configuration, and fixture lifecycle.
 3. Discover the owning API from its selector, runtime route, OpenAPI root, collection root, and wrapper command. Do not assume a fixed API list.
 4. Find the environment format, nearest request, complete application path, runtime response, report policy, and cleanup strategy.
 5. Resolve the target environment, required credentials, fixture ownership, runtime-generated identifiers, and whether the request changes state.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not create a request for an unimplemented operation. Do not run state-changing tests against an unapproved target.
 
@@ -51,6 +53,8 @@ Use the target collection format, variable names, base URL, headers, authenticat
 - Reports exclude authorization headers, API keys, and request or response bodies.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 Start the required service, prepare safe data, then run:
 

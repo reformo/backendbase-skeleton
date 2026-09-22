@@ -4,6 +4,8 @@ This reference generates a release workflow. It does not authorize a live build 
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, quality scripts, generated API or other contracts, migration namespace and CLI, health endpoints, cache commands, worker processes, CI provider, deployment files, and tests.
 3. Identify the current server layout, artifact store, secret delivery, backup system, process manager, readiness URL, and release authority.
@@ -190,6 +192,8 @@ Generating and testing workflow files in an isolated directory is allowed within
 - rolling back a release.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 Adapt generated-contract commands to the target, then run:
 

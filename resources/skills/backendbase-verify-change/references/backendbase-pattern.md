@@ -1,16 +1,17 @@
 # Backendbase Change Verification Pattern
 
-Use this checklist in another project after mapping its namespaces, source roots, framework, container, test runner, and documentation paths.
+Use relevant sections after resolving unknown target namespaces, source roots, framework, container, test runner, and documentation paths. Reuse established facts from unchanged source. Source lists record provenance; they are not mandatory reading lists.
 
 ## Evidence Order
 
-Use evidence in this order:
+Target-project instructions, explicit user requirements, and mandatory platform design rules define the required behavior. Current code cannot authorize a deviation from those rules.
 
-1. Target-project agent instructions and explicit user requirements.
-2. Current executable code and dependency configuration.
-3. Current tests and generated artifacts.
-4. Current platform documentation.
-5. Older narrative or tutorial documentation.
+For current-state claims, use evidence in this order:
+
+1. Current executable code and dependency configuration.
+2. Current tests and generated artifacts.
+3. Current platform documentation.
+4. Older narrative or tutorial documentation.
 
 Backendbase sources for this checklist include:
 
@@ -33,7 +34,7 @@ Backendbase sources for this checklist include:
 - `composer.json`
 - `phpstan.neon`
 
-The numbered HTML files in `resources/docs/` are useful background. Resolve conflicts in favor of current code, tests, and platform documents.
+The numbered HTML files in `resources/docs/` are background for unresolved details. Use current code and tests to establish behavior. Report a conflict with a mandatory design rule before choosing a deviation.
 
 ## Review Matrix
 
@@ -131,7 +132,7 @@ Code can be correct and still be unreachable. Check every applicable registry:
 - Readiness-check collection.
 - Doctrine entity path and migration namespace.
 
-For each applicable item, add or run a composition test through the real provider, container, bus, route collection, command list, or registry. Static architecture and direct unit tests do not prove runtime reachability.
+For changed registration, run a composition test through the real provider, container, bus, route collection, command list, or registry. Add a test when required evidence is missing and implementation is authorized. Static architecture and direct unit tests do not prove runtime reachability.
 
 ## Endpoint verification audit
 
@@ -208,7 +209,9 @@ The current workflows have distinct roles:
 - `.github/workflows/security-checks.yml` runs Semgrep and a service-backed OpenAPI dynamic application security test.
 - `.github/workflows/release-artifact.yml` repeats release gates and builds an immutable artifact for an exact reviewed revision.
 
-Run only applicable local checks. Do not claim a CI, security, dynamic, or release check passed unless it ran in its required environment. A command that did not run is not evidence.
+Select commands by changed behavior and target policy. Do not run this entire list for every review. Reuse successful checks while relevant inputs and the environment remain unchanged. Document-only changes need document checks.
+
+Do not claim a CI, security, dynamic, or release check passed unless it ran in its required environment. A command that did not run is not evidence.
 
 ## Source provenance
 

@@ -5,7 +5,9 @@ description: Expose an existing Backendbase queue processor as a console worker 
 
 # Add a queue consumer runtime
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 

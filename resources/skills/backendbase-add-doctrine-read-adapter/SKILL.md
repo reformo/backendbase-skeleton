@@ -9,13 +9,15 @@ description: Implement or extend a Backendbase Doctrine DBAL read adapter and pe
 
 Return a declared context read result through parameterized DBAL SQL and strict persisted-data mapping.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, layers, container and test layout, Doctrine configuration, and the nearest DBAL read adapter.
+2. Inspect the query port, nearest DBAL adapter, row mapping, provider binding, and focused repository tests.
 3. Read the query, result type, read port, table mapping, removal rules, ordering contract, and pagination primitive.
 4. Inspect how persisted rows are validated before read-model construction.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 6. Confirm that all required columns and indexes already exist or that separate schema work is authorized.
 
 ## Target-project adaptation
@@ -51,8 +53,10 @@ Adapt SQL, selected fields, criteria, null semantics, filters, ordering, paginat
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run focused mapper and repository tests, the provider or container composition test, affected query or lifecycle tests, PHPStan level 8, the configured complexity check, and PHPCS. Run schema validation only against a prepared database.
 
 ## Completion report
 
-Report SQL criteria, bindings, ordering, result and empty semantics, mapper validation, tests, commands run, and skipped checks.
+Report SQL criteria, bindings, ordering, result and empty semantics, mapper validation, tests, commands run, and blocked required checks.

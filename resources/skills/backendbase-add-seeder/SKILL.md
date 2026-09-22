@@ -9,12 +9,14 @@ description: Add an idempotent Backendbase database seeder for explicitly approv
 
 Insert only approved stable reference data exactly once across repeated executions and releases.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespace, database layer, migration and test layout, and the nearest seeder.
+2. Inspect the seeder namespace, target schema, migration invocation, nearest seeder, and repeat-run tests.
 3. Read the target schema, unique keys, existing data contract, and release migration flow.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Confirm the exact approved rows, stable identity, and whether a migration must invoke the seeder.
 
 ## Target-project adaptation
@@ -43,8 +45,10 @@ Adapt the seeder namespace, table, bound values, identity generation, natural-ke
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run the focused seeder test and owning Doctrine repository directory. If a migration invokes the seeder, dry-run and verify that migration against a prepared database with explicit authority.
 
 ## Completion report
 
-Report approved rows, idempotency key, migration invocation decision, tests, commands run, and skipped checks.
+Report approved rows, idempotency key, migration invocation decision, tests, commands run, and blocked required checks.

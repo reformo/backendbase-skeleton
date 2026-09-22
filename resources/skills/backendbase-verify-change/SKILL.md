@@ -1,75 +1,55 @@
 ---
 name: backendbase-verify-change
-description: Verify a Backendbase-style change across architecture, behavior, persistence, HTTP contracts, messaging, operations, tests, and documentation. Use for a cross-layer review, pre-delivery check, regression audit, or evidence-backed completion assessment. Do not implement fixes unless the user also asks for changes.
+description: Review a cross-layer Backendbase-style change when requested or when its risk needs an integrated review. Do not use for routine single-artifact completion.
 ---
 
 # Verify a Cross-Layer Change
 
-Review the change against target-project rules first. Use Backendbase as a reference architecture, not as a source of names or configuration values.
+Verify the requested behavior and applicable project rules with evidence. Review-only requests produce findings. An implementation request also authorizes correction of verified defects within its scope.
 
-## Establish the Review Scope
+## Establish the review
 
-1. Read the target project's agent instructions.
-2. Read the target project's platform or task-routing guide when present. Read every task-specific architecture file for the changed surfaces.
-3. Identify every available skill that applies to the changed artifacts. Read each skill and its required references.
-4. Inspect the working-tree status and the complete relevant diff.
-5. Identify changed behavior, public contracts, persisted data, external effects, and operational steps.
-6. When application behavior changed, enumerate the target project's existing delivery APIs and identify every affected one. Do not assume an API exists from its name.
-7. Inspect the nearest unchanged implementation and its tests.
-8. Read [the Backendbase verification pattern](references/backendbase-pattern.md).
+Read applicable target-project instructions and inspect the relevant diff. Reuse discovery and verification already completed for unchanged inputs.
 
-For a review-only request, do not edit files or mutate external systems. For an implementation request, keep fixes limited to verified findings.
+Identify affected behavior, public contracts, persisted data, external effects, and operations. Inspect the nearest implementation and tests. Resolve unknown target namespaces, paths, framework, dependencies, configuration, security, test ownership, and deployment facts only when relevant.
 
-## Build an Impact Map
+Select platform files and narrow skills for constraints not already covered. An unused skill is not itself a defect. Missing evidence or a violated invariant is a defect.
 
-Trace every changed value or state transition through:
+## Route by risk
 
-`boundary -> typed input -> application message -> handler -> model/port -> adapter -> response/event -> schema -> tests -> operations`
+Use [the verification pattern](references/backendbase-pattern.md) as a selective reference:
 
-Mark absent surfaces as not applicable. Do not invent work for them.
+| Review question | Reference sections |
+| --- | --- |
+| Which rules and evidence apply? | Evidence Order; affected rows of Review Matrix |
+| Did dependencies or runtime registration change? | Architecture Checks; Registration Checks |
+| Can input, persistence, or external effects fail unsafely? | Trust-Boundary Checks; Persistence and Messaging Checks |
+| Does HTTP behavior match its contract? | Endpoint verification audit |
+| Is a migration or release compatible? | Release-manifest parity |
+| Which local checks are available? | Backendbase CI and verification commands |
 
-For each present surface, record its platform file, matching skill, applicable rule, and implementation evidence. Treat an omitted matching skill as a verification finding.
+Consult only relevant Known Backendbase Drifts entries. Confirm them against current target source. Backendbase paths and examples are provenance, not target-project defaults.
 
-## Review in Risk Order
+Review data loss, authorization, secrets, external effects, and incompatible contracts first. Then check domain invariants, transaction boundaries, dependency direction, runtime reachability, tests, and documentation for affected surfaces.
 
-1. Check compliance with selected platform design rules and skill invariants.
-2. Check data loss, authorization, secrets, external effects, and incompatible contracts.
-3. Check domain invariants and transaction boundaries.
-4. Check dependency direction and bounded-context isolation.
-5. Check HTTP, console, configuration, persistence, and messaging boundaries.
-6. Audit each affected endpoint as one route, middleware, controller, OpenAPI, executable example, and test contract.
-7. Check registration and runtime discovery with composition tests, not static inspection alone.
-8. Check release-manifest parity when a migration or rollback policy changed.
-9. Check tests, static analysis, style, generated contracts, and synchronized documentation.
+Trace changed fields or state through participating boundaries, contracts, handlers, adapters, responses or events, and tests. Omit absent surfaces. Do not invent work for them.
 
-Use the narrow `backendbase-*` verification or artifact skill when a finding needs detailed rules for one surface.
+Current source establishes behavior, but does not authorize a platform-rule exception. Report conflicts. Ask only when existing requirements and authority do not resolve the decision.
 
-A passing test suite does not override a platform rule. Require explicit user authorization for each intentional deviation.
+## Coordinate verification
 
-## Run Proportionate Verification
+Use the smallest checks that prove the changed behavior, plus the target project's required gates. Add composition tests when registration changes and architecture tests when boundaries change. Validate affected API specifications and review maintained executable examples.
 
-Start with the smallest relevant test. Expand only after it passes or when the change has broader risk.
+Run required static analysis, complexity, and style checks for code changes. Run document checks for prose-only changes. Run the full suite for broad changes or when project policy requires it.
 
-- Run focused unit and adapter tests.
-- Run affected contract and boundary tests.
-- Run applicable composition and registration tests through the actual container, bus, provider, route map, or registry.
-- Run architecture tests.
-- Run PHPStan at the required level.
-- Run the configured complexity check.
-- Run the style check.
-- Generate and validate affected API specifications.
-- Review the generated contract diff and affected Bruno requests without running them against an unapproved target.
-- Run the full suite for cross-cutting, persistence, messaging, or release changes.
+One successful check can satisfy several skills. Repeat it only after relevant edits, failures, environment changes, or new evidence. Fix change-caused failures when implementation is authorized. Report unrelated failures without expanding scope.
 
-Do not report a check as passed unless you ran it and saw a successful result. Record commands that could not run and the reason.
+Verify service-backed targets before execution. Reuse existing explicit authority for the same operation, target, and scope. A code or review request alone does not authorize a shared-database migration, deployment, or remote write.
 
-## Report Findings or Completion
+## Report findings or completion
 
-For findings, lead with severity, exact location, concrete failure mode, and required correction. Avoid speculative findings.
+Lead findings with severity, exact location, concrete failure, and required correction. Do not edit during a review-only request.
 
-When no defect remains, report:
+For implementation work, continue through authorized corrections and affected rechecks. Finish when the requested behavior, applicable invariants, required checks, and affected documentation are complete.
 
-- The behavior and contracts verified.
-- The checks run and their results.
-- Any unverified external dependency or manual operation.
-- Any known source limitation that the change intentionally avoids.
+Report the behavior verified, observed check results, concrete blockers, and unverified operations. Do not claim success for an unrun check or stop for review while authorized work remains.

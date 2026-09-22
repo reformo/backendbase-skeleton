@@ -9,13 +9,15 @@ description: Add or extend object-storage download, upload, or signed-browser-up
 
 Add one storage operation with a project-owned contract, private and bounded access rules, validated configuration, vendor isolation, and deterministic adapter tests.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading and storage SDKs, namespaces, architecture layers, container definitions, configuration, readiness checks, test layout, and the nearest storage operation.
+2. Inspect the storage port, installed client, nearest operation, configuration, readiness contract, and focused tests.
 3. Resolve the caller, object key rules, bucket or container, provider, endpoint, credential strategy, content type, access level, expiration, and retry policy.
 4. Confirm whether a CDN or direct object-store URL owns downloads.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not add a bucket, public access policy, provider, endpoint, or upload path without user intent.
 
@@ -47,6 +49,8 @@ Use the target port, provider SDK, storage terminology, key policy, container wi
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/S3BucketTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/AwsDependencyDefinitionsTest.php
@@ -59,4 +63,4 @@ Use the corresponding target test paths when the provider is not S3.
 
 ## Completion report
 
-Report the action, key and access policy, provider mapping, timeout and retry policy, container changes, tests, and skipped checks.
+Report the action, key and access policy, provider mapping, timeout and retry policy, container changes, tests, and blocked required checks.

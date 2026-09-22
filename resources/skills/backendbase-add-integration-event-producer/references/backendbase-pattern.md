@@ -4,6 +4,8 @@ Use this pattern only when an existing transactional messaging runtime must publ
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, bounded contexts, command handlers, integration-event contracts, clocks, outbox transaction port, service identity configuration, and tests.
 3. Find the nearest working producer in the same context.
@@ -132,6 +134,8 @@ Do not pass the command or aggregate into the payload. The callback can mutate d
 Creating producer code and migrations is separate from applying schema changes, running relays, publishing test messages, or changing a live queue. Request authority for those actions.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php

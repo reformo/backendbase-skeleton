@@ -9,14 +9,16 @@ description: Add a project-owned port and infrastructure adapter for a vendor AP
 
 Add one narrow external capability whose vendor SDK remains behind a project-owned interface, with validated configuration, bounded failures, container wiring, and deterministic tests.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading and installed SDKs, namespaces, architecture layers, container definitions, configuration loading, test layout, and the nearest external adapter.
+2. Inspect the owning port, installed client dependency, nearest external adapter, configuration, registration, and boundary tests.
 3. Identify the owning bounded context and exact external action.
 4. Verify the current official vendor contract and SDK behavior when they can change.
 5. Resolve timeouts, idempotency, retryable failures, rate limits, credentials, response validation, and logging constraints.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not add a provider, credential, network call, or extra operation that the user did not request.
 
@@ -47,8 +49,11 @@ Use the target context, namespace, port location, SDK, container, config keys, e
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/{AdapterTest}.php
+# Use the owning directory instead when the change needs broader coverage.
 vendor/bin/phpunit tests/Infrastructure/Adapters
 composer phpstan
 composer complexity
@@ -59,4 +64,4 @@ Run any provider sandbox check only with explicit authorization and safe credent
 
 ## Completion report
 
-Report the owning context, port, adapter, configuration, failure policy, tests, external calls not run, and skipped checks.
+Report the owning context, port, adapter, configuration, failure policy, tests, external calls not run, and blocked required checks.

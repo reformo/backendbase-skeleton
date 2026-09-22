@@ -9,12 +9,14 @@ description: Add a typed Backendbase domain or application failure with a stable
 
 Represent one expected failure as a pure domain error. Map it to a stable public HTTP Problem Details contract.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespace, layers, container and test layout, error base classes, HTTP translation, and the nearest typed failure.
+2. Inspect the failure owner, existing problem base class, HTTP translation, nearest typed failure, and affected tests.
 3. Search current public error codes and translations to prevent duplicate or conflicting meanings.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Confirm the failure owner, status, stable code, public detail, and whether clients already depend on an existing contract.
 
 ## Target-project adaptation
@@ -45,8 +47,10 @@ Adapt namespace, error-code vocabulary, status, type, title, translation key, an
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run the focused exception test and affected HTTP action or handler tests, then PHPStan level 8, the configured complexity check, and PHPCS. Run architecture tests when placement or dependencies changed.
 
 ## Completion report
 
-Report the owner, stable public contract, throw site, safe additional data, tests, commands run, and skipped checks.
+Report the owner, stable public contract, throw site, safe additional data, tests, commands run, and blocked required checks.

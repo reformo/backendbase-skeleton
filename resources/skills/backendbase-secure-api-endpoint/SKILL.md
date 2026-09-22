@@ -9,14 +9,16 @@ description: Protect an existing Backendbase-style API operation with the establ
 
 Apply an explicit public or protected policy to one operation. Keep routing, authorization context, application decisions, OpenAPI security, and failure tests aligned.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read applicable `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, architecture layers, container definitions, tests, and the nearest protected route.
+2. Inspect the affected route, authentication stack, application privilege checks, public contract, and focused security tests.
 3. Discover the owning API and trace source selection, API-context setup, API-key middleware, bearer validation, JWT settings and state, request attributes, ACL usage, CORS, and OpenAPI schemes.
 4. Resolve the exact API-key rule, identity requirement, named privilege, public exception if any, expected claims, and `401` versus `403` behavior.
 5. Confirm how the real route stack proves each layer and where runtime currently differs from the intended contract.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Ask before making an endpoint public or changing token and privilege semantics.
 
@@ -55,6 +57,8 @@ Use the target identity model, claims, issuer, audience, key storage, revocation
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/IdentityAndAccess/Tests
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/Middleware
@@ -71,4 +75,4 @@ composer cs-check
 
 ## Completion report
 
-Report the operation, each applied security layer, privilege, request attributes used, status contract, route-level evidence, and skipped checks.
+Report the operation, each applied security layer, privilege, request attributes used, status contract, route-level evidence, and blocked required checks.

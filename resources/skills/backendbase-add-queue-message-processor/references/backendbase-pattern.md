@@ -4,6 +4,8 @@ A processor sits between the transport-normalized message and application work. 
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, queue port, incoming mapper, outcome enum, failure policy, inbox contracts, processor tests, and nearest application port.
 3. Determine whether work is a database mutation, pure computation, or an external provider effect.
@@ -137,6 +139,8 @@ Log stable operation, exception class, message ID, consumer name, and trace ID w
 Do not consume, publish, replay, delete, or alter live messages while implementing or testing without explicit authority.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php

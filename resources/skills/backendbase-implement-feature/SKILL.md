@@ -1,88 +1,56 @@
 ---
 name: backendbase-implement-feature
-description: Coordinate an end-to-end Backendbase-style feature across several architectural surfaces, such as domain behavior, CQRS, persistence, HTTP, messaging, configuration, and tests. Use when one request requires multiple artifacts and their contracts to remain aligned. Do not use for a single command, endpoint, migration, consumer, or other one-surface change; use the narrower skill instead.
+description: Implement a feature across several architecture layers in a Backendbase-style project. Use for coordinated changes; use a narrower skill for a single artifact.
 ---
 
 # Implement a Cross-Layer Feature
 
-Use this skill as an orchestrator. Keep each feature slice small and select only the specialized skills that the request needs.
+Deliver the requested behavior, aligned contracts, relevant verification, and affected documentation. Planning or review requests do not authorize implementation or external operations.
 
-Platform rules and selected skill invariants are implementation requirements. Do not replace them with a locally convenient alternative. Report any conflict before choosing a deviation.
+## Establish the task
 
-## Start With Evidence
+Read applicable target-project instructions. Define the observable outcome, affected surfaces, and completion checks. Resolve routine local choices from established conventions.
 
-1. Read the target project's agent instructions.
-2. Inspect Composer autoloading, namespaces, source roots, container wiring, tests, and documentation layout.
-3. Discover the current HTTP APIs, console entry points, consumers, and other delivery surfaces.
-4. Mark each discovered surface as affected or not applicable for the requested behavior.
-5. Find the nearest working example for each required surface.
-6. Read [the Backendbase feature pattern](references/backendbase-pattern.md).
-7. State assumptions, the requested behavior, exclusions, and verifiable success criteria.
+Discover only unknown facts needed by those surfaces: architecture, namespaces, source paths, framework, dependencies, configuration, security, tests, and deployment. Reuse verified facts while their source remains unchanged.
 
-Treat the reference as architectural evidence. Adapt names and paths to the target project. Never copy `Backendbase\`, `Example`, credentials, hosts, fixture identifiers, or environment values into another project.
+Inspect the nearest implementation and its callers. Identify existing delivery surfaces affected by the behavior. Do not assume Backendbase names, API count, paths, schemas, credentials, hosts, or fixtures apply to the target.
 
-Use a reference API only as a pattern. Update every existing affected API. If an expected API, public root, configuration tree, or contract tree is absent, report the gap before deciding to scaffold or skip it.
+Ask only for unresolved decisions that materially change public behavior, compatibility, required platform choices, shared data, or external effects. Continue independent work while a decision is pending.
 
-## Route the Work
+## Select detailed guidance
 
-Use a narrower `backendbase-*` skill for every artifact when it is available:
+Use a narrow artifact skill when it adds a required procedure or invariant not already covered. Its discovery and verification steps share the evidence collected for this task.
 
-- Domain: bounded context, behavior, value object, command, query, domain event, or problem.
-- Persistence: write adapter, read adapter, memory adapter, migration, or seeder.
-- HTTP: use-case API, module, endpoint, middleware, security, OpenAPI operation, or Bruno test.
-- Messaging: producer, contract evolution, subscriber, processor, consumer runtime, driver, or operations.
-- Platform: configuration, readiness, logging, external service, storage, notification, i18n, primitives, mapping, or release.
-- Verification: domain tests, architecture rules, and cross-layer change verification.
+Read only needed sections of [the feature pattern](references/backendbase-pattern.md):
 
-If the request needs only one artifact, stop using this orchestrator and use the matching narrow skill.
+| Question | Reference sections |
+| --- | --- |
+| Where does the change belong? | Adaptation Map; Dependency Direction; Minimum Feature Slice |
+| Which delivery surfaces and contracts change? | Affected-delivery pass; Boundary Rules |
+| How are handlers and adapters reached? | CQRS Contract; Registration Checklist |
+| How do persistence and events remain consistent? | Cross-layer implementation gates; Transactional Publication |
+| Which example limitations or checks matter? | Relevant Known Source Limits to Correct entries; Verification Baseline |
 
-## Recheck Changed Scope
+When scope expands, inspect the new surface and reassess affected decisions. Do not restart unrelated discovery.
 
-Repeat target-project guidance and skill routing when the user request or discovered behavior adds a new architectural surface. Read each newly applicable guide before continuing.
+## Implementation constraints
 
-Reassess decisions made for the earlier scope. Do not assume that an earlier adapter, framework choice, contract, or test strategy remains valid.
+- Follow target platform rules and applicable skill invariants. Report source conflicts before choosing a deviation.
+- Add only layers required by the behavior. Keep domain and application code independent from frameworks and infrastructure.
+- Validate untrusted input at its boundary. Keep business rules in domain behavior and vendor or database operations behind project-owned ports.
+- Align fields, types, required state, defaults, errors, authorization, and versions across participating contracts. Update every affected existing delivery surface.
+- Verify actual container, bus, route, provider, or registry reachability when registration changes. Direct unit tests alone do not prove wiring.
+- Add integration events only when requested behavior requires them. Prove external producer-to-carrier mapping. Do not claim exactly-once delivery.
+- Generate a migration only for authorized schema scope after mapping and repository behavior are established. Review every statement and exclude unrelated changes.
+- Separate migration drafting from database application. Apply only with explicit authority for the identified database. Do not invent seed rows or schema fields.
+- Use existing explicit authority for the same operation, target, and scope. Ask again when those details materially change. Code work alone does not authorize deployment or remote synchronization.
 
-## Build the Feature
+## Verify and finish
 
-1. Define the requested business rule and its public contract. Draft the OpenAPI operation for every affected API when HTTP is in scope.
-2. Choose or create the owning bounded context. Add the command or query and the required domain behavior and typed values.
-3. Define narrow project-owned ports. Implement only the required persistence, messaging, or external-service adapters.
-4. Add the application handler. Add asynchronous publication or consumption only when the feature requires it.
-5. Register each adapter, handler, subscriber, and other runtime entry in the target composition root.
-6. Run focused domain, contract, handler, adapter, provider, and lifecycle tests for the changed surfaces.
-7. If an approved mapping change exists, generate the migration diff only after repository behavior is final. Review every statement and remove unrelated changes.
-8. Dry-run and apply the reviewed migration only against an explicitly approved target database. A code request alone does not authorize database mutation.
-9. Add HTTP or console delivery adapters after the application path and focused tests are complete.
-10. Reconcile runtime input, output, errors, and authorization with OpenAPI. Update executable API examples such as Bruno when the target maintains them.
-11. Update operations guidance, release migration metadata, and architecture documentation when those surfaces changed.
+Select checks from changed behavior and target policy. Run focused regression tests and required static analysis, complexity, and style checks. Add architecture, API, database, messaging, or release checks when affected. Run the full suite when risk or project policy requires it.
 
-Keep domain and application code independent from frameworks and infrastructure. Validate untrusted data at HTTP, console, configuration, storage, and messaging boundaries. Convert valid data into typed objects before it reaches business logic.
+Reuse a successful result across skills while its relevant inputs and environment remain unchanged. Repeat checks after relevant edits, failures, or new evidence. Do not run application checks for prose-only work.
 
-Do not create schema or seed data because it appears useful. Confirm every table, column, index, constraint, and reference row. Route approved seed data through the seeder workflow.
+For implementation requests, fix defects caused by the change and continue until the outcome and required checks are complete. Update affected contracts, examples, operations guidance, and documentation. Follow the target changelog policy.
 
-## Keep Contracts Aligned
-
-Trace each field through all participating surfaces:
-
-`input -> typed contract -> handler -> model/port -> adapter -> output/event -> documented schema -> tests`
-
-Verify names, types, required state, nullability, defaults, version, and error behavior at every step. Add a producer-to-carrier mapping test for each external event. Do not claim exactly-once delivery.
-
-## Verify in Layers
-
-1. Map every changed surface to its selected platform files and specialized skills.
-2. Confirm that each implementation choice follows their design rules and invariants.
-3. Run the smallest tests for each changed artifact.
-4. Run the complete feature or bounded-context test set.
-5. Run architecture tests.
-6. Run PHPStan at the target project's required level.
-7. Run the target project's configured complexity check.
-8. Run the style check.
-9. Validate generated API contracts when HTTP behavior changes.
-10. Run the full suite when risk or project policy requires it.
-
-Do not execute a migration, deploy a release, replace tracked localization files, or mutate an external system without explicit authorization.
-
-## Report Completion
-
-Report the behavior delivered, the contracts kept in sync, the files changed, and the exact verification results. State any known limitation or unverified external dependency.
+Report the delivered behavior, applicable-rule compliance, verification results, and concrete blockers or unverified dependencies. A review gate is needed only for an unresolved decision or an operation outside existing authority.

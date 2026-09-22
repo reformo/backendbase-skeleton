@@ -4,6 +4,8 @@ This reference covers correlation fields in Monolog. It does not define distribu
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read applicable `AGENTS.md` files.
 2. Inspect Composer packages, PSR-4 roots, logger configuration and factory, HTTP bootstrap, error handlers, queue envelope, worker bootstrap, and logging tests.
 3. Identify every existing request or message correlation field.
@@ -86,6 +88,8 @@ Keep file names and stack traces in protected internal logs. Do not add them to 
 Changing code and tests does not authorize altering centralized log retention, shipping, dashboards, exporters, or production configuration.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 Run the newly added logger-factory test first. Then run the target equivalents of:
 

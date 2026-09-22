@@ -104,7 +104,7 @@ composer cs-check
 composer test
 ```
 
-Use existing target paths. Report every skipped command and its blocker.
+Use existing target paths. Report required checks that could not run and their blockers. Omit checks unrelated to the changed behavior.
 
 ## Source provenance
 

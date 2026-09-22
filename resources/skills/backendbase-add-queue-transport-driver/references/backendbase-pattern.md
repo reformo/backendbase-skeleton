@@ -4,6 +4,8 @@ This reference adds a vendor transport behind an existing project-owned queue po
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, the queue port, current adapters and mappers, settings, dependency selection, readiness checks, tests, and deployment infrastructure.
 3. Read official vendor documentation for acknowledgment, timeout, durability, ordering, retry, and dead-letter behavior.
@@ -131,9 +133,11 @@ Keep secrets outside source and logs. Use neutral values in local examples.
 
 ## Authorization boundary
 
-Adding source and tests does not authorize installing a package from the network, creating queues, changing IAM or broker permissions, publishing messages, or probing a live broker. Request permission for each external mutation.
+Adding source and tests does not authorize installing a package from the network, creating queues, changing IAM or broker permissions, publishing messages, or probing a live broker. Verify existing explicit authority covers each external mutation, its target, and its effects. Ask only for missing authority or a changed scope.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit tests/Shared/Integrations/RabbitMQTest.php

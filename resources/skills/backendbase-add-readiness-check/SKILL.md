@@ -5,7 +5,9 @@ description: Add a safe, bounded dependency readiness check to a Backendbase-der
 
 # Add a Backendbase readiness check
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 
@@ -26,4 +28,4 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 
 ## Completion report
 
-Report the dependency, probe, timeout, safe public name, registration path, tests run, and skipped live checks.
+Report the dependency, probe, timeout, safe public name, registration path, tests run, and required live checks that could not run.

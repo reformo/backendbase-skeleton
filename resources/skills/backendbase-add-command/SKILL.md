@@ -9,12 +9,14 @@ description: Add a synchronous Backendbase CQRS command and handler for one stat
 
 Create one serializable command and one resolvable handler that changes state through domain behavior and project-owned ports.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, layer and container layout, test roots, and the nearest command and handler.
+2. Inspect the nearest command and handler, affected domain behavior, transaction owner, registration, and focused tests.
 3. Trace the relevant aggregate, write port, transaction mechanism, caller boundary, domain-event publisher, and container registration path.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Confirm input fields, invariant, result semantics, transaction scope, and whether any event is explicitly required.
 
 ## Target-project adaptation
@@ -50,8 +52,10 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 
 ## Verification
 
-Run the contract test, handler test, real command-bus composition test, affected lifecycle test, architecture tests, PHPStan level 8, the configured complexity check, and PHPCS. For an outbox branch, force an outbox failure and verify the business write rolls back. For a transactional domain event, assert persistence and publication order inside the callback.
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Run focused command and handler tests. Verify real bus composition when registration changes. Add lifecycle and architecture checks for affected behavior and dependencies. Run PHPStan level 8, the configured complexity check, and PHPCS. For an outbox branch, force an outbox failure and verify the business write rolls back. For a transactional domain event, assert persistence and publication order inside the callback.
 
 ## Completion report
 
-Report the command contract, handler, domain operation, port and transaction use, event decision, tests, commands run, and skipped checks.
+Report the command contract, handler, domain operation, port and transaction use, event decision, tests, commands run, and blocked required checks.

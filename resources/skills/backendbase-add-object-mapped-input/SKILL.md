@@ -9,13 +9,15 @@ description: Map a sanitized boundary array into a typed input object with the B
 
 Add one typed boundary input whose accepted fields, normalization, scalar strictness, unknown-key policy, public errors, cache wiring, and tests are explicit.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading and mapper version, namespaces, architecture layers, container definitions, cache configuration, tests, and the nearest mapped input.
+2. Inspect the owning input boundary, installed mapper version, mapping policy, nearest typed input, and boundary tests.
 3. Resolve the external payload contract, target object, required and optional fields, normalization, unknown-key behavior, scalar strictness, and public error schema.
 4. Confirm that object mapping is simpler and safer than explicit construction for this boundary.
-5. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+5. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not create a new request schema or silently broaden accepted input without user intent.
 
@@ -46,6 +48,8 @@ Use the target DTO style, mapper library and version, sanitizer, exception hiera
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 composer phpstan
@@ -57,4 +61,4 @@ Add a focused owning-boundary test when the mapped input belongs outside Shared 
 
 ## Completion report
 
-Report the target input, accepted fields, normalization, unknown-key and scalar policies, error shape, tests, and skipped checks.
+Report the target input, accepted fields, normalization, unknown-key and scalar policies, error shape, tests, and blocked required checks.

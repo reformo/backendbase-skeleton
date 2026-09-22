@@ -9,14 +9,16 @@ description: Add or change PSR-15 HTTP middleware in a Backendbase-style API, in
 
 Implement one transport-boundary policy with explicit scope, correct middleware order, stable failure behavior, and focused pass, reject, and bypass tests.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
 2. Discover the actual API surface, route registry, middleware file, OpenAPI root, CORS configuration, and Bruno collection. Do not assume a fixed API list.
-3. Inspect Composer autoloading, namespaces, architecture layers, container definitions, test layout, framework middleware order, and the nearest middleware.
+3. Inspect the affected middleware stack, framework ordering, request attributes, nearest middleware, and boundary tests.
 4. Trace every request attribute and header the middleware consumes or produces, including the earlier component that supplies each value.
 5. Resolve API-wide or route-level scope, public bypasses, OPTIONS behavior, failure status, response schema, and contract impact.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not add a middleware or public bypass without a requested transport policy.
 
@@ -49,8 +51,11 @@ Use the target PSR interfaces, framework stack semantics, container, attribute n
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 vendor/bin/phpunit tests/Shared/Http/Middleware/{MiddlewareTest}.php
+# Use the owning directory instead when the change needs broader coverage.
 vendor/bin/phpunit tests/Shared/Http/Middleware
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/ModuleRoutingTest.php
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
@@ -66,4 +71,4 @@ Validate the merged OpenAPI document when the public contract changes. Compare r
 
 ## Completion report
 
-Report scope, order, consumed and produced attributes, bypasses, failure contract, tests, and skipped checks.
+Report scope, order, consumed and produced attributes, bypasses, failure contract, tests, and blocked required checks.

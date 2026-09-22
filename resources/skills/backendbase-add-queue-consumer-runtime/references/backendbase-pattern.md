@@ -4,6 +4,8 @@ This pattern exposes an existing message processor through a console worker. It 
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, console bootstrap, queue port, transport configuration, processor signature, command registration, tests, and deployment process manager.
 3. Identify the queue name source and supported transport drivers.
@@ -108,6 +110,8 @@ The Backendbase repository does not contain a supervisor or scheduler definition
 Do not start a worker, install a service unit, alter concurrency, stop a live process, or create a queue without explicit authorization.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/QueueConsumerCommandsTest.php

@@ -4,6 +4,8 @@ An external subscriber consumes a queue-delivered, versioned producer payload th
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, the consuming context, external carrier conventions, event manager, registry, mapper, inbox, failure policy, container, and tests.
 3. Obtain the producer's exact serialized payload, event name, and version from source or a published contract.
@@ -170,6 +172,8 @@ For an external effect, also test provider idempotency-key propagation, duplicat
 Do not start a live consumer, replay a message, alter inbox records, provision queues, or deploy producer and consumer changes without explicit authorization.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php

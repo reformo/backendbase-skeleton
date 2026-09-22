@@ -1,6 +1,6 @@
 # Backendbase Cross-Layer Feature Pattern
 
-Use this reference to reproduce the architecture in another PHP project. Do not reproduce product names or sample data.
+Use relevant sections to reproduce the architecture in another PHP project. Do not reproduce product names or sample data. Source lists record provenance; they are not mandatory reading lists.
 
 ## Source Provenance
 
@@ -46,7 +46,7 @@ The numbered HTML files in `resources/docs/` give background. Prefer current cod
 | Schema change | `resources/database/Migrations/` | Follow the target migration namespace and database rules. |
 | Verification | Context `Tests`, plus root infrastructure and architecture tests | Mirror the target test ownership and runner. |
 
-Discover the target mappings before creating files. A matching role is more important than a matching directory name.
+Discover unknown target mappings for affected roles before creating files. Reuse mappings already established from unchanged source. A matching role is more important than a matching directory name.
 
 ## Affected-delivery pass
 
@@ -56,17 +56,13 @@ Use the nearest complete API as the implementation reference, not as the only ta
 
 ## Cross-layer implementation gates
 
-For an endpoint-backed feature, use these gates:
+For an endpoint-backed feature, verify these outcomes. Choose the implementation order from actual dependencies.
 
-1. Draft the public contract for each affected API.
-2. Define domain behavior and the command or query contract.
-3. Define ports, then implement adapters and the handler.
-4. Prove the application path with focused tests before delivery adapters.
-5. Generate a schema diff only after mapping and repository behavior are final and the schema scope is approved.
-6. Review the diff and dry-run it against an identified target.
-7. Apply it only with explicit authority for that database.
-8. Add the controller and route after the application path is proven.
-9. Reconcile runtime behavior with OpenAPI and executable examples.
+- Each affected API has an aligned public contract, domain behavior, command or query, handler, and required adapters.
+- Focused tests prove the application path and its delivery boundary.
+- Generate a schema diff only after mapping and repository behavior are established and the schema scope is authorized.
+- Review generated SQL. Dry-run only against an identified, prepared target. Apply only with explicit authority for that database.
+- Runtime behavior, OpenAPI, and maintained executable examples agree.
 
 An unauthorized migration application is an external handoff, not a successful verification. Do not treat application code approval as database authority.
 
@@ -204,4 +200,6 @@ composer validate-example-api-spec
 composer test
 ```
 
-`phpstan.neon` sets level 8. Run API generation and validation only for affected APIs. Run deployment script tests when release tooling changes.
+These commands are options selected by changed behavior and target policy, not a mandatory sequence. Reuse successful checks across skills while relevant inputs remain unchanged.
+
+`phpstan.neon` sets level 8. Run API generation and validation only for affected APIs. Run deployment script tests when release tooling changes. Use document checks for prose-only work.

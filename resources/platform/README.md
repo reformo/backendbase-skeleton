@@ -2,32 +2,36 @@
 
 Use this directory as modular prompt context for Backendbase Core. Each file covers one concern and can be included independently.
 
-## Loading rule
+## Select context by task
 
-1. Always include `00-platform.md` and `02-architecture.md`.
-2. Add only the files needed for the current task.
-3. Inspect the current source before implementation. Source code can change after these summaries.
-4. Use the HTML guides under `resources/docs` when a summary does not answer a required detail.
+Start with the requested outcome and the nearest source or document. Use the table to resolve unknown facts and affected constraints.
 
-Do not include this whole directory by default. That action reduces prompt focus and repeats some context.
+- Read `00-platform.md` when the stack, entry point, or project command is unknown.
+- Read `02-architecture.md` when code placement, dependencies, or architectural boundaries are affected.
+- Use `01-repository-map.md` when the relevant files are not known.
+- Use `24-feature-workflow.md` when several implementation surfaces need coordination.
+- Read [the skill-authoring rules](../skills/AGENTS.md) when creating or changing reusable skills.
+- A prose-only correction needs the affected document and its checks. It does not need platform or implementation skills.
+- Read the detailed HTML guides only when a selected summary does not answer a required question.
 
-## Mandatory compliance gate
+Reuse guidance and verified project facts already in context. When scope expands, load only the new relevant guidance and reassess affected decisions.
 
-Complete task routing and skill routing before design or implementation. Do not skip this gate because the task appears small.
+## Compliance and completion
 
-Treat platform design rules and skill invariants as requirements. A nearby implementation or working alternative does not override them.
+Platform design rules and applicable skill invariants remain requirements. Current source establishes behavior; it does not authorize a design-rule exception.
 
-When task scope changes, stop and repeat both routing passes for every new surface. Read the added files before continuing. Reassess earlier decisions against the expanded scope.
+Report a conflict before choosing an implementation that would violate a rule. Request a decision only when existing instructions or authorization do not resolve it.
 
-If source behavior conflicts with a design rule, report the conflict. Do not choose a deviation without explicit user authorization.
+Use the root `AGENTS.md` for authorization and completion boundaries. Use `17-testing.md` to coordinate verification once across the task.
 
-Before completion, list each changed surface and confirm compliance with its selected platform files and skills. Successful tests do not replace this review.
+Before delivery, confirm the changed surfaces follow their applicable rules. Report relevant evidence and exceptions without listing unrelated surfaces or unused skills.
 
 ## Task routing
 
-| Task | Add these files |
+| Affected concern | Consult when needed |
 | --- | --- |
-| Locate a change | `01-repository-map.md`, `24-feature-workflow.md` |
+| Locate a change | `01-repository-map.md` |
+| Coordinate a feature | `02-architecture.md`, `24-feature-workflow.md` |
 | Domain feature | `03-bounded-contexts.md`, `04-cqrs.md`, `09-persistence.md`, `17-testing.md`, `24-feature-workflow.md` |
 | HTTP endpoint | `07-http-api.md`, `08-api-contracts.md`, `14-security.md`, `16-errors-observability.md`, `17-testing.md` |
 | Database change | `09-persistence.md`, `10-schema-changes.md`, `17-testing.md` |
@@ -43,11 +47,11 @@ Before completion, list each changed surface and confirm compliance with its sel
 
 ## Skill routing
 
-When a task matches a skill below, open its linked `SKILL.md` and follow it before implementation. Read its referenced pattern file when directed.
+Select the smallest skill that supplies a needed procedure or invariant. Add another skill only when it supplies relevant guidance not already covered.
 
-Select the smallest skill that covers the task. Use `backendbase-implement-feature` only when several architectural surfaces must change together. Adapt all Backendbase examples to the target project.
+Use `backendbase-implement-feature` for coordinated changes across architectural surfaces. Use `backendbase-verify-change` for a requested cross-layer review or a risk that needs that review. Ordinary completion does not require loading both.
 
-Do not omit a matching skill because another selected skill covers part of the same feature. Use each narrow skill for its affected artifact.
+Read only the selected reference sections needed for the task. Reuse established discovery and successful checks across skills. Adapt Backendbase examples to the target project.
 
 ### Orchestration and verification
 
@@ -56,7 +60,7 @@ Do not omit a matching skill because another selected skill covers part of the s
 | [`backendbase-implement-feature`](../skills/backendbase-implement-feature/SKILL.md) | Coordinate one feature across several architecture layers. |
 | [`backendbase-test-domain-feature`](../skills/backendbase-test-domain-feature/SKILL.md) | Add focused domain, CQRS, repository, lifecycle, or composition tests. |
 | [`backendbase-verify-architecture`](../skills/backendbase-verify-architecture/SKILL.md) | Verify dependency direction and bounded-context isolation. |
-| [`backendbase-verify-change`](../skills/backendbase-verify-change/SKILL.md) | Audit a complete change before delivery. |
+| [`backendbase-verify-change`](../skills/backendbase-verify-change/SKILL.md) | Review a cross-layer change when requested or when its risk requires it. |
 | [`cyclomatic-complexity`](../skills/cyclomatic-complexity/SKILL.md) | Measure and reduce control-flow complexity in a touched function. |
 
 ### Domain and CQRS

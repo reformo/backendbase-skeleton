@@ -4,6 +4,8 @@ An internal integration-event subscriber handles a producer `IntegrationEvent` s
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, integration-event interfaces, event manager, container registration, bounded-context provider, and tests.
 3. Search for every explicit internal integration-event dispatch call.
@@ -102,6 +104,8 @@ Use wildcards only when the business request requires a stable family of events.
 Code changes do not authorize executing subscriber effects against live data. Use doubles or isolated test storage unless the user approves an integration run.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php

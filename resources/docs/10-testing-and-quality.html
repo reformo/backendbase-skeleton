@@ -57,9 +57,12 @@
 <ul><li>Use coverage to find untested branches.</li><li>Do not use percentage alone as acceptance evidence.</li><li>Prioritize validation, failure, rollback, retry, and mapping branches.</li></ul>
 </section>
 <section id="workflow"><p class="section-label">09 · Verification workflow</p><h2>Expand checks in proportion to risk</h2>
-<ol class="steps"><li>Run the smallest failing or changed test file.</li><li>Run the owning directory.</li><li>Run related persistence, API, or queue tests.</li>
-<li>Validate OpenAPI when the public contract changes.</li><li>Run PHPStan at level 8.</li><li>Run the complexity check.</li><li>Run PHPCS.</li><li>Validate documentation links.</li><li>Verify report metrics.</li><li>Verify supply-chain evidence when Composer metadata changes.</li><li>Run the full suite for broad changes.</li>
-<li>Run Bruno only with a prepared API, credentials, and data.</li></ol>
+<p>Select local checks through <code>resources/platform/17-testing.md</code>. Documentation-only changes need document checks. PHP changes require focused behavior tests, PHPStan level 8, complexity, and PHPCS.</p>
+<ol class="steps"><li>Start with the smallest relevant check.</li><li>Expand to owning-directory, persistence, API, queue, or architecture checks when the affected behavior requires them.</li>
+<li>Validate OpenAPI when the public contract changes.</li><li>Validate changed documentation links, generated metrics, or supply-chain evidence when those surfaces change.</li><li>Run the full suite for broad changes or when project policy requires it.</li>
+<li>Run Bruno only against an identified, prepared target within existing authority.</li></ol>
+<p>Choose a focused test file or its owning directory according to the change. Do not run both only because a skill lists both. Report required checks that could not run; omit unrelated command examples.</p>
+<p>Reuse a successful result across skills while relevant inputs and the environment remain unchanged. Repeat checks after relevant edits, failures, or new evidence. Fix change-caused failures and report unrelated failures. Existing continuous-integration and release gates remain required.</p>
 </section>
 <section id="automation"><p class="section-label">10 · Automation state</p><h2>Local and continuous-integration gates use the same commands</h2>
 <p>GitHub Actions installs reviewed Composer public keys before self-diagnosis. It also runs validation, a weekly dependency audit, isolated package-content verification, PHPUnit with the coverage gate, PHPStan, cyclomatic complexity, PHPCS, documentation-link validation, report-metric drift detection, and OpenAPI validation.</p>

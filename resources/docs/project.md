@@ -168,7 +168,7 @@ When adding or changing an endpoint, use this adapter shape in each existing aff
 
 ## Feature Flow
 
-Use this flow for backend features:
+Use the relevant parts of this flow for backend features. Choose the implementation order from actual dependencies. Follow the task-scoped guidance in `resources/platform/README.md`.
 
 ```text
 OpenAPI endpoint definition
@@ -237,14 +237,13 @@ The queue message processor converts a producer event name to an external subscr
 
 ## Agent Skills In This Repository
 
-Use these local skills when implementing changes:
+Reusable skills live under `resources/skills`. Use the [platform router](../platform/README.md) to select a skill for the affected behavior. Follow [the skill-authoring rules](../skills/AGENTS.md) when changing a skill.
 
-- `resources/docs/add-api`: Scaffold a complete consumer API from `add-api: <api-name>`, using `ExampleApi` as the reference.
-- `resources/docs/add-php-ddd-feature`: Add backend features using DDD, Ports and Adapters, CQRS, Doctrine, and PHPUnit.
-- `resources/docs/add-example-api-endpoint-controller`: Add consumer API endpoint controllers, Slim routes, authorization grouping, request parsing, responses, and OpenAPI docs, using `ExampleApi` as the reference implementation.
-- `resources/docs/add-bruno-api-e2e-test`: Add YAML Bruno API E2E tests under `resources/bruno` for affected consumer APIs.
-- `resources/docs/add-external-service`: Add a bounded external-service adapter and its configuration.
-- `resources/docs/tolgee-i18n`: Synchronize translation keys with Tolgee.
+Use `backendbase-implement-feature` for coordinated changes across layers. Use `backendbase-verify-change` for a requested cross-layer review or when the change risk needs that review.
+
+Select additional skills only for required procedures or invariants not already covered. Read only relevant reference sections. Reuse verified discovery and successful checks for unchanged inputs. Individual skills retain these rules when copied to another project. A prose-only correction needs no implementation skill.
+
+The root `AGENTS.md` defines authorization and completion. Existing explicit authority covers the same operation, target, and scope. Local code changes do not authorize database application, deployment, or remote synchronization.
 
 ## Commands
 
@@ -280,4 +279,4 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests
 - Update `resources/api-docs/example-api` and `resources/bruno/example-api` when a public ExampleApi route changes.
 - Update the `Unreleased` section of `CHANGELOG.md` in every commit.
 - Use targeted tests under `tests/Infrastructure/UseCase/ExampleApi` for HTTP adapter behavior.
-- Report skipped checks with exact commands and blockers when local dependencies, extensions, services, or environment variables are unavailable.
+- Report required checks that could not run, with exact commands and blockers. Omit command examples unrelated to the changed behavior.

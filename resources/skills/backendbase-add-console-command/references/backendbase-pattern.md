@@ -4,6 +4,8 @@ This reference is self-contained. It describes the verified Backendbase pattern 
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 Before editing:
 
 1. Read every `AGENTS.md` that applies to the target files.
@@ -95,11 +97,13 @@ Use the target container's native equivalent when it differs.
 
 ## Authorization boundary
 
-Creating command code and tests does not authorize running destructive maintenance, installing schedules, changing a supervisor, or accessing a live dependency. Ask immediately before those actions.
+Creating command code and tests does not authorize running destructive maintenance, installing schedules, changing a supervisor, or accessing a live dependency. Reuse explicit authority for the same operation, target, and effects. Ask only when that authority is missing or the scope changes.
 
 ## Verification
 
-Run the newly added command test first. Then broaden with the target equivalents of:
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Select focused command tests and required project gates. Expand coverage when registration or bootstrap changes. Available Backendbase examples:
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console
@@ -122,7 +126,7 @@ Include:
 - exit-code behavior;
 - finite or long-running classification;
 - tests and quality checks run;
-- skipped checks and exact blockers;
+- blocked required checks and their causes;
 - external actions that were not performed.
 
 ## Provenance

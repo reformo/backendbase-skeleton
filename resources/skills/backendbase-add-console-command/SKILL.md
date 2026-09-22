@@ -5,7 +5,9 @@ description: Add or change a Symfony Console command in a Backendbase-derived PH
 
 # Add a Backendbase console command
 
-Read [references/backendbase-pattern.md](references/backendbase-pattern.md) before editing.
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+
+Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed for the affected behavior and its constraints.
 
 ## Workflow
 
@@ -26,4 +28,4 @@ Read [references/backendbase-pattern.md](references/backendbase-pattern.md) befo
 
 ## Completion report
 
-Report the command name, changed files, registration path, runtime model, tests run, and every skipped check with its blocker.
+Report the command name, changed files, registration path, runtime model, tests run, and any blocked required check and its blocker.

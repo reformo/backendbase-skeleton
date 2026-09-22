@@ -28,8 +28,9 @@ Local-to-remote flattens nested arrays, rejects empty or dotted source segments,
 ## Authority boundary
 
 - Help, source inspection, syntax checks, and worktree checks are read-only.
-- Local-to-remote creates external project data. Ask immediately before running it.
-- Remote-to-local replaces tracked files. Ask immediately before running it.
+- Local-to-remote creates external project data. Remote-to-local replaces tracked files.
+- Verify existing explicit authority covers the direction, project, namespace, locales, and create-or-replace effects before writing.
+- Ask only when authority is missing or those details materially change. A repeated workflow step does not require new approval.
 - A prior general request to edit translations is not authorization for either sync.
 - Never place the secret in a committed file, response, log, or durable command example.
 

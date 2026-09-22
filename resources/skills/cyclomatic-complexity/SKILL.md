@@ -67,4 +67,4 @@ Extracted: `validateHeader`, `resolveDiscount`
 Behavior verified: focused test, complexity, PHPStan, and code-style checks
 ```
 
-State every skipped check and its blocker. Do not claim behavior verification without a successful check.
+Report required checks that could not run and their blockers. Omit unrelated checks. Do not claim behavior verification without a successful check.

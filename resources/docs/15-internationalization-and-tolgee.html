@@ -36,6 +36,7 @@ $translator-&gt;translate('general.error', ['error' =&gt; $message], 'tr-TR');</
 <div class="callout">This visible key makes missing content easy to detect. It can also expose internal key names in client responses.</div></section>
 <section id="tolgee"><p class="section-label">07 · Tolgee role</p><h2>Tolgee supports source synchronization</h2>
 <p>The repository has two executable scripts. They compare or replace local locale files through the Tolgee API. Both scripts use shared validation and HTTP support from <code>bin/tolgee/sync-support.php</code>.</p>
+<p>Before writing, verify existing explicit authority covers the direction, project, namespace, locales, and create-or-replace effects. Ask only for missing authority or materially changed scope. A local translation edit alone does not authorize synchronization.</p>
 <div class="diagram-wrap"><ol class="flow"><li><strong>Local files</strong><small>contain service keys</small></li><li><strong>Sync script</strong><small>loads configuration</small></li><li><strong>Tolgee API</strong><small>creates or exports keys</small></li><li><strong>Service prefix</strong><small>selects owned keys</small></li><li><strong>PHP writer</strong><small>replaces locale files</small></li><li><strong>Runtime</strong><small>loads local result</small></li></ol></div></section>
 <section id="push"><p class="section-label">08 · Local to Tolgee</p><h2>Create remote keys that are missing</h2>
 <p><code>bin/tolgee/sync-local-keys</code> loads local files and creates keys that do not exist in Tolgee. It does not replace existing remote translations.</p>
@@ -54,8 +55,8 @@ bin/tolgee/sync-remote-keys --help
 <div class="callout warning">Choose only one service instance to run a synchronization cron. Concurrent writers can replace the same local files.</div></section>
 <section id="security"><p class="section-label">11 · Security and limits</p><h2>Protect the project API key and bound HTTP work</h2>
 <ul><li><code>TOLGEE_API_KEY</code> is required and must stay in secret storage.</li><li><code>TOLGEE_API_URL</code> defaults to <code>https://app.tolgee.io</code>.</li><li>The shared HTTP client uses a 10-second connection timeout.</li><li>The shared HTTP client uses a 30-second request timeout.</li><li>The script checks HTTP status and response content.</li><li>Do not write the API key to logs or commands stored in shell history.</li></ul></section>
-<section id="mismatch"><p class="section-label">12 · Current differences</p><h2>Source behavior differs from the Tolgee skill text</h2>
-<ul><li>The skill describes a <code>bin/backendbase tolgee:sync</code> command. The current source has two scripts under <code>bin/tolgee</code>.</li><li>The skill describes Redis-backed runtime translations. The current <code>Translator</code> reads only local PHP files.</li><li><code>en-US.php</code> currently requires <code>tr-TR.php</code>. English responses therefore contain Turkish values.</li><li>The locale selector supports exact filenames only.</li><li>There is no fallback from a selected locale to a default dictionary for a missing key.</li></ul></section>
+<section id="mismatch"><p class="section-label">12 · Current differences</p><h2>Current source limitations</h2>
+<ul><li><code>en-US.php</code> currently requires <code>tr-TR.php</code>. English responses therefore contain Turkish values.</li><li>The locale selector supports exact filenames only.</li><li>There is no fallback from a selected locale to a default dictionary for a missing key.</li></ul></section>
 <section id="tests"><p class="section-label">13 · Tests</p><h2>Verify lookup, synchronization, and file safety</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 bin/tolgee/sync-local-keys --help
@@ -66,6 +67,6 @@ bin/tolgee/sync-remote-keys --help</code></pre>
 <section id="sources"><p class="section-label">15 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Runtime translator</td><td><code>src/Backendbase/Shared/Services/Translator.php</code></td></tr><tr><td>Locale selection</td><td><code>config/dependencies/application.php</code></td></tr>
 <tr><td>Dictionaries</td><td><code>resources/i18n</code></td></tr><tr><td>Local-to-remote script</td><td><code>bin/tolgee/sync-local-keys</code></td></tr>
-<tr><td>Remote-to-local script</td><td><code>bin/tolgee/sync-remote-keys</code></td></tr><tr><td>Shared synchronization code</td><td><code>bin/tolgee/sync-support.php</code></td></tr><tr><td>Workflow text</td><td><code>resources/docs/skills/tolgee-i18n/SKILL.md</code></td></tr>
+<tr><td>Remote-to-local script</td><td><code>bin/tolgee/sync-remote-keys</code></td></tr><tr><td>Shared synchronization code</td><td><code>bin/tolgee/sync-support.php</code></td></tr><tr><td>Workflow text</td><td><code>resources/skills/backendbase-sync-tolgee-i18n/SKILL.md</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Internationalization and Tolgee guide</footer></body></html>

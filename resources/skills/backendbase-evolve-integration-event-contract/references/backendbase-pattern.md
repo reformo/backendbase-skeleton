@@ -4,6 +4,8 @@ This reference protects released event names, versions, and payloads while produ
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect Composer autoloading, producer events, payloads, carriers, registry entries, subscribers, outbox rows, queue retention and dead-letter rules, deployments, and contract tests.
 3. Search all repositories available in scope for the event name and version.
@@ -100,6 +102,8 @@ For breaking event-name changes, define dual publication or a controlled migrati
 Do not purge queues, delete old outbox or inbox records, replay dead letters, change a live registry, or deploy producer and consumer revisions without explicit authority.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents

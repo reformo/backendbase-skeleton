@@ -4,6 +4,8 @@ This reference adds finite operational controls around an existing transactional
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, outbox, inbox, delivery-failure records, operation ports, database adapters, console registration, deployment layout, logs, tests, scheduler, supervisor, and alerting.
 3. Identify current data retention and regulatory requirements.
@@ -108,6 +110,8 @@ No automatic dead-letter replay exists in Backendbase. A replay needs a separate
 Do not install cron entries, create platform jobs, restart workers, replay messages, delete records, or run maintenance against a shared database without explicit authorization.
 
 ## Verification
+
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageOperationsTest.php

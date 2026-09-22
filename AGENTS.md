@@ -8,7 +8,7 @@ license: MIT
 
 Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+Use task scope and observable risk to select the required guidance and checks.
 
 ## 0. Be understandable
 
@@ -17,28 +17,32 @@ Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej
 
 ## 1. Think Before Coding
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+Resolve routine, reversible implementation details from current source and project conventions. State assumptions that affect the result.
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+Ask when an unresolved decision materially changes public behavior, compatibility, required platform choices, shared data, or external effects. Continue independent work while that decision is pending.
 
-### Mandatory project guidance
+### Task-scoped guidance
 
-Complete this guidance check before design or implementation:
+- Read applicable `AGENTS.md` files. Reuse guidance already available in the current context.
+- Use `resources/platform/README.md` to select guidance for the affected behavior and files. A prose-only correction needs no architecture or implementation skill.
+- Select the smallest skill that adds a required procedure or invariant. Add another skill only for constraints not covered by the selected guidance.
+- Read reference sections that resolve the current task. Do not load a complete reference or repository map only because it exists.
+- Inspect target-project facts that remain unknown. Reuse verified discovery while the relevant files and scope remain unchanged.
+- When scope expands, load guidance for the new surface and reassess decisions affected by that addition.
 
-- Read every applicable `AGENTS.md` file.
-- Open `resources/platform/README.md` when it exists. Load its mandatory and task-specific platform files.
-- Find every matching repository skill. Read each `SKILL.md` and each reference that it requires.
-- Treat platform design rules and skill invariants as requirements. Local convenience does not override them.
-- Do not replace a required platform choice with another valid choice without explicit user authorization.
-- If current code conflicts with a platform rule, report the conflict before choosing an implementation.
+Platform design rules and applicable skill invariants remain requirements. Selective loading does not authorize a platform deviation. Report source conflicts before choosing an implementation that would violate a rule.
 
-Repeat this check when the user expands or changes the task scope. Reassess decisions made for the earlier scope.
+These loading, authorization, and verification rules govern repository skills, including older discovery lists and repeated approval or check instructions.
 
-Before completion, map each changed surface to its platform files and skills. Verify that the implementation follows them.
+### Authorization
+
+An implementation request authorizes the necessary local edits and known isolated checks within its scope. Review-only requests authorize inspection and findings.
+
+Existing explicit authorization remains valid for the same action, target, and scope. A later skill confirmation step does not require another question. Ask again when those details materially change.
+
+Verify the target before service-backed tests or operations. Do not assume a local command uses disposable data. Shared-database migrations, deployment, remote synchronization, and other external writes require explicit authority for their target and effects.
+
+A migration draft authorizes a local artifact, not application to a database. A local translation edit does not authorize synchronization.
 
 ## 2. Simplicity First
 
@@ -61,7 +65,7 @@ When editing existing code:
 - Don't refactor things that aren't broken.
 - Match existing style, even if you'd do it differently.
 - If you notice unrelated dead code, mention it - don't delete it.
-- Run phpstan with level 8 for your changes and fix all errors.
+- Run PHPStan at level 8 for code changes. Fix errors introduced by the change. Report unrelated existing errors without expanding the task.
 - Run `composer complexity` for code changes. Keep each function and method at cyclomatic complexity 12 or less.
 
 When your changes create orphans:
@@ -83,38 +87,21 @@ When code changes affect documented behavior, update every related document in t
 
 The test: Every changed line should trace directly to the user's request.
 
-### Portable skill authoring
+### Skill authoring
 
-Skills under `resources/skills` are reusable code-generation guides for other projects. This repository provides verified examples, not literal templates.
-
-When creating or updating a skill:
-
-- Inspect current source, configuration, tests, and `resources/platform` before describing a pattern.
-- Require discovery of the target project's architecture, namespaces, paths, framework, dependencies, configuration, contracts, security, test ownership, and deployment model.
-- Adapt every instruction to the target project. Do not make target code depend on this repository.
-- Treat Backendbase class names, paths, API names, schemas, headers, environment keys, hosts, credentials, fixtures, and sample data as role examples only.
-- Keep repository-specific details in references as provenance or current limitations. Mark exact Backendbase rules as conditional on an unmodified Backendbase project.
-- Keep each skill self-contained. 
-- Prefer current code and tests over older narrative documentation when they conflict. Record important drift instead of copying it.
-- Forward-test the skill against a differently named target project. Remove hidden Backendbase assumptions before completion.
+For changes under `resources/skills`, read [the skill-authoring rules](resources/skills/AGENTS.md).
 
 ## 4. Goal-Driven Execution
 
-**Define success criteria. Loop until verified.**
+For multi-step tasks, state the intended outcome and a brief plan with observable completion checks.
 
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
+For implementation requests, continue through implementation, relevant verification, and correction of failures caused by the change. Do not stop for review while authorized work remains.
 
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
+Use `resources/platform/17-testing.md` to select checks for changed behavior. Documentation-only edits need document checks, not PHP analysis or application tests.
 
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+One successful check can satisfy several selected skills. Repeat a check after a relevant edit, failure, environment change, or new evidence. Do not repeat it only because another checklist lists it.
+
+Finish when the requested behavior works, required checks pass, and affected documentation is current. Confirm applicable platform and skill invariants for changed surfaces. Report concrete blockers, unrelated failures, and unverified results. Do not describe an unrun check as passed.
 
 ## 5. Object Calisthenics
 
@@ -181,7 +168,7 @@ Defend at trust boundaries. Do not scatter redundant checks throughout trusted i
 
 - Test invalid, missing, boundary, and oversized inputs.
 - Test dependency timeouts, malformed responses, transaction rollbacks, and retry exhaustion where those behaviors exist.
-- Add a regression test for every fixed defect that can be reproduced automatically.
+- Add a regression test for each fixed behavior defect that can be reproduced automatically. Do not add tests that only restate an implementation or prose edit.
 
 ## 8. Language
 

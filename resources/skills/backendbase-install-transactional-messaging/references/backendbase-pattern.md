@@ -4,6 +4,8 @@ This reference is for a target project that lacks an equivalent transactional ou
 
 ## Target discovery
 
+Resolve only unknown facts needed by the affected behavior. Reuse verified facts while their sources remain unchanged.
+
 1. Read all applicable `AGENTS.md` files.
 2. Inspect `composer.json`, PSR-4 roots, architecture tests, database and transaction APIs, migration tool, queue ports, container, console bootstrap, clocks, identifier types, and test database support.
 3. Search for existing outbox, inbox, message log, relay, deduplication, and failure-policy code.
@@ -160,6 +162,8 @@ Generating migrations, commands, and configuration is in scope. Applying migrati
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run focused tests for each layer, then:
 
 ```sh
@@ -177,7 +181,7 @@ Adapt test paths and database setup to the target. Tests must cover both sides o
 
 ## Completion report
 
-Report contracts, schema and indexes, claim and retry values, exactly-once disclaimer, operations commands, migrations created but not applied, tests, skipped live checks, and required broker or scheduler work.
+Report contracts, schema and indexes, claim and retry values, exactly-once disclaimer, operations commands, migrations created but not applied, tests, required live checks that could not run, and required broker or scheduler work.
 
 ## Provenance
 

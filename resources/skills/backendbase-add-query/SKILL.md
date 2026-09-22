@@ -9,12 +9,14 @@ description: Add a Backendbase CQRS query, declared result, optional read model,
 
 Create one typed read contract and one resolvable handler that returns a declared projection without loading or changing an aggregate.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read the target project's `AGENTS.md` files.
-2. Inspect Composer autoloading, namespaces, layers, container wiring, test roots, and the nearest query flow.
+2. Inspect the nearest query flow, result contract, read port, handler registration, and focused tests.
 3. Trace the caller, existing read port, result models, adapter, ordering, pagination, and not-found semantics.
-4. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 5. Confirm criteria, result type, nullable or empty meaning, and whether a new projection is required.
 
 ## Target-project adaptation
@@ -45,8 +47,10 @@ Preserve the target project's namespace, query naming, value objects, read-model
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 Run the query contract test, affected read-port or adapter tests, lifecycle tests, PHPStan level 8, the configured complexity check, and PHPCS. Run architecture tests when dependencies changed.
 
 ## Completion report
 
-Report the criteria, declared result and empty semantics, read model and port changes, commands run, and skipped checks.
+Report the criteria, declared result and empty semantics, read model and port changes, commands run, and blocked required checks.

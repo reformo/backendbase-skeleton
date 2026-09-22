@@ -9,14 +9,16 @@ description: Add or change one OpenAPI operation in a Backendbase-style API and 
 
 Produce one valid public operation whose method, path, parameters, body, security, responses, and generated document match the intended runtime contract.
 
-## Required discovery
+## Task-scoped discovery
+
+Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
 
 1. Read applicable `AGENTS.md` files.
 2. Discover the owning API from the target selector, route registry, editable OpenAPI roots, generated outputs, and Bruno collections. Do not assume a fixed API list.
 3. Inspect Composer scripts, shared components, CORS configuration, tests, and the nearest operation.
 4. Trace the matching runtime route, middleware, boundary validation, command or query, controller response, and errors.
 5. Resolve the operation ID, security rule, required fields, compatibility requirement, and executable example coverage.
-6. Read [references/backendbase-pattern.md](references/backendbase-pattern.md).
+6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not invent a new route, schema, public policy, or compatibility break without user intent.
 If runtime implementation is outside scope, deliver the contract draft and report that final reconciliation remains pending. Do not implement the endpoint from this contract-only skill.
@@ -53,6 +55,8 @@ Use the target API version, source layout, servers, media types, component names
 
 ## Verification
 
+Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
 ```sh
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
@@ -64,4 +68,4 @@ Run focused API tests when runtime alignment is part of the change.
 
 ## Completion report
 
-Report the operation ID, source files, security semantics, generation result, validation result, runtime differences found, and skipped checks.
+Report the operation ID, source files, security semantics, generation result, validation result, runtime differences found, and blocked required checks.
