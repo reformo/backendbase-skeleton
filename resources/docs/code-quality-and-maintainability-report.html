@@ -361,7 +361,7 @@
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
             <span class="chip">Account provisioning is external</span>
-            <span class="chip"><span data-quality-metric="tests">403</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">432</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">Complexity ≤ 12</span>
@@ -435,10 +435,10 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">403</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,674</span></strong><span>Passing assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">3,931</span>/<span data-quality-metric="total-lines">3,931</span></strong><span>Covered executable lines</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">934</span>/<span data-quality-metric="total-methods">934</span></strong><span>Covered methods</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">432</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">1,733</span></strong><span>Passing assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">3,988</span>/<span data-quality-metric="total-lines">3,988</span></strong><span>Covered executable lines</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">949</span>/<span data-quality-metric="total-methods">949</span></strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
                 <table class="report-table evidence-table">
@@ -447,18 +447,18 @@
                     </thead>
                     <tbody>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">403</span> tests and <span data-quality-metric="assertions">1,674</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,931</span> of <span data-quality-metric="total-lines">3,931</span> executable source lines were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">934</span> of <span data-quality-metric="total-methods">934</span> methods were covered.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">432</span> tests and <span data-quality-metric="assertions">1,733</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,988</span> of <span data-quality-metric="total-lines">3,988</span> executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">949</span> of <span data-quality-metric="total-methods">949</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">495</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">506</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
                     <tr><td>Account lifecycle</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> authenticates active accounts. Protected <code>GET /accounts</code>, <code>POST /accounts</code>, and <code>PATCH</code> or <code>DELETE /accounts/{account-uuid}</code> operations use typed commands, a query, access control, and repository ports.</td></tr>
-                    <tr><td>Authorization-state revocation</td><td><span class="badge">Pass</span></td><td>Account revision and retirement revoke active authorization state before the database mutation. Tests cover revocation failure without partial persistence.</td></tr>
+                    <tr><td>Authorization-state revocation</td><td><span class="badge">Pass</span></td><td>Authentication and account changes share an account-row transaction. Tests cover lock ordering, two-connection exclusion, refreshed grants, and rollback. MySQL-specific lock scheduling remains unverified locally.</td></tr>
                     <tr><td>HTTP authorization and path contracts</td><td><span class="badge">Pass</span></td><td>Bearer and API-key failures return stable 401 responses. Runtime routes, OpenAPI, and Bruno use <code>{account-uuid}</code> and other <code>kebab-case</code> path parameters.</td></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>

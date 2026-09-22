@@ -783,8 +783,8 @@
             </div>
             <p>The current migrations create and evolve <code>example_table</code>, the integration event outbox, the inbox, and the delivery failure log.</p>
             <pre><code>bin/doctrine migrations:diff
-bin/doctrine migrations:migrate</code></pre>
-            <div class="callout warning">Run the migration difference after repository behavior is final. Review all SQL before migration execution.</div>
+bin/doctrine migrations:migrate --dry-run --no-interaction</code></pre>
+            <div class="callout warning">Generate only approved schema changes after repository behavior is final. Review all SQL and identify the prepared target database. Apply only with explicit authority for that target and every pending statement.</div>
         </section>
 
         <section id="messaging">
@@ -837,7 +837,8 @@ bin/doctrine migrations:migrate</code></pre>
                 <li>Install locked Composer dependencies.</li>
                 <li>Create <code>.env</code> from <code>.env.example</code>. Set local values.</li>
                 <li>Start MySQL, Redis Stack, and RabbitMQ. Enable the integration profile only when tests need AWS endpoints.</li>
-                <li>Apply Doctrine migrations.</li>
+                <li>Verify the local database target and review the migration dry run.</li>
+                <li>Apply migrations only with explicit authority for that database.</li>
                 <li>Generate the merged Example API OpenAPI file.</li>
                 <li>Start the PHP development server.</li>
                 <li>Run focused tests and contract checks.</li>
@@ -846,6 +847,8 @@ bin/doctrine migrations:migrate</code></pre>
 cp .env.example .env
 docker compose up -d
 docker compose --profile integration up -d
+bin/doctrine migrations:migrate --dry-run --no-interaction
+# Apply only after approval for the verified local database.
 bin/doctrine migrations:migrate --no-interaction
 composer run generate-example-api-spec
 composer run start-apis</code></pre>
@@ -997,7 +1000,9 @@ composer run start-apis
 
 # Database
 bin/doctrine migrations:diff
-bin/doctrine migrations:migrate
+bin/doctrine migrations:migrate --dry-run --no-interaction
+# Apply only approved statements to an explicitly authorized database.
+bin/doctrine migrations:migrate --no-interaction
 
 # Contract and E2E
 composer run generate-example-api-spec

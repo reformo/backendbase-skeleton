@@ -39,7 +39,7 @@
 <section id="query-values"><p class="section-label">06 · Query values</p><h2>Pagination and filters carry read-model input</h2>
 <p><code>Pagination</code> normalizes a non-positive current page to page 1 before total calculation. <code>setTotal()</code> calculates the page count and clamps a page that exceeds it.</p>
 <p><code>Filter</code> stores a query, target fields, and optional criteria. It does not validate SQL field names. A repository must use allowlisted columns and bound parameters.</p>
-<div class="callout warning"><code>Pagination</code> does not reject a zero page size. A zero value causes division by zero in <code>setTotal()</code>.</div></section>
+<div class="callout"><code>Pagination</code> rejects non-positive page sizes and offsets greater than <code>PHP_INT_MAX</code> at construction. HTTP collection endpoints reject invalid offsets with status 400 before query dispatch.</div></section>
 <section id="collections"><p class="section-label">07 · Collections and health</p><h2>Shared transport values have explicit JSON forms</h2>
 <ul><li><code>JsonSerializableArrayCollection</code> uses a native array and SPL interfaces. It serializes contained values for JSON output without Doctrine.</li><li><code>HealthCheckData</code> includes the Git build identifier, numeric status, and status text.</li><li><code>Pagination</code> serializes <code>pageSize</code>, <code>page</code>, and <code>total</code>.</li><li>Notification primitives define provider-independent email, push, and SMS data.</li></ul>
 <div class="related"><a href="11-error-handling-and-observability.html">Error Handling and Observability</a><a href="13-notifications.html">Notifications</a></div></section>
@@ -60,7 +60,7 @@
 <div class="grid-2"><article class="card"><h3>Good shared candidate</h3><p>A UUID wrapper, email syntax, date interval constant, or generic pagination value.</p></article><article class="card"><h3>Keep in the context</h3><p>A customer status, order rule, product limit, or role decision owned by one model.</p></article></div>
 <p>Context code can wrap a shared technical value when it needs additional domain meaning.</p></section>
 <section id="gaps"><p class="section-label">12 · Current gaps</p><h2>Known primitive and mapper limits</h2>
-<ul><li><code>PasswordHash::validatePassword()</code> has no implementation.</li><li><code>Pagination</code> accepts a zero page size.</li><li><code>Coordinates</code> does not validate numeric format or geographic range.</li><li><code>Email</code> and <code>Name</code> do not normalize input.</li><li>Permissive object mapping can hide scalar-type mistakes.</li><li>Unknown payload keys are removed instead of reported.</li><li><code>HealthCheckData</code> exposes mutable public fields and setters.</li></ul></section>
+<ul><li><code>PasswordHash::validatePassword()</code> has no implementation.</li><li><code>Coordinates</code> does not validate numeric format or geographic range.</li><li><code>Email</code> and <code>Name</code> do not normalize input.</li><li>Permissive object mapping can hide scalar-type mistakes.</li><li>Unknown payload keys are removed instead of reported.</li><li><code>HealthCheckData</code> exposes mutable public fields and setters.</li></ul></section>
 <section id="tests"><p class="section-label">13 · Tests</p><h2>Test construction, boundaries, serialization, and invalid input</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Primitives
 vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php</code></pre>

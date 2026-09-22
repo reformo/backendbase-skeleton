@@ -174,7 +174,7 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - Object-storage multipart retry is unbounded, signed POST omits content type, and downloads force `image/jpeg`.
 - `en-US.php` uses the Turkish dictionary.
 - Shared object mapping silently drops unknown keys and permits scalar coercion.
-- Password hashing input and zero pagination values need stricter boundary review.
+- Password hashing input needs stricter boundary review. Pagination rejects non-positive page sizes and overflowing offsets; HTTP boundaries also reject non-positive page numbers.
 - The current repository has no metrics exporter, worker supervisor definition, scheduler definition, or automatic dead-letter replay.
 - Shared OpenAPI parameters mark four request headers as required, but current runtime does not reject every missing header. The ExampleApi CORS allow-list also omits `Accept-Language`.
 

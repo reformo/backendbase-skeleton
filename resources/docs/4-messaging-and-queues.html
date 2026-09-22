@@ -548,7 +548,7 @@
 
         <section id="quick-start">
             <h2>Quick start</h2>
-            <p class="lede">Use RabbitMQ for the local stack. Run migrations before any service writes integration events.</p>
+            <p class="lede">Use RabbitMQ for the local stack. The approved message tables must exist before any service writes integration events.</p>
 
             <ol class="steps">
                 <li>
@@ -556,8 +556,11 @@
                     <div class="code-wrap"><pre><code>docker compose up -d mysql rabbitmq</code></pre></div>
                 </li>
                 <li>
-                    <strong>Apply the message table migrations.</strong>
-                    <div class="code-wrap"><pre><code>bin/doctrine migrations:migrate --no-interaction</code></pre></div>
+                    <strong>Review the pending migrations for the prepared local database.</strong>
+                    <p>Apply only with explicit authority for that database and every pending statement. Feature implementation approval does not authorize database mutation.</p>
+                    <div class="code-wrap"><pre><code>bin/doctrine migrations:migrate --dry-run --no-interaction
+# Apply only after approval for the verified local database.
+bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 </li>
                 <li>
                     <strong>Start the outbox relay.</strong>

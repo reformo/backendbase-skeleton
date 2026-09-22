@@ -16,6 +16,7 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 - Doctrine DBAL adapters use use-case-specific SQL.
 - Bind every input parameter.
 - Bind page size and offset as integers.
+- Validate the complete pagination offset before query dispatch.
 - Use stable ordering for pagination.
 - Filter removed records explicitly.
 - Validate rows before creating immutable read models.
@@ -24,5 +25,7 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 Define one repository contract suite for behavior declared by the port. Run it unchanged against memory and Doctrine adapters. Include only applicable behavior, such as lookup, filtering, ordering, pagination, uniqueness, replacement, or removal.
 
 Doctrine repository tests must also use production mapping metadata and Doctrine `SchemaTool`. Test storage mapping, nulls, malformed data, and rollback at this adapter boundary.
+
+Example group queries return `ExampleGroupPage`. Both adapters count all matching distinct groups before pagination. Doctrine applies the requested limit and offset in SQL. It does not truncate the result set at 1,000 groups.
 
 Basis: `resources/docs/1-bounded-contexts.html`, `resources/docs/9-persistence-and-database.html`.

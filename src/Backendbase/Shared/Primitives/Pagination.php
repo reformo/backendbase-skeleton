@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Primitives;
 
+use Backendbase\Shared\Exception\InvalidUserInput;
 use JsonSerializable;
 use Override;
 
 use function ceil;
+use function intdiv;
+
+use const PHP_INT_MAX;
 
 class Pagination implements JsonSerializable
 {
@@ -16,6 +20,13 @@ class Pagination implements JsonSerializable
 
     public function __construct(private readonly int $pageSize, private int $page)
     {
+        if ($pageSize < 1) {
+            throw InvalidUserInput::create('The pageSize value must be a positive integer.');
+        }
+
+        if ($page > 1 && $page - 1 > intdiv(PHP_INT_MAX, $pageSize)) {
+            throw InvalidUserInput::create('The pagination offset exceeds the supported integer range.');
+        }
     }
 
     public function page(): int

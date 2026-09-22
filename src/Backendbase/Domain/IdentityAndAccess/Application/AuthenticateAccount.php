@@ -20,6 +20,13 @@ final readonly class AuthenticateAccount
 
     public function authenticate(string $email, SensitiveParameterValue $password): string
     {
+        $authenticate = fn (): string => $this->authenticateLockedAccount($email, $password);
+
+        return $this->accountAuthenticationRepository->withAuthenticationLock($email, $authenticate);
+    }
+
+    private function authenticateLockedAccount(string $email, SensitiveParameterValue $password): string
+    {
         $account = $this->accountAuthenticationRepository->findByEmail($email);
         if ($account === null || ! PasswordHash::create($account->passwordHash())->verifyHash($password)) {
             throw InvalidCredentials::create('The email or password is invalid.');

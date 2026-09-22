@@ -26,6 +26,13 @@ final readonly class RetireAccountHandler implements CommandHandler
     public function handle(Command $command): void
     {
         $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
+        $retire    = fn () => $this->retireAccount($command);
+        $accountId = $command->accountId();
+        $this->accountRepository->withAccountLock($accountId, $retire);
+    }
+
+    private function retireAccount(RetireAccount $command): void
+    {
         $account = $this->accountRepository->getActive($command->accountId());
         $this->authorizationState->revokeAll($account->id());
         $account->retire();

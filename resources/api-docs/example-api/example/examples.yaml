@@ -115,7 +115,7 @@ get:
         default: 1000
     - in: query
       name: page
-      description: Requested page number
+      description: Requested page number. The offset (page - 1) * pageSize must not exceed 9223372036854775807. An invalid offset returns 400.
       required: false
       schema:
         type: integer
@@ -167,6 +167,8 @@ get:
                     details:
                       type: object
 
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
     401:
       $ref: '../../common/components.yaml#/schemas/401'
     403:

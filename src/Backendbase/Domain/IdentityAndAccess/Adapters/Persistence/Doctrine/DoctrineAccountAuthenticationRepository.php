@@ -14,6 +14,14 @@ final readonly class DoctrineAccountAuthenticationRepository implements AccountA
     {
     }
 
+    /** @param callable(): string $authenticate */
+    public function withAuthenticationLock(string $email, callable $authenticate): string
+    {
+        $lock = new DoctrineAccountLock($this->connection);
+
+        return $lock->forEmail($email, $authenticate);
+    }
+
     public function findByEmail(string $email): AccountAuthentication|null
     {
         $rows = $this->connection->fetchAllAssociative(

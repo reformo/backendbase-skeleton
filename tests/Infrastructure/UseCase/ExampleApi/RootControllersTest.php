@@ -73,6 +73,9 @@ final class RootControllersTest extends TestCase
             ['example.add', 'example.change', 'example.remove'],
         );
         $accountAuthenticationRepository = $this->createMock(AccountAuthenticationRepository::class);
+        $accountAuthenticationRepository->method('withAuthenticationLock')->willReturnCallback(
+            static fn (string $email, callable $authenticate): string => $authenticate(),
+        );
         $accountAuthenticationRepository->expects(self::once())
             ->method('findByEmail')
             ->with($account->email())
@@ -105,6 +108,9 @@ final class RootControllersTest extends TestCase
     public function itRejectsInvalidAuthenticationInput(): void
     {
         $accountAuthenticationRepository = $this->createMock(AccountAuthenticationRepository::class);
+        $accountAuthenticationRepository->method('withAuthenticationLock')->willReturnCallback(
+            static fn (string $email, callable $authenticate): string => $authenticate(),
+        );
         $accountAuthenticationRepository->expects(self::never())->method('findByEmail');
         $tokenIssuer = $this->createMock(TokenIssuer::class);
         $tokenIssuer->expects(self::never())->method('issueNewToken');

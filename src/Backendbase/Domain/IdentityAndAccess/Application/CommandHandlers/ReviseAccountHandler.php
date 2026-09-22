@@ -26,6 +26,13 @@ final readonly class ReviseAccountHandler implements CommandHandler
     public function handle(Command $command): void
     {
         $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
+        $revise    = fn () => $this->reviseAccount($command);
+        $accountId = $command->accountId();
+        $this->accountRepository->withAccountLock($accountId, $revise);
+    }
+
+    private function reviseAccount(ReviseAccount $command): void
+    {
         $account = $this->accountRepository->getActive($command->accountId());
         $this->authorizationState->revokeAll($account->id());
         $account->revise($command->email(), $command->passwordHash(), $command->privileges());

@@ -36,6 +36,11 @@ final class RetireAccountHandlerTest extends TestCase
             new AccountPrivileges([]),
         );
         $repository = $this->createMock(AccountWriteRepository::class);
+        $repository->expects(self::once())->method('withAccountLock')->willReturnCallback(
+            static function (AccountId $accountId, callable $change): void {
+                $change();
+            },
+        );
         $repository->expects(self::once())->method('getActive')->with($accountId)->willReturn($account);
         $repository->expects(self::once())
             ->method('save')
@@ -61,6 +66,11 @@ final class RetireAccountHandlerTest extends TestCase
             new AccountPrivileges([]),
         );
         $repository = $this->createMock(AccountWriteRepository::class);
+        $repository->expects(self::once())->method('withAccountLock')->willReturnCallback(
+            static function (AccountId $accountId, callable $change): void {
+                $change();
+            },
+        );
         $repository->method('getActive')->willReturn($account);
         $repository->expects(self::never())->method('save');
         $authorizationState = $this->createStub(AccountAuthorizationState::class);

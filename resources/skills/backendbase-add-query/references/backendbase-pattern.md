@@ -68,6 +68,7 @@ final readonly class GetCatalogItemHandler implements QueryHandler
 - Current query contracts expose `toArray()` even though the shared `Query` interface requires only `jsonSerialize()`.
 - Current production handlers live in `Application/QueryHandlers` and delegate directly to the read port.
 - Query paths do not use aggregates or integration events.
+- In an unmodified Backendbase project, `GetExampleGroupsByType` carries validated pagination and returns `ExampleGroupPage`, including the complete distinct-group total.
 - The current source has no dedicated unit test for each trivial query handler. Contract, adapter, and lifecycle tests provide stronger evidence.
 
 ## Verification map

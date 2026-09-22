@@ -23,7 +23,7 @@
 <div class="callout warning">The adapter maps state. It must not decide how an example changes or whether a business operation is allowed.</div>
 </section>
 <section id="read"><p class="section-label">04 · Read projections</p><h2>Use DBAL and explicit SQL for query models</h2>
-<p><code>ExampleReadRepository</code> uses one table for identifier lookup, detail lookup, group lists, and paginated example lists.</p>
+<p><code>ExampleReadRepository</code> uses one table for identifier lookup, detail lookup, paginated groups, and paginated example lists. Group queries count all matching distinct groups and return <code>ExampleGroupPage</code>. SQL applies the requested page size and offset without a 1,000-group result cap.</p>
 <ul><li>Bind all values as parameters.</li><li>Bind page size and offset as integers.</li><li>Filter removed records with <code>deleted_at IS NULL</code>.</li>
 <li>Return context read models, not database rows or Doctrine entities.</li><li>Use stable ordering for pagination.</li></ul>
 <div class="callout"><strong>Trust boundary:</strong> <code>ExampleReadModelMapper</code> rejects invalid persisted strings, integers, booleans, enums, dates, and JSON objects.</div>
@@ -44,7 +44,8 @@
 <section id="migrations"><p class="section-label">07 · Migrations</p><h2>Generate, review, and execute approved schema changes</h2>
 <ol class="steps"><li>Finish the domain record and repository behavior.</li><li>Make repository tests pass.</li><li>Run <code>bin/doctrine migrations:diff</code>.</li>
 <li>Review every generated SQL statement.</li><li>Keep only the schema requested by the feature.</li><li>Use plain <code>CREATE TABLE</code> so unexpected existing tables stop the migration.</li><li>Use <code>IF NOT EXISTS</code> only with an explicit adoption plan and exact schema validation.</li>
-<li>Run the migration and verify the resulting schema.</li></ol>
+<li>Identify the prepared target database and inspect every pending migration.</li><li>Run <code>bin/doctrine migrations:migrate --dry-run --no-interaction</code> against that target.</li><li>Apply only with explicit authority for that database and every pending statement.</li><li>Verify the resulting schema after an approved application.</li></ol>
+<p>Feature implementation approval does not authorize database mutation. Report unavailable or unapproved targets as skipped verification. Use the manifest-backed deployment workflow for production.</p>
 <div class="callout danger"><strong>Hard boundary:</strong> Do not add unrequested tables, columns, indexes, timestamps, status fields, or audit fields.</div>
 </section>
 <section id="seeders"><p class="section-label">08 · Seeders</p><h2>Seed only approved reference data</h2>
@@ -54,6 +55,7 @@
 </section>
 <section id="transactions"><p class="section-label">09 · Transactions</p><h2>Use one transaction for state and its outbox event</h2>
 <p><code>IntegrationEventTransaction</code> coordinates a domain mutation and the integration event outbox insert. Inbox adapters coordinate consumer deduplication and external-effect state.</p>
+<p>Identity and Access uses an ordinary account-row transaction for login and account changes. The lock covers account lookup through token storage or revocation and commit. It requires a fresh outermost transaction. It does not create an outbox event or change database structure.</p>
 <div class="related"><a href="3-integration-events.html">Integration Events</a><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>
 <section id="tests"><p class="section-label">10 · Database tests</p><h2>Prove shared behavior and storage details</h2>
@@ -71,8 +73,10 @@ vendor/bin/phpunit tests/Shared/Persistence</code></pre>
 <li>Write adapters map aggregate state without business decisions.</li><li>Adapters for one port return the same results and context-safe errors for shared behavior.</li><li>Database changes require explicit feature scope and reviewed migrations.</li><li>Migration and seeder behavior has automated evidence.</li></ul>
 </section>
 <section id="commands"><p class="section-label">12 · Commands</p><h2>Common database commands</h2>
+<p>Generate only approved schema changes. Run the dry run against an identified, prepared database. Apply only with explicit authority for that target.</p>
 <pre><code>bin/doctrine migrations:status
 bin/doctrine migrations:diff
+bin/doctrine migrations:migrate --dry-run --no-interaction
 bin/doctrine migrations:migrate --no-interaction
 bin/doctrine orm:validate-schema
 bin/doctrine orm:clear-cache:query

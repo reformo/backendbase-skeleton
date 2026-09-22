@@ -6,10 +6,11 @@ namespace Backendbase\Domain\ExampleBoundedContext\Application\QueryHandlers;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleGroupPage;
 use Backendbase\Shared\CQRS\Query;
 use Backendbase\Shared\CQRS\QueryHandler;
 
-/** @implements QueryHandler<GetExampleGroupsByType, list<string>> */
+/** @implements QueryHandler<GetExampleGroupsByType, ExampleGroupPage> */
 class GetExampleGroupsByTypeHandler implements QueryHandler
 {
     public function __construct(private readonly ExampleReadRepository $exampleRepository)
@@ -17,9 +18,7 @@ class GetExampleGroupsByTypeHandler implements QueryHandler
     }
 
     /** @param GetExampleGroupsByType $query */
-
-    /** @return list<string> */
-    public function handle(Query $query): array
+    public function handle(Query $query): ExampleGroupPage
     {
         return $this->exampleRepository->getExampleGroupsByType($query);
     }

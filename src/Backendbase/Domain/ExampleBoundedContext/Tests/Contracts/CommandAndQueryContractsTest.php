@@ -88,6 +88,7 @@ final class CommandAndQueryContractsTest extends TestCase
         self::assertSame([
             'type' => 'system',
             'typeTargetId' => null,
+            'pagination' => $groups->pagination(),
         ], $groups->jsonSerialize());
 
         $pagination = new Pagination(25, 2);

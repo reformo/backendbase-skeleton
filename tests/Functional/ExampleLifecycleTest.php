@@ -72,10 +72,8 @@ final class ExampleLifecycleTest extends TestCase
             $accessControl,
         ));
 
-        self::assertSame(
-            ['settings'],
-            $queryBus->handle(new GetExampleGroupsByType(ExampleType::SYSTEM, null)),
-        );
+        $groupPage = $queryBus->handle(new GetExampleGroupsByType(ExampleType::SYSTEM, null));
+        self::assertSame(['settings'], $groupPage->items());
         self::assertSame(
             'first-id',
             $queryBus->handle(new GetExampleIdByCriteria(
@@ -144,10 +142,8 @@ final class ExampleLifecycleTest extends TestCase
             'settings',
             'missing-key',
         )));
-        self::assertSame(
-            ['settings'],
-            $queryBus->handle(new GetExampleGroupsByType(ExampleType::SYSTEM, null)),
-        );
+        $groupPage = $queryBus->handle(new GetExampleGroupsByType(ExampleType::SYSTEM, null));
+        self::assertSame(['settings'], $groupPage->items());
         self::assertSame(
             1,
             $queryBus->handle(new GetExamplesByGroup(

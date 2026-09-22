@@ -15,6 +15,7 @@ use Backendbase\Domain\IdentityAndAccess\Exception\UnknownAccountPrivilege;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Throwable;
 
 use function count;
 
@@ -22,6 +23,21 @@ final readonly class DoctrineAccountWriteRepository implements AccountWriteRepos
 {
     public function __construct(private EntityManagerInterface $entityManager)
     {
+    }
+
+    /** @param callable(): void $change */
+    public function withAccountLock(AccountId $accountId, callable $change): void
+    {
+        $connection = $this->entityManager->getConnection();
+        $lock       = new DoctrineAccountLock($connection);
+
+        try {
+            $lock->forAccount($accountId, $change);
+        } catch (Throwable $exception) {
+            $this->entityManager->close();
+
+            throw $exception;
+        }
     }
 
     public function register(Account $account): void
@@ -43,7 +59,10 @@ final readonly class DoctrineAccountWriteRepository implements AccountWriteRepos
 
     public function getActive(AccountId $accountId): Account
     {
-        return $this->activeRecord($accountId)->toDomain();
+        $record = $this->activeRecord($accountId);
+        $this->entityManager->refresh($record);
+
+        return $record->toDomain();
     }
 
     public function save(Account $account): void

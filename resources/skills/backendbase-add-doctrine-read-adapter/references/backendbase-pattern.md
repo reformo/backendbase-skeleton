@@ -80,6 +80,7 @@ Bind the context read-port interface to the DBAL adapter in the target compositi
 
 - `ExampleReadRepository` uses DBAL and purpose-specific SQL against the same table as the write adapter.
 - It binds page size and offset as integers and orders pages by `created_at, id`.
+- In an unmodified Backendbase project, group queries return `ExampleGroupPage`. They count all matching distinct groups and apply the requested limit and offset in SQL. No fixed result cap precedes pagination.
 - `ExampleReadModelMapper` rejects invalid strings, integers, booleans, enums, dates, and JSON objects.
 - The shared Example repository contract checks read results, filtering, ordering, pagination, and absence against memory and Doctrine adapters.
 - The memory adapter does not prove DBAL implementation details. Doctrine-specific repository tests remain required.

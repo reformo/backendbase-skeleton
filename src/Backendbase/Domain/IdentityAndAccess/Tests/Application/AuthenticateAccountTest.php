@@ -10,6 +10,7 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationReposito
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use SensitiveParameterValue;
 
@@ -29,6 +30,7 @@ final class AuthenticateAccountTest extends TestCase
             ['example.add', 'example.remove'],
         );
         $repository = $this->createMock(AccountAuthenticationRepository::class);
+        $this->executeAuthenticationCallback($repository);
         $repository->expects(self::once())
             ->method('findByEmail')
             ->with('account@example.com')
@@ -55,6 +57,7 @@ final class AuthenticateAccountTest extends TestCase
     public function itRejectsUnknownAccountsWithoutIssuingAToken(): void
     {
         $repository = $this->createStub(AccountAuthenticationRepository::class);
+        $this->executeAuthenticationCallback($repository);
         $repository->method('findByEmail')->willReturn(null);
         $tokenIssuer = $this->createMock(TokenIssuer::class);
         $tokenIssuer->expects(self::never())->method('issueNewToken');
@@ -77,6 +80,7 @@ final class AuthenticateAccountTest extends TestCase
             [],
         );
         $repository = $this->createStub(AccountAuthenticationRepository::class);
+        $this->executeAuthenticationCallback($repository);
         $repository->method('findByEmail')->willReturn($account);
         $tokenIssuer = $this->createMock(TokenIssuer::class);
         $tokenIssuer->expects(self::never())->method('issueNewToken');
@@ -86,6 +90,13 @@ final class AuthenticateAccountTest extends TestCase
         (new AuthenticateAccount($repository, $tokenIssuer))->authenticate(
             $account->email(),
             new SensitiveParameterValue('invalid-password'),
+        );
+    }
+
+    private function executeAuthenticationCallback(AccountAuthenticationRepository&Stub $repository): void
+    {
+        $repository->method('withAuthenticationLock')->willReturnCallback(
+            static fn (string $email, callable $authenticate): string => $authenticate(),
         );
     }
 }

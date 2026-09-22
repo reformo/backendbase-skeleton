@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByT
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleDetails;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleGroupPage;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExamplePage;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
 use Doctrine\DBAL\Connection;
@@ -61,21 +62,30 @@ final readonly class ExampleReadRepository implements ExampleReadRepositoryContr
         return ExampleReadModelMapper::details($row);
     }
 
-    /** @return list<string> */
-    public function getExampleGroupsByType(GetExampleGroupsByType $query): array
+    public function getExampleGroupsByType(GetExampleGroupsByType $query): ExampleGroupPage
     {
         [$targetCondition, $parameters] = self::targetCondition($query->type(), $query->typeTargetId());
+        $where                          = 'type = :type AND ' . $targetCondition . ' AND deleted_at IS NULL';
+        $total                          = ExampleReadModelMapper::integer(
+            $this->connection->fetchOne('SELECT COUNT(DISTINCT lookup_group) FROM ' . self::TABLE . ' WHERE ' . $where, $parameters),
+            'total',
+        );
+        $pagination                     = $query->pagination();
+        $parameters['pageSize']         = $pagination->pageSize();
+        $parameters['offset']           = $pagination->getOffset();
         $groups                         = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT lookup_group FROM ' . self::TABLE
-            . ' WHERE type = :type AND ' . $targetCondition
-            . ' AND deleted_at IS NULL ORDER BY lookup_group ASC LIMIT 1000',
+            . ' WHERE ' . $where . ' ORDER BY lookup_group ASC LIMIT :pageSize OFFSET :offset',
             $parameters,
+            ['pageSize' => ParameterType::INTEGER, 'offset' => ParameterType::INTEGER],
         );
 
-        return array_map(
+        $items = array_map(
             static fn (mixed $group): string => ExampleReadModelMapper::string($group, 'lookup_group'),
             $groups,
         );
+
+        return new ExampleGroupPage($items, $total);
     }
 
     public function getExamplesByGroup(GetExamplesByGroup $query): ExamplePage

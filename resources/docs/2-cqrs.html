@@ -922,8 +922,12 @@ $typeTargetId = ExampleRequestInput::optionalTypeTargetId(
     $params['typeTargetId'] ?? null,
 );
 
+$pageSize = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
+$page = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
+$pagination = new Pagination($pageSize, $page);
+
 $result = $this-&gt;queryBus-&gt;handle(
-    new GetExampleGroupsByType($type, $typeTargetId),
+    new GetExampleGroupsByType($type, $typeTargetId, $pagination),
 );</code></pre>
             </div>
 
@@ -1096,7 +1100,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <tbody>
                         <tr><td><code>GetExampleByCriteria</code></td><td><code>GetExampleByCriteriaHandler</code></td><td><code>ExampleDetails|null</code></td></tr>
                         <tr><td><code>GetExampleIdByCriteria</code></td><td><code>GetExampleIdByCriteriaHandler</code></td><td><code>string|null</code></td></tr>
-                        <tr><td><code>GetExampleGroupsByType</code></td><td><code>GetExampleGroupsByTypeHandler</code></td><td><code>list&lt;string&gt;</code></td></tr>
+                        <tr><td><code>GetExampleGroupsByType</code></td><td><code>GetExampleGroupsByTypeHandler</code></td><td><code>ExampleGroupPage</code></td></tr>
                         <tr><td><code>GetExamplesByGroup</code></td><td><code>GetExamplesByGroupHandler</code></td><td><code>ExamplePage</code></td></tr>
                     </tbody>
                 </table>

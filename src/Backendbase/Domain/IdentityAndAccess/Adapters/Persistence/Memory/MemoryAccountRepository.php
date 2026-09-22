@@ -14,6 +14,7 @@ use Backendbase\Domain\IdentityAndAccess\Domain\AccountId;
 use Backendbase\Domain\IdentityAndAccess\Exception\AccountAlreadyRegistered;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Helpers\DateTimeImmutable;
+use Throwable;
 
 use function strcmp;
 use function usort;
@@ -25,6 +26,25 @@ final class MemoryAccountRepository implements
 {
     /** @var array<string, array{account: Account, createdAt: \DateTimeImmutable}> */
     private array $records = [];
+
+    /** @param callable(): string $authenticate */
+    public function withAuthenticationLock(string $email, callable $authenticate): string
+    {
+        return $authenticate();
+    }
+
+    /** @param callable(): void $change */
+    public function withAccountLock(AccountId $accountId, callable $change): void
+    {
+        $records = $this->records;
+        try {
+            $change();
+        } catch (Throwable $exception) {
+            $this->records = $records;
+
+            throw $exception;
+        }
+    }
 
     public function register(Account $account): void
     {

@@ -21,6 +21,8 @@ use Ramsey\Uuid\Uuid;
 
 trait ExampleRepositoryContract
 {
+    use ExampleGroupPaginationContract;
+
     abstract protected function readRepository(): ExampleReadRepository;
 
     abstract protected function writeRepository(): ExampleWriteRepository;
@@ -52,7 +54,8 @@ trait ExampleRepositoryContract
         $groups = $this->readRepository()->getExampleGroupsByType(
             new GetExampleGroupsByType(ExampleType::SYSTEM, null),
         );
-        self::assertSame(['features', 'settings'], $groups);
+        self::assertSame(['features', 'settings'], $groups->items());
+        self::assertSame(2, $groups->total());
 
         $page = $this->readRepository()->getExamplesByGroup(
             new GetExamplesByGroup(ExampleType::SYSTEM, null, 'settings', new Pagination(1, 2)),

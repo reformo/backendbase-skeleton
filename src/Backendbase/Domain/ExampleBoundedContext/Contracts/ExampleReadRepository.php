@@ -9,6 +9,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByT
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleDetails;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleGroupPage;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExamplePage;
 
 interface ExampleReadRepository
@@ -19,6 +20,5 @@ interface ExampleReadRepository
 
     public function getExamplesByGroup(GetExamplesByGroup $query): ExamplePage;
 
-    /** @return list<string> */
-    public function getExampleGroupsByType(GetExampleGroupsByType $query): array;
+    public function getExampleGroupsByType(GetExampleGroupsByType $query): ExampleGroupPage;
 }

@@ -80,7 +80,8 @@ class ExampleServiceTest extends TestCase
         $query = new GetExampleGroupsByType(ExampleType::SYSTEM, null);
 
         $result = $this->queryBus->handle($query);
-        $this->assertEmpty($result);
+        $this->assertSame([], $result->items());
+        $this->assertSame(0, $result->total());
     }
 
     #[Test]
@@ -114,7 +115,7 @@ class ExampleServiceTest extends TestCase
         $query = new GetExampleGroupsByType(ExampleType::SYSTEM, null);
 
         $result = $this->queryBus->handle($query);
-        $this->assertSame('settings', $result[0]);
+        $this->assertSame(['settings'], $result->items());
 
         $query = new GetExamplesByGroup(ExampleType::SYSTEM, null, 'settings', new Pagination(10, 1));
 

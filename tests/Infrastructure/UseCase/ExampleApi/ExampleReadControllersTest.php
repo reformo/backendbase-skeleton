@@ -7,6 +7,7 @@ namespace Tests\Infrastructure\UseCase\ExampleApi;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleDetails;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleGroupPage;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleListItem;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExamplePage;
 use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
@@ -39,9 +40,12 @@ final class ExampleReadControllersTest extends TestCase
         $queryBus->expects(self::once())
             ->method('handle')
             ->with(self::callback(static function (GetExampleGroupsByType $query): bool {
-                return $query->type() === ExampleType::USER && $query->typeTargetId() === 42;
+                $pagination = $query->pagination();
+
+                return $query->type() === ExampleType::USER && $query->typeTargetId() === 42
+                    && $pagination->pageSize() === 1 && $pagination->page() === 2;
             }))
-            ->willReturn(['settings', 'preferences']);
+            ->willReturn(new ExampleGroupPage(['preferences'], 2));
         $action  = new ExampleGroups($queryBus, $this->createStub(LoggerInterface::class));
         $request = $this->request('/example-types/user/groups')
             ->withAttribute('type-slug', 'user')

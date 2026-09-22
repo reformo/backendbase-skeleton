@@ -49,7 +49,7 @@ Choose methods that express real behavior. Do not add generic getters, setters, 
 - `Email` validates syntax but does not trim or lowercase.
 - `Name` checks a two-byte minimum but preserves whitespace.
 - `Coordinates` does not validate numeric form or geographic range.
-- `Pagination` accepts a zero page size, which can cause division by zero.
+- In an unmodified Backendbase project, `Pagination` rejects non-positive page sizes and offsets greater than `PHP_INT_MAX` at construction. HTTP boundaries also require positive page numbers.
 - `Filter` does not validate SQL field names.
 - `PasswordHash::validatePassword()` is empty.
 - These are known gaps, not templates for new validation.

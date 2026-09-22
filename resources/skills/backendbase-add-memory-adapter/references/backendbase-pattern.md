@@ -59,6 +59,7 @@ Clone mutable aggregates. Immutable aggregate designs can use the target project
 - The functional lifecycle test binds memory adapters to the production ports and uses real container-aware buses.
 - The shared Example repository contract checks sorted groups, pagination, active uniqueness, soft removal, and replacement.
 - Memory tests do not prove Doctrine metadata, SQL binding, database constraint enforcement, rollback, or MySQL behavior.
+- In an unmodified Backendbase project, Example group pagination uses the same complete distinct-group total and page contract in both adapters. Account memory adapters execute lock callbacks sequentially; they do not simulate cross-process database locks.
 
 ## Verification map
 

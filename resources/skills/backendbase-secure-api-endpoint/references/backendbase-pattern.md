@@ -39,6 +39,14 @@ Prefer a typed identity or authorization service when the target supplies one. D
 
 `Acl::isAllowed()` throws the current forbidden problem when the named privilege is absent. Invoke it at the application handler boundary before repository, transaction, or external-service work. Do not inspect raw privilege arrays.
 
+## Account revocation concurrency
+
+Discover how the target serializes credential reads, token storage, and account changes. A login must not store old authorization after revocation completes. Test both operation orders and failures. A second read without synchronization does not close the race.
+
+In an unmodified Backendbase project, authentication and account changes lock the same existing account row in an outermost transaction. The authentication repository holds the lock through token storage. The write repository holds it through revocation and commit. Account loading refreshes ORM state and privilege grants. Existing transactions are rejected to prevent stale snapshots. No schema column or token-format change is required.
+
+Keep provider calls outside unrelated business transactions. In an unmodified Backendbase project, this narrow authentication boundary includes the required Redis state operations. Do not issue account tokens from previously loaded snapshots outside the target's synchronization boundary. Backendbase SQLite tests prove two-connection exclusion and rollback, not MySQL-specific lock scheduling.
+
 ## Route-level proof
 
 Test security through the actual route stack. Cover the applicable cases:

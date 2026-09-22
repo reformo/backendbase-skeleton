@@ -19,6 +19,8 @@ use PHPUnit\Framework\TestCase;
 
 abstract class AccountRepositoryContract extends TestCase
 {
+    use AccountLockRepositoryContract;
+
     abstract protected function authenticationRepository(): AccountAuthenticationRepository;
 
     abstract protected function readRepository(): AccountReadRepository;

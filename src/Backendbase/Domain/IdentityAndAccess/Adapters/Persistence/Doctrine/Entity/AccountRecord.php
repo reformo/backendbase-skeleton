@@ -67,7 +67,7 @@ class AccountRecord implements DoctrineEntity
     private int|null $activeUniquenessKey = 1;
 
     /** @var Collection<int, AccountPrivilegeRecord> */
-    #[OneToMany(targetEntity: AccountPrivilegeRecord::class, mappedBy: 'account', cascade: ['persist'])]
+    #[OneToMany(targetEntity: AccountPrivilegeRecord::class, mappedBy: 'account', cascade: ['persist', 'refresh'])]
     private Collection $grants;
 
     private function __construct(Account $account)

@@ -30,6 +30,11 @@ final class ReviseAccountHandlerTest extends TestCase
             ->willReturn(true);
         $account    = $this->account($accountId);
         $repository = $this->createMock(AccountWriteRepository::class);
+        $repository->expects(self::once())->method('withAccountLock')->willReturnCallback(
+            static function (AccountId $accountId, callable $change): void {
+                $change();
+            },
+        );
         $repository->expects(self::once())->method('getActive')->with($accountId)->willReturn($account);
         $repository->expects(self::once())
             ->method('save')

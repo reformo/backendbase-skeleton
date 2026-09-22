@@ -532,7 +532,7 @@
             </div>
             <p>The strongest boundaries are persistence, messaging, identity ports, and framework-free business logic. The main costs are metadata coupling, an untyped aggregate snapshot, and a broad <code>Shared</code> area with mixed ownership.</p>
             <p>The account lifecycle preserves the dependency direction. HTTP controllers call account commands and a query. Their handlers depend on account read, write, authentication, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapter details.</p>
-            <p>The Identity and Access context now owns its adapter bindings. Account revision and retirement revoke active authorization state before persistence changes. Bearer middleware remains an inbound HTTP adapter.</p>
+            <p>The Identity and Access context owns its adapter bindings. Authentication and account changes use the same account-row transaction. Revision and retirement revoke authorization before persistence changes while holding that lock. Bearer middleware remains an inbound HTTP adapter.</p>
             <p>Recent quality gates strengthen delivery. The lazy Redis proxy and opt-in Moto profile remain in composition and adapter code.</p>
             <p>No weakness requires a large rewrite. Apply small changes when the affected area next changes.</p>
             <div class="metrics" aria-label="Summary metrics">

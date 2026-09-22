@@ -30,6 +30,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Serialized account authentication, revision, and retirement with a shared account-row transaction and refreshed privilege state.
+- Removed the 1,000-group result cap and applied group pagination in both persistence adapters.
+- Rejected invalid pagination sizes and overflowing offsets before query dispatch.
+- Required explicit database-target authority consistently in migration instructions.
 - Made new-table migrations fail on unexpected existing tables instead of hiding schema drift.
 - Removed the incomplete email notification consumer until a complete message contract and provider exist.
 - Applied named privilege guidance to sensitive commands and queries.

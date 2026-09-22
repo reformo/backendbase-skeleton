@@ -8,14 +8,12 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByT
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Http\Actions\Action;
+use Backendbase\Shared\Primitives\Pagination;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
-
-use function array_slice;
-use function count;
 
 class ExampleGroups extends Action
 {
@@ -35,15 +33,14 @@ class ExampleGroups extends Action
         $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
         $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
 
-        $result = $this->queryBus->handle(new GetExampleGroupsByType($type, $typeTargetId));
-        $total  = count($result);
-        $result = array_slice($result, ($page - 1) * $pageSize, $pageSize);
+        $pagination = new Pagination($pageSize, $page);
+        $result     = $this->queryBus->handle(new GetExampleGroupsByType($type, $typeTargetId, $pagination));
 
         return new JsonResponse([
             'pageSize' => $pageSize,
             'page' => $page,
-            'total' => $total,
-            'exampleGroups' => $result,
+            'total' => $result->total(),
+            'exampleGroups' => $result->items(),
         ], 200);
     }
 }

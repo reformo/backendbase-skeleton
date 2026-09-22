@@ -49,7 +49,7 @@ The expression is illustrative. Derive the real invariant from the requested dom
 - `Email` validates syntax but does not trim or lowercase.
 - `Name` checks a byte-length minimum and preserves whitespace.
 - Shared `EntityId` creates UUIDv7 values; its all-zero `null()` sentinel needs explicit surrounding meaning.
-- `Pagination` accepts a zero page size and must not be copied as an invariant example.
+- In an unmodified Backendbase project, `Pagination` rejects non-positive page sizes and offsets greater than `PHP_INT_MAX` at construction. Adapt pagination limits to the target contract.
 - `Coordinates` does not validate numeric format or geographic range.
 - `PasswordHash::validatePassword()` is not implemented.
 

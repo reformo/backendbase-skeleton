@@ -10,11 +10,12 @@ Put a value in Shared only when its meaning is stable across bounded contexts. K
 - `Name` checks a two-byte minimum but preserves whitespace.
 - `PasswordHash` uses Argon2id for replacement and verification.
 - `Pagination` carries page state and serializes `pageSize`, `page`, and `total`.
+- `Pagination` rejects non-positive page sizes and offsets greater than `PHP_INT_MAX` at construction. Example HTTP endpoints require positive page numbers and return 400 for invalid offsets.
 - `Filter` carries query criteria but does not validate SQL field names.
 
 Repositories must allowlist filter columns and bind values. Never use client field names directly in SQL.
 
-Current gaps include zero page-size acceptance, unvalidated coordinate ranges, missing email normalization, and an unimplemented password validation method.
+Current gaps include unvalidated coordinate ranges, missing email normalization, and an unimplemented password validation method.
 
 Test construction boundaries, invalid values, exact serialization, and public exception types.
 

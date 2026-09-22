@@ -184,7 +184,8 @@ OpenAPI endpoint definition
 -> internal or external integration event subscriber when requested
 -> PHPUnit tests using the Doctrine repository
 -> Doctrine migration diff when entities changed, after any Memory tests pass and Doctrine repositories are finalized
--> migrate generated Doctrine migration and verify it executes DB changes
+-> dry-run the reviewed migration against an identified, prepared database
+-> apply only with explicit authority for that database, then verify its schema
 -> affected consumer API controllers and route registration after tests pass
 -> Bruno YAML E2E tests under resources/bruno when API E2E coverage is requested
 ```
@@ -195,7 +196,9 @@ Create ORM repository test schemas with Doctrine `SchemaTool` and the production
 
 When creating Doctrine mapping records, enum fields must use PHP native string-backed enum classes and Doctrine `enumType` column mapping. Type the record property with the enum class. Follow `ExampleType` and `ExampleRecord::$type`, which use `Types::ENUM` with `enumType: ExampleType::class`.
 
-When a feature creates or updates Doctrine entities, run `bin/doctrine migrations:diff` from the `backendbase-core` project root after repository tests pass and the Doctrine repository implementation is final. Generated migrations live under `resources/database/Migrations`. Review each generated migration and run `bin/doctrine migrations:migrate` before completion. If either command cannot run, report the exact command and failure. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.
+Generate a migration only for an explicitly approved schema change. Run `bin/doctrine migrations:diff` from the repository root after repository tests pass and repository behavior is final. Generated migrations live under `resources/database/Migrations`. Review every generated SQL statement. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.
+
+Identify the target database and inspect its pending migrations. Run `bin/doctrine migrations:migrate --dry-run --no-interaction` against that prepared target. Apply with `bin/doctrine migrations:migrate --no-interaction` only with explicit authority for that database and every pending statement. Feature implementation approval does not authorize database mutation. Use the manifest-backed deployment workflow for production. Report an unapproved or unavailable target as skipped verification. Do not apply a migration only to complete a coding task.
 
 Database change boundary (hard rule): never create, alter, or drop any database table, column, index, or schema on your own initiative. Build ONLY the exact structure the user explicitly requested — no extra tables and no extra columns, not even "obvious" ones like timestamps, soft-delete, status, or audit fields, unless the user asked for them. If a feature seems to need a table or column the user did not mention, STOP and ask before creating it. When reviewing a generated `migrations:diff`, if it contains anything the user did not request, do not run `migrations:migrate` — report it and ask. The database structure is the user's decision, not yours.
 
@@ -256,10 +259,11 @@ composer cs-check
 composer docs:check-links
 composer reports:check
 composer generate-example-api-spec
-bin/doctrine migrations:diff
-bin/doctrine migrations:migrate
+bin/doctrine migrations:status
 bin/backendbase
 ```
+
+Migration generation and application require the schema scope and target approval described above.
 
 Use targeted PHPUnit paths first when changing a bounded context:
 

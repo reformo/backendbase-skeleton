@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByT
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleIdByCriteria;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleDetails;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleGroupPage;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleListItem;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExamplePage;
 use Backendbase\Domain\ExampleBoundedContext\Domain\Example;
@@ -55,8 +56,7 @@ final readonly class ExampleReadRepository implements ExampleReadRepositoryContr
         );
     }
 
-    /** @return list<string> */
-    public function getExampleGroupsByType(GetExampleGroupsByType $query): array
+    public function getExampleGroupsByType(GetExampleGroupsByType $query): ExampleGroupPage
     {
         $groups = [];
         foreach ($this->store->all() as $example) {
@@ -75,7 +75,11 @@ final readonly class ExampleReadRepository implements ExampleReadRepositoryContr
         $groupNames = array_keys($groups);
         sort($groupNames);
 
-        return $groupNames;
+        $pagination = $query->pagination();
+        $offset     = $pagination->getOffset();
+        $pageSize   = $pagination->pageSize();
+
+        return new ExampleGroupPage(array_slice($groupNames, $offset, $pageSize), count($groupNames));
     }
 
     public function getExamplesByGroup(GetExamplesByGroup $query): ExamplePage

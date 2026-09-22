@@ -69,7 +69,10 @@
         <li>The Redis token key must exist.</li><li>The signature, current time, issuer, token identifier, and audience must validate.</li>
         <li>The Redis user record must exist.</li></ul>
     <p>The clock permits 30 seconds of leeway. A failed validation raises <code>AuthorizationExpired</code> with a stable internal identifier.</p>
-    <p>Account revision and retirement remove the Redis user record before the database change. All tokens then fail closed, even if one token-key deletion fails.</p>
+    <p>Login, account revision, and account retirement acquire the same account-row write lock. Login holds the lock through account lookup, password verification, and Redis token storage. Account changes hold it through revocation and database commit.</p>
+    <p><code>withAuthenticationLock()</code> and <code>withAccountLock()</code> start an outermost transaction. An unchanged UUID assignment acquires the row lock without changing account values. The ORM refreshes the account and its grants after lock acquisition. A waiting login reads the committed state.</p>
+    <p>Revision and retirement remove Redis authorization state before the database change. Revocation failures stop the change. Database failures roll back the change and close the failed ORM unit of work. Token-issue failures release the lock. Existing transactions are rejected to prevent stale snapshots.</p>
+    <p>Do not issue account tokens from snapshots loaded outside this locked authentication flow. SQLite tests use two connections to prove lock exclusion and rollback. They do not prove MySQL-specific lock scheduling.</p>
     <div class="callout"><strong>Operational dependency:</strong> JWT issue and validation require Redis and RedisJSON. A valid signature alone is not sufficient.</div>
 </section>
 <section id="acl"><p class="section-label">06 · Access control</p><h2>Check one named privilege at the application boundary</h2>
