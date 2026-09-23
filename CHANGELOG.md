@@ -35,6 +35,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Refreshed Composer supply-chain evidence for the PHPStan 2.2.15 dependency update.
 - Corrected empty Composer lock object fields and refreshed quality report metrics for the current test suite.
 - Disabled automatic SES email retries so a connection failure cannot cause a second send attempt within one notification call.
 - Allowed direct SMS, email, and push requests through `Notify`; separated the provider interface from the caller port.

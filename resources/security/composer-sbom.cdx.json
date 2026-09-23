@@ -13,7 +13,7 @@
         "properties": [
             {
                 "name": "backendbase:composer-lock-content-hash",
-                "value": "4ce22bab968edb77ff8fe93c02e7bdd5"
+                "value": "6d7f46ce5b8af9eb90e160d434537523"
             }
         ]
     },
@@ -2576,12 +2576,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpstan/phpstan@2.2.14",
+            "bom-ref": "pkg:composer/phpstan/phpstan@2.2.15",
             "group": "phpstan",
             "name": "phpstan",
-            "version": "2.2.14",
+            "version": "2.2.15",
             "scope": "optional",
-            "purl": "pkg:composer/phpstan/phpstan@2.2.14",
+            "purl": "pkg:composer/phpstan/phpstan@2.2.15",
             "licenses": [
                 {
                     "license": {
@@ -2592,13 +2592,13 @@
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9c672e7a8e791dfc3d30e55f683e73fc0b63a3ac"
+                    "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b158556ffd26825cf615a1c1f72fb5157a2301b7"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:dist-reference",
-                    "value": "9c672e7a8e791dfc3d30e55f683e73fc0b63a3ac"
+                    "value": "b158556ffd26825cf615a1c1f72fb5157a2301b7"
                 }
             ]
         },
@@ -5179,7 +5179,7 @@
                 "pkg:composer/nikic/php-parser@v5.9.0",
                 "pkg:composer/php-amqplib/php-amqplib@v3.7.4",
                 "pkg:composer/php-di/php-di@7.1.1",
-                "pkg:composer/phpstan/phpstan@2.2.14",
+                "pkg:composer/phpstan/phpstan@2.2.15",
                 "pkg:composer/phpunit/phpunit@13.3.4",
                 "pkg:composer/psr/container@2.0.2",
                 "pkg:composer/psr/http-message@2.0",
@@ -5640,7 +5640,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/phpstan/phpstan@2.2.14",
+            "ref": "pkg:composer/phpstan/phpstan@2.2.15",
             "dependsOn": []
         },
         {
