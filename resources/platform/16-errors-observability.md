@@ -13,6 +13,8 @@ Translate failures at architectural boundaries. Keep public error bodies stable 
 
 Monolog uses channel `backendbase-app`. It writes `extra.trace_id` from `X-Request-Id` or a generated UUIDv7.
 
+The logger factory explicitly sets UTC. Formatted log records include the `+00:00` offset even when the process uses another time zone.
+
 Log exception type, stable operation, message ID, and trace ID. Do not log credentials, tokens, notification content, or unnecessary personal data.
 
 When an SQS handler throws, `SqsTransport` records safe exception, queue, and message identifiers. It does not record the message body or receipt handle. `SqsQueue` leaves the message unacknowledged for retry after the visibility timeout.

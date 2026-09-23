@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Console\Queue;
 
 use Backendbase\Shared\Integrations\OutboxMonitor;
+use Backendbase\Shared\Time\Clock;
 use Override;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +18,7 @@ use const FILTER_VALIDATE_INT;
 
 final class ShowOutboxStatus extends Command
 {
-    public function __construct(private readonly OutboxMonitor $monitor)
+    public function __construct(private readonly OutboxMonitor $monitor, private readonly Clock $clock)
     {
         parent::__construct('outbox:status');
     }
@@ -54,7 +55,9 @@ final class ShowOutboxStatus extends Command
         $output->writeln('Pending: ' . $status->pendingMessages() . '.');
         $output->writeln('Retried: ' . $status->retriedMessages() . '.');
         $output->writeln('Oldest pending: ' . ($status->oldestPendingAt() ?? 'none') . '.');
-        if ($status->hasPendingMessageOlderThan($maximumAgeSeconds)) {
+        $clock = $this->clock;
+        $now   = $clock->now();
+        if ($status->hasPendingMessageOlderThan($maximumAgeSeconds, $now)) {
             $output->writeln('<error>The oldest pending message exceeds the maximum age.</error>');
 
             return self::FAILURE;

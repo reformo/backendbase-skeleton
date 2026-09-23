@@ -23,6 +23,9 @@
 <tr><td>Queries</td><td><code>Pagination</code>, <code>Filter</code>, <code>Coordinates</code></td><td>Carry query and location parameters.</td></tr>
 <tr><td>Transport</td><td><code>HealthCheckData</code>, notification models, JSON collection</td><td>Provide stable serialized data.</td></tr>
 </tbody></table></div></section>
+<section id="time"><h2>Time and date construction</h2>
+<p><code>Shared/Time/Clock::now()</code> returns a native <code>DateTimeImmutable</code> in UTC. Inject it when time controls behavior. Pass an explicit instant into pure policy calculations.</p>
+<p><code>Shared/Helpers/DateTimeImmutable::create()</code> defaults to UTC and preserves explicit time zones or embedded offsets. Aggregate and event audit timestamps continue to use this helper.</p></section>
 <section id="identifiers"><p class="section-label">03 · Identifiers</p><h2><code>EntityId</code> uses UUID version 7</h2>
 <p><code>create()</code> and <code>generate()</code> create a UUID version 7 (UUIDv7). <code>fromString()</code> parses persisted or external values and translates invalid input to <code>InvalidResourceId</code>.</p>
 <div class="grid-3"><article class="card"><h3>Create</h3><p>Generate a new time-ordered UUIDv7.</p></article><article class="card"><h3>Parse</h3><p>Build the exact subtype from a UUID string.</p></article><article class="card"><h3>Serialize</h3><p>Return the canonical UUID string.</p></article></div>

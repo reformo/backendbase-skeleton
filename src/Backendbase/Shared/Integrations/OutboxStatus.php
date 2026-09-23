@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Integrations;
 
-use Backendbase\Shared\Helpers\DateTimeImmutable;
+use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
+use DateTimeImmutable;
 
 final readonly class OutboxStatus
 {
@@ -30,14 +31,14 @@ final readonly class OutboxStatus
         return $this->oldestPendingAt;
     }
 
-    public function hasPendingMessageOlderThan(int $maximumAgeSeconds): bool
+    public function hasPendingMessageOlderThan(int $maximumAgeSeconds, DateTimeImmutable $now): bool
     {
         if ($this->oldestPendingAt === null) {
             return false;
         }
 
-        $oldestPending = DateTimeImmutable::create($this->oldestPendingAt);
-        $cutoff        = DateTimeImmutable::create()->modify('-' . $maximumAgeSeconds . ' seconds');
+        $oldestPending = DateTimeImmutableFactory::create($this->oldestPendingAt);
+        $cutoff        = $now->modify('-' . $maximumAgeSeconds . ' seconds');
 
         return $oldestPending < $cutoff;
     }

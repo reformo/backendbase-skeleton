@@ -16,7 +16,7 @@ return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         LoggerInterface::class => static function (ContainerInterface $container) {
             $settings = $container->get(LoggingSettings::class);
-            $logger   = new Logger($settings->name());
+            $logger   = new Logger($settings->name(), timezone: new DateTimeZone('UTC'));
             $traceId  = $_SERVER['HTTP_X_REQUEST_ID'] ?? Uuid::uuid7()->toString();
 
             $logger->pushProcessor(static function (LogRecord $record) use ($traceId) {

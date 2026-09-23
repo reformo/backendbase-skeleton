@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Persistence\Doctrine;
 
-use Backendbase\Shared\Helpers\DateTimeImmutable;
 use Backendbase\Shared\Integrations\IntegrationMessageLogCleaner;
 use Backendbase\Shared\Integrations\Operation\IntegrationMessageLogCleanupResult;
+use Backendbase\Shared\Time\Clock;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
@@ -15,7 +15,7 @@ final readonly class DoctrineIntegrationMessageLogCleaner implements Integration
 {
     private const int MIN_RETENTION_DAYS = 30;
 
-    public function __construct(private Connection $connection)
+    public function __construct(private Connection $connection, private Clock $clock)
     {
     }
 
@@ -25,9 +25,10 @@ final readonly class DoctrineIntegrationMessageLogCleaner implements Integration
             throw new InvalidArgumentException('Integration message retention must be at least 30 days.');
         }
 
-        $cutoff = DateTimeImmutable::create()
-            ->modify('-' . $retentionDays . ' days')
-            ->format('Y-m-d H:i:s.u');
+        $clock      = $this->clock;
+        $now        = $clock->now();
+        $cutoffDate = $now->modify('-' . $retentionDays . ' days');
+        $cutoff     = $cutoffDate->format('Y-m-d H:i:s.u');
 
         return new IntegrationMessageLogCleanupResult(
             $this->cleanOutbox($cutoff, $limit),

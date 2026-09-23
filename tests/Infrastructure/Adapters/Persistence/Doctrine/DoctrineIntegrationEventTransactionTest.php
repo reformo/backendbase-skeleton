@@ -7,6 +7,8 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryRemoved;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
+use Backendbase\Shared\Time\Clock;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\TableNotFoundException;
@@ -16,6 +18,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
 use Tests\Infrastructure\Composition\ProductionContainerFixture;
+use Tests\Support\Time\FrozenClock;
 
 use function json_decode;
 
@@ -32,6 +35,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
         $this->connection->executeStatement('CREATE TABLE aggregate_write (id VARCHAR(36) NOT NULL PRIMARY KEY)');
         $container   = ProductionContainerFixture::build([
             Connection::class => $this->connection,
+            Clock::class => new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
             LoggerInterface::class => new NullLogger(),
         ]);
         $transaction = $container->get(IntegrationEventTransaction::class);
@@ -56,9 +60,11 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
         self::assertSame(1, $this->rowCount('aggregate_write'));
         self::assertSame(1, $this->rowCount('integration_event_outbox'));
         $message = $this->connection->fetchAssociative(
-            'SELECT event_name, event_version, payload FROM integration_event_outbox',
+            'SELECT event_name, event_version, payload, created_at, available_at FROM integration_event_outbox',
         );
         self::assertIsArray($message);
+        self::assertSame('2026-09-24 10:00:00.000000', $message['created_at']);
+        self::assertSame($message['created_at'], $message['available_at']);
         self::assertSame(EntryRemoved::EVENT_TYPE, $message['event_name']);
         self::assertSame(EntryRemoved::EVENT_VERSION, $message['event_version']);
         $payload = json_decode((string) $message['payload'], true, 512, JSON_THROW_ON_ERROR);

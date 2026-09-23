@@ -10,17 +10,20 @@ use Backendbase\Shared\Persistence\QueueMessageFailureStore;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Time\FrozenClock;
 
 final class QueueMessageFailureServiceTest extends TestCase
 {
     #[Test]
     public function itRetriesTransientFailuresBelowTheAttemptLimit(): void
     {
+        $now   = new DateTimeImmutable('2026-09-24T10:00:00+00:00');
         $store = $this->createMock(QueueMessageFailureStore::class);
-        $store->expects(self::once())->method('recordFailure')->willReturn(4);
+        $store->expects(self::once())->method('recordFailure')
+            ->with('events', 'message-id', 'temporary', $now, false)->willReturn(4);
         $store->expects(self::never())->method('markDeadLettered');
 
-        $outcome = new QueueMessageFailureService($store)
+        $outcome = new QueueMessageFailureService($store, new FrozenClock($now))
             ->transientFailure('events', 'message-id', 'temporary');
 
         self::assertSame(QueueMessageHandlingOutcome::RETRY, $outcome);
@@ -29,13 +32,15 @@ final class QueueMessageFailureServiceTest extends TestCase
     #[Test]
     public function itRejectsAndMarksTransientFailuresAtTheAttemptLimit(): void
     {
+        $now   = new DateTimeImmutable('2026-09-24T10:00:00+00:00');
         $store = $this->createMock(QueueMessageFailureStore::class);
-        $store->expects(self::once())->method('recordFailure')->willReturn(5);
+        $store->expects(self::once())->method('recordFailure')
+            ->with('events', 'message-id', 'temporary', $now, false)->willReturn(5);
         $store->expects(self::once())
             ->method('markDeadLettered')
-            ->with('events', 'message-id', self::isInstanceOf(DateTimeImmutable::class));
+            ->with('events', 'message-id', $now);
 
-        $outcome = new QueueMessageFailureService($store)
+        $outcome = new QueueMessageFailureService($store, new FrozenClock($now))
             ->transientFailure('events', 'message-id', 'temporary');
 
         self::assertSame(QueueMessageHandlingOutcome::REJECT, $outcome);
@@ -44,6 +49,7 @@ final class QueueMessageFailureServiceTest extends TestCase
     #[Test]
     public function itRejectsPermanentFailuresAndClearsSuccessfulMessages(): void
     {
+        $now   = new DateTimeImmutable('2026-09-24T10:00:00+00:00');
         $store = $this->createMock(QueueMessageFailureStore::class);
         $store->expects(self::once())
             ->method('recordFailure')
@@ -51,12 +57,12 @@ final class QueueMessageFailureServiceTest extends TestCase
                 'events',
                 'message-id',
                 'invalid',
-                self::isInstanceOf(DateTimeImmutable::class),
+                $now,
                 true,
             )
             ->willReturn(1);
         $store->expects(self::once())->method('clear')->with('events', 'message-id');
-        $service = new QueueMessageFailureService($store);
+        $service = new QueueMessageFailureService($store, new FrozenClock($now));
 
         self::assertSame(
             QueueMessageHandlingOutcome::REJECT,

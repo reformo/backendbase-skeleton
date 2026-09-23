@@ -14,6 +14,7 @@ include_once __DIR__ . '/doctrine-types.php';
 return static function (ContainerBuilder $containerBuilder, string $resolverClass = RegistryHandlerResolver::class): void {
     $providerFiles = [
         'modules.php',
+        'time.php',
         'doctrine.php',
         'redis.php',
         'logger.php',

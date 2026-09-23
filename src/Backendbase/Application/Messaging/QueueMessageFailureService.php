@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Backendbase\Application\Messaging;
 
-use Backendbase\Shared\Helpers\DateTimeImmutable;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
+use Backendbase\Shared\Time\Clock;
 
 final readonly class QueueMessageFailureService implements QueueMessageFailurePolicy
 {
     private const int MAX_ATTEMPTS = 5;
 
-    public function __construct(private QueueMessageFailureStore $failureStore)
+    public function __construct(private QueueMessageFailureStore $failureStore, private Clock $clock)
     {
     }
 
@@ -22,11 +22,13 @@ final readonly class QueueMessageFailureService implements QueueMessageFailurePo
         string $messageId,
         string $failureType,
     ): QueueMessageHandlingOutcome {
+        $clock    = $this->clock;
+        $failedAt = $clock->now();
         $this->failureStore->recordFailure(
             $consumerName,
             $messageId,
             $failureType,
-            DateTimeImmutable::create(),
+            $failedAt,
             true,
         );
 
@@ -38,21 +40,24 @@ final readonly class QueueMessageFailureService implements QueueMessageFailurePo
         string $messageId,
         string $failureType,
     ): QueueMessageHandlingOutcome {
+        $clock    = $this->clock;
+        $failedAt = $clock->now();
         $attempts = $this->failureStore->recordFailure(
             $consumerName,
             $messageId,
             $failureType,
-            DateTimeImmutable::create(),
+            $failedAt,
             false,
         );
         if ($attempts < self::MAX_ATTEMPTS) {
             return QueueMessageHandlingOutcome::RETRY;
         }
 
+        $deadLetteredAt = $clock->now();
         $this->failureStore->markDeadLettered(
             $consumerName,
             $messageId,
-            DateTimeImmutable::create(),
+            $deadLetteredAt,
         );
 
         return QueueMessageHandlingOutcome::REJECT;

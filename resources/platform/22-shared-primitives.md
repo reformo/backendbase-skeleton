@@ -19,4 +19,10 @@ Current gaps include unvalidated coordinate ranges, missing email normalization,
 
 Test construction boundaries, invalid values, exact serialization, and public exception types.
 
+## Time
+
+`Shared/Time/Clock::now()` returns a native `DateTimeImmutable` in UTC. Inject the clock where current time controls availability, expiry, retries, message age, or retention. Supply the instant to pure value calculations.
+
+`Shared/Helpers/DateTimeImmutable::create()` remains available for date construction and audit timestamps. Its default time zone is UTC. An explicit time zone or an offset embedded in the date string retains its existing meaning. Audit-only aggregate and event timestamps still use this helper.
+
 Basis: `resources/docs/16-shared-primitives-and-object-mapping.html`.

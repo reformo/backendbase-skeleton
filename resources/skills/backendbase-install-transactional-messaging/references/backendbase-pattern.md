@@ -22,7 +22,8 @@ Do not assume the `Backendbase\` namespace, Doctrine, MySQL, UUIDv7, table names
 | Atomic write port | `IntegrationEventTransaction` | Commit business work, local subscribers, and optional outbox publication together. |
 | Transaction adapter | `DoctrineIntegrationEventTransaction` | Run business work and dispatch its returned event before commit. |
 | Outbox writer | `IntegrationEventOutbox` and `DoctrineIntegrationEventOutbox` | Append to the active business transaction when queue delivery is selected. |
-| Relay application service | `OutboxRelayService` | Orchestrate claims and publication. Decide claim duration and retry delay. |
+| Relay application service | `OutboxRelayService`, `OutboxPublication`, `OutboxRetryPolicy` | Orchestrate publication and calculate claim and retry deadlines from clock readings. |
+| Current time | `Shared/Time/Clock` | Supply a UTC instant for scheduling and retention. Reuse the target clock contract. |
 | Outbox persistence adapter | `DoctrineOutboxMessageStore` | Claim rows and apply supplied publication or failure state. |
 | Publisher | `OutboxMessagePublisher` | Map an outbox row to the project queue port. |
 | Database inbox | `InboxMessageTransaction` | Deduplicate and commit database work atomically. |
@@ -102,6 +103,8 @@ Allowed callback and local subscriber work is authoritative database reads and d
 
 Backendbase uses a 60-second claim and a delay of `2 ** min(attempts, 8)` seconds. It has no terminal publication limit. Treat these as verified reference values, not universal values. Select target values from broker latency, worker concurrency, and operations requirements.
 
+In unmodified Backendbase, `OutboxPublication` reads the clock when claiming and again after publication. The outbox writer uses the same clock contract for initial availability. Failure and inbox adapters use it for timestamps consumed by retention. Test deadlines with a fixed clock, including time spent publishing. Adapt the contract and placement to the target.
+
 A broker publish can succeed before the database marks the row. The relay can publish the event again. Consumers must be idempotent.
 
 ## Consumer paths
@@ -114,7 +117,7 @@ Insert the inbox row, run the subscriber database mutation, and set `processed_a
 
 The provider call cannot join the database transaction. Claim the inbox record, commit the claim, call the provider, and then record completion. If the provider call or completion write fails, the outcome can be unknown. Do not retry automatically. Reconcile through provider records and the message ID.
 
-Backendbase uses a 300-second external-effect claim. Select the target lease from provider and network behavior.
+Backendbase uses a 300-second external-effect claim. `DoctrineExternalEffectInbox` reads the UTC clock and delegates storage to `Doctrine/Inbox/ExternalEffectClaims`. A claim equal to the current instant remains active. An expired incomplete attempt has an unknown outcome and must not repeat the provider effect. Select the target lease and comparison rules from provider and network behavior.
 
 ## Failure classification
 
@@ -192,6 +195,10 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php`
 - `src/Backendbase/Shared/Persistence/Outbox/IntegrationEventOutbox.php`
 - `src/Backendbase/Application/Messaging/OutboxRelayService.php`
+- `src/Backendbase/Application/Messaging/OutboxPublication.php`
+- `src/Backendbase/Shared/Time/Clock.php`
+- `config/dependencies/time.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Inbox/ExternalEffectClaims.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php`

@@ -29,6 +29,8 @@ final class MessagingPolicyDependencyDefinitionsTest extends TestCase
         $containerBuilder = new ContainerBuilder();
         $provider         = require 'config/dependencies/doctrine.php';
         $provider($containerBuilder);
+        $timeProvider = require 'config/dependencies/time.php';
+        $timeProvider($containerBuilder);
         $containerBuilder->addDefinitions([
             Connection::class => DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]),
             MessagePublisher::class => $this->createStub(MessagePublisher::class),

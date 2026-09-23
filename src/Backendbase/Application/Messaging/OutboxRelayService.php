@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace Backendbase\Application\Messaging;
 
-use Backendbase\Shared\Helpers\DateTimeImmutable;
 use Backendbase\Shared\Integrations\Operation\OutboxRelayResult;
 use Backendbase\Shared\Integrations\OutboxPublisher;
 use Backendbase\Shared\Integrations\OutboxRelay;
-use Backendbase\Shared\Persistence\ClaimedOutboxMessage;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
+use Backendbase\Shared\Time\Clock;
 
 final readonly class OutboxRelayService implements OutboxRelay
 {
+    private OutboxPublication $publication;
+
     public function __construct(
-        private OutboxMessageStore $messageStore,
+        OutboxMessageStore $messageStore,
         private OutboxPublisher $publisher,
+        Clock $clock,
     ) {
+        $this->publication = new OutboxPublication($messageStore, $clock);
     }
 
     public function relay(int $limit): OutboxRelayResult
@@ -38,35 +41,22 @@ final readonly class OutboxRelayService implements OutboxRelay
 
     private function processNext(): bool|null
     {
-        $claimedAt = DateTimeImmutable::create();
-        $message   = $this->messageStore->claimNext(
-            $claimedAt,
-            OutboxRetryPolicy::claimUntil($claimedAt),
-        );
+        $publication = $this->publication;
+        $message     = $publication->claim();
         if ($message === null) {
             return null;
         }
 
-        if ($this->publisher->publish($message)->isSuccessful()) {
-            $this->messageStore->markPublished($message, DateTimeImmutable::create());
+        $publisher = $this->publisher;
+        $result    = $publisher->publish($message);
+        if ($result->isSuccessful()) {
+            $publication->markPublished($message);
 
             return true;
         }
 
-        $this->recordFailure($message);
+        $publication->recordFailure($message);
 
         return false;
-    }
-
-    private function recordFailure(ClaimedOutboxMessage $message): void
-    {
-        $attempts = $message->attempts() + 1;
-        $failedAt = DateTimeImmutable::create();
-        $this->messageStore->recordPublicationFailure(
-            $message,
-            $attempts,
-            OutboxRetryPolicy::nextAvailableAt($failedAt, $attempts),
-            'publish-failed',
-        );
     }
 }

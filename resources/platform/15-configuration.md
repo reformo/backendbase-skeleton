@@ -36,6 +36,10 @@ There is no single configuration schema. Focused settings objects validate requi
 
 Runtime components do not call `Settings::get()`. Configuration boundary objects are the only application classes that read the generic merged settings.
 
+`config/dependencies/time.php` binds `Shared/Time/Clock` to `Infrastructure/Adapters/Time/SystemClock`. It always returns UTC, independent of the process time zone. Tests can replace this binding with a fixed clock. JWT adapters retain their existing vendor UTC clock binding.
+
+`config/dependencies/logger.php` sets Monolog's time zone to UTC. Logger timestamps do not depend on the date helper or the application clock.
+
 Numeric configuration uses strict integer and finite-float parsers. Error messages identify the invalid key without exposing its value.
 
 Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep database, broker, AWS, JWT, API, object-store, and Tolgee secrets outside source and logs.

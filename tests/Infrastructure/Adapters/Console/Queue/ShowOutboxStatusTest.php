@@ -7,10 +7,12 @@ namespace Tests\Infrastructure\Adapters\Console\Queue;
 use Backendbase\Infrastructure\Adapters\Console\Queue\ShowOutboxStatus;
 use Backendbase\Shared\Integrations\OutboxMonitor;
 use Backendbase\Shared\Integrations\OutboxStatus;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Tests\Support\Time\FrozenClock;
 
 final class ShowOutboxStatusTest extends TestCase
 {
@@ -18,8 +20,11 @@ final class ShowOutboxStatusTest extends TestCase
     public function itFailsWhenAPendingMessageIsTooOldWithoutRetries(): void
     {
         $monitor = $this->createStub(OutboxMonitor::class);
-        $monitor->method('status')->willReturn(new OutboxStatus(1, 0, '2000-01-01 00:00:00'));
-        $tester = new CommandTester(new ShowOutboxStatus($monitor));
+        $monitor->method('status')->willReturn(new OutboxStatus(1, 0, '2026-09-24 09:54:59.999999'));
+        $tester = new CommandTester(new ShowOutboxStatus(
+            $monitor,
+            new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
+        ));
 
         $exitCode = $tester->execute(['--max-pending-age' => '300']);
 
@@ -31,8 +36,11 @@ final class ShowOutboxStatusTest extends TestCase
     public function itSucceedsWhenNoPendingMessageExceedsTheMaximumAge(): void
     {
         $monitor = $this->createStub(OutboxMonitor::class);
-        $monitor->method('status')->willReturn(new OutboxStatus(1, 0, '2999-01-01 00:00:00'));
-        $tester = new CommandTester(new ShowOutboxStatus($monitor));
+        $monitor->method('status')->willReturn(new OutboxStatus(1, 0, '2026-09-24 09:55:00.000000'));
+        $tester = new CommandTester(new ShowOutboxStatus(
+            $monitor,
+            new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
+        ));
 
         $exitCode = $tester->execute(['--max-pending-age' => '300']);
 
@@ -44,7 +52,10 @@ final class ShowOutboxStatusTest extends TestCase
     {
         $monitor = $this->createStub(OutboxMonitor::class);
         $monitor->method('status')->willReturn(new OutboxStatus(0, 0, null));
-        $tester = new CommandTester(new ShowOutboxStatus($monitor));
+        $tester = new CommandTester(new ShowOutboxStatus(
+            $monitor,
+            new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
+        ));
 
         $exitCode = $tester->execute(['--max-pending-age' => 'invalid']);
 
@@ -57,7 +68,10 @@ final class ShowOutboxStatusTest extends TestCase
     {
         $monitor = $this->createStub(OutboxMonitor::class);
         $monitor->method('status')->willReturn(new OutboxStatus(0, 1, null));
-        $tester = new CommandTester(new ShowOutboxStatus($monitor));
+        $tester = new CommandTester(new ShowOutboxStatus(
+            $monitor,
+            new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
+        ));
 
         $exitCode = $tester->execute([]);
 

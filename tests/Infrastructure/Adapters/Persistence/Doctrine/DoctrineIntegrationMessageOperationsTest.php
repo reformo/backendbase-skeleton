@@ -6,18 +6,22 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationMessageLogCleaner;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMonitor;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Time\FrozenClock;
 
 final class DoctrineIntegrationMessageOperationsTest extends TestCase
 {
     private Connection $connection;
+    private FrozenClock $clock;
 
     protected function setUp(): void
     {
+        $this->clock      = new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00'));
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $this->connection->executeStatement(
             'CREATE TABLE integration_event_outbox ('
@@ -48,16 +52,16 @@ final class DoctrineIntegrationMessageOperationsTest extends TestCase
     #[Test]
     public function itDeletesOnlyCompletedMessagesOlderThanTheRetentionPeriod(): void
     {
-        $this->insertOutbox('old-published', '2000-01-01 00:00:00', 0, '2000-01-01 00:01:00');
-        $this->insertOutbox('new-published', '2999-01-01 00:00:00', 0, '2999-01-01 00:01:00');
-        $this->insertOutbox('pending', '2000-01-01 00:00:00', 0, null);
-        $this->insertInbox('old-processed', '2000-01-01 00:00:00');
-        $this->insertInbox('new-processed', '2999-01-01 00:00:00');
+        $this->insertOutbox('old-published', '2026-08-25 09:59:59.999999', 0, '2026-08-25 09:59:59.999999');
+        $this->insertOutbox('new-published', '2026-08-25 10:00:00.000000', 0, '2026-08-25 10:00:00.000000');
+        $this->insertOutbox('pending', '2026-08-25 09:59:59.999999', 0, null);
+        $this->insertInbox('old-processed', '2026-08-25 09:59:59.999999');
+        $this->insertInbox('new-processed', '2026-08-25 10:00:00.000000');
         $this->insertInbox('pending', null);
-        $this->insertDeliveryFailure('old-dead-letter', '2000-01-01 00:00:00');
-        $this->insertDeliveryFailure('new-dead-letter', '2999-01-01 00:00:00');
+        $this->insertDeliveryFailure('old-dead-letter', '2026-08-25 09:59:59.999999');
+        $this->insertDeliveryFailure('new-dead-letter', '2026-08-25 10:00:00.000000');
         $this->insertDeliveryFailure('retrying', null);
-        $cleaner = new DoctrineIntegrationMessageLogCleaner($this->connection);
+        $cleaner = new DoctrineIntegrationMessageLogCleaner($this->connection, $this->clock);
 
         $result = $cleaner->clean(30, 100);
 
@@ -87,7 +91,7 @@ final class DoctrineIntegrationMessageOperationsTest extends TestCase
     #[Test]
     public function itReportsAnEmptyCleanup(): void
     {
-        $result = new DoctrineIntegrationMessageLogCleaner($this->connection)->clean(30, 100);
+        $result = new DoctrineIntegrationMessageLogCleaner($this->connection, $this->clock)->clean(30, 100);
 
         self::assertSame(0, $result->outboxMessages());
         self::assertSame(0, $result->inboxMessages());
@@ -97,7 +101,7 @@ final class DoctrineIntegrationMessageOperationsTest extends TestCase
     #[Test]
     public function itRejectsAnUnsafeRetentionPeriod(): void
     {
-        $cleaner = new DoctrineIntegrationMessageLogCleaner($this->connection);
+        $cleaner = new DoctrineIntegrationMessageLogCleaner($this->connection, $this->clock);
 
         $this->expectException(InvalidArgumentException::class);
 

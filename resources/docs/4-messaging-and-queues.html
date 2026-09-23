@@ -714,7 +714,7 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
             </div>
             <div class="callout">
                 <strong>Policy and mechanism are separate</strong>
-                <code>OutboxRelayService</code> owns the relay loop, claim duration, publication outcome, and retry delay.
+                <code>OutboxRelayService</code> owns the relay loop. <code>OutboxPublication</code> reads the UTC <code>Shared/Time/Clock</code> for claims and publication outcomes. <code>OutboxRetryPolicy</code> calculates claim duration and retry delay from supplied instants.
                 <code>DoctrineOutboxMessageStore</code> only claims rows and applies supplied status updates.
             </div>
         </section>
@@ -951,6 +951,9 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                     </tbody>
                 </table>
             </div>
+
+            <p><code>Shared/Time/Clock</code> controls initial outbox availability, claim deadlines, completion timestamps, status age checks, and retention cutoffs. Retry delays start from a fresh reading after publication fails. Tests replace the production UTC clock with a fixed clock.</p>
+            <p>Status succeeds at the exact age threshold when no row has retries. Cleanup preserves records exactly at the retention cutoff. An external-effect claim remains active at its exact deadline; an expired incomplete attempt requires reconciliation.</p>
 
             <h3>Background process examples</h3>
             <div class="code-wrap">
@@ -1296,7 +1299,7 @@ ORDER BY received_at DESC;</code></pre>
                         <tr><td>SQS adapter, transport diagnostics, and envelope</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php</code>, <code>SqsTransport.php</code>, <code>SqsMessageMapper.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
                         <tr><td>Conditional outbox insertion</td><td><code>src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php</code>, <code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php</code></td></tr>
-                        <tr><td>Relay policy and orchestration</td><td><code>src/Backendbase/Application/Messaging/OutboxRelayService.php</code>, <code>OutboxRetryPolicy.php</code></td></tr>
+                        <tr><td>Relay policy and orchestration</td><td><code>src/Backendbase/Application/Messaging/OutboxRelayService.php</code>, <code>OutboxPublication.php</code>, <code>OutboxRetryPolicy.php</code></td></tr>
                         <tr><td>Relay persistence and publication adapters</td><td><code>DoctrineOutboxMessageStore.php</code>, <code>OutboxMessagePublisher.php</code></td></tr>
                         <tr><td>Integration consumer</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
                         <tr><td>Inbox controls</td><td><code>DoctrineInboxMessageTransaction.php</code>, <code>DoctrineExternalEffectInbox.php</code></td></tr>

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
-use Backendbase\Shared\Helpers\DateTimeImmutable;
 use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
+use Backendbase\Shared\Time\Clock;
 use Doctrine\DBAL\Connection;
 use LogicException;
 use Ramsey\Uuid\Uuid;
@@ -17,7 +17,7 @@ use const JSON_THROW_ON_ERROR;
 
 final readonly class DoctrineIntegrationEventOutbox implements IntegrationEventOutbox
 {
-    public function __construct(private Connection $connection)
+    public function __construct(private Connection $connection, private Clock $clock)
     {
     }
 
@@ -34,7 +34,8 @@ final readonly class DoctrineIntegrationEventOutbox implements IntegrationEventO
     public function append(IntegrationEvent $event): void
     {
         $this->assertTransactionActive();
-        $now        = DateTimeImmutable::create();
+        $clock      = $this->clock;
+        $now        = $clock->now();
         $createdAt  = $now->format('Y-m-d H:i:s.u');
         $occurredOn = $event->occurredOn();
         $identifier = Uuid::uuid7();

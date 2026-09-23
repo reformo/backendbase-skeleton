@@ -10,6 +10,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added a project-owned UTC clock for messaging availability, retries, claims, age checks, and retention. Added fixed-clock boundary tests and production binding coverage.
 - Added attribute and context registry resolvers for command and query handlers. Dependency definitions select the registry by default, and context service providers own handler mappings.
 - Added `outbox:relay --continuous` to drain full batches and check for pending rows about every 250 ms.
 - Added an Example API greeting endpoint and a queue consumer that prints the submitted full name.
@@ -38,6 +39,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Set Monolog timestamps explicitly to UTC, independent of the process time zone. Preserved explicit time-zone support in the date helper and documented audit-only timestamp usage.
 - Renamed consumer API entry code from `Infrastructure/UseCase` to `Infrastructure/Inbound` and moved operational console commands to `Infrastructure/Adapters/Console`. Renamed the API selector to `ConsumerApiTarget` and updated bootstrap, tests, and guidance.
 - Reassessed the engineering quality and Ports and Adapters reports against the current source and local checks. Corrected stale architecture counts and separated current evidence from historical and incomplete checks.
 - Removed handler attributes and application-handler imports from all command and query contracts. Context registries now provide every current CQRS handler mapping.

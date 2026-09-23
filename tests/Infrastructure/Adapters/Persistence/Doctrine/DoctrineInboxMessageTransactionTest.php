@@ -5,18 +5,23 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineInboxMessageTransaction;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Tests\Support\Time\FrozenClock;
 
 final class DoctrineInboxMessageTransactionTest extends TestCase
 {
     private Connection $connection;
+    private FrozenClock $clock;
 
     protected function setUp(): void
     {
+        $this->clock      = new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00'));
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $this->connection->executeStatement(
             'CREATE TABLE integration_event_inbox ('
@@ -36,9 +41,10 @@ final class DoctrineInboxMessageTransactionTest extends TestCase
     #[Test]
     public function itCommitsTheSubscriberWriteAndInboxRecordOnce(): void
     {
-        $transaction = new DoctrineInboxMessageTransaction($this->connection);
+        $transaction = new DoctrineInboxMessageTransaction($this->connection, $this->clock);
         $handler     = function (): void {
             $this->connection->insert('subscriber_write', ['id' => 'write-id']);
+            $this->clock->advance(new DateInterval('PT2S'));
         };
 
         $transaction->processOnce('events', 'message-id', 'Example_Changed_Event', $handler);
@@ -46,7 +52,7 @@ final class DoctrineInboxMessageTransactionTest extends TestCase
 
         self::assertSame(1, $this->rowCount('subscriber_write'));
         self::assertSame(1, $this->rowCount('integration_event_inbox'));
-        self::assertNotNull($this->connection->fetchOne(
+        self::assertSame('2026-09-24 10:00:02.000000', $this->connection->fetchOne(
             "SELECT processed_at FROM integration_event_inbox WHERE message_id = 'message-id'",
         ));
     }
@@ -54,7 +60,7 @@ final class DoctrineInboxMessageTransactionTest extends TestCase
     #[Test]
     public function itRollsBackTheInboxRecordWhenTheSubscriberFails(): void
     {
-        $transaction = new DoctrineInboxMessageTransaction($this->connection);
+        $transaction = new DoctrineInboxMessageTransaction($this->connection, $this->clock);
 
         try {
             $transaction->processOnce(

@@ -647,6 +647,7 @@
 
         <section id="logging">
             <h2>Logging</h2>
+            <p>The logger factory sets UTC explicitly. The process time zone does not change log timestamps. Separately, <code>config/dependencies/time.php</code> binds <code>Shared/Time/Clock</code> to the UTC <code>SystemClock</code> for time-dependent messaging behavior.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Variable</th><th>Behavior</th></tr></thead>

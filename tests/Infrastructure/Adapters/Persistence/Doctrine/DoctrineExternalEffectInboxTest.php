@@ -5,21 +5,27 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineExternalEffectInbox;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Inbox\ExternalEffectClaims;
 use Backendbase\Shared\Persistence\ExternalEffectInProgress;
 use Backendbase\Shared\Persistence\ExternalEffectOutcomeUnknown;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use RuntimeException;
+use Tests\Support\Time\FrozenClock;
 
 final class DoctrineExternalEffectInboxTest extends TestCase
 {
     private Connection $connection;
+    private FrozenClock $clock;
 
     protected function setUp(): void
     {
+        $this->clock      = new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00'));
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $this->connection->executeStatement(
             'CREATE TABLE integration_event_inbox ('
@@ -38,10 +44,14 @@ final class DoctrineExternalEffectInboxTest extends TestCase
     #[Test]
     public function itRunsTheExternalEffectOutsideTheClaimTransactionOnce(): void
     {
-        $inbox  = new DoctrineExternalEffectInbox($this->connection);
+        $inbox  = new DoctrineExternalEffectInbox($this->connection, $this->clock);
         $calls  = 0;
         $effect = function () use (&$calls): void {
             self::assertFalse($this->connection->isTransactionActive());
+            self::assertSame('2026-09-24 10:05:00.000000', $this->connection->fetchOne(
+                "SELECT claimed_until FROM integration_event_inbox WHERE message_id = 'message-id'",
+            ));
+            $this->clock->advance(new DateInterval('PT2S'));
             ++$calls;
         };
 
@@ -49,13 +59,13 @@ final class DoctrineExternalEffectInboxTest extends TestCase
         $inbox->processOnce('email', 'message-id', 'Notification_Email', $effect);
 
         self::assertSame(1, $calls);
-        self::assertNotNull($this->processedAt());
+        self::assertSame('2026-09-24 10:00:02.000000', $this->processedAt());
     }
 
     #[Test]
     public function itDoesNotRetryAnExternalEffectAfterAFailure(): void
     {
-        $inbox = new DoctrineExternalEffectInbox($this->connection);
+        $inbox = new DoctrineExternalEffectInbox($this->connection, $this->clock);
         $calls = 0;
         try {
             $inbox->processOnce(
@@ -93,8 +103,8 @@ final class DoctrineExternalEffectInboxTest extends TestCase
     #[Test]
     public function itDoesNotRepeatAnExpiredIncompleteAttempt(): void
     {
-        $this->insertIncompleteAttempt('2000-01-01 00:00:00.000000');
-        $inbox = new DoctrineExternalEffectInbox($this->connection);
+        $this->insertIncompleteAttempt('2026-09-24 09:59:59.999999');
+        $inbox = new DoctrineExternalEffectInbox($this->connection, $this->clock);
         $calls = 0;
 
         $this->expectException(ExternalEffectOutcomeUnknown::class);
@@ -115,8 +125,8 @@ final class DoctrineExternalEffectInboxTest extends TestCase
     #[Test]
     public function itReportsAnActiveAttemptWithoutRepeatingIt(): void
     {
-        $this->insertIncompleteAttempt('2999-01-01 00:00:00.000000');
-        $inbox = new DoctrineExternalEffectInbox($this->connection);
+        $this->insertIncompleteAttempt('2026-09-24 10:00:00.000000');
+        $inbox = new DoctrineExternalEffectInbox($this->connection, $this->clock);
         $calls = 0;
 
         $this->expectException(ExternalEffectInProgress::class);
@@ -137,7 +147,7 @@ final class DoctrineExternalEffectInboxTest extends TestCase
     #[Test]
     public function itReportsACompletedEffectWhoseClaimExpiresBeforeCompletion(): void
     {
-        $inbox = new DoctrineExternalEffectInbox($this->connection);
+        $inbox = new DoctrineExternalEffectInbox($this->connection, $this->clock);
 
         $this->expectException(ExternalEffectOutcomeUnknown::class);
         try {
@@ -165,7 +175,7 @@ final class DoctrineExternalEffectInboxTest extends TestCase
     {
         $connection = $this->createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
-        $method = new ReflectionMethod(DoctrineExternalEffectInbox::class, 'existingClaim');
+        $method = new ReflectionMethod(ExternalEffectClaims::class, 'existingClaim');
 
         $this->expectException(RuntimeException::class);
 

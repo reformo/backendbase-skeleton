@@ -361,7 +361,7 @@
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
             <span class="chip">Account provisioning is external</span>
-            <span class="chip"><span data-quality-metric="tests">553</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">556</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">Complexity ≤ 12</span>
@@ -436,10 +436,10 @@
             <h2>Recorded checks and current local metrics</h2>
             <p>PHPUnit, coverage, PHPStan, complexity, and coding standards were checked locally on 24 September 2026. The source review used revision <code>2bd6922</code>. Source and dependency counts use this workspace. Other rows describe source configuration or earlier recorded checks. This review did not run live-service, security, or dependency audits.</p>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">553</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">2,016</span></strong><span>Passing assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">4,516</span>/<span data-quality-metric="total-lines">4,516</span></strong><span>Covered executable lines</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,087</span>/<span data-quality-metric="total-methods">1,087</span></strong><span>Covered methods</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">556</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">2,053</span></strong><span>Passing assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">4,553</span>/<span data-quality-metric="total-lines">4,553</span></strong><span>Covered executable lines</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,092</span>/<span data-quality-metric="total-methods">1,092</span></strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
                 <table class="report-table evidence-table">
@@ -448,13 +448,13 @@
                     </thead>
                     <tbody>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">553</span> tests and <span data-quality-metric="assertions">2,016</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">4,516</span> of <span data-quality-metric="total-lines">4,516</span> executable source lines were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">1,087</span> of <span data-quality-metric="total-methods">1,087</span> methods were covered.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">556</span> tests and <span data-quality-metric="assertions">2,053</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">4,553</span> of <span data-quality-metric="total-lines">4,553</span> executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">1,092</span> of <span data-quality-metric="total-methods">1,092</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">562</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">571</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
@@ -591,8 +591,8 @@
                     </tr>
                     <tr>
                         <td><span class="badge">Low</span></td>
-                        <td>Time is implicit in business and messaging decisions</td>
-                        <td><span class="cell-content">Aggregates and messaging services read a static clock helper. Tests cannot supply time through a port for these decisions.</span></td>
+                        <td>Audit timestamps retain static time access</td>
+                        <td><span class="cell-content">Messaging decisions use an injected UTC clock. Aggregate and event audit timestamps still use the date helper, so tests cannot freeze those timestamps through the clock port.</span></td>
                         <td><span class="cell-content"><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Entry</a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php">Account</a>, and <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php">OutboxRelayService</a>.</span></td>
                     </tr>
                     </tbody>

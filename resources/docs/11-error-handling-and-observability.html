@@ -50,6 +50,7 @@
 <div class="callout danger">Stage, CI, and production keep <code>displayErrorDetails</code> disabled. File paths, traces, and exception messages must not appear in shared-environment responses.</div>
 </section>
 <section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>
+<p><code>config/dependencies/logger.php</code> explicitly sets UTC. Formatted timestamps include <code>+00:00</code> regardless of the process time zone. Logging uses Monolog’s clock independently of the application clock.</p>
 <p>The configured logger name is <code>backendbase-app</code>. It writes to standard output when the <code>docker</code> environment key exists. Otherwise, it writes to <code>var/logs/app.log</code>.</p>
 <p>Unexpected failures log the exception class, message, file, line, and trace. Protect log access and retention because this context can contain internal data.</p>
 <p>When an SQS handler throws, <code>SqsTransport</code> records safe exception, queue, and message context. It excludes the message body and receipt handle. <code>SqsQueue</code> leaves the message available for retry.</p>

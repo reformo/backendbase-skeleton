@@ -18,11 +18,13 @@ use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
+use DateTimeImmutable;
 use DI\ContainerBuilder;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Tests\Support\Time\FrozenClock;
 use UnexpectedValueException;
 
 use function iterator_to_array;
@@ -64,7 +66,10 @@ final class GreetingMessageFlowTest extends TestCase
         $failurePolicy->expects(self::never())->method('permanentFailure');
         $processor = new ExternalIntegrationEventMessageProcessor(
             new ExternalIntegrationEventDispatcher($eventManager, $registry),
-            new DoctrineInboxMessageTransaction($connection),
+            new DoctrineInboxMessageTransaction(
+                $connection,
+                new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
+            ),
             $failurePolicy,
             new NullLogger(),
         );

@@ -54,6 +54,12 @@ Do not hide partial failure behind a success exit in finite mode.
 
 In unmodified Backendbase, `outbox:relay --continuous --limit=100` repeatedly calls the same relay operation. A full batch starts the next batch immediately. A partial or empty batch sleeps for 250 ms. Non-empty batches print published and failed counts. Publication failures retain the existing retry delay; polling does not bypass `available_at`. The command runs until terminated and has no custom signal handler. A supervisor owns restart and shutdown. Adapt timing and command names to the target project.
 
+## Time inputs
+
+Discover the target clock contract before adding timing code. Use an injected clock for deadlines and retention. Pass an explicit instant into pure age calculations. Test exact boundaries without sleeping.
+
+In unmodified Backendbase, `Shared/Time/Clock` returns UTC and `config/dependencies/time.php` binds `SystemClock`. `OutboxPublication` reads time for claims and completion. `ShowOutboxStatus` supplies time to `OutboxStatus`. The cleaner reads one instant for its retention cutoff. Status and cleanup use strict age comparisons, so equality preserves the record and does not exceed the age threshold. Adapt names and policies to the target.
+
 ## Status operation
 
 Expose safe operational state:
@@ -141,6 +147,9 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Shared/Integrations/OutboxMonitor.php`
 - `src/Backendbase/Shared/Integrations/IntegrationMessageLogCleaner.php`
 - `src/Backendbase/Application/Messaging/OutboxRelayService.php`
+- `src/Backendbase/Application/Messaging/OutboxPublication.php`
+- `src/Backendbase/Shared/Time/Clock.php`
+- `config/dependencies/time.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMonitor.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageLogCleaner.php`

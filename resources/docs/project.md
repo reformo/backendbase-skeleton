@@ -137,6 +137,8 @@ Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-
 
 `Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts do not import their handlers.
 
+`Shared/Time/Clock` supplies UTC instants where time controls messaging availability, retries, claims, age checks, and retention. `config/dependencies/time.php` binds the system adapter. Pure calculations receive an explicit instant. The date helper retains UTC defaults and explicit time-zone support for date construction and audit timestamps. The Monolog factory sets its own UTC time zone independently.
+
 ### Ports And Adapters
 
 Repository ports live in bounded-context `Contracts`. Write ports load and save domain aggregates. Production adapters live under `Adapters/Persistence/Doctrine`. Doctrine records map aggregate state to database columns. Persistence adapters must not implement creation, change, removal, or other domain rules. In-memory test adapters live under `Adapters/Persistence/Memory`. Bind ports to production adapters in the bounded context `ServiceProvider`.

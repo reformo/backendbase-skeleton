@@ -76,6 +76,8 @@ Keep file names and stack traces in protected internal logs. Do not add them to 
 ## Verified Backendbase invariants and limits
 
 - The channel is `backendbase-app` in the reference repository.
+- The logger factory explicitly sets UTC. Verify emitted timestamps under a different process time zone when adapting this policy.
+- Application clocks and date helpers do not configure Monolog timestamps.
 - The processor stores the value as `extra.trace_id`.
 - The HTTP boundary reads `X-Request-Id` and otherwise creates UUIDv7.
 - Logger output goes to standard output only when a specific lowercase environment key exists; this is a local convention, not a portable rule.
@@ -113,6 +115,7 @@ Verified on 2026-08-25 from:
 
 - `config/autoload/logger.global.php`
 - `config/dependencies/logger.php`
+- `tests/Infrastructure/Composition/LoggerConfigurationTest.php`
 - `public/index.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Handlers/ShutdownHandler.php`

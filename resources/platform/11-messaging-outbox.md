@@ -10,7 +10,7 @@ The transactional outbox separates business completion from broker availability.
 4. The event manager requires an active transaction and runs local subscribers synchronously for both flag values.
 5. When `DELIVER_VIA_QUEUE` is `true`, the event manager appends one row through `IntegrationEventOutbox`, even without local subscribers. `DoctrineIntegrationEventOutbox` owns the insert.
 6. The shared transaction commits business writes, subscriber writes, and the optional outbox row together. Any failure rolls back those writes.
-7. `OutboxRelayService` selects the claim duration and asks `OutboxMessageStore` to claim the oldest available committed row.
+7. `OutboxRelayService` delegates to `OutboxPublication`, which reads `Clock` and asks `OutboxMessageStore` to claim the oldest available committed row.
 8. The selected queue adapter publishes the message.
 9. The service tells the store to mark success or record the calculated retry state.
 
@@ -29,6 +29,10 @@ On a new database, `Version20260823000000` runs first and creates the outbox, in
 Publication failures remain pending. `OutboxRetryPolicy` owns the 60-second claim and the 2-to-256-second retry delay. No terminal attempt limit exists.
 
 `DoctrineOutboxMessageStore` only claims rows and applies supplied publication or failure state. It does not publish messages or calculate retry policy.
+
+`Shared/Time/Clock` supplies UTC instants for initial availability, claims, publication, and retries. Completion and retry timestamps use a fresh reading after publication finishes.
+
+`ShowOutboxStatus` supplies the clock instant to `OutboxStatus`. A pending timestamp equal to the age cutoff does not exceed the threshold.
 
 Monitor old pending and retried rows with `bin/backendbase outbox:status --max-pending-age=300`.
 

@@ -526,7 +526,7 @@
             <div class="callout good">
                 <strong>Primary strength:</strong> Business code depends on project-owned ports. Framework and vendor code remain in adapters or composition roots. Architecture tests enforce these rules.
             </div>
-            <p>The strongest boundaries are persistence, messaging, identity ports, framework-free business logic, independent command and query contracts, and framework-free <code>Shared</code> contracts. Static time access remains a structural cost.</p>
+            <p>The strongest boundaries are persistence, messaging, identity ports, framework-free business logic, independent command and query contracts, and framework-free <code>Shared</code> contracts. Messaging decisions use an injected UTC clock. Audit timestamps retain the static date helper.</p>
             <p><code>Infrastructure/Inbound</code> now groups consumer-specific API entry code. Operational console commands live under <code>Infrastructure/Adapters/Console</code>. Reusable HTTP support remains under <code>Infrastructure/Adapters/Http</code>.</p>
             <p>The account lifecycle preserves the dependency direction. HTTP controllers call account commands and a query. Their handlers depend on account read, write, authentication, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapter details.</p>
             <p>The Identity and Access context owns its adapter bindings. Authentication and account changes use the same account-row transaction. Revision and retirement revoke authorization before persistence changes while holding that lock. Bearer middleware remains an inbound HTTP adapter.</p>
@@ -586,7 +586,7 @@
                     <tr><td>Inbound contract independence</td><td><span class="badge strong">Strong</span></td><td>Commands and queries have no handler imports or attributes. Context registries provide every current handler mapping.</td></tr>
                     <tr><td>Aggregate persistence boundary</td><td><span class="badge strong">Strong</span></td><td>The aggregate has no Doctrine attributes. Its <code>snapshot()</code> method returns a typed <code>EntrySnapshot</code>.</td></tr>
                     <tr><td>Shared ownership boundary</td><td><span class="badge strong">Strong</span></td><td><code>Shared</code> contains framework-free contracts and values. Framework support is under <code>Infrastructure</code>, and one test checks all Shared imports.</td></tr>
-                    <tr><td>External time boundary</td><td><span class="badge partial">Partial</span></td><td>Domain and application code call a static time helper instead of a clock port.</td></tr>
+                    <tr><td>External time boundary</td><td><span class="badge partial">Partial</span></td><td>Messaging decisions use a UTC clock port. Aggregate and event audit timestamps still use the static date helper.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -602,12 +602,12 @@
                 <article class="finding">
                     <div><span class="badge">Low · 01</span></div>
                     <div>
-                        <h3>Time enters the core through a static helper</h3>
-                        <p>The Example and Account aggregates, integration events, and application messaging services call <code>DateTimeImmutable::create()</code> directly.</p>
-                        <p>Time is an external input when it controls event timestamps, retry decisions, or state transitions. A static helper makes deterministic time tests harder and hides this dependency.</p>
-                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Helpers/DateTimeImmutable.php"><code>Shared/Helpers/DateTimeImmutable.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php"><code>Entry.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php"><code>Account.php:67-70</code></a>, and <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>.</p>
+                        <h3>Audit timestamps retain static time access</h3>
+                        <p>The Example and Account aggregates and integration events use the date helper for audit timestamps. It defaults to UTC and supports explicit time zones.</p>
+                        <p>Messaging availability, retries, claims, age checks, and retention now use <code>Shared/Time/Clock</code>. Tests can supply exact instants. Remaining static audit timestamps cannot be frozen through this port. The logger independently enforces UTC in its factory.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Helpers/DateTimeImmutable.php"><code>Shared/Helpers/DateTimeImmutable.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php"><code>Entry.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php"><code>Account.php</code></a>, and <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>.</p>
                     </div>
-                    <div class="action"><strong>Recommended action</strong>Pass timestamps into aggregate methods. Inject a small clock port into application services that make time-based decisions.</div>
+                    <div class="action"><strong>Recommended action</strong>Use the UTC clock or an explicit timestamp when new aggregate behavior depends on time. Keep explicit time-zone support for date construction.</div>
                 </article>
 
             </div>
@@ -659,7 +659,7 @@
             <ol class="steps">
                 <li><strong>First — preserve Shared ownership.</strong> Keep framework support in Infrastructure and new Shared types framework-free.</li>
                 <li><strong>Next — preserve contract independence.</strong> Map new commands and queries in their owning context service providers.</li>
-                <li><strong>Then — make time explicit where policy uses it.</strong> Inject a clock into application services. Pass timestamps into aggregate behavior.</li>
+                <li><strong>Preserve explicit time inputs.</strong> Messaging policies now use the UTC clock. Supply an instant when new aggregate behavior depends on time.</li>
             </ol>
             <div class="callout warning">
                 <strong>Do not perform a broad rewrite.</strong> The current dependency direction is effective. Make each improvement through a focused change with a regression test.

@@ -10,6 +10,7 @@ use Backendbase\Shared\Integrations\Operation\OutboxPublicationResult;
 use Backendbase\Shared\Integrations\OutboxPublisher;
 use Backendbase\Shared\Persistence\ClaimedOutboxMessage;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
+use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -19,21 +20,32 @@ final class OutboxRelayServiceTest extends TestCase
     #[Test]
     public function itOrchestratesPublicationAndPersistenceOutcomes(): void
     {
+        $claimedAt  = new DateTimeImmutable('2026-09-24T10:00:00+00:00');
+        $finishedAt = $claimedAt->modify('+2 seconds');
+        $clock      = $this->createMock(Clock::class);
+        $clock->expects(self::exactly(5))->method('now')->willReturnOnConsecutiveCalls(
+            $claimedAt,
+            $finishedAt,
+            $claimedAt,
+            $finishedAt,
+            $claimedAt,
+        );
         $publishedMessage = $this->message('published-id', 0);
         $failedMessage    = $this->message('failed-id', 2);
         $messageStore     = $this->createMock(OutboxMessageStore::class);
         $messageStore->expects(self::exactly(3))
             ->method('claimNext')
+            ->with($claimedAt, $claimedAt->modify('+60 seconds'))
             ->willReturnOnConsecutiveCalls($publishedMessage, $failedMessage, null);
         $messageStore->expects(self::once())
             ->method('markPublished')
-            ->with($publishedMessage, self::isInstanceOf(DateTimeImmutable::class));
+            ->with($publishedMessage, $finishedAt);
         $messageStore->expects(self::once())
             ->method('recordPublicationFailure')
             ->with(
                 $failedMessage,
                 3,
-                self::isInstanceOf(DateTimeImmutable::class),
+                $finishedAt->modify('+8 seconds'),
                 'publish-failed',
             );
         $publisher = $this->createMock(OutboxPublisher::class);
@@ -43,7 +55,7 @@ final class OutboxRelayServiceTest extends TestCase
                 OutboxPublicationResult::succeeded(),
                 OutboxPublicationResult::failed(),
             );
-        $relay = new OutboxRelayService($messageStore, $publisher);
+        $relay = new OutboxRelayService($messageStore, $publisher, $clock);
 
         $result = $relay->relay(10);
 

@@ -39,6 +39,7 @@ use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRe
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 use Backendbase\Infrastructure\Adapters\S3Bucket;
+use Backendbase\Infrastructure\Adapters\Time\SystemClock;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Domain\DomainEventPublisher;
@@ -59,6 +60,7 @@ use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
 use Backendbase\Shared\Services\EventManager\EventManager;
+use Backendbase\Shared\Time\Clock;
 
 final class ProductionPortBindings
 {
@@ -72,6 +74,7 @@ final class ProductionPortBindings
             AccountWriteRepository::class => DoctrineAccountWriteRepository::class,
             AuthorizationStore::class => JwtAuthorizationStore::class,
             BucketService::class => S3Bucket::class,
+            Clock::class => SystemClock::class,
             CommandBus::class => ContainerAwareCommandBus::class,
             DomainEventPublisher::class => ContainerAwareDomainEventPublisher::class,
             EventManager::class => ContainerAwareEventManager::class,
