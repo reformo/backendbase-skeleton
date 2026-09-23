@@ -41,8 +41,8 @@ final class CatalogItemRecord
     public function synchronize(CatalogItem $item): void
     {
         $state = $item->snapshot();
-        $this->uuid = $state['uuid'];
-        $this->name = $state['name'];
+        $this->uuid = $state->uuid();
+        $this->name = $state->name();
     }
 
     public function toDomain(): CatalogItem
@@ -52,7 +52,7 @@ final class CatalogItemRecord
 }
 ```
 
-Add Doctrine attributes and fields only for the authorized target schema.
+The example assumes `snapshot()` returns a context-owned object with typed accessors. Add Doctrine attributes and fields only for the authorized target schema.
 
 For a native string-backed enum, current Backendbase uses the Doctrine enum column type plus `enumType`:
 

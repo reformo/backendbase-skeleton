@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
+use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
+use Backendbase\Shared\CQRS\HandlerResolver;
 use DI\ContainerBuilder;
+
+use function DI\get;
 
 include_once __DIR__ . '/doctrine-types.php';
 
-return static function (ContainerBuilder $containerBuilder): void {
+/** @param class-string<HandlerResolver> $resolverClass */
+return static function (ContainerBuilder $containerBuilder, string $resolverClass = RegistryHandlerResolver::class): void {
     $providerFiles = [
         'modules.php',
         'doctrine.php',
@@ -25,4 +30,6 @@ return static function (ContainerBuilder $containerBuilder): void {
         $provider = require __DIR__ . '/dependencies/' . $providerFile;
         $provider($containerBuilder);
     }
+
+    $containerBuilder->addDefinitions([HandlerResolver::class => get($resolverClass)]);
 };

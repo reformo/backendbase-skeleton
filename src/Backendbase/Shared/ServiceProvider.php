@@ -9,6 +9,9 @@ interface ServiceProvider
     /** @return iterable<class-string, class-string> */
     public static function getDefinitions(): iterable;
 
+    /** @return array<class-string, class-string> */
+    public static function getHandlers(): array;
+
     /**
      * @return iterable<int, array{
      *     events: array<int, string>,

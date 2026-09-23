@@ -5,7 +5,8 @@ Commands change state and return no result. Queries read data and return a decla
 ## Contract rules
 
 - Implement `Command` or `Query<TResult>`.
-- Add exactly one positional `#[CQRSHandler(HandlerClass::class)]` attribute.
+- In `attribute` mode, add exactly one `#[CQRSHandler(HandlerClass::class)]` attribute.
+- In `registry` mode, map the contract to its handler in the owning context's `ServiceProvider::getHandlers()`.
 - Carry only data required by one use case.
 - Validate HTTP input before contract construction.
 - Convert business values into enums or value objects at the boundary.
@@ -21,9 +22,9 @@ Commands change state and return no result. Queries read data and return a decla
 - Query handlers must not mutate aggregates or create integration events.
 - Put SQL only in read adapters.
 
-The buses only resolve and call handlers. They provide no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
+Pass `AttributeHandlerResolver::class` or `RegistryHandlerResolver::class` as the second argument to the `config/dependencies.php` provider. The default is `RegistryHandlerResolver::class`. Both classes implement `HandlerResolver`. Context `ServiceProvider::getHandlers()` methods supply the registry. A missing registry entry or attribute fails during dispatch. The buses only resolve and call handlers. They provide no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 
-Handler attributes and PHPDoc generics are not fully checked at runtime. Test each attribute link and concrete handler contract.
+PHPDoc generics are not checked at runtime. Test each configured handler link and concrete handler contract.
 
 Each HTTP action dispatches one command or query for one operation. A write action carries public identity in its command. The command handler resolves current state through a write port and owns missing-state decisions.
 

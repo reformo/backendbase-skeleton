@@ -5,7 +5,7 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 ## Write side
 
 - Write handlers depend on a write repository port.
-- Doctrine ORM records map aggregate snapshots to columns.
+- Doctrine ORM records map typed aggregate snapshots to columns.
 - Records reconstitute aggregates through domain factories.
 - Adapters load and save state without business decisions.
 - Use native string-backed enums with Doctrine `enumType` mapping.

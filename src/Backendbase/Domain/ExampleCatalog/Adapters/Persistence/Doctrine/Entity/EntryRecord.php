@@ -112,19 +112,19 @@ class EntryRecord implements DoctrineEntity
     public function synchronize(DomainEntry $entry): void
     {
         $state                        = $entry->snapshot();
-        $this->uuid                   = $state['uuid'];
-        $this->type                   = $state['type'];
-        $this->typeTargetId           = $state['typeTargetId'];
-        $this->normalizedTypeTargetId = $state['typeTargetId'] ?? 0;
-        $this->group                  = $state['group'];
-        $this->lookupKey              = $state['lookupKey'];
-        $this->lookupValue            = $state['lookupValue'];
-        $this->details                = $state['details'];
-        $this->isActive               = (int) $state['isActive'];
-        $this->createdAt              = $state['createdAt'];
-        $this->updatedAt              = $state['updatedAt'];
-        $this->deletedAt              = $state['removedAt'];
-        $this->activeUniquenessKey    = $state['removedAt'] === null ? 1 : null;
+        $this->uuid                   = $state->uuid();
+        $this->type                   = $state->type();
+        $this->typeTargetId           = $state->typeTargetId();
+        $this->normalizedTypeTargetId = $state->typeTargetId() ?? 0;
+        $this->group                  = $state->group();
+        $this->lookupKey              = $state->lookupKey();
+        $this->lookupValue            = $state->lookupValue();
+        $this->details                = $state->details();
+        $this->isActive               = (int) $state->isActive();
+        $this->createdAt              = $state->createdAt();
+        $this->updatedAt              = $state->updatedAt();
+        $this->deletedAt              = $state->removedAt();
+        $this->activeUniquenessKey    = $state->removedAt() === null ? 1 : null;
     }
 
     public function toDomain(): DomainEntry

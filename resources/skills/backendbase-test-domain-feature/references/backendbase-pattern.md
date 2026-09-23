@@ -57,7 +57,7 @@ Assert only ordering that is part of correctness.
 - Bind production port interfaces to those adapters in the test container.
 - Stub transaction callbacks to execute their work.
 - Stub domain publishers or external ports deterministically.
-- Use the Infrastructure `ContainerAwareCommandBus` and `ContainerAwareQueryBus` adapters so handler attributes are exercised.
+- Use the Infrastructure `ContainerAwareCommandBus` and `ContainerAwareQueryBus` adapters so the configured handler resolution mode is exercised.
 
 ## Composition and registration setup
 

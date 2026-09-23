@@ -469,12 +469,12 @@
         <h1>Command Query Responsibility Segregation</h1>
         <p class="hero-copy">
             Use commands for state changes and queries for read results.
-            Resolve one handler through a class attribute and keep input validation at the adapter boundary.
+            Resolve one handler through an attribute or context registry and keep input validation at the adapter boundary.
         </p>
         <div class="hero-meta" aria-label="Document scope">
             <span class="pill">Command bus</span>
             <span class="pill">Query bus</span>
-            <span class="pill">Attribute routing</span>
+            <span class="pill">Handler routing</span>
             <span class="pill">Read and write ports</span>
             <span class="pill">Source review: 23 September 2026</span>
         </div>
@@ -521,7 +521,7 @@
                 </article>
                 <article class="card">
                     <span class="metric teal">One handler</span>
-                    <p>Each command or query class names one handler with <code>#[CQRSHandler(...)]</code>.</p>
+                    <p>Each command or query resolves one handler from its attribute or context registry mapping.</p>
                 </article>
             </div>
 
@@ -643,19 +643,17 @@
 
         <section id="resolution">
             <h2>Handler resolution</h2>
-            <p class="lede">Both buses use the same reflection and container lookup sequence.</p>
+            <p class="lede">Both buses use the configured handler source, then resolve the handler from the container.</p>
 
             <ol class="steps">
                 <li><strong>Read the concrete command or query class.</strong></li>
-                <li><strong>Create a <code>ReflectionClass</code>.</strong></li>
-                <li><strong>Read the first <code>CQRSHandler</code> attribute.</strong></li>
-                <li><strong>Read positional attribute argument index <code>0</code>.</strong></li>
+                <li><strong>Read the context registry mapping or the <code>CQRSHandler</code> attribute.</strong></li>
                 <li><strong>Resolve that handler class from the PSR container.</strong></li>
                 <li><strong>Verify the command or query handler interface.</strong></li>
                 <li><strong>Call <code>handle()</code> with the original contract object.</strong></li>
             </ol>
 
-            <h3>Required attribute form</h3>
+            <h3>Attribute mode</h3>
             <div class="code-wrap">
                 <pre><code>#[CQRSHandler(ChangeEntryHandler::class)]
 final class ChangeEntry implements Command
@@ -665,19 +663,16 @@ final class ChangeEntry implements Command
             </div>
 
             <div class="callout danger">
-                <strong>Use a positional argument</strong>
-                The buses call <code>getArguments()[0]</code>.
-                Do not write <code>#[CQRSHandler(handlerName: ChangeEntryHandler::class)]</code> without changing both buses.
+                <strong>Choose one handler source</strong>
+                Pass <code>AttributeHandlerResolver::class</code> or <code>RegistryHandlerResolver::class</code> as the second argument to the <code>config/dependencies.php</code> provider.
+                The default is <code>RegistryHandlerResolver::class</code>. Both resolvers implement <code>HandlerResolver</code>. The registry resolver reads mappings from each context's <code>ServiceProvider::getHandlers()</code>.
             </div>
 
             <h3>Bus implementation</h3>
             <div class="code-wrap">
                 <pre><code>public function handle(Command $command): void
 {
-    $reflection = new ReflectionClass($command::class);
-    $handlerFQCN = $reflection
-        -&gt;getAttributes(CQRSHandler::class)[0]
-        -&gt;getArguments()[0];
+    $handlerFQCN = $this-&gt;handlerResolver-&gt;handlerFor($command);
 
     $handler = $this-&gt;container-&gt;get($handlerFQCN);
     if (! $handler instanceof CommandHandler) {
@@ -973,13 +968,15 @@ $result = $this-&gt;queryBus-&gt;handle(
             <p class="lede">PHP-DI provides the buses, handlers, and repository adapters.</p>
 
             <h3>Bus definitions</h3>
+            <p>Dependency definitions use the registry resolver by default. Pass <code>AttributeHandlerResolver::class</code> as the second argument to select attributes.</p>
             <div class="code-wrap">
                 <pre><code>CommandBus::class =&gt; fn (ContainerInterface $container) =&gt;
-    new ContainerAwareCommandBus($container),
+    new ContainerAwareCommandBus($container, $container-&gt;get(HandlerResolver::class)),
 
 QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
-    new ContainerAwareQueryBus($container),</code></pre>
+    new ContainerAwareQueryBus($container, $container-&gt;get(HandlerResolver::class)),</code></pre>
             </div>
+            <p><code>config/dependencies/bounded-contexts.php</code> discovers each context <code>ServiceProvider.php</code> and combines its command and query mappings.</p>
 
             <h3>Handler autowiring</h3>
             <div class="code-wrap">
@@ -996,8 +993,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
             </p>
 
             <div class="callout warning">
-                <strong>Attributes do not register services</strong>
-                <code>CQRSHandler</code> only identifies a handler class.
+                <strong>Handler mappings do not register services</strong>
+                Attributes and registry entries only identify a handler class.
                 The container must still resolve that class and every constructor dependency.
             </div>
         </section>
@@ -1010,11 +1007,11 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 <table>
                     <thead><tr><th>Failure</th><th>Current behavior</th><th>Owner</th></tr></thead>
                     <tbody>
-                        <tr><td>Missing <code>CQRSHandler</code> attribute</td><td>The bus reads attribute index <code>0</code> without a presence check. No dedicated CQRS exception exists.</td><td>Contract author and tests.</td></tr>
-                        <tr><td>Named attribute argument</td><td>The bus reads numeric argument index <code>0</code>. Resolution can fail before container lookup.</td><td>Contract author.</td></tr>
+                        <tr><td>Missing <code>CQRSHandler</code> attribute in attribute mode</td><td>The resolver throws <code>UnexpectedValueException</code>.</td><td>Contract author and tests.</td></tr>
+                        <tr><td>Missing registry mapping in registry mode</td><td>The resolver throws <code>UnexpectedValueException</code>.</td><td>Context <code>ServiceProvider::getHandlers()</code>.</td></tr>
                         <tr><td>Handler is missing from the container</td><td>The PSR container exception propagates.</td><td>Dependency configuration.</td></tr>
                         <tr><td>Resolved class has the wrong interface</td><td>The bus throws <code>UnexpectedValueException</code>.</td><td>Contract registration.</td></tr>
-                        <tr><td>Wrong concrete command or query reaches a handler</td><td>PHPDoc does not add a runtime type check. Handler code can fail.</td><td>Attribute link and handler test.</td></tr>
+                        <tr><td>Wrong concrete command or query reaches a handler</td><td>PHPDoc does not add a runtime type check. Handler code can fail.</td><td>Handler mapping and handler test.</td></tr>
                         <tr><td>Domain or repository failure</td><td>The handler exception propagates through the bus.</td><td>HTTP error mapping or calling process.</td></tr>
                         <tr><td>Query returns <code>null</code></td><td>The controller decides whether <code>null</code> means not found or a valid empty result.</td><td>HTTP action.</td></tr>
                     </tbody>
@@ -1038,7 +1035,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <tbody>
                         <tr><td>Contract test</td><td>Accessors, nullable meaning, enum serialization, and JSON shape remain correct.</td><td><code>CommandAndQueryContractsTest</code></td></tr>
                         <tr><td>Handler unit test</td><td>The handler uses the correct ports and places work inside required transactions.</td><td><code>AddEntryHandlerTest</code></td></tr>
-                        <tr><td>Bus lifecycle test</td><td>Attributes resolve handlers and commands affect later query results.</td><td><code>EntryLifecycleTest</code></td></tr>
+                        <tr><td>Bus lifecycle test</td><td>The selected resolver finds handlers and commands affect later query results.</td><td><code>EntryLifecycleTest</code></td></tr>
                         <tr><td>Read repository test</td><td>SQL filters, ordering, null handling, pagination, and row mapping are correct.</td><td>Doctrine repository tests.</td></tr>
                         <tr><td>Write repository test</td><td>Aggregate mapping and persistence preserve domain state.</td><td>Doctrine repository tests.</td></tr>
                         <tr><td>HTTP validation test</td><td>Invalid external input fails before either bus runs.</td><td><code>ExampleInputValidationTest</code></td></tr>
@@ -1057,8 +1054,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
             </div>
 
             <div class="callout warning">
-                <strong>Missing bus failure-path coverage</strong>
-                <code>ContainerAwareBusTest</code> covers wrong handler interfaces. Attribute architecture tests validate production metadata. Missing or named attributes still lack dedicated bus runtime tests.
+                <strong>Bus resolution coverage</strong>
+                <code>ContainerAwareBusTest</code> covers both modes, missing mappings, missing attributes, and wrong handler interfaces. Composition tests verify context registry mappings.
             </div>
         </section>
 
@@ -1111,8 +1108,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <p>Query result templates help PHPStan. The bus still returns <code>mixed</code> at runtime.</p>
                 </article>
                 <article class="card">
-                    <h3>No attribute guard</h3>
-                    <p>A missing attribute does not produce a stable, specific CQRS exception.</p>
+                    <h3>Explicit handler source</h3>
+                    <p>The selected resolver uses context registry mappings or handler attributes.</p>
                 </article>
                 <article class="card">
                     <h3>Mutable patch command</h3>
@@ -1128,7 +1125,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 </article>
                 <article class="card">
                     <h3>One handler per contract</h3>
-                    <p>The class attribute names one handler. Fan-out behavior belongs in the handler or an event published after the write.</p>
+                    <p>The selected handler source names one handler. Fan-out behavior belongs in the handler or an event published after the write.</p>
                 </article>
             </div>
         </section>
@@ -1142,7 +1139,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 <li><strong>Create the contract under <code>Contracts/Command</code> or <code>Contracts/Query</code>.</strong></li>
                 <li><strong>Validate external data before contract construction.</strong></li>
                 <li><strong>Use enums or value objects for business-bearing primitives.</strong></li>
-                <li><strong>Add the positional <code>CQRSHandler</code> attribute.</strong></li>
+                <li><strong>Add a <code>CQRSHandler</code> attribute or a context <code>ServiceProvider::getHandlers()</code> mapping for the selected resolver.</strong></li>
                 <li><strong>Create the handler under <code>Application/CommandHandlers</code> or <code>Application/QueryHandlers</code>.</strong></li>
                 <li><strong>Add concrete PHPDoc parameter and generic result types.</strong></li>
                 <li><strong>Use the write port and aggregate for commands.</strong></li>
@@ -1164,6 +1161,9 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <tbody>
                         <tr><td>Core interfaces</td><td><code>src/Backendbase/Shared/CQRS/</code></td></tr>
                         <tr><td>Handler attribute</td><td><code>src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php</code></td></tr>
+                        <tr><td>Resolver interface</td><td><code>src/Backendbase/Shared/CQRS/HandlerResolver.php</code></td></tr>
+                        <tr><td>Resolver implementations</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/AttributeHandlerResolver.php</code> and <code>RegistryHandlerResolver.php</code></td></tr>
+                        <tr><td>Registry mapping</td><td><code>src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php</code></td></tr>
                         <tr><td>Command bus</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php</code></td></tr>
                         <tr><td>Query bus</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php</code></td></tr>
                         <tr><td>Bus and handler definitions</td><td><code>config/dependencies/modules.php</code></td></tr>

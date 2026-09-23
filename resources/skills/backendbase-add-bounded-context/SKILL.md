@@ -30,10 +30,11 @@ Preserve the target project's namespace and established naming. Use Backendbase 
 3. Put business state and rules in `Domain`.
 4. Put commands, queries, ports, read models, and event contracts in `Contracts` only when requested behavior needs them.
 5. Put use-case orchestration in `Application` and technology mapping in `Adapters`.
-6. Add the root `ServiceProvider.php`. Bind only ports owned by this context and register only requested subscribers.
-7. Add movable context tests under the context-owned test root. Add platform, Shared, infrastructure, API, functional, or architecture tests under the target project's corresponding root.
-8. Add a composition test that loads the real provider-discovery path, resolves every port binding, and validates requested subscriber metadata.
-9. Update affected platform documentation when the module changes documented behavior.
+6. Add the root `ServiceProvider.php`. Bind owned ports and register requested subscribers.
+7. Implement `getHandlers()` in the service provider. Map command and query handlers, or return an empty array.
+8. Add movable context tests under the context-owned test root. Add platform, Shared, infrastructure, API, functional, or architecture tests under the target project's corresponding root.
+9. Add a composition test that loads the real provider-discovery path, resolves every port binding and handler mapping, and validates requested subscriber metadata.
+10. Update affected platform documentation when the module changes documented behavior.
 
 ## Backendbase invariants
 

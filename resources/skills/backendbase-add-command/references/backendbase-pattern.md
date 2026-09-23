@@ -112,8 +112,8 @@ Test the required order and force listener failure. Verify that persisted state 
 
 ## Current source behavior and limitations
 
-- The command bus reflects the command class, reads the first `CQRSHandler` attribute, and reads positional argument index `0`.
-- The attribute identifies a class but does not register it. The container must resolve the handler and its dependencies.
+- The dependency provider accepts a resolver class. `AttributeHandlerResolver` reads one `CQRSHandler` attribute. `RegistryHandlerResolver` reads the owning context's `ServiceProvider::getHandlers()` mapping.
+- The selected mapping identifies a class but does not register it. The container must resolve the handler and its dependencies.
 - The bus provides no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 - Current production handlers live in `Application/CommandHandlers`. Container config also contains older alternate glob patterns; do not select them when the target follows the current reference.
 - Current Example handlers return their integration events through `IntegrationEventTransaction`. The wrapper dispatches local subscribers before commit and selects additional outbox publication from `DELIVER_VIA_QUEUE`. Do not create a fake event only to obtain a transaction.

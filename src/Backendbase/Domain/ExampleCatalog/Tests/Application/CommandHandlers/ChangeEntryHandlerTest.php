@@ -72,7 +72,7 @@ final class ChangeEntryHandlerTest extends TestCase
             ->with($entry)
             ->willReturnCallback(static function (Entry $changedEntry) use (&$calls): void {
                 $state = $changedEntry->snapshot();
-                self::assertSame('50', $state['lookupValue']);
+                self::assertSame('50', $state->lookupValue());
                 $calls[] = 'save';
             });
         $transaction = $this->createMock(IntegrationEventTransaction::class);

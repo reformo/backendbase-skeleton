@@ -9,11 +9,19 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtAuthorizatio
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountAuthenticationRepository;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountReadRepository;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountWriteRepository;
+use Backendbase\Domain\IdentityAndAccess\Application\CommandHandlers\RegisterAccountHandler;
+use Backendbase\Domain\IdentityAndAccess\Application\CommandHandlers\RetireAccountHandler;
+use Backendbase\Domain\IdentityAndAccess\Application\CommandHandlers\ReviseAccountHandler;
+use Backendbase\Domain\IdentityAndAccess\Application\QueryHandlers\ListAccountsHandler;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthenticationRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountAuthorizationState;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountReadRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AccountWriteRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\AuthorizationStore;
+use Backendbase\Domain\IdentityAndAccess\Contracts\Command\RegisterAccount;
+use Backendbase\Domain\IdentityAndAccess\Contracts\Command\RetireAccount;
+use Backendbase\Domain\IdentityAndAccess\Contracts\Command\ReviseAccount;
+use Backendbase\Domain\IdentityAndAccess\Contracts\Query\ListAccounts;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenIssuer;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
 use Backendbase\Shared\ServiceProvider as PlatformServiceProvider;
@@ -33,6 +41,18 @@ final class ServiceProvider implements PlatformServiceProvider
             AuthorizationStore::class => JwtAuthorizationStore::class,
             TokenIssuer::class => Jwt::class,
             TokenValidator::class => Jwt::class,
+        ];
+    }
+
+    /** @return array<class-string, class-string> */
+    #[Override]
+    public static function getHandlers(): array
+    {
+        return [
+            RegisterAccount::class => RegisterAccountHandler::class,
+            RetireAccount::class => RetireAccountHandler::class,
+            ReviseAccount::class => ReviseAccountHandler::class,
+            ListAccounts::class => ListAccountsHandler::class,
         ];
     }
 

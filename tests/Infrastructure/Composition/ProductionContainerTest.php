@@ -9,8 +9,23 @@ use Aws\S3\S3Client;
 use Aws\S3\S3ClientInterface;
 use Aws\Sns\SnsClient;
 use Aws\Sqs\SqsClient;
+use Backendbase\Domain\ExampleCatalog\Application\CommandHandlers\QueueGreetingHandler;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\QueueGreeting;
+use Backendbase\Domain\ExampleCatalog\Contracts\EntryReadRepository;
+use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
+use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryGroupPage;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Domain\IdentityAndAccess\Application\QueryHandlers\ListAccountsHandler;
+use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Domain\IdentityAndAccess\Contracts\Query\ListAccounts;
+use Backendbase\Infrastructure\Adapters\CQRS\AttributeHandlerResolver;
+use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Infrastructure\Health\RabbitMQConnectionFactory;
+use Backendbase\Shared\CQRS\CommandBus;
+use Backendbase\Shared\CQRS\HandlerResolver;
+use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Health\ReadinessChecks;
+use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpAmqpLib\Connection\AbstractConnection;
@@ -43,6 +58,7 @@ final class ProductionContainerTest extends TestCase
         }
 
         self::assertInstanceOf(ReadinessChecks::class, $container->get(ReadinessChecks::class));
+        self::assertInstanceOf(RegistryHandlerResolver::class, $container->get(HandlerResolver::class));
     }
 
     #[Test]
@@ -63,6 +79,45 @@ final class ProductionContainerTest extends TestCase
 
             self::assertSame(['mysql', 'redis', 'queue', 'objectStore'], array_keys($report['checks']));
         }
+    }
+
+    #[Test]
+    public function itLoadsHandlerMappingsFromBothContextsInRegistryMode(): void
+    {
+        $transaction = $this->createMock(IntegrationEventTransaction::class);
+        $transaction->expects(self::once())->method('execute');
+        $page       = new EntryGroupPage(['settings'], 1);
+        $repository = $this->createMock(EntryReadRepository::class);
+        $repository->expects(self::once())->method('getEntryGroupsByType')->willReturn($page);
+        $container = ProductionContainerFixture::build([
+            IntegrationEventTransaction::class => $transaction,
+            EntryReadRepository::class => $repository,
+        ]);
+        $resolver  = $container->get(HandlerResolver::class);
+        self::assertInstanceOf(RegistryHandlerResolver::class, $resolver);
+
+        self::assertSame(
+            QueueGreetingHandler::class,
+            $resolver->handlerFor(new QueueGreeting('Ada', new Acl(['full-privileges']))),
+        );
+        self::assertSame(
+            ListAccountsHandler::class,
+            $resolver->handlerFor(new ListAccounts(new Acl(['full-privileges']))),
+        );
+
+        $container->get(CommandBus::class)->handle(new QueueGreeting('Ada', new Acl(['full-privileges'])));
+        self::assertSame(
+            $page,
+            $container->get(QueryBus::class)->handle(new GetEntryGroupsByType(EntryType::SYSTEM, null)),
+        );
+    }
+
+    #[Test]
+    public function itCanSelectTheAttributeResolver(): void
+    {
+        $container = ProductionContainerFixture::build([], 'rabbitmq', AttributeHandlerResolver::class);
+
+        self::assertInstanceOf(AttributeHandlerResolver::class, $container->get(HandlerResolver::class));
     }
 
     private static function s3Client(): S3Client

@@ -5042,8 +5042,8 @@
         <text data-detail="context" x="640" y="312" class="t-muted" font-size="9" text-anchor="middle">Handlers and messaging policy</text>
         </g>
 
-        <g id="node-domain" data-node-id="domain" data-node-label="Domain Model" tabindex="0" role="button" aria-label="Focus Domain Model, Aggregate rules, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Aggregate rules" data-node-tag="public snapshot" data-node-context="Framework-free business core">
-          <title>Domain Model · Aggregate rules · Framework-free business core · public snapshot</title>
+        <g id="node-domain" data-node-id="domain" data-node-label="Domain Model" tabindex="0" role="button" aria-label="Focus Domain Model, Aggregate rules, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Aggregate rules" data-node-tag="typed snapshot" data-node-context="Framework-free business core">
+          <title>Domain Model · Aggregate rules · Framework-free business core · typed snapshot</title>
           <rect x="850" y="260" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="850" y="260" width="180" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(856 266) scale(0.6875)">
@@ -5051,7 +5051,7 @@
           </g>
           <text data-node-label="" data-detail-anchor="" x="940" y="296" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Domain Model</text>
         <text data-detail="context" x="940" y="312" class="t-muted" font-size="9" text-anchor="middle">Aggregate rules</text>
-        <text data-detail="fine" x="940" y="328" class="t-backend" font-size="7" text-anchor="middle">public snapshot</text>
+        <text data-detail="fine" x="940" y="328" class="t-backend" font-size="7" text-anchor="middle">typed snapshot</text>
         </g>
 
         <g id="node-ports" data-node-id="ports" data-node-label="Outbound Ports" tabindex="0" role="button" aria-label="Focus Outbound Ports, Repositories and capabilities, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Repositories and capabilities" data-node-context="Architecture component">
@@ -5341,6 +5341,7 @@
         <ul>
           <li>&bull; Business code depends on project-owned ports.</li>
           <li>&bull; Doctrine and memory adapters share behavior tests.</li>
+          <li>&bull; Persistence reads a typed aggregate snapshot.</li>
           <li>&bull; Architecture rules enforce inward dependency direction.</li>
         </ul>
       </div>
@@ -5352,7 +5353,6 @@
         </div>
         <ul>
           <li>&bull; Contracts name concrete application handlers.</li>
-          <li>&bull; Persistence reads an untyped aggregate snapshot.</li>
           <li>&bull; Shared mixes core contracts with framework base classes.</li>
         </ul>
       </div>
@@ -5364,7 +5364,7 @@
         </div>
         <ul>
           <li>&bull; Keep the current boundaries and tests.</li>
-          <li>&bull; Reduce snapshot and Shared coupling before adding layers.</li>
+          <li>&bull; Reduce Shared coupling before adding layers.</li>
           <li>&bull; Treat strict hexagonal purity as optional, not as the goal.</li>
         </ul>
       </div>

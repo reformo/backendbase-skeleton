@@ -73,10 +73,10 @@ final class EntryStore
 
         $state    = $entry->snapshot();
         $identity = new EntryIdentity(
-            $state['type'],
-            $state['typeTargetId'],
-            $state['group'],
-            $state['lookupKey'],
+            $state->type(),
+            $state->typeTargetId(),
+            $state->group(),
+            $state->lookupKey(),
         );
         foreach ($this->entries as $storedEntry) {
             $this->rejectConflictWithStoredEntry($entry, $storedEntry, $identity);

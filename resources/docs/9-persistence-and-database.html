@@ -13,14 +13,14 @@
 </nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>The domain does not know Doctrine</h2>
 <p>Bounded-context contracts define persistence ports. Doctrine adapters implement those ports. Domain aggregates and read models remain independent from database records.</p>
-<div class="grid-3"><article class="card"><h3>Write side</h3><p>Doctrine ORM maps aggregate snapshots to records and saves state.</p></article><article class="card"><h3>Read side</h3><p>Doctrine DBAL runs explicit SQL and maps rows into immutable read models.</p></article><article class="card"><h3>Schema side</h3><p>Reviewed migrations own production schema changes. Seeders add approved reference data.</p></article></div>
+<div class="grid-3"><article class="card"><h3>Write side</h3><p>Doctrine ORM maps typed aggregate snapshots to records and saves state.</p></article><article class="card"><h3>Read side</h3><p>Doctrine DBAL runs explicit SQL and maps rows into immutable read models.</p></article><article class="card"><h3>Schema side</h3><p>Reviewed migrations own production schema changes. Seeders add approved reference data.</p></article></div>
 </section>
 <section id="architecture"><p class="section-label">02 · Architecture</p><h2>Ports separate behavior from storage</h2>
 <div class="diagram-wrap"><ol class="flow"><li><strong>Handler</strong><small>uses a context port</small></li><li><strong>Port</strong><small>defines required behavior</small></li><li><strong>Adapter</strong><small>uses ORM or DBAL</small></li><li><strong>Mapper</strong><small>validates state or rows</small></li><li><strong>Connection</strong><small>talks to MySQL</small></li><li><strong>Model</strong><small>returns domain or read data</small></li></ol></div>
 <div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="2-cqrs.html">CQRS</a></div>
 </section>
 <section id="write"><p class="section-label">03 · Write persistence</p><h2>Save aggregate state through a write port</h2>
-<p><code>EntryWriteRepository</code> persists a new <code>EntryRecord</code>, loads active records by UUID, synchronizes a record from an aggregate snapshot, and flushes the entity manager.</p>
+<p><code>EntryWriteRepository</code> persists a new <code>EntryRecord</code>, loads active records by UUID, synchronizes a record from a typed <code>EntrySnapshot</code>, and flushes the entity manager.</p>
 <ul><li><code>add()</code> maps a new aggregate with <code>fromDomain()</code>.</li><li><code>getActive()</code> reconstitutes an aggregate with <code>toDomain()</code>.</li><li><code>save()</code> synchronizes the existing record and flushes.</li></ul>
 <div class="callout warning">The adapter maps state. It must not decide how an example changes or whether a business operation is allowed.</div>
 </section>
@@ -33,7 +33,7 @@
 <section id="mapping"><p class="section-label">05 · Record mapping</p><h2>Records translate aggregate snapshots into columns</h2>
 <p><code>EntryRecord</code> uses PHP attributes for its table, indexes, unique constraints, columns, generated columns, UUID, enum, JSON, timestamps, and soft removal state.</p>
 <div class="table-wrap"><table><thead><tr><th>Mapping concern</th><th>Current pattern</th></tr></thead><tbody>
-<tr><td>Domain enum</td><td>Native string-backed enum with Doctrine <code>enumType</code>.</td></tr><tr><td>Aggregate state</td><td><code>snapshot()</code> feeds <code>synchronize()</code>.</td></tr>
+<tr><td>Domain enum</td><td>Native string-backed enum with Doctrine <code>enumType</code>.</td></tr><tr><td>Aggregate state</td><td><code>snapshot()</code> returns a typed <code>EntrySnapshot</code>. <code>synchronize()</code> reads its methods.</td></tr>
 <tr><td>Reconstitution</td><td><code>toDomain()</code> calls a domain reconstitution factory.</td></tr><tr><td>Soft removal</td><td><code>deleted_at</code> remains part of persistence, while domain state uses <code>removedAt</code>.</td></tr>
 <tr><td>Uniqueness</td><td>Generated columns support active-record uniqueness when nullable values and soft removal are present.</td></tr>
 </tbody></table></div>

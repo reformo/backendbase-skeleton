@@ -12,9 +12,9 @@ Name each context after its business capability. Omit `Context` and `BoundedCont
 - `Adapters/Persistence/Doctrine`: production read and write adapters.
 - `Adapters/Persistence/Memory`: fast test adapters.
 - `Tests`: tests owned by the movable module.
-- `ServiceProvider.php`: port bindings and subscriber metadata.
+- `ServiceProvider.php`: port bindings, command and query handler mappings, and subscriber metadata.
 
-Boot discovers only `src/Backendbase/Domain/*/ServiceProvider.php`. A normal context needs no Composer mapping change.
+Boot discovers `src/Backendbase/Domain/*/ServiceProvider.php` for ports and handler mappings. A normal context needs no Composer mapping change.
 
 Use `ExampleCatalog` as the reference. No `Content` context currently exists. `IdentityAndAccess` also owns its port bindings through this provider pattern.
 

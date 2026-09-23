@@ -77,7 +77,7 @@ backendbase-core/
 │   │   │   │   └── ExternalIntegrationEvents/
 │   │   │   ├── Domain/                # Aggregates, value objects, and domain enums
 │   │   │   ├── Tests/
-│   │   │   └── ServiceProvider.php
+│   │   │   └── ServiceProvider.php    # Port, handler, and subscriber registration
 │   │   └── IdentityAndAccess/         # Authentication and authorization context
 │   ├── Infrastructure/
 │   │   ├── Adapters/                  # Notification, persistence, queue, and object-store adapters
@@ -159,7 +159,7 @@ Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, 
 
 ### CQRS
 
-Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. Each contract uses `#[CQRSHandler(HandlerClass::class)]`. The Infrastructure `ContainerAwareCommandBus` and `ContainerAwareQueryBus` adapters resolve handlers from that attribute and the PHP-DI container.
+Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. The `config/dependencies.php` provider accepts a resolver class as its second argument. It defaults to `RegistryHandlerResolver::class` and uses each context's `ServiceProvider::getHandlers()` mappings. Pass `AttributeHandlerResolver::class` to use `#[CQRSHandler]` metadata instead. Both resolvers implement `HandlerResolver`. Both buses obtain the selected handler from the PHP-DI container.
 
 ### Example API
 

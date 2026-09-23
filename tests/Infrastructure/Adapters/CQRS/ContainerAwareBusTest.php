@@ -8,13 +8,19 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Infrastructure\Adapters\CQRS\AttributeHandlerResolver;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
+use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
+use Backendbase\Shared\CQRS\CommandHandler;
+use Backendbase\Shared\CQRS\QueryHandler;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use stdClass;
+use Tests\Infrastructure\Adapters\CQRS\Fixtures\RegistryCommand;
+use Tests\Infrastructure\Adapters\CQRS\Fixtures\RegistryQuery;
 use UnexpectedValueException;
 
 final class ContainerAwareBusTest extends TestCase
@@ -54,6 +60,50 @@ final class ContainerAwareBusTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
 
         $bus->handle($query);
+    }
+
+    #[Test]
+    public function itDispatchesAnUnattributedCommandThroughTheRegistry(): void
+    {
+        $command = new RegistryCommand();
+        $handler = $this->createMock(CommandHandler::class);
+        $handler->expects(self::once())->method('handle')->with($command);
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects(self::once())->method('get')->with(CommandHandler::class)->willReturn($handler);
+        $resolver = new RegistryHandlerResolver([RegistryCommand::class => CommandHandler::class]);
+
+        new ContainerAwareCommandBus($container, $resolver)->handle($command);
+    }
+
+    #[Test]
+    public function itDispatchesAnUnattributedQueryThroughTheRegistry(): void
+    {
+        $query   = new RegistryQuery();
+        $handler = $this->createMock(QueryHandler::class);
+        $handler->expects(self::once())->method('handle')->with($query)->willReturn('found');
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects(self::once())->method('get')->with(QueryHandler::class)->willReturn($handler);
+        $resolver = new RegistryHandlerResolver([RegistryQuery::class => QueryHandler::class]);
+
+        self::assertSame('found', new ContainerAwareQueryBus($container, $resolver)->handle($query));
+    }
+
+    #[Test]
+    public function itRejectsAnUnregisteredMessage(): void
+    {
+        $resolver = new RegistryHandlerResolver([]);
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage(RegistryCommand::class);
+
+        $resolver->handlerFor(new RegistryCommand());
+    }
+
+    #[Test]
+    public function attributeModeRequiresAHandlerAttribute(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+
+        new AttributeHandlerResolver()->handlerFor(new RegistryCommand());
     }
 
     private function invalidContainer(): ContainerInterface

@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\CQRS;
 
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\CommandHandler;
+use Backendbase\Shared\CQRS\HandlerResolver;
 use Override;
 use Psr\Container\ContainerInterface;
-use ReflectionClass;
 use UnexpectedValueException;
 
 readonly class ContainerAwareCommandBus implements CommandBus
 {
-    public function __construct(private ContainerInterface $container)
+    private HandlerResolver $handlerResolver;
+
+    public function __construct(private ContainerInterface $container, HandlerResolver|null $handlerResolver = null)
     {
+        $this->handlerResolver = $handlerResolver ?? new AttributeHandlerResolver();
     }
 
     #[Override]
     public function handle(Command $command): void
     {
-        $commandFQCN = $command::class;
-        $reflection  = new ReflectionClass($commandFQCN);
-        $handlerFQCN = $reflection->getAttributes(CQRSHandler::class)[0]->getArguments()[0];
+        $handlerFQCN = $this->handlerResolver->handlerFor($command);
 
         $handler = $this->container->get($handlerFQCN);
         if (! $handler instanceof CommandHandler) {

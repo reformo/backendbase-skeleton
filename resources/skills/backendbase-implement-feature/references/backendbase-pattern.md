@@ -112,7 +112,7 @@ A read feature normally uses a query, query handler, read port, read model, and 
 
 ## CQRS Contract
 
-Current Backendbase command and query messages use one positional handler attribute:
+With `AttributeHandlerResolver`, Backendbase command and query messages use one handler attribute. With `RegistryHandlerResolver`, map them in the context `ServiceProvider::getHandlers()`:
 
 ```php
 #[CQRSHandler(RegisterOrderHandler::class)]
@@ -124,7 +124,7 @@ final readonly class RegisterOrder implements Command
 }
 ```
 
-The command bus reads attribute argument index `0`. Preserve exactly one positional argument when reproducing this mechanism. Current handlers live in `Application/CommandHandlers` and `Application/QueryHandlers`.
+The attribute resolver reads the handler name from `CQRSHandler`. Preserve exactly one positional argument when reproducing this mechanism. Current handlers live in `Application/CommandHandlers` and `Application/QueryHandlers`.
 
 A handler coordinates work. Put state rules on the model. Put database and provider code behind ports.
 

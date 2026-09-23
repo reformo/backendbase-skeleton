@@ -20,6 +20,8 @@ AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, read
 
 Use exact `BACKENDBASE_ENV` values: `dev`, `test`, `ci`, `stage`, or `production`.
 
+Select the CQRS resolver in dependency definitions. Pass `AttributeHandlerResolver::class` or `RegistryHandlerResolver::class` as the second argument to the `config/dependencies.php` provider. The default is `RegistryHandlerResolver::class`. The registry resolver reads handler mappings from each context's `ServiceProvider::getHandlers()`.
+
 The public API can cache merged configuration, the container, proxies, and routes. Clear cache after environment, route, or dependency changes:
 
 ```sh

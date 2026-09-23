@@ -43,16 +43,16 @@ final readonly class EntryReadRepository implements EntryReadRepositoryContract
         $state = $entry->snapshot();
 
         return new EntryDetails(
-            $state['uuid'],
-            $state['type'],
-            $state['typeTargetId'],
-            $state['group'],
-            $state['lookupKey'],
-            $state['lookupValue'],
-            $state['details'],
-            $state['isActive'],
-            $state['updatedAt'],
-            $state['createdAt'],
+            $state->uuid(),
+            $state->type(),
+            $state->typeTargetId(),
+            $state->group(),
+            $state->lookupKey(),
+            $state->lookupValue(),
+            $state->details(),
+            $state->isActive(),
+            $state->updatedAt(),
+            $state->createdAt(),
         );
     }
 
@@ -65,11 +65,11 @@ final readonly class EntryReadRepository implements EntryReadRepositoryContract
             }
 
             $state = $entry->snapshot();
-            if ($state['type'] !== $query->type() || $state['typeTargetId'] !== $query->typeTargetId()) {
+            if ($state->type() !== $query->type() || $state->typeTargetId() !== $query->typeTargetId()) {
                 continue;
             }
 
-            $groups[$state['group']] = true;
+            $groups[$state->group()] = true;
         }
 
         $groupNames = array_keys($groups);
@@ -92,9 +92,9 @@ final readonly class EntryReadRepository implements EntryReadRepositoryContract
 
             $state = $entry->snapshot();
             if (
-                $state['type'] !== $query->type()
-                || $state['group'] !== $query->group()
-                || $state['typeTargetId'] !== $query->typeTargetId()
+                $state->type() !== $query->type()
+                || $state->group() !== $query->group()
+                || $state->typeTargetId() !== $query->typeTargetId()
             ) {
                 continue;
             }
@@ -111,12 +111,12 @@ final readonly class EntryReadRepository implements EntryReadRepositoryContract
         $items       = [];
         foreach ($pageEntries as $entry) {
             $items[] = new EntryListItem(
-                $entry['uuid'],
-                $entry['lookupKey'],
-                $entry['lookupValue'],
-                $entry['details'],
-                $entry['isActive'],
-                $entry['createdAt'],
+                $entry->uuid(),
+                $entry->lookupKey(),
+                $entry->lookupValue(),
+                $entry->details(),
+                $entry->isActive(),
+                $entry->createdAt(),
             );
         }
 
@@ -132,10 +132,10 @@ final readonly class EntryReadRepository implements EntryReadRepositoryContract
 
             $state = $entry->snapshot();
             if (
-                $state['type'] === $query->type()
-                && $state['group'] === $query->group()
-                && $state['lookupKey'] === $query->key()
-                && $state['typeTargetId'] === $query->typeTargetId()
+                $state->type() === $query->type()
+                && $state->group() === $query->group()
+                && $state->lookupKey() === $query->key()
+                && $state->typeTargetId() === $query->typeTargetId()
             ) {
                 return $entry;
             }

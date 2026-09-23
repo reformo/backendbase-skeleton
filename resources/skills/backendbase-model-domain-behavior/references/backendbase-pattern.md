@@ -56,7 +56,7 @@ The class and state object are illustrative. Preserve the target project's estab
 ## Current source behavior and limitations
 
 - `Entry` is the primary aggregate reference. `IdentityAndAccess/Domain/Account` also implements production aggregate behavior.
-- It stores a typed array snapshot and does not extend `Backendbase\Shared\Domain\Aggregate`.
+- It stores internal state in a PHPStan-shaped array and returns a typed `EntrySnapshot` for adapters. It does not extend `Backendbase\Shared\Domain\Aggregate`.
 - The shared `Aggregate` event-recording API is exercised by test helpers, not by the production Example aggregate.
 - No automatic dispatcher drains `Aggregate::getRecordedEvents()` in the current production flow.
 - Example timestamps and soft removal describe that sample model, not every future domain.

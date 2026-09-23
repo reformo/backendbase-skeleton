@@ -508,7 +508,7 @@
                 <article class="card violet">
                     <span class="tag violet">Compose</span>
                     <h3>Runtime wiring</h3>
-                    <p>A context <code>ServiceProvider</code> binds its ports and registers its integration event subscribers.</p>
+                    <p>A context <code>ServiceProvider</code> binds its ports, maps its handlers, and registers its integration event subscribers.</p>
                 </article>
             </div>
             <div class="callout">
@@ -587,7 +587,7 @@
                     <text x="875" y="322" text-anchor="middle" fill="#c5e8e1" font-size="12">Doctrine · memory</text>
 
                     <rect x="392" y="386" width="430" height="44" rx="11" fill="#222f31" stroke="#637a79"/>
-                    <text x="607" y="414" text-anchor="middle" fill="#e9f3f1" font-size="14" font-weight="700">ServiceProvider composes ports and subscribers</text>
+                    <text x="607" y="414" text-anchor="middle" fill="#e9f3f1" font-size="14" font-weight="700">ServiceProvider registers context dependencies</text>
 
                     <rect x="250" y="476" width="710" height="42" rx="11" fill="#0f1b1d" stroke="#637a79"/>
                     <text x="605" y="502" text-anchor="middle" fill="#c5d4d1" font-size="14">Shared CQRS, persistence, event, HTTP, and primitive services</text>
@@ -629,14 +629,14 @@
 │   ├── Doctrine/                 # Production read/write adapters
 │   └── Memory/                   # Fast test adapters
 ├── Tests/                        # Module-local tests
-└── ServiceProvider.php           # Context composition root</code></pre></div>
+└── ServiceProvider.php           # Port, handler, and subscriber registration</code></pre></div>
 
             <div class="layer-stack">
                 <div class="layer"><b>Domain</b><span>Own business state and invariants. Do not put SQL, HTTP, or container calls here.</span></div>
                 <div class="layer"><b>Contracts</b><span>Define the context entry points, repository ports, event schemas, and read results.</span></div>
                 <div class="layer"><b>Application</b><span>Coordinate one use case. Call aggregate behavior and context ports.</span></div>
                 <div class="layer"><b>Adapters</b><span>Translate between context contracts and technologies such as Doctrine DBAL or ORM.</span></div>
-                <div class="layer"><b>Service provider</b><span>Select production adapters and publish subscriber metadata to the platform.</span></div>
+                <div class="layer"><b>Service provider</b><span>Select production adapters and provide handler mappings and subscriber metadata.</span></div>
                 <div class="layer"><b>Tests</b><span>Verify the module in isolation. Keep module-local tests with the module.</span></div>
             </div>
         </section>
@@ -658,7 +658,7 @@
             </div>
             <div class="callout">
                 <strong>Current routing exception</strong>
-                Command and query contracts use <code>#[CQRSHandler(HandlerClass::class)]</code>. The contract therefore names its application handler for bus routing.
+                In attribute mode, command and query contracts use <code>#[CQRSHandler(HandlerClass::class)]</code>. In registry mode, the context <code>ServiceProvider::getHandlers()</code> maps each contract to its application handler.
             </div>
             <p class="muted">Architecture tests parse PHP symbols and enforce domain purity, bounded-context isolation, Application direction, both adapter directions, Shared core framework isolation, attribute-target integrity, and the <code>Shared</code> dependency boundary.</p>
         </section>
@@ -669,7 +669,7 @@
             <div class="process" aria-label="Context registration flow">
                 <div class="step"><span class="step-number">01 · SCAN</span><strong>Find providers</strong><br><span class="muted"><code>Domain/*/ServiceProvider.php</code></span></div>
                 <div class="step"><span class="step-number">02 · LOAD</span><strong>Build class name</strong><br><span class="muted">Convert the file path to a fully qualified class name.</span></div>
-                <div class="step"><span class="step-number">03 · BIND</span><strong>Read definitions</strong><br><span class="muted">Autowire each interface to its implementation.</span></div>
+                <div class="step"><span class="step-number">03 · BIND</span><strong>Read definitions</strong><br><span class="muted">Autowire ports and collect command and query handler mappings.</span></div>
                 <div class="step"><span class="step-number">04 · SUBSCRIBE</span><strong>Read event metadata</strong><br><span class="muted">Register internal and external subscribers.</span></div>
                 <div class="step"><span class="step-number">05 · MAP</span><strong>Find entities</strong><br><span class="muted">Add context Doctrine entity directories.</span></div>
             </div>
@@ -700,6 +700,7 @@
 }</code></pre></div>
                 </article>
             </div>
+            <p><code>ServiceProvider::getHandlers()</code> maps each command and query class to one application handler class for registry resolution.</p>
             <p>No Composer mapping change is required for a normal context. The existing <code>Backendbase\</code> PSR-4 mapping covers every context directory.</p>
         </section>
 
@@ -708,7 +709,7 @@
             <p>The reference write path puts behavior on the aggregate and persistence behind a write port.</p>
             <div class="process" aria-label="Bounded context write flow">
                 <div class="step"><span class="step-number">01</span><strong>HTTP action</strong><br><span class="muted">Validate input and create a command.</span></div>
-                <div class="step"><span class="step-number">02</span><strong>Command bus</strong><br><span class="muted">Resolve the handler from its attribute.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Command bus</strong><br><span class="muted">Resolve the handler from the configured source.</span></div>
                 <div class="step"><span class="step-number">03</span><strong>Handler</strong><br><span class="muted">Load or create the aggregate.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Aggregate</strong><br><span class="muted">Apply the business operation.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Write port</strong><br><span class="muted">Map and persist through Doctrine.</span></div>
@@ -857,7 +858,8 @@
                 <li>Add handlers that orchestrate one use case each.</li>
                 <li>Add Doctrine and memory adapters only for required ports.</li>
                 <li>Add <code>ServiceProvider.php</code> and implement <code>Backendbase\Shared\ServiceProvider</code>.</li>
-                <li>Register port bindings and all event subscriber metadata.</li>
+                <li>Add command and query mappings to <code>ServiceProvider::getHandlers()</code>.</li>
+                <li>Register port bindings and all event subscriber metadata in the service provider.</li>
                 <li>Add module-local tests and required platform tests.</li>
                 <li>Verify container boot, Doctrine metadata, the CQRS paths, and event registration.</li>
             </ol>
@@ -873,7 +875,7 @@
                 <table>
                     <thead><tr><th>Constraint</th><th>Effect</th></tr></thead>
                     <tbody>
-                    <tr><td>Provider location is exact.</td><td>Automatic discovery scans only <code>src/Backendbase/Domain/*/ServiceProvider.php</code>.</td></tr>
+                    <tr><td>Provider location is exact.</td><td>Automatic discovery scans <code>src/Backendbase/Domain/*/ServiceProvider.php</code> for port bindings and handler mappings.</td></tr>
                     <tr><td>Discovery uses relative paths.</td><td>Boot expects the project root as the current working directory.</td></tr>
                     <tr><td>Glob order is not sorted.</td><td>Duplicate definition keys are overwritten during iteration. Do not let contexts claim the same port.</td></tr>
                     <tr><td>Provider data is trusted.</td><td>A wrong class name or malformed subscriber entry can fail container construction or event registration.</td></tr>
@@ -890,7 +892,7 @@
             <ul class="checklist">
                 <li>The context owns one clear business language.</li>
                 <li>Business rules are in domain objects.</li>
-                <li>Commands and queries have positional handler attributes.</li>
+                <li>Commands and queries have attributes or context registry mappings for the selected mode.</li>
                 <li>Handlers use ports, not concrete Doctrine adapters.</li>
                 <li>Read SQL stays in a read adapter.</li>
                 <li>Write mapping stays in a write adapter.</li>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Composition;
 
+use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Settings as SettingsInterface;
 use DI\ContainerBuilder;
@@ -12,14 +13,14 @@ use Psr\Container\ContainerInterface;
 final class ProductionContainerFixture
 {
     /** @param array<string, object> $overrides */
-    public static function build(array $overrides, string $queueDriver = 'rabbitmq'): ContainerInterface
+    public static function build(array $overrides, string $queueDriver = 'rabbitmq', string $resolverClass = RegistryHandlerResolver::class): ContainerInterface
     {
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->addDefinitions([
             SettingsInterface::class => new Settings(self::settings($queueDriver)),
         ]);
         $dependencies = require 'config/dependencies.php';
-        $dependencies($containerBuilder);
+        $dependencies($containerBuilder, $resolverClass);
         $containerBuilder->addDefinitions($overrides);
 
         return $containerBuilder->build();

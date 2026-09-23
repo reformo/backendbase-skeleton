@@ -63,7 +63,7 @@ final readonly class GetCatalogItemHandler implements QueryHandler
 
 ## Current source behavior and limitations
 
-- The query bus reads the first handler attribute and positional argument index `0`.
+- The dependency provider accepts a resolver class. `AttributeHandlerResolver` reads one `CQRSHandler` attribute. `RegistryHandlerResolver` reads the owning context's `ServiceProvider::getHandlers()` mapping.
 - `Query<TResult>` and `QueryHandler<TQuery, TResult>` are PHPStan contracts. Runtime dispatch returns `mixed`.
 - Current query contracts expose `toArray()` even though the shared `Query` interface requires only `jsonSerialize()`.
 - Current production handlers live in `Application/QueryHandlers` and delegate directly to the read port.

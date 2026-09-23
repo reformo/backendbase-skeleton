@@ -7,21 +7,7 @@ namespace Backendbase\Domain\ExampleCatalog\Domain;
 use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
 use DateTimeImmutable;
 
-/**
- * @phpstan-type EntryState array{
- *     uuid: string,
- *     type: EntryType,
- *     typeTargetId: int|null,
- *     group: string,
- *     lookupKey: string,
- *     lookupValue: string,
- *     details: array<string, mixed>,
- *     isActive: bool,
- *     createdAt: DateTimeImmutable,
- *     updatedAt: DateTimeImmutable,
- *     removedAt: DateTimeImmutable|null
- * }
- */
+/** @phpstan-import-type EntryState from EntrySnapshot */
 final class Entry
 {
     /** @param EntryState $state */
@@ -138,9 +124,20 @@ final class Entry
         return $this->state['lookupKey'] === $identity->key();
     }
 
-    /** @return EntryState */
-    public function snapshot(): array
+    public function snapshot(): EntrySnapshot
     {
-        return $this->state;
+        return new EntrySnapshot(
+            $this->state['uuid'],
+            $this->state['type'],
+            $this->state['typeTargetId'],
+            $this->state['group'],
+            $this->state['lookupKey'],
+            $this->state['lookupValue'],
+            $this->state['details'],
+            $this->state['isActive'],
+            $this->state['createdAt'],
+            $this->state['updatedAt'],
+            $this->state['removedAt'],
+        );
     }
 }

@@ -8,6 +8,7 @@ use Backendbase\Infrastructure\Adapters\DomainEvents\ContainerAwareDomainEventPu
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Shared\CQRS\CommandBus;
+use Backendbase\Shared\CQRS\HandlerResolver;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Domain\DomainEventPublisher;
 use Backendbase\Shared\Integrations\ExternalIntegrationEventRegistry;
@@ -66,8 +67,8 @@ return static function (ContainerBuilder $containerBuilder): void {
             return new InMemoryExternalIntegrationEventRegistry($definitions);
         },
         DomainEventPublisher::class => static fn (ContainerInterface $container) => new ContainerAwareDomainEventPublisher($container),
-        CommandBus::class => static fn (ContainerInterface $container) => new ContainerAwareCommandBus($container),
-        QueryBus::class => static fn (ContainerInterface $container) => new ContainerAwareQueryBus($container),
+        CommandBus::class => static fn (ContainerInterface $container) => new ContainerAwareCommandBus($container, $container->get(HandlerResolver::class)),
+        QueryBus::class => static fn (ContainerInterface $container) => new ContainerAwareQueryBus($container, $container->get(HandlerResolver::class)),
         'Backendbase\Domain\*\Application\Command\Handlers\*Handler' => autowire('Backendbase\Domain\*\Application\Command\Handlers\*Handler'),
         'Backendbase\Domain\*\Application\Query\Handlers\*Handler' => autowire('Backendbase\Domain\*\Application\Query\Handlers\*Handler'),
         'Backendbase\Domain\*\Application\CommandHandlers\*Handler' => autowire('Backendbase\Domain\*\Application\CommandHandlers\*Handler'),

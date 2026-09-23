@@ -68,7 +68,7 @@
       "type": "backend",
       "label": "Domain Model",
       "sublabel": "Aggregate rules",
-      "tag": "public snapshot",
+      "tag": "typed snapshot",
       "pos": [850, 260],
       "size": [180, 76],
       "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php", "line": 25, "end_line": 145, "label": "Example aggregate"}]
@@ -147,8 +147,8 @@
     {"id": "platform-adapter-port", "from": "platformAdapters", "to": "ports", "label": "implements"}
   ],
   "cards": [
-    {"dot": "emerald", "title": "Strengths", "items": ["Business code depends on project-owned ports.", "Doctrine and memory adapters share behavior tests.", "Architecture rules enforce inward dependency direction."]},
-    {"dot": "amber", "title": "Weaknesses", "items": ["Contracts name concrete application handlers.", "Persistence reads an untyped aggregate snapshot.", "Shared mixes core contracts with framework base classes."]},
-    {"dot": "cyan", "title": "Priority", "items": ["Keep the current boundaries and tests.", "Reduce snapshot and Shared coupling before adding layers.", "Treat strict hexagonal purity as optional, not as the goal."]}
+    {"dot": "emerald", "title": "Strengths", "items": ["Business code depends on project-owned ports.", "Doctrine and memory adapters share behavior tests.", "Persistence reads a typed aggregate snapshot.", "Architecture rules enforce inward dependency direction."]},
+    {"dot": "amber", "title": "Weaknesses", "items": ["Contracts name concrete application handlers.", "Shared mixes core contracts with framework base classes."]},
+    {"dot": "cyan", "title": "Priority", "items": ["Keep the current boundaries and tests.", "Reduce Shared coupling before adding layers.", "Treat strict hexagonal purity as optional, not as the goal."]}
   ]
 }
