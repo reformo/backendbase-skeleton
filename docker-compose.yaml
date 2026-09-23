@@ -56,19 +56,90 @@ services:
       start_period: 30s
     networks:
       - backendbase_net
-  aws-emulator:
-    profiles:
-      - integration
-    image: motoserver/moto:5.2.3@sha256:91fd602a21f49cf9eb82fdf474015a3c131d40104c8297ea6a2ca920708ae32c
-    container_name: backendbase-aws-emulator
+  ministack:
+    image: ministackorg/ministack:1.5.14@sha256:62c0ac878ea843596c481c2cf9a6d1f12d6e310209b50e0ab60fde3f38022c98
+    container_name: backendbase-ministack
     ports:
-      - "127.0.0.1:${BACKENDBASE_DEV_AWS_PORT:-5000}:5000"
+      - "127.0.0.1:${BACKENDBASE_DEV_AWS_PORT:-4566}:4566"
+    environment:
+      SERVICES: s3,sqs,sns,ses,cloudfront
+      AWS_DEFAULT_REGION: ${AWS_REGION:-eu-central-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+      MINISTACK_REGION: ${AWS_REGION:-eu-central-1}
+      MINISTACK_HOST: 127.0.0.1
+      AWS_SQS_QUEUE: ${AWS_SQS_QUEUE:-backendbase-queue}
+      BUCKET_NAME: ${BUCKET_NAME:-backendbase-v3}
+      PERSIST_STATE: "1"
+      S3_PERSIST: "1"
+    volumes:
+      - ministack_state:/tmp/ministack-state
+      - ministack_s3:/tmp/ministack-data/s3
+    post_start:
+      - command:
+          - /bin/sh
+          - -ec
+          - |
+            count=0
+            until python -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:4566/_ministack/health", timeout=2)' >/dev/null 2>&1; do
+              count=$$((count + 1))
+              if [ "$$count" -ge 30 ]; then exit 1; fi
+              sleep 1
+            done
+            if ! aws --endpoint-url=http://127.0.0.1:4566 s3api head-bucket --bucket "$$BUCKET_NAME" >/dev/null 2>&1; then
+              aws --endpoint-url=http://127.0.0.1:4566 s3 mb "s3://$$BUCKET_NAME" --region "$$AWS_DEFAULT_REGION"
+            fi
+            if ! aws --endpoint-url=http://127.0.0.1:4566 sqs get-queue-url --queue-name "$$AWS_SQS_QUEUE" >/dev/null 2>&1; then
+              aws --endpoint-url=http://127.0.0.1:4566 sqs create-queue --queue-name "$$AWS_SQS_QUEUE"
+            fi
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/moto-api/').read()"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4566/_ministack/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
       retries: 10
-      start_period: 5s
+      start_period: 10s
+    networks:
+      - backendbase_net
+  cdn:
+    image: nginx:1.30.3-alpine@sha256:0d3b80406a13a767339fbe2f41406d6c7da727ab89cf8fae399e81f780f814d1
+    container_name: backendbase-cdn
+    ports:
+      - "127.0.0.1:${BACKENDBASE_DEV_CDN_PORT:-8081}:80"
+    environment:
+      BUCKET_NAME: ${BUCKET_NAME:-backendbase-v3}
+      NGINX_ENVSUBST_FILTER: ^BUCKET_NAME$
+    volumes:
+      - ./docker/cdn.conf.template:/etc/nginx/templates/default.conf.template:ro
+    depends_on:
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backendbase_net
+  stackport:
+    image: davireis/stackport:0.4.3@sha256:62931f2183b52f11281cacc4149569c769aa4e3f327452da9620fb773f20af68
+    container_name: backendbase-stackport
+    ports:
+      - "127.0.0.1:${BACKENDBASE_DEV_STACKPORT_PORT:-8082}:8080"
+    environment:
+      AWS_ENDPOINT_URL: http://ministack:4566
+      AWS_REGION: ${AWS_REGION:-eu-central-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    depends_on:
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - backendbase_net
 
@@ -78,3 +149,5 @@ networks:
 
 volumes:
   rabbitmq_data:
+  ministack_state:
+  ministack_s3:

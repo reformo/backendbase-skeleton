@@ -12,7 +12,7 @@ Use the smallest check that proves the change. Expand checks as risk increases.
 - Run the same behavioral repository contract suite against every adapter for one port.
 - Keep adapter-specific tests for storage details such as mapping and rollback.
 - Use deterministic doubles at network and provider boundaries.
-- Use `docker compose --profile integration up -d` for opt-in S3, SQS, and SNS adapter integration tests.
+- Use `docker compose up -d` for local S3, SQS, SNS, SES, and CloudFront API integration tests.
 - Create and remove emulator resources in each integration test setup. Do not add the emulator to the default suite.
 - Keep invalid input, rollback, retry, mapping, and not-found paths explicit.
 - Keep dependency-direction tests separate for Application, Shared core, inbound adapters, and outbound adapters.

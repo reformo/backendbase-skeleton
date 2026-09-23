@@ -6,6 +6,7 @@ use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Configuration\AwsSettings;
 use Backendbase\Infrastructure\Configuration\DatabaseSettings;
 use Backendbase\Infrastructure\Configuration\LoggingSettings;
+use Backendbase\Infrastructure\Configuration\NotificationSettings;
 use Backendbase\Infrastructure\Configuration\QueueSettings;
 use Backendbase\Infrastructure\Configuration\RedisSettings;
 use Backendbase\Shared\Configuration\ApiKeySettings;
@@ -30,6 +31,7 @@ return static function (ContainerBuilder $containerBuilder, array $config): void
         HttpHeaderSettings::class => autowire(HttpHeaderSettings::class),
         JwtSettings::class => autowire(JwtSettings::class),
         LoggingSettings::class => autowire(LoggingSettings::class),
+        NotificationSettings::class => autowire(NotificationSettings::class),
         QueueSettings::class => autowire(QueueSettings::class),
         RedisSettings::class => autowire(RedisSettings::class),
     ]);

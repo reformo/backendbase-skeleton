@@ -46,8 +46,8 @@ The inbox must distinguish completed, active, and unknown external outcomes. A d
 ## Current source limitations
 
 - Backendbase has no registered notification queue processor.
-- The inspected container registers only `SnsNotifier`, which supports SMS.
-- Email has a model but no registered provider.
+- The container registers SNS SMS and SES email by default. Twilio or Netgsm SMS and SMTP email are selectable.
+- Firebase push registers only when `FIREBASE_PROJECT_ID` is configured.
 - New delivery code must define a complete message, model, and provider contract.
 
 ## Exact source provenance

@@ -29,7 +29,7 @@ Use the target notification contract, provider SDK, config keys, container, mode
 
 1. Define or confirm the provider-independent notification data and stable type.
 2. Enforce required external invariants before the provider call.
-3. Implement a `Notify` adapter that accepts only its supported model.
+3. Implement a `NotificationProvider` adapter that accepts only its supported model.
 4. Map project values to one vendor request and validate the vendor result.
 5. Translate recoverable failures without exposing SDK types.
 6. Add validated settings and finite network timeouts.
@@ -40,7 +40,7 @@ Use the target notification contract, provider SDK, config keys, container, mode
 
 - Notification models are provider-independent.
 - Models and providers use the same stable `type()` value.
-- `StackNotifier` has one registered provider for every type that production code creates.
+- `StackNotifier` has one registered provider for every type that production code creates. A direct `Notification` uses the same routing as a grouped notification.
 - A provider rejects an unsupported notification model.
 - Vendor types remain in infrastructure.
 - Notification bodies, recipients, tokens, and attachments are not logged.

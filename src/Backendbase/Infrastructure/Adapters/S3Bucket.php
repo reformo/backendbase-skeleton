@@ -33,7 +33,7 @@ class S3Bucket implements BucketService
             return null;
         }
 
-        if ($this->cloudFront !== null) {
+        if ($this->cloudFront !== null && $this->cloudFront !== '') {
             return $this->cloudFront . $key;
         }
 

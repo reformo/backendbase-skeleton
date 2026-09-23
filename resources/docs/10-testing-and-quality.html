@@ -30,7 +30,7 @@
 <section id="fast"><p class="section-label">04 · Fast tests</p><h2>Keep domain and application feedback deterministic</h2>
 <ul><li>Test value-object invalid, boundary, and valid inputs.</li><li>Test aggregate invariants before repository behavior.</li><li>Use memory repositories for complete in-process lifecycles.</li>
 <li>Stub ports at application boundaries.</li><li>Assert emitted events when the event is part of the use-case contract.</li><li>Do not make live network calls.</li></ul>
-<p>Use <code>docker compose --profile integration up -d</code> only for explicit S3, SQS, and SNS adapter integration tests. Keep the emulator outside the default suite.</p>
+<p>Use the default MiniStack service for explicit S3, SQS, SNS, SES, and CloudFront API integration tests. Keep service-backed tests outside the default suite.</p>
 </section>
 <section id="database"><p class="section-label">05 · Database tests</p><h2>Use real mapping metadata and isolated schemas</h2>
 <p>Doctrine repository tests use production mapping metadata. They verify state mapping, SQL filters, ordering, pagination, null behavior, JSON data, enums, and rollback.</p>

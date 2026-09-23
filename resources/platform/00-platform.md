@@ -105,7 +105,8 @@ backendbase-core/
 ├── var/cache/                         # Runtime caches and generated proxies
 ├── AGENTS.md                          # Repository agent rules
 ├── composer.json                      # Dependencies and project commands
-├── docker-compose.yaml                # Core services and the opt-in AWS emulator profile
+├── docker-compose.yaml                # Core services, local AWS endpoints, and local file delivery
+├── docker/cdn.conf.template           # Nginx file delivery and cache configuration
 ├── migrations.json                    # Doctrine migration configuration
 ├── phpunit.xml                        # PHPUnit suite configuration
 ├── phpstan.neon                       # PHPStan level 8 configuration

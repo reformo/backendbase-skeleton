@@ -361,11 +361,11 @@
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
             <span class="chip">Account provisioning is external</span>
-            <span class="chip"><span data-quality-metric="tests">432</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">526</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">Complexity ≤ 12</span>
-            <span class="chip">134 package digests verified</span>
+            <span class="chip">142 package digests verified</span>
             <span class="chip">0 advisories · 0 abandoned</span>
         </div>
     </div>
@@ -399,7 +399,7 @@
             <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have strong automated verification.</p>
             <p>The account lifecycle keeps its dependency direction. Protected HTTP controllers call commands and a query. Their handlers depend on account repository, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapters.</p>
             <p>Recent changes moved Identity and Access bindings into its context service provider. They also moved bearer middleware to the inbound HTTP adapter, revoked authorization state before account revision or retirement, and aligned path parameters on <code>kebab-case</code>.</p>
-            <p>Other recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and an opt-in local AWS emulator. A weekly audit, CycloneDX SBOM, and reviewed package-content digests protect Composer changes.</p>
+            <p>Other recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and default local AWS endpoints. A weekly audit, CycloneDX SBOM, and reviewed package-content digests protect Composer changes.</p>
             <p>The code-quality score excludes product readiness. Provision the first account with account-management privileges through an approved operation before non-local use. Other findings concern repeatability, dependency cost, and external deployment ownership.</p>
             <p>The architecture does not need a broad rewrite. Apply focused fixes with regression tests.</p>
         </section>
@@ -435,10 +435,10 @@
             <p class="section-label">03 · Verification evidence</p>
             <h2>Configured core checks pass</h2>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">432</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,733</span></strong><span>Passing assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">3,988</span>/<span data-quality-metric="total-lines">3,988</span></strong><span>Covered executable lines</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">949</span>/<span data-quality-metric="total-methods">949</span></strong><span>Covered methods</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">526</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">1,919</span></strong><span>Passing assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">4,355</span>/<span data-quality-metric="total-lines">4,355</span></strong><span>Covered executable lines</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,034</span>/<span data-quality-metric="total-methods">1,034</span></strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
                 <table class="report-table evidence-table">
@@ -447,13 +447,13 @@
                     </thead>
                     <tbody>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">432</span> tests and <span data-quality-metric="assertions">1,733</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">3,988</span> of <span data-quality-metric="total-lines">3,988</span> executable source lines were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">949</span> of <span data-quality-metric="total-methods">949</span> methods were covered.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">526</span> tests and <span data-quality-metric="assertions">1,919</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">4,355</span> of <span data-quality-metric="total-lines">4,355</span> executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">1,034</span> of <span data-quality-metric="total-methods">1,034</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">506</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">537</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
@@ -463,13 +463,13 @@
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
-                    <tr><td>Local AWS integration profile</td><td><span class="badge">Pass</span></td><td>An opt-in, digest-pinned Moto profile provides local S3, SQS, and SNS endpoints. Composition tests keep it outside the default service stack.</td></tr>
+                    <tr><td>Local AWS services</td><td><span class="badge">Pass</span></td><td>The default MiniStack service provides local S3, SQS, SNS, SES, and CloudFront APIs. A composition test checks its version, port, and service list.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Delivery and dependency controls</th></tr>
                     <tr><td>CI action integrity</td><td><span class="badge">Pass</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
                     <tr><td>Composer toolchain</td><td><span class="badge">Pass</span></td><td>CI pins Composer 2.10.3, installs reviewed public keys into an isolated Composer home, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
                     <tr><td>Isolated dependency review</td><td><span class="badge">Pass</span></td><td>Dependency review installs with plugins and scripts disabled before any trusted build step.</td></tr>
                     <tr><td>Weekly dependency audit</td><td><span class="badge">Pass</span></td><td>The scheduled workflow audits the locked production and development dependency graph each Monday.</td></tr>
-                    <tr><td>Supply-chain evidence</td><td><span class="badge">Pass</span></td><td>The isolated install matched the CycloneDX 1.6 SBOM and SHA-256 content digests for all 134 locked packages.</td></tr>
+                    <tr><td>Supply-chain evidence</td><td><span class="badge">Pass</span></td><td>The isolated install matched the CycloneDX 1.6 SBOM and SHA-256 content digests for all 142 locked packages.</td></tr>
                     <tr><td>Release dependency integrity</td><td><span class="badge">Pass</span></td><td>The release manifest records checksums for <code>composer.lock</code>, the SBOM, and the package-content manifest. Deployment verifies all three before activation.</td></tr>
                     <tr><td>Documentation links</td><td><span class="badge">Pass</span></td><td><code>composer docs:check-links</code> validates local HTML and Markdown targets plus HTML fragments.</td></tr>
                     <tr><td>Generated report metrics</td><td><span class="badge">Pass</span></td><td><code>composer reports:check</code> compares marked report values with JUnit, Clover, and repository inventory data.</td></tr>
@@ -517,7 +517,7 @@
                 </div>
                 <div class="card">
                     <h3>Health and local infrastructure</h3>
-                    <p>Liveness stays cheap. Readiness uses bounded checks. Digest-pinned local services include an opt-in Moto profile for S3, SQS, and SNS.</p>
+                    <p>Liveness stays cheap. Readiness uses bounded checks. The default MiniStack service provides S3, SQS, SNS, SES, and CloudFront APIs.</p>
                 </div>
                 <div class="card">
                     <h3>API contract coverage</h3>
@@ -525,7 +525,7 @@
                 </div>
                 <div class="card">
                     <h3>Defensive delivery controls</h3>
-                    <p>Release scripts verify manifests and checksums. Weekly audits and isolated installs verify the SBOM and 134 package-content digests.</p>
+                    <p>Release scripts verify manifests and checksums. Weekly audits and isolated installs verify the SBOM and 142 package-content digests.</p>
                 </div>
             </div>
             <div class="grid-3 outcome-grid" aria-label="Engineering outcomes">
@@ -559,7 +559,7 @@
                     <tr>
                         <td><span class="badge medium">Medium</span></td>
                         <td>No local Firebase integration profile</td>
-                        <td><span class="cell-content">Moto provides local S3, SQS, and SNS endpoints. Firebase still requires an external service or a separate emulator.</span></td>
+                        <td><span class="cell-content">MiniStack provides local S3, SQS, SNS, SES, and CloudFront APIs. Firebase still requires an external service or a separate emulator.</span></td>
                         <td><span class="cell-content"><a href="../../docker-compose.yaml">docker-compose.yaml</a> and <a href="../../src/Backendbase/Infrastructure/Adapters/Notification/FirebasePushNotifier.php">FirebasePushNotifier.php</a>.</span></td>
                     </tr>
                     <tr>

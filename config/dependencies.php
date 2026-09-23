@@ -13,6 +13,7 @@ return static function (ContainerBuilder $containerBuilder): void {
         'redis.php',
         'logger.php',
         'aws.php',
+        'notification.php',
         'rabbitmq.php',
         'queue.php',
         'readiness.php',

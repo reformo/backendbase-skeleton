@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Notification;
 
+use Aws\Command;
 use Aws\CommandInterface;
+use Aws\Exception\AwsException;
 use Aws\MockHandler;
 use Aws\Result;
 use Aws\Sns\SnsClient;
 use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
 use Backendbase\Infrastructure\Configuration\Aws\SnsSettings;
+use Backendbase\Shared\Integrations\Operation\NotificationProviderFailed;
 use Backendbase\Shared\Primitives\Notification\EmailNotification;
 use Backendbase\Shared\Primitives\Notification\SmsNotification;
 use PHPUnit\Framework\Attributes\Test;
@@ -91,6 +94,20 @@ final class SnsNotifierTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
 
         new SnsSettings('invalid', null);
+    }
+
+    #[Test]
+    public function itTranslatesAnSnsFailure(): void
+    {
+        $error    = new AwsException('SNS unavailable.', new Command('Publish'));
+        $notifier = new SnsNotifier(
+            self::snsClient(new MockHandler([$error])),
+            new SnsSettings('Transactional', null),
+        );
+
+        $this->expectException(NotificationProviderFailed::class);
+
+        $notifier->notify(new SmsNotification('+905551112233', 'Message'));
     }
 
     private static function snsClient(MockHandler $handler): SnsClient

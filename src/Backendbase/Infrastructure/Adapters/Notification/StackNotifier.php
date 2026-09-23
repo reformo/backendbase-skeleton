@@ -4,58 +4,86 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Notification;
 
+use Backendbase\Shared\Integrations\NotificationProvider;
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\Operation\NotificationBatchFailed;
 use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
 use Backendbase\Shared\Primitives\Notification\StackNotification;
 use Override;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use UnexpectedValueException;
 
 class StackNotifier implements Notify
 {
-    public const string TYPE = 'stack';
-    /** @var Notify[] */
+    /** @var array<string, NotificationProvider> */
     private array $notifiers = [];
 
     public function __construct(private LoggerInterface $logger)
     {
-        $this->logger->debug('StackNotifier: initialized');
+        $logger->debug('StackNotifier: initialized');
     }
 
-    public function type(): string
+    public function add(NotificationProvider $notifier): void
     {
-        return self::TYPE;
+        $type = $notifier->type();
+        if (isset($this->notifiers[$type])) {
+            throw new UnexpectedValueException('A notification provider is already registered for ' . $type . '.');
+        }
+
+        $this->notifiers[$type] = $notifier;
+        $logger                 = $this->logger;
+        $logger->debug('StackNotifier: provider registered for ' . $type);
     }
 
-    public function add(Notify $notifier): void
-    {
-        $this->logger->debug('StackNotifier: notifier added: ' . $notifier::class);
-
-        $this->notifiers[$notifier->type()] = $notifier;
-    }
-
-    /** @param StackNotification $params */
     #[Override]
-    public function notify(Notification $params): NotificationResult
+    public function notify(Notification $notification): NotificationResult
     {
-        $this->logger->debug('StackNotifier: new notification');
+        if ($notification instanceof StackNotification) {
+            return $this->notifyStack($notification);
+        }
+
+        $provider = $this->providerFor($notification);
+
+        return $provider->notify($notification);
+    }
+
+    private function notifyStack(StackNotification $stack): NotificationResult
+    {
+        $notifications = $stack->notifications();
+        foreach ($notifications as $notification) {
+            $this->providerFor($notification);
+        }
 
         $result = NotificationResult::empty();
-
-        foreach ($params->notifications() as $notification) {
-            $notifier = $this->notifiers[$notification->type()] ?? null;
-            $this->logger->debug('StackNotifier: notifier target: ' . ($notifier ? $notifier::class : 'no-notifier' ) . ' for type: ' . $notification->type());
-
-            if ($notifier === null) {
-                throw new UnexpectedValueException(
-                    'No notification provider is registered for ' . $notification->type() . '.',
-                );
-            }
-
-            $result = $result->merge($notifier->notify($notification));
+        foreach ($notifications as $index => $notification) {
+            $result = $this->deliverInBatch($notification, $result, $index);
         }
 
         return $result;
+    }
+
+    private function deliverInBatch(Notification $notification, NotificationResult $completed, int $index): NotificationResult
+    {
+        try {
+            $provider = $this->providerFor($notification);
+            $result   = $provider->notify($notification);
+
+            return $completed->merge($result);
+        } catch (Throwable $exception) {
+            throw new NotificationBatchFailed($completed, $index, $exception);
+        }
+    }
+
+    private function providerFor(Notification $notification): NotificationProvider
+    {
+        $type     = $notification->type();
+        $provider = $this->notifiers[$type] ?? null;
+        if ($provider === null) {
+            throw new UnexpectedValueException('No notification provider is registered for ' . $type . '.');
+        }
+
+        return $provider;
     }
 }

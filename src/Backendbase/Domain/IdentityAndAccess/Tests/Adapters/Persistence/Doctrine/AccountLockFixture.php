@@ -95,6 +95,8 @@ final class AccountLockFixture
             $connection->close();
         }
 
+        // tempnam created this isolated test database file.
+        // nosemgrep: php.lang.security.unlink-use.unlink-use
         unlink($this->databaseFile);
     }
 

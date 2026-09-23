@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Primitives\Notification;
 
+use InvalidArgumentException;
+
+use function trim;
+
 class PushNotification implements Notification
 {
-    private const string TYPE              = 'push';
-    private string|null $title             = null;
-    private string|null $body              = null;
-    private string|null $topic             = null;
-    private string|null $deviceToken       = null;
-    private string|null $notificationImage = null;
-    /** @var array<string, mixed>|null */
-    private array|null $data = null;
+    private const string TYPE                         = 'push';
+    private string|null $title                        = null;
+    private string|null $body                         = null;
+    private string|null $topic                        = null;
+    private string|null $deviceToken                  = null;
+    private string|null $notificationImage            = null;
+    private PushData|null $data                       = null;
+    private PushPlatformOptions|null $platformOptions = null;
 
     public function title(): string|null
     {
@@ -65,11 +69,15 @@ class PushNotification implements Notification
 
     public function notificationImage(): string|null
     {
-        return $this->notificationImage;
+        return $this->notificationImage ?? $this->data?->notificationImage();
     }
 
     public function setNotificationImage(string|null $notificationImage): self
     {
+        if ($notificationImage !== null && trim($notificationImage) === '') {
+            throw new InvalidArgumentException('A push image cannot be empty.');
+        }
+
         $this->notificationImage = $notificationImage;
 
         return $this;
@@ -78,15 +86,38 @@ class PushNotification implements Notification
     /** @return array<string, mixed>|null */
     public function data(): array|null
     {
-        return $this->data;
+        return $this->data?->toArray();
     }
 
     /** @param array<string, mixed>|null $data */
     public function setData(array|null $data): self
     {
-        $this->data = $data;
+        $this->data = $data === null ? null : new PushData($data);
 
         return $this;
+    }
+
+    public function setPlatformOptions(PushPlatformOptions $options): self
+    {
+        $this->platformOptions = $options;
+
+        return $this;
+    }
+
+    public function platformOptions(): PushPlatformOptions
+    {
+        return $this->platformOptions ?? new PushPlatformOptions();
+    }
+
+    public function target(): PushTarget
+    {
+        return PushTarget::fromValues($this->topic, $this->deviceToken);
+    }
+
+    /** @return array<non-empty-string, string> */
+    public function stringData(): array
+    {
+        return $this->data?->strings() ?? [];
     }
 
     public function type(): string
@@ -102,6 +133,8 @@ class PushNotification implements Notification
     /** @return array<string, mixed> */
     public function toArray(): array
     {
+        $options = $this->platformOptions();
+
         return [
             'type' => self::TYPE,
             'title' => $this->title,
@@ -109,7 +142,9 @@ class PushNotification implements Notification
             'topic' => $this->topic,
             'deviceToken' => $this->deviceToken,
             'notificationImage' => $this->notificationImage,
-            'data' => $this->data,
+            'data' => $this->data(),
+            'android' => $options->android(),
+            'apns' => $options->apns(),
         ];
     }
 }

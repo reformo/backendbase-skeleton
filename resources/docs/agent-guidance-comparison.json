@@ -1,0 +1,3279 @@
+{
+  "date": "2026-09-22",
+  "baseline_commit": "ec44e02bd507e071ae6b050ce20bae8c02c233b1",
+  "source": "https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra",
+  "measurement_basis": "Self-recorded executor events, independent final-artifact checks, and reviewer relevance classification. Not a complete independent tool trace.",
+  "conditions": {
+    "before": {
+      "run": "run-a",
+      "totals": {
+        "unnecessary_questions": 0,
+        "irrelevant_file_reads": 25,
+        "repeated_successful_checks": 0,
+        "incomplete_tasks": 0,
+        "file_read_events": 122,
+        "distinct_files_read": 119,
+        "full_file_read_events": 122,
+        "partial_file_read_events": 0,
+        "check_events": 37,
+        "operational_actions": 1
+      },
+      "cases": [
+        {
+          "case": "01-prose-typo",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 6,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 11,
+            "distinct_files_read": 10,
+            "full_file_read_events": 11,
+            "partial_file_read_events": 0,
+            "check_events": 2,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [
+            {
+              "event": 6,
+              "path": "resources/platform/00-platform.md",
+              "extent": "full",
+              "reason": "The fixture README already identifies the actual stack and commands; this describes the reference project."
+            },
+            {
+              "event": 6,
+              "path": "resources/platform/02-architecture.md",
+              "extent": "full",
+              "reason": "The task does not change service boundaries, dependencies, or layer placement."
+            },
+            {
+              "event": 6,
+              "path": "resources/platform/01-repository-map.md",
+              "extent": "full",
+              "reason": "The target paths are supplied or already discovered; the reference repository map does not locate fixture files."
+            },
+            {
+              "event": 6,
+              "path": "resources/platform/24-feature-workflow.md",
+              "extent": "full",
+              "reason": "The task does not coordinate an application feature across layers."
+            },
+            {
+              "event": 6,
+              "path": "resources/skills/backendbase-verify-change/SKILL.md",
+              "extent": "full",
+              "reason": "A cross-layer code review is unrelated to this narrow prose, dictionary, or existing-command task."
+            },
+            {
+              "event": 7,
+              "path": "resources/skills/backendbase-verify-change/references/backendbase-pattern.md",
+              "extent": "full",
+              "reason": "Architecture, application contracts, messaging, and release review are absent from this task."
+            }
+          ],
+          "acceptance": {
+            "case": "01-prose-typo",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-a/01-prose-typo",
+            "changed_files": [
+              "docs/getting-started.md"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "exact_prose_change",
+                "passed": true,
+                "detail": "Only the requested word changes."
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 13
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "external:/private/tmp/astra-guidance-comparison-20260922/run-a/tasks.json",
+                "external:/private/tmp/astra-guidance-comparison-20260922/run-a/event-procedure.md"
+              ],
+              "extent": "full",
+              "reason": "Read assigned task manifest and event procedure"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "pwd && rg --files -g 'AGENTS.md' -g 'README.md' -g 'CHANGELOG.md' -g 'resources/platform/README.md' -g 'docs/getting-started.md' && cat AGENTS.md",
+              "result": "Confirmed assigned case directory and found root guidance and task documents"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md"
+              ],
+              "extent": "full",
+              "reason": "Apply case-specific guidance"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "README.md",
+                "resources/platform/README.md",
+                "docs/getting-started.md"
+              ],
+              "extent": "full",
+              "reason": "Identify project, required guidance, and exact typo"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g 'SKILL.md' -g '*.md' resources docs",
+              "result": "Discovered project guidance and skill documents; see command output"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/00-platform.md",
+                "resources/platform/02-architecture.md",
+                "resources/platform/01-repository-map.md",
+                "resources/platform/24-feature-workflow.md",
+                "resources/skills/backendbase-verify-change/SKILL.md"
+              ],
+              "extent": "full",
+              "reason": "Complete mandatory platform, change-location, and verification routing for the prose correction"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-verify-change/references/backendbase-pattern.md"
+              ],
+              "extent": "full",
+              "reason": "Read required verification pattern"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files src tests",
+              "result": "Located Status and behavior test source"
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "git status --short",
+              "inputs": [],
+              "exit_code": 128,
+              "status": "failed",
+              "result": "The fixture is not a Git repository. No Git diff is available.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "docs/getting-started.md"
+              ],
+              "result": "Replaced the single curent occurrence with current; preserved all other bytes."
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "docs/getting-started.md"
+              ],
+              "extent": "full, byte comparison baseline before edit",
+              "reason": "Capture exact document bytes for a strict one-word correction"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "python3 - <<'PY'\nfrom pathlib import Path\nbefore=Path('.evaluation/getting-started.before').read_bytes()\nafter=Path('docs/getting-started.md').read_bytes()\nassert after == before.replace(b'curent', b'current', 1)\nassert after.count(b'curent') == 0\nprint('PASS: The only document change is curent -> current.')\nPY",
+              "inputs": [
+                "docs/getting-started.md",
+                ".evaluation/getting-started.before"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS: The only document change is curent -> current.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Corrected the requested word",
+                "Verified that all other document bytes are unchanged",
+                "Mapped the documentation change to mandatory platform guidance and verify-change; architecture and runtime surfaces are unchanged"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "PHP tests, PHPStan, complexity, and style checks",
+                  "reason": "Only one prose word changed; no code surface was edited"
+                },
+                {
+                  "work": "Git diff",
+                  "reason": "The fixture has no Git repository; used byte-level comparison"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "No commit was requested; the user prohibited commits"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "02-translation-pair",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 7,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 28,
+            "distinct_files_read": 26,
+            "full_file_read_events": 28,
+            "partial_file_read_events": 0,
+            "check_events": 7,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [
+            {
+              "event": 3,
+              "path": "resources/platform/00-platform.md",
+              "extent": "full",
+              "reason": "The fixture README already identifies the actual stack and commands; this describes the reference project."
+            },
+            {
+              "event": 3,
+              "path": "resources/platform/02-architecture.md",
+              "extent": "full",
+              "reason": "The task does not change service boundaries, dependencies, or layer placement."
+            },
+            {
+              "event": 3,
+              "path": "resources/platform/01-repository-map.md",
+              "extent": "full",
+              "reason": "The target paths are supplied or already discovered; the reference repository map does not locate fixture files."
+            },
+            {
+              "event": 3,
+              "path": "resources/platform/24-feature-workflow.md",
+              "extent": "full",
+              "reason": "The task does not coordinate an application feature across layers."
+            },
+            {
+              "event": 3,
+              "path": "resources/skills/backendbase-verify-change/SKILL.md",
+              "extent": "full",
+              "reason": "A cross-layer code review is unrelated to this narrow prose, dictionary, or existing-command task."
+            },
+            {
+              "event": 5,
+              "path": "resources/skills/backendbase-verify-change/references/backendbase-pattern.md",
+              "extent": "full",
+              "reason": "Architecture, application contracts, messaging, and release review are absent from this task."
+            },
+            {
+              "event": 5,
+              "path": "resources/docs/project.md",
+              "extent": "full",
+              "reason": "The reference project architecture and workflow do not add evidence for the two supplied local dictionary messages."
+            }
+          ],
+          "acceptance": {
+            "case": "02-translation-pair",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair",
+            "changed_files": [
+              "translations/en-GB.php",
+              "translations/tr-TR.php"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "catalog_runtime_contract",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "/private/tmp/astra-guidance-comparison-20260922/evaluation-support/probe.php",
+                    "02-translation-pair",
+                    "/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS supplied values, both replacements, parity, and missing-key behavior\n"
+                }
+              },
+              {
+                "name": "project_tests",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS translation tests\n"
+                }
+              },
+              {
+                "name": "existing_messages_en-GB",
+                "passed": true,
+                "detail": "Original messages remain."
+              },
+              {
+                "name": "existing_messages_tr-TR",
+                "passed": true,
+                "detail": "Original messages remain."
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 15
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md",
+                "resources/platform/README.md"
+              ],
+              "extent": "full",
+              "reason": "Identify Cedar Checkout and case-specific guidance"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g '!resources/skills/**' -g '!resources/platform/**'",
+              "result": "AGENTS.md"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/00-platform.md",
+                "resources/platform/02-architecture.md",
+                "resources/platform/01-repository-map.md",
+                "resources/platform/24-feature-workflow.md",
+                "resources/platform/21-i18n.md",
+                "resources/platform/17-testing.md",
+                "resources/skills/backendbase-add-translation/SKILL.md",
+                "resources/skills/backendbase-verify-change/SKILL.md"
+              ],
+              "extent": "full",
+              "reason": "Load mandatory platform and translation/test/verification guidance"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g '!resources/platform/**' -g '!resources/skills/**' -g '!.evaluation/**'",
+              "result": "Discovered Cedar Checkout catalog, locale configuration, translator, tests, and quality-tool configuration"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-add-translation/references/backendbase-pattern.md",
+                "resources/skills/backendbase-verify-change/references/backendbase-pattern.md",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml",
+                "bootstrap.php",
+                "config/translation.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "src/CedarCheckout/Translator.php",
+                "tests/run.php",
+                "tests/support.php",
+                "docs/translations.md",
+                "resources/docs/project.md"
+              ],
+              "extent": "full",
+              "reason": "Read required skill references and verify target catalog format, runtime loading, test helpers, contracts, and quality tools"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "tests/support.php",
+                "docs/translations.md"
+              ],
+              "extent": "full",
+              "reason": "Recover small contract and assertion-helper portions hidden by prior output truncation"
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php"
+              ],
+              "result": "Added pickup.ready under each existing pickup section with the exact supplied text; preserved existing messages"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php <<'PHP'\n<?php\nrequire 'bootstrap.php';\nrequire 'tests/support.php';\n$configuration = require 'config/translation.php';\nexpectSame(['en-GB', 'tr-TR'], array_keys($configuration['catalogues']), 'Locale set');\nexpectSame('en-GB', $configuration['defaultLocale'], 'Default locale');\nfunction placeholderShape(string $message): array\n{\n    preg_match_all('/:[A-Za-z][A-Za-z0-9]*/', $message, $matches);\n    sort($matches[0]);\n    return $matches[0];\n}\nfunction sectionShape(array $messages): array\n{\n    $shape = array_map('placeholderShape', $messages);\n    ksort($shape);\n    return $shape;\n}\nfunction catalogueShape(array $catalogue): array\n{\n    $shape = array_map('sectionShape', $catalogue);\n    ksort($shape);\n    return $shape;\n}\n$english = $configuration['catalogues']['en-GB'];\n$turkish = $configuration['catalogues']['tr-TR'];\nexpectSame(catalogueShape($english), catalogueShape($turkish), 'All key paths and placeholders match');\nexpectSame('Item :itemName is ready for pickup.', $english['pickup']['ready'], 'Exact English message');\nexpectSame(':itemName teslim alınmaya hazır.', $turkish['pickup']['ready'], 'Exact Turkish message');\n$translator = new CedarCheckout\\Translator($configuration['catalogues'], $configuration['defaultLocale']);\nexpectSame('Item Lantern is ready for pickup.', $translator->render('en-GB', 'pickup.ready', ['itemName' => 'Lantern']), 'English runtime replacement');\nexpectSame('Fener teslim alınmaya hazır.', $translator->render('tr-TR', 'pickup.ready', ['itemName' => 'Fener']), 'Turkish runtime replacement');\necho \"PASS: exact messages, unchanged locale set, complete catalog parity, both runtime replacements\\n\";\nPHP",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "src/CedarCheckout/Translator.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS: exact messages, unchanged locale set, complete catalog parity, both runtime replacements",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php tests/run.php",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "tests/run.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS translation tests",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php -l translations/en-GB.php && php -l translations/tr-TR.php",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "tests/run.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No syntax errors detected in translations/en-GB.php\nNo syntax errors detected in translations/tr-TR.php",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer phpstan",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "tests/run.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair/config/translation.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair/src/CedarCheckout/Translator.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair/tests/run.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair/tests/support.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair/translations/en-GB.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/02-translation-pair/translations/tr-TR.php\n\n [OK] No errors",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer complexity",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "tests/run.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer cs-check",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "tests/run.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "python3 - <<'PY'\nimport json, difflib\nfrom pathlib import Path\nbefore=json.loads(Path('.evaluation/before.json').read_text())\nfor path,original in before.items():\n    current=Path(path).read_text()\n    if not path.startswith('translations/'):\n        assert current == original, path\n        continue\n    ready=\"        'ready' => 'Item :itemName is ready for pickup.',\\n\" if 'en-GB' in path else \"        'ready' => ':itemName teslim alınmaya hazır.',\\n\"\n    restored=current.replace(ready,'').replace(\"'pickup' => [\\n        'window'\", \"'pickup' => ['window'\").replace(\",\\n    ],\\n];\", \"],\\n];\")\n    assert restored == original, path\n    print(''.join(difflib.unified_diff(original.splitlines(True),current.splitlines(True),fromfile=path+' (before)',tofile=path)),end='')\nprint('PASS: only the two supplied messages were added; all other captured files and messages are unchanged.')\nPY",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "tests/run.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "--- translations/en-GB.php (before)\n+++ translations/en-GB.php\n@@ -4,5 +4,8 @@\n \n return [\n     'cart' => ['empty' => 'Your basket is empty.'],\n-    'pickup' => ['window' => 'Pickup window: :window.'],\n+    'pickup' => [\n+        'window' => 'Pickup window: :window.',\n+        'ready' => 'Item :itemName is ready for pickup.',\n+    ],\n ];\n--- translations/tr-TR.php (before)\n+++ translations/tr-TR.php\n@@ -4,5 +4,8 @@\n \n return [\n     'cart' => ['empty' => 'Sepetiniz boş.'],\n-    'pickup' => ['window' => 'Teslim alma aralığı: :window.'],\n+    'pickup' => [\n+        'window' => 'Teslim alma aralığı: :window.',\n+        'ready' => ':itemName teslim alınmaya hazır.',\n+    ],\n ];\nPASS: only the two supplied messages were added; all other captured files and messages are unchanged.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Added pickup.ready with exact supplied English and Turkish text and unchanged :itemName placeholder",
+                "Verified complete catalog parity, both runtime replacements, unchanged locales and prior messages",
+                "Passed PHP syntax, existing behavior tests, PHPStan level 8, complexity limit 12, and style checks",
+                "Reviewed localization and verification invariants; the existing translation contract remains accurate"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "Remote synchronization",
+                  "reason": "The request prohibits synchronization; catalog edits use local runtime only"
+                },
+                {
+                  "work": "Additional permanent tests",
+                  "reason": "Direct runtime checks prove the supplied messages; this reversible catalog edit does not require a new permanent test"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "No commit is authorized"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "03-pagination-defect",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 2,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 32,
+            "distinct_files_read": 32,
+            "full_file_read_events": 32,
+            "partial_file_read_events": 0,
+            "check_events": 12,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [
+            {
+              "event": 5,
+              "path": "resources/platform/00-platform.md",
+              "extent": "full",
+              "reason": "The fixture README already identifies the actual stack and commands; this describes the reference project."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/01-repository-map.md",
+              "extent": "full",
+              "reason": "The target paths are supplied or already discovered; the reference repository map does not locate fixture files."
+            }
+          ],
+          "acceptance": {
+            "case": "03-pagination-defect",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect",
+            "changed_files": [
+              "docs/http-contract.md",
+              "src/HarborCatalog/Pagination.php",
+              "tests/run.php",
+              "tests/support.php"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "http_boundary_contract",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "/private/tmp/astra-guidance-comparison-20260922/evaluation-support/probe.php",
+                    "03-pagination-defect",
+                    "/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS valid, absent, minimum, maximum, empty, malformed, typed, oversized, order, and non-dispatch cases\n"
+                }
+              },
+              {
+                "name": "project_tests",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS endpoint tests\n"
+                }
+              },
+              {
+                "name": "retained_regression_detects_original_defect",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 255,
+                  "output": "\nFatal error: Uncaught RuntimeException: Regression: pageSize rejects a numeric prefix: 200 in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-jxng9ury/candidate/tests/support.php:8\nStack trace:\n#0 /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-jxng9ury/candidate/tests/run.php(20): expectSame(400, 200, 'Regression: pag...')\n#1 {main}\n  thrown in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-jxng9ury/candidate/tests/support.php on line 8\nPHP Fatal error:  Uncaught RuntimeException: Regression: pageSize rejects a numeric prefix: 200 in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-jxng9ury/candidate/tests/support.php:8\nStack trace:\n#0 /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-jxng9ury/candidate/tests/run.php(20): expectSame(400, 200, 'Regression: pag...')\n#1 {main}\n  thrown in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-jxng9ury/candidate/tests/support.php on line 8\n"
+                }
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 24
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md",
+                "resources/platform/README.md"
+              ],
+              "extent": "full",
+              "reason": "Identify Harbor Catalog and case-specific guidance"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g '!resources/platform/**' -g '!resources/skills/**'",
+              "result": "AGENTS.md"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g '!resources/platform/**' -g '!resources/skills/**' -g '!.evaluation/**'",
+              "result": "src/HarborCatalog/InvalidPagination.php\nsrc/HarborCatalog/ArrayProductReader.php\nsrc/HarborCatalog/Pagination.php\nsrc/HarborCatalog/ProductReader.php\nsrc/HarborCatalog/HttpApplication.php\ncomposer.json\nAGENTS.md\nphpcs.xml\npublic/index.php\nREADME.md\nbootstrap.php\ndocs/http-contract.md\ntests/run.php\ntests/support.php\nphpstan.neon\nresources/docs/project.md\nconfig/application.php\nCHANGELOG.md\nphpcs-complexity.xml"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml",
+                "bootstrap.php",
+                "config/application.php",
+                "public/index.php",
+                "docs/http-contract.md",
+                "src/HarborCatalog/Pagination.php",
+                "src/HarborCatalog/InvalidPagination.php",
+                "src/HarborCatalog/ProductReader.php",
+                "src/HarborCatalog/ArrayProductReader.php",
+                "src/HarborCatalog/HttpApplication.php",
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "extent": "full",
+              "reason": "Identify the actual HTTP contract, integer-coercion defect, route composition, reader port, and isolated tests"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/00-platform.md",
+                "resources/platform/02-architecture.md",
+                "resources/platform/01-repository-map.md",
+                "resources/platform/24-feature-workflow.md",
+                "resources/platform/07-http-api.md",
+                "resources/platform/08-api-contracts.md",
+                "resources/platform/14-security.md",
+                "resources/platform/16-errors-observability.md",
+                "resources/platform/17-testing.md"
+              ],
+              "extent": "full",
+              "reason": "Load mandatory platform and HTTP validation, contract, security, error, and test routing"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-add-api-endpoint/SKILL.md",
+                "resources/skills/backendbase-add-api-endpoint/references/backendbase-pattern.md",
+                "resources/skills/backendbase-verify-change/SKILL.md",
+                "resources/skills/cyclomatic-complexity/SKILL.md"
+              ],
+              "extent": "full",
+              "reason": "Select narrow endpoint implementation, verification, and complexity skills"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-verify-change/references/backendbase-pattern.md"
+              ],
+              "extent": "full",
+              "reason": "Read required verification pattern"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg -n 'pagination|pageSize|Harbor|/products' resources/platform resources/docs resources/skills",
+              "result": "resources/platform/08-api-contracts.md:30:Example collection endpoints accept positive `pageSize` and `page` values. Their calculated offset must fit a signed 64-bit integer. Invalid offsets return 400 before query dispatch. Group results include the complete distinct-group total and the requested page.\nresources/platform/22-shared-primitives.md:12:- `Pagination` carries page state and serializes `pageSize`, `page`, and `total`.\nresources/platform/09-persistence.md:19:- Validate the complete pagination offset before query dispatch.\nresources/platform/09-persistence.md:20:- Use stable ordering for pagination.\nresources/platform/09-persistence.md:25:Define one repository contract suite for behavior declared by the port. Run it unchanged against memory and Doctrine adapters. Include only applicable behavior, such as lookup, filtering, ordering, pagination, uniqueness, replacement, or removal.\nresources/platform/09-persistence.md:29:Example group queries return `ExampleGroupPage`. Both adapters count all matching distinct groups before pagination. Doctrine applies the requested limit and offset in SQL. It does not truncate the result set at 1,000 groups.\nresources/skills/backendbase-add-external-service/references/backendbase-pattern.md:27:Do not return an SDK response or accept an SDK request object. Put vendor-specific serialization, headers, pagination tokens, and errors in the adapter.\nresources/skills/backendbase-add-query/SKILL.md:16:3. Trace the caller, existing read port, result models, adapter, ordering, pagination, and not-found semantics.\nresources/skills/backendbase-add-query/SKILL.md:22:Preserve the target project's namespace, query naming, value objects, read-model style, and test ownership. Do not copy Example criteria, response fields, table concepts, pagination, or null behavior.\nresources/skills/backendbase-add-query/references/backendbase-pattern.md:71:- In an unmodified Backendbase project, `GetExampleGroupsByType` carries validated pagination and returns `ExampleGroupPage`, including the complete distinct-group total.\nresources/skills/backendbase-add-doctrine-read-adapter/SKILL.md:3:description: Implement or extend a Backendbase Doctrine DBAL read adapter and persisted-row mapper for an existing query port. Use for SQL projections, filtering, ordering, pagination, and read-model mapping; do not use for aggregate writes, query-contract design alone, or schema creation.\nresources/skills/backendbase-add-doctrine-read-adapter/SKILL.md:16:3. Read the query, result type, read port, table mapping, removal rules, ordering contract, and pagination primitive.\nresources/skills/backendbase-add-doctrine-read-adapter/SKILL.md:23:Adapt SQL, selected fields, criteria, null semantics, filters, ordering, pagination, mapper validation, and read models. Do not copy Example table names, columns, limits, soft-delete filters, or response fields.\nresources/skills/backendbase-add-doctrine-read-adapter/SKILL.md:32:6. Use deterministic ordering before pagination.\nresources/skills/backendbase-add-api-endpoint/SKILL.md:66:For a collection response, test empty results, pagination bounds, defaults, and maximum size according to the contract. Run Bruno only when the API and its dependencies are prepared.\nresources/skills/backendbase-verify-change/references/backendbase-pattern.md:169:- The sample detail response, pagination rules, and OpenAPI fields are not fully aligned.\nresources/skills/backendbase-add-doctrine-read-adapter/references/backendbase-pattern.md:83:- In an unmodified Backendbase project, group queries return `ExampleGroupPage`. They count all matching distinct groups and apply the requested limit and offset in SQL. No fixed result cap precedes pagination.\nresources/skills/backendbase-add-doctrine-read-adapter/references/backendbase-pattern.md:85:- The shared Example repository contract checks read results, filtering, ordering, pagination, and absence against memory and Doctrine adapters.\nresources/skills/backendbase-add-memory-adapter/SKILL.md:16:3. Read every method on the implemented port and the production adapter's absence, removal, ordering, pagination, and error semantics.\nresources/skills/backendbase-add-memory-adapter/SKILL.md:22:Adapt storage keys, cloning, projection mapping, filters, ordering, pagination, and exceptions. Do not copy Example groups, fields, removal model, or insertion ordering.\nresources/skills/backendbase-add-memory-adapter/SKILL.md:39:- Preserve `null`, empty, not-found, removal, ordering, and pagination semantics.\nresources/skills/backendbase-add-domain-value-object/references/backendbase-pattern.md:8:| Stable UUID, email syntax, or generic pagination meaning | `src/Backendbase/Shared/Primitives` |\nresources/skills/backendbase-add-domain-value-object/references/backendbase-pattern.md:52:- In an unmodified Backendbase project, `Pagination` rejects non-positive page sizes and offsets greater than `PHP_INT_MAX` at construction. Adapt pagination limits to the target contract.\nresources/skills/backendbase-add-memory-adapter/references/backendbase-pattern.md:60:- The shared Example repository contract checks sorted groups, pagination, active uniqueness, soft removal, and replacement.\nresources/skills/backendbase-add-memory-adapter/references/backendbase-pattern.md:62:- In an unmodified Backendbase project, Example group pagination uses the same complete distinct-group total and page contract in both adapters. Account memory adapters execute lock callbacks sequentially; they do not simulate cross-process database locks.\nresources/skills/backendbase-add-bruno-api-test/SKILL.md:35:7. Add focused assertions for status, response headers, wrapper keys, important fields, and pagination when applicable.\nresources/skills/backendbase-add-api-module/references/backendbase-pattern.md:76:- Runtime and OpenAPI are not fully aligned on shared headers, security failure status, pagination, and some response fields.\nresources/skills/backendbase-add-bruno-api-test/references/backendbase-pattern.md:52:- Success status, response headers, wrapper keys, fields, and pagination metadata.\nresources/skills/backendbase-implement-feature/references/backendbase-pattern.md:184:- Some sample API runtime fields, pagination behavior, status codes, and OpenAPI declarations differ. Make the runtime, specification, and tests agree.\nresources/skills/backendbase-add-shared-primitive/references/backendbase-pattern.md:20:| Generic pagination | Product search limits |\nresources/skills/backendbase-add-openapi-operation/references/backendbase-pattern.md:56:| Success | Status, response headers, wrapper keys, fields, pagination metadata, and standard date formats |"
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "composer complexity",
+              "inputs": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Existing functions satisfy the configured complexity limit of 12",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "tests/run.php"
+              ],
+              "result": "Added pageSize=2cats regression before changing production validation"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php tests/run.php",
+              "inputs": [
+                "tests/run.php",
+                "src/HarborCatalog/Pagination.php",
+                "src/HarborCatalog/HttpApplication.php"
+              ],
+              "exit_code": 255,
+              "status": "failed",
+              "result": "Fatal error: Uncaught RuntimeException: Regression: pageSize rejects a numeric prefix: 200 in /private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/support.php:8\nStack trace:\n#0 /private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/run.php(20): expectSame(400, 200, 'Regression: pag...')\n#1 {main}\n  thrown in /private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/support.php on line 8\nPHP Fatal error:  Uncaught RuntimeException: Regression: pageSize rejects a numeric prefix: 200 in /private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/support.php:8\nStack trace:\n#0 /private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/run.php(20): expectSame(400, 200, 'Regression: pag...')\n#1 {main}\n  thrown in /private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/support.php on line 8",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e2",
+              "paths": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php",
+                "docs/http-contract.md"
+              ],
+              "result": "Validate parameter presence, string type, bounded digit length, exact positive-decimal form, and maximum before integer use. Added contract-driven invalid/default/boundary/empty/route cases and a rejecting reader; documented verification."
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "php tests/run.php",
+              "inputs": [
+                "tests/run.php",
+                "src/HarborCatalog/Pagination.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS endpoint tests",
+              "rerun_reason": "Boundary validation and the test matrix changed after the failing regression"
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "composer phpstan",
+              "inputs": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php",
+                "docs/http-contract.md",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/config/application.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/public/index.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/ArrayProductReader.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/HttpApplication.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/InvalidPagination.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/Pagination.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/ProductReader.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/run.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/support.php\n\n [OK] No errors",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "composer complexity",
+              "inputs": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php",
+                "docs/http-contract.md",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Command completed successfully",
+              "rerun_reason": "The pagination validator and tests changed after the baseline complexity check"
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "composer cs-check",
+              "inputs": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php",
+                "docs/http-contract.md",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 1,
+              "status": "failed",
+              "result": "FILE: ...stra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/run.php\n--------------------------------------------------------------------------------\nFOUND 0 ERRORS AND 1 WARNING AFFECTING 1 LINE\n--------------------------------------------------------------------------------\n 1 | WARNING | A file should declare new symbols (classes, functions,\n   |         | constants, etc.) and cause no other side effects, or it should\n   |         | execute logic with side effects, but should not do both. The\n   |         | first symbol is defined on line 24 and the first side effect is\n   |         | on line 5.\n--------------------------------------------------------------------------------\n\nTime: 44ms; Memory: 8MB\n\nScript @php /Volumes/MK/Projects/HGM-LABS/backendbase-skeleton/vendor/bin/phpcs --standard=phpcs.xml handling the cs-check event returned with error code 1",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "python3 - <<'PY'\nimport json, difflib\nfrom pathlib import Path\nbefore=json.loads(Path('.evaluation/before.json').read_text())\nfor path,original in before.items():\n    current=Path(path).read_text()\n    print(''.join(difflib.unified_diff(original.splitlines(True),current.splitlines(True),fromfile=path+' (before)',tofile=path)),end='')\nassert len(Path('src/HarborCatalog/Pagination.php').read_text().splitlines()) <= 150\nassert len(list(Path('src/HarborCatalog').glob('*.php'))) <= 10\nprint('PASS: reviewed the complete three-file diff and class size limits.')\nPY",
+              "inputs": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php",
+                "docs/http-contract.md",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "--- src/HarborCatalog/Pagination.php (before)\n+++ src/HarborCatalog/Pagination.php\n@@ -34,11 +34,24 @@\n     /** @param array<string, mixed> $query */\n     private static function readInteger(array $query, string $name, int $default, int $maximum): int\n     {\n-        $value = (int) ($query[$name] ?? $default);\n-        if ($value < 1 || $value > $maximum) {\n+        if (! array_key_exists($name, $query)) {\n+            return $default;\n+        }\n+\n+        $value = $query[$name];\n+        if (\n+            ! is_string($value)\n+            || strlen($value) > strlen((string) $maximum)\n+            || preg_match('/\\A[1-9][0-9]*\\z/', $value) !== 1\n+        ) {\n             throw new InvalidPagination($name);\n         }\n \n-        return $value;\n+        $integer = (int) $value;\n+        if ($integer > $maximum) {\n+            throw new InvalidPagination($name);\n+        }\n+\n+        return $integer;\n     }\n }\n--- tests/run.php (before)\n+++ tests/run.php\n@@ -16,4 +16,88 @@\n $response = $application->handle('GET', '/products', ['page' => '0']);\n expectSame(400, $response['status'], 'Zero page');\n expectSame('page', $response['body']['invalidParameter'], 'Invalid parameter name');\n+$response = $application->handle('GET', '/products', ['pageSize' => '2cats']);\n+expectSame(400, $response['status'], 'Regression: pageSize rejects a numeric prefix');\n+expectSame('pageSize', $response['body']['invalidParameter'], 'Regression parameter name');\n+\n+/** @param array<string, mixed> $query */\n+function expectInvalidPagination(HarborCatalog\\HttpApplication $application, array $query, string $parameter): void\n+{\n+    $response = $application->handle('GET', '/products', $query);\n+    expectSame([\n+        'status' => 400,\n+        'headers' => ['Content-Type' => 'application/json'],\n+        'body' => [\n+            'type' => 'urn:harbor-catalog:invalid-pagination',\n+            'title' => 'Invalid pagination',\n+            'status' => 400,\n+            'invalidParameter' => $parameter,\n+        ],\n+    ], $response, 'Invalid pagination: ' . var_export($query, true));\n+}\n+\n+/**\n+ * @param array<string, mixed> $query\n+ * @param list<int> $identifiers\n+ */\n+function expectPage(\n+    HarborCatalog\\HttpApplication $application,\n+    array $query,\n+    int $page,\n+    int $pageSize,\n+    array $identifiers\n+): void {\n+    $items = array_map(static fn (int $identifier): array => [\n+        'id' => $identifier,\n+        'name' => 'Product ' . $identifier,\n+    ], $identifiers);\n+    $response = $application->handle('GET', '/products', $query);\n+    expectSame([\n+        'status' => 200,\n+        'headers' => ['Content-Type' => 'application/json'],\n+        'body' => ['items' => $items, 'page' => $page, 'pageSize' => $pageSize],\n+    ], $response, 'Valid pagination: ' . var_export($query, true));\n+}\n+\n+$rejectingReader = new class implements HarborCatalog\\ProductReader {\n+    /** @return list<array{id: int, name: string}> */\n+    public function fetch(int $offset, int $limit): array\n+    {\n+        throw new RuntimeException('Invalid input reached the product reader.');\n+    }\n+};\n+$validationApplication = new HarborCatalog\\HttpApplication($rejectingReader);\n+$invalidValues = [\n+    '2cats', null, [], ['2'], 2, 2.0, true, false, '', '0', '-1', '+1',\n+    ' 2', '2 ', \"2\\n\", \"2\\r\\n\", '01', '1.5', '1e2', '0x2', '٢', str_repeat('9', 1000),\n+];\n+foreach ($invalidValues as $value) {\n+    expectInvalidPagination($validationApplication, ['page' => $value], 'page');\n+    expectInvalidPagination($validationApplication, ['pageSize' => $value], 'pageSize');\n+}\n+\n+expectInvalidPagination($validationApplication, ['page' => '10001'], 'page');\n+expectInvalidPagination($validationApplication, ['pageSize' => '51'], 'pageSize');\n+expectInvalidPagination($validationApplication, ['page' => '2cats', 'pageSize' => '0'], 'page');\n+expectInvalidPagination($validationApplication, ['page' => null, 'pageSize' => null], 'page');\n+expectPage($application, [], 1, 20, range(1, 20));\n+expectPage($application, ['page' => '2'], 2, 20, range(21, 40));\n+expectPage($application, ['pageSize' => '3'], 1, 3, [1, 2, 3]);\n+expectPage($application, ['page' => '1', 'pageSize' => '1'], 1, 1, [1]);\n+expectPage($application, ['page' => '1', 'pageSize' => '50'], 1, 50, range(1, 50));\n+expectPage($application, ['page' => '10000', 'pageSize' => '50'], 10000, 50, []);\n+expectPage($application, ['page' => '27', 'pageSize' => '2'], 27, 2, [53]);\n+expectPage($application, ['page' => '28', 'pageSize' => '2'], 28, 2, []);\n+expectPage($application, ['unknown' => ['ignored']], 1, 20, range(1, 20));\n+$emptyApplication = new HarborCatalog\\HttpApplication(new HarborCatalog\\ArrayProductReader([]));\n+expectPage($emptyApplication, [], 1, 20, []);\n+foreach ([['GET', '/missing'], ['POST', '/products']] as [$method, $path]) {\n+    $response = $validationApplication->handle($method, $path, []);\n+    expectSame([\n+        'status' => 404,\n+        'headers' => ['Content-Type' => 'application/json'],\n+        'body' => ['title' => 'Not found'],\n+    ], $response, 'Unchanged route behavior');\n+}\n+\n fwrite(STDOUT, \"PASS endpoint tests\\n\");\n--- docs/http-contract.md (before)\n+++ docs/http-contract.md\n@@ -27,3 +27,9 @@\n ```\n \n `invalidParameter` names the first invalid parameter. Other routes return status 404.\n+\n+## Verification\n+\n+Run `php tests/run.php` for in-process endpoint checks.\n+The suite covers malformed values, supplied nulls, missing parameters, limits, empty pages, and complete response bodies.\n+A rejecting product reader proves that invalid pagination cannot reach data access.\nPASS: reviewed the complete three-file diff and class size limits.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e3",
+              "paths": [
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "result": "Moved the two new assertion helpers into the existing support file to fix the style warning about declarations and executable test code in one file"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "php tests/run.php",
+              "inputs": [
+                "tests/run.php",
+                "tests/support.php",
+                "src/HarborCatalog/Pagination.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS endpoint tests",
+              "rerun_reason": "Moved test helper declarations after the style check rejected declarations mixed with executable code"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "composer phpstan",
+              "inputs": [
+                "tests/run.php",
+                "tests/support.php",
+                "src/HarborCatalog/Pagination.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/config/application.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/public/index.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/ArrayProductReader.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/HttpApplication.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/InvalidPagination.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/Pagination.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/src/HarborCatalog/ProductReader.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/run.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/03-pagination-defect/tests/support.php\n\n [OK] No errors",
+              "rerun_reason": "Moved test helper declarations after the style check rejected declarations mixed with executable code"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "composer complexity",
+              "inputs": [
+                "tests/run.php",
+                "tests/support.php",
+                "src/HarborCatalog/Pagination.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Command completed successfully",
+              "rerun_reason": "Moved test helper declarations after the style check rejected declarations mixed with executable code"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "composer cs-check",
+              "inputs": [
+                "tests/run.php",
+                "tests/support.php",
+                "src/HarborCatalog/Pagination.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Command completed successfully",
+              "rerun_reason": "Moved test helper declarations after the style check rejected declarations mixed with executable code"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "python3 - <<'PY'\nimport json, difflib\nfrom pathlib import Path\nbefore=json.loads(Path('.evaluation/before.json').read_text())\nfor path in ['tests/run.php','tests/support.php']:\n    original=before[path]\n    current=Path(path).read_text()\n    print(''.join(difflib.unified_diff(original.splitlines(True),current.splitlines(True),fromfile=path+' (before)',tofile=path)),end='')\nprint('Final helper placement reviewed; production validator and documentation are unchanged from their reviewed diff.')\nPY",
+              "inputs": [
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "--- tests/run.php (before)\n+++ tests/run.php\n@@ -16,4 +16,49 @@\n $response = $application->handle('GET', '/products', ['page' => '0']);\n expectSame(400, $response['status'], 'Zero page');\n expectSame('page', $response['body']['invalidParameter'], 'Invalid parameter name');\n+$response = $application->handle('GET', '/products', ['pageSize' => '2cats']);\n+expectSame(400, $response['status'], 'Regression: pageSize rejects a numeric prefix');\n+expectSame('pageSize', $response['body']['invalidParameter'], 'Regression parameter name');\n+\n+$rejectingReader = new class implements HarborCatalog\\ProductReader {\n+    /** @return list<array{id: int, name: string}> */\n+    public function fetch(int $offset, int $limit): array\n+    {\n+        throw new RuntimeException('Invalid input reached the product reader.');\n+    }\n+};\n+$validationApplication = new HarborCatalog\\HttpApplication($rejectingReader);\n+$invalidValues = [\n+    '2cats', null, [], ['2'], 2, 2.0, true, false, '', '0', '-1', '+1',\n+    ' 2', '2 ', \"2\\n\", \"2\\r\\n\", '01', '1.5', '1e2', '0x2', '٢', str_repeat('9', 1000),\n+];\n+foreach ($invalidValues as $value) {\n+    expectInvalidPagination($validationApplication, ['page' => $value], 'page');\n+    expectInvalidPagination($validationApplication, ['pageSize' => $value], 'pageSize');\n+}\n+\n+expectInvalidPagination($validationApplication, ['page' => '10001'], 'page');\n+expectInvalidPagination($validationApplication, ['pageSize' => '51'], 'pageSize');\n+expectInvalidPagination($validationApplication, ['page' => '2cats', 'pageSize' => '0'], 'page');\n+expectInvalidPagination($validationApplication, ['page' => null, 'pageSize' => null], 'page');\n+expectPage($application, [], 1, 20, range(1, 20));\n+expectPage($application, ['page' => '2'], 2, 20, range(21, 40));\n+expectPage($application, ['pageSize' => '3'], 1, 3, [1, 2, 3]);\n+expectPage($application, ['page' => '1', 'pageSize' => '1'], 1, 1, [1]);\n+expectPage($application, ['page' => '1', 'pageSize' => '50'], 1, 50, range(1, 50));\n+expectPage($application, ['page' => '10000', 'pageSize' => '50'], 10000, 50, []);\n+expectPage($application, ['page' => '27', 'pageSize' => '2'], 27, 2, [53]);\n+expectPage($application, ['page' => '28', 'pageSize' => '2'], 28, 2, []);\n+expectPage($application, ['unknown' => ['ignored']], 1, 20, range(1, 20));\n+$emptyApplication = new HarborCatalog\\HttpApplication(new HarborCatalog\\ArrayProductReader([]));\n+expectPage($emptyApplication, [], 1, 20, []);\n+foreach ([['GET', '/missing'], ['POST', '/products']] as [$method, $path]) {\n+    $response = $validationApplication->handle($method, $path, []);\n+    expectSame([\n+        'status' => 404,\n+        'headers' => ['Content-Type' => 'application/json'],\n+        'body' => ['title' => 'Not found'],\n+    ], $response, 'Unchanged route behavior');\n+}\n+\n fwrite(STDOUT, \"PASS endpoint tests\\n\");\n--- tests/support.php (before)\n+++ tests/support.php\n@@ -8,3 +8,42 @@\n         throw new RuntimeException($description . ': ' . var_export($actual, true));\n     }\n }\n+\n+/** @param array<string, mixed> $query */\n+function expectInvalidPagination(HarborCatalog\\HttpApplication $application, array $query, string $parameter): void\n+{\n+    $response = $application->handle('GET', '/products', $query);\n+    expectSame([\n+        'status' => 400,\n+        'headers' => ['Content-Type' => 'application/json'],\n+        'body' => [\n+            'type' => 'urn:harbor-catalog:invalid-pagination',\n+            'title' => 'Invalid pagination',\n+            'status' => 400,\n+            'invalidParameter' => $parameter,\n+        ],\n+    ], $response, 'Invalid pagination: ' . var_export($query, true));\n+}\n+\n+/**\n+ * @param array<string, mixed> $query\n+ * @param list<int> $identifiers\n+ */\n+function expectPage(\n+    HarborCatalog\\HttpApplication $application,\n+    array $query,\n+    int $page,\n+    int $pageSize,\n+    array $identifiers\n+): void {\n+    $items = array_map(static fn (int $identifier): array => [\n+        'id' => $identifier,\n+        'name' => 'Product ' . $identifier,\n+    ], $identifiers);\n+    $response = $application->handle('GET', '/products', $query);\n+    expectSame([\n+        'status' => 200,\n+        'headers' => ['Content-Type' => 'application/json'],\n+        'body' => ['items' => $items, 'page' => $page, 'pageSize' => $pageSize],\n+    ], $response, 'Valid pagination: ' . var_export($query, true));\n+}\nFinal helper placement reviewed; production validator and documentation are unchanged from their reviewed diff.",
+              "rerun_reason": "Final diff changed when test helpers moved to tests/support.php"
+            },
+            {
+              "kind": "completion",
+              "phase": "e3",
+              "completed": [
+                "Reproduced pageSize=2cats returning 200 with a failing regression before the source fix",
+                "Boundary validation now enforces the existing strict string, digit, presence, and limit contract",
+                "Added 48 invalid reader-blocking cases plus missing, minimum, maximum, partial-page, empty-result, stable response, unknown-query, and route checks",
+                "Passed final endpoint tests, PHPStan level 8, complexity limit 12, and style checks after correcting the introduced style warning",
+                "Updated endpoint verification documentation",
+                "Mapped Pagination to HTTP validation/error guidance and endpoint skill; tests to test guidance; no route, reader port, response format, or public policy changed"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "OpenAPI generation and Bruno",
+                  "reason": "The project contract explicitly states that these tools and artifacts do not exist; in-process tests cover the actual boundary"
+                },
+                {
+                  "work": "Database or service checks",
+                  "reason": "The endpoint uses only the verified in-memory reader"
+                },
+                {
+                  "work": "Commit and changelog",
+                  "reason": "No commit is authorized"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "04-migration-draft",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 4,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 27,
+            "distinct_files_read": 27,
+            "full_file_read_events": 27,
+            "partial_file_read_events": 0,
+            "check_events": 7,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [
+            {
+              "event": 5,
+              "path": "resources/platform/00-platform.md",
+              "extent": "full",
+              "reason": "The fixture README already identifies the actual stack and commands; this describes the reference project."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/02-architecture.md",
+              "extent": "full",
+              "reason": "The task does not change service boundaries, dependencies, or layer placement."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/01-repository-map.md",
+              "extent": "full",
+              "reason": "The target paths are supplied or already discovered; the reference repository map does not locate fixture files."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/24-feature-workflow.md",
+              "extent": "full",
+              "reason": "The task does not coordinate an application feature across layers."
+            }
+          ],
+          "acceptance": {
+            "case": "04-migration-draft",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft",
+            "changed_files": [
+              "docs/migration-review.md",
+              "migrations/Version20260922090000.php"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "migration_exists",
+                "passed": true,
+                "detail": "migrations/Version20260922090000.php"
+              },
+              {
+                "name": "print_only_review",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "bin/review-migration.php",
+                    "migrations/Version20260922090000.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "{\n    \"up\": [\n        \"ALTER TABLE stock_item ADD COLUMN shelf_note VARCHAR(80) DEFAULT NULL\"\n    ],\n    \"down\": [\n        \"ALTER TABLE stock_item DROP COLUMN shelf_note\"\n    ]\n}\n"
+                }
+              },
+              {
+                "name": "only_requested_additive_sql",
+                "passed": true,
+                "detail": [
+                  "ALTER TABLE STOCK_ITEM ADD COLUMN SHELF_NOTE VARCHAR(80) DEFAULT NULL"
+                ]
+              },
+              {
+                "name": "reverse_sql",
+                "passed": true,
+                "detail": [
+                  "ALTER TABLE STOCK_ITEM DROP COLUMN SHELF_NOTE"
+                ]
+              },
+              {
+                "name": "review_note_exists",
+                "passed": true,
+                "detail": "Human rubric verifies existing rows, compatibility, lock risk, and recovery."
+              },
+              {
+                "name": "schema_and_ledger_unchanged",
+                "passed": true,
+                "detail": "No SQL application was requested."
+              },
+              {
+                "name": "project_tests",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS migration tests\n"
+                }
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 16
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md",
+                "resources/platform/README.md"
+              ],
+              "extent": "full",
+              "reason": "Identify Orchard Stock, draft-only authorization, and local guidance"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md'",
+              "result": "AGENTS.md"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g '!resources/platform/**' -g '!resources/skills/**' -g '!.evaluation/**'",
+              "result": "src/OrchardStock/Migration.php\ncomposer.json\nAGENTS.md\nphpcs.xml\nREADME.md\nbootstrap.php\ndocs/migrations.md\ntests/run.php\ntests/support.php\nphpstan.neon\nresources/docs/project.md\nCHANGELOG.md\nbin/review-migration.php\nphpcs-complexity.xml\nmigrations/Version20260901090000.php\ndatabase/applied-migrations.json\ndatabase/schema.sql"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml",
+                "bootstrap.php",
+                "src/OrchardStock/Migration.php",
+                "migrations/Version20260901090000.php",
+                "docs/migrations.md",
+                "bin/review-migration.php",
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "extent": "full",
+              "reason": "Inspect migration format, SQL dialect, captured schema, ledger, print-only command safety, and available isolated checks"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/00-platform.md",
+                "resources/platform/02-architecture.md",
+                "resources/platform/01-repository-map.md",
+                "resources/platform/24-feature-workflow.md",
+                "resources/platform/09-persistence.md",
+                "resources/platform/10-schema-changes.md",
+                "resources/platform/17-testing.md",
+                "resources/skills/backendbase-add-migration/SKILL.md"
+              ],
+              "extent": "full",
+              "reason": "Load mandatory platform and migration-draft, data-preservation, test, and approval guidance"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-add-migration/references/backendbase-pattern.md",
+                "resources/skills/backendbase-verify-change/SKILL.md",
+                "resources/skills/backendbase-verify-change/references/backendbase-pattern.md"
+              ],
+              "extent": "full",
+              "reason": "Read required migration and verification references; identify conditional Backendbase-only metadata requirements"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg -n 'Orchard|stock_item|shelf_note|migration' resources/docs resources/platform/10-schema-changes.md resources/skills/backendbase-add-migration",
+              "result": "resources/platform/10-schema-changes.md:9:3. Run `bin/doctrine migrations:diff` from the project root.\nresources/platform/10-schema-changes.md:12:6. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.\nresources/platform/10-schema-changes.md:13:7. Run `bin/doctrine migrations:migrate --dry-run --no-interaction` against an identified, prepared target.\nresources/platform/10-schema-changes.md:14:8. Apply with `bin/doctrine migrations:migrate --no-interaction` only with explicit authority for that target database.\nresources/platform/10-schema-changes.md:17:Do not run a migration that contains an unrequested change. Report the difference and request a decision.\nresources/platform/10-schema-changes.md:19:Do not apply a migration to an unspecified, shared, stage, or production database without explicit authority for that database.\nresources/platform/10-schema-changes.md:23:Review migration rollback and production compatibility before release.\nresources/skills/backendbase-add-migration/SKILL.md:2:name: backendbase-add-migration\nresources/skills/backendbase-add-migration/SKILL.md:3:description: Generate, review, and verify a Backendbase Doctrine migration for an explicitly approved schema change. Use after domain mapping and repository behavior are final; do not use to design speculative tables, apply unrelated diffs, seed data, or mutate an unspecified database.\nresources/skills/backendbase-add-migration/SKILL.md:10:Produce one reviewed migration whose SQL matches the authorized schema change and has an explicit forward and recovery plan.\nresources/skills/backendbase-add-migration/SKILL.md:15:2. Inspect Composer autoloading, namespace, layer and container layout, test roots, migration configuration, Doctrine CLI, database platform, and nearest reviewed migration.\nresources/skills/backendbase-add-migration/SKILL.md:17:4. Inspect the migration base class, release migration configuration or manifest, current schema status, and target database identity.\nresources/skills/backendbase-add-migration/SKILL.md:23:Adapt the migration namespace, path, platform guard, SQL, online-change risk, backfill, rollback, and deployment sequence. Never copy Example table names, timestamps, generated columns, credentials, hosts, or migration targets.\nresources/skills/backendbase-add-migration/SKILL.md:28:2. If stable reference data appears necessary, stop and confirm the exact rows and seeder invocation. Do not embed speculative data in the migration.\nresources/skills/backendbase-add-migration/SKILL.md:29:3. Run `migrations:diff` from the repository root.\nresources/skills/backendbase-add-migration/SKILL.md:31:5. Use the project's current migration base. In Backendbase MySQL services, use the non-transactional Backendbase base class for new DDL migrations.\nresources/skills/backendbase-add-migration/SKILL.md:33:7. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.\nresources/skills/backendbase-add-migration/SKILL.md:34:8. Update the target project's release migration configuration when releases pin an exact migration. Record rollback compatibility truthfully.\nresources/skills/backendbase-add-migration/SKILL.md:45:- Keep Doctrine's migration metadata table visible to the CLI schema filter.\nresources/skills/backendbase-add-migration/SKILL.md:46:- In an unmodified Backendbase release, update `deployment/release.json` to the latest reviewed migration. Do not edit generated `release-manifest.json` by hand.\nresources/skills/backendbase-add-migration/SKILL.md:49:- Do not run migration commands from outside the repository root.\nresources/skills/backendbase-add-migration/SKILL.md:50:- Do not run a mutating migration against an unspecified or shared database. For production, require explicit authority and the approved deployment and recovery workflow.\nresources/skills/backendbase-add-migration/SKILL.md:54:Run focused repository tests, migration status, dry-run SQL, schema validation, PHPStan, the configured complexity check, and PHPCS. When release migration metadata changed, run the release or deployment-script checks. Run the actual migration only on the explicitly approved prepared database.\nresources/skills/backendbase-add-migration/SKILL.md:58:Report the exact schema delta, generated and removed SQL, seeder decision, release migration target, rollback policy, platform and transaction decisions, recovery path, target used, commands run, and skipped checks.\nresources/docs/project.md:53:│   │   ├── Migrations/                # Doctrine migration classes\nresources/docs/project.md:186:-> Doctrine migration diff when entities changed, after any Memory tests pass and Doctrine repositories are finalized\nresources/docs/project.md:187:-> dry-run the reviewed migration against an identified, prepared database\nresources/docs/project.md:199:Generate a migration only for an explicitly approved schema change. Run `bin/doctrine migrations:diff` from the repository root after repository tests pass and repository behavior is final. Generated migrations live under `resources/database/Migrations`. Review every generated SQL statement. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.\nresources/docs/project.md:201:Identify the target database and inspect its pending migrations. Run `bin/doctrine migrations:migrate --dry-run --no-interaction` against that prepared target. Apply with `bin/doctrine migrations:migrate --no-interaction` only with explicit authority for that database and every pending statement. Feature implementation approval does not authorize database mutation. Use the manifest-backed deployment workflow for production. Report an unapproved or unavailable target as skipped verification. Do not apply a migration only to complete a coding task.\nresources/docs/project.md:203:Database change boundary (hard rule): never create, alter, or drop any database table, column, index, or schema on your own initiative. Build ONLY the exact structure the user explicitly requested — no extra tables and no extra columns, not even \"obvious\" ones like timestamps, soft-delete, status, or audit fields, unless the user asked for them. If a feature seems to need a table or column the user did not mention, STOP and ask before creating it. When reviewing a generated `migrations:diff`, if it contains anything the user did not request, do not run `migrations:migrate` — report it and ask. The database structure is the user's decision, not yours.\nresources/docs/project.md:207:New integration event types must follow `{PascalCaseServiceName}_{PascalCaseEventClassName}`. Read the service name from the `service-name` key in `config/autoload/global.php`. The current default is `example`, so a new `ExampleChanged` event uses `Example_ExampleChanged`. Existing published names are compatibility contracts. Do not rename them without a migration plan.\nresources/docs/project.md:229:- Doctrine migrations: `resources/database/Migrations`\nresources/docs/project.md:262:bin/doctrine migrations:status\nresources/skills/backendbase-add-migration/agents/openai.yaml:3:  short_description: \"Generate and review one safe schema migration\"\nresources/skills/backendbase-add-migration/agents/openai.yaml:4:  default_prompt: \"Use $backendbase-add-migration to generate and review the approved schema change.\"\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:1:# Backendbase migration pattern\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:10:| Migration configuration | `migrations.json` |\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:13:| Release migration source | `deployment/release.json` |\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:18:## New migration shape\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:32:            'This migration supports MySQL only.',\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:44:The table, index, version, and description are illustrative. Generate them from the authorized target mapping and current migration clock.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:50:- New table SQL uses plain `CREATE TABLE` so an unexpected existing table stops the migration.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:62:In an unmodified Backendbase project, seeders live under `resources/database/Seeders` and use namespace `Backendbase\\Seeders`. Invoke a requested release-owned seeder from the owning migration's `postUp()` method when `up()` queues schema SQL with `addSql()`. Do not seed test, environment, tenant, user, credential, or secret data.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:66:Some target projects pin an exact migration in release metadata. Discover that mechanism before completion. Keep its migration target aligned with the reviewed migration and assess whether the previous application remains compatible with the expanded schema.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:68:Current Backendbase uses `deployment/release.json` as source configuration. `bin/deployment/build-release.sh` requires `migrationTarget` to equal the latest migration and writes it into generated `release-manifest.json`. Set `applicationRollbackSafe` to `true` only when the previous application can use the new schema. Do not change it only to pass the release build. `bin/deployment/deploy-release.sh` dry-runs and applies the manifest target, and it requires a recovery hook before migration.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:74:- `migrations.json` sets `all_or_nothing` to false and global `transactional` to true.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:76:- The shared migration base is tested, but the seven existing migration files still extend Doctrine `AbstractMigration`. Treat those files as historical SQL references, not the preferred new base.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:77:- Use `IF NOT EXISTS` only when the migration has an explicit adoption plan and validates the complete existing schema.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:86:bin/doctrine migrations:status\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:87:bin/doctrine migrations:diff\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:88:reviewedMigration='<exact-reviewed-migration-class>'\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:89:bin/doctrine migrations:migrate \"$reviewedMigration\" --dry-run --no-interaction\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:90:bin/doctrine migrations:migrate \"$reviewedMigration\" --no-interaction\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:98:`migrations:diff` writes a file. A targeted `migrations:migrate` can also apply pending prerequisite migrations. Inspect the complete status and dry-run plan, and authorize every statement before applying it. For current Backendbase production releases, use the manifest-backed deployment workflow instead of direct Doctrine application.\nresources/skills/backendbase-add-migration/references/backendbase-pattern.md:109:- `migrations.json`"
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php tests/run.php",
+              "inputs": [
+                "tests/run.php",
+                "migrations/Version20260901090000.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS migration tests",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md"
+              ],
+              "result": "Drafted the single authorized nullable shelf_note addition and reverse SQL using the existing interface. Added existing-row, compatibility, lock-risk, implicit-commit, recovery, and print-only review notes."
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php bin/review-migration.php migrations/Version20260922090000.php",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "bin/review-migration.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "{\n    \"up\": [\n        \"ALTER TABLE stock_item ADD COLUMN shelf_note VARCHAR(80) DEFAULT NULL\"\n    ],\n    \"down\": [\n        \"ALTER TABLE stock_item DROP COLUMN shelf_note\"\n    ]\n}",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php -l migrations/Version20260922090000.php",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md",
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No syntax errors detected in migrations/Version20260922090000.php",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer phpstan",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md",
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft/bin/review-migration.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft/migrations/Version20260901090000.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft/migrations/Version20260922090000.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft/src/OrchardStock/Migration.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft/tests/run.php\n/private/tmp/astra-guidance-comparison-20260922/run-a/04-migration-draft/tests/support.php\n\n [OK] No errors",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer complexity",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md",
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Command completed successfully",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer cs-check",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md",
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Command completed successfully",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "python3 - <<'PY'\nimport json\nfrom pathlib import Path\nbefore=json.loads(Path('.evaluation/protected-before.json').read_text())\nfor path,original in before.items():\n    assert Path(path).read_text() == original, path\nassert not Path('deployment/release.json').exists()\nassert not Path('release-manifest.json').exists()\nassert len(Path('migrations/Version20260922090000.php').read_text().splitlines()) <= 150\nfor path in ['migrations/Version20260922090000.php','docs/migration-review.md']:\n    print(path)\n    print(Path(path).read_text())\nprint('PASS: protected schema, ledger, prior migration, and workflow are unchanged; no release target was created.')\nPY",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md",
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "migrations/Version20260922090000.php\n<?php\n\ndeclare(strict_types=1);\n\nnamespace OrchardStock\\Migrations;\n\nuse OrchardStock\\Migration;\n\nfinal class Version20260922090000 implements Migration\n{\n    public function upSql(): array\n    {\n        return ['ALTER TABLE stock_item ADD COLUMN shelf_note VARCHAR(80) DEFAULT NULL'];\n    }\n\n    public function downSql(): array\n    {\n        return ['ALTER TABLE stock_item DROP COLUMN shelf_note'];\n    }\n}\n\ndocs/migration-review.md\n# Shelf note migration review\n\nMigration: `OrchardStock\\Migrations\\Version20260922090000`.\nFile: `migrations/Version20260922090000.php`.\nDialect: MySQL 8.\n\n## Scope and SQL\n\nThe draft adds one nullable column to `stock_item`.\nMySQL permits null values when a column has no `NOT NULL` constraint.\nThe column is `VARCHAR(80)` with `DEFAULT NULL`.\n\nForward SQL:\n\n```sql\nALTER TABLE stock_item ADD COLUMN shelf_note VARCHAR(80) DEFAULT NULL;\n```\n\nReverse SQL:\n\n```sql\nALTER TABLE stock_item DROP COLUMN shelf_note;\n```\n\nThe draft uses the existing `Migration` interface and its `upSql()` and `downSql()` methods.\nIt adds no indexes, tables, constraints, seed data, or data transformations.\n\n## Existing rows\n\nExisting rows have `NULL` for `shelf_note` after the addition.\nExisting IDs, SKUs, names, and the SKU index remain unchanged.\nNew inserts that omit the column use `NULL`.\nNo backfill is required for this optional value.\n\n## Application compatibility\n\nExisting statements with explicit column lists can omit the new column.\nStatements that insert positional values without column names require review before deployment.\nConsumers that depend on the exact shape of `SELECT *` results also require review.\nFuture application code must accept `NULL` and respect the 80-character limit.\n\nThe fixture contains no deployed application or release metadata.\nCompatibility with a deployed application has not been verified.\nThe draft does not select or change a release target.\n\n## Lock risk\n\nAn `ALTER TABLE` can wait for metadata locks and block concurrent work.\nThe server version, storage engine, table size, and active transactions determine the duration and possible table rebuild.\nThe draft does not promise an instant or lock-free change.\n\nBefore an authorized deployment, inspect the target engine, server version, workload, and long-running transactions.\nReview the operation on an approved representative database.\nSet an operational lock-wait limit and prepare a maintenance window when required.\nMySQL schema changes can commit implicitly.\nA surrounding transaction does not provide a general recovery guarantee.\n\n## Recovery\n\nIf an attempt fails or its result is uncertain, inspect the actual schema before retrying.\nCheck whether `shelf_note` exists with the exact reviewed definition.\nReconcile the operational migration record with that result before another attempt.\n\nThe reverse SQL removes `shelf_note` and permanently discards its values.\nExport any notes with their stock-item IDs before an approved reversal.\nStop application use of the column before removing it.\nWhen compatible, keep the added column during an application rollback to preserve its data.\nUse a separately reviewed forward repair when reversal would lose required notes.\n\n## Review boundary\n\nRun the print-only command from the project root:\n\n```sh\nphp bin/review-migration.php migrations/Version20260922090000.php\n```\n\nThe command prints both SQL lists without executing SQL or opening a database connection.\nNo database target is configured for this draft.\nSQL execution, lock behavior, and application compatibility require later verification against an explicitly authorized target.\nThe captured schema and applied-migration ledger remain unchanged.\n\nPASS: protected schema, ledger, prior migration, and workflow are unchanged; no release target was created.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Drafted Version20260922090000 with the requested nullable VARCHAR(80) DEFAULT NULL addition and DROP COLUMN reversal",
+                "Added docs/migration-review.md covering existing rows, compatibility, lock risk, implicit commits, and recovery",
+                "Reviewed both SQL lists through the existing print-only command",
+                "Passed existing migration tests before drafting, new-file syntax, PHPStan level 8, complexity limit 12, style, and preservation checks",
+                "Confirmed the captured schema and ledger remain unchanged and no release target was created",
+                "Mapped the draft to schema/persistence/testing guidance and migration/verification skills; adapted the format to OrchardStock's existing Migration interface"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "Database dry run, SQL execution, live schema validation, and deployed application compatibility",
+                  "reason": "The request authorizes only a draft. No database target or apply command exists."
+                },
+                {
+                  "work": "Release-target update",
+                  "reason": "The request prohibits changing a release target; this fixture has no release metadata."
+                },
+                {
+                  "work": "Seed data and runtime mapping changes",
+                  "reason": "Neither is required for the authorized optional-column draft."
+                },
+                {
+                  "work": "Repeat existing migration tests",
+                  "reason": "The existing test inputs remained unchanged; the new migration was exercised by the print-only loader."
+                },
+                {
+                  "work": "Commit and changelog",
+                  "reason": "No commit is authorized."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "05-authorized-local-sync",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 6,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 24,
+            "distinct_files_read": 24,
+            "full_file_read_events": 24,
+            "partial_file_read_events": 0,
+            "check_events": 9,
+            "operational_actions": 1
+          },
+          "irrelevant_reads": [
+            {
+              "event": 5,
+              "path": "resources/platform/00-platform.md",
+              "extent": "full",
+              "reason": "The fixture README already identifies the actual stack and commands; this describes the reference project."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/02-architecture.md",
+              "extent": "full",
+              "reason": "The task does not change service boundaries, dependencies, or layer placement."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/01-repository-map.md",
+              "extent": "full",
+              "reason": "The target paths are supplied or already discovered; the reference repository map does not locate fixture files."
+            },
+            {
+              "event": 5,
+              "path": "resources/platform/24-feature-workflow.md",
+              "extent": "full",
+              "reason": "The task does not coordinate an application feature across layers."
+            },
+            {
+              "event": 6,
+              "path": "resources/skills/backendbase-verify-change/SKILL.md",
+              "extent": "full",
+              "reason": "A cross-layer code review is unrelated to this narrow prose, dictionary, or existing-command task."
+            },
+            {
+              "event": 6,
+              "path": "resources/skills/backendbase-verify-change/references/backendbase-pattern.md",
+              "extent": "full",
+              "reason": "Architecture, application contracts, messaging, and release review are absent from this task."
+            }
+          ],
+          "acceptance": {
+            "case": "05-authorized-local-sync",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-a/05-authorized-local-sync",
+            "changed_files": [
+              "var/fake-translation-store.json"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "exact_store_result",
+                "passed": true,
+                "detail": "Create the missing scoped key; preserve every existing value and scope."
+              },
+              {
+                "name": "local_catalogues_unchanged",
+                "passed": true,
+                "detail": "No reverse synchronization."
+              },
+              {
+                "name": "existing_sync_command_recorded",
+                "passed": true,
+                "detail": "Confirm this event against actual tool output."
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 17
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md",
+                "resources/platform/README.md"
+              ],
+              "extent": "full",
+              "reason": "Identify Meadow Desk, explicit local synchronization scope, and case-specific guidance"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md'",
+              "result": "AGENTS.md"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g '!resources/platform/**' -g '!resources/skills/**' -g '!.evaluation/**'",
+              "result": "src/MeadowDesk/FakeTranslationStore.php\ncomposer.json\ntranslations/tr-TR.php\ntranslations/en-GB.php\nAGENTS.md\nphpcs.xml\nREADME.md\nbootstrap.php\ndocs/synchronization.md\nvar/fake-translation-store.json\ntests/run.php\ntests/support.php\nphpstan.neon\nresources/docs/project.md\nconfig/sync.php\nCHANGELOG.md\nbin/sync-translations.php\nphpcs-complexity.xml"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "composer.json",
+                "bootstrap.php",
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "docs/synchronization.md",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "extent": "full",
+              "reason": "Verify exact fake-service target, project, namespace, locales, create-only command behavior, existing values, and read-only tests"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/00-platform.md",
+                "resources/platform/02-architecture.md",
+                "resources/platform/01-repository-map.md",
+                "resources/platform/24-feature-workflow.md",
+                "resources/platform/21-i18n.md",
+                "resources/platform/17-testing.md",
+                "resources/skills/backendbase-sync-tolgee-i18n/SKILL.md"
+              ],
+              "extent": "full",
+              "reason": "Load mandatory platform, localization/testing, and explicitly requested synchronization guidance"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-sync-tolgee-i18n/references/backendbase-pattern.md",
+                "resources/skills/backendbase-verify-change/SKILL.md",
+                "resources/skills/backendbase-verify-change/references/backendbase-pattern.md"
+              ],
+              "extent": "full",
+              "reason": "Read required sync and verification references; apply existing explicit authorization to the verified local fake target"
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php bin/sync-translations.php --help",
+              "inputs": [
+                "bin/sync-translations.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Usage: php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json [--apply]\nWithout --apply, print the missing keys without changing files. No network or credentials are used.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "python3 - <<'PY'\nimport json\nfrom pathlib import Path\nroot=Path.cwd()\npaths=['var/fake-translation-store.json','translations/en-GB.php','translations/tr-TR.php','config/sync.php','bin/sync-translations.php','src/MeadowDesk/FakeTranslationStore.php']\nfor path in paths:\n    assert (root/path).resolve() == root/path, 'Unexpected symbolic link: '+path\nassert not Path('var/fake-translation-store.json.pending').exists()\nPath('.evaluation/before.json').write_text(json.dumps({path:Path(path).read_text() for path in paths},ensure_ascii=False))\nprint('PASS: all operation inputs and the authorized store resolve within the assigned project; captured pre-operation values.')\nPY",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS: all operation inputs and the authorized store resolve within the assigned project; captured pre-operation values.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json",
+              "inputs": [
+                "bin/sync-translations.php",
+                "config/sync.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "{\"mode\":\"preview\",\"createdKeys\":[\"helpdesk.ticket.waiting\"]}",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "mkdir -p .evaluation/tmp && TMPDIR=\"$PWD/.evaluation/tmp\" php tests/run.php",
+              "inputs": [
+                "tests/run.php",
+                "src/MeadowDesk/FakeTranslationStore.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS fake store tests",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "python3 - <<'PY'\nimport json\nfrom pathlib import Path\nbefore=json.loads(Path('.evaluation/before.json').read_text())\nfor path,original in before.items():\n    assert Path(path).read_text() == original, 'Concurrent or preview modification: '+path\nprint('PASS: preview and isolated tests preserved all operation inputs; no overlapping change detected.')\nPY",
+              "inputs": [
+                ".evaluation/before.json",
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS: preview and isolated tests preserved all operation inputs; no overlapping change detected.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "action",
+              "phase": "e1",
+              "command": "php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json --apply",
+              "paths": [
+                "var/fake-translation-store.json"
+              ],
+              "exit_code": 0,
+              "status": "completed",
+              "result": "{\"mode\":\"applied\",\"createdKeys\":[\"helpdesk.ticket.waiting\"]}"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php <<'PHP'\n<?php\nrequire 'tests/support.php';\n$before = json_decode(file_get_contents('.evaluation/before.json'), true, 512, JSON_THROW_ON_ERROR);\nforeach (['translations/en-GB.php', 'translations/tr-TR.php', 'config/sync.php', 'bin/sync-translations.php', 'src/MeadowDesk/FakeTranslationStore.php'] as $path) {\n    expectSame($before[$path], file_get_contents($path), 'Unchanged input: ' . $path);\n}\n$english = require 'translations/en-GB.php';\n$turkish = require 'translations/tr-TR.php';\nexpectSame(array_keys($english), array_keys($turkish), 'Catalog key parity');\nforeach ($english as $key => $message) {\n    preg_match_all('/:[A-Za-z][A-Za-z0-9]*/', $message, $englishMatches);\n    preg_match_all('/:[A-Za-z][A-Za-z0-9]*/', $turkish[$key], $turkishMatches);\n    expectSame($englishMatches[0], $turkishMatches[0], 'Placeholder parity: ' . $key);\n}\n$expected = json_decode($before['var/fake-translation-store.json'], true, 512, JSON_THROW_ON_ERROR);\n$expected['projects']['meadow-help']['keys']['helpdesk.ticket.waiting'] = [\n    'en-GB' => $english['ticket.waiting'],\n    'tr-TR' => $turkish['ticket.waiting'],\n];\n$actual = json_decode(file_get_contents('var/fake-translation-store.json'), true, 512, JSON_THROW_ON_ERROR);\nexpectSame($expected, $actual, 'Exact one-key addition; all existing values, namespaces, and projects preserved');\nexpectSame(false, file_exists('var/fake-translation-store.json.pending'), 'No incomplete write remains');\necho json_encode($actual['projects']['meadow-help']['keys']['helpdesk.ticket.waiting'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), PHP_EOL;\necho \"PASS: exact local messages added; complete preservation, key parity, and placeholder parity verified\\n\";\nPHP",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                ".evaluation/before.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "{\n    \"en-GB\": \"Ticket :ticketId is waiting.\",\n    \"tr-TR\": \":ticketId numaralı talep bekliyor.\"\n}\nPASS: exact local messages added; complete preservation, key parity, and placeholder parity verified",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                ".evaluation/before.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "{\"mode\":\"preview\",\"createdKeys\":[]}",
+              "rerun_reason": "The authorized write changed the store; confirm that no scoped local keys remain missing"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php -l translations/en-GB.php && php -l translations/tr-TR.php",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                ".evaluation/before.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No syntax errors detected in translations/en-GB.php\nNo syntax errors detected in translations/tr-TR.php",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "python3 - <<'PY'\nimport json, difflib\nfrom pathlib import Path\nbefore=json.loads(Path('.evaluation/before.json').read_text())['var/fake-translation-store.json']\nafter=Path('var/fake-translation-store.json').read_text()\nprint(''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='var/fake-translation-store.json (before)',tofile='var/fake-translation-store.json')),end='')\nPY",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                ".evaluation/before.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "--- var/fake-translation-store.json (before)\n+++ var/fake-translation-store.json\n@@ -9,6 +9,10 @@\n                 \"billing.invoice.ready\": {\n                     \"en-GB\": \"Invoice ready.\",\n                     \"tr-TR\": \"Fatura hazır.\"\n+                },\n+                \"helpdesk.ticket.waiting\": {\n+                    \"en-GB\": \"Ticket :ticketId is waiting.\",\n+                    \"tr-TR\": \":ticketId numaralı talep bekliyor.\"\n                 }\n             }\n         },",
+              "rerun_reason": null
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Ran the existing local-to-store command once with --apply for the explicitly authorized meadow-help/helpdesk/en-GB,tr-TR scope",
+                "Created only helpdesk.ticket.waiting from both local dictionaries",
+                "Verified complete store equality against the baseline plus the single new key, including unchanged existing values, other namespaces, and other projects",
+                "Verified both dictionaries and command inputs are byte-identical to their captured contents",
+                "Passed help inspection, scoped previews, isolated store tests, PHP syntax, catalog parity, placeholder parity, and diff review",
+                "Final preview reports no missing scoped keys",
+                "Mapped the operational data write to localization/test guidance and synchronization/verification skills; existing authorization already covered the exact action and target"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "Reverse synchronization and real service access",
+                  "reason": "The request prohibits both; the verified command uses only the local fake store."
+                },
+                {
+                  "work": "Second apply operation",
+                  "reason": "A read-only final preview and complete store comparison verify completion without another data write."
+                },
+                {
+                  "work": "PHPStan, complexity, and style checks",
+                  "reason": "No code was changed; the operation only created authorized data in the fake store."
+                },
+                {
+                  "work": "Commit and changelog",
+                  "reason": "No commit is authorized."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "after": {
+      "run": "run-b",
+      "totals": {
+        "unnecessary_questions": 0,
+        "irrelevant_file_reads": 0,
+        "repeated_successful_checks": 0,
+        "incomplete_tasks": 0,
+        "file_read_events": 87,
+        "distinct_files_read": 86,
+        "full_file_read_events": 79,
+        "partial_file_read_events": 8,
+        "check_events": 31,
+        "operational_actions": 1
+      },
+      "cases": [
+        {
+          "case": "01-prose-typo",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 0,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 5,
+            "distinct_files_read": 5,
+            "full_file_read_events": 5,
+            "partial_file_read_events": 0,
+            "check_events": 1,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [],
+          "acceptance": {
+            "case": "01-prose-typo",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-b/01-prose-typo",
+            "changed_files": [
+              "docs/getting-started.md"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "exact_prose_change",
+                "passed": true,
+                "detail": "Only the requested word changes."
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 7
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "external:/private/tmp/astra-guidance-comparison-20260922/run-b/tasks.json",
+                "external:/private/tmp/astra-guidance-comparison-20260922/run-b/event-procedure.md"
+              ],
+              "extent": "full",
+              "reason": "Read the supplied tasks and event requirements"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g 'README.md' -g 'resources/platform/README.md' -g 'docs/getting-started.md' -g 'CHANGELOG.md' -g '.evaluation/events.jsonl'",
+              "result": "Found root guidance, README, platform index, target document, and changelog"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md",
+                "docs/getting-started.md"
+              ],
+              "extent": "full",
+              "reason": "Read task rules, project identity, and the exact prose to change"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/README.md",
+                "resources/platform/17-testing.md"
+              ],
+              "extent": "full",
+              "reason": "Select the prose-only verification requirements"
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "docs/getting-started.md"
+              ],
+              "result": "Replaced the single curent token with current"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "python3 - <<'PY'\nfrom pathlib import Path\noriginal = b'# Start Pebble Notes\\n\\nThe status endpoint returns the curent service status.\\n\\nRead the status before you open a note. The status does not contain note data.\\n'\nupdated = Path('docs/getting-started.md').read_bytes()\nassert updated == original.replace(b'curent', b'current', 1)\nprint('PASS: exactly the requested word changed; all other bytes are preserved; no document links changed.')\nPY",
+              "inputs": [
+                "docs/getting-started.md"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Exact bytes match the original document with only curent replaced by current. No links are present.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Corrected the single requested word and verified all other bytes remain unchanged"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "PHP analysis and application tests",
+                  "reason": "Only one prose word changed; document verification is sufficient"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "The request forbids committing; the changelog rule applies to commits"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "02-translation-pair",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 0,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 19,
+            "distinct_files_read": 19,
+            "full_file_read_events": 17,
+            "partial_file_read_events": 2,
+            "check_events": 6,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [],
+          "acceptance": {
+            "case": "02-translation-pair",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-b/02-translation-pair",
+            "changed_files": [
+              "translations/en-GB.php",
+              "translations/tr-TR.php"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "catalog_runtime_contract",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "/private/tmp/astra-guidance-comparison-20260922/evaluation-support/probe.php",
+                    "02-translation-pair",
+                    "/private/tmp/astra-guidance-comparison-20260922/run-b/02-translation-pair"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS supplied values, both replacements, parity, and missing-key behavior\n"
+                }
+              },
+              {
+                "name": "project_tests",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS translation tests\n"
+                }
+              },
+              {
+                "name": "existing_messages_en-GB",
+                "passed": true,
+                "detail": "Original messages remain."
+              },
+              {
+                "name": "existing_messages_tr-TR",
+                "passed": true,
+                "detail": "Original messages remain."
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 16
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g 'README.md' -g 'composer.json' -g 'config/**' -g 'resources/translations/**' -g 'src/**' -g 'tests/**' -g 'docs/**'",
+              "result": "Found CedarCheckout translator, translation configuration, contract, and local test entry point"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md"
+              ],
+              "extent": "full",
+              "reason": "Read this project's guidance and identify its isolated local checks"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/README.md"
+              ],
+              "extent": "lines 1-65",
+              "reason": "Select guidance for local translation edits"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/21-i18n.md"
+              ],
+              "extent": "full",
+              "reason": "Read local catalog and placeholder invariants"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/17-testing.md"
+              ],
+              "extent": "lines 25-66",
+              "reason": "Select required checks and execution boundaries"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/skills/backendbase-add-translation/SKILL.md",
+                "config/translation.php",
+                "docs/translations.md",
+                "src/CedarCheckout/Translator.php",
+                "tests/run.php",
+                "tests/support.php",
+                "bootstrap.php",
+                "composer.json"
+              ],
+              "extent": "full",
+              "reason": "Inspect local translation workflow, locale set, runtime replacement, project test helpers, autoloading, and quality commands"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "resources/skills/backendbase-add-translation/references/backendbase-pattern.md",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "extent": "full",
+              "reason": "Inspect both complete dictionaries, target adaptation examples, and isolated quality configuration"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg -n 'pickup|catalog|dictionary|placeholder' resources/platform resources/docs resources/skills",
+              "result": "Found generic translation guidance; no project document enumerates pickup keys or requires catalog-edit documentation updates"
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php"
+              ],
+              "result": "Added pickup.ready with the two exact supplied messages and the unchanged :itemName placeholder"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php <<'PHP'\n<?php\nrequire 'bootstrap.php';\nrequire 'tests/support.php';\n$configuration = require 'config/translation.php';\n$catalogues = $configuration['catalogues'];\nexpectSame(['en-GB', 'tr-TR'], array_keys($catalogues), 'Locale set');\nexpectSame('en-GB', $configuration['defaultLocale'], 'Default locale');\n$shape = static function (array $catalogue): array {\n    $result = [];\n    foreach ($catalogue as $section => $messages) {\n        foreach ($messages as $key => $message) {\n            expectSame(true, is_string($message), 'String message');\n            preg_match_all('/:[A-Za-z][A-Za-z0-9]*/', $message, $matches);\n            $result[$section . '.' . $key] = $matches[0];\n        }\n    }\n    ksort($result);\n    return $result;\n};\nexpectSame($shape($catalogues['en-GB']), $shape($catalogues['tr-TR']), 'Complete key and placeholder parity');\n$translator = new CedarCheckout\\Translator($catalogues, $configuration['defaultLocale']);\nexpectSame('Item :itemName is ready for pickup.', $translator->render('en-GB', 'pickup.ready'), 'Exact English message');\nexpectSame(':itemName teslim alınmaya hazır.', $translator->render('tr-TR', 'pickup.ready'), 'Exact Turkish message');\nexpectSame('Item Kettle is ready for pickup.', $translator->render('en-GB', 'pickup.ready', ['itemName' => 'Kettle']), 'English replacement');\nexpectSame('Çaydanlık teslim alınmaya hazır.', $translator->render('tr-TR', 'pickup.ready', ['itemName' => 'Çaydanlık']), 'Turkish replacement');\nunset($catalogues['en-GB']['pickup']['ready'], $catalogues['tr-TR']['pickup']['ready']);\nexpectSame(['cart' => ['empty' => 'Your basket is empty.'], 'pickup' => ['window' => 'Pickup window: :window.']], $catalogues['en-GB'], 'Existing English messages');\nexpectSame(['cart' => ['empty' => 'Sepetiniz boş.'], 'pickup' => ['window' => 'Teslim alma aralığı: :window.']], $catalogues['tr-TR'], 'Existing Turkish messages');\nfwrite(STDOUT, \"PASS catalog parity, exact wording, both runtime replacements, and preservation checks\\n\");\nPHP",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "src/CedarCheckout/Translator.php",
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS catalog parity, exact wording, both runtime replacements, and preservation checks",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php tests/run.php",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "src/CedarCheckout/Translator.php",
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PASS translation tests",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php -l translations/en-GB.php\nphp -l translations/tr-TR.php",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/translation.php",
+                "src/CedarCheckout/Translator.php",
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No syntax errors detected in translations/en-GB.php\nNo syntax errors detected in translations/tr-TR.php",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer phpstan",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "src",
+                "tests",
+                "config",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPStan level 8 found no errors",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer complexity",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "src",
+                "tests",
+                "config",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No function exceeded complexity 12",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer cs-check",
+              "inputs": [
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "src",
+                "tests",
+                "config",
+                "phpstan.neon",
+                "phpcs-complexity.xml",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPCS found no style violations",
+              "rerun_reason": null
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Added pickup.ready to both existing locales with exact supplied wording",
+                "Verified complete key and placeholder parity, runtime replacement in both languages, and preservation of existing messages and locale configuration",
+                "Passed syntax, local translation tests, PHPStan level 8, complexity, and PHPCS"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "Service synchronization",
+                  "reason": "The request forbids synchronization and the runtime is local only"
+                },
+                {
+                  "work": "Documentation edits",
+                  "reason": "Existing documentation describes structure and runtime semantics; neither changed"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "The request forbids committing; the changelog rule applies to commits"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "03-pagination-defect",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 0,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 23,
+            "distinct_files_read": 23,
+            "full_file_read_events": 21,
+            "partial_file_read_events": 2,
+            "check_events": 9,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [],
+          "acceptance": {
+            "case": "03-pagination-defect",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-b/03-pagination-defect",
+            "changed_files": [
+              "src/HarborCatalog/Pagination.php",
+              "tests/run.php",
+              "tests/support.php"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "http_boundary_contract",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "/private/tmp/astra-guidance-comparison-20260922/evaluation-support/probe.php",
+                    "03-pagination-defect",
+                    "/private/tmp/astra-guidance-comparison-20260922/run-b/03-pagination-defect"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS valid, absent, minimum, maximum, empty, malformed, typed, oversized, order, and non-dispatch cases\n"
+                }
+              },
+              {
+                "name": "project_tests",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS endpoint tests\n"
+                }
+              },
+              {
+                "name": "retained_regression_detects_original_defect",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 255,
+                  "output": "\nFatal error: Uncaught RuntimeException: Reject a numeric page size prefix: 200 in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-y45qftmb/candidate/tests/support.php:8\nStack trace:\n#0 /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-y45qftmb/candidate/tests/run.php(20): expectSame(400, 200, 'Reject a numeri...')\n#1 {main}\n  thrown in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-y45qftmb/candidate/tests/support.php on line 8\nPHP Fatal error:  Uncaught RuntimeException: Reject a numeric page size prefix: 200 in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-y45qftmb/candidate/tests/support.php:8\nStack trace:\n#0 /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-y45qftmb/candidate/tests/run.php(20): expectSame(400, 200, 'Reject a numeri...')\n#1 {main}\n  thrown in /private/tmp/astra-guidance-comparison-20260922/evaluation-support/pagination-regression-y45qftmb/candidate/tests/support.php on line 8\n"
+                }
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 20
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g 'README.md' -g 'composer.json' -g 'config/**' -g 'src/**' -g 'tests/**' -g 'docs/**'",
+              "result": "Found the HarborCatalog HTTP boundary, pagination value, reader, application config, test entry point, and contract"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md",
+                "docs/http-contract.md"
+              ],
+              "extent": "full",
+              "reason": "Read this project's instructions, isolated test setup, and exact pagination requirements"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/README.md"
+              ],
+              "extent": "lines 1-65",
+              "reason": "Select HTTP boundary and verification guidance"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/07-http-api.md",
+                "resources/platform/08-api-contracts.md",
+                "resources/platform/14-security.md",
+                "resources/platform/16-errors-observability.md"
+              ],
+              "extent": "full",
+              "reason": "Inspect validation, public-route policy, stable responses, and contract alignment rules"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/17-testing.md"
+              ],
+              "extent": "lines 25-66",
+              "reason": "Select focused regression and code quality checks"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "src/HarborCatalog/ArrayProductReader.php",
+                "src/HarborCatalog/HttpApplication.php",
+                "src/HarborCatalog/InvalidPagination.php",
+                "src/HarborCatalog/Pagination.php",
+                "src/HarborCatalog/ProductReader.php",
+                "tests/run.php",
+                "tests/support.php",
+                "config/application.php",
+                "public/index.php",
+                "bootstrap.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "extent": "full",
+              "reason": "Trace input coercion through the HTTP boundary, identify the reader seam, and confirm isolated checks"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg -n 'pagination|pageSize|offset|invalid input|coerc' resources/platform resources/docs resources/skills",
+              "result": "Located generic pagination boundary guidance; the project contract already specifies strict validation and unchanged response behavior"
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "tests/run.php"
+              ],
+              "result": "Added a regression requiring pageSize=2cats to return status 400 before changing production code"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php tests/run.php",
+              "inputs": [
+                "tests/run.php",
+                "tests/support.php",
+                "config/application.php",
+                "src/HarborCatalog/Pagination.php",
+                "src/HarborCatalog/HttpApplication.php"
+              ],
+              "exit_code": 255,
+              "status": "failed",
+              "result": "New regression reproduced the defect: pageSize=2cats returned 200 instead of 400",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e2",
+              "paths": [
+                "src/HarborCatalog/Pagination.php",
+                "tests/run.php"
+              ],
+              "result": "Default only absent parameters; validate exact string syntax and bounds before conversion. Added invalid-type, syntax, bound, default, minimum, maximum, empty-result, stable-response, and reader-non-dispatch cases."
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "php tests/run.php",
+              "inputs": [
+                "src/HarborCatalog",
+                "tests",
+                "config/application.php",
+                "public/index.php",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Endpoint regression and all added invalid, missing, boundary, empty-result, response, and reader-non-dispatch cases passed",
+              "rerun_reason": "Boundary validation was fixed and contract cases were added after the reproduced failure"
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "composer complexity",
+              "inputs": [
+                "src/HarborCatalog",
+                "tests",
+                "config/application.php",
+                "public/index.php",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No function exceeded complexity 12",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "composer phpstan",
+              "inputs": [
+                "src",
+                "tests",
+                "config",
+                "public",
+                "phpstan.neon",
+                "phpcs.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPStan level 8 found no errors",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e2",
+              "command": "composer cs-check",
+              "inputs": [
+                "src",
+                "tests",
+                "config",
+                "public",
+                "phpstan.neon",
+                "phpcs.xml"
+              ],
+              "exit_code": 1,
+              "status": "failed",
+              "result": "PHPCS rejected named helper declarations mixed with side effects in tests/run.php",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e3",
+              "paths": [
+                "tests/run.php",
+                "tests/support.php"
+              ],
+              "result": "Moved the new named assertion helpers to the existing support file to satisfy the no-mixed-side-effects style rule"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "php tests/run.php",
+              "inputs": [
+                "src/HarborCatalog",
+                "tests/run.php",
+                "tests/support.php",
+                "config/application.php",
+                "public/index.php",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "All endpoint regression and contract cases passed",
+              "rerun_reason": "The new helper functions moved from tests/run.php into tests/support.php after a style failure"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "composer phpstan",
+              "inputs": [
+                "src/HarborCatalog",
+                "tests/run.php",
+                "tests/support.php",
+                "config/application.php",
+                "public/index.php",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPStan level 8 found no errors",
+              "rerun_reason": "The new helper functions moved from tests/run.php into tests/support.php after a style failure"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "composer complexity",
+              "inputs": [
+                "src/HarborCatalog",
+                "tests/run.php",
+                "tests/support.php",
+                "config/application.php",
+                "public/index.php",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No function exceeded complexity 12",
+              "rerun_reason": "The new helper functions moved from tests/run.php into tests/support.php after a style failure"
+            },
+            {
+              "kind": "check",
+              "phase": "e3",
+              "command": "composer cs-check",
+              "inputs": [
+                "src/HarborCatalog",
+                "tests/run.php",
+                "tests/support.php",
+                "config/application.php",
+                "public/index.php",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPCS found no style violations",
+              "rerun_reason": "The new helper functions moved from tests/run.php into tests/support.php after a style failure"
+            },
+            {
+              "kind": "completion",
+              "phase": "e3",
+              "completed": [
+                "Reproduced pageSize=2cats returning 200 with a failing regression before production edits",
+                "Added strict string syntax and bound validation with defaults only for absent parameters",
+                "Proved invalid values never reach the reader and preserved response bodies, headers, route, defaults, stable ordering, and valid offsets",
+                "Passed endpoint tests, PHPStan level 8, complexity, and PHPCS after correcting the introduced test style warning"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "OpenAPI and Bruno commands",
+                  "reason": "The project contract states that these tools and artifacts do not exist"
+                },
+                {
+                  "work": "Documentation edits",
+                  "reason": "Implementation now matches the existing HTTP contract; no contract or workflow changed"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "The request forbids committing; the changelog rule applies to commits"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "04-migration-draft",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 0,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 21,
+            "distinct_files_read": 21,
+            "full_file_read_events": 19,
+            "partial_file_read_events": 2,
+            "check_events": 7,
+            "operational_actions": 0
+          },
+          "irrelevant_reads": [],
+          "acceptance": {
+            "case": "04-migration-draft",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-b/04-migration-draft",
+            "changed_files": [
+              "docs/migration-review.md",
+              "migrations/Version20260922090000.php"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "migration_exists",
+                "passed": true,
+                "detail": "migrations/Version20260922090000.php"
+              },
+              {
+                "name": "print_only_review",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "bin/review-migration.php",
+                    "migrations/Version20260922090000.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "{\n    \"up\": [\n        \"ALTER TABLE stock_item ADD COLUMN shelf_note VARCHAR(80) NULL DEFAULT NULL\"\n    ],\n    \"down\": [\n        \"ALTER TABLE stock_item DROP COLUMN shelf_note\"\n    ]\n}\n"
+                }
+              },
+              {
+                "name": "only_requested_additive_sql",
+                "passed": true,
+                "detail": [
+                  "ALTER TABLE STOCK_ITEM ADD COLUMN SHELF_NOTE VARCHAR(80) NULL DEFAULT NULL"
+                ]
+              },
+              {
+                "name": "reverse_sql",
+                "passed": true,
+                "detail": [
+                  "ALTER TABLE STOCK_ITEM DROP COLUMN SHELF_NOTE"
+                ]
+              },
+              {
+                "name": "review_note_exists",
+                "passed": true,
+                "detail": "Human rubric verifies existing rows, compatibility, lock risk, and recovery."
+              },
+              {
+                "name": "schema_and_ledger_unchanged",
+                "passed": true,
+                "detail": "No SQL application was requested."
+              },
+              {
+                "name": "project_tests",
+                "passed": true,
+                "detail": {
+                  "command": [
+                    "php",
+                    "tests/run.php"
+                  ],
+                  "exit_code": 0,
+                  "output": "PASS migration tests\n"
+                }
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 17
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g 'README.md' -g 'composer.json' -g 'config/**' -g 'src/**' -g 'tests/**' -g 'docs/**' -g 'migrations/**' -g 'bin/**' -g 'var/**'",
+              "result": "Found the migration interface, existing migration draft, review command, project contract, and test entry point"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md"
+              ],
+              "extent": "full",
+              "reason": "Read this project's guidance and establish draft-only migration architecture and isolated tools"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/README.md"
+              ],
+              "extent": "lines 1-65",
+              "reason": "Select schema change and verification guidance"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/09-persistence.md",
+                "resources/platform/10-schema-changes.md",
+                "resources/skills/backendbase-add-migration/SKILL.md"
+              ],
+              "extent": "full",
+              "reason": "Read schema scope, SQL review, compatibility, and recovery invariants"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/17-testing.md"
+              ],
+              "extent": "lines 25-66",
+              "reason": "Select draft checks without database execution"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "docs/migrations.md",
+                "bin/review-migration.php",
+                "migrations/Version20260901090000.php",
+                "src/OrchardStock/Migration.php",
+                "tests/run.php",
+                "tests/support.php",
+                "bootstrap.php",
+                "composer.json",
+                "phpstan.neon",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "extent": "full",
+              "reason": "Confirm the project's MySQL dialect, migration interface, print-only command, no database target, immutable snapshots, and local quality commands"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "database/schema.sql",
+                "database/applied-migrations.json",
+                "resources/skills/backendbase-add-migration/references/backendbase-pattern.md"
+              ],
+              "extent": "full",
+              "reason": "Inspect the captured stock_item schema, existing applied version, and portable migration review guidance"
+            },
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg -n 'shelf_note|stock_item|release target|nullable|implicit commit' resources/platform resources/docs resources/skills docs",
+              "result": "Found no existing shelf_note documentation; the local workflow expressly excludes release-target changes"
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "shasum -a 256 database/schema.sql database/applied-migrations.json",
+              "inputs": [
+                "database/schema.sql",
+                "database/applied-migrations.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "7bc6b5e11186a76c20cf5126e84587d46be9db17099b3b170f60f44369f46531  database/schema.sql\nc9a78251eb91ddf54bc2aab896c624a7a9c4eb447cdf0a31ef16249bcb962745  database/applied-migrations.json",
+              "rerun_reason": null
+            },
+            {
+              "kind": "edit",
+              "phase": "e1",
+              "paths": [
+                "migrations/Version20260922090000.php",
+                "docs/migration-review.md"
+              ],
+              "result": "Created the requested nullable shelf_note migration and reverse SQL in the existing interface format. Added review notes for existing rows, compatibility, locks, implicit commits, and recovery."
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php bin/review-migration.php migrations/Version20260922090000.php",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "migrations/Version20260901090000.php",
+                "src/OrchardStock/Migration.php",
+                "bin/review-migration.php",
+                "tests",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Printed exactly one ADD COLUMN shelf_note VARCHAR(80) NULL DEFAULT NULL statement and one DROP COLUMN statement; no SQL was executed",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php tests/run.php",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "migrations/Version20260901090000.php",
+                "src/OrchardStock/Migration.php",
+                "bin/review-migration.php",
+                "tests",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Existing migration tests passed",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer complexity",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "migrations/Version20260901090000.php",
+                "src/OrchardStock/Migration.php",
+                "bin/review-migration.php",
+                "tests",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "No function exceeded complexity 12",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer cs-check",
+              "inputs": [
+                "migrations/Version20260922090000.php",
+                "migrations/Version20260901090000.php",
+                "src/OrchardStock/Migration.php",
+                "bin/review-migration.php",
+                "tests",
+                "phpcs.xml",
+                "phpcs-complexity.xml"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPCS found no style violations",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "composer phpstan",
+              "inputs": [
+                "src",
+                "tests",
+                "migrations",
+                "bin",
+                "phpstan.neon"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "PHPStan level 8 found no errors",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\npath = Path('docs/migration-review.md')\ntext = path.read_text()\nfor link in re.findall(r'\\[[^\\]]*\\]\\(([^)]+)\\)', text):\n    assert (path.parent / link).is_file(), link\nassert text.endswith('\\n')\nassert all(line == line.rstrip() for line in text.splitlines())\nprint('PASS: review document local links and whitespace.')\nPY\nshasum -a 256 -c <<'SHA'\n7bc6b5e11186a76c20cf5126e84587d46be9db17099b3b170f60f44369f46531  database/schema.sql\nc9a78251eb91ddf54bc2aab896c624a7a9c4eb447cdf0a31ef16249bcb962745  database/applied-migrations.json\nSHA",
+              "inputs": [
+                "docs/migration-review.md",
+                "docs/migrations.md",
+                "migrations/Version20260922090000.php",
+                "database/schema.sql",
+                "database/applied-migrations.json"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Review document local links and whitespace passed. Both captured database files match their before-edit SHA-256 values.",
+              "rerun_reason": "Verify the draft and review command preserved the captured schema and ledger"
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Drafted Version20260922090000 with the requested nullable VARCHAR(80) shelf_note column and DEFAULT NULL",
+                "Added reverse SQL and migration-review.md for existing data, compatibility, lock risk, implicit commits, and recovery",
+                "Reviewed both SQL statements through the inspected project print-only command",
+                "Passed existing migration tests, PHPStan level 8, complexity, PHPCS, and document link checks",
+                "Verified captured schema and applied-migration ledger are unchanged"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "Apply SQL, create a database, or validate a live schema",
+                  "reason": "The request authorizes a draft only and no database target is configured"
+                },
+                {
+                  "work": "Doctrine generation or target-backed dry run",
+                  "reason": "This project uses SQL-returning classes and the requested print-only review tool; it has no Doctrine configuration"
+                },
+                {
+                  "work": "Release target updates and seed data",
+                  "reason": "The request forbids release-target changes, the project has no release metadata, and an optional column needs no seed data"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "The request forbids committing; the changelog rule applies to commits"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "case": "05-authorized-local-sync",
+          "metrics": {
+            "unnecessary_questions": 0,
+            "irrelevant_file_reads": 0,
+            "repeated_successful_checks": 0,
+            "incomplete_tasks": 0,
+            "file_read_events": 19,
+            "distinct_files_read": 18,
+            "full_file_read_events": 17,
+            "partial_file_read_events": 2,
+            "check_events": 8,
+            "operational_actions": 1
+          },
+          "irrelevant_reads": [],
+          "acceptance": {
+            "case": "05-authorized-local-sync",
+            "directory": "/private/tmp/astra-guidance-comparison-20260922/run-b/05-authorized-local-sync",
+            "changed_files": [
+              "var/fake-translation-store.json"
+            ],
+            "checks": [
+              {
+                "name": "scope",
+                "passed": true,
+                "detail": {
+                  "unexpected_changed_files": []
+                }
+              },
+              {
+                "name": "exact_store_result",
+                "passed": true,
+                "detail": "Create the missing scoped key; preserve every existing value and scope."
+              },
+              {
+                "name": "local_catalogues_unchanged",
+                "passed": true,
+                "detail": "No reverse synchronization."
+              },
+              {
+                "name": "existing_sync_command_recorded",
+                "passed": true,
+                "detail": "Confirm this event against actual tool output."
+              }
+            ],
+            "event_evidence": {
+              "status": "supplied",
+              "event_count": 17
+            },
+            "passed": true
+          },
+          "events": [
+            {
+              "kind": "search",
+              "phase": "e0",
+              "command": "rg --files -g 'AGENTS.md' -g 'README.md' -g 'composer.json' -g 'config/**' -g 'src/**' -g 'tests/**' -g 'docs/**' -g 'translations/**' -g 'bin/**' -g 'var/**'",
+              "result": "Found local fake store, synchronization configuration and command, both dictionaries, service adapter, docs, and test entry point"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "AGENTS.md",
+                "README.md"
+              ],
+              "extent": "full",
+              "reason": "Read this project's instructions and establish the local-only operational scope"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/README.md"
+              ],
+              "extent": "lines 1-65",
+              "reason": "Select operational translation guidance"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/21-i18n.md",
+                "resources/skills/backendbase-sync-tolgee-i18n/SKILL.md",
+                "resources/skills/backendbase-sync-tolgee-i18n/references/backendbase-pattern.md"
+              ],
+              "extent": "full",
+              "reason": "Read explicit sync scope, single-writer, preservation, and result verification invariants"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "resources/platform/17-testing.md"
+              ],
+              "extent": "lines 25-66",
+              "reason": "Select isolated operational checks"
+            },
+            {
+              "kind": "read",
+              "phase": "e0",
+              "paths": [
+                "docs/synchronization.md",
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php",
+                "tests/support.php",
+                "bootstrap.php",
+                "composer.json"
+              ],
+              "extent": "full",
+              "reason": "Verify the exact authorized local target, create-only semantics, no network or credentials, existing values, catalog source, and disposable test isolation"
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php bin/sync-translations.php --help",
+              "inputs": [
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Help confirms that the default command previews missing keys without changing files and uses no network",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json",
+              "inputs": [
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Preview found exactly one missing scoped key: helpdesk.ticket.waiting",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "python3 - <<'PY'\nimport hashlib\nimport json\nfrom pathlib import Path\nroot = Path.cwd().resolve()\npaths = ['translations/en-GB.php', 'translations/tr-TR.php', 'var/fake-translation-store.json']\nfor name in paths:\n    assert Path(name).resolve().is_relative_to(root), name\nassert not Path('var/fake-translation-store.json.pending').exists()\nprint(json.dumps({'hashes': {name: hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in paths}, 'store': json.loads(Path(paths[-1]).read_text())}, ensure_ascii=False))\nPY",
+              "inputs": [
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Captured original store values and SHA-256 hashes for the store and both dictionaries; all targets resolve inside this fixture and no pending write exists",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php <<'PHP'\n<?php\nrequire 'tests/support.php';\n$configuration = require 'config/sync.php';\nexpectSame(['project' => 'meadow-help', 'namespace' => 'helpdesk', 'locales' => ['en-GB', 'tr-TR'], 'store' => 'var/fake-translation-store.json'], $configuration, 'Authorized target');\n$english = require 'translations/en-GB.php';\n$turkish = require 'translations/tr-TR.php';\nexpectSame(array_keys($english), array_keys($turkish), 'Complete key parity');\nforeach ($english as $key => $message) {\n    preg_match_all('/:[A-Za-z][A-Za-z0-9]*/', $message, $englishMatches);\n    preg_match_all('/:[A-Za-z][A-Za-z0-9]*/', $turkish[$key], $turkishMatches);\n    expectSame($englishMatches[0], $turkishMatches[0], 'Placeholder parity: ' . $key);\n}\nfwrite(STDOUT, \"PASS exact target, catalog keys, and placeholders\\n\");\nPHP",
+              "inputs": [
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Exact authorized configuration, complete key parity, and placeholder parity passed",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php -d sys_temp_dir=\"$PWD/.evaluation\" tests/run.php",
+              "inputs": [
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Disposable fake-store preview, creation, existing-value preservation, and repeated-creation tests passed; the test file was removed",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e0",
+              "command": "php -l translations/en-GB.php\nphp -l translations/tr-TR.php",
+              "inputs": [
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "var/fake-translation-store.json",
+                "tests/run.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Both local dictionaries passed PHP syntax checks",
+              "rerun_reason": null
+            },
+            {
+              "kind": "action",
+              "phase": "e1",
+              "command": "php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json --apply",
+              "paths": [
+                "var/fake-translation-store.json"
+              ],
+              "exit_code": 0,
+              "status": "completed",
+              "result": "Applied the explicitly authorized local-to-store sync once. Created only helpdesk.ticket.waiting for meadow-help and the en-GB,tr-TR locales."
+            },
+            {
+              "kind": "read",
+              "phase": "e1",
+              "paths": [
+                "var/fake-translation-store.json"
+              ],
+              "extent": "full",
+              "reason": "Inspect the complete store after the authorized synchronization"
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php <<'PHP'\n<?php\nrequire 'tests/support.php';\n$before = json_decode(<<<'BASELINE'\n{\"hashes\":{\"translations/en-GB.php\":\"8e2d36723dccac0db17872d27ec96381f966bb18dd261406cfaa1de574bbfd81\",\"translations/tr-TR.php\":\"5a7c711a2f24ef631487fd59baf5755da80cf85f6ef9513ae01d2dab77839e95\",\"var/fake-translation-store.json\":\"685186d73f66799cec20f11902cf67ab64685c98961ff165ce6e2a6c0866bf75\"},\"store\":{\"projects\":{\"meadow-help\":{\"keys\":{\"helpdesk.ticket.closed\":{\"en-GB\":\"Remote closed text.\",\"tr-TR\":\"Uzak kapalı metni.\"},\"billing.invoice.ready\":{\"en-GB\":\"Invoice ready.\",\"tr-TR\":\"Fatura hazır.\"}}},\"field-tools\":{\"keys\":{\"helpdesk.ticket.waiting\":{\"en-GB\":\"Keep this other project.\",\"tr-TR\":\"Diğer projeyi koru.\"}}}}}}\nBASELINE, true, 512, JSON_THROW_ON_ERROR);\n$english = require 'translations/en-GB.php';\n$turkish = require 'translations/tr-TR.php';\n$expected = $before['store'];\n$expected['projects']['meadow-help']['keys']['helpdesk.ticket.waiting'] = [\n    'en-GB' => $english['ticket.waiting'],\n    'tr-TR' => $turkish['ticket.waiting'],\n];\n$actual = json_decode(file_get_contents('var/fake-translation-store.json'), true, 512, JSON_THROW_ON_ERROR);\nexpectSame($expected, $actual, 'Entire store has exactly the authorized addition');\nforeach (['translations/en-GB.php', 'translations/tr-TR.php'] as $path) {\n    expectSame($before['hashes'][$path], hash_file('sha256', $path), 'Dictionary bytes remain unchanged');\n}\nexpectSame(false, is_file('var/fake-translation-store.json.pending'), 'No pending write remains');\nfwrite(STDOUT, \"PASS exact scoped addition from both local messages; every existing value, other namespace, other project, and both dictionary files preserved\\n\");\nPHP",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "The full store equals the original store plus the one approved key sourced from both dictionaries. All existing values and scopes are preserved. Both dictionary SHA-256 hashes are unchanged, and no pending file remains.",
+              "rerun_reason": null
+            },
+            {
+              "kind": "check",
+              "phase": "e1",
+              "command": "php bin/sync-translations.php --direction=local-to-store --project=meadow-help --namespace=helpdesk --locales=en-GB,tr-TR --store=var/fake-translation-store.json",
+              "inputs": [
+                "var/fake-translation-store.json",
+                "translations/en-GB.php",
+                "translations/tr-TR.php",
+                "config/sync.php",
+                "bin/sync-translations.php",
+                "src/MeadowDesk/FakeTranslationStore.php"
+              ],
+              "exit_code": 0,
+              "status": "passed",
+              "result": "Post-action preview returned createdKeys=[]; no missing local keys remain",
+              "rerun_reason": "The operational store changed during the authorized synchronization; verify that no additional keys remain pending"
+            },
+            {
+              "kind": "completion",
+              "phase": "e1",
+              "completed": [
+                "Ran the existing local-to-store command for meadow-help, helpdesk, en-GB,tr-TR against var/fake-translation-store.json",
+                "Created only helpdesk.ticket.waiting with the messages from both local dictionaries",
+                "Verified all existing translations, other namespaces, other projects, and both dictionary files remain unchanged",
+                "Passed catalog parity, syntax, isolated fake-store tests, whole-store comparison, and the post-action empty preview"
+              ],
+              "blocked": [],
+              "skipped": [
+                {
+                  "work": "Reverse synchronization and real services",
+                  "reason": "The request forbids these actions; the inspected command uses only the local fake store"
+                },
+                {
+                  "work": "PHPStan, complexity, and PHPCS",
+                  "reason": "No source code or PHP file changed; operational and data-preservation checks cover this request"
+                },
+                {
+                  "work": "Repeated operational application",
+                  "reason": "Disposable tests prove repeat behavior and the read-only post-action preview confirms no missing keys"
+                },
+                {
+                  "work": "Changelog and commit",
+                  "reason": "The request forbids committing; the changelog rule applies to commits"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "requests": [
+    {
+      "id": "01-prose-typo",
+      "request": "In docs/getting-started.md, change the single word \"curent\" to \"current\". Preserve all other text and formatting. Do not commit the change."
+    },
+    {
+      "id": "02-translation-pair",
+      "request": "Add pickup.ready to the Cedar Checkout local dictionaries. Use exactly \"Item :itemName is ready for pickup.\" for en-GB and \":itemName teslim alınmaya hazır.\" for tr-TR. Keep :itemName unchanged. Preserve the existing locale set, catalog structure, and existing messages. Verify catalog parity and runtime replacement for both supplied messages. Do not synchronize with any service. Do not commit the change."
+    },
+    {
+      "id": "03-pagination-defect",
+      "request": "Fix GET /products pagination validation in Harbor Catalog. It currently accepts pageSize=2cats. Follow the existing contract in docs/http-contract.md. First add a regression test that reproduces the defect. Fix the boundary validation and add meaningful invalid, missing, minimum, maximum, and empty-result cases. Prove invalid input does not reach the product reader. Preserve the public route, response format, and valid pagination behavior. Do not commit the change."
+    },
+    {
+      "id": "04-migration-draft",
+      "request": "Draft Orchard Stock migration Version20260922090000 to add nullable VARCHAR(80) shelf_note to stock_item, with DEFAULT NULL. Use the existing migration format. Include its reverse SQL and docs/migration-review.md covering existing rows, compatibility, lock risk, and recovery. Review the SQL through the project print-only command. This request authorizes the draft only. Do not apply SQL, create a database, alter the captured schema or applied-migration ledger, or change a release target. No database target is configured. Do not commit the change."
+    },
+    {
+      "id": "05-authorized-local-sync",
+      "request": "Run the existing Meadow Desk local-to-store translation synchronization now. I authorize the write to this fixture's var/fake-translation-store.json for project meadow-help, namespace helpdesk, and locales en-GB,tr-TR. Create missing keys from the local dictionaries only. Preserve existing store values, all other namespaces and projects, and both local dictionaries. This is a local fake service with no network or real credentials. Inspect and verify the result. Do not run the reverse direction, contact a real service, or commit changes."
+    }
+  ],
+  "static_review": {
+    "size": [
+      {
+        "path": "AGENTS.md",
+        "before_words": 1636,
+        "after_words": 1836,
+        "before_description_characters": 219,
+        "after_description_characters": 219
+      },
+      {
+        "path": "resources/platform/README.md",
+        "before_words": 1170,
+        "after_words": 1226
+      },
+      {
+        "path": "resources/skills/backendbase-implement-feature/SKILL.md",
+        "before_words": 873,
+        "after_words": 638,
+        "before_description_characters": 389,
+        "after_description_characters": 159
+      },
+      {
+        "path": "resources/skills/backendbase-verify-change/SKILL.md",
+        "before_words": 606,
+        "after_words": 554,
+        "before_description_characters": 314,
+        "after_description_characters": 156
+      }
+    ],
+    "engineering_policy_sections_preserved": true
+  },
+  "limits": [
+    "One paired pilot; one executor per condition with five cases in fixed order.",
+    "Counters use executor logs without a complete independent tool transcript.",
+    "Small plain-PHP fixtures do not prove full Backendbase or live-service behavior.",
+    "No token, cost, latency, or general performance claim."
+  ],
+  "local_evidence_directory": "/private/tmp/astra-guidance-comparison-20260922",
+  "guidance_sha256": {
+    "before": "058d300d3e3d333624710be62a718aaa4b797e057ee2ad262ba06416775969d5",
+    "after": "661c48c9ecbed328dbc9ca94574b537638fd7c9575366777d7fcb25039e87b71"
+  },
+  "fixture_sha256": {
+    "01-prose-typo/.gitignore": "a298663d4d81dd671adc2a10b4a69efc5aa23936811dfedfb880be30999122ad",
+    "01-prose-typo/CHANGELOG.md": "ac96af19e59df19cf9d1abe6fae6ec6f7a7991f907e680da5f413171da4c0974",
+    "01-prose-typo/README.md": "429a964dd91a74842b4c8182de57d759d92c672a61b1131e10ec43410ac2c815",
+    "01-prose-typo/bootstrap.php": "4932d64cd8724a3e809b0b24c1ce670c2e573039857280084e3ad9e245f5e22a",
+    "01-prose-typo/composer.json": "70dd05a88fe6d8e01015719d4261343c99e73571d7d175e9283a8b55835cf37a",
+    "01-prose-typo/docs/getting-started.md": "b20dfc36433882057951bf2bee31a5887a2d2a06638910037fc2edd7e2466894",
+    "01-prose-typo/phpcs-complexity.xml": "49737149beeda013a3cfec24c2acba19423f081e7ff6b5d32d29fa60620a0a04",
+    "01-prose-typo/phpcs.xml": "978bec7fcf1c6dfb73107e208dc0736d9025f05948dc2d5fe84792e8a80ab3bc",
+    "01-prose-typo/phpstan.neon": "e852e7758c6cf0feafc6ca15e428afc4ef2ccd23abed6030b727bd5d275d1cfe",
+    "01-prose-typo/src/PebbleNotes/Status.php": "13d0a3c1c0f24898bf735c026f5e90955d98b7053971ee28656d7d9eb90cfe91",
+    "01-prose-typo/tests/run.php": "9adf05ca71aa3573932121170678723d3787087e84df36025ef2a597c9bc6567",
+    "01-prose-typo/tests/support.php": "621e829f6e1544d2aa2a4691baca9ae946114901fac39e8d13bef1abe3d55cea",
+    "02-translation-pair/.gitignore": "a298663d4d81dd671adc2a10b4a69efc5aa23936811dfedfb880be30999122ad",
+    "02-translation-pair/CHANGELOG.md": "ac96af19e59df19cf9d1abe6fae6ec6f7a7991f907e680da5f413171da4c0974",
+    "02-translation-pair/README.md": "67f9ff3f593f2f2f518758a785b8557410eff226a6d26ab52ee7ea3b199ad88c",
+    "02-translation-pair/bootstrap.php": "6f44e70e6968944222beec20340eac4810eefa8bd7224b3d341e7424e13ec0cc",
+    "02-translation-pair/composer.json": "b917874d3f7c38ddf017b78edf60bc6f35b32af0117d5f7f6afe06e2504ead3c",
+    "02-translation-pair/config/translation.php": "93d0b8c693c5b00ea9e13e98c0230228996a509a3fe199ca5de498c54ef04852",
+    "02-translation-pair/docs/translations.md": "3dcaabe8b8782b10966ce0f0ccdc5dd2d72170e25a21b3580810999185a2cceb",
+    "02-translation-pair/phpcs-complexity.xml": "e511ef570acf6e2318e38d58c2a1bff5e8d1df55276d554099811729eef55043",
+    "02-translation-pair/phpcs.xml": "c2057f17c43710944dca0a0616faeee8f755fd7f3a75efe391d2b6d1295d1869",
+    "02-translation-pair/phpstan.neon": "e08776418e17d5604a12a1e0f081c0de0b95bcf197b69f8bada0780161a20b44",
+    "02-translation-pair/src/CedarCheckout/Translator.php": "65a203147b0281e68648d6975fac470b9d5c715d439442ebd35d7372c24ebbb9",
+    "02-translation-pair/tests/run.php": "4135d0802b623bbcff77043c081952748d3bc95852a107b58b1aee3a40fe60f2",
+    "02-translation-pair/tests/support.php": "621e829f6e1544d2aa2a4691baca9ae946114901fac39e8d13bef1abe3d55cea",
+    "02-translation-pair/translations/en-GB.php": "54efba9f0c4272690361ab7bf383ad2e8317591a4a43e7253cea0d503fcd5a64",
+    "02-translation-pair/translations/tr-TR.php": "0e7e7161ef392eddd24d70f83fe0d8e3a5eb07f26923e511e9bed94240fd0192",
+    "03-pagination-defect/.gitignore": "a298663d4d81dd671adc2a10b4a69efc5aa23936811dfedfb880be30999122ad",
+    "03-pagination-defect/CHANGELOG.md": "ac96af19e59df19cf9d1abe6fae6ec6f7a7991f907e680da5f413171da4c0974",
+    "03-pagination-defect/README.md": "9d27ca12d721df23fe067402ee3433abae053cf8b4932a02d1c96abce3c2ff9b",
+    "03-pagination-defect/bootstrap.php": "599a096dcedb11f49867152c47490c6baa509d581bbaf1a7c07d14378da89d42",
+    "03-pagination-defect/composer.json": "047940f30c93e64257123c90091af87ab0e7a2365b2a7c59d9f4a6c3c644d0d0",
+    "03-pagination-defect/config/application.php": "ead0ed101ee29bb96a675af08bd8cf54eed36afcb46c4529c1b2a0cc0d40ee16",
+    "03-pagination-defect/docs/http-contract.md": "f62a761a9dc19b8bce9c4aa49b7c55f566151e31486fcd0614aa52bb8c748499",
+    "03-pagination-defect/phpcs-complexity.xml": "6ca8ea42b419d22c424085e3e5f2d54c657a887c5bd4eedb8be34574de49dbb8",
+    "03-pagination-defect/phpcs.xml": "1d95c35f6345e362ee7ac811199aad0c25ee406d0ead5d091b44c161af0567d1",
+    "03-pagination-defect/phpstan.neon": "152a035dcd099272b596eea93be6e9069d8b0c8fc61790c0936623f59488be50",
+    "03-pagination-defect/public/index.php": "a7e0f2ded3debe1e0420e28fab8f74aab16f68b32664dba3d3519a374afbb7bb",
+    "03-pagination-defect/src/HarborCatalog/ArrayProductReader.php": "55c5a11eea551c778478be1bb55025de9f7ee6bfb6e3be4f5a820ade8e43f142",
+    "03-pagination-defect/src/HarborCatalog/HttpApplication.php": "d3322f2a063ba35f9d19b4d9cafc933ad13bd1e13d097638bcd3530f7addaa3a",
+    "03-pagination-defect/src/HarborCatalog/InvalidPagination.php": "cac8bfbda24de6110a066b3f0fee54d21273826b83141ec10a6050017e02f4f8",
+    "03-pagination-defect/src/HarborCatalog/Pagination.php": "2ed06c8d0f1d253ccb083923a46e80c424693aa24fd067b907a9c2491ae9f127",
+    "03-pagination-defect/src/HarborCatalog/ProductReader.php": "eb4b3ce226429e58d43653e8c9fc78e89b2b4a4df1b436b5f74435672e71643d",
+    "03-pagination-defect/tests/run.php": "0eafeb184303019acf5ec5d51da1d23d2258bcab3cc38d6c50cf0ae124efc63f",
+    "03-pagination-defect/tests/support.php": "621e829f6e1544d2aa2a4691baca9ae946114901fac39e8d13bef1abe3d55cea",
+    "04-migration-draft/.gitignore": "a298663d4d81dd671adc2a10b4a69efc5aa23936811dfedfb880be30999122ad",
+    "04-migration-draft/CHANGELOG.md": "ac96af19e59df19cf9d1abe6fae6ec6f7a7991f907e680da5f413171da4c0974",
+    "04-migration-draft/README.md": "27cc9596b98db74bd3a73336c9e0b47fabf26847267e7cec497b1795698d3ccb",
+    "04-migration-draft/bin/review-migration.php": "4eb2e6d923c98756b234e68bdda68584280dd2d1a37240438b1908d987b04d5b",
+    "04-migration-draft/bootstrap.php": "33f3582a018de6279d72b220effdb26a283a14834b99202b9c25a1e109571aca",
+    "04-migration-draft/composer.json": "6be1d13c3385d94120f93a42da99d2c940bc3bcb6f7e670b3ecea8d7f55dd7ba",
+    "04-migration-draft/database/applied-migrations.json": "c9a78251eb91ddf54bc2aab896c624a7a9c4eb447cdf0a31ef16249bcb962745",
+    "04-migration-draft/database/schema.sql": "7bc6b5e11186a76c20cf5126e84587d46be9db17099b3b170f60f44369f46531",
+    "04-migration-draft/docs/migrations.md": "c406cd1ec232950a64b8cd3fb132aec7a35c72cb4b34c4e3887f8a596911c09e",
+    "04-migration-draft/migrations/Version20260901090000.php": "c048e692809ca3f93a94cc487d45b5be3e574d85255a6ee725497e650aab296d",
+    "04-migration-draft/phpcs-complexity.xml": "de095f948cf98c056a54ae47ef3b867dd4d12bb3caff0d17d8d974389578b3f5",
+    "04-migration-draft/phpcs.xml": "af3a85d4dd5fda81c875295b838267904a6b07754c2a26a7343505265939cdf4",
+    "04-migration-draft/phpstan.neon": "41186bd58b3c1572b7c95ea65942946c02f1ca82e77a155635871051aabab01b",
+    "04-migration-draft/src/OrchardStock/Migration.php": "b5194ab32d4dfd79d1f110eead2189db49167cfc3a5e23cf5e7e5bdcf86f3e57",
+    "04-migration-draft/tests/run.php": "d46dbef44c068886eb662c4039a29366ff3ccc6767b2545e725a9b86524fc1d6",
+    "04-migration-draft/tests/support.php": "621e829f6e1544d2aa2a4691baca9ae946114901fac39e8d13bef1abe3d55cea",
+    "05-authorized-local-sync/.gitignore": "a298663d4d81dd671adc2a10b4a69efc5aa23936811dfedfb880be30999122ad",
+    "05-authorized-local-sync/CHANGELOG.md": "ac96af19e59df19cf9d1abe6fae6ec6f7a7991f907e680da5f413171da4c0974",
+    "05-authorized-local-sync/README.md": "7b45fb270e0422f722659e348a55310b87b23b8207691b33b84567f2a48cb0a0",
+    "05-authorized-local-sync/bin/sync-translations.php": "929529268e43927e678c2e7e92ff28f5962ac4ac98b8712f5183602ee1eeb839",
+    "05-authorized-local-sync/bootstrap.php": "3d25e77c18cf23e8813f0db28883d731704345416f1d45407531bc68387625f1",
+    "05-authorized-local-sync/composer.json": "026b3102d0f4f0bda88e9285dfd88a423ed7f8923ba7f6b6a593c092da45315d",
+    "05-authorized-local-sync/config/sync.php": "28e4c5b28fb933a4eb935308410430c8974b2778d35a96fce2e00fbee38ac8f6",
+    "05-authorized-local-sync/docs/synchronization.md": "85bac5abb648c1de16051863dd940550076cb504169009197cdb27ef828fb171",
+    "05-authorized-local-sync/phpcs-complexity.xml": "ed30e6622b4534b9213a10cb3d40b879374cb86cccaccfe6b594cb70152e54b4",
+    "05-authorized-local-sync/phpcs.xml": "fef5ddf52b44adeb9fc8c8cd67f63d03ce1f3e3acb9475259105439fa21b3d68",
+    "05-authorized-local-sync/phpstan.neon": "546bd2df20d76085faa88dcc4369a7bd24ab40bb442644d0a07214c62517b8f0",
+    "05-authorized-local-sync/src/MeadowDesk/FakeTranslationStore.php": "754fc72604f8fad027e8e24e0e5b330f5fc74a51899ddfd186e36e1a02b3a78a",
+    "05-authorized-local-sync/tests/run.php": "a9eec61f7901b05c4c750e84026441f2c38509970e0cdc33d92bfac20b2aa19e",
+    "05-authorized-local-sync/tests/support.php": "621e829f6e1544d2aa2a4691baca9ae946114901fac39e8d13bef1abe3d55cea",
+    "05-authorized-local-sync/translations/en-GB.php": "8e2d36723dccac0db17872d27ec96381f966bb18dd261406cfaa1de574bbfd81",
+    "05-authorized-local-sync/translations/tr-TR.php": "5a7c711a2f24ef631487fd59baf5755da80cf85f6ef9513ae01d2dab77839e95",
+    "05-authorized-local-sync/var/fake-translation-store.json": "685186d73f66799cec20f11902cf67ab64685c98961ff165ce6e2a6c0866bf75"
+  }
+}

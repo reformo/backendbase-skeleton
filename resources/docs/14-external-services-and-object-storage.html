@@ -35,7 +35,7 @@
 <p>The port supports download URLs, local-file uploads, and signed browser-upload forms.</p></section>
 <section id="downloads"><p class="section-label">07 · Download URLs</p><h2>Prefer the configured Content Delivery Network URL</h2>
 <p><code>getPreSignedUrl()</code> returns null for an empty key. It returns <code>CDN_BASE_URL + key</code> when a Content Delivery Network (CDN) base URL exists.</p>
-<p>Without a CDN, the adapter creates a time-limited S3 <code>GetObject</code> request. The current request sets the response content type to <code>image/jpeg</code>.</p></section>
+<p>Without a CDN, the adapter creates a time-limited S3 <code>GetObject</code> request. The current request sets the response content type to <code>image/jpeg</code>. The local <code>CDN_BASE_URL</code> points to Nginx at <code>http://127.0.0.1:8081/</code>.</p></section>
 <section id="uploads"><p class="section-label">08 · Server uploads</p><h2>Resume multipart uploads after an SDK failure</h2>
 <p><code>putFile()</code> opens the local file as a stream and uses <code>ObjectUploader</code>. A multipart failure rewinds the stream and resumes with <code>MultipartUploader</code> and the saved upload state.</p>
 <div class="callout danger">The upload loop has no explicit retry limit. Add a bounded policy before using this path for unreliable or untrusted workloads.</div></section>
@@ -48,13 +48,13 @@
 <tr><td><code>OBJECT_STORE_REGION</code></td><td>AWS region</td></tr><tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td>Optional S3-compatible endpoint; uses <code>AWS_ENDPOINT</code> when unset or empty</td></tr><tr><td><code>BUCKET_NAME</code></td><td>S3 bucket</td></tr><tr><td><code>CDN_BASE_URL</code></td><td>Optional direct delivery base URL</td></tr>
 </tbody></table></div>
 <p>The dependency container creates <code>S3ClientInterface</code> with explicit credentials. A custom endpoint uses path-style requests. SQS and SNS can use the AWS credential provider chain when both credential values are empty.</p>
-<p>Run <code>docker compose --profile integration up -d</code> for stateless local S3, SQS, and SNS endpoints. Create each required resource in the integration test setup.</p></section>
+<p>Run <code>docker compose up -d</code> for local S3, SQS, SNS, SES, and CloudFront APIs. MiniStack saves state and creates the configured bucket and queue at startup. Create any other required resources in the integration test setup. CloudFront distributions do not deliver content. Nginx serves objects from the configured bucket over GET and HEAD and caches successful responses for 60 seconds. Its host port binds to <code>127.0.0.1</code>.</p></section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known integration and storage limits</h2>
 <ul><li>The S3 upload retry loop has no explicit attempt limit.</li><li>Signed browser uploads do not enforce the supplied content type.</li><li>Download signing forces an image response content type.</li><li>S3 always receives an explicit credential object, including empty values.</li><li>No general external-service adapter exists as a live example.</li></ul></section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Use doubles by default and opt in to emulator tests</h2>
 <pre><code>vendor/bin/phpunit tests/Infrastructure/Adapters/S3BucketTest.php
 vendor/bin/phpunit tests/Shared/Integrations</code></pre>
-<p>Use SDK and port doubles in the default suite. Use the <code>integration</code> profile for explicit S3, SQS, or SNS adapter integration tests. Test empty keys, signed expiration, success mapping, malformed responses, timeouts, and exhausted retries.</p></section>
+<p>Use SDK and port doubles in the default suite. Run explicit S3, SQS, SNS, SES, or CloudFront API integration tests against MiniStack. Test empty keys, signed expiration, success mapping, malformed responses, timeouts, and exhausted retries.</p></section>
 <section id="checklist"><p class="section-label">13 · Checklist</p><h2>Add an integration safely</h2>
 <ul><li>The owning context and external action are clear.</li><li>A project-owned port hides vendor types.</li><li>Configuration validates required values.</li><li>Network timeouts are finite.</li><li>Retries are bounded and idempotent.</li><li>External responses are validated.</li><li>Secrets and personal data stay out of logs.</li><li>Tests use deterministic doubles.</li></ul></section>
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>

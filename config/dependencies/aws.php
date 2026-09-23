@@ -5,17 +5,16 @@ declare(strict_types=1);
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Aws\S3\S3ClientInterface;
+use Aws\SesV2\SesV2Client;
 use Aws\Sns\SnsClient;
 use Aws\Sqs\SqsClient;
 use Backendbase\Infrastructure\Adapters\Aws\AwsClientConfigurationBuilder;
 use Backendbase\Infrastructure\Adapters\Notification\SnsNotifier;
-use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Infrastructure\Adapters\Queue\SqsQueue;
 use Backendbase\Infrastructure\Adapters\Queue\SqsTransport;
 use Backendbase\Infrastructure\Adapters\S3Bucket;
 use Backendbase\Infrastructure\Configuration\AwsSettings;
 use Backendbase\Shared\Integrations\BucketService;
-use Backendbase\Shared\Integrations\Notify;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -105,12 +104,16 @@ return static function (ContainerBuilder $containerBuilder): void {
 
             return new SnsNotifier($client, $snsSettings);
         },
-        Notify::class => static function (ContainerInterface $container) {
-            $notifier    = new StackNotifier($container->get(LoggerInterface::class));
-            $snsNotifier = $container->get(SnsNotifier::class);
-            $notifier->add($snsNotifier);
+        SesV2Client::class => static function (ContainerInterface $container) {
+            $settings       = $container->get(AwsSettings::class);
+            $configuration  = $container->get(AwsClientConfigurationBuilder::class);
+            $clientSettings = $settings->client();
+            $timeoutSeconds = $settings->readinessTimeoutSeconds();
 
-            return $notifier;
+            $clientConfiguration            = $configuration->build($clientSettings, $timeoutSeconds);
+            $clientConfiguration['retries'] = 0;
+
+            return new SesV2Client($clientConfiguration);
         },
     ]);
 };

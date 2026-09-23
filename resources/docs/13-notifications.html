@@ -2,15 +2,15 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>Backendbase Notifications Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · External effects</p><h1>Notifications</h1>
-<p class="lede">Email, push, and SMS models; provider dispatch; SNS and Firebase adapters; idempotency; failure policy; configuration; and current provider gaps.</p>
-<div class="chips"><span class="chip">Email</span><span class="chip">Push</span><span class="chip">SMS</span><span class="chip">SNS</span><span class="chip">Firebase</span></div></div></header>
+<p class="lede">Email, push, and SMS models; direct provider dispatch; SNS, Twilio, Netgsm, SES, SMTP, and Firebase adapters; configuration; and delivery failure policy.</p>
+<div class="chips"><span class="chip">Email</span><span class="chip">Push</span><span class="chip">SMS</span><span class="chip">SNS</span><span class="chip">Twilio</span><span class="chip">Netgsm</span><span class="chip">SES</span><span class="chip">SMTP</span><span class="chip">Firebase</span></div></div></header>
 <div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
 <a href="#overview">1. Overview</a><a href="#flow">2. Delivery flow</a><a href="#models">3. Notification models</a><a href="#stack">4. Provider stack</a>
-<a href="#sms">5. SMS with SNS</a><a href="#push">6. Push with Firebase</a><a href="#email">7. Email state</a><a href="#queue">8. Queue delivery requirements</a>
+<a href="#sms">5. SMS providers</a><a href="#push">6. Push with Firebase</a><a href="#email">7. Email providers</a><a href="#queue">8. Queue delivery requirements</a>
 <a href="#idempotency">9. Idempotency</a><a href="#configuration">10. Configuration</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
 </nav><main>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Notification models are independent from providers</h2>
-<p>Shared notification primitives describe the delivery request. Infrastructure adapters translate those models to one provider. <code>StackNotifier</code> selects a provider by notification type.</p>
+<p>Shared notification objects describe a delivery request. The application-facing <code>Notify</code> port accepts one email, push, or SMS notification directly. <code>StackNotifier</code> selects a provider by notification type.</p>
 <div class="grid-3"><article class="card"><h3>Email</h3><p>Addresses, sender, subject, HTML, template data, and attachments.</p></article><article class="card"><h3>Push</h3><p>Title, body, topic, device token, image, and string-compatible data.</p></article><article class="card"><h3>SMS</h3><p>E.164 phone number and non-empty message.</p></article></div>
 </section>
 <section id="flow"><p class="section-label">02 · Delivery flow</p><h2>Queued delivery requires an external-effect inbox</h2>
@@ -20,27 +20,29 @@
 <div class="table-wrap"><table><thead><tr><th>Model</th><th>Validation or behavior</th></tr></thead><tbody>
 <tr><td><code>Address</code></td><td>Trims and validates an email address. An optional name becomes null when empty.</td></tr>
 <tr><td><code>Attachment</code></td><td>Requires content and filename. Supports Base64, string, or file input.</td></tr>
-<tr><td><code>EmailNotification</code></td><td>Collects addresses, sender, content, templates, and attachments.</td></tr>
-<tr><td><code>PushNotification</code></td><td>Supports topic or device token, notification data, and image metadata.</td></tr>
+<tr><td><code>EmailNotification</code></td><td>Collects addresses, sender, rendered HTML content, template metadata, and attachments. Providers require a sender, recipient, subject, and HTML body.</td></tr>
+<tr><td><code>PushNotification</code></td><td>Requires exactly one topic or device token. <code>PushData</code> validates custom data. <code>PushPlatformOptions</code> carries Android and Apple Push Notification Service options.</td></tr>
 <tr><td><code>SmsNotification</code></td><td>Requires E.164 phone format and a non-empty message.</td></tr>
 <tr><td><code>StackNotification</code></td><td>Groups multiple typed notifications for dispatch.</td></tr>
 </tbody></table></div>
 </section>
 <section id="stack"><p class="section-label">04 · Provider stack</p><h2>Select providers by stable type names</h2>
-<p>Providers implement <code>Notify</code> and return typed <code>NotificationResult</code> values. <code>StackNotifier</code> stores one provider per type and dispatches each notification in order. Provider clients and raw responses remain inside Infrastructure adapters.</p>
-<div class="callout danger">A missing provider raises <code>UnexpectedValueException</code>. Register every type that a producer or queue consumer can create.</div>
+<p>Providers implement <code>NotificationProvider</code> and return <code>NotificationResult</code>. <code>StackNotifier</code> stores one provider per type. It accepts a direct notification or a <code>StackNotification</code>. A batch checks all provider types before sending. Repeated types keep each message ID in delivery order through <code>messageIds()</code>.</p>
+<div class="callout danger">A missing provider raises <code>UnexpectedValueException</code>. A provider failure during a batch raises <code>NotificationBatchFailed</code> with completed deliveries and the failed item index. Check external outcomes before retrying a partial batch.</div>
 </section>
-<section id="sms"><p class="section-label">05 · SMS with SNS</p><h2>SNS sends transactional or promotional SMS</h2>
-<p><code>SnsNotifier</code> accepts only <code>SmsNotification</code>. It publishes the phone number, message, SMS type, and optional sender identifier through <code>SnsClient</code>.</p>
-<ul><li><code>AWS_SNS_SMS_TYPE</code> must be <code>Promotional</code> or <code>Transactional</code>.</li><li><code>AWS_SNS_SENDER_ID</code> is optional.</li><li>The destination uses E.164 format.</li></ul>
+<section id="sms"><p class="section-label">05 · SMS providers</p><h2>Select SNS, Twilio, or Netgsm</h2>
+<p>All three adapters accept <code>SmsNotification</code>. SNS is the default. Set <code>BACKENDBASE_SMS_DRIVER=twilio</code> or <code>netgsm</code> to select one provider. Only the selected adapter is registered for the <code>sms</code> type.</p>
+<ul><li><code>SnsNotifier</code> uses the AWS SMS type and optional sender ID.</li><li><code>TwilioSmsNotifier</code> uses a Twilio account SID, auth token, and sender. It returns a message SID.</li><li><code>NetgsmSmsNotifier</code> uses API sub-user credentials, a registered sender, and an encoding. It returns a job ID.</li><li>The model uses E.164 format. Netgsm receives Turkish numbers in national format and other numbers with a <code>00</code> prefix.</li></ul>
+<p>A message SID or job ID confirms provider acceptance. It does not confirm delivery to the handset. Netgsm defaults to <code>TR</code> encoding. Configure a different encoding when the message content requires it. The adapter omits <code>iysfilter</code>, which Netgsm treats as informational traffic. Commercial messages need a separate content and consent contract.</p>
 </section>
 <section id="push"><p class="section-label">06 · Push with Firebase</p><h2>Firebase maps one push model into CloudMessage</h2>
-<p><code>FirebasePushNotifier</code> maps notification text, topic, token, data, Android options, Apple Push Notification Service options, and optional CDN-based images.</p>
-<div class="callout warning"><strong>Registration state:</strong> The adapter exists, but the inspected dependency container does not register it in <code>StackNotifier</code>.</div>
+<p><code>FirebasePushNotifier</code> maps typed notification fields into <code>CloudMessage</code>. It sends to one topic or device token. It supports custom data, platform options, and an image from <code>setNotificationImage()</code>. Relative image paths require <code>CDN_BASE_URL</code>. It does not log the payload.</p>
+<div class="callout warning"><strong>Registration:</strong> Set <code>FIREBASE_PROJECT_ID</code> to register push delivery. Set <code>FIREBASE_CREDENTIALS_PATH</code> or provide Google application credentials.</div>
 </section>
-<section id="email"><p class="section-label">07 · Email state</p><h2>Email has a model but no registered provider</h2>
-<p><code>EmailNotification</code> supports direct HTML, templates, recipients, sender data, and attachments. The repository has environment placeholders for SendGrid and Pusher, but no inspected email notifier adapter is registered.</p>
-<div class="callout warning"><strong>No email runtime:</strong> The container has no email provider, and no notification queue consumer is registered.</div>
+<section id="email"><p class="section-label">07 · Email providers</p><h2>SES or SMTP sends rendered HTML email</h2>
+<p><code>SesEmailNotifier</code> sends raw MIME through Amazon SES by default. Set <code>BACKENDBASE_EMAIL_DRIVER=smtp</code> to use <code>SmtpEmailNotifier</code>. Both use <code>EmailMessageFactory</code> for recipients, HTML, and attachments. SMTP supports <code>smtps</code>, required <code>starttls</code>, or explicit <code>none</code> encryption.</p>
+<p>The SES client disables automatic retries for email sends. A connection failure can leave the send outcome unknown. Check that outcome before sending the email again.</p>
+<div class="callout warning"><strong>Template metadata:</strong> The email providers do not render a template. Supply the rendered HTML body before delivery.</div>
 </section>
 <section id="queue"><p class="section-label">08 · Queue delivery requirements</p><h2>Add a consumer only with a complete contract</h2>
 <p>The current source does not register a notification queue consumer. A future consumer must define every required message field and use a compatible provider.</p>
@@ -58,14 +60,16 @@
 <section id="configuration"><p class="section-label">10 · Configuration</p><h2>Provider configuration belongs at the external boundary</h2>
 <div class="table-wrap"><table><thead><tr><th>Provider</th><th>Configuration</th></tr></thead><tbody>
 <tr><td>SNS</td><td>AWS region, credentials or provider chain, endpoint, SMS type, sender ID</td></tr>
-<tr><td>Firebase</td><td>Firebase Messaging client and optional CDN base URL</td></tr>
-<tr><td>Email</td><td>Placeholders exist, but no active adapter contract is wired</td></tr>
+<tr><td>Twilio SMS</td><td><code>BACKENDBASE_SMS_DRIVER=twilio</code>; <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_FROM</code>, and <code>TWILIO_TIMEOUT_SECONDS</code></td></tr>
+<tr><td>Netgsm SMS</td><td><code>BACKENDBASE_SMS_DRIVER=netgsm</code>; <code>NETGSM_USERNAME</code>, <code>NETGSM_PASSWORD</code>, <code>NETGSM_SENDER</code>, <code>NETGSM_ENCODING</code>, and <code>NETGSM_TIMEOUT_SECONDS</code></td></tr>
+<tr><td>Firebase</td><td><code>FIREBASE_PROJECT_ID</code>, optional <code>FIREBASE_CREDENTIALS_PATH</code>, <code>FIREBASE_TIMEOUT_SECONDS</code>, and optional <code>CDN_BASE_URL</code></td></tr>
+<tr><td>SES email</td><td>Default <code>BACKENDBASE_EMAIL_DRIVER=ses</code>; existing AWS region, credentials, and endpoint</td></tr>
+<tr><td>SMTP email</td><td><code>BACKENDBASE_EMAIL_DRIVER=smtp</code>; host, port, optional credentials, encryption, and finite timeout</td></tr>
 </tbody></table></div>
 <div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known notification limits</h2>
-<ul><li>No notification queue producer or consumer contract exists.</li><li>Firebase adapter registration is absent.</li><li>Email properties use mutable fields that can remain uninitialized.</li>
-<li>The Firebase adapter debug message contains a spelling error.</li><li>Provider payload logging can include notification content.</li><li>No end-to-end notification provider test exists.</li></ul>
+<ul><li>No notification queue producer or consumer contract exists.</li><li>Push delivery requires Firebase project configuration and credentials.</li><li>SES requires a verified sender identity in the target account.</li><li>SMTP provides no provider message ID through the mailer interface.</li><li>Grouped delivery can have a partial external outcome; callers must inspect <code>NotificationBatchFailed</code>.</li></ul>
 </section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Test primitives, mapping, provider calls, and outcomes</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Primitives/Notification
@@ -77,9 +81,10 @@
 <li>The queue model maps without data loss.</li><li>Idempotency and unknown outcomes are handled.</li><li>Logs exclude sensitive content.</li><li>Failure-policy tests pass.</li></ul>
 </section>
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-<tr><td>Models</td><td><code>Shared/Primitives/Notification</code></td></tr><tr><td>Provider port and result</td><td><code>Shared/Integrations/Notify.php</code>, <code>Shared/Integrations/Operation/NotificationResult.php</code></td></tr>
-<tr><td>Provider selection</td><td><code>Infrastructure/Adapters/Notification/StackNotifier.php</code></td></tr><tr><td>SMS</td><td><code>SnsNotifier.php</code></td></tr>
+<tr><td>Models</td><td><code>Shared/Primitives/Notification</code></td></tr><tr><td>Ports and result</td><td><code>Shared/Integrations/Notify.php</code>, <code>Shared/Integrations/NotificationProvider.php</code>, <code>Shared/Integrations/Operation/NotificationResult.php</code></td></tr>
+<tr><td>Provider selection</td><td><code>Infrastructure/Adapters/Notification/StackNotifier.php</code></td></tr><tr><td>SMS</td><td><code>SnsNotifier.php</code>, <code>TwilioSmsNotifier.php</code>, <code>NetgsmSmsNotifier.php</code></td></tr>
 <tr><td>Push</td><td><code>FirebasePushNotifier.php</code></td></tr>
-<tr><td>Container wiring</td><td><code>config/dependencies/aws.php</code></td></tr>
+<tr><td>Email</td><td><code>SesEmailNotifier.php</code>, <code>SmtpEmailNotifier.php</code>, <code>EmailMessageFactory.php</code></td></tr>
+<tr><td>Container wiring</td><td><code>config/dependencies/aws.php</code>, <code>config/dependencies/notification.php</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Notifications guide</footer></body></html>

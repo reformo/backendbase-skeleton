@@ -13,34 +13,37 @@ composer --timeout=0 run start-apis
 docker compose up -d
 ```
 
-MySQL, Redis, Redis Insight, and RabbitMQ bind to <code>127.0.0.1</code> by default. Configure their local ports and credentials with the <code>BACKENDBASE_DEV_*</code> variables in <code>.env.example</code>.
+MySQL, Redis, Redis Insight, RabbitMQ, MiniStack, Nginx, and StackPort bind to <code>127.0.0.1</code> by default. Configure their local ports and credentials with the <code>BACKENDBASE_DEV_*</code> variables in <code>.env.example</code>.
 
 RabbitMQ Management: http://127.0.0.1:15672
 
-Start the optional AWS integration profile when you need local S3, SQS, or SNS endpoints:
+StackPort UI: http://127.0.0.1:8082
 
-```sh
-docker compose --profile integration up -d
-```
+The default stack starts MiniStack at `http://127.0.0.1:4566` for S3, SQS, SNS, SES, and CloudFront APIs. It uses the free image pinned to version 1.5.14. CloudFront distributions do not deliver content in MiniStack. Use Docker Compose 2.30 or later for the startup hook.
 
-The profile starts Moto on `http://127.0.0.1:5000`. The default command does not start or download this service.
+StackPort 0.4.3 connects to MiniStack inside Docker and shows its local AWS resources. Change `BACKENDBASE_DEV_STACKPORT_PORT` to use another host port.
 
-Use non-secret local credentials and the shared endpoint in `.env`:
+Nginx serves objects from the configured MiniStack bucket at `http://127.0.0.1:8081/`. It allows GET and HEAD requests and caches successful responses for 60 seconds. This URL is available from the local host.
+
+Use the local settings in `.env.example` when you create `.env`. The AWS keys are test values:
 
 ```dotenv
 BACKENDBASE_QUEUE_DRIVER=sqs
-AWS_ACCESS_KEY_ID=backendbase
-AWS_SECRET_ACCESS_KEY=backendbase
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
 AWS_REGION=eu-central-1
-AWS_ENDPOINT=http://127.0.0.1:5000
+AWS_ENDPOINT=http://127.0.0.1:4566
 AWS_SQS_QUEUE=backendbase-queue
-OBJECT_STORE_ACCESS_KEY=backendbase
-OBJECT_STORE_SECRET_KEY=backendbase
+AWS_SQS_QUEUE_URL=http://127.0.0.1:4566/000000000000/backendbase-queue
+OBJECT_STORE_ACCESS_KEY=test
+OBJECT_STORE_SECRET_KEY=test
 OBJECT_STORE_REGION=eu-central-1
-BUCKET_NAME=backendbase-local
+OBJECT_STORE_ENDPOINT=http://127.0.0.1:4566
+BUCKET_NAME=backendbase-v3
+CDN_BASE_URL=http://127.0.0.1:8081/
 ```
 
-Moto starts without resources and does not persist them. Create required buckets, queues, and topics in each integration test setup.
+MiniStack creates the configured S3 bucket and SQS queue at startup. It saves state and S3 objects in the `ministack_state` and `ministack_s3` Docker volumes. Create SNS topics and SES identities when a local workflow needs them. Set `CDN_BASE_URL` to the Nginx URL with a trailing slash. Change `BACKENDBASE_DEV_CDN_PORT` and `CDN_BASE_URL` together when the default port is unavailable.
 
 ## CLI Commands
 
@@ -73,23 +76,20 @@ The command returns a failure status for retried messages or messages older than
 
 Rejected queue messages move to the durable `<queue>.dead-letter` queue. Primary queue messages expire to that queue after seven days.
 
-### AWS SQS and SNS
+### AWS SQS and notifications
 
 Set `BACKENDBASE_QUEUE_DRIVER=sqs` to bind `BackendbaseQueue` to Amazon SQS. Keep the default `rabbitmq` value to use RabbitMQ.
 
 Configure `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION` for local credentials. Leave both key values empty to use the standard AWS credential provider chain. Set `AWS_ENDPOINT` when using an AWS-compatible local service. Object storage uses `OBJECT_STORE_ENDPOINT` when set and otherwise uses `AWS_ENDPOINT`.
 
-`Notify` registers Amazon SNS as the `sms` provider. Send an SMS through the existing notification stack:
+`Notify` routes SMS to Amazon SNS and email to Amazon SES by default. Set `BACKENDBASE_SMS_DRIVER=twilio` or `netgsm` to select an SMS provider. Send one SMS directly:
 
 ```php
 use Backendbase\Shared\Primitives\Notification\SmsNotification;
-use Backendbase\Shared\Primitives\Notification\StackNotification;
-
-$notification = new StackNotification()->addNotification(
-    new SmsNotification('+905551112233', 'Your verification code is 123456.'),
-);
-$notifier->notify($notification);
+$notifier->notify(new SmsNotification('+905551112233', 'Your verification code is 123456.'));
 ```
+
+Set `BACKENDBASE_EMAIL_DRIVER=smtp` and the `SMTP_*` values to use SMTP. SES uses the existing AWS region, credentials, and endpoint. Set `FIREBASE_PROJECT_ID` to register push delivery. Set `FIREBASE_CREDENTIALS_PATH` for a service-account file, or use Google application credentials. A grouped `StackNotification` returns each delivery result in order. A partial failure reports completed deliveries through `NotificationBatchFailed`.
 
 Set `AWS_SNS_SENDER_ID` when the destination country supports sender IDs. Use the SQS and SNS variables in `.env.example` for all other service settings.
 

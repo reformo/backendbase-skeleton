@@ -1073,7 +1073,7 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
                         <tr><td><code>AWS_REGION</code></td><td><code>eu-central-1</code></td><td>AWS region.</td></tr>
                         <tr><td><code>AWS_ENDPOINT</code></td><td>empty</td><td>Optional compatible service endpoint.</td></tr>
                         <tr><td><code>AWS_SQS_QUEUE</code></td><td><code>backendbase-queue</code></td><td>Queue name.</td></tr>
-                        <tr><td><code>AWS_SQS_QUEUE_URL</code></td><td>empty</td><td>Queue URL. The client resolves it when empty.</td></tr>
+                        <tr><td><code>AWS_SQS_QUEUE_URL</code></td><td>empty</td><td>Queue URL. The local example uses <code>http://127.0.0.1:4566/000000000000/backendbase-queue</code>. The client resolves it when empty.</td></tr>
                         <tr><td><code>AWS_SQS_MAX_NUMBER_OF_MESSAGES</code></td><td><code>10</code></td><td>Receive batch size. The adapter clamps it to 1–10.</td></tr>
                         <tr><td><code>AWS_SQS_WAIT_TIME_SECONDS</code></td><td><code>20</code></td><td>Long-poll wait. The adapter clamps it to 0–20.</td></tr>
                         <tr><td><code>AWS_SQS_VISIBILITY_TIMEOUT</code></td><td><code>30</code></td><td>Retry delay. The adapter clamps it to 0–43200 seconds.</td></tr>

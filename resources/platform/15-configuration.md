@@ -6,6 +6,8 @@ Configuration boundary objects validate the merged array once. They expose typed
 
 AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, readiness, and AWS client adapters receive those leaf objects directly. Only an external Software Development Kit builder converts typed settings into an SDK array.
 
+`NotificationSettings` selects SNS, Twilio, or Netgsm SMS delivery. SNS is the default. Twilio and Netgsm require credentials, a sender, and a finite timeout. It selects SES or SMTP email delivery. SES is the default. SMTP requires a host and finite timeout. A non-empty `FIREBASE_PROJECT_ID` enables push delivery. Firebase uses a finite timeout and an optional service-account path.
+
 ## Precedence and loading
 
 - `backendbaseEnv()` reads `$_ENV`, then the process environment, then a code default.

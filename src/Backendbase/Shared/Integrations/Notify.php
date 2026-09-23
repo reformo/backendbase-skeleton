@@ -9,7 +9,5 @@ use Backendbase\Shared\Primitives\Notification\Notification;
 
 interface Notify
 {
-    public function notify(Notification $params): NotificationResult;
-
-    public function type(): string;
+    public function notify(Notification $notification): NotificationResult;
 }

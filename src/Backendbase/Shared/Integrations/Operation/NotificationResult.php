@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Integrations\Operation;
 
-use function array_key_exists;
-use function array_replace;
+use LogicException;
+
+use function array_merge;
+use function count;
 
 final readonly class NotificationResult
 {
-    /** @param array<string, string|null> $messageIds */
-    private function __construct(private array $messageIds)
+    /** @param list<NotificationDelivery> $deliveries */
+    private function __construct(private array $deliveries)
     {
     }
 
     public static function delivered(string $notificationType, string|null $messageId): self
     {
-        return new self([$notificationType => $messageId]);
+        return new self([new NotificationDelivery($notificationType, $messageId)]);
     }
 
     public static function empty(): self
@@ -26,16 +28,44 @@ final readonly class NotificationResult
 
     public function merge(self $result): self
     {
-        return new self(array_replace($this->messageIds, $result->messageIds));
+        $deliveries = $result->deliveries();
+
+        return new self(array_merge($this->deliveries, $deliveries));
     }
 
     public function has(string $notificationType): bool
     {
-        return array_key_exists($notificationType, $this->messageIds);
+        return $this->messageIds($notificationType) !== [];
     }
 
     public function messageId(string $notificationType): string|null
     {
-        return $this->messageIds[$notificationType] ?? null;
+        $messageIds = $this->messageIds($notificationType);
+        if (count($messageIds) > 1) {
+            throw new LogicException('More than one notification was delivered for ' . $notificationType . '.');
+        }
+
+        return $messageIds[0] ?? null;
+    }
+
+    /** @return list<string|null> */
+    public function messageIds(string $notificationType): array
+    {
+        $messageIds = [];
+        foreach ($this->deliveries as $delivery) {
+            if ($delivery->type() !== $notificationType) {
+                continue;
+            }
+
+            $messageIds[] = $delivery->messageId();
+        }
+
+        return $messageIds;
+    }
+
+    /** @return list<NotificationDelivery> */
+    public function deliveries(): array
+    {
+        return $this->deliveries;
     }
 }

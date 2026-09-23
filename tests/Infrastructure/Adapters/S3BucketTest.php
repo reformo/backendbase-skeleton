@@ -42,6 +42,11 @@ final class S3BucketTest extends TestCase
         self::assertIsString($url);
         self::assertStringContainsString('images/example.jpg', $url);
         self::assertStringContainsString('X-Amz-Signature=', $url);
+
+        $withoutCdn = new S3Bucket($client, 'bucket', '');
+        $signedUrl  = $withoutCdn->getPreSignedUrl('images/example.jpg', 60);
+        self::assertIsString($signedUrl);
+        self::assertStringContainsString('X-Amz-Signature=', $signedUrl);
     }
 
     #[Test]

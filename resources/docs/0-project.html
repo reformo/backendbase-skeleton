@@ -836,7 +836,7 @@ bin/doctrine migrations:migrate --dry-run --no-interaction</code></pre>
                 <li>Install PHP 8.5, Composer, Docker, and the required PHP extensions.</li>
                 <li>Install locked Composer dependencies.</li>
                 <li>Create <code>.env</code> from <code>.env.example</code>. Set local values.</li>
-                <li>Start MySQL, Redis Stack, and RabbitMQ. Enable the integration profile only when tests need AWS endpoints.</li>
+                <li>Start MySQL, Redis Stack, RabbitMQ, MiniStack, Nginx, and StackPort.</li>
                 <li>Verify the local database target and review the migration dry run.</li>
                 <li>Apply migrations only with explicit authority for that database.</li>
                 <li>Generate the merged Example API OpenAPI file.</li>
@@ -846,7 +846,6 @@ bin/doctrine migrations:migrate --dry-run --no-interaction</code></pre>
             <pre><code>composer install
 cp .env.example .env
 docker compose up -d
-docker compose --profile integration up -d
 bin/doctrine migrations:migrate --dry-run --no-interaction
 # Apply only after approval for the verified local database.
 bin/doctrine migrations:migrate --no-interaction
@@ -862,11 +861,13 @@ composer run start-apis</code></pre>
                         <tr><td>Redis Insight</td><td><code>8001</code></td><td>Local Redis interface</td></tr>
                         <tr><td>RabbitMQ AMQP</td><td><code>5672</code></td><td>Queue traffic</td></tr>
                         <tr><td>RabbitMQ management</td><td><code>15672</code></td><td>Queue administration interface</td></tr>
-                        <tr><td>AWS emulator</td><td><code>5000</code></td><td>Opt-in S3, SQS, and SNS integration endpoint</td></tr>
+                        <tr><td>MiniStack</td><td><code>4566</code></td><td>Local S3, SQS, SNS, SES, and CloudFront APIs</td></tr>
+                        <tr><td>Nginx file delivery</td><td><code>8081</code></td><td>Cached access to objects in the MiniStack bucket</td></tr>
+                        <tr><td>StackPort</td><td><code>8082</code></td><td>Local MiniStack resource browser</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p>Docker Compose binds each infrastructure port to <code>127.0.0.1</code> by default. The AWS emulator uses the <code>integration</code> profile and does not start with the default command.</p>
+            <p>Docker Compose binds each infrastructure port to <code>127.0.0.1</code> by default. MiniStack starts with the default command. CloudFront distributions do not deliver content. Nginx serves the configured bucket through <code>CDN_BASE_URL</code> and caches successful responses for 60 seconds. Open StackPort at <code>http://127.0.0.1:8082</code> to inspect local AWS resources.</p>
         </section>
 
         <section id="api-contract">

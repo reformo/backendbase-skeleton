@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Notification;
 
+use Aws\Exception\AwsException;
 use Aws\Sns\SnsClient;
 use Backendbase\Infrastructure\Configuration\Aws\SnsSettings;
-use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\NotificationProvider;
+use Backendbase\Shared\Integrations\Operation\NotificationProviderFailed;
 use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
 use Backendbase\Shared\Primitives\Notification\SmsNotification;
@@ -15,7 +17,7 @@ use UnexpectedValueException;
 
 use function is_string;
 
-final readonly class SnsNotifier implements Notify
+final readonly class SnsNotifier implements NotificationProvider
 {
     public const string TYPE = 'sms';
 
@@ -36,31 +38,40 @@ final readonly class SnsNotifier implements Notify
             throw new UnexpectedValueException('SNS requires an SMS notification.');
         }
 
-        $result = $this->client->publish([
-            'PhoneNumber' => $params->phoneNumber(),
-            'Message' => $params->message(),
-            'MessageAttributes' => $this->messageAttributes(),
-        ]);
+        $client = $this->client;
+        try {
+            $result = $client->publish([
+                'PhoneNumber' => $params->phoneNumber(),
+                'Message' => $params->message(),
+                'MessageAttributes' => $this->messageAttributes(),
+            ]);
+        } catch (AwsException $exception) {
+            throw new NotificationProviderFailed(self::TYPE, $exception);
+        }
 
         $messageId = $result['MessageId'] ?? null;
+        if (! is_string($messageId) || $messageId === '') {
+            throw new UnexpectedValueException('SNS returned no message identifier.');
+        }
 
         return NotificationResult::delivered(
             $params->type(),
-            is_string($messageId) ? $messageId : null,
+            $messageId,
         );
     }
 
     /** @return array<string, array{DataType: string, StringValue: string}> */
     private function messageAttributes(): array
     {
-        $smsType    = $this->settings->smsType();
+        $settings   = $this->settings;
+        $smsType    = $settings->smsType();
         $attributes = [
             'AWS.SNS.SMS.SMSType' => [
                 'DataType' => 'String',
                 'StringValue' => $smsType,
             ],
         ];
-        $senderId   = $this->settings->senderId();
+        $senderId   = $settings->senderId();
         if ($senderId === null || $senderId === '') {
             return $attributes;
         }

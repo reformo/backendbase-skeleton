@@ -558,6 +558,7 @@
                     <tr><td><code>logger.global.php</code></td><td>Logger name, destination, and level.</td><td>All entry points</td></tr>
                     <tr><td><code>rabbitmq.global.php</code></td><td>RabbitMQ connection, topology, timeouts, and prefetch.</td><td>Queue driver</td></tr>
                     <tr><td><code>aws.global.php</code></td><td>Queue driver, AWS client, SQS, and SNS values.</td><td>AWS and queue services</td></tr>
+                    <tr><td><code>notification.global.php</code></td><td>SMS and email providers, SMTP transport, and Firebase push values.</td><td>Notification delivery</td></tr>
                     <tr><td><code>redis.global.php</code></td><td>Redis host and port.</td><td>JWT state and Redis consumers</td></tr>
                     <tr><td><code>object-store.global.php</code></td><td>Object-store credentials, region, bucket, and CDN URL.</td><td>S3-compatible storage</td></tr>
                     <tr><td><code>config/example-api/*</code></td><td>API key, route cache, CORS, and JWT values.</td><td>ExampleApi</td></tr>
@@ -634,7 +635,7 @@
                     <tr><td><code>BACKENDBASE_ENV</code></td><td><code>dev</code></td><td>Controls error display and caches. Use an exact environment mode.</td></tr>
                     <tr><td><code>BACKENDBASE_DB_DSN</code></td><td>None</td><td><span class="status required">Required for DB</span> Parsed as a MySQL DBAL connection string.</td></tr>
                     <tr><td><code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code></td><td><code>2</code></td><td>Bounds dependency connection work used by readiness checks. Use a value from <code>0.1</code> through <code>10</code>.</td></tr>
-                    <tr><td><code>CDN_BASE_URL</code></td><td>Empty string</td><td>Used in root metadata, example projections, and object-store configuration.</td></tr>
+                    <tr><td><code>CDN_BASE_URL</code></td><td>Empty string</td><td>Used in root metadata, example projections, and object-store configuration. The local example points to Nginx at <code>http://127.0.0.1:8081/</code>.</td></tr>
                     <tr><td><code>BASE_PATH</code></td><td>Empty string</td><td>Sets the Slim base path after routes are registered.</td></tr>
                     <tr><td><code>PAYMENT_CALLBACK_BASEURL</code></td><td>Empty string</td><td>Stored as <code>payment-gateway-call-baseurl</code>. No current consumer was found.</td></tr>
                     </tbody>
@@ -711,6 +712,8 @@
                 </article>
             </div>
             <p>AWS credentials must both be empty or both be non-empty. The shared AWS factory rejects a partial pair.</p>
+            <p><code>BACKENDBASE_SMS_DRIVER</code> selects <code>sns</code> by default, <code>twilio</code>, or <code>netgsm</code>. Twilio requires <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, and <code>TWILIO_FROM</code>. Netgsm requires <code>NETGSM_USERNAME</code>, <code>NETGSM_PASSWORD</code>, and <code>NETGSM_SENDER</code>. <code>NETGSM_ENCODING</code> defaults to <code>TR</code>. Both HTTP providers use finite timeout settings.</p>
+            <p><code>BACKENDBASE_EMAIL_DRIVER</code> selects <code>ses</code> by default or <code>smtp</code>. SMTP requires <code>SMTP_HOST</code> and uses <code>SMTP_PORT</code>, optional credentials, <code>SMTP_ENCRYPTION</code>, and <code>SMTP_TIMEOUT_SECONDS</code>. A non-empty <code>FIREBASE_PROJECT_ID</code> registers push delivery. <code>FIREBASE_CREDENTIALS_PATH</code> is optional when Google application credentials are available. <code>FIREBASE_TIMEOUT_SECONDS</code> bounds Firebase requests.</p>
             <div class="related">
                 <a href="4-messaging-and-queues.html">Messaging and queues guide</a>
                 <a href="3-integration-events.html">Integration events guide</a>
@@ -791,12 +794,14 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
 
         <section id="docker">
             <h2>Local Docker services</h2>
-            <p><code>docker-compose.yaml</code> provides three default development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
+            <p><code>docker-compose.yaml</code> provides six default development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
             <div class="grid three">
                 <article class="card green"><span class="tag">Redis Stack 7.4.0-v8</span><h3>Ports 6379 and 8001</h3><p>Uses a pinned image digest, persists data under <code>var/docker-data/redis</code>, and has a health check.</p></article>
                 <article class="card blue"><span class="tag blue">MySQL 8.4</span><h3>Port 3306</h3><p>Creates the local database and user, persists data under <code>var/docker-data/mysql</code>, and has a health check.</p></article>
                 <article class="card amber"><span class="tag amber">RabbitMQ 4.3</span><h3>Ports 5672 and 15672</h3><p>Uses environment-backed credentials, a named volume, and a health check.</p></article>
-                <article class="card"><span class="tag">Moto 5.2.3</span><h3>Port 5000</h3><p>Provides stateless S3, SQS, and SNS endpoints only through the <code>integration</code> profile.</p></article>
+                <article class="card"><span class="tag">MiniStack 1.5.14</span><h3>Port 4566</h3><p>Provides local S3, SQS, SNS, SES, and CloudFront APIs. It saves state and creates the configured bucket and queue at startup. CloudFront distributions do not deliver content.</p></article>
+                <article class="card green"><span class="tag">Nginx 1.30.3</span><h3>Port 8081</h3><p>Serves objects from the configured MiniStack bucket and caches successful responses for 60 seconds. The local <code>CDN_BASE_URL</code> points here.</p></article>
+                <article class="card blue"><span class="tag blue">StackPort 0.4.3</span><h3>Port 8082</h3><p>Connects to MiniStack through Docker and displays local AWS resources.</p></article>
             </div>
             <div class="table-wrap">
                 <table>
@@ -805,12 +810,13 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
                     <tr><td><code>BACKENDBASE_DEV_MYSQL_*</code></td><td>MySQL port, database, user, password, and root password.</td></tr>
                     <tr><td><code>BACKENDBASE_DEV_REDIS_*</code></td><td>Redis and Redis Insight host ports.</td></tr>
                     <tr><td><code>BACKENDBASE_DEV_RABBITMQ_*</code></td><td>RabbitMQ ports, user, password, and virtual host.</td></tr>
-                    <tr><td><code>BACKENDBASE_DEV_AWS_PORT</code></td><td>AWS emulator host port.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEV_AWS_PORT</code></td><td>MiniStack host port.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEV_CDN_PORT</code></td><td>Nginx file delivery host port.</td></tr>
+                    <tr><td><code>BACKENDBASE_DEV_STACKPORT_PORT</code></td><td>StackPort UI host port.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="code-wrap"><pre><code>docker compose up -d
-docker compose --profile integration up -d
 docker compose ps</code></pre></div>
             <p>Docker Compose values are local development defaults. Application variables in <code>.env.example</code> reference the same development values. Do not copy them into stage or production secrets.</p>
         </section>
@@ -923,7 +929,6 @@ docker compose ps</code></pre></div>
             </ol>
             <div class="code-wrap"><pre><code>cp .env.example .env
 docker compose up -d
-docker compose --profile integration up -d
 bin/backendbase clear-cache
 composer run start-apis</code></pre></div>
             <p>Do not use the example credentials for any shared, stage, or production environment.</p>

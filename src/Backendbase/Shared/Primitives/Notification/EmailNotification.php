@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Primitives\Notification;
 
+use InvalidArgumentException;
+
 use function get_object_vars;
 
 class EmailNotification implements Notification
@@ -11,14 +13,14 @@ class EmailNotification implements Notification
     /** @var array<int, Address> */
     private array $to = [];
 
-    private Address $from;
+    private Address|null $from = null;
 
-    private string $subject;
-    private string $htmlBody;
-    private string $templateId;
-    private string $templateLanguage;
+    private string $subject          = '';
+    private string $htmlBody         = '';
+    private string $templateId       = '';
+    private string $templateLanguage = '';
     /** @var array<string, mixed> */
-    private array $templateData;
+    private array $templateData = [];
 
     /** @var array<int, Attachment> */
     private array $attachments = [];
@@ -38,6 +40,10 @@ class EmailNotification implements Notification
 
     public function from(): Address
     {
+        if ($this->from === null) {
+            throw new InvalidArgumentException('An email sender is required.');
+        }
+
         return $this->from;
     }
 

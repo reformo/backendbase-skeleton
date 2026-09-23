@@ -48,14 +48,14 @@ final class NotificationPrimitivesTest extends TestCase
             'document.txt',
             'text/plain',
             Attachment::DISPOSITION_INLINE,
-            'content-id',
+            'content-id@example.com',
         );
         self::assertSame([
             'content' => base64_encode('contents'),
             'filename' => 'document.txt',
             'disposition' => 'inline',
             'type' => 'text/plain',
-            'content_id' => 'content-id',
+            'content_id' => 'content-id@example.com',
         ], $attachment->toArray());
         self::assertSame($attachment->toArray(), $attachment->jsonSerialize());
 

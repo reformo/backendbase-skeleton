@@ -4,121 +4,116 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Notification;
 
-use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\NotificationProvider;
+use Backendbase\Shared\Integrations\Operation\NotificationProviderFailed;
 use Backendbase\Shared\Integrations\Operation\NotificationResult;
 use Backendbase\Shared\Primitives\Notification\Notification;
 use Backendbase\Shared\Primitives\Notification\PushNotification;
+use InvalidArgumentException;
 use Kreait\Firebase\Contract\Messaging;
+use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use Override;
-use Psr\Log\LoggerInterface;
+use UnexpectedValueException;
 
-use function array_key_exists;
 use function array_replace_recursive;
+use function filter_var;
 use function is_string;
+use function str_starts_with;
 
-class FirebasePushNotifier implements Notify
+use const FILTER_VALIDATE_URL;
+
+final readonly class FirebasePushNotifier implements NotificationProvider
 {
     public const string TYPE = 'push';
 
-    public function __construct(
-        private readonly Messaging $client,
-        private readonly LoggerInterface $logger,
-        private readonly string $cdnBaseUrl = '',
-    ) {
+    public function __construct(private Messaging $client, private string $cdnBaseUrl = '')
+    {
     }
 
+    #[Override]
     public function type(): string
     {
         return self::TYPE;
     }
 
-    /** @param PushNotification $params */
     #[Override]
-    public function notify(Notification $params): NotificationResult
+    public function notify(Notification $notification): NotificationResult
     {
-        $notificationType = $params->type();
-        $params           = $params->toArray();
-        $payload          = [
-            'message' => [
-                'notification' => [
-                    'title' => $params['title'] ?? null,
-                    'body' => $params['body'],
-                ],
-            ],
-        ];
-
-        if (array_key_exists('topic', $params)) {
-            $payload['message']['topic'] = $params['topic'];
+        if (! $notification instanceof PushNotification) {
+            throw new UnexpectedValueException('Firebase requires a push notification.');
         }
 
-        if (array_key_exists('deviceToken', $params)) {
-            $payload['message']['token'] = $params['deviceToken'];
+        $message = $this->message($notification);
+        $client  = $this->client;
+        try {
+            $result = $client->send($message);
+        } catch (MessagingException $exception) {
+            throw new NotificationProviderFailed(self::TYPE, $exception);
         }
 
-        if (array_key_exists('data', $params)) {
-            $params['data']             = self::stringData($params['data']);
-            $payload['message']['data'] = $params['data'];
-        }
-
-        if (self::hasNotificationImage($params)) {
-            $payload['message']['android'] = [
-                'notification' => ['image' => $this->cdnBaseUrl . $params['data']['notificationImage']],
-            ];
-            $payload['message']['apns']    = [
-                'payload' => [
-                    'aps' => ['mutable-content' => 1],
-                ],
-                'fcm_options' => [
-                    'image' => $this->cdnBaseUrl . $params['data']['notificationImage'],
-                ],
-            ];
-        }
-
-        if (array_key_exists('android', $params)) {
-            $payload['message']['android'] = array_replace_recursive(
-                $payload['message']['android'] ?? [],
-                $params['android'],
-            );
-        }
-
-        if (array_key_exists('apns', $params)) {
-            $payload['message']['apns'] = array_replace_recursive(
-                $payload['message']['apns'] ?? [],
-                $params['apns'],
-            );
-        }
-
-        $this->logger->debug('motification message', $payload);
-
-        $message = CloudMessage::fromArray($payload['message']);
-
-        $result    = $this->client->send($message);
         $messageId = $result['name'] ?? null;
-
-        return NotificationResult::delivered(
-            $notificationType,
-            is_string($messageId) ? $messageId : null,
-        );
-    }
-
-    /** @param array{data?: array<string, mixed>} $params */
-    private static function hasNotificationImage(array $params): bool
-    {
-        return array_key_exists('notificationImage', $params['data'] ?? []);
-    }
-
-    /**
-     * @param array<non-empty-string, mixed> $data
-     *
-     * @return array<non-empty-string, string>
-     */
-    private static function stringData(array $data): array
-    {
-        foreach ($data as $key => $value) {
-            $data[$key] = (string) $value;
+        if (! is_string($messageId) || $messageId === '') {
+            throw new UnexpectedValueException('Firebase returned no message identifier.');
         }
 
-        return $data;
+        return NotificationResult::delivered(self::TYPE, $messageId);
+    }
+
+    private function message(PushNotification $notification): CloudMessage
+    {
+        $target      = $notification->target();
+        $message     = CloudMessage::new()->withNotification(FirebaseNotification::create(
+            $notification->title(),
+            $notification->body(),
+        ));
+        $targetType  = $target->type();
+        $targetValue = $target->value();
+        $message     = $targetType === 'topic'
+            ? $message->withTopic($targetValue)
+            : $message->withToken($targetValue);
+        $data        = $notification->stringData();
+        $message     = $message->withData($data);
+
+        return $this->withPlatformOptions($message, $notification);
+    }
+
+    private function withPlatformOptions(CloudMessage $message, PushNotification $notification): CloudMessage
+    {
+        $options = $notification->platformOptions();
+        $android = $options->android();
+        $apns    = $options->apns();
+        $image   = $notification->notificationImage();
+        if ($image !== null) {
+            $imageUrl = $this->imageUrl($image);
+            $android  = array_replace_recursive($android, ['notification' => ['image' => $imageUrl]]);
+            $apns     = array_replace_recursive($apns, [
+                'payload' => ['aps' => ['mutable-content' => 1]],
+                'fcm_options' => ['image' => $imageUrl],
+            ]);
+        }
+
+        if ($android !== []) {
+            $message = $message->withAndroidConfig($android);
+        }
+
+        if ($apns !== []) {
+            $message = $message->withApnsConfig($apns);
+        }
+
+        return $message;
+    }
+
+    private function imageUrl(string $image): string
+    {
+        $absolute = str_starts_with($image, 'https://') || str_starts_with($image, 'http://');
+        $url      = $absolute ? $image : $this->cdnBaseUrl . $image;
+        $httpUrl  = str_starts_with($url, 'https://') || str_starts_with($url, 'http://');
+        if (! $httpUrl || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            throw new InvalidArgumentException('A push image requires an absolute URL or CDN base URL.');
+        }
+
+        return $url;
     }
 }

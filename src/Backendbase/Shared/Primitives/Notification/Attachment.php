@@ -12,8 +12,11 @@ use RuntimeException;
 use function base64_encode;
 use function basename;
 use function file_get_contents;
+use function filter_var;
 use function is_file;
 use function trim;
+
+use const FILTER_VALIDATE_EMAIL;
 
 final readonly class Attachment implements JsonSerializable
 {
@@ -33,6 +36,10 @@ final readonly class Attachment implements JsonSerializable
 
         if (trim($filename) === '') {
             throw new InvalidArgumentException('Attachment filename cannot be empty.');
+        }
+
+        if ($contentId !== null && filter_var($contentId, FILTER_VALIDATE_EMAIL) === false) {
+            throw new InvalidArgumentException('Attachment content ID is invalid.');
         }
     }
 

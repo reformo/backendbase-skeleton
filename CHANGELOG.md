@@ -10,6 +10,11 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added selectable Twilio and Netgsm SMS providers with validated settings and finite HTTP timeouts.
+- Added SES and SMTP email providers, conditional Firebase push registration, and typed notification settings.
+- Added ordered notification delivery results and partial-batch failure details.
+- Added a local StackPort UI for MiniStack resources.
+- Added local Nginx file delivery and a 60-second cache for the MiniStack S3 bucket.
 - Added deterministic Bruno folder ordering and an ephemeral DAST account fixture for authenticated API coverage.
 - Added Doctrine ORM account write metadata and shared Doctrine and memory repository contract tests.
 - Added database-backed example account authentication and ACL privilege seeds.
@@ -30,6 +35,11 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Disabled automatic SES email retries so a connection failure cannot cause a second send attempt within one notification call.
+- Allowed direct SMS, email, and push requests through `Notify`; separated the provider interface from the caller port.
+- Validated push targets and email delivery fields before provider calls, and removed push payload logging.
+- Set the local MiniStack SQS queue URL explicitly in the environment example.
+- Replaced the local AWS emulator with MiniStack 1.5.14 for S3, SQS, SNS, SES, and CloudFront APIs, and aligned the development environment example. An empty CDN URL now uses a signed S3 URL.
 - Made narrow reusable skills select relevant discovery, reference sections, and verification. Preserved existing operation authority across skill steps and moved skill-authoring rules into scoped guidance.
 - Scoped agent guidance and feature verification to affected behavior, reused valid discovery and check results, and preserved existing authorization for unchanged targets and scope. Added a five-task comparison with recorded measurements and acceptance evidence.
 - Serialized account authentication, revision, and retirement with a shared account-row transaction and refreshed privilege state.
