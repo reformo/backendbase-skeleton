@@ -78,7 +78,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 
 ## Exact source provenance
 
-- `src/Backendbase/Shared/Http/Actions/ModuleRoute.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Actions/ModuleRoute.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`

@@ -1,6 +1,6 @@
 # Object Mapping
 
-`ObjectMapper` converts sanitized boundary arrays into typed objects through Valinor.
+`Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper` converts sanitized boundary arrays into typed objects through Valinor.
 
 ## Flow
 

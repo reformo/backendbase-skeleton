@@ -80,7 +80,7 @@ backendbase-core/
 │   │   │   └── ServiceProvider.php    # Port, handler, and subscriber registration
 │   │   └── IdentityAndAccess/         # Authentication and authorization context
 │   ├── Infrastructure/
-│   │   ├── Adapters/                  # Notification, persistence, queue, and object-store adapters
+│   │   ├── Adapters/                  # HTTP, mapping, persistence, queue, and external adapters
 │   │   ├── Configuration/             # Typed runtime, AWS, queue, database, Redis, and logging settings
 │   │   ├── Health/                    # Bounded dependency readiness checks
 │   │   └── UseCase/
@@ -89,15 +89,15 @@ backendbase-core/
 │   │       │   ├── middleware.php
 │   │       │   └── routes.php
 │   │       └── Console/
+│   │           ├── Command.php        # Reusable console adapter base
 │   │           ├── GoodHousekeeping/
 │   │           └── Queue/
 │   └── Shared/
 │       ├── Configuration/             # Shared HTTP, JWT, and configuration validation types
 │       ├── CQRS/                      # Command and query buses
 │       ├── Domain/                    # Domain events and base domain types
-│       ├── Http/                      # HTTP actions, middleware, and error handling
 │       ├── Integrations/              # Infrastructure ports
-│       ├── Persistence/               # Persistence ports and shared Doctrine support
+│       ├── Persistence/               # Persistence ports
 │       ├── Primitives/                # Shared value objects
 │       └── Services/
 ├── tests/                             # Architecture, domain, infrastructure, and shared tests
@@ -135,11 +135,11 @@ Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-
 - A bounded context cannot depend on another bounded context.
 - Business layers cannot import HTTP, persistence, messaging, dependency-injection, or vendor framework namespaces.
 - Shared code cannot depend on Application, Domain, or Infrastructure.
-- Shared core code cannot import framework namespaces.
+- No Shared code can import framework namespaces.
 - Inbound and outbound adapters cannot depend on each other.
 - CQRS and domain-listener attributes use one positional same-context target that implements the correct interface and resolves from the production container.
 
-`Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts can reference their handlers through `CQRSHandler` attributes.
+`Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts do not import their handlers.
 
 ### Ports And Adapters
 
@@ -159,11 +159,11 @@ Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, 
 
 ### CQRS
 
-Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. The `config/dependencies.php` provider accepts a resolver class as its second argument. It defaults to `RegistryHandlerResolver::class` and uses each context's `ServiceProvider::getHandlers()` mappings. Pass `AttributeHandlerResolver::class` to use `#[CQRSHandler]` metadata instead. Both resolvers implement `HandlerResolver`. Both buses obtain the selected handler from the PHP-DI container.
+Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. They have no handler attributes. The `config/dependencies.php` provider defaults to `RegistryHandlerResolver::class` and uses each context's `ServiceProvider::getHandlers()` mappings. `AttributeHandlerResolver` remains available for separately attributed contracts. Both buses obtain the selected handler from the PHP-DI container.
 
 ### Example API
 
-`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers`. Handlers extend `Backendbase\Shared\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
+`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
 
 When adding or changing an endpoint, use this adapter shape in each existing affected API. The current repository has only `ExampleApi`.
 

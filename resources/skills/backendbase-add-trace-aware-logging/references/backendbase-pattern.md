@@ -95,7 +95,7 @@ Run the newly added logger-factory test first. Then run the target equivalents o
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http
-vendor/bin/phpunit tests/Shared/Http/Actions
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Actions
 composer phpstan
 composer complexity
 composer cs-check
@@ -115,7 +115,7 @@ Verified on 2026-08-25 from:
 - `config/dependencies/logger.php`
 - `public/index.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php`
-- `src/Backendbase/Shared/Http/Handlers/ShutdownHandler.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Handlers/ShutdownHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php`
 - `resources/platform/16-errors-observability.md`
 - `resources/docs/11-error-handling-and-observability.html`

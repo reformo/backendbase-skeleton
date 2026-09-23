@@ -68,8 +68,7 @@
 <li>Test DBAL filtering, null handling, ordering, pagination, and malformed persisted data.</li><li>Test migration SQL and custom Doctrine functions.</li>
 <li>Test seeders twice to prove idempotency.</li><li>Test commit and rollback behavior for transaction adapters.</li></ul>
 <pre><code>vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence
-vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine
-vendor/bin/phpunit tests/Shared/Persistence</code></pre>
+vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine</code></pre>
 </section>
 <section id="rules"><p class="section-label">11 · Rules</p><h2>Keep storage rules explicit</h2>
 <ul><li>Handlers depend on ports, not concrete Doctrine classes.</li><li>Controllers do not run SQL or use the entity manager.</li><li>Read adapters validate persisted data before creating read models.</li>

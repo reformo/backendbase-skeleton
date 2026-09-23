@@ -54,7 +54,7 @@ Select checks for the changed behavior and target policy. Command lists are exam
 Choose the commands that prove the affected bootstrap, routing, and contract behavior:
 
 ```sh
-vendor/bin/phpunit tests/Shared/Http/Bootstrap
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Bootstrap
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml

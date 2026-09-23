@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Query;
 
-use Backendbase\Domain\ExampleCatalog\Application\QueryHandlers\GetEntryGroupsByTypeHandler;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryGroupPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Query;
 use Backendbase\Shared\Primitives\Pagination;
 
 /** @implements Query<EntryGroupPage> */
-#[CQRSHandler(GetEntryGroupsByTypeHandler::class)]
 readonly class GetEntryGroupsByType implements Query
 {
     /** @var array{type: EntryType, typeTargetId: int|null} */

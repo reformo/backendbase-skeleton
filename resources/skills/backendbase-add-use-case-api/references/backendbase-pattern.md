@@ -47,8 +47,8 @@ A new API normally needs all of these roles:
 
 - `public/index.php`
 - `public/example-api/index.php`
-- `src/Backendbase/Shared/Http/Bootstrap/UseCaseTarget.php`
-- `src/Backendbase/Shared/Http/Bootstrap/RequestUriNormalizer.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Bootstrap/UseCaseTarget.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Bootstrap/RequestUriNormalizer.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php`
@@ -60,7 +60,7 @@ A new API normally needs all of these roles:
 - `resources/bruno/example-api/opencollection.yml`
 - `composer.json`
 - `bin/deployment/build-release.sh`
-- `tests/Shared/Http/Bootstrap/UseCaseTargetTest.php`
+- `tests/Infrastructure/Adapters/Http/Bootstrap/UseCaseTargetTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
 - `resources/docs/5-use-case-api.html`
 - `resources/platform/07-http-api.md`

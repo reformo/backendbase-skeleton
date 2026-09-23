@@ -41,7 +41,7 @@ The numbered HTML files in `resources/docs/` give background. Prefer current cod
 | Application orchestration | `{Context}/Application/` | Keep handlers and subscribers free of delivery frameworks. |
 | Context adapter | `{Context}/Adapters/` | Implement context ports without reversing dependencies. |
 | Delivery mechanism | `src/Backendbase/Infrastructure/UseCase/` | Adapt HTTP and console code to the target framework. |
-| Shared capability | `src/Backendbase/Shared/` | Add only concepts shared by multiple contexts. |
+| Shared capability | `src/Backendbase/Shared/` | Add only framework-free concepts shared by multiple contexts. |
 | Composition root | `config/dependencies/` and context `ServiceProvider.php` | Register ports, adapters, handlers, and subscribers explicitly. |
 | Schema change | `resources/database/Migrations/` | Follow the target migration namespace and database rules. |
 | Verification | Context `Tests`, plus root infrastructure and architecture tests | Mirror the target test ownership and runner. |
@@ -89,7 +89,7 @@ Backendbase enforces these rules in:
 - `tests/Architecture/FrameworkImportBoundaryTest.php`
 - `tests/Architecture/SharedDependencyBoundaryTest.php`
 - `tests/Architecture/ApplicationDependencyBoundaryTest.php`
-- `tests/Architecture/SharedCoreFrameworkBoundaryTest.php`
+- `tests/Architecture/SharedFrameworkBoundaryTest.php`
 - `tests/Architecture/InboundAdapterDependencyBoundaryTest.php`
 - `tests/Architecture/OutboundAdapterDependencyBoundaryTest.php`
 - `tests/Architecture/AttributeTargetBoundaryTest.php`
@@ -112,19 +112,23 @@ A read feature normally uses a query, query handler, read port, read model, and 
 
 ## CQRS Contract
 
-With `AttributeHandlerResolver`, Backendbase command and query messages use one handler attribute. With `RegistryHandlerResolver`, map them in the context `ServiceProvider::getHandlers()`:
+Backendbase command and query messages use the context registry. Keep the contract free of handler metadata and map it in `ServiceProvider::getHandlers()`:
 
 ```php
-#[CQRSHandler(RegisterOrderHandler::class)]
 final readonly class RegisterOrder implements Command
 {
     public function __construct(public string $orderId)
     {
     }
 }
+
+public static function getHandlers(): array
+{
+    return [RegisterOrder::class => RegisterOrderHandler::class];
+}
 ```
 
-The attribute resolver reads the handler name from `CQRSHandler`. Preserve exactly one positional argument when reproducing this mechanism. Current handlers live in `Application/CommandHandlers` and `Application/QueryHandlers`.
+The registry identifies the handler. The container must resolve that handler and its dependencies. Current handlers live in `Application/CommandHandlers` and `Application/QueryHandlers`.
 
 A handler coordinates work. Put state rules on the model. Put database and provider code behind ports.
 

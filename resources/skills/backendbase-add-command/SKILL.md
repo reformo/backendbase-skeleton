@@ -26,7 +26,7 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 ## Workflow
 
 1. Validate and convert untrusted input at its external boundary before command construction.
-2. Identify the selected resolver class. Add the command contract and its handler attribute or context `ServiceProvider::getHandlers()` mapping.
+2. Identify the selected resolver class. For Backendbase registry mode, add the command contract and its context `ServiceProvider::getHandlers()` mapping.
 3. Carry only data needed by this use case and define a stable `toArray()` shape.
 4. Add the handler under the project's current command-handler directory.
 5. Load or create the aggregate, invoke domain behavior, and persist through a write port.
@@ -38,8 +38,8 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 ## Backendbase invariants
 
 - Implement `Command`; return `void` from the command bus and handler.
-- With `AttributeHandlerResolver`, use exactly one `#[CQRSHandler(HandlerClass::class)]` attribute.
-- With `RegistryHandlerResolver`, map the command to its handler in the context `ServiceProvider::getHandlers()`.
+- In an unmodified Backendbase project, keep the command free of handler imports and attributes.
+- Map the command to its handler in the context `ServiceProvider::getHandlers()`.
 - Put business decisions on domain objects, not controllers, handlers, or adapters.
 - Do not run SQL, build HTTP responses, or publish directly to a broker in the handler.
 - Do not call the internal integration-event manager directly from the handler.

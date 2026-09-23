@@ -9,6 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Command\RegisterAccount as Re
 use Backendbase\Domain\IdentityAndAccess\Contracts\Command\RetireAccount as RetireAccountCommand;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Command\ReviseAccount as ReviseAccountCommand;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\AccountRequestInput;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\Handlers\RegisterAccount;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\Handlers\RetireAccount;
@@ -17,7 +18,6 @@ use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Exception\InvalidUserInput;
-use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use PHPUnit\Framework\Attributes\Test;

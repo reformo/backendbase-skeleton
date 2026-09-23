@@ -6,10 +6,10 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Hand
 
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryByCriteria;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryDetails as EntryDetailsReadModel;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
-use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;

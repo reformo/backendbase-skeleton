@@ -3,10 +3,12 @@
 | Concern | Location |
 | --- | --- |
 | Bounded contexts | `src/Backendbase/Domain/{ContextName}` |
-| Shared contracts and services | `src/Backendbase/Shared` |
+| Framework-free shared contracts and values | `src/Backendbase/Shared` |
 | Technology and HTTP adapters | `src/Backendbase/Infrastructure` |
+| Reusable HTTP adapter support | `src/Backendbase/Infrastructure/Adapters/Http` |
+| Reusable Doctrine adapter support | `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine` |
 | Typed runtime and adapter settings | `src/Backendbase/Infrastructure/Configuration` |
-| Shared HTTP, JWT, and configuration validation | `src/Backendbase/Shared/Configuration` |
+| Cross-module HTTP and JWT settings | `src/Backendbase/Shared/Configuration` |
 | Example API adapter | `src/Backendbase/Infrastructure/UseCase/ExampleApi` |
 | Shared configuration | `config/autoload` |
 | Example API configuration | `config/example-api` |

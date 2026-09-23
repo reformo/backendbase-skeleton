@@ -38,6 +38,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Removed handler attributes and application-handler imports from all command and query contracts. Context registries now provide every current CQRS handler mapping.
+- Moved shared HTTP, console, Doctrine, migration, and object mapping support into Infrastructure. The Shared architecture test now checks every Shared file.
 - Replaced the Example entry's public array snapshot with a typed snapshot for Doctrine and memory adapters.
 - Renamed the reference context to `ExampleCatalog` and its domain symbols to `Entry`, including commands, queries, events, repositories, tests, and the seeder. Updated reusable naming guidance while preserving HTTP, database, and published integration-event contracts.
 - Made development housekeeping regenerate and verify Composer supply-chain evidence from an isolated install after dependency updates.

@@ -54,9 +54,9 @@ Use the target PSR interfaces, framework stack semantics, container, attribute n
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit tests/Shared/Http/Middleware/{MiddlewareTest}.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware/{MiddlewareTest}.php
 # Use the owning directory instead when the change needs broader coverage.
-vendor/bin/phpunit tests/Shared/Http/Middleware
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware
 vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/ModuleRoutingTest.php
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
 composer run generate-{api-slug}-spec

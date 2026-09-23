@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use stdClass;
+use Tests\Infrastructure\Adapters\CQRS\Fixtures\AttributedCommand;
 use Tests\Infrastructure\Adapters\CQRS\Fixtures\RegistryCommand;
 use Tests\Infrastructure\Adapters\CQRS\Fixtures\RegistryQuery;
 use UnexpectedValueException;
@@ -34,8 +35,9 @@ final class ContainerAwareBusTest extends TestCase
     #[Test]
     public function itRejectsACommandContainerEntryWithTheWrongType(): void
     {
-        $bus     = new ContainerAwareCommandBus($this->invalidContainer());
-        $command = new AddEntry(
+        $resolver = new RegistryHandlerResolver([AddEntry::class => CommandHandler::class]);
+        $bus      = new ContainerAwareCommandBus($this->invalidContainer(), $resolver);
+        $command  = new AddEntry(
             'example-id',
             EntryType::SYSTEM,
             null,
@@ -54,8 +56,9 @@ final class ContainerAwareBusTest extends TestCase
     #[Test]
     public function itRejectsAQueryContainerEntryWithTheWrongType(): void
     {
-        $bus   = new ContainerAwareQueryBus($this->invalidContainer());
-        $query = new GetEntryGroupsByType(EntryType::SYSTEM, null);
+        $resolver = new RegistryHandlerResolver([GetEntryGroupsByType::class => QueryHandler::class]);
+        $bus      = new ContainerAwareQueryBus($this->invalidContainer(), $resolver);
+        $query    = new GetEntryGroupsByType(EntryType::SYSTEM, null);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -104,6 +107,12 @@ final class ContainerAwareBusTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
 
         new AttributeHandlerResolver()->handlerFor(new RegistryCommand());
+    }
+
+    #[Test]
+    public function attributeModeResolvesASeparatelyAttributedCommand(): void
+    {
+        self::assertSame(CommandHandler::class, new AttributeHandlerResolver()->handlerFor(new AttributedCommand()));
     }
 
     private function invalidContainer(): ContainerInterface

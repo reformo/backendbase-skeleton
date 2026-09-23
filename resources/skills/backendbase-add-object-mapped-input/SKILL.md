@@ -51,7 +51,7 @@ Use the target DTO style, mapper library and version, sanitizer, exception hiera
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Mapping/ObjectMapperTest.php
 composer phpstan
 composer complexity
 composer cs-check

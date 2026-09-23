@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Root;
 
-use Backendbase\Shared\Http\Actions\Action;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;

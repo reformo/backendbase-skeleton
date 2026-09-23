@@ -16,7 +16,6 @@
 ## Minimal command
 
 ```php
-#[CQRSHandler(DiscontinueCatalogItemHandler::class)]
 final readonly class DiscontinueCatalogItem implements Command
 {
     public function __construct(private CatalogItemId $itemId)
@@ -63,7 +62,16 @@ Add transaction or event code only after discovering an explicit requirement and
 
 ## Registration and runtime resolution
 
-The handler attribute supplies a class name. It does not register that class. Match the target composition root:
+The context registry identifies the handler. Add the mapping to `ServiceProvider::getHandlers()`:
+
+```php
+public static function getHandlers(): array
+{
+    return [DiscontinueCatalogItem::class => DiscontinueCatalogItemHandler::class];
+}
+```
+
+The mapping does not register the handler service. Register the handler in the target composition root:
 
 ```php
 $containerBuilder->addDefinitions([
@@ -112,7 +120,7 @@ Test the required order and force listener failure. Verify that persisted state 
 
 ## Current source behavior and limitations
 
-- The dependency provider accepts a resolver class. `AttributeHandlerResolver` reads one `CQRSHandler` attribute. `RegistryHandlerResolver` reads the owning context's `ServiceProvider::getHandlers()` mapping.
+- Current Backendbase contracts have no handler attributes. `RegistryHandlerResolver` reads the owning context's `ServiceProvider::getHandlers()` mapping.
 - The selected mapping identifies a class but does not register it. The container must resolve the handler and its dependencies.
 - The bus provides no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 - Current production handlers live in `Application/CommandHandlers`. Container config also contains older alternate glob patterns; do not select them when the target follows the current reference.
@@ -145,7 +153,7 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `src/Backendbase/Shared/CQRS/Command.php`
 - `src/Backendbase/Shared/CQRS/CommandHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php`
-- `src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Domain/ExampleCatalog/Contracts/Command`
 - `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers`
 - `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php`

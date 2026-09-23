@@ -88,17 +88,16 @@ backendbase-core/
 │   │   │   └── ServiceProvider.php    # Port bindings and subscriber metadata
 │   │   └── IdentityAndAccess/         # Authentication and authorization components
 │   ├── Infrastructure/
-│   │   ├── Adapters/                  # Database, queue, notification, and object-store adapters
+│   │   ├── Adapters/                  # HTTP, mapping, database, queue, and external adapters
 │   │   ├── Health/                    # Dependency readiness checks
 │   │   └── UseCase/
-│   │       ├── Console/               # Operational console commands
+│   │       ├── Console/               # Console adapter base and operational commands
 │   │       └── ExampleApi/            # ExampleApi middleware, routes, and controllers
 │   └── Shared/
 │       ├── CQRS/                      # Command and query buses
 │       ├── Domain/                    # Base domain and messaging types
-│       ├── Http/                      # HTTP actions, middleware, and error handling
 │       ├── Integrations/              # External capability ports
-│       ├── Persistence/               # Persistence ports and Doctrine support
+│       ├── Persistence/               # Persistence ports
 │       ├── Primitives/                # Shared value objects
 │       └── Services/                  # Shared application services
 ├── tests/                             # Architecture, domain, functional, infrastructure, and shared tests

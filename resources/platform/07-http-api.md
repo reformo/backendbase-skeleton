@@ -11,7 +11,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 
 ## Controller rules
 
-- Business endpoint actions extend `Backendbase\Shared\Http\Actions\Action`.
+- Business endpoint actions extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`.
 - A transport-only system handler can be directly invokable when it needs no shared action flow. `Liveness` is the current exception.
 - When an action dispatches application behavior, read and validate its PSR-7 input before creating one command or query.
 - For PATCH input, preserve omitted nullable fields and reject supplied values with invalid types before command construction.

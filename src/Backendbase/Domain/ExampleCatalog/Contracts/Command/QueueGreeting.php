@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
-use Backendbase\Domain\ExampleCatalog\Application\CommandHandlers\QueueGreetingHandler;
 use Backendbase\Shared\Authorization\AccessControl;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
-#[CQRSHandler(QueueGreetingHandler::class)]
 final readonly class QueueGreeting implements Command
 {
     public function __construct(private string $fullName, private AccessControl $accessControl)

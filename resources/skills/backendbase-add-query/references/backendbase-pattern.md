@@ -16,7 +16,6 @@
 
 ```php
 /** @implements Query<CatalogItemDetails|null> */
-#[CQRSHandler(GetCatalogItemHandler::class)]
 final readonly class GetCatalogItem implements Query
 {
     public function __construct(private CatalogItemId $itemId)
@@ -53,6 +52,17 @@ final readonly class GetCatalogItemHandler implements QueryHandler
 }
 ```
 
+## Registration
+
+Map the query in the owning context's `ServiceProvider::getHandlers()`:
+
+```php
+public static function getHandlers(): array
+{
+    return [GetCatalogItem::class => GetCatalogItemHandler::class];
+}
+```
+
 ## Result decisions
 
 - Use `null` only when absence is part of the query contract.
@@ -63,7 +73,7 @@ final readonly class GetCatalogItemHandler implements QueryHandler
 
 ## Current source behavior and limitations
 
-- The dependency provider accepts a resolver class. `AttributeHandlerResolver` reads one `CQRSHandler` attribute. `RegistryHandlerResolver` reads the owning context's `ServiceProvider::getHandlers()` mapping.
+- Current Backendbase contracts have no handler attributes. `RegistryHandlerResolver` reads the owning context's `ServiceProvider::getHandlers()` mapping.
 - `Query<TResult>` and `QueryHandler<TQuery, TResult>` are PHPStan contracts. Runtime dispatch returns `mixed`.
 - Current query contracts expose `toArray()` even though the shared `Query` interface requires only `jsonSerialize()`.
 - Current production handlers live in `Application/QueryHandlers` and delegate directly to the read port.
@@ -89,6 +99,7 @@ composer cs-check
 - `src/Backendbase/Shared/CQRS/Query.php`
 - `src/Backendbase/Shared/CQRS/QueryHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Domain/ExampleCatalog/Contracts/Query`
 - `src/Backendbase/Domain/ExampleCatalog/Contracts/ReadModel`
 - `src/Backendbase/Domain/ExampleCatalog/Contracts/EntryReadRepository.php`

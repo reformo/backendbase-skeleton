@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
-use Backendbase\Domain\ExampleCatalog\Application\CommandHandlers\RemoveEntryHandler;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Shared\Authorization\AccessControl;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
-#[CQRSHandler(RemoveEntryHandler::class)]
 readonly class RemoveEntry implements Command
 {
     public function __construct(

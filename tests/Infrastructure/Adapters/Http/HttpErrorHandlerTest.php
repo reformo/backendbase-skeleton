@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Http;
 
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Shared\Exception\ResourceNotFound;
-use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Services\Translator;
 use Laminas\Diactoros\ServerRequestFactory;
 use Monolog\Handler\TestHandler;

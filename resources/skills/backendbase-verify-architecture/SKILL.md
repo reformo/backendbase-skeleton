@@ -41,7 +41,7 @@ Adapt namespace roots, directory selectors, framework prefixes, composition root
 - Business layers must not import the configured framework families.
 - Shared must not depend on Domain or Infrastructure.
 - Current Backendbase policy permits `Psr\Log\LoggerInterface` as an application port. Confirm the target policy before allowing it elsewhere.
-- Current command and query contracts can reference their same-context handlers through one positional `CQRSHandler` attribute. This exception does not permit domain-core or cross-context dependencies.
+- Current command and query contracts have no handler attributes or handler imports. Their context service providers own the handler mappings.
 - Tests are excluded from production dependency scans.
 - `ServiceProvider.php` is a composition root and is excluded from some business-layer checks.
 - Vendor connections must be created in `config/dependencies` or an explicitly approved connection factory.

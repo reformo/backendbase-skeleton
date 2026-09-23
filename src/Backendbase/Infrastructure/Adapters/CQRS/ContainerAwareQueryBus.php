@@ -14,11 +14,10 @@ use UnexpectedValueException;
 
 readonly class ContainerAwareQueryBus implements QueryBus
 {
-    private HandlerResolver $handlerResolver;
-
-    public function __construct(private ContainerInterface $container, HandlerResolver|null $handlerResolver = null)
-    {
-        $this->handlerResolver = $handlerResolver ?? new AttributeHandlerResolver();
+    public function __construct(
+        private ContainerInterface $container,
+        private HandlerResolver $handlerResolver,
+    ) {
     }
 
     /**

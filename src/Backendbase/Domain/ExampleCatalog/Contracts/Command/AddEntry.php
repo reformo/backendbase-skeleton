@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
-use Backendbase\Domain\ExampleCatalog\Application\CommandHandlers\AddEntryHandler;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Shared\Authorization\AccessControl;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
-#[CQRSHandler(AddEntryHandler::class)]
 class AddEntry implements Command
 {
     /** @param array<string, mixed>|null $details */

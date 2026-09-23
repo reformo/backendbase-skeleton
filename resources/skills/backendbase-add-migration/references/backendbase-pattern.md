@@ -9,7 +9,7 @@
 | Migration directory | `resources/database/Migrations` |
 | Migration configuration | `migrations.json` |
 | Doctrine entry point | `bin/doctrine` |
-| MySQL DDL base | `Backendbase\Shared\Migrations\BackendbaseAbstractMigration` |
+| MySQL DDL base | `Backendbase\Infrastructure\Adapters\Persistence\Doctrine\BackendbaseAbstractMigration` |
 | Release migration source | `deployment/release.json` |
 | Generated release manifest | `release-manifest.json` inside the release artifact |
 | Approved reference data | `resources/database/Seeders` |
@@ -115,8 +115,8 @@ For new movable repository tests in an unmodified Backendbase project, use the c
 - `bin/deployment/deploy-release.sh`
 - `resources/database/Seeders/EntrySeeder.php`
 - `tests/Deployment/deployment-scripts.sh`
-- `src/Backendbase/Shared/Migrations/BackendbaseAbstractMigration.php`
-- `tests/Shared/Persistence/Doctrine/DqlAndMigrationTest.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/BackendbaseAbstractMigration.php`
+- `tests/Infrastructure/Adapters/Persistence/Doctrine/DqlAndMigrationTest.php`
 - `resources/database/Migrations/Version20260825050000.php`
 - `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php`
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

@@ -6,8 +6,8 @@ namespace Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity
 
 use Backendbase\Domain\ExampleCatalog\Domain\Entry as DomainEntry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\Persistence\Doctrine\DoctrineEntity;
-use Backendbase\Shared\Persistence\DoctrineEntityMethods;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineEntity;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineEntityMethods;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;

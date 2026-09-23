@@ -18,9 +18,11 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryIdByCriteria;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Domain\ExampleCatalog\ServiceProvider;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
+use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Shared\Domain\DomainEventPublisher;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Exception\ResourceNotFound;
@@ -36,8 +38,9 @@ final class EntryLifecycleTest extends TestCase
     public function itRunsTheCompleteEntryLifecycleThroughTheBuses(): void
     {
         $container     = $this->container();
-        $commandBus    = new ContainerAwareCommandBus($container);
-        $queryBus      = new ContainerAwareQueryBus($container);
+        $resolver      = new RegistryHandlerResolver(ServiceProvider::getHandlers());
+        $commandBus    = new ContainerAwareCommandBus($container, $resolver);
+        $queryBus      = new ContainerAwareQueryBus($container, $resolver);
         $accessControl = new Acl(['full-privileges']);
 
         $commandBus->handle(new AddEntry(

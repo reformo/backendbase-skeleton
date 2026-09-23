@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Shared\Options\System\Environment;
-use Backendbase\Shared\Services\ObjectMapper;
 use Backendbase\Shared\Services\Translator;
 use Backendbase\Utility\Pipeline\Pipeline;
 use Backendbase\Utility\Pipeline\PipelineInterface;

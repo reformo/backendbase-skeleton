@@ -6,10 +6,10 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\Hand
 
 use Backendbase\Domain\IdentityAndAccess\Contracts\Command\RegisterAccount as RegisterAccountCommand;
 use Backendbase\Domain\IdentityAndAccess\Domain\AccountId;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\AccountRequestInput;
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;

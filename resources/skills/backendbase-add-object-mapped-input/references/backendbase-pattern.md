@@ -64,10 +64,10 @@ Do not expose Valinor stack traces, mapper paths, or internal exception objects 
 
 ## Exact source provenance
 
-- `src/Backendbase/Shared/Services/ObjectMapper.php`
+- `src/Backendbase/Infrastructure/Adapters/Mapping/ObjectMapper.php`
 - `config/dependencies/application.php`
-- `tests/Shared/Services/MappedInput.php`
-- `tests/Shared/Services/SharedServicesTest.php`
+- `tests/Infrastructure/Adapters/Mapping/MappedInput.php`
+- `tests/Infrastructure/Adapters/Mapping/ObjectMapperTest.php`
 - `resources/platform/23-object-mapping.md`
 
 The target payload contract, not the example DTO, decides accepted fields and coercion.

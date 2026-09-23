@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Backendbase\Shared\Http\Middleware\ValidateApiKey;
+use Backendbase\Infrastructure\Adapters\Http\Middleware\ValidateApiKey;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RKA\Middleware\IpAddress;

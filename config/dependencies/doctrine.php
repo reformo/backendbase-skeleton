@@ -12,6 +12,7 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegration
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessageStore;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMonitor;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineQueueMessageFailureStore;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DQL\FirstFunction;
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Configuration\DatabaseSettings;
@@ -22,7 +23,6 @@ use Backendbase\Shared\Integrations\OutboxPublisher;
 use Backendbase\Shared\Integrations\OutboxRelay;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Options\System\Environment;
-use Backendbase\Shared\Persistence\Doctrine\DQL\FirstFunction;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;

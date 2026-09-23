@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Http;
 
-use Backendbase\Shared\Http\Actions\ActionError;
+use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpForbiddenException;

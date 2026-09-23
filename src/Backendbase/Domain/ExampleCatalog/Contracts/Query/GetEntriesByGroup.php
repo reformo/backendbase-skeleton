@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Query;
 
-use Backendbase\Domain\ExampleCatalog\Application\QueryHandlers\GetEntriesByGroupHandler;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Query;
 use Backendbase\Shared\Primitives\Pagination;
 
 /** @implements Query<EntryPage> */
-#[CQRSHandler(GetEntriesByGroupHandler::class)]
 readonly class GetEntriesByGroup implements Query
 {
     public function __construct(private EntryType $type, private int|null $typeTargetId, private string $group, private Pagination $pagination)

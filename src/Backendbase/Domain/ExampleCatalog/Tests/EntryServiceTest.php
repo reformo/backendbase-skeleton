@@ -15,9 +15,11 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntriesByGroup;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Domain\ExampleCatalog\ServiceProvider;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
+use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Infrastructure\Adapters\DomainEvents\ContainerAwareDomainEventPublisher;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
@@ -70,8 +72,9 @@ class EntryServiceTest extends TestCase
         );
         $this->container->set(IntegrationEventTransaction::class, $transaction);
 
-        $this->queryBus   = new ContainerAwareQueryBus($this->container);
-        $this->commandBus = new ContainerAwareCommandBus($this->container);
+        $resolver         = new RegistryHandlerResolver(ServiceProvider::getHandlers());
+        $this->queryBus   = new ContainerAwareQueryBus($this->container, $resolver);
+        $this->commandBus = new ContainerAwareCommandBus($this->container, $resolver);
     }
 
     #[Test]

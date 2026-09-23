@@ -43,7 +43,7 @@ Use the target framework, request types, namespace, command and query buses, res
 
 ## Backendbase invariants
 
-- In an unmodified Backendbase API, actions extend the shared `Action` base. Other projects must use their established HTTP and error boundary.
+- In an unmodified Backendbase API, actions extend the HTTP adapter `Action` base. Other projects must use their established HTTP and error boundary.
 - Controllers do not access Doctrine, SQL, aggregate persistence, outbox, or queues.
 - Invalid input never reaches a command or query bus.
 - A boundary failure never dispatches a command or query. The command handler owns authoritative missing-state and invariant decisions for a write.

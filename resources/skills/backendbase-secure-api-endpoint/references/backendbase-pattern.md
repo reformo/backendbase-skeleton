@@ -80,7 +80,7 @@ Compare each result with the OpenAPI status and problem body. Include configured
 - `src/Backendbase/Domain/IdentityAndAccess/Authorization/Acl.php`
 - `src/Backendbase/Shared/Authorization/AccessControl.php`
 - `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/`
-- `src/Backendbase/Shared/Http/Middleware/ValidateApiKey.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`
 - `config/example-api/jwt.global.php`
@@ -91,7 +91,7 @@ Compare each result with the OpenAPI status and problem body. Include configured
 - `src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Authentication/JwtTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
 - `src/Backendbase/Domain/IdentityAndAccess/Tests/Authorization/AclTest.php`
-- `tests/Shared/Http/Middleware/ValidateApiKeyTest.php`
+- `tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
 - `resources/docs/project.md`
 - `resources/docs/8-authentication-and-authorization.html`

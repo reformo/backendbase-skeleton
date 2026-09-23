@@ -5,8 +5,8 @@ Commands change state and return no result. Queries read data and return a decla
 ## Contract rules
 
 - Implement `Command` or `Query<TResult>`.
-- In `attribute` mode, add exactly one `#[CQRSHandler(HandlerClass::class)]` attribute.
-- In `registry` mode, map the contract to its handler in the owning context's `ServiceProvider::getHandlers()`.
+- Current commands and queries carry no handler attributes or handler imports.
+- Map each contract to its handler in the owning context's `ServiceProvider::getHandlers()`.
 - Carry only data required by one use case.
 - Validate HTTP input before contract construction.
 - Convert business values into enums or value objects at the boundary.
@@ -22,7 +22,7 @@ Commands change state and return no result. Queries read data and return a decla
 - Query handlers must not mutate aggregates or create integration events.
 - Put SQL only in read adapters.
 
-Pass `AttributeHandlerResolver::class` or `RegistryHandlerResolver::class` as the second argument to the `config/dependencies.php` provider. The default is `RegistryHandlerResolver::class`. Both classes implement `HandlerResolver`. Context `ServiceProvider::getHandlers()` methods supply the registry. A missing registry entry or attribute fails during dispatch. The buses only resolve and call handlers. They provide no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
+Pass `RegistryHandlerResolver::class` as the second argument to the `config/dependencies.php` provider, or use its default. Pass a `HandlerResolver` to each bus constructor. Context `ServiceProvider::getHandlers()` methods supply the registry. A missing registry entry fails during dispatch. `AttributeHandlerResolver` remains available for separately attributed contracts, but it cannot dispatch the current commands and queries. The buses only resolve and call handlers. They provide no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 
 PHPDoc generics are not checked at runtime. Test each configured handler link and concrete handler contract.
 

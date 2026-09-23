@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Migrations;
 
-use Backendbase\Shared\Migrations\BackendbaseAbstractMigration;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\BackendbaseAbstractMigration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 

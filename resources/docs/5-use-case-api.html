@@ -669,7 +669,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
         <section id="controllers">
             <h2>Controller pattern</h2>
-            <p>Business handlers extend <code>Backendbase\Shared\Http\Actions\Action</code>. The transport-only <code>Liveness</code> handler is directly invokable. The base class stores the PSR-7 request, response, and route arguments before it calls <code>action()</code>.</p>
+            <p>Business handlers extend <code>Backendbase\Infrastructure\Adapters\Http\Actions\Action</code>. The transport-only <code>Liveness</code> handler is directly invokable. The base class stores the PSR-7 request, response, and route arguments before it calls <code>action()</code>.</p>
             <div class="code-wrap"><pre><code>final class EntryAction extends Action
 {
     public function __construct(
@@ -925,7 +925,7 @@ bin/bruno example-api local</code></pre></div>
                     <tbody>
                     <tr><td>Runtime adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code></td></tr>
                     <tr><td>Dedicated entry point</td><td><code>public/{api-slug}/index.php</code></td></tr>
-                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Shared/Http/Bootstrap/UseCaseTarget.php</code>.</td></tr>
+                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Infrastructure/Adapters/Http/Bootstrap/UseCaseTarget.php</code>.</td></tr>
                     <tr><td>Configuration</td><td><code>config/{api-slug}</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/{api-slug}</code></td></tr>
                     <tr><td>Generated docs</td><td><code>public/{api-slug}/docs</code></td></tr>
@@ -986,10 +986,10 @@ composer complexity</code></pre></div>
                     <tr><td>API middleware</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php</code></td></tr>
                     <tr><td>Module registry</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php</code></td></tr>
                     <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example</code></td></tr>
-                    <tr><td>Shared action base</td><td><code>src/Backendbase/Shared/Http/Actions/Action.php</code></td></tr>
+                    <tr><td>HTTP action base</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php</code></td></tr>
                     <tr><td>Authorization middleware</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php</code></td></tr>
                     <tr><td>Error handler</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
-                    <tr><td>Response emitter</td><td><code>src/Backendbase/Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
+                    <tr><td>Response emitter</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
                     <tr><td>API configuration</td><td><code>config/example-api</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/example-api</code></td></tr>
                     <tr><td>Generated specification and viewer</td><td><code>public/example-api/docs</code></td></tr>

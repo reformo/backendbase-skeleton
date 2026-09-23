@@ -7,9 +7,9 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Ent
 use Backendbase\Domain\IdentityAndAccess\Domain\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\AccountId;
 use Backendbase\Domain\IdentityAndAccess\Domain\AccountPrivileges;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineEntity;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineEntityMethods;
 use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
-use Backendbase\Shared\Persistence\Doctrine\DoctrineEntity;
-use Backendbase\Shared\Persistence\DoctrineEntityMethods;
 use Backendbase\Shared\Primitives\Email;
 use Backendbase\Shared\Primitives\PasswordHash;
 use DateTimeImmutable;

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\Handlers;
 
 use Backendbase\Domain\IdentityAndAccess\Contracts\Command\ReviseAccount as ReviseAccountCommand;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\AccountRequestInput;
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Greeting;
 
+use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Greeting\Handlers\QueueGreetingRequest;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Middleware\AuthorizationMiddleware;
-use Backendbase\Shared\Http\Actions\ModuleRoute;
 use Override;
 use Psr\Container\ContainerInterface;
 use Slim\Routing\RouteCollectorProxy;

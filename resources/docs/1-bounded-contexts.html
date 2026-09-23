@@ -658,9 +658,9 @@
             </div>
             <div class="callout">
                 <strong>Current routing exception</strong>
-                In attribute mode, command and query contracts use <code>#[CQRSHandler(HandlerClass::class)]</code>. In registry mode, the context <code>ServiceProvider::getHandlers()</code> maps each contract to its application handler.
+                Current command and query contracts have no handler attributes. Each context <code>ServiceProvider::getHandlers()</code> maps its contracts to application handlers.
             </div>
-            <p class="muted">Architecture tests parse PHP symbols and enforce domain purity, bounded-context isolation, Application direction, both adapter directions, Shared core framework isolation, attribute-target integrity, and the <code>Shared</code> dependency boundary.</p>
+            <p class="muted">Architecture tests parse PHP symbols and enforce domain purity, bounded-context isolation, Application direction, both adapter directions, Shared framework isolation, CQRS registry mappings, listener targets, and the <code>Shared</code> dependency boundary.</p>
         </section>
 
         <section id="registration">
@@ -892,7 +892,7 @@
             <ul class="checklist">
                 <li>The context owns one clear business language.</li>
                 <li>Business rules are in domain objects.</li>
-                <li>Commands and queries have attributes or context registry mappings for the selected mode.</li>
+                <li>Every command and query has a context registry mapping and no handler attribute.</li>
                 <li>Handlers use ports, not concrete Doctrine adapters.</li>
                 <li>Read SQL stays in a read adapter.</li>
                 <li>Write mapping stays in a write adapter.</li>

@@ -652,7 +652,7 @@
                     <text x="670" y="59" text-anchor="middle" fill="#4f5f59" font-size="14" font-weight="700">Shared supplies CQRS, HTTP, domain, persistence, integration, primitive, and service building blocks</text>
                 </svg>
             </div>
-            <p>The architecture suite enforces Domain and Application direction, bounded-context isolation, both adapter directions, Shared core framework isolation, annotated target integrity, and the rule that <code>Shared</code> must not depend on <code>Application</code>, <code>Domain</code>, or <code>Infrastructure</code>.</p>
+            <p>The architecture suite enforces Domain and Application direction, bounded-context isolation, both adapter directions, Shared framework isolation, complete CQRS registry mappings, listener target integrity, and the rule that <code>Shared</code> must not depend on <code>Application</code>, <code>Domain</code>, or <code>Infrastructure</code>.</p>
         </section>
 
         <section id="boundaries">
@@ -894,7 +894,7 @@ bin/bruno example-api local</code></pre>
                     <tbody>
                         <tr><td>Focused PHPUnit</td><td><code>vendor/bin/phpunit &lt;path&gt;</code></td><td>Changed module or adapter</td></tr>
                         <tr><td>Full project test</td><td><code>composer test</code></td><td>PHPUnit with enforced 100% executable-line coverage, then deployment checks</td></tr>
-                        <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared core frameworks, and annotated targets</td></tr>
+                        <tr><td>Architecture boundaries</td><td><code>vendor/bin/phpunit tests/Architecture</code></td><td>Domain, Application, context, both adapter directions, Shared frameworks, registry mappings, and listener targets</td></tr>
                         <tr><td>Static analysis</td><td><code>composer phpstan</code></td><td>Application, tests, configuration, public entry points, tools, and database PHP at level 8</td></tr>
                         <tr><td>Cyclomatic complexity</td><td><code>composer complexity</code></td><td>Maximum of 12 per function or method in the configured PHP scope</td></tr>
                         <tr><td>Coding standard</td><td><code>composer cs-check</code></td><td>Doctrine Coding Standard</td></tr>

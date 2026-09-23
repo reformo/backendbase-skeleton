@@ -11,7 +11,7 @@ discover affected API -> draft OpenAPI contract -> complete application path
 
 | Endpoint concern | Backendbase reference | Target adaptation |
 | --- | --- | --- |
-| Base action | Shared `Action` catches known problem exceptions | Use the target error boundary |
+| Base action | HTTP adapter `Action` catches known problem exceptions | Use the target error boundary |
 | Input validation | `ExampleRequestInput` validates enum, scalar, object, boolean, and positive-integer fields | Encode the requested external contract |
 | Create | `NewExample` sends a command and returns `204` plus insert ID | Select target create status and headers |
 | Read | `Examples` sends a query and maps a page | Use the target read model and schema |
@@ -110,7 +110,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 
 ## Exact source provenance
 
-- `src/Backendbase/Shared/Http/Actions/Action.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`

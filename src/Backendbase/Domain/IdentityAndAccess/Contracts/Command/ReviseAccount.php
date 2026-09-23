@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Contracts\Command;
 
-use Backendbase\Domain\IdentityAndAccess\Application\CommandHandlers\ReviseAccountHandler;
 use Backendbase\Domain\IdentityAndAccess\Domain\AccountId;
 use Backendbase\Domain\IdentityAndAccess\Domain\AccountPrivileges;
 use Backendbase\Shared\Authorization\AccessControl;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\Primitives\Email;
 use Backendbase\Shared\Primitives\PasswordHash;
 use Override;
 
-#[CQRSHandler(ReviseAccountHandler::class)]
 final readonly class ReviseAccount implements Command
 {
     public function __construct(

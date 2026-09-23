@@ -63,7 +63,7 @@ Backendbase tests these rules directly:
 - Business layers do not import framework packages.
 - Shared code does not import application services, domain modules, or infrastructure.
 - Application code does not import infrastructure.
-- Shared core code does not import frameworks.
+- No Shared code imports frameworks.
 - Inbound and outbound adapters do not import each other.
 - CQRS and domain-listener attributes have one positional same-context target with the correct interface and production-container binding.
 
@@ -76,7 +76,7 @@ tests/Architecture/BoundedContextIsolationTest.php
 tests/Architecture/FrameworkImportBoundaryTest.php
 tests/Architecture/SharedDependencyBoundaryTest.php
 tests/Architecture/ApplicationDependencyBoundaryTest.php
-tests/Architecture/SharedCoreFrameworkBoundaryTest.php
+tests/Architecture/SharedFrameworkBoundaryTest.php
 tests/Architecture/InboundAdapterDependencyBoundaryTest.php
 tests/Architecture/OutboundAdapterDependencyBoundaryTest.php
 tests/Architecture/AttributeTargetBoundaryTest.php

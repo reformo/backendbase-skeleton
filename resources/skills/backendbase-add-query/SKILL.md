@@ -26,7 +26,7 @@ Preserve the target project's namespace, query naming, value objects, read-model
 ## Workflow
 
 1. Validate and convert untrusted input before query construction.
-2. Identify the selected resolver class. Add a query contract with `@implements Query<TResult>` and its handler attribute or `ServiceProvider::getHandlers()` mapping.
+2. Identify the selected resolver class. For Backendbase registry mode, add a query contract with `@implements Query<TResult>` and its context `ServiceProvider::getHandlers()` mapping.
 3. Reuse an existing scalar, list, page, or read model when it exactly matches the use case. Otherwise add the smallest immutable result model.
 4. Add or extend a context-owned read port for the requested capability.
 5. Add the query handler with matching `QueryHandler<TQuery, TResult>` PHPDoc.
@@ -36,8 +36,8 @@ Preserve the target project's namespace, query naming, value objects, read-model
 
 ## Backendbase invariants
 
-- With `AttributeHandlerResolver`, use exactly one `#[CQRSHandler(HandlerClass::class)]` attribute.
-- With `RegistryHandlerResolver`, map the query to its handler in the context `ServiceProvider::getHandlers()`.
+- In an unmodified Backendbase project, keep the query free of handler imports and attributes.
+- Map the query to its handler in the context `ServiceProvider::getHandlers()`.
 - Declare the query result with PHPDoc generics on both query and handler.
 - Return a read model, page, scalar, list, or `null`; never return a Doctrine record or raw row.
 - Query handlers must not load or mutate aggregates, control write transactions, or create events.

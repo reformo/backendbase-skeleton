@@ -6,14 +6,14 @@ $projectRoot = str_replace('/public', '', __DIR__);
 chdir($projectRoot);
 require 'vendor/autoload.php';
 
+use Backendbase\Infrastructure\Adapters\Http\Bootstrap\RequestUriNormalizer;
+use Backendbase\Infrastructure\Adapters\Http\Bootstrap\UseCaseTarget;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
+use Backendbase\Infrastructure\Adapters\Http\Handlers\ShutdownHandler;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
+use Backendbase\Infrastructure\Adapters\Http\ResponseEmitter\ResponseEmitter;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Shared\Configuration\HttpHeaderSettings;
-use Backendbase\Shared\Http\Bootstrap\RequestUriNormalizer;
-use Backendbase\Shared\Http\Bootstrap\UseCaseTarget;
-use Backendbase\Shared\Http\Handlers\ShutdownHandler;
-use Backendbase\Shared\Http\ResponseEmitter\ResponseEmitter;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Translator;
 use DI\ContainerBuilder;

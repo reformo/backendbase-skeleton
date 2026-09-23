@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Migrations;
 
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\BackendbaseAbstractMigration;
 use Backendbase\Seeders\IdentityAndAccessPrivilegeSeeder;
-use Backendbase\Shared\Migrations\BackendbaseAbstractMigration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 

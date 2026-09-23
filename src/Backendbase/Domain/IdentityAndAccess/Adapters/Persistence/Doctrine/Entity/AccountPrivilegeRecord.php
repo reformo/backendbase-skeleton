@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity;
 
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineEntity;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineEntityMethods;
 use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
-use Backendbase\Shared\Persistence\Doctrine\DoctrineEntity;
-use Backendbase\Shared\Persistence\DoctrineEntityMethods;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;

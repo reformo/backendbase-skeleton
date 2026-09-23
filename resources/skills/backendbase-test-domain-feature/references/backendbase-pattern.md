@@ -65,7 +65,7 @@ Use this mode when production code can compile but remain unreachable:
 
 - Load the target project's real dependency providers or test composition root.
 - Resolve each new handler and every constructor dependency from the container.
-- Dispatch one real command or query through the container-backed bus when handler metadata changed.
+- Dispatch one real command or query through the container-backed bus when a handler registry mapping changes.
 - Inspect the actual context-provider output for port bindings and subscriber metadata.
 - Exercise the real registry or route collection when subscribers, console commands, modules, or routes changed.
 

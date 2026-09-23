@@ -117,7 +117,7 @@
 </section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Verify cryptography, state, middleware, and policy</h2>
     <pre><code>vendor/bin/phpunit src/Backendbase/Domain/IdentityAndAccess/Tests
-vendor/bin/phpunit tests/Shared/Http/Middleware
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware
 vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
     <p>Cover token issue, claim validation, Redis revocation, expiry, malformed tokens, request attributes, ACL allow and deny paths, API-key modes, and protected route grouping.</p>
 </section>
@@ -139,7 +139,7 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
         <tr><td>Access-control contract</td><td><code>Shared/Authorization/AccessControl.php</code></td></tr>
         <tr><td>ACL</td><td><code>Domain/IdentityAndAccess/Authorization/Acl.php</code></td></tr>
         <tr><td>Privilege enforcement</td><td><code>Domain/ExampleCatalog/Application/CommandHandlers/</code></td></tr>
-        <tr><td>API key</td><td><code>Shared/Http/Middleware/ValidateApiKey.php</code></td></tr>
+        <tr><td>API key</td><td><code>Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php</code></td></tr>
         <tr><td>Authentication action</td><td><code>Infrastructure/UseCase/ExampleApi/Controllers/Root/Authenticate.php</code></td></tr>
         <tr><td>JWT configuration</td><td><code>config/example-api/jwt.global.php</code></td></tr>
     </tbody></table></div>

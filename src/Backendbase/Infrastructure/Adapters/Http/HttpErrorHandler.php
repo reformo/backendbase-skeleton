@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Http;
 
+use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Backendbase\Shared\Domain\Exception\DomainException;
-use Backendbase\Shared\Http\Actions\ActionError;
 use Backendbase\Shared\Services\Translator;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;

@@ -10,7 +10,7 @@
 | Business layers | Configured framework namespace prefixes |
 | Shared | `Backendbase\Application`, `Backendbase\Domain`, and `Backendbase\Infrastructure` |
 | Application | `Backendbase\Infrastructure` |
-| Shared core | Configured framework namespace prefixes |
+| Shared | Configured framework namespace prefixes |
 | Inbound adapter | Any concrete outbound adapter class |
 | Outbound adapter | Any concrete inbound adapter class |
 
@@ -21,7 +21,7 @@ The business-layer selector excludes adapter paths and root context service prov
 Backendbase permits two narrow directions that can look like violations during manual review:
 
 - Application code can use `Psr\Log\LoggerInterface` as a logging port. `FrameworkImportBoundaryTest` does not forbid the `Psr\Log` namespace.
-- A command or query contract can reference its handler in the same bounded context through exactly one positional `#[CQRSHandler(HandlerClass::class)]` attribute.
+- Command and query contracts have no handler attributes. Their context service providers map each contract to its handler.
 - A domain event can reference one same-context listener through exactly one positional domain-listener attribute.
 
 These are policy decisions in this repository. Do not copy them into a target project without checking its architecture tests. Neither exception permits domain-core code to import Application, nor one bounded context to import another context.
@@ -87,10 +87,11 @@ vendor/bin/phpunit tests/Architecture/BoundedContextIsolationTest.php
 vendor/bin/phpunit tests/Architecture/FrameworkImportBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/SharedDependencyBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/ApplicationDependencyBoundaryTest.php
-vendor/bin/phpunit tests/Architecture/SharedCoreFrameworkBoundaryTest.php
+vendor/bin/phpunit tests/Architecture/SharedFrameworkBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/InboundAdapterDependencyBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/OutboundAdapterDependencyBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/AttributeTargetBoundaryTest.php
+vendor/bin/phpunit tests/Architecture/RegistryHandlerBoundaryTest.php
 vendor/bin/phpunit tests/Architecture
 vendor/bin/phpunit {RealCompositionTestPath}
 composer phpstan
@@ -117,10 +118,11 @@ Create or select `{RealCompositionTestPath}` for the changed provider, container
 - `tests/Architecture/FrameworkImportBoundaryTest.php`
 - `tests/Architecture/SharedDependencyBoundaryTest.php`
 - `tests/Architecture/ApplicationDependencyBoundaryTest.php`
-- `tests/Architecture/SharedCoreFrameworkBoundaryTest.php`
+- `tests/Architecture/SharedFrameworkBoundaryTest.php`
 - `tests/Architecture/InboundAdapterDependencyBoundaryTest.php`
 - `tests/Architecture/OutboundAdapterDependencyBoundaryTest.php`
 - `tests/Architecture/AttributeTargetBoundaryTest.php`
+- `tests/Architecture/RegistryHandlerBoundaryTest.php`
 - `tests/Architecture/Support/ArchitectureDependencies.php`
 - `tests/Architecture/Support/BoundedContextDependencies.php`
 - `tests/Architecture/Support/PhpDependencyScanner.php`

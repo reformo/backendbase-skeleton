@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
@@ -14,7 +15,6 @@ use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
-use Backendbase\Shared\Http\Actions\Action;
 use Laminas\Diactoros\ServerRequestFactory;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\Test;

@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Query;
 
-use Backendbase\Domain\ExampleCatalog\Application\QueryHandlers\GetEntryByCriteriaHandler;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryDetails;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Query;
 
 /** @implements Query<EntryDetails|null> */
-#[CQRSHandler(GetEntryByCriteriaHandler::class)]
 class GetEntryByCriteria implements Query
 {
     public function __construct(private EntryType $type, private int|null $typeTargetId, private string $group, private string $key)

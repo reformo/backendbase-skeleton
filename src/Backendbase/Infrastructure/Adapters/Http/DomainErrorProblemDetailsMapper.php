@@ -9,6 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Exception\AccountAlreadyRegistered;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
 use Backendbase\Domain\IdentityAndAccess\Exception\UnknownAccountPrivilege;
+use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Exception\CommandFailed;
@@ -17,7 +18,6 @@ use Backendbase\Shared\Exception\InvalidUserInput;
 use Backendbase\Shared\Exception\ResourceAccessForbidden;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Exception\TooManyRequests;
-use Backendbase\Shared\Http\Actions\ActionError;
 use Backendbase\Shared\Primitives\Exception\InvalidEmailAddress;
 use Backendbase\Shared\Primitives\Exception\InvalidName;
 

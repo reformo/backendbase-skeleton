@@ -615,7 +615,7 @@
 
         <section id="contracts">
             <h2>Core contracts</h2>
-            <p class="lede">The CQRS design uses seven shared contract and attribute types plus two Infrastructure bus adapters.</p>
+            <p class="lede">The CQRS design uses shared contracts, context registry mappings, and two Infrastructure bus adapters.</p>
 
             <div class="table-wrap">
                 <table>
@@ -627,7 +627,7 @@
                         <tr><td><code>Query&lt;TResult&gt;</code></td><td>Serializable read input with a covariant PHPDoc result type.</td><td>Declared by <code>TResult</code>.</td></tr>
                         <tr><td><code>QueryHandler&lt;TQuery, TResult&gt;</code></td><td>Handles a query and returns its result.</td><td><code>TResult</code> in PHPDoc, <code>mixed</code> at runtime.</td></tr>
                         <tr><td><code>QueryBus</code></td><td>Resolves and invokes one query handler.</td><td><code>TResult</code> in PHPDoc, <code>mixed</code> at runtime.</td></tr>
-                        <tr><td><code>CQRSHandler</code></td><td>Class attribute that stores the handler class name.</td><td>Reflection metadata.</td></tr>
+                        <tr><td><code>CQRSHandler</code></td><td>Optional class attribute for separately attributed contracts.</td><td>Reflection metadata.</td></tr>
                         <tr><td><code>ContainerAwareCommandBus</code></td><td>Production command-bus implementation.</td><td><code>void</code></td></tr>
                         <tr><td><code>ContainerAwareQueryBus</code></td><td>Production query-bus implementation.</td><td>Handler result.</td></tr>
                     </tbody>
@@ -647,25 +647,24 @@
 
             <ol class="steps">
                 <li><strong>Read the concrete command or query class.</strong></li>
-                <li><strong>Read the context registry mapping or the <code>CQRSHandler</code> attribute.</strong></li>
+                <li><strong>Read the owning context's registry mapping.</strong></li>
                 <li><strong>Resolve that handler class from the PSR container.</strong></li>
                 <li><strong>Verify the command or query handler interface.</strong></li>
                 <li><strong>Call <code>handle()</code> with the original contract object.</strong></li>
             </ol>
 
-            <h3>Attribute mode</h3>
+            <h3>Registry mode</h3>
             <div class="code-wrap">
-                <pre><code>#[CQRSHandler(ChangeEntryHandler::class)]
-final class ChangeEntry implements Command
+                <pre><code>public static function getHandlers(): array
 {
-    // Contract data and serialization...
+    return [ChangeEntry::class =&gt; ChangeEntryHandler::class];
 }</code></pre>
             </div>
 
             <div class="callout danger">
                 <strong>Choose one handler source</strong>
-                Pass <code>AttributeHandlerResolver::class</code> or <code>RegistryHandlerResolver::class</code> as the second argument to the <code>config/dependencies.php</code> provider.
-                The default is <code>RegistryHandlerResolver::class</code>. Both resolvers implement <code>HandlerResolver</code>. The registry resolver reads mappings from each context's <code>ServiceProvider::getHandlers()</code>.
+                The <code>config/dependencies.php</code> provider defaults to <code>RegistryHandlerResolver::class</code>. It reads mappings from each context's <code>ServiceProvider::getHandlers()</code>.
+                <code>AttributeHandlerResolver</code> remains available for separately attributed contracts. It cannot dispatch the current commands and queries.
             </div>
 
             <h3>Bus implementation</h3>
@@ -692,8 +691,7 @@ final class ChangeEntry implements Command
 
             <h3>Command contract</h3>
             <div class="code-wrap">
-                <pre><code>#[CQRSHandler(RemoveEntryHandler::class)]
-readonly class RemoveEntry implements Command
+                <pre><code>readonly class RemoveEntry implements Command
 {
     public function __construct(
         private EntryIdentity $identity,
@@ -779,7 +777,6 @@ readonly class RemoveEntry implements Command
             <h3>Query contract</h3>
             <div class="code-wrap">
                 <pre><code>/** @implements Query&lt;EntryDetails|null&gt; */
-#[CQRSHandler(GetEntryByCriteriaHandler::class)]
 final readonly class GetEntryByCriteria implements Query
 {
     public function __construct(
@@ -932,7 +929,7 @@ $result = $this-&gt;queryBus-&gt;handle(
                 <article class="card command">
                     <h3>Bus responsibilities</h3>
                     <ul>
-                        <li>Read handler metadata</li>
+                        <li>Ask the configured resolver for the handler class</li>
                         <li>Resolve the handler</li>
                         <li>Verify the handler interface</li>
                         <li>Invoke the handler</li>
@@ -968,7 +965,7 @@ $result = $this-&gt;queryBus-&gt;handle(
             <p class="lede">PHP-DI provides the buses, handlers, and repository adapters.</p>
 
             <h3>Bus definitions</h3>
-            <p>Dependency definitions use the registry resolver by default. Pass <code>AttributeHandlerResolver::class</code> as the second argument to select attributes.</p>
+            <p>Dependency definitions use the registry resolver by default. Both bus constructors require a handler resolver. Current contracts have no handler attributes.</p>
             <div class="code-wrap">
                 <pre><code>CommandBus::class =&gt; fn (ContainerInterface $container) =&gt;
     new ContainerAwareCommandBus($container, $container-&gt;get(HandlerResolver::class)),
@@ -994,7 +991,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
 
             <div class="callout warning">
                 <strong>Handler mappings do not register services</strong>
-                Attributes and registry entries only identify a handler class.
+                Registry entries only identify a handler class.
                 The container must still resolve that class and every constructor dependency.
             </div>
         </section>
@@ -1139,7 +1136,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 <li><strong>Create the contract under <code>Contracts/Command</code> or <code>Contracts/Query</code>.</strong></li>
                 <li><strong>Validate external data before contract construction.</strong></li>
                 <li><strong>Use enums or value objects for business-bearing primitives.</strong></li>
-                <li><strong>Add a <code>CQRSHandler</code> attribute or a context <code>ServiceProvider::getHandlers()</code> mapping for the selected resolver.</strong></li>
+                <li><strong>Map the contract in the owning context's <code>ServiceProvider::getHandlers()</code>.</strong></li>
                 <li><strong>Create the handler under <code>Application/CommandHandlers</code> or <code>Application/QueryHandlers</code>.</strong></li>
                 <li><strong>Add concrete PHPDoc parameter and generic result types.</strong></li>
                 <li><strong>Use the write port and aggregate for commands.</strong></li>

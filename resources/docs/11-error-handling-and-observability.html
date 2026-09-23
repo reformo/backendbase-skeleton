@@ -81,16 +81,16 @@
 <li>No metrics, tracing exporter, dashboard, or alert configuration exists in the repository.</li></ul>
 </section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Verify public safety and internal evidence</h2>
-<pre><code>vendor/bin/phpunit tests/Shared/Http/Actions
+<pre><code>vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Actions
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/SqsQueueTest.php
-vendor/bin/phpunit tests/Shared/Http/ResponseEmitter
+vendor/bin/phpunit tests/Infrastructure/Adapters/Http/ResponseEmitter
 vendor/bin/phpunit tests/Infrastructure/UseCase/Console</code></pre>
 <p>Test status mappings, safe bodies, logging calls, SQS retry diagnostics, shutdown behavior, CORS headers, output buffers, and unhealthy outbox exit codes.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Known problems</td><td><code>Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php</code></td></tr><tr><td>HTTP error handling</td><td><code>Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
-<tr><td>Shutdown failures</td><td><code>Shared/Http/Handlers/ShutdownHandler.php</code></td></tr><tr><td>Response emission</td><td><code>Shared/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
+<tr><td>Shutdown failures</td><td><code>Infrastructure/Adapters/Http/Handlers/ShutdownHandler.php</code></td></tr><tr><td>Response emission</td><td><code>Infrastructure/Adapters/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
 <tr><td>Logger config</td><td><code>config/autoload/logger.global.php</code></td></tr><tr><td>Health actions</td><td><code>ExampleApi/Controllers/Root/Liveness.php</code> and <code>Readiness.php</code></td></tr>
 <tr><td>SQS handler diagnostics</td><td><code>Infrastructure/Adapters/Queue/SqsTransport.php</code> and <code>SqsQueue.php</code></td></tr>
 <tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntriesByGroup;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
-use Backendbase\Shared\Http\Actions\Action;
 use Backendbase\Shared\Primitives\Pagination;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
