@@ -949,7 +949,7 @@ runtime:
                         <tr><td>Generation</td><td><code>composer run generate-example-api-spec</code></td><td>External references can be resolved.</td><td>The contract is correct or valid.</td></tr>
                         <tr><td>Schema validation</td><td><code>php-openapi validate</code></td><td>The merged document follows OpenAPI 3.0 structure.</td><td>The API follows the document.</td></tr>
                         <tr><td>Bruno</td><td><code>bin/bruno example-api local</code></td><td>A running API passes selected examples and assertions.</td><td>Full schema coverage or all failure paths.</td></tr>
-                        <tr><td>PHPUnit</td><td><code>tests/Infrastructure/UseCase/ExampleApi</code></td><td>Application adapters and endpoint behavior pass their tests.</td><td>The published contract matches all behavior.</td></tr>
+                        <tr><td>PHPUnit</td><td><code>tests/Infrastructure/Inbound/ExampleApi</code></td><td>Application adapters and endpoint behavior pass their tests.</td><td>The published contract matches all behavior.</td></tr>
                         <tr><td>Review</td><td>OpenAPI, Bruno, route, and test difference</td><td>Names, payloads, status codes, and security stay aligned.</td><td>Future behavior.</td></tr>
                     </tbody>
                 </table>
@@ -1009,7 +1009,7 @@ composer run start-apis
 bin/bruno example-api local
 
 # Run focused Example API PHP tests
-vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
+vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi</code></pre>
             </div>
             <p class="small">Run commands from the project root. Bruno also needs Node.js, <code>npx</code>, the Bruno CLI package, a running API, valid credentials, and suitable data.</p>
         </section>

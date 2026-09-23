@@ -80,18 +80,14 @@ backendbase-core/
 │   │   │   └── ServiceProvider.php    # Port, handler, and subscriber registration
 │   │   └── IdentityAndAccess/         # Authentication and authorization context
 │   ├── Infrastructure/
-│   │   ├── Adapters/                  # HTTP, mapping, persistence, queue, and external adapters
+│   │   ├── Adapters/                  # Console, HTTP, mapping, persistence, queue, and external adapters
 │   │   ├── Configuration/             # Typed runtime, AWS, queue, database, Redis, and logging settings
 │   │   ├── Health/                    # Bounded dependency readiness checks
-│   │   └── UseCase/
-│   │       ├── ExampleApi/
-│   │       │   ├── Controllers/         # Root, Account, Example, and Greeting HTTP modules
-│   │       │   ├── middleware.php
-│   │       │   └── routes.php
-│   │       └── Console/
-│   │           ├── Command.php        # Reusable console adapter base
-│   │           ├── GoodHousekeeping/
-│   │           └── Queue/
+│   │   └── Inbound/                   # Consumer-specific API entry code
+│   │       └── ExampleApi/
+│   │           ├── Controllers/         # Root, Account, Example, and Greeting HTTP modules
+│   │           ├── middleware.php
+│   │           └── routes.php
 │   └── Shared/
 │       ├── Configuration/             # Shared HTTP, JWT, and configuration validation types
 │       ├── CQRS/                      # Command and query buses
@@ -147,11 +143,13 @@ Repository ports live in bounded-context `Contracts`. Write ports load and save 
 
 ### Consumer API Use Cases
 
-The current repository contains one HTTP API: `ExampleApi`. Its HTTP adapter lives under `src/Backendbase/Infrastructure/UseCase/ExampleApi`. Its public, configuration, OpenAPI, and Bruno roots use the `example-api` slug.
+The current repository contains one HTTP API: `ExampleApi`. Its HTTP adapter lives under `src/Backendbase/Infrastructure/Inbound/ExampleApi`. Its public, configuration, OpenAPI, and Bruno roots use the `example-api` slug.
+
+`Infrastructure/Inbound` holds consumer-specific entry code. Each consumer API keeps its routes, middleware, and controllers together. Operational console commands live under `Infrastructure/Adapters/Console`. Reusable HTTP support stays under `Infrastructure/Adapters/Http`.
 
 Use `ExampleApi` as the reference implementation for controllers, routes, middleware, OpenAPI, and Bruno end-to-end patterns. Use `resources/skills/backendbase-add-use-case-api/SKILL.md` when the user requests another API. Do not assume that `UserApi`, `ExpertApi`, `AdminApi`, or `B2BApi` exists.
 
-Before implementing a feature, inspect the current `Infrastructure/UseCase` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
+Before implementing a feature, inspect the current `Infrastructure/Inbound` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
 
 All new consumer API endpoints must be grouped with `AuthorizationMiddleware` by default. Leave a new endpoint ungrouped only when the request strictly states that authorization is not required, or when it is clearly a public/common endpoint such as registration/authentication bootstrap, callback/webhook handling, or non-user-related public information. If it is not clear whether a public exception applies, ask before implementing the route.
 
@@ -163,7 +161,7 @@ Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase
 
 ### Example API
 
-`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
+`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
 
 When adding or changing an endpoint, use this adapter shape in each existing affected API. The current repository has only `ExampleApi`.
 
@@ -217,11 +215,11 @@ The queue message processor converts a producer event name to an external subscr
 
 - HTTP bootstrap: `public/index.php`
 - ExampleApi front controller: `public/example-api/index.php`
-- ExampleApi middleware: `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
-- ExampleApi routes: `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
-- ExampleApi liveness and readiness actions: `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root`
+- ExampleApi middleware: `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
+- ExampleApi routes: `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
+- ExampleApi liveness and readiness actions: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Root`
 - Dependency readiness checks: `src/Backendbase/Infrastructure/Health`
-- ExampleApi module registry: `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php`
+- ExampleApi module registry: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php`
 - ExampleApi configuration: `config/example-api`
 - ExampleApi OpenAPI source: `resources/api-docs/example-api`
 - ExampleApi Bruno collection: `resources/bruno/example-api`
@@ -276,9 +274,9 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 - Use the real namespace and path `src/Backendbase/Infrastructure`.
 - Treat `src/Backendbase/Domain/ExampleCatalog` as the bounded-context reference.
 - Name new contexts after the target business capability. Omit `Context` and `BoundedContext` suffixes. `ExampleCatalog` is a demonstration name, and its domain entity is `Entry`.
-- Treat `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example` as the HTTP module reference.
+- Treat `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example` as the HTTP module reference.
 - The current repository contains only `ExampleApi`. Scaffold another API before adding adapters for it.
 - Update `resources/api-docs/example-api` and `resources/bruno/example-api` when a public ExampleApi route changes.
 - Update the `Unreleased` section of `CHANGELOG.md` in every commit.
-- Use targeted tests under `tests/Infrastructure/UseCase/ExampleApi` for HTTP adapter behavior.
+- Use targeted tests under `tests/Infrastructure/Inbound/ExampleApi` for HTTP adapter behavior.
 - Report required checks that could not run, with exact commands and blockers. Omit command examples unrelated to the changed behavior.

@@ -88,10 +88,9 @@ backendbase-core/
 │   │   │   └── ServiceProvider.php    # Port bindings and subscriber metadata
 │   │   └── IdentityAndAccess/         # Authentication and authorization components
 │   ├── Infrastructure/
-│   │   ├── Adapters/                  # HTTP, mapping, database, queue, and external adapters
+│   │   ├── Adapters/                  # Console, HTTP, mapping, database, queue, and external adapters
 │   │   ├── Health/                    # Dependency readiness checks
-│   │   └── UseCase/
-│   │       ├── Console/               # Console adapter base and operational commands
+│   │   └── Inbound/                   # Consumer-specific API entry code
 │   │       └── ExampleApi/            # ExampleApi middleware, routes, and controllers
 │   └── Shared/
 │       ├── CQRS/                      # Command and query buses
@@ -117,10 +116,10 @@ backendbase-core/
 
 - Shared HTTP bootstrap and API selector: `public/index.php`
 - ExampleApi front controller: `public/example-api/index.php`
-- ExampleApi middleware: `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
-- ExampleApi routes: `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
-- ExampleApi module registry: `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php`
-- ExampleApi root, liveness, readiness, and authentication handlers: `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root`
+- ExampleApi middleware: `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
+- ExampleApi routes: `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
+- ExampleApi module registry: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php`
+- ExampleApi root, liveness, readiness, and authentication handlers: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Root`
 - Dependency readiness checks: `src/Backendbase/Infrastructure/Health`
 - ExampleApi configuration: `config/example-api`
 - Shared runtime configuration: `config/autoload`

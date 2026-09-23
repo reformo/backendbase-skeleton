@@ -21,7 +21,7 @@ Do not assume `Backendbase\`, `bin/backendbase`, `config/commands.php`, or the e
 | Role | Backendbase reference | Target decision |
 | --- | --- | --- |
 | Executable bootstrap | `bin/backendbase` | Reuse the target console bootstrap. |
-| Command class | `Infrastructure/UseCase/Console/{Area}` | Use the target infrastructure or delivery layer. |
+| Command class | `Infrastructure/Adapters/Console/{Area}` | Use the target infrastructure or delivery layer. |
 | Application capability | Injected project-owned interface | Reuse or add a narrow port outside the command. |
 | Container registration | `config/commands.php` | Follow the target registration mechanism. |
 | Focused test | Symfony `CommandTester` | Place it with the target's console tests. |
@@ -91,7 +91,7 @@ Use the target container's native equivalent when it differs.
 - Shared configuration loads before optional console configuration.
 - Queue maintenance commands validate limits before invoking their ports.
 - Finite outbox commands communicate unhealthy state with a nonzero exit code.
-- `Backendbase\Infrastructure\UseCase\Console\Command::logMessage()` uses the first alias. A subclass must set an alias before calling it.
+- `Backendbase\Infrastructure\Adapters\Console\Command::logMessage()` uses the first alias. A subclass must set an alias before calling it.
 - Queue consumers are long-running. A process supervisor must own them.
 - Command registration is explicit. Creating a class alone does not expose it.
 
@@ -106,7 +106,7 @@ Select checks for the changed behavior and target policy. Command lists are exam
 Select focused command tests and required project gates. Expand coverage when registration or bootstrap changes. Available Backendbase examples:
 
 ```sh
-vendor/bin/phpunit tests/Infrastructure/UseCase/Console
+vendor/bin/phpunit tests/Infrastructure/Adapters/Console
 vendor/bin/phpunit tests/Architecture
 bin/backendbase list
 composer phpstan
@@ -135,12 +135,12 @@ Verified on 2026-08-25 from:
 
 - `bin/backendbase`
 - `config/commands.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Command.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/RelayOutboxMessages.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/CleanupIntegrationMessages.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/ContainerAwareQueueConsumer.php`
-- `tests/Infrastructure/UseCase/Console/CommandTest.php`
-- `tests/Infrastructure/UseCase/Console/Queue/QueueMaintenanceCommandsTest.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Command.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/RelayOutboxMessages.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/CleanupIntegrationMessages.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/ContainerAwareQueueConsumer.php`
+- `tests/Infrastructure/Adapters/Console/CommandTest.php`
+- `tests/Infrastructure/Adapters/Console/Queue/QueueMaintenanceCommandsTest.php`
 - `resources/platform/01-repository-map.md`
 - `resources/platform/13-queue-runtime.md`
 - `resources/docs/4-messaging-and-queues.html`

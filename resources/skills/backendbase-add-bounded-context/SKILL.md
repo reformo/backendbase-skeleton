@@ -39,7 +39,7 @@ Preserve the target project's namespace and established naming. Use Backendbase 
 ## Backendbase invariants
 
 - Keep the context as a direct child of `src/Backendbase/Domain` in an unmodified Backendbase project.
-- Keep HTTP adapters under `Infrastructure/UseCase`, outside the context.
+- Keep HTTP adapters under `Infrastructure/Inbound`, outside the context.
 - Do not import another bounded context or its adapters.
 - Do not import frameworks into business layers.
 - Implement `Backendbase\Shared\ServiceProvider` at the exact discovered provider path.

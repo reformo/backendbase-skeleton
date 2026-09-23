@@ -57,7 +57,7 @@ Select checks for the changed behavior and target policy. Command lists are exam
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware/{MiddlewareTest}.php
 # Use the owning directory instead when the change needs broader coverage.
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware
-vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/ModuleRoutingTest.php
+vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}/ModuleRoutingTest.php
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml

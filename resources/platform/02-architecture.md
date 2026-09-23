@@ -8,7 +8,10 @@
 - Application services must not depend on `Infrastructure`.
 - Infrastructure adapters map project contracts to frameworks, databases, brokers, and vendors.
 - Infrastructure adapters must not make business decisions.
-- HTTP adapters belong under `Infrastructure/UseCase`, outside bounded contexts.
+- `Infrastructure/Inbound` holds consumer-specific entry code outside bounded contexts.
+- Keep each consumer API's routes, middleware, and controllers in its own directory under `Infrastructure/Inbound`.
+- Reusable HTTP support belongs under `Infrastructure/Adapters/Http`.
+- Operational console command entry code belongs under `Infrastructure/Adapters/Console`.
 - Shared code contains stable cross-module contracts and values. Framework support belongs in Infrastructure.
 - Shared code must not depend on `Application`, `Domain`, or `Infrastructure`.
 - No Shared code may import framework namespaces.

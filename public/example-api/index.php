@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-$useCaseSlug = 'example-api';
-$useCaseName = 'ExampleApi';
+$consumerApiSlug = 'example-api';
+$consumerApiName = 'ExampleApi';
 require_once __DIR__ . '/../index.php';

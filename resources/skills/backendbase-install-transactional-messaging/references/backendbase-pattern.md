@@ -167,7 +167,7 @@ Run focused tests for each layer, then:
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue
-vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue
+vendor/bin/phpunit tests/Infrastructure/Adapters/Console/Queue
 vendor/bin/phpunit tests/Architecture
 composer phpstan
 composer complexity

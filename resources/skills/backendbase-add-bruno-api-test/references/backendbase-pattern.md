@@ -84,9 +84,9 @@ These conditions are audit prompts. Do not copy their values or behavior into th
 - `resources/bruno/example-api/example/delete-example.yml`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/example-api/example/`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/`
-- `tests/Infrastructure/UseCase/ExampleApi/`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/`
+- `tests/Infrastructure/Inbound/ExampleApi/`
 - `bin/bruno`
 - `resources/docs/project.md`
 - `resources/platform/07-http-api.md`

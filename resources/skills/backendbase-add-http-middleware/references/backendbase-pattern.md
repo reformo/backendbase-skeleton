@@ -75,16 +75,16 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 
 ## Exact source provenance
 
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddleware.php`
 - `config/example-api/http-headers.global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/common/components.yaml`
 - `resources/bruno/example-api/`
 - `tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php`
-- `tests/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
-- `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
+- `tests/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
+- `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
 - `resources/docs/project.md`
 - `resources/platform/07-http-api.md`
 - `resources/platform/08-api-contracts.md`

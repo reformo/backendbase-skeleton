@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers;
+
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
+use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
+use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
+use Backendbase\Shared\Authorization\AccessControl;
+use Backendbase\Shared\CQRS\CommandBus;
+use Backendbase\Utility\Arrays\PayloadSanitizer;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Override;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Log\LoggerInterface;
+
+class ChangeExampleDetails extends Action
+{
+    public function __construct(
+        private readonly CommandBus $commandBus,
+        protected LoggerInterface $logger,
+    ) {
+        parent::__construct($logger);
+    }
+
+    #[Override]
+    protected function action(): Response
+    {
+        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group        = (string) $this->request->getAttribute('example-group');
+        $entryKey     = (string) $this->request->getAttribute('example-key');
+        $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
+        $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
+        $lookupValue  = ExampleRequestInput::optionalStringOrNull($payload['lookupValue'] ?? null, 'lookupValue');
+        $details      = ExampleRequestInput::optionalObjectOrNull($payload['details'] ?? null, 'details');
+        $isActive     = ExampleRequestInput::optionalBooleanOrNull($payload['isActive'] ?? null, 'isActive');
+
+        $identity      = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
+        $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
+        $command       = new ChangeEntry($identity, $accessControl)
+            ->setDetails($details)
+            ->setValue($lookupValue)
+            ->setIsActive($isActive);
+        $this->commandBus->handle($command);
+
+        return new EmptyResponse(204);
+    }
+}

@@ -79,11 +79,11 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 ## Exact source provenance
 
 - `src/Backendbase/Infrastructure/Adapters/Http/Actions/ModuleRoute.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
-- `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
+- `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/example-api/example/example-groups.yaml`
 - `resources/api-docs/example-api/example/examples.yaml`

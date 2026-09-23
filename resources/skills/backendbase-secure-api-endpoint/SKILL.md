@@ -61,9 +61,9 @@ Select checks for the changed behavior and target policy. Command lists are exam
 
 ```sh
 vendor/bin/phpunit src/Backendbase/Domain/IdentityAndAccess/Tests
-vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/Middleware
+vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}/Middleware
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php
-vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/ModuleRoutingTest.php
+vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}/ModuleRoutingTest.php
 vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml

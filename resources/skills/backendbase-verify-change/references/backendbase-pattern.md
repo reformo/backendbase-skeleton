@@ -138,7 +138,7 @@ For changed registration, run a composition test through the real provider, cont
 
 When application behavior is delivered over HTTP:
 
-1. Enumerate the target project's existing `Infrastructure/UseCase` or equivalent API roots.
+1. Enumerate the target project's existing `Infrastructure/Inbound` or equivalent API roots.
 2. Identify every existing API affected by the behavior. If a requested API is absent, report the missing surface instead of inventing it.
 3. Compare method, path, placeholder names, route name, middleware order, controller validation, command or query, response, status, and errors.
 4. Compare runtime security with OpenAPI security. New Backendbase consumer endpoints are protected by default unless the public exception is explicit.
@@ -165,7 +165,7 @@ Backendbase stores these decisions as `migrationTarget` and `applicationRollback
 Use these as regression prompts. Do not preserve them as desired behavior:
 
 - `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify API-key and bearer policy independently.
-- `public/index.php` selects an API through `X-Source-Id` and `UseCaseTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
+- `public/index.php` selects an API through `X-Source-Id` and `ConsumerApiTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
 - API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
 - Example groups use a complete total and the requested page. Detail fields match the projection, but their OpenAPI timestamp format remains `datetime`.
 - The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.
@@ -221,10 +221,10 @@ Do not claim a CI, security, dynamic, or release check passed unless it ran in i
 - `resources/platform/10-schema-changes.md`
 - `resources/platform/17-testing.md`
 - `resources/platform/18-deployment.md`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php`
-- `tests/Infrastructure/UseCase/ExampleApi/ModuleRoutingTest.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php`
+- `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
 - `resources/api-docs/example-api`
 - `resources/bruno/example-api`
 - `deployment/release.json`

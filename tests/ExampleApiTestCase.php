@@ -52,11 +52,11 @@ class ExampleApiTestCase extends PHPUnit_TestCase
 
         $app = AppFactory::create();
         // Register middleware
-        $middleware = require dirname(__DIR__) . '/src/Infrastructure/UseCase/ExampleApi/webroot/middleware.php';
+        $middleware = require dirname(__DIR__) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php';
         $middleware($app);
 
 // Register routes
-        $routes = require dirname(__DIR__) . '/src/Infrastructure/UseCase/ExampleApi/webroot/routes.php';
+        $routes = require dirname(__DIR__) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
         $routes($app);
 
         return $app;

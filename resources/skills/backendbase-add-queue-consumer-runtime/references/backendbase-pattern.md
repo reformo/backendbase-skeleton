@@ -114,7 +114,7 @@ Do not start a worker, install a service unit, alter concurrency, stop a live pr
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/QueueConsumerCommandsTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Console/Queue/QueueConsumerCommandsTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/SqsQueueTest.php
 bin/backendbase list queue
@@ -136,11 +136,11 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Shared/Integrations/MessageConsumer.php`
 - `src/Backendbase/Shared/Integrations/Messaging/Message.php`
 - `src/Backendbase/Shared/Integrations/Messaging/MessageSubscription.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/ContainerAwareQueueConsumer.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/ContainerAwareQueueConsumer.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php`
 - `config/commands.php`
-- `tests/Infrastructure/UseCase/Console/Queue/QueueConsumerCommandsTest.php`
+- `tests/Infrastructure/Adapters/Console/Queue/QueueConsumerCommandsTest.php`
 - `resources/platform/13-queue-runtime.md`
 - `resources/platform/18-deployment.md`
 - `resources/docs/4-messaging-and-queues.html`

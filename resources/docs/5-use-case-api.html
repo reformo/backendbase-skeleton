@@ -457,7 +457,7 @@
     <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
-            <p>A Use Case API is an HTTP adapter under <code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code>. It owns transport concerns. It does not own domain rules or persistence.</p>
+            <p>A Use Case API is an HTTP adapter under <code>src/Backendbase/Infrastructure/Inbound/{ApiName}</code>. It owns transport concerns. It does not own domain rules or persistence.</p>
             <div class="grid three">
                 <article class="card purple">
                     <span class="tag">Select</span>
@@ -489,7 +489,7 @@
     ├── index.php                     # Dedicated ExampleApi front controller
     └── docs/                         # Generated OpenAPI file and viewer
 
-src/Backendbase/Infrastructure/UseCase/ExampleApi/
+src/Backendbase/Infrastructure/Inbound/ExampleApi/
 ├── middleware.php                    # API-specific middleware
 ├── routes.php                        # Root, modules, and fallback routes
 └── Controllers/
@@ -511,7 +511,7 @@ src/Backendbase/Infrastructure/UseCase/ExampleApi/
 config/example-api/                    # API settings
 resources/api-docs/example-api/        # OpenAPI source
 resources/bruno/example-api/           # End-to-end requests
-tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
+tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <p>The PHP namespace uses <code>ExampleApi</code>. Public, configuration, specification, cache, and Bruno paths use the <code>example-api</code> slug.</p>
         </section>
 
@@ -885,7 +885,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <p>Each run writes an HTML report under <code>artifacts/bruno/example-api</code>.</p>
                 </article>
             </div>
-            <div class="code-wrap"><pre><code>vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi
+            <div class="code-wrap"><pre><code>vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi
 bin/bruno example-api local</code></pre></div>
             <p>Run PHPUnit without external services when possible. Bruno requires the API, configured dependencies, and a prepared account.</p>
         </section>
@@ -923,14 +923,14 @@ bin/bruno example-api local</code></pre></div>
                 <table>
                     <thead><tr><th>Concern</th><th>Required location</th></tr></thead>
                     <tbody>
-                    <tr><td>Runtime adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code></td></tr>
+                    <tr><td>Runtime adapter</td><td><code>src/Backendbase/Infrastructure/Inbound/{ApiName}</code></td></tr>
                     <tr><td>Dedicated entry point</td><td><code>public/{api-slug}/index.php</code></td></tr>
-                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Infrastructure/Adapters/Http/Bootstrap/UseCaseTarget.php</code>.</td></tr>
+                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Infrastructure/Adapters/Http/Bootstrap/ConsumerApiTarget.php</code>.</td></tr>
                     <tr><td>Configuration</td><td><code>config/{api-slug}</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/{api-slug}</code></td></tr>
                     <tr><td>Generated docs</td><td><code>public/{api-slug}/docs</code></td></tr>
                     <tr><td>End-to-end collection</td><td><code>resources/bruno/{api-slug}</code></td></tr>
-                    <tr><td>Adapter tests</td><td><code>tests/Infrastructure/UseCase/{ApiName}</code></td></tr>
+                    <tr><td>Adapter tests</td><td><code>tests/Infrastructure/Inbound/{ApiName}</code></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -964,7 +964,7 @@ composer run start-apis
 composer run generate-example-api-spec
 
 # Run the focused HTTP adapter suite
-vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi
+vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi
 
 # Run the local Bruno collection after the API is ready
 bin/bruno example-api local
@@ -982,19 +982,19 @@ composer complexity</code></pre></div>
                     <tbody>
                     <tr><td>Shared bootstrap and API selector</td><td><code>public/index.php</code></td></tr>
                     <tr><td>Dedicated front controller</td><td><code>public/example-api/index.php</code></td></tr>
-                    <tr><td>API routes</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php</code></td></tr>
-                    <tr><td>API middleware</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php</code></td></tr>
-                    <tr><td>Module registry</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/ModuleRoutes.php</code></td></tr>
-                    <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example</code></td></tr>
+                    <tr><td>API routes</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php</code></td></tr>
+                    <tr><td>API middleware</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php</code></td></tr>
+                    <tr><td>Module registry</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php</code></td></tr>
+                    <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example</code></td></tr>
                     <tr><td>HTTP action base</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php</code></td></tr>
-                    <tr><td>Authorization middleware</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php</code></td></tr>
+                    <tr><td>Authorization middleware</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddleware.php</code></td></tr>
                     <tr><td>Error handler</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
                     <tr><td>Response emitter</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
                     <tr><td>API configuration</td><td><code>config/example-api</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/example-api</code></td></tr>
                     <tr><td>Generated specification and viewer</td><td><code>public/example-api/docs</code></td></tr>
                     <tr><td>Bruno collection</td><td><code>resources/bruno/example-api</code></td></tr>
-                    <tr><td>HTTP adapter suite</td><td><code>tests/Infrastructure/UseCase/ExampleApi</code></td></tr>
+                    <tr><td>HTTP adapter suite</td><td><code>tests/Infrastructure/Inbound/ExampleApi</code></td></tr>
                     <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
                     </tbody>
                 </table>

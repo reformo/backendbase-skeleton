@@ -20,8 +20,8 @@ This pattern comes from the current Backendbase source and these primary guides:
 - `resources/platform/24-feature-workflow.md`
 - `src/Backendbase/Domain/ExampleCatalog/`
 - `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
 - `config/dependencies/`
 - `resources/api-docs/example-api/`
 - `resources/bruno/example-api/`
@@ -40,7 +40,7 @@ The numbered HTML files in `resources/docs/` give background. Prefer current cod
 | Public context contract | `{Context}/Contracts/` | Put commands, queries, ports, and event schemas here. |
 | Application orchestration | `{Context}/Application/` | Keep handlers and subscribers free of delivery frameworks. |
 | Context adapter | `{Context}/Adapters/` | Implement context ports without reversing dependencies. |
-| Delivery mechanism | `src/Backendbase/Infrastructure/UseCase/` | Adapt HTTP and console code to the target framework. |
+| Delivery mechanism | `src/Backendbase/Infrastructure/Inbound/` | Adapt HTTP and console code to the target framework. |
 | Shared capability | `src/Backendbase/Shared/` | Add only framework-free concepts shared by multiple contexts. |
 | Composition root | `config/dependencies/` and context `ServiceProvider.php` | Register ports, adapters, handlers, and subscribers explicitly. |
 | Schema change | `resources/database/Migrations/` | Follow the target migration namespace and database rules. |

@@ -27,7 +27,7 @@
         <exclude-pattern>public/*/docs/index.php</exclude-pattern>
     </rule>
     <rule ref="SlevomatCodingStandard.Functions.StaticClosure.ClosureNotStatic">
-        <exclude-pattern>src/Backendbase/Infrastructure/UseCase/*/Controllers/*/ModuleConfig</exclude-pattern> <!-- Optional: exclude a specific directory -->
+        <exclude-pattern>src/Backendbase/Infrastructure/Inbound/*/Controllers/*/ModuleConfig</exclude-pattern> <!-- Optional: exclude a specific directory -->
     </rule>
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
         <exclude-pattern>./tests</exclude-pattern>

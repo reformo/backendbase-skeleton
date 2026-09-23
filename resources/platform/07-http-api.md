@@ -4,7 +4,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 
 ## Runtime
 
-- Both public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `UseCaseTarget`.
+- Both public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `ConsumerApiTarget`.
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
 - API middleware, routes, controllers, configuration, OpenAPI, and Bruno use matching class and slug names.
 - `ModuleRoutes` must register each HTTP module explicitly.

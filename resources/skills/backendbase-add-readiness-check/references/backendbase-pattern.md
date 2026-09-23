@@ -108,7 +108,7 @@ Select checks for the changed behavior and target policy. Command lists are exam
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Health
-vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi/HealthControllersTest.php
+vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi/HealthControllersTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
 composer complexity
@@ -137,10 +137,10 @@ Verified on 2026-08-29 from:
 - `config/dependencies/rabbitmq.php`
 - `config/dependencies/redis.php`
 - `config/dependencies/readiness.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Liveness.php`
-- `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Root/Readiness.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Root/Liveness.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Root/Readiness.php`
 - `tests/Infrastructure/Health/ReadinessDependencyDefinitionsTest.php`
 - `tests/Infrastructure/Adapters/RedisDependencyDefinitionsTest.php`
-- `tests/Infrastructure/UseCase/ExampleApi/HealthControllersTest.php`
+- `tests/Infrastructure/Inbound/ExampleApi/HealthControllersTest.php`
 - `resources/platform/16-errors-observability.md`
 - `resources/docs/11-error-handling-and-observability.html`

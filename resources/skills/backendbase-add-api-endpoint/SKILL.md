@@ -58,9 +58,9 @@ Use the target framework, request types, namespace, command and query buses, res
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}/{EndpointTest}.php
+vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}/{EndpointTest}.php
 # Use the owning directory instead when the change needs broader coverage.
-vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}
+vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
 composer phpstan

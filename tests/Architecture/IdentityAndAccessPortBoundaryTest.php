@@ -20,7 +20,7 @@ final class IdentityAndAccessPortBoundaryTest extends TestCase
         $projectRoot  = dirname(__DIR__, 2);
         $dependencies = PhpDependencyScanner::dependenciesByFile(
             $projectRoot,
-            'src/Backendbase/Infrastructure/UseCase',
+            'src/Backendbase/Infrastructure/Inbound',
         );
         $violations   = ArchitectureDependencies::violations(
             $dependencies,

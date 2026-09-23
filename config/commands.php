@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Backendbase\Infrastructure\UseCase\Console\GoodHousekeeping\ClearCache;
-use Backendbase\Infrastructure\UseCase\Console\Queue;
+use Backendbase\Infrastructure\Adapters\Console\GoodHousekeeping\ClearCache;
+use Backendbase\Infrastructure\Adapters\Console\Queue;
 use DI\ContainerBuilder;
 
 use function DI\autowire;

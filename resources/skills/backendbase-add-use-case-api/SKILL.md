@@ -38,8 +38,8 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 
 ## Backendbase invariants
 
-- HTTP adapters live under `Infrastructure/UseCase`, outside bounded contexts.
-- Current API selection uses `X-Source-Id` through `UseCaseTarget`.
+- Consumer-specific HTTP entry code lives under `Infrastructure/Inbound`, outside bounded contexts.
+- Current API selection uses `X-Source-Id` through `ConsumerApiTarget`.
 - API class name, slug, selector, config, cache, OpenAPI, public docs, and Bruno names stay aligned.
 - `ModuleRoutes` registers every module explicitly.
 - New consumer routes are protected unless the requested public use case is explicit.
@@ -55,7 +55,7 @@ Choose the commands that prove the affected bootstrap, routing, and contract beh
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Bootstrap
-vendor/bin/phpunit tests/Infrastructure/UseCase/{ApiName}
+vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}
 composer run generate-{api-slug}-spec
 vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
 composer phpstan

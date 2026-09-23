@@ -120,8 +120,8 @@ Select checks for the changed behavior and target policy. Command lists are exam
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageOperationsTest.php
 vendor/bin/phpunit tests/Application/Messaging/OutboxRelayServiceTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStoreTest.php
-vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/QueueMaintenanceCommandsTest.php
-vendor/bin/phpunit tests/Infrastructure/UseCase/Console/Queue/ShowOutboxStatusTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Console/Queue/QueueMaintenanceCommandsTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Console/Queue/ShowOutboxStatusTest.php
 composer phpstan
 composer complexity
 composer cs-check
@@ -144,11 +144,11 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMonitor.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageLogCleaner.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/RelayOutboxMessages.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/ShowOutboxStatus.php`
-- `src/Backendbase/Infrastructure/UseCase/Console/Queue/CleanupIntegrationMessages.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/RelayOutboxMessages.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/ShowOutboxStatus.php`
+- `src/Backendbase/Infrastructure/Adapters/Console/Queue/CleanupIntegrationMessages.php`
 - `tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageOperationsTest.php`
-- `tests/Infrastructure/UseCase/Console/Queue/QueueMaintenanceCommandsTest.php`
+- `tests/Infrastructure/Adapters/Console/Queue/QueueMaintenanceCommandsTest.php`
 - `resources/platform/11-messaging-outbox.md`
 - `resources/platform/13-queue-runtime.md`
 - `resources/docs/4-messaging-and-queues.html`

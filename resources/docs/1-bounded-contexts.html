@@ -797,7 +797,7 @@
 
         <section id="http">
             <h2>HTTP boundary</h2>
-            <p>The HTTP adapter belongs under <code>Infrastructure/UseCase</code>, not inside the bounded context. This adapter translates transport data into context contracts.</p>
+            <p>The HTTP adapter belongs under <code>Infrastructure/Inbound</code>, not inside the bounded context. This adapter translates transport data into context contracts.</p>
             <div class="grid two">
                 <article class="card green">
                     <h3>The adapter can</h3>
@@ -922,7 +922,7 @@
                     <tr><td>Read and write ports</td><td><code>src/Backendbase/Domain/ExampleCatalog/Contracts/Entry*Repository.php</code></td></tr>
                     <tr><td>Doctrine adapters</td><td><code>src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine</code></td></tr>
                     <tr><td>Memory adapters</td><td><code>src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory</code></td></tr>
-                    <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
+                    <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi</code></td></tr>
                     <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleCatalog/Tests</code></td></tr>
                     <tr><td>Functional lifecycle suite</td><td><code>tests/Functional/EntryLifecycleTest.php</code></td></tr>
                     <tr><td>Architecture boundaries</td><td><code>tests/Architecture</code></td></tr>

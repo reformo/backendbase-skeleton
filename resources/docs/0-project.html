@@ -550,7 +550,7 @@
                 <table>
                     <thead><tr><th>Area</th><th>Current implementation</th><th>Reference</th></tr></thead>
                     <tbody>
-                        <tr><td>Consumer API</td><td><code>ExampleApi</code></td><td><code>Infrastructure/UseCase/ExampleApi</code></td></tr>
+                        <tr><td>Consumer API</td><td><code>ExampleApi</code></td><td><code>Infrastructure/Inbound/ExampleApi</code></td></tr>
                         <tr><td>Business module</td><td><code>ExampleCatalog</code></td><td>Complete DDD reference module</td></tr>
                         <tr><td>Identity</td><td><code>IdentityAndAccess</code></td><td>JWT and authorization support</td></tr>
                         <tr><td>Queue drivers</td><td>RabbitMQ or Amazon SQS</td><td>Selected by environment configuration</td></tr>
@@ -713,7 +713,7 @@
             <div class="two-col">
                 <article class="card">
                     <h3>Entry points</h3>
-                    <p>Both <code>public/index.php</code> and <code>public/example-api/index.php</code> require <code>X-Source-Id: example</code>. The shared bootstrap selects the API through <code>UseCaseTarget</code>.</p>
+                    <p>Both <code>public/index.php</code> and <code>public/example-api/index.php</code> require <code>X-Source-Id: example</code>. The shared bootstrap selects the API through <code>ConsumerApiTarget</code>.</p>
                 </article>
                 <article class="card">
                     <h3>Routes</h3>
@@ -1021,7 +1021,7 @@ bin/backendbase list</code></pre>
                         <tr><td>Dependency container</td><td><a href="../../config/dependencies.php"><code>config/dependencies.php</code></a></td></tr>
                         <tr><td>Console commands</td><td><a href="../../config/commands.php"><code>config/commands.php</code></a></td></tr>
                         <tr><td>Example bounded context</td><td><code>src/Backendbase/Domain/ExampleCatalog</code></td></tr>
-                        <tr><td>Example API</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
+                        <tr><td>Example API</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi</code></td></tr>
                         <tr><td>Test suite</td><td><a href="../../phpunit.xml"><code>phpunit.xml</code></a></td></tr>
                         <tr><td>Static analysis</td><td><a href="../../phpstan.neon"><code>phpstan.neon</code></a></td></tr>
                         <tr><td>Cyclomatic complexity</td><td><a href="../../phpcs-complexity.xml.dist"><code>phpcs-complexity.xml.dist</code></a></td></tr>

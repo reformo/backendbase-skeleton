@@ -47,7 +47,8 @@ final class AdapterDependencies
 
     private static function isInbound(string $file): bool
     {
-        return str_starts_with($file, 'src/Backendbase/Infrastructure/UseCase/')
+        return str_starts_with($file, 'src/Backendbase/Infrastructure/Inbound/')
+            || str_starts_with($file, 'src/Backendbase/Infrastructure/Adapters/Console/')
             || str_starts_with($file, 'src/Backendbase/Infrastructure/Adapters/Http/')
             || str_starts_with($file, 'src/Backendbase/Infrastructure/Adapters/Mapping/')
             || preg_match('#^src/Backendbase/Domain/[^/]+/Adapters/Http/#', $file) === 1

@@ -6,8 +6,8 @@ $projectRoot = str_replace('/public', '', __DIR__);
 chdir($projectRoot);
 require 'vendor/autoload.php';
 
+use Backendbase\Infrastructure\Adapters\Http\Bootstrap\ConsumerApiTarget;
 use Backendbase\Infrastructure\Adapters\Http\Bootstrap\RequestUriNormalizer;
-use Backendbase\Infrastructure\Adapters\Http\Bootstrap\UseCaseTarget;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\Handlers\ShutdownHandler;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
@@ -24,9 +24,9 @@ use Psr\Log\LoggerInterface;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
-$sourceId = $_SERVER['HTTP_X_SOURCE_ID'] ?? null;
-$useCase  = is_string($sourceId) ? UseCaseTarget::fromSourceId($sourceId) : null;
-if ($useCase === null) {
+$sourceId    = $_SERVER['HTTP_X_SOURCE_ID'] ?? null;
+$consumerApi = is_string($sourceId) ? ConsumerApiTarget::fromSourceId($sourceId) : null;
+if ($consumerApi === null) {
     header('Content-Type: application/json');
     die(json_encode([
         'type' => 'system/invalid-source-id',
@@ -36,8 +36,8 @@ if ($useCase === null) {
     ], JSON_THROW_ON_ERROR));
 }
 
-$webroot            = $projectRoot . '/src/Backendbase/Infrastructure/UseCase/' . $useCase->name();
-$cacheDirectoryName = basename($useCase->slug());
+$webroot            = $projectRoot . '/src/Backendbase/Infrastructure/Inbound/' . $consumerApi->name();
+$cacheDirectoryName = basename($consumerApi->slug());
 $cacheDir           = $projectRoot . '/var/cache/' . $cacheDirectoryName;
 $_SERVER            = RequestUriNormalizer::normalize($_SERVER);
 
@@ -78,7 +78,7 @@ if ($environment === Environment::PRODUCTION) {
 $configGenerator = new ConfigAggregator(
     [
         new PhpFileProvider('config/autoload/*'),
-        new PhpFileProvider('config/' . $useCase->slug() . '/*'),
+        new PhpFileProvider('config/' . $consumerApi->slug() . '/*'),
     ],
     $configCachePath,
 );
