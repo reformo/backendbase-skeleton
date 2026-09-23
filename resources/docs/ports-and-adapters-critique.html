@@ -493,11 +493,11 @@
         <h1>Ports and Adapters Architecture Critique</h1>
         <p class="lede">A balanced strengths and weaknesses report based on the documented dependency direction, port ownership, adapter boundaries, framework isolation, and executable architecture rules.</p>
         <div class="chips" aria-label="Report summary">
-            <span class="chip">Current code review</span>
+            <span class="chip">Source review: 24 September 2026</span>
             <span class="chip">Strong dependency direction</span>
-            <span class="chip">6 strengths</span>
-            <span class="chip">4 weaknesses</span>
-            <span class="chip">18/18 architecture tests passed</span>
+            <span class="chip">8 strengths</span>
+            <span class="chip">2 weaknesses</span>
+            <span class="chip">19/19 architecture tests passed</span>
             <span class="chip">PHPStan level 8 passed</span>
             <span class="chip">Complexity ≤ 12 passed</span>
         </div>
@@ -529,7 +529,7 @@
             <p>The strongest boundaries are persistence, messaging, identity ports, framework-free business logic, independent command and query contracts, and framework-free <code>Shared</code> contracts. The remaining costs include static time access and inbound adapter naming.</p>
             <p>The account lifecycle preserves the dependency direction. HTTP controllers call account commands and a query. Their handlers depend on account read, write, authentication, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapter details.</p>
             <p>The Identity and Access context owns its adapter bindings. Authentication and account changes use the same account-row transaction. Revision and retirement revoke authorization before persistence changes while holding that lock. Bearer middleware remains an inbound HTTP adapter.</p>
-            <p>Recent quality gates strengthen delivery. The lazy Redis proxy and default MiniStack service remain in composition and adapter code.</p>
+            <p>Registry mappings keep command and query contracts independent of their handlers. Shared contracts do not import frameworks. The lazy Redis proxy and MiniStack configuration remain in composition and adapter code.</p>
             <p>No weakness requires a large rewrite. Apply small changes when the affected area next changes.</p>
             <div class="metrics" aria-label="Summary metrics">
                 <div class="stat"><strong>8</strong><span>Strengths to preserve</span></div>
@@ -645,7 +645,7 @@
                 </article>
                 <article class="card">
                     <h3>Application-owned messaging policy</h3>
-                    <p>Application services own relay, retry, and failure decisions. Persistence adapters apply supplied state changes.</p>
+                    <p>Application services own relay, retry, and failure decisions. The integration transaction runs local subscribers and appends queued events before commit. Persistence adapters apply supplied state changes.</p>
                 </article>
                 <article class="card">
                     <h3>Executable architecture rules</h3>
@@ -687,11 +687,11 @@
                     <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Description</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td><code>vendor/bin/phpunit tests/Architecture</code></td><td><span class="badge strong">Passed</span></td><td>19 tests and 84 assertions passed. This includes Application, all Shared files, complete CQRS registry mappings, listener targets, both adapter directions, Identity ports, context isolation, and vendor connection construction.</td></tr>
+                    <tr><td>Architecture subset of <code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>19 tests and 84 assertions passed. This includes Application, all Shared files, complete CQRS registry mappings, listener targets, both adapter directions, Identity ports, context isolation, and vendor connection construction.</td></tr>
                     <tr><td><code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>553 tests and 2,016 assertions passed. The suite covered 4,516 of 4,516 executable lines.</td></tr>
                     <tr><td><code>composer phpstan -- --no-progress</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors across the configured application, test, tool, and database-delivery scope.</td></tr>
-                    <tr><td><code>composer complexity</code></td><td><span class="badge strong">Passed</span></td><td>All 562 configured PHP files stayed at cyclomatic complexity 12 or less.</td></tr>
-                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The current inventory contains 334 production PHP files, 119 Shared PHP files, and 14 architecture test classes.</td></tr>
+                    <tr><td><code>composer complexity</code> and <code>composer cs-check</code></td><td><span class="badge strong">Passed</span></td><td>All 562 configured PHP files stayed at cyclomatic complexity 12 or less and passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Revision <code>2bd6922</code> contains 334 production PHP files, 119 Shared PHP files, and 14 architecture test classes.</td></tr>
                     <tr><td>Interactive architecture map</td><td><span class="badge">Historical snapshot</span></td><td>The linked map records source revision <code>7e546fa</code> from 23 September. Its Shared and contract nodes predate the current boundaries.</td></tr>
                     <tr><td>Recent delivery controls</td><td><span class="badge strong">No direction change</span></td><td>The Composer supply-chain checker, evidence files, and release-manifest verification remain in tooling and deployment boundaries.</td></tr>
                     <tr><td>Recent production composition</td><td><span class="badge strong">Boundary preserved</span></td><td>The Identity and Access service provider owns its Doctrine, Redis authorization-state, and JWT bindings. Global dependency files keep platform and vendor connection concerns.</td></tr>

@@ -355,9 +355,9 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="hero">
     <div class="hero-inner">
-        <p class="eyebrow">Backendbase Core · Assessment · 29 August 2026</p>
+        <p class="eyebrow">Backendbase Core · Assessment · 24 September 2026</p>
         <h1>Engineering Quality, Strengths, and Risks</h1>
-        <p class="lede">A dated assessment with current local test metrics and source inventory. Dependency freshness and live-service checks retain their recorded verification date.</p>
+        <p class="lede">A current source and local-check assessment. Dependency freshness and service-backed checks retain their recorded verification dates.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
             <span class="chip">Account provisioning is external</span>
@@ -386,21 +386,21 @@
     <main id="main-content">
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Code quality is strong. Account provisioning remains an operational requirement.</h2>
+            <h2>Code quality is strong. Account provisioning and MySQL lock behavior need attention.</h2>
             <div class="callout good">
-                <strong>Code quality and maintainability score: 9.4 out of 10.</strong>
-                Static analysis and coding standards now cover operational PHP and database delivery code.
-                CI actions use immutable commit SHAs, and Composer uses an exact secure version. Complexity, documentation, report, and supply-chain checks now have executable gates.
+                <strong>Editorial code quality and maintainability score: 9.4 out of 10.</strong>
+                The local test suite, PHPStan level 8, complexity check, and coding standard pass across their configured scopes.
+                Continuous integration (CI) defines coverage, documentation, report, dependency, security, and API contract checks.
             </div>
             <div class="callout warning">
                 <strong>Production-readiness constraint:</strong>
                 <code>POST /auth</code> verifies database-backed Argon2id credentials. The release seeds no account credential, so provision the first account through an approved operation.
             </div>
-            <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have strong automated verification.</p>
+            <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have automated verification. The architecture subset passed 19 tests and 84 assertions.</p>
             <p>The account lifecycle keeps its dependency direction. Protected HTTP controllers call commands and a query. Their handlers depend on account repository, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapters.</p>
-            <p>Recent changes moved Identity and Access bindings into its context service provider. They also moved bearer middleware to the inbound HTTP adapter, revoked authorization state before account revision or retirement, and aligned path parameters on <code>kebab-case</code>.</p>
-            <p>Other recent changes added typed settings, strict numeric parsing, observable queue failures, a lazy Redis connection, and default local AWS endpoints. A weekly audit, CycloneDX SBOM, and reviewed package-content digests protect Composer changes.</p>
-            <p>The code-quality score excludes product readiness. Provision the first account with account-management privileges through an approved operation before non-local use. Other findings concern repeatability, dependency cost, and external deployment ownership.</p>
+            <p>Context registries now map every command and query to a handler. Framework support is in Infrastructure. Shared contracts remain framework-free. Transactional integration events run local subscribers before optional outbox insertion.</p>
+            <p>Typed settings, strict numeric parsing, observable queue failures, and a lazy Redis connection reduce boundary risk. A scheduled audit, CycloneDX software bill of materials (SBOM), and package-content digests support dependency review.</p>
+            <p>The score excludes product readiness. Provision the first account with account-management privileges through an approved operation before non-local use. Verify account-lock timing on MySQL before relying on concurrent account changes.</p>
             <p>The architecture does not need a broad rewrite. Apply focused fixes with regression tests.</p>
         </section>
 
@@ -413,13 +413,13 @@
                     <tr><th scope="col">Area</th><th scope="col">Score</th><th scope="col">Assessment</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Clear boundaries have dedicated dependency tests. The account lifecycle uses context-owned repository, token, and authorization-state ports.</td></tr>
-                    <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold.</td></tr>
+                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Dependency tests enforce context, adapter, registry, and Shared boundaries. The account lifecycle uses context-owned repository, token, and authorization-state ports.</td></tr>
+                    <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold. MySQL account-lock contention remains unverified.</td></tr>
                     <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8, complexity, and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 12.</td></tr>
                     <tr><td>Operations and documentation</td><td><strong>9.7/10</strong></td><td>Actions and Composer are pinned. Supply-chain, complexity, link, report, release, and changelog controls are executable.</td></tr>
                     <tr><td>Composer supply-chain controls</td><td><strong>9.0/10</strong></td><td>Exact tooling, policy checks, weekly audits, isolated installs, an SBOM, and package digests reduce the remaining risk to reviewed trust decisions.</td></tr>
-                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>The current source has 37 direct runtime packages and 105 locked runtime packages. Dependency freshness was assessed on 29 August 2026 and has not been reassessed in this documentation review.</td></tr>
+                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>The current source has 37 direct runtime packages and 105 locked runtime packages. Current upstream freshness and advisory status need a new review.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -434,7 +434,7 @@
         <section id="evidence">
             <p class="section-label">03 · Verification evidence</p>
             <h2>Recorded checks and current local metrics</h2>
-            <p>PHPUnit, coverage, and file-count values below use the latest local artifacts. The source inventory was checked on 23 September 2026. Other verification rows record the dated assessment; they do not imply a new live-service, security, or dependency audit.</p>
+            <p>PHPUnit, coverage, PHPStan, complexity, and coding standards were checked locally on 24 September 2026. The source review used revision <code>2bd6922</code>. Source and dependency counts use this workspace. Other rows describe source configuration or earlier recorded checks. This review did not run live-service, security, or dependency audits.</p>
             <div class="summary-grid">
                 <div class="stat"><strong><span data-quality-metric="tests">553</span></strong><span>Passing PHPUnit tests</span></div>
                 <div class="stat"><strong><span data-quality-metric="assertions">2,016</span></strong><span>Passing assertions</span></div>
@@ -458,28 +458,30 @@
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
+                    <tr><td>Architecture boundaries</td><td><span class="badge">Pass</span></td><td>19 tests and 84 assertions cover dependency direction, Shared framework isolation, context boundaries, and all command and query registry mappings.</td></tr>
                     <tr><td>Account lifecycle</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> authenticates active accounts. Protected <code>GET /accounts</code>, <code>POST /accounts</code>, and <code>PATCH</code> or <code>DELETE /accounts/{account-uuid}</code> operations use typed commands, a query, access control, and repository ports.</td></tr>
-                    <tr><td>Authorization-state revocation</td><td><span class="badge">Pass</span></td><td>Authentication and account changes share an account-row transaction. Tests cover lock ordering, two-connection exclusion, refreshed grants, and rollback. MySQL-specific lock scheduling remains unverified locally.</td></tr>
+                    <tr><td>Authorization-state revocation</td><td><span class="badge">Local pass</span></td><td>Authentication and account changes share an account-row transaction. SQLite tests cover lock ordering, two-connection exclusion, refreshed grants, and rollback. MySQL lock scheduling remains unverified.</td></tr>
+                    <tr><td>Transactional integration events</td><td><span class="badge">Pass</span></td><td>Tests cover local subscribers, optional outbox insertion, rejection outside a transaction, and rollback of combined writes.</td></tr>
                     <tr><td>HTTP authorization and path contracts</td><td><span class="badge">Pass</span></td><td>Bearer and API-key failures return stable 401 responses. Runtime routes, OpenAPI, and Bruno use <code>{account-uuid}</code> and other <code>kebab-case</code> path parameters.</td></tr>
                     <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
                     <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
                     <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
                     <tr><td>Local AWS services</td><td><span class="badge">Pass</span></td><td>The default MiniStack service provides local S3, SQS, SNS, SES, and CloudFront APIs. A composition test checks its version, port, and service list.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Delivery and dependency controls</th></tr>
-                    <tr><td>CI action integrity</td><td><span class="badge">Pass</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
-                    <tr><td>Composer toolchain</td><td><span class="badge">Pass</span></td><td>CI pins Composer 2.10.3, installs reviewed public keys into an isolated Composer home, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
-                    <tr><td>Isolated dependency review</td><td><span class="badge">Pass</span></td><td>Dependency review installs with plugins and scripts disabled before any trusted build step.</td></tr>
-                    <tr><td>Weekly dependency audit</td><td><span class="badge">Pass</span></td><td>The scheduled workflow audits the locked production and development dependency graph each Monday.</td></tr>
-                    <tr><td>Supply-chain evidence</td><td><span class="badge">Pass</span></td><td>The isolated install matched the CycloneDX 1.6 SBOM and SHA-256 content digests for all 142 locked packages.</td></tr>
-                    <tr><td>Release dependency integrity</td><td><span class="badge">Pass</span></td><td>The release manifest records checksums for <code>composer.lock</code>, the SBOM, and the package-content manifest. Deployment verifies all three before activation.</td></tr>
+                    <tr><td>CI action integrity</td><td><span class="badge">Source review</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
+                    <tr><td>Composer toolchain</td><td><span class="badge">Configured</span></td><td>CI pins Composer 2.10.3, installs reviewed public keys into an isolated Composer home, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
+                    <tr><td>Isolated dependency review</td><td><span class="badge">Configured</span></td><td>The workflow installs with plugins and scripts disabled before any trusted build step.</td></tr>
+                    <tr><td>Weekly dependency audit</td><td><span class="badge">Configured</span></td><td>The scheduled workflow audits the locked production and development dependency graph each Monday.</td></tr>
+                    <tr><td>Supply-chain evidence</td><td><span class="badge medium">Local check incomplete</span></td><td>The committed SBOM matches the lock metadata. The current <code>vendor</code> tree differs from the content manifest for AWS SDK and PHPCS. A fresh isolated install could not finish because DNS resolution failed.</td></tr>
+                    <tr><td>Release dependency integrity</td><td><span class="badge">Local pass</span></td><td>The release manifest records checksums for <code>composer.lock</code>, the SBOM, and the package-content manifest. Deployment tests verify release activation and rollback behavior.</td></tr>
                     <tr><td>Documentation links</td><td><span class="badge">Pass</span></td><td><code>composer docs:check-links</code> validates local HTML and Markdown targets plus HTML fragments.</td></tr>
                     <tr><td>Generated report metrics</td><td><span class="badge">Pass</span></td><td><code>composer reports:check</code> compares marked report values with JUnit, Clover, and repository inventory data.</td></tr>
                     <tr><td>SQS failure diagnostics</td><td><span class="badge">Pass</span></td><td>Swallowed handler exceptions record safe queue and message context before the message remains available for retry.</td></tr>
-                    <tr><td>Changelog policy</td><td><span class="badge">Pass</span></td><td><code>CHANGELOG.md</code> exists, and contributor and agent guidance require each commit to update its <code>Unreleased</code> section.</td></tr>
+                    <tr><td>Changelog policy</td><td><span class="badge">Source review</span></td><td><code>CHANGELOG.md</code> exists, and contributor and agent guidance require each commit to update its <code>Unreleased</code> section.</td></tr>
                     <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
-                    <tr><td>Dependency pruning</td><td><span class="badge">Pass</span></td><td>The 29 August assessment recorded 35 direct and 97 locked runtime packages after pruning. Current notification dependencies bring those counts to 37 and 105. OpenAPI build tools remain development dependencies.</td></tr>
-                    <tr><td>Dependency freshness</td><td><span class="badge">Pass</span></td><td>The 29 August assessment recorded 34 current direct packages. Its proposed Guzzle and coding-tool upgrades require a new compatibility review against the current lock file.</td></tr>
-                    <tr><td>Dependency audit</td><td><span class="badge">Pass</span></td><td>Composer reported no known security advisories and no abandoned packages.</td></tr>
+                    <tr><td>Dependency pruning</td><td><span class="badge">Source review</span></td><td>The 29 August assessment recorded 35 direct and 97 locked runtime packages after pruning. Current notification dependencies bring those counts to 37 and 105. OpenAPI build tools remain development dependencies.</td></tr>
+                    <tr><td>Dependency freshness</td><td><span class="badge">Historical</span></td><td>The 29 August assessment recorded 34 current direct packages. Current upstream versions were not checked in this review.</td></tr>
+                    <tr><td>Dependency audit</td><td><span class="badge">Historical</span></td><td>The 29 August audit found no known advisories or abandoned packages for its then-current lock file. The current lock file needs a new audit.</td></tr>
                     <tr><td>OpenAPI</td><td><span class="badge">Pass</span></td><td>Source and merged API specifications passed validation.</td></tr>
                     <tr><td>Deployment tests</td><td><span class="badge">Pass</span></td><td>Deployment, failure recovery, and rollback scenarios passed.</td></tr>
                     </tbody>
@@ -494,7 +496,7 @@
             <div class="grid-3">
                 <div class="card">
                     <h3>Architecture boundaries</h3>
-                    <p>Architecture tests enforce domain purity, adapter direction, bounded-context isolation, framework boundaries, Shared-layer direction, and identity port isolation. Context service providers own their adapter bindings.</p>
+                    <p>Architecture tests enforce domain purity, adapter direction, context isolation, Shared framework isolation, and identity port ownership. Context service providers own adapter and handler mappings.</p>
                 </div>
                 <div class="card">
                     <h3>Failure-path testing</h3>
@@ -514,7 +516,7 @@
                 </div>
                 <div class="card">
                     <h3>Reliable integration design</h3>
-                    <p>Inbox, outbox, retry, external-effect, and dead-letter behavior is explicit and well tested.</p>
+                    <p>Inbox, outbox, retry, external-effect, and dead-letter behavior is explicit. Local integration-event subscribers and optional outbox insertion share one transaction.</p>
                 </div>
                 <div class="card">
                     <h3>Health and local infrastructure</h3>
@@ -526,7 +528,7 @@
                 </div>
                 <div class="card">
                     <h3>Defensive delivery controls</h3>
-                    <p>Release scripts verify manifests and checksums. Weekly audits and isolated installs verify the SBOM and 142 package-content digests.</p>
+                    <p>Release scripts verify manifests and checksums. CI defines weekly audits and an isolated check of the SBOM and 142 package-content digests.</p>
                 </div>
             </div>
             <div class="grid-3 outcome-grid" aria-label="Engineering outcomes">
@@ -550,6 +552,12 @@
                         <td>Account provisioning is external</td>
                         <td><span class="cell-content">The release seeds no account. An approved operational process must provision credentials before authentication can succeed.</span></td>
                         <td><span class="cell-content"><a href="../../resources/database/Migrations/Version20260829010000.php">migration</a> and the <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/AuthenticateAccount.php">authentication service</a>.</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge medium">Medium</span></td>
+                        <td>MySQL account-lock timing is unverified</td>
+                        <td><span class="cell-content">The two-connection lock tests use SQLite. MySQL-specific scheduling and isolation behavior need a targeted concurrency check.</span></td>
+                        <td><span class="cell-content"><a href="../../src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Persistence/Doctrine/AccountLockFixture.php">SQLite lock fixture</a> and <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineAccountLock.php">lock adapter</a>.</span></td>
                     </tr>
                     <tr>
                         <td><span class="badge medium">Medium</span></td>
@@ -581,6 +589,12 @@
                         <td><span class="cell-content">A content digest detects a package change but cannot determine whether the changed code is safe.</span></td>
                         <td><span class="cell-content">Reviewers must explain lock, SBOM, and content-digest changes before approval.</span></td>
                     </tr>
+                    <tr>
+                        <td><span class="badge">Low</span></td>
+                        <td>Time is implicit in business and messaging decisions</td>
+                        <td><span class="cell-content">Aggregates and messaging services read a static clock helper. Tests cannot supply time through a port for these decisions.</span></td>
+                        <td><span class="cell-content"><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Entry</a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php">Account</a>, and <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php">OutboxRelayService</a>.</span></td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -595,7 +609,7 @@
                     <h3>Protect trust boundaries</h3>
                     <ul>
                         <li>Define an approved process to provision the first account-management identity.</li>
-                        <li>Keep invalid-credential tests.</li>
+                        <li>Verify account-lock contention on the production MySQL version.</li>
                         <li>Pin the Semgrep image by digest.</li>
                     </ul>
                 </article>
@@ -604,8 +618,8 @@
                     <h3>Strengthen repeatability</h3>
                     <ul>
                         <li>Version and rehearse deployment hook examples.</li>
-                        <li>Test Guzzle 8 across Tolgee, AWS, and Firebase.</li>
-                        <li>Upgrade both coding tools as one change.</li>
+                        <li>Run an isolated supply-chain check when package downloads are available.</li>
+                        <li>Review current advisories and upgrade options against the locked packages.</li>
                     </ul>
                 </article>
                 <article class="card">
@@ -614,6 +628,7 @@
                     <ul>
                         <li>Measure production install size and advisory work.</li>
                         <li>Add local Firebase only when tests justify its maintenance cost.</li>
+                        <li>Pass time into business behavior when time-sensitive code changes.</li>
                         <li>Add signed release provenance when the platform supports verification.</li>
                     </ul>
                 </article>
@@ -628,30 +643,25 @@
             <p class="section-label">07 · Scope and method</p>
             <h2>This score describes the inspected workspace</h2>
             <p>The assessment reviewed production source, tests, architecture rules, quality configuration, continuous integration, documentation, product boundaries, local infrastructure, deployment controls, and current dependencies.</p>
-            <p>The assessment ran these checks on 29 August 2026:</p>
+            <p>The 24 September 2026 local review ran these checks:</p>
             <pre><code>composer test
-vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 2G --no-progress
+composer phpstan -- --no-progress
 composer complexity
-vendor/bin/phpcs
+composer cs-check
 composer validate --strict --no-check-publish --no-plugins --no-scripts
-composer audit --locked --no-interaction --no-plugins --no-scripts
-php bin/composer-supply-chain.php check &lt;isolated-vendor-directory&gt;
-composer outdated --direct --format=json --no-interaction
-composer prohibits guzzlehttp/guzzle 8.1.0
-composer prohibits doctrine/coding-standard 14.0.0
-composer prohibits squizlabs/php_codesniffer 4.0.4
 composer docs:check-links
 composer reports:check
 composer run validate-example-api-spec
-vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
-bash tests/Deployment/deployment-scripts.sh</code></pre>
-            <p>The assessment did not run the container-based dynamic security scan. At that assessment, the live Bruno collection passed its 14 requests against an isolated MySQL database with an ephemeral account. The collection now has 15 requests; this documentation review did not run it.</p>
+vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml</code></pre>
+            <p><code>composer test</code> included the deployment script tests.</p>
+            <p><code>php bin/composer-supply-chain.php check</code> failed against the current local <code>vendor</code> tree for AWS SDK and PHPCS content. A fresh isolated install could not finish because the package host did not resolve. The committed evidence was not regenerated.</p>
+            <p>The 29 August assessment recorded dependency freshness, an advisory audit, and a live Bruno run against an isolated MySQL database. The current collection has 15 requests. This review did not repeat those checks or the container-based dynamic security scan.</p>
             <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
-            <p>The assessment included the current account lifecycle, context-owned bindings, middleware placement, authorization revocation, path contracts, and quality evidence.</p>
+            <p>The numerical scores are editorial judgments. They are not calculated from the test and coverage counts. This review excludes live traffic, production incidents, provider calls, and production performance.</p>
         </section>
     </main>
 </div>
 
-<footer>Backendbase Core · Engineering quality, strengths, and risks · 29 August 2026</footer>
+<footer>Backendbase Core · Engineering quality, strengths, and risks · 24 September 2026</footer>
 </body>
 </html>

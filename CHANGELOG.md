@@ -38,6 +38,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Reassessed the engineering quality and Ports and Adapters reports against the current source and local checks. Corrected stale architecture counts and separated current evidence from historical and incomplete checks.
 - Removed handler attributes and application-handler imports from all command and query contracts. Context registries now provide every current CQRS handler mapping.
 - Moved shared HTTP, console, Doctrine, migration, and object mapping support into Infrastructure. The Shared architecture test now checks every Shared file.
 - Replaced the Example entry's public array snapshot with a typed snapshot for Doctrine and memory adapters.
