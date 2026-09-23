@@ -37,6 +37,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Made development housekeeping regenerate and verify Composer supply-chain evidence from an isolated install after dependency updates.
 - Consolidated the integration-event outbox, inbox, failure tables, and indexes into the first migration for new databases.
 - Aligned reusable skills, platform guidance, and HTML guides with current event dispatch, relay modes, API routes, security, configuration, and source inventory.
 - Dispatched integration events inside the producer transaction, running local subscribers for both delivery modes and appending one outbox row only when `DELIVER_VIA_QUEUE` is true.

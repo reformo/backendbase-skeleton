@@ -80,6 +80,8 @@ GitHub Actions provides quality gates, security checks, and release-artifact wor
 
 The Composer supply-chain workflow runs each week and for dependency changes. It copies reviewed Composer public keys into an isolated Composer home before it diagnoses Composer 2.10.3. It disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
 
+`bin/dev/housekeeping.sh` runs the same isolated validation and audit after `composer update`. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
+
 Generate supply-chain evidence only from a new isolated install with `--no-plugins --no-scripts`. Review every lock, SBOM, and digest change before approval. A digest detects changed content. It does not establish that new content is safe.
 
 Basis: `resources/docs/10-testing-and-quality.html`.
