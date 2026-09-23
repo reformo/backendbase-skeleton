@@ -12,7 +12,7 @@ Resolve only unknown facts needed by the affected behavior. Reuse verified facts
 4. Determine whether subscriber work is database-only or calls an external provider.
 5. Find the nearest carrier and subscriber from the same source service.
 
-Do not copy `Backendbase\`, `ExampleBoundedContext`, `Example_NewExampleAdded_Event`, version-one fixture data, queue names, or source-service folders.
+Do not copy `Backendbase\`, `ExampleCatalog`, `Example_NewExampleAdded_Event`, version-one fixture data, queue names, or source-service folders.
 
 ## Role to target mapping
 
@@ -163,7 +163,7 @@ For an external effect, also test provider idempotency-key propagation, duplicat
 - Duplicate registry keys fail construction.
 - The event manager rejects internal subscribers matched on the external path.
 - The subscriber registry requires an explicit constructor, even when it is empty. It creates each subscriber through reflection and resolves dependencies by container type, then by parameter name. A subscriber-class container binding does not control construction.
-- Backendbase version-one `NewExampleAdded` publishes a nested `command` object. Its registered carrier now preserves that released shape with typed outer and nested DTOs.
+- Backendbase version-one `EntryAdded` publishes a nested `command` object. Its registered carrier now preserves that released shape with typed outer and nested DTOs.
 - `ProducerConsumerContractTest` maps the real producer arguments through the registered carrier and real dispatcher.
 - SQS reject behavior needs an infrastructure redrive policy.
 - `ExternalEffectInbox` blocks repeated calls after an unknown outcome, but current code does not reconcile that outcome automatically.
@@ -177,7 +177,7 @@ Do not start a live consumer, replay a message, alter inbox records, provision q
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/ServiceProviderTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrationEventRegistryTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php
@@ -200,9 +200,9 @@ Verified against current source on 2026-09-23:
 
 - `src/Backendbase/Shared/Domain/Messaging/EventMessage.php`
 - `src/Backendbase/Shared/Domain/Messaging/ExternalIntegrationEventSubscriber.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/ExternalIntegrationEventSubscribers/ExampleBoundedContext/NewExampleAddedExternalSubscriber.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/ExternalIntegrationEvents/V1/EntryAddedMessage.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/ExternalIntegrationEventSubscribers/ExampleCatalog/EntryAddedExternalSubscriber.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcher.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`

@@ -18,7 +18,9 @@ Use `IntegrationEventTransaction::execute()` to commit business writes, local su
 
 Producer dispatch requires an active transaction. The transaction wrapper, subscriber repositories, and outbox adapter must use the same database connection. Subscriber or outbox failures propagate and roll back database work. Do not perform network, filesystem, process, or direct broker work inside the callback or local subscribers. The queue consumer uses `dispatchExternalEvent()` and does not append the received event again.
 
-The version-one `NewExampleAdded` producer publishes an outer `exampleId` and a nested `command` object. Its registered consumer carrier preserves this released shape with typed outer and nested data transfer objects.
+The version-one `EntryAdded` producer publishes an outer `exampleId` and a nested `command` object. Its registered consumer carrier preserves this released shape with typed outer and nested data transfer objects.
+
+The PHP context is `ExampleCatalog`, and PHP accessors use `entryId()`. Existing event names such as `Example_NewExampleAdded` and serialized `exampleId` keys remain stable. Version-one carrier constructor parameters retain `exampleId` for object mapping.
 
 Keep an executable producer-to-consumer contract test. Map the producer event arguments through the real registry and dispatcher into the registered carrier.
 

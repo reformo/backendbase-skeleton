@@ -18,8 +18,8 @@ This pattern comes from the current Backendbase source and these primary guides:
 - `resources/platform/12-messaging-consumers.md`
 - `resources/platform/17-testing.md`
 - `resources/platform/24-feature-workflow.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/`
-- `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
+- `src/Backendbase/Domain/ExampleCatalog/`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php`
 - `config/dependencies/`

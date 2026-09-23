@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\RemoveExample as RemoveExampleCommand;
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\RemoveEntry as RemoveEntryCommand;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers\NewExample;
@@ -32,7 +32,7 @@ final class ExampleWriteControllersTest extends TestCase
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::once())
             ->method('handle')
-            ->with(self::callback(static function (AddNewExample $command): bool {
+            ->with(self::callback(static function (AddEntry $command): bool {
                 self::assertSame('settings', $command->group());
                 self::assertSame('page-size', $command->key());
                 self::assertSame('25 & items', $command->value());
@@ -88,10 +88,10 @@ final class ExampleWriteControllersTest extends TestCase
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::once())
             ->method('handle')
-            ->with(self::callback(static function (ChangeExample $command): bool {
+            ->with(self::callback(static function (ChangeEntry $command): bool {
                 $identity = $command->identity();
 
-                return $identity->type() === ExampleType::SYSTEM
+                return $identity->type() === EntryType::SYSTEM
                     && $identity->typeTargetId() === null
                     && $identity->group() === 'settings'
                     && $identity->key() === 'page-size'
@@ -123,10 +123,10 @@ final class ExampleWriteControllersTest extends TestCase
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::once())
             ->method('handle')
-            ->with(self::callback(static function (RemoveExampleCommand $command): bool {
+            ->with(self::callback(static function (RemoveEntryCommand $command): bool {
                 $identity = $command->identity();
 
-                return $identity->type() === ExampleType::SYSTEM
+                return $identity->type() === EntryType::SYSTEM
                     && $identity->typeTargetId() === null
                     && $identity->group() === 'settings'
                     && $identity->key() === 'page-size';

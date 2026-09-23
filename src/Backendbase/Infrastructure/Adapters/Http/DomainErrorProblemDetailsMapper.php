@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Http;
 
-use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
+use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Exception\AccountAlreadyRegistered;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
@@ -26,7 +26,7 @@ final class DomainErrorProblemDetailsMapper
     public function map(DomainException $exception): ActionError
     {
         [$status, $title, $code, $type] = match (true) {
-            $exception instanceof ExampleAlreadyExists => [
+            $exception instanceof EntryAlreadyExists => [
                 409,
                 'Example Already Exists',
                 'example/already-exists',

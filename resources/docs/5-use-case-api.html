@@ -670,7 +670,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
         <section id="controllers">
             <h2>Controller pattern</h2>
             <p>Business handlers extend <code>Backendbase\Shared\Http\Actions\Action</code>. The transport-only <code>Liveness</code> handler is directly invokable. The base class stores the PSR-7 request, response, and route arguments before it calls <code>action()</code>.</p>
-            <div class="code-wrap"><pre><code>final class ExampleAction extends Action
+            <div class="code-wrap"><pre><code>final class EntryAction extends Action
 {
     public function __construct(
         private readonly QueryBus $queryBus,
@@ -688,7 +688,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
             $this-&gt;request-&gt;getQueryParams(),
         );
 
-        $result = $this-&gt;queryBus-&gt;handle(new ExampleQuery($type));
+        $result = $this-&gt;queryBus-&gt;handle(new EntryQuery($type));
 
         return new JsonResponse(['data' =&gt; $result], 200);
     }
@@ -735,7 +735,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
             <h3>Current boundary validation</h3>
             <p><code>ExampleRequestInput</code> validates the example type, integers, strings, objects, and booleans. Invalid data raises <code>InvalidUserInput</code> before bus dispatch.</p>
             <ul>
-                <li><code>typeSlug</code> must map to an <code>ExampleType</code>.</li>
+                <li><code>typeSlug</code> must map to an <code>EntryType</code>.</li>
                 <li><code>typeTargetId</code> accepts null, an empty string, or a positive integer.</li>
                 <li><code>pageSize</code> and <code>page</code> default to <code>1000</code> and <code>1</code>.</li>
                 <li>PATCH treats omitted and null <code>lookupValue</code>, <code>details</code>, and <code>isActive</code> fields as unchanged. Other supplied values must be a string, object, and boolean.</li>
@@ -773,7 +773,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     </ol>
                 </article>
             </div>
-            <p><code>ChangeExampleDetails</code> and <code>RemoveExample</code> put <code>ExampleIdentity</code> in one command. Their handlers resolve the aggregate through the write repository and own the resource-not-found decision.</p>
+            <p><code>ChangeExampleDetails</code> and <code>RemoveExample</code> put <code>EntryIdentity</code> in one command. Their handlers resolve the aggregate through the write repository and own the resource-not-found decision.</p>
             <div class="related">
                 <a href="2-cqrs.html">CQRS guide</a>
                 <a href="1-bounded-contexts.html">Bounded contexts guide</a>
@@ -948,7 +948,7 @@ bin/bruno example-api local</code></pre></div>
                     <tr><td><code>Authenticate</code> verifies an active account and its Argon2id password hash.</td><td>The protected Account module registers, revises, retires, and lists accounts through ACL-checked commands and a query.</td></tr>
                     <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
                     <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
-                    <tr><td>Group queries return <code>ExampleGroupPage</code>.</td><td>The response includes the complete distinct-group total and the requested page.</td></tr>
+                    <tr><td>Group queries return <code>EntryGroupPage</code>.</td><td>The response includes the complete distinct-group total and the requested page.</td></tr>
                     <tr><td>OpenAPI output is generated.</td><td>A source YAML change has no public effect until the merged file is regenerated.</td></tr>
                     </tbody>
                 </table>

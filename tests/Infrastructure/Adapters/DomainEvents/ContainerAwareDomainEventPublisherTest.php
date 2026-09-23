@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\DomainEvents;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\DomainEvents\ExampleAdded;
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
+use Backendbase\Domain\ExampleCatalog\Contracts\DomainEvents\EntryAdded;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\DomainEvents\ContainerAwareDomainEventPublisher;
 use Backendbase\Shared\Domain\DomainEvent;
@@ -56,9 +56,9 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
         $container = $this->createStub(ContainerInterface::class);
         $container->method('get')->willReturn(new stdClass());
         $publisher = new ContainerAwareDomainEventPublisher($container);
-        $command   = new AddNewExample(
+        $command   = new AddEntry(
             'example-id',
-            ExampleType::SYSTEM,
+            EntryType::SYSTEM,
             null,
             'settings',
             true,
@@ -69,6 +69,6 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
 
-        $publisher->publish(new ExampleAdded('example-id', $command));
+        $publisher->publish(new EntryAdded('example-id', $command));
     }
 }

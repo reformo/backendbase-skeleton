@@ -12,7 +12,7 @@ Resolve only unknown facts needed by the affected behavior. Reuse verified facts
 4. Identify the boundary that owns dispatch and the required transaction behavior.
 5. Find the nearest subscriber with the same dependency type.
 
-Do not copy `Backendbase\`, `ExampleBoundedContext`, `Example_*`, subscriber names, or logger messages.
+Do not copy `Backendbase\`, `ExampleCatalog`, `Example_*`, subscriber names, or logger messages.
 
 ## Role to target mapping
 
@@ -109,7 +109,7 @@ Code changes do not authorize executing subscriber effects against live data. Us
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/ServiceProviderTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/EventManager
 vendor/bin/phpunit tests/Architecture
 composer phpstan
@@ -131,8 +131,8 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Shared/Services/EventManager/EventManager.php`
 - `src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php`
 - `config/dependencies/modules.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/IntegrationEventSubscribers/NewExampleAddedSubscriber.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/IntegrationEventSubscribers/EntryAddedSubscriber.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `tests/Infrastructure/Adapters/EventManager/ContainerAwareEventManagerTest.php`
 - `resources/platform/06-integration-event-consumers.md`
 - `resources/docs/3-integration-events.html`

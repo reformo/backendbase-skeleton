@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\EventManager;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleRemoved;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryRemoved;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -40,7 +40,7 @@ final class TransactionalIntegrationEventDispatchTest extends IntegrationEventDi
             PersistIntegrationEventSubscriber::class,
         );
 
-        $this->executeEvent(new ExampleRemoved('example-id'));
+        $this->executeEvent(new EntryRemoved('example-id'));
 
         self::assertSame(0, $this->rowCount('subscriber_write'));
         self::assertSame(1, $this->rowCount('integration_event_outbox'));
@@ -65,7 +65,7 @@ final class TransactionalIntegrationEventDispatchTest extends IntegrationEventDi
     {
         $connection = $this->connection;
         $connection->beginTransaction();
-        $this->executeEvent(new ExampleRemoved('example-id'));
+        $this->executeEvent(new EntryRemoved('example-id'));
         self::assertSame(1, $this->rowCount('integration_event_outbox'));
         self::assertTrue($connection->isTransactionActive());
 
@@ -77,9 +77,9 @@ final class TransactionalIntegrationEventDispatchTest extends IntegrationEventDi
     /** @return iterable<string, array{IntegrationEvent, int}> */
     public static function deliveryModes(): iterable
     {
-        yield 'local and queue' => [new ExampleRemoved('example-id'), 1];
+        yield 'local and queue' => [new EntryRemoved('example-id'), 1];
         yield 'local only' => [
-            new class ('example-id') extends ExampleRemoved {
+            new class ('example-id') extends EntryRemoved {
                 public const bool DELIVER_VIA_QUEUE = false;
             },
             0,

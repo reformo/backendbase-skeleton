@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Queue;
 
-use Backendbase\Domain\ExampleBoundedContext\Application\ExternalIntegrationEventSubscribers\ExampleBoundedContext\GreetingRequestedExternalSubscriber;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\GreetingRequested;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\V1\GreetingRequestedPayload;
-use Backendbase\Domain\ExampleBoundedContext\ServiceProvider;
+use Backendbase\Domain\ExampleCatalog\Application\ExternalIntegrationEventSubscribers\ExampleCatalog\GreetingRequestedExternalSubscriber;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\GreetingRequested;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\GreetingRequestedPayload;
+use Backendbase\Domain\ExampleCatalog\ServiceProvider;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineInboxMessageTransaction;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventDispatcher;

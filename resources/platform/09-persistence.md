@@ -26,6 +26,6 @@ Define one repository contract suite for behavior declared by the port. Run it u
 
 Doctrine repository tests must also use production mapping metadata and Doctrine `SchemaTool`. Test storage mapping, nulls, malformed data, and rollback at this adapter boundary.
 
-Example group queries return `ExampleGroupPage`. Both adapters count all matching distinct groups before pagination. Doctrine applies the requested limit and offset in SQL. It does not truncate the result set at 1,000 groups.
+Example group queries return `EntryGroupPage`. Both adapters count all matching distinct groups before pagination. Doctrine applies the requested limit and offset in SQL. It does not truncate the result set at 1,000 groups.
 
 Basis: `resources/docs/1-bounded-contexts.html`, `resources/docs/9-persistence-and-database.html`.

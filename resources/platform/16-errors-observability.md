@@ -6,7 +6,7 @@ Translate failures at architectural boundaries. Keep public error bodies stable 
 
 - Domain errors contain only a message and safe context.
 - `DomainErrorProblemDetailsMapper` owns each stable `type`, `code`, `title`, and `status` value.
-- `ExampleAlreadyExists` maps to a stable 409 Conflict response at the HTTP adapter.
+- `EntryAlreadyExists` maps to a stable 409 Conflict response at the HTTP adapter.
 - The Infrastructure HTTP error handler maps domain errors, Slim exceptions, and unexpected exceptions.
 - `ShutdownHandler` logs fatal PHP errors and emits a structured 500 response.
 - Stage, CI, production, and unknown environments hide internal exception details.

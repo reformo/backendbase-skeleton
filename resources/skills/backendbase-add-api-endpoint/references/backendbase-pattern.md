@@ -15,7 +15,7 @@ discover affected API -> draft OpenAPI contract -> complete application path
 | Input validation | `ExampleRequestInput` validates enum, scalar, object, boolean, and positive-integer fields | Encode the requested external contract |
 | Create | `NewExample` sends a command and returns `204` plus insert ID | Select target create status and headers |
 | Read | `Examples` sends a query and maps a page | Use the target read model and schema |
-| Update/delete lookup | Change and remove actions send `ExampleIdentity` in one command | Resolve the aggregate and missing-state decision in the handler |
+| Update/delete lookup | Change and remove actions send `EntryIdentity` in one command | Resolve the aggregate and missing-state decision in the handler |
 | Routing | `ModuleConfig` names and protects routes | Match target operation ID and policy |
 | Tests | Input, read, write, security, and conditional not-found tests | Use focused target doubles |
 
@@ -121,7 +121,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ExampleDetails.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/RemoveExample.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleIdentity.php`
+- `src/Backendbase/Domain/ExampleCatalog/Domain/EntryIdentity.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ExampleReadControllersTest.php`
 - `tests/Infrastructure/UseCase/ExampleApi/ExampleWriteControllersTest.php`

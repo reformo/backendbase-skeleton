@@ -31,7 +31,7 @@ final class HelpersTest extends TestCase
         $paths = PathFinder::doctrineEntityPaths();
 
         self::assertContains(
-            'src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity',
+            'src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity',
             $paths,
         );
     }

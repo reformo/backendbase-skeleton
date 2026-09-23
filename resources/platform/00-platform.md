@@ -18,7 +18,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 ## Current reference surfaces
 
 - `ExampleApi` is the only consumer API.
-- `ExampleBoundedContext` is the complete business-module reference.
+- `ExampleCatalog` is the complete business-module reference.
 - `IdentityAndAccess` supplies authentication and authorization components.
 - Run project commands from the repository root.
 
@@ -77,7 +77,7 @@ backendbase-core/
 │   └── platform/                      # Modular agent context and task routing
 ├── src/Backendbase/
 │   ├── Domain/
-│   │   ├── ExampleBoundedContext/     # Complete bounded-context reference
+│   │   ├── ExampleCatalog/     # Complete bounded-context reference
 │   │   │   ├── Adapters/Persistence/
 │   │   │   │   ├── Doctrine/          # Production read and write adapters
 │   │   │   │   └── Memory/            # In-memory test adapters
@@ -132,7 +132,7 @@ backendbase-core/
 - Generated ExampleApi OpenAPI document: `public/example-api/docs/example-api-merged.yml`
 - ExampleApi Bruno collection: `resources/bruno/example-api`
 - Bruno HTML reports: `artifacts/bruno/{collection}/{environment}.html`
-- Reference bounded context: `src/Backendbase/Domain/ExampleBoundedContext`
+- Reference bounded context: `src/Backendbase/Domain/ExampleCatalog`
 - Doctrine migrations: `resources/database/Migrations`
 - Doctrine migration configuration: `migrations.json`
 - Deployment policy: `deployment/release.json`
@@ -165,7 +165,7 @@ composer run generate-example-api-spec
 composer run validate-example-api-spec
 
 # Run a focused bounded-context suite.
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 
 # Run the ExampleApi Bruno collection against a prepared local service.
 bin/bruno example-api local

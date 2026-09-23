@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Persistence\Doctrine;
 
-use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\Entity\ExampleRecord;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\EntryRecord;
 use Backendbase\Shared\Migrations\BackendbaseAbstractMigration;
 use Backendbase\Shared\Persistence\Doctrine\DQL\FirstFunction;
 use Doctrine\DBAL\DriverManager;
@@ -43,7 +43,7 @@ final class DqlAndMigrationTest extends TestCase
 
         $configuration = ORMSetup::createAttributeMetadataConfiguration([
             dirname(__DIR__, 4)
-                . '/src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity',
+                . '/src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity',
         ], true);
         $configuration->enableNativeLazyObjects(true);
         $configuration->addCustomStringFunction(FirstFunction::FUNCTION_NAME, FirstFunction::class);
@@ -52,8 +52,8 @@ final class DqlAndMigrationTest extends TestCase
             $configuration,
         );
         $entityManager = new EntityManager($connection, $configuration);
-        $dql           = 'SELECT example FROM ' . ExampleRecord::class . ' example '
-            . 'WHERE example.id = FIRST(SELECT nested.id FROM ' . ExampleRecord::class . ' nested)';
+        $dql           = 'SELECT example FROM ' . EntryRecord::class . ' example '
+            . 'WHERE example.id = FIRST(SELECT nested.id FROM ' . EntryRecord::class . ' nested)';
         $sql           = $entityManager->createQuery($dql)->getSQL();
         self::assertIsString($sql);
 

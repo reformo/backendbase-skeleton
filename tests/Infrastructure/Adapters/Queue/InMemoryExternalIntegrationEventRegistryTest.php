@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Queue;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedMessage;
+use Backendbase\Domain\ExampleCatalog\Contracts\ExternalIntegrationEvents\V1\EntryAddedMessage;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,12 +21,12 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
             [
                 'eventName' => 'Example_NewExampleAdded_Event',
                 'eventVersion' => '1.0',
-                'messageFQCN' => NewExampleAddedMessage::class,
+                'messageFQCN' => EntryAddedMessage::class,
             ],
         ]);
 
         self::assertSame(
-            NewExampleAddedMessage::class,
+            EntryAddedMessage::class,
             $registry->messageClass('Example_NewExampleAdded_Event', '1.0'),
         );
     }
@@ -38,7 +38,7 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
             [
                 'eventName' => 'Example_NewExampleAdded_Event',
                 'eventVersion' => '1.0',
-                'messageFQCN' => NewExampleAddedMessage::class,
+                'messageFQCN' => EntryAddedMessage::class,
             ],
         ]);
 
@@ -67,7 +67,7 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
         $definition = [
             'eventName' => 'Example_NewExampleAdded_Event',
             'eventVersion' => '1.0',
-            'messageFQCN' => NewExampleAddedMessage::class,
+            'messageFQCN' => EntryAddedMessage::class,
         ];
 
         $this->expectException(InvalidArgumentException::class);

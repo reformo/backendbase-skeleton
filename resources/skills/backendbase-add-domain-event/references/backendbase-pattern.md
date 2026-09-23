@@ -83,9 +83,9 @@ A direct listener test proves listener behavior only. An architecture test prove
 ## Current source behavior and limitations
 
 - `ContainerAwareDomainEventPublisher` reads the first listener attribute and resolves that class from the container.
-- The current production Example flow publishes from `AddNewExampleHandler` inside `IntegrationEventTransaction`.
+- The current production Example flow publishes from `AddEntryHandler` inside `IntegrationEventTransaction`.
 - Publication is synchronous. Listener exceptions propagate to the caller.
-- `AddNewExampleHandlerTest` asserts that repository persistence and domain-event publication both occur before the transaction callback ends.
+- `AddEntryHandlerTest` asserts that repository persistence and domain-event publication both occur before the transaction callback ends.
 - The listener does not require `ServiceProvider` subscriber metadata.
 - Shared `Aggregate::recordEvent()` exists, but current production code has no automatic recorded-event drain.
 - The production Example domain event carries a command object. That is an example choice, not a required payload style. Prefer explicit fields when they reduce coupling.
@@ -111,16 +111,16 @@ For new movable context tests in an unmodified Backendbase project, use the cont
 - `resources/docs/1-bounded-contexts.html`
 - `resources/platform/03-bounded-contexts.md`
 - `resources/platform/24-feature-workflow.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/DomainEvents/ExampleAdded.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/DomainEventListener/ExampleAddedListener.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/DomainEvents/EntryAdded.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/DomainEventListener/EntryAddedListener.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php`
 - `src/Backendbase/Shared/Domain/DomainEvent.php`
 - `src/Backendbase/Shared/Domain/DomainEventTrait.php`
 - `src/Backendbase/Infrastructure/Adapters/DomainEvents/ContainerAwareDomainEventPublisher.php`
 - `src/Backendbase/Shared/Domain/Attributes/DomainEventListener.php`
 - `src/Backendbase/Shared/Domain/Aggregate.php`
 - `config/dependencies/modules.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php`
 - `tests/Shared/Domain/SharedDomainSupportTest.php`
 - `tests/Shared/DomainEventsTest.php`
 - `.github/workflows/quality-gates.yml`

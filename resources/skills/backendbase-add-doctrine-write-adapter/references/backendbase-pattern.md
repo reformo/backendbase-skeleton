@@ -75,7 +75,7 @@ private CatalogItemType $type;
 
 ## Current source behavior and limitations
 
-- `ExampleRecord` demonstrates UUID, enum, JSON, generated columns, timestamps, soft removal, indexes, and active-record uniqueness. These are Example-specific choices.
+- `EntryRecord` demonstrates UUID, enum, JSON, generated columns, timestamps, soft removal, indexes, and active-record uniqueness. These are Example-specific choices.
 - `PathFinder::doctrineEntityPaths()` discovers direct context entity directories and one nested level.
 - The Doctrine CLI schema filter currently collects table names only from direct context entity directories. Prefer direct context placement unless that CLI logic changes too.
 - The Example repository test builds an isolated SQLite schema from production metadata. This proves ORM mapping and many repository behaviors, but it does not prove every MySQL generated-column, lock, or migration behavior.
@@ -103,12 +103,12 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `resources/docs/project.md`
 - `resources/docs/9-persistence-and-database.html`
 - `resources/platform/09-persistence.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExampleWriteRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Shared/Helpers/PathFinder.php`
 - `config/dependencies/doctrine.php`
 - `bin/doctrine`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/DoctrineEntryRepositoryTestCase.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

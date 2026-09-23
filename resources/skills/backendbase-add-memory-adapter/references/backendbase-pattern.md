@@ -53,9 +53,9 @@ Clone mutable aggregates. Immutable aggregate designs can use the target project
 
 ## Current source behavior and limitations
 
-- Example memory read and write adapters share `ExampleStore`.
-- `ExampleStore` clones values on save and read.
-- `ExampleStore` enforces active lookup identity uniqueness with the same context-safe error as Doctrine.
+- Example memory read and write adapters share `EntryStore`.
+- `EntryStore` clones values on save and read.
+- `EntryStore` enforces active lookup identity uniqueness with the same context-safe error as Doctrine.
 - The functional lifecycle test binds memory adapters to the production ports and uses real container-aware buses.
 - The shared Example repository contract checks sorted groups, pagination, active uniqueness, soft removal, and replacement.
 - Memory tests do not prove Doctrine metadata, SQL binding, database constraint enforcement, rollback, or MySQL behavior.
@@ -77,8 +77,8 @@ composer cs-check
 - `resources/docs/1-bounded-contexts.html`
 - `resources/docs/10-testing-and-quality.html`
 - `resources/platform/17-testing.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleStore.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleWriteRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleReadRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/ExampleServiceTest.php`
-- `tests/Functional/ExampleLifecycleTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryStore.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryReadRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/EntryServiceTest.php`
+- `tests/Functional/EntryLifecycleTest.php`

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExamplesByGroup;
+use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntriesByGroup;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
@@ -43,12 +43,12 @@ class Examples extends Action
 
         $pagination = new Pagination($pageSize, $page);
 
-        $pageResult = $this->queryBus->handle(new GetExamplesByGroup($type, $typeTargetId, $group, $pagination));
+        $pageResult = $this->queryBus->handle(new GetEntriesByGroup($type, $typeTargetId, $group, $pagination));
         $data       = [];
-        foreach ($pageResult->items() as $example) {
+        foreach ($pageResult->items() as $entry) {
             $details = [];
 
-            foreach ($example->details() as $key => $value) {
+            foreach ($entry->details() as $key => $value) {
                 $details[$key] = $value;
                 if (! str_contains((string) $key, 'image') && ! str_contains((string) $key, 'Image')) {
                     continue;
@@ -58,15 +58,15 @@ class Examples extends Action
             }
 
             $data[] = [
-                'uuid' => $example->uuid(),
+                'uuid' => $entry->uuid(),
                 'type' => $type->value,
                 'typeTargetId' => $typeTargetId,
                 'exampleGroup' => $group,
-                'lookupKey' => $example->lookupKey(),
-                'lookupValue' => $example->lookupValue(),
-                'isActive' => $example->isActive(),
+                'lookupKey' => $entry->lookupKey(),
+                'lookupValue' => $entry->lookupValue(),
+                'isActive' => $entry->isActive(),
                 'details' => $details,
-                'createdAt' => $example->createdAt()->format(DATE_ATOM),
+                'createdAt' => $entry->createdAt()->format(DATE_ATOM),
             ];
         }
 

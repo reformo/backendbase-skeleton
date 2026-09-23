@@ -647,10 +647,10 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
             <h3>Producer pattern</h3>
             <div class="code-wrap">
                 <pre><code>$this-&gt;integrationEventTransaction-&gt;execute(
-    function () use ($example): NewExampleAdded {
-        $this-&gt;exampleRepository-&gt;add($example);
+    function () use ($entry): EntryAdded {
+        $this-&gt;entryRepository-&gt;add($entry);
 
-        return new NewExampleAdded(new NewExampleAddedPayload(/* ... */));
+        return new EntryAdded(new EntryAddedPayload(/* ... */));
     },
 );</code></pre>
             </div>
@@ -1163,10 +1163,10 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
             <h3>Registration shape</h3>
             <div class="code-wrap">
                 <pre><code>[
-    'events' =&gt; NewExampleAddedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' =&gt; NewExampleAddedExternalSubscriber::class,
-    'messageFQCN' =&gt; NewExampleAddedMessage::class,
-    'eventVersion' =&gt; NewExampleAdded::EVENT_VERSION,
+    'events' =&gt; EntryAddedExternalSubscriber::getSubscribedEvents(),
+    'subscriberFQCN' =&gt; EntryAddedExternalSubscriber::class,
+    'messageFQCN' =&gt; EntryAddedMessage::class,
+    'eventVersion' =&gt; EntryAdded::EVENT_VERSION,
 ]</code></pre>
             </div>
         </section>
@@ -1303,7 +1303,7 @@ ORDER BY received_at DESC;</code></pre>
                         <tr><td>Failure policy and persistence</td><td><code>QueueMessageFailureService.php</code>, <code>DoctrineQueueMessageFailureStore.php</code></td></tr>
                         <tr><td>Operations commands</td><td><code>src/Backendbase/Infrastructure/UseCase/Console/Queue/</code></td></tr>
                         <tr><td>Database schema</td><td><code>resources/database/Migrations/Version20260823000000.php</code></td></tr>
-                        <tr><td>Reference event</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/</code></td></tr>
+                        <tr><td>Reference event</td><td><code>src/Backendbase/Domain/ExampleCatalog/</code></td></tr>
                     </tbody>
                 </table>
             </div>

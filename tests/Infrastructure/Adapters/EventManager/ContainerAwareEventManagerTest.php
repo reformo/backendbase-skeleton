@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\EventManager;
 
-use Backendbase\Domain\ExampleBoundedContext\Application\ExternalIntegrationEventSubscribers\ExampleBoundedContext\NewExampleAddedExternalSubscriber;
-use Backendbase\Domain\ExampleBoundedContext\Application\IntegrationEventSubscribers\NewExampleAddedSubscriber;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedCommand;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedMessage;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleRemoved;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\NewExampleAdded;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\V1\NewExampleAddedPayload;
+use Backendbase\Domain\ExampleCatalog\Application\ExternalIntegrationEventSubscribers\ExampleCatalog\EntryAddedExternalSubscriber;
+use Backendbase\Domain\ExampleCatalog\Application\IntegrationEventSubscribers\EntryAddedSubscriber;
+use Backendbase\Domain\ExampleCatalog\Contracts\ExternalIntegrationEvents\V1\EntryAddedCommand;
+use Backendbase\Domain\ExampleCatalog\Contracts\ExternalIntegrationEvents\V1\EntryAddedMessage;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryAdded;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryRemoved;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryAddedPayload;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareSubscriberRegistry;
 use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
@@ -32,11 +32,11 @@ final class ContainerAwareEventManagerTest extends TestCase
     {
         [$eventManager, $logHandler] = $this->eventManager();
         $eventManager->addEventSubscriber(
-            [NewExampleAdded::EVENT_TYPE, 'Example_*'],
-            NewExampleAddedSubscriber::class,
+            [EntryAdded::EVENT_TYPE, 'Example_*'],
+            EntryAddedSubscriber::class,
         );
-        $eventManager->dispatchEvent(new ExampleRemoved('example-id'));
-        $eventManager->dispatchEvent(new NewExampleAdded(new NewExampleAddedPayload(
+        $eventManager->dispatchEvent(new EntryRemoved('example-id'));
+        $eventManager->dispatchEvent(new EntryAdded(new EntryAddedPayload(
             'example-id',
             'system',
             null,
@@ -47,7 +47,7 @@ final class ContainerAwareEventManagerTest extends TestCase
             [],
         )));
 
-        self::assertSame(2, $this->matchingLogCount($logHandler, 'NewExampleAddedSubscriber'));
+        self::assertSame(2, $this->matchingLogCount($logHandler, 'EntryAddedSubscriber'));
         self::assertTrue($eventManager->hasSubscriber('Example_ExampleChanged'));
     }
 
@@ -57,15 +57,15 @@ final class ContainerAwareEventManagerTest extends TestCase
         [$eventManager, $logHandler] = $this->eventManager();
         $eventManager->addEventSubscriber(
             'Partner_*_Event',
-            NewExampleAddedExternalSubscriber::class,
+            EntryAddedExternalSubscriber::class,
         );
 
         $subscribers = $eventManager->getSubscriber('Partner_ExampleAdded_Event');
         $eventManager->dispatchExternalEvent(
             'Partner_ExampleAdded_Event',
-            new NewExampleAddedMessage(
+            new EntryAddedMessage(
                 'example-id',
-                new NewExampleAddedCommand(
+                new EntryAddedCommand(
                     'example-id',
                     'system',
                     null,
@@ -78,20 +78,20 @@ final class ContainerAwareEventManagerTest extends TestCase
             ),
         );
 
-        self::assertContains(NewExampleAddedExternalSubscriber::class, $subscribers);
-        self::assertSame(1, $this->matchingLogCount($logHandler, 'NewExampleAddedExternalSubscriber'));
+        self::assertContains(EntryAddedExternalSubscriber::class, $subscribers);
+        self::assertSame(1, $this->matchingLogCount($logHandler, 'EntryAddedExternalSubscriber'));
     }
 
     #[Test]
     public function itRemovesAWildcardSubscriber(): void
     {
         [$eventManager, $logHandler] = $this->eventManager();
-        $eventManager->addEventSubscriber('Example_*', NewExampleAddedSubscriber::class);
-        $eventManager->removeEventSubscriber('Example_*', NewExampleAddedSubscriber::class);
+        $eventManager->addEventSubscriber('Example_*', EntryAddedSubscriber::class);
+        $eventManager->removeEventSubscriber('Example_*', EntryAddedSubscriber::class);
 
-        $eventManager->dispatchEvent(new ExampleRemoved('example-id'));
+        $eventManager->dispatchEvent(new EntryRemoved('example-id'));
 
-        self::assertSame(0, $this->matchingLogCount($logHandler, 'NewExampleAddedSubscriber'));
+        self::assertSame(0, $this->matchingLogCount($logHandler, 'EntryAddedSubscriber'));
     }
 
     #[Test]
@@ -101,9 +101,9 @@ final class ContainerAwareEventManagerTest extends TestCase
 
         $eventManager->dispatchExternalEvent(
             'Missing_Event',
-            new NewExampleAddedMessage(
+            new EntryAddedMessage(
                 'example-id',
-                new NewExampleAddedCommand(
+                new EntryAddedCommand(
                     'example-id',
                     'system',
                     null,
@@ -124,28 +124,28 @@ final class ContainerAwareEventManagerTest extends TestCase
     {
         [$eventManager] = $this->eventManager();
         $eventManager->addEventSubscriber(
-            ExampleRemoved::EVENT_TYPE,
-            NewExampleAddedExternalSubscriber::class,
+            EntryRemoved::EVENT_TYPE,
+            EntryAddedExternalSubscriber::class,
         );
 
         $this->expectException(UnexpectedValueException::class);
 
-        $eventManager->dispatchEvent(new ExampleRemoved('example-id'));
+        $eventManager->dispatchEvent(new EntryRemoved('example-id'));
     }
 
     #[Test]
     public function itRejectsAnInternalSubscriberForAnExternalEvent(): void
     {
         [$eventManager] = $this->eventManager();
-        $eventManager->addEventSubscriber('Partner_Event', NewExampleAddedSubscriber::class);
+        $eventManager->addEventSubscriber('Partner_Event', EntryAddedSubscriber::class);
 
         $this->expectException(UnexpectedValueException::class);
 
         $eventManager->dispatchExternalEvent(
             'Partner_Event',
-            new NewExampleAddedMessage(
+            new EntryAddedMessage(
                 'example-id',
-                new NewExampleAddedCommand(
+                new EntryAddedCommand(
                     'example-id',
                     'system',
                     null,
@@ -163,8 +163,8 @@ final class ContainerAwareEventManagerTest extends TestCase
     public function itReturnsAllExactAndWildcardSubscribers(): void
     {
         [$eventManager] = $this->eventManager();
-        $eventManager->addEventSubscriber('Exact_Event', NewExampleAddedSubscriber::class);
-        $eventManager->addEventSubscriber('Wildcard_*', NewExampleAddedExternalSubscriber::class);
+        $eventManager->addEventSubscriber('Exact_Event', EntryAddedSubscriber::class);
+        $eventManager->addEventSubscriber('Wildcard_*', EntryAddedExternalSubscriber::class);
 
         $subscribers = $eventManager->getAllSubscribers();
 

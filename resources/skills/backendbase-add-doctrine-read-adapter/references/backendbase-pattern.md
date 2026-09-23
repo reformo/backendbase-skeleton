@@ -78,10 +78,10 @@ Bind the context read-port interface to the DBAL adapter in the target compositi
 
 ## Current source behavior and limitations
 
-- `ExampleReadRepository` uses DBAL and purpose-specific SQL against the same table as the write adapter.
+- `EntryReadRepository` uses DBAL and purpose-specific SQL against the same table as the write adapter.
 - It binds page size and offset as integers and orders pages by `created_at, id`.
-- In an unmodified Backendbase project, group queries return `ExampleGroupPage`. They count all matching distinct groups and apply the requested limit and offset in SQL. No fixed result cap precedes pagination.
-- `ExampleReadModelMapper` rejects invalid strings, integers, booleans, enums, dates, and JSON objects.
+- In an unmodified Backendbase project, group queries return `EntryGroupPage`. They count all matching distinct groups and apply the requested limit and offset in SQL. No fixed result cap precedes pagination.
+- `EntryReadModelMapper` rejects invalid strings, integers, booleans, enums, dates, and JSON objects.
 - The shared Example repository contract checks read results, filtering, ordering, pagination, and absence against memory and Doctrine adapters.
 - The memory adapter does not prove DBAL implementation details. Doctrine-specific repository tests remain required.
 - Existing SQLite metadata tests do not prove MySQL-specific index or optimizer behavior.
@@ -104,9 +104,9 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `resources/docs/project.md`
 - `resources/docs/9-persistence-and-database.html`
 - `resources/platform/09-persistence.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExampleReadRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ReadModel`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadModelMapper.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleReadModelMapperTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/EntryReadRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/ReadModel`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadModelMapper.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryReadModelMapperTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

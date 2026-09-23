@@ -58,7 +58,7 @@ backendbase-core/
 │   └── i18n/                          # Translation files
 ├── src/Backendbase/
 │   ├── Domain/
-│   │   ├── ExampleBoundedContext/     # Current bounded-context reference
+│   │   ├── ExampleCatalog/     # Current bounded-context reference
 │   │   │   ├── Adapters/Persistence/
 │   │   │   │   ├── Doctrine/          # Production persistence adapters
 │   │   │   │   └── Memory/            # In-memory test adapters
@@ -123,7 +123,7 @@ Use the root `tests/` directory for tests that belong to the platform rather tha
 
 ### Domain And Application
 
-Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `ExampleBoundedContext` as the current reference implementation. No `Content` context exists in the current source. Contracts represent command/query inputs and ports. Application handlers orchestrate use cases. Domain objects and services should hold business rules and invariants.
+Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `ExampleCatalog` as the current reference implementation. No `Content` context exists in the current source. Contracts represent command/query inputs and ports. Application handlers orchestrate use cases. Domain objects and services should hold business rules and invariants.
 
 ### Enforced Dependency Boundaries
 
@@ -195,7 +195,7 @@ For new query endpoints, use Doctrine DBAL and plain SQL for read-side projectio
 
 Create ORM repository test schemas with Doctrine `SchemaTool` and the production mapping metadata. Do not copy mapped tables into handwritten test DDL.
 
-When creating Doctrine mapping records, enum fields must use PHP native string-backed enum classes and Doctrine `enumType` column mapping. Type the record property with the enum class. Follow `ExampleType` and `ExampleRecord::$type`, which use `Types::ENUM` with `enumType: ExampleType::class`.
+When creating Doctrine mapping records, enum fields must use PHP native string-backed enum classes and Doctrine `enumType` column mapping. Type the record property with the enum class. Follow `EntryType` and `EntryRecord::$type`, which use `Types::ENUM` with `enumType: EntryType::class`.
 
 Generate a migration only for an explicitly approved schema change. Run `bin/doctrine migrations:diff` from the repository root after repository tests pass and repository behavior is final. Generated migrations live under `resources/database/Migrations`. Review every generated SQL statement. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.
 
@@ -205,7 +205,7 @@ Database change boundary (hard rule): never create, alter, or drop any database 
 
 Command handlers may create integration events. Add producer event contracts under `Contracts/IntegrationEvents`. Use `IntegrationEventTransaction::execute()` to commit business work, local subscriber writes, and optional outbox publication in one transaction. Perform authoritative database work in its callback and return the complete event. The transaction wrapper calls `EventManager::dispatchEvent()` before commit. Run synchronous domain listeners inside the transaction callback when their failure must roll back the command. Keep business-relevant external effects asynchronous through the outbox. Do not publish queue messages or call `EventManager::dispatchEvent()` directly from a command handler.
 
-New integration event types must follow `{PascalCaseServiceName}_{PascalCaseEventClassName}`. Read the service name from the `service-name` key in `config/autoload/global.php`. The current default is `example`, so a new `ExampleChanged` event uses `Example_ExampleChanged`. Existing published names are compatibility contracts. Do not rename them without a migration plan.
+New integration event types must follow `{PascalCaseServiceName}_{PascalCaseEventClassName}`. Read the service name from the `service-name` key in `config/autoload/global.php`. The current default is `example`. The existing `EntryChanged` producer preserves its published `Example_ExampleChanged` name. Existing published names are compatibility contracts. Do not rename them without a migration plan.
 
 Both `DELIVER_VIA_QUEUE` values run registered local integration subscribers synchronously. A true flag appends one outbox row after local subscribers complete, even when no local subscriber is registered. A false flag produces no outbox row. Producer dispatch requires an active database transaction. Subscriber repositories and `DoctrineIntegrationEventOutbox` must share its connection. Subscriber and outbox failures roll back the database work. The outbox relay publishes committed rows through the configured `MessagePublisher` adapter. Queue consumption uses `dispatchExternalEvent()` and does not republish the received event.
 
@@ -226,7 +226,7 @@ The queue message processor converts a producer event name to an external subscr
 - ExampleApi OpenAPI source: `resources/api-docs/example-api`
 - ExampleApi Bruno collection: `resources/bruno/example-api`
 - Bruno HTML reports: `artifacts/bruno/{collection}/{environment}.html`
-- Reference bounded context: `src/Backendbase/Domain/ExampleBoundedContext`
+- Reference bounded context: `src/Backendbase/Domain/ExampleCatalog`
 - Doctrine migrations: `resources/database/Migrations`
 - Main DI wiring: `config/dependencies.php`
 - Focused DI providers: `config/dependencies`
@@ -268,13 +268,14 @@ Migration generation and application require the schema scope and target approva
 Use targeted PHPUnit paths first when changing a bounded context:
 
 ```sh
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 ```
 
 ## Agent Working Notes
 
 - Use the real namespace and path `src/Backendbase/Infrastructure`.
-- Treat `src/Backendbase/Domain/ExampleBoundedContext` as the bounded-context reference.
+- Treat `src/Backendbase/Domain/ExampleCatalog` as the bounded-context reference.
+- Name new contexts after the target business capability. Omit `Context` and `BoundedContext` suffixes. `ExampleCatalog` is a demonstration name, and its domain entity is `Entry`.
 - Treat `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example` as the HTTP module reference.
 - The current repository contains only `ExampleApi`. Scaffold another API before adding adapters for it.
 - Update `resources/api-docs/example-api` and `resources/bruno/example-api` when a public ExampleApi route changes.

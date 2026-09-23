@@ -68,7 +68,7 @@ final readonly class GetCatalogItemHandler implements QueryHandler
 - Current query contracts expose `toArray()` even though the shared `Query` interface requires only `jsonSerialize()`.
 - Current production handlers live in `Application/QueryHandlers` and delegate directly to the read port.
 - Query paths do not use aggregates or integration events.
-- In an unmodified Backendbase project, `GetExampleGroupsByType` carries validated pagination and returns `ExampleGroupPage`, including the complete distinct-group total.
+- In an unmodified Backendbase project, `GetEntryGroupsByType` carries validated pagination and returns `EntryGroupPage`, including the complete distinct-group total.
 - The current source has no dedicated unit test for each trivial query handler. Contract, adapter, and lifecycle tests provide stronger evidence.
 
 ## Verification map
@@ -89,9 +89,9 @@ composer cs-check
 - `src/Backendbase/Shared/CQRS/Query.php`
 - `src/Backendbase/Shared/CQRS/QueryHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/Query`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ReadModel`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExampleReadRepository.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/QueryHandlers`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/CommandAndQueryContractsTest.php`
-- `tests/Functional/ExampleLifecycleTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/Query`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/ReadModel`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/EntryReadRepository.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/QueryHandlers`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/CommandAndQueryContractsTest.php`
+- `tests/Functional/EntryLifecycleTest.php`

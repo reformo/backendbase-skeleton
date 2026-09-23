@@ -69,7 +69,7 @@ Also assert the approved field values. A count alone does not prove correct data
 ## Current source behavior and limitations
 
 - Composer maps `Backendbase\Seeders\` to `resources/database/Seeders`.
-- `ExampleSeeder` performs a parameterized existence check and inserts one lookup row.
+- `EntrySeeder` performs a parameterized existence check and inserts one lookup row.
 - It is intentionally not invoked by any migration.
 - It uses UUIDv4 and Example-specific values. Neither choice is a general platform rule.
 - The repository test runs the seeder twice and asserts a single row.
@@ -87,5 +87,5 @@ vendor/bin/phpunit src/Backendbase/Domain/Catalog/Tests/Adapters/Persistence/Doc
 - `resources/docs/9-persistence-and-database.html`
 - `resources/platform/10-schema-changes.md`
 - `composer.json`
-- `resources/database/Seeders/ExampleSeeder.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleSeederTest.php`
+- `resources/database/Seeders/EntrySeeder.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntrySeederTest.php`

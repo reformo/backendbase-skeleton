@@ -12,7 +12,7 @@ Resolve only unknown facts needed by the affected behavior. Reuse verified facts
 4. Confirm the fact crosses a process or service boundary. Use a domain event for internal domain coordination.
 5. Confirm no released event already represents the same fact.
 
-Do not copy `Backendbase\`, `ExampleBoundedContext`, `Example_*`, the default service name, identifiers, or payload fields.
+Do not copy `Backendbase\`, `ExampleCatalog`, `Example_*`, the default service name, identifiers, or payload fields.
 
 ## Role to target mapping
 
@@ -142,8 +142,8 @@ Creating producer code and migrations is separate from applying schema changes, 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php
 vendor/bin/phpunit tests/Architecture
 composer phpstan
@@ -163,11 +163,11 @@ Verified on 2026-08-28 from:
 
 - `src/Backendbase/Shared/Domain/Messaging/IntegrationEvent.php`
 - `src/Backendbase/Shared/Domain/Messaging/IntegrationEventTrait.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/NewExampleAdded.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/EntryAdded.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/V1/EntryAddedPayload.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php`
 - `resources/platform/05-integration-event-contracts.md`
 - `resources/platform/11-messaging-outbox.md`
 - `resources/docs/3-integration-events.html`

@@ -117,8 +117,8 @@ Test the required order and force listener failure. Verify that persisted state 
 - The bus provides no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 - Current production handlers live in `Application/CommandHandlers`. Container config also contains older alternate glob patterns; do not select them when the target follows the current reference.
 - Current Example handlers return their integration events through `IntegrationEventTransaction`. The wrapper dispatches local subscribers before commit and selects additional outbox publication from `DELIVER_VIA_QUEUE`. Do not create a fake event only to obtain a transaction.
-- `AddNewExampleHandler` persists the aggregate and publishes its synchronous domain event inside the `IntegrationEventTransaction` callback. Its handler test asserts `transaction-start`, repository, domain event, then `transaction-end`.
-- `ChangeExampleHandler` and `RemoveExampleHandler` resolve `ExampleIdentity` through the write repository inside the transaction callback. Each callback returns the integration event after it knows the aggregate identifier.
+- `AddEntryHandler` persists the aggregate and publishes its synchronous domain event inside the `IntegrationEventTransaction` callback. Its handler test asserts `transaction-start`, repository, domain event, then `transaction-end`.
+- `ChangeEntryHandler` and `RemoveEntryHandler` resolve `EntryIdentity` through the write repository inside the transaction callback. Each callback returns the integration event after it knows the aggregate identifier.
 - Patch-style nullable fields mean "not supplied" only when the public contract defines that meaning.
 
 ## Verification map
@@ -146,16 +146,16 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `src/Backendbase/Shared/CQRS/CommandHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php`
 - `src/Backendbase/Shared/CQRS/Attributes/CQRSHandler.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/ChangeExampleHandler.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/RemoveExampleHandler.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleIdentity.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/DomainEvents/ExampleAdded.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/Command`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/ChangeEntryHandler.php`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/RemoveEntryHandler.php`
+- `src/Backendbase/Domain/ExampleCatalog/Domain/EntryIdentity.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/DomainEvents/EntryAdded.php`
 - `config/dependencies/modules.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/CommandAndQueryContractsTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/ChangeExampleHandlerTest.php`
-- `tests/Functional/ExampleLifecycleTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/CommandAndQueryContractsTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/ChangeEntryHandlerTest.php`
+- `tests/Functional/EntryLifecycleTest.php`
 - `.github/workflows/quality-gates.yml`

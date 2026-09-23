@@ -37,6 +37,7 @@ When scope expands, inspect the new surface and reassess affected decisions. Do 
 
 - Follow target platform rules and applicable skill invariants. Report source conflicts before choosing a deviation.
 - Add only layers required by the behavior. Keep domain and application code independent from frameworks and infrastructure.
+- Name new contexts after the target business capability. Omit `Context` and `BoundedContext` suffixes and demonstration prefixes. Use domain terms for entities and operations.
 - Validate untrusted input at its boundary. Keep business rules in domain behavior and vendor or database operations behind project-owned ports.
 - Align fields, types, required state, defaults, errors, authorization, and versions across participating contracts. Update every affected existing delivery surface.
 - Verify actual container, bus, route, provider, or registry reachability when registration changes. Direct unit tests alone do not prove wiring.

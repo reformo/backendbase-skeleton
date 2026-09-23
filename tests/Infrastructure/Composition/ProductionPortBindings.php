@@ -6,10 +6,10 @@ namespace Tests\Infrastructure\Composition;
 
 use Backendbase\Application\Messaging\OutboxRelayService;
 use Backendbase\Application\Messaging\QueueMessageFailureService;
-use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleReadRepository;
-use Backendbase\Domain\ExampleBoundedContext\Adapters\Persistence\Doctrine\ExampleWriteRepository;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository as ExampleReadRepositoryPort;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as ExampleWriteRepositoryPort;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\EntryReadRepository;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\EntryWriteRepository;
+use Backendbase\Domain\ExampleCatalog\Contracts\EntryReadRepository as EntryReadRepositoryPort;
+use Backendbase\Domain\ExampleCatalog\Contracts\EntryWriteRepository as EntryWriteRepositoryPort;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Jwt;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\JwtAuthorizationStore;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineAccountAuthenticationRepository;
@@ -75,8 +75,8 @@ final class ProductionPortBindings
             CommandBus::class => ContainerAwareCommandBus::class,
             DomainEventPublisher::class => ContainerAwareDomainEventPublisher::class,
             EventManager::class => ContainerAwareEventManager::class,
-            ExampleReadRepositoryPort::class => ExampleReadRepository::class,
-            ExampleWriteRepositoryPort::class => ExampleWriteRepository::class,
+            EntryReadRepositoryPort::class => EntryReadRepository::class,
+            EntryWriteRepositoryPort::class => EntryWriteRepository::class,
             ExternalEffectInbox::class => DoctrineExternalEffectInbox::class,
             ExternalIntegrationEventRegistry::class => InMemoryExternalIntegrationEventRegistry::class,
             InboxMessageTransaction::class => DoctrineInboxMessageTransaction::class,

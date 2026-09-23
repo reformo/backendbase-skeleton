@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
@@ -36,7 +36,7 @@ class NewExample extends Action
         $group        = (string) $this->request->getAttribute('example-group');
         $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
-        $exampleId    = Uuid::uuid7()->toString();
+        $entryId      = Uuid::uuid7()->toString();
         $lookupKey    = ExampleRequestInput::optionalString(
             $payload['lookupKey'] ?? null,
             'lookupKey',
@@ -46,8 +46,8 @@ class NewExample extends Action
         $details      = ExampleRequestInput::optionalObject($payload['details'] ?? null, 'details');
         $isActive     = ExampleRequestInput::optionalBoolean($payload['isActive'] ?? null, 'isActive', true);
 
-        $command = new AddNewExample(
-            $exampleId,
+        $command = new AddEntry(
+            $entryId,
             ExampleRequestInput::type($type),
             $typeTargetId,
             $group,
@@ -60,6 +60,6 @@ class NewExample extends Action
 
         $this->commandBus->handle($command);
 
-        return new EmptyResponse(204, ['Backendbase-Insert-Id' => $exampleId]);
+        return new EmptyResponse(204, ['Backendbase-Insert-Id' => $entryId]);
     }
 }

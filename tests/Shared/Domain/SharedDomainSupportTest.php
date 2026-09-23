@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Domain;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\DomainEvents\ExampleAdded;
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
+use Backendbase\Domain\ExampleCatalog\Contracts\DomainEvents\EntryAdded;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
@@ -22,9 +22,9 @@ final class SharedDomainSupportTest extends TestCase
         $aggregate = new TestAggregate();
         self::assertCount(0, $aggregate->getRecordedEvents());
 
-        $command = new AddNewExample(
+        $command = new AddEntry(
             'example-id',
-            ExampleType::SYSTEM,
+            EntryType::SYSTEM,
             null,
             'settings',
             true,
@@ -32,12 +32,12 @@ final class SharedDomainSupportTest extends TestCase
             'value',
             new Acl(['full-privileges']),
         );
-        $event   = new ExampleAdded('example-id', $command);
+        $event   = new EntryAdded('example-id', $command);
         $aggregate->recordEvent($event);
 
         self::assertCount(1, $aggregate->getRecordedEvents());
         self::assertSame($event, $aggregate->getRecordedEvents()->first());
-        self::assertSame('example-id', $event->exampleId());
+        self::assertSame('example-id', $event->entryId());
         self::assertSame($command, $event->payload());
     }
 
@@ -45,9 +45,9 @@ final class SharedDomainSupportTest extends TestCase
     public function itCreatesTheEventCollectionWhenTheFirstEventIsRecorded(): void
     {
         $aggregate = new TestAggregate();
-        $command   = new AddNewExample(
+        $command   = new AddEntry(
             'example-id',
-            ExampleType::SYSTEM,
+            EntryType::SYSTEM,
             null,
             'settings',
             true,
@@ -56,7 +56,7 @@ final class SharedDomainSupportTest extends TestCase
             new Acl(['full-privileges']),
         );
 
-        $aggregate->recordEvent(new ExampleAdded('example-id', $command));
+        $aggregate->recordEvent(new EntryAdded('example-id', $command));
 
         self::assertCount(1, $aggregate->getRecordedEvents());
     }

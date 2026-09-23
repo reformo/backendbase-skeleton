@@ -79,7 +79,7 @@ For new work in an unmodified Backendbase project:
 
 - Keep tests that must move with a bounded context under that context's `Tests` directory.
 - Keep platform, Shared, infrastructure, API, functional, and architecture tests under root `tests`.
-- Use `src/Backendbase/Domain/ExampleBoundedContext/Tests` files as verified examples for their test roles.
+- Use `src/Backendbase/Domain/ExampleCatalog/Tests` files as verified examples for their test roles.
 
 ## Current source behavior and limitations
 
@@ -116,12 +116,12 @@ Use existing target paths. Report required checks that could not run and their b
 - `.github/workflows/quality-gates.yml`
 - `.github/workflows/security-checks.yml`
 - `.github/workflows/release-artifact.yml`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Domain/ExampleTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/CommandAndQueryContractsTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Application/CommandHandlers/AddNewExampleHandlerTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/DoctrineExampleRepositoryTestCase.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Memory/ExampleRepositoryTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/ExampleRepositoryContract.php`
-- `tests/Functional/ExampleLifecycleTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/ExampleServiceTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Domain/EntryTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/CommandAndQueryContractsTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/DoctrineEntryRepositoryTestCase.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Memory/EntryRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/EntryRepositoryContract.php`
+- `tests/Functional/EntryLifecycleTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/EntryServiceTest.php`

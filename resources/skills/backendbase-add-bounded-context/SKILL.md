@@ -21,11 +21,11 @@ Inspect only unknown facts needed by the affected behavior. Reuse applicable ins
 
 ## Target-project adaptation
 
-Preserve the target project's namespace and established naming. Use Backendbase sources as decision references, not literal templates. Do not copy `Backendbase\`, `Example`, table names, columns, configuration, or environment values unless the target project already owns them.
+Preserve the target project's namespace and established naming. Use Backendbase sources as decision references, not literal templates. Choose domain terms for the target capability. Do not copy reference context names, entity names, table names, columns, configuration, or environment values unless the target project already owns them.
 
 ## Workflow
 
-1. Name one PascalCase context for one business capability.
+1. Name one PascalCase context for one business capability. Omit `Context` and `BoundedContext` suffixes. Do not add an `Example` prefix to production contexts or their entities.
 2. Create only the required `Domain`, `Contracts`, `Application`, `Adapters`, and `Tests` areas.
 3. Put business state and rules in `Domain`.
 4. Put commands, queries, ports, read models, and event contracts in `Contracts` only when requested behavior needs them.
@@ -42,7 +42,7 @@ Preserve the target project's namespace and established naming. Use Backendbase 
 - Do not import another bounded context or its adapters.
 - Do not import frameworks into business layers.
 - Implement `Backendbase\Shared\ServiceProvider` at the exact discovered provider path.
-- The current Backendbase repository has no `Content` context. Use `ExampleBoundedContext` as the complete provider-based reference; do not infer a module from absent or partial paths.
+- The current Backendbase repository has no `Content` context. Use `ExampleCatalog` as the complete provider-based reference; do not infer a module from absent or partial paths.
 - Do not add Composer mapping for a normal context covered by the root PSR-4 mapping.
 - Run discovery-dependent commands from the repository root.
 - Do not create a table, column, index, timestamp, event, or adapter without explicit feature scope.

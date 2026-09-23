@@ -31,7 +31,7 @@
 <section id="action"><p class="section-label">04 · Domain errors</p><h2>The HTTP adapter maps known domain errors</h2>
 <p><code>HttpErrorHandler</code> passes each domain error to <code>DomainErrorProblemDetailsMapper</code>. It then translates message keys, replaces <code>:placeholder</code> values, and returns JSON.</p>
 <p>Domain and application code do not contain HTTP status, type, code, or title values.</p>
-<p><code>ExampleAlreadyExists</code> maps to status 409 and code <code>example/already-exists</code>. Repository adapters throw the same pure domain error for active identity conflicts.</p>
+<p><code>EntryAlreadyExists</code> maps to status 409 and code <code>example/already-exists</code>. Repository adapters throw the same pure domain error for active identity conflicts.</p>
 <div class="callout warning">Only put public and non-sensitive values in additional problem data. The array becomes part of the response.</div>
 </section>
 <section id="http"><p class="section-label">05 · HTTP errors</p><h2>Slim exceptions map to public problem types</h2>

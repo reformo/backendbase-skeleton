@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\UseCase\ExampleApi;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\QueueGreeting;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\QueueGreeting;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Greeting\Handlers\QueueGreetingRequest;

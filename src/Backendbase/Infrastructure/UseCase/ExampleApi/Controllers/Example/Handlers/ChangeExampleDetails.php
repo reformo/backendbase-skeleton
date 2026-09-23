@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\ChangeExample;
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleIdentity;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
@@ -30,16 +30,16 @@ class ChangeExampleDetails extends Action
     {
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
         $group        = (string) $this->request->getAttribute('example-group');
-        $exampleKey   = (string) $this->request->getAttribute('example-key');
+        $entryKey     = (string) $this->request->getAttribute('example-key');
         $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
         $lookupValue  = ExampleRequestInput::optionalStringOrNull($payload['lookupValue'] ?? null, 'lookupValue');
         $details      = ExampleRequestInput::optionalObjectOrNull($payload['details'] ?? null, 'details');
         $isActive     = ExampleRequestInput::optionalBooleanOrNull($payload['isActive'] ?? null, 'isActive');
 
-        $identity      = new ExampleIdentity($type, $typeTargetId, $group, $exampleKey);
+        $identity      = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
         $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
-        $command       = new ChangeExample($identity, $accessControl)
+        $command       = new ChangeEntry($identity, $accessControl)
             ->setDetails($details)
             ->setValue($lookupValue)
             ->setIsActive($isActive);

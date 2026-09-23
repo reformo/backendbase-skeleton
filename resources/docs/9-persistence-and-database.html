@@ -20,18 +20,18 @@
 <div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="2-cqrs.html">CQRS</a></div>
 </section>
 <section id="write"><p class="section-label">03 · Write persistence</p><h2>Save aggregate state through a write port</h2>
-<p><code>ExampleWriteRepository</code> persists a new <code>ExampleRecord</code>, loads active records by UUID, synchronizes a record from an aggregate snapshot, and flushes the entity manager.</p>
+<p><code>EntryWriteRepository</code> persists a new <code>EntryRecord</code>, loads active records by UUID, synchronizes a record from an aggregate snapshot, and flushes the entity manager.</p>
 <ul><li><code>add()</code> maps a new aggregate with <code>fromDomain()</code>.</li><li><code>getActive()</code> reconstitutes an aggregate with <code>toDomain()</code>.</li><li><code>save()</code> synchronizes the existing record and flushes.</li></ul>
 <div class="callout warning">The adapter maps state. It must not decide how an example changes or whether a business operation is allowed.</div>
 </section>
 <section id="read"><p class="section-label">04 · Read projections</p><h2>Use DBAL and explicit SQL for query models</h2>
-<p><code>ExampleReadRepository</code> uses one table for identifier lookup, detail lookup, paginated groups, and paginated example lists. Group queries count all matching distinct groups and return <code>ExampleGroupPage</code>. SQL applies the requested page size and offset without a 1,000-group result cap.</p>
+<p><code>EntryReadRepository</code> uses one table for identifier lookup, detail lookup, paginated groups, and paginated example lists. Group queries count all matching distinct groups and return <code>EntryGroupPage</code>. SQL applies the requested page size and offset without a 1,000-group result cap.</p>
 <ul><li>Bind all values as parameters.</li><li>Bind page size and offset as integers.</li><li>Filter removed records with <code>deleted_at IS NULL</code>.</li>
 <li>Return context read models, not database rows or Doctrine entities.</li><li>Use stable ordering for pagination.</li></ul>
-<div class="callout"><strong>Trust boundary:</strong> <code>ExampleReadModelMapper</code> rejects invalid persisted strings, integers, booleans, enums, dates, and JSON objects.</div>
+<div class="callout"><strong>Trust boundary:</strong> <code>EntryReadModelMapper</code> rejects invalid persisted strings, integers, booleans, enums, dates, and JSON objects.</div>
 </section>
 <section id="mapping"><p class="section-label">05 · Record mapping</p><h2>Records translate aggregate snapshots into columns</h2>
-<p><code>ExampleRecord</code> uses PHP attributes for its table, indexes, unique constraints, columns, generated columns, UUID, enum, JSON, timestamps, and soft removal state.</p>
+<p><code>EntryRecord</code> uses PHP attributes for its table, indexes, unique constraints, columns, generated columns, UUID, enum, JSON, timestamps, and soft removal state.</p>
 <div class="table-wrap"><table><thead><tr><th>Mapping concern</th><th>Current pattern</th></tr></thead><tbody>
 <tr><td>Domain enum</td><td>Native string-backed enum with Doctrine <code>enumType</code>.</td></tr><tr><td>Aggregate state</td><td><code>snapshot()</code> feeds <code>synchronize()</code>.</td></tr>
 <tr><td>Reconstitution</td><td><code>toDomain()</code> calls a domain reconstitution factory.</td></tr><tr><td>Soft removal</td><td><code>deleted_at</code> remains part of persistence, while domain state uses <code>removedAt</code>.</td></tr>
@@ -54,7 +54,7 @@
 <section id="seeders"><p class="section-label">08 · Seeders</p><h2>Seed only approved reference data</h2>
 <p>Seeders use the <code>Backendbase\Seeders</code> namespace and live under <code>resources/database/Seeders</code>. When a migration queues schema SQL with <code>addSql()</code>, call its seeder from <code>postUp()</code> after Doctrine executes that SQL.</p>
 <ul><li>Make each seeder idempotent with an existence check.</li><li>Seed reference or lookup data only.</li><li>Do not put environment-specific or test-only data in production seeders.</li>
-<li>Do not invoke the reference <code>ExampleSeeder</code> unless the feature explicitly needs that data.</li></ul>
+<li>Do not invoke the reference <code>EntrySeeder</code> unless the feature explicitly needs that data.</li></ul>
 </section>
 <section id="transactions"><p class="section-label">09 · Transactions</p><h2>Use one transaction for state and its outbox event</h2>
 <p><code>IntegrationEventTransaction</code> runs business work and dispatches the returned integration event before commit. Local subscribers run for both delivery modes. <code>DELIVER_VIA_QUEUE = true</code> also appends an outbox row through <code>DoctrineIntegrationEventOutbox</code>. Subscriber repositories and the outbox writer share the business connection. A failure rolls back all database writes. Inbox adapters coordinate consumer deduplication and external-effect state.</p>
@@ -67,7 +67,7 @@
 <li>Create ORM test schemas with Doctrine <code>SchemaTool</code> and production mapping metadata.</li><li>Test aggregate-to-record and record-to-aggregate mapping.</li>
 <li>Test DBAL filtering, null handling, ordering, pagination, and malformed persisted data.</li><li>Test migration SQL and custom Doctrine functions.</li>
 <li>Test seeders twice to prove idempotency.</li><li>Test commit and rollback behavior for transaction adapters.</li></ul>
-<pre><code>vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence
+<pre><code>vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine
 vendor/bin/phpunit tests/Shared/Persistence</code></pre>
 </section>
@@ -88,10 +88,10 @@ bin/doctrine orm:clear-cache:result</code></pre>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-<tr><td>Write adapter</td><td><code>ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php</code></td></tr>
-<tr><td>Read adapter</td><td><code>ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleReadRepository.php</code></td></tr>
-<tr><td>Record</td><td><code>ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php</code></td></tr>
-<tr><td>Row mapper</td><td><code>ExampleReadModelMapper.php</code></td></tr><tr><td>CLI</td><td><code>bin/doctrine</code></td></tr>
+<tr><td>Write adapter</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php</code></td></tr>
+<tr><td>Read adapter</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php</code></td></tr>
+<tr><td>Record</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php</code></td></tr>
+<tr><td>Row mapper</td><td><code>EntryReadModelMapper.php</code></td></tr><tr><td>CLI</td><td><code>bin/doctrine</code></td></tr>
 <tr><td>Migrations</td><td><code>resources/database/Migrations</code></td></tr><tr><td>Seeders</td><td><code>resources/database/Seeders</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · Persistence and database guide</footer></body></html>

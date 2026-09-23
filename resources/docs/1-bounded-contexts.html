@@ -513,7 +513,10 @@
             </div>
             <div class="callout">
                 <strong>Reference implementation</strong>
-                Use <code>ExampleBoundedContext</code> as the current pattern. No <code>Content</code> context exists in the current source.
+                Use <code>ExampleCatalog</code> as the current pattern. No <code>Content</code> context exists in the current source.
+                Name new contexts after their business capability. Omit <code>Context</code> and <code>BoundedContext</code> suffixes.
+                The <code>Example</code> prefix identifies this demonstration context. Its entity is <code>Entry</code>.
+                Reuse the structure with the target project's business names.
             </div>
         </section>
 
@@ -526,7 +529,7 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><code>ExampleBoundedContext</code></td>
+                        <td><code>ExampleCatalog</code></td>
                         <td>Complete reference module with domain, contracts, handlers, persistence adapters, events, tests, and a service provider.</td>
                         <td>Yes</td>
                     </tr>
@@ -607,7 +610,7 @@
         <section id="anatomy">
             <h2>Module anatomy</h2>
             <p>A complete module keeps these parts under one context root. Create only the folders that the context needs.</p>
-            <div class="code-wrap"><pre><code>src/Backendbase/Domain/ExampleBoundedContext/
+            <div class="code-wrap"><pre><code>src/Backendbase/Domain/ExampleCatalog/
 ├── Domain/                       # Aggregates, value objects, enums, rules
 ├── Contracts/
 │   ├── Command/                  # State-change inputs
@@ -677,10 +680,10 @@
                     <div class="code-wrap"><pre><code>public static function getDefinitions(): iterable
 {
     return [
-        ExampleReadRepository::class
-            =&gt; DoctrineExampleReadRepository::class,
-        ExampleWriteRepository::class
-            =&gt; DoctrineExampleWriteRepository::class,
+        EntryReadRepository::class
+            =&gt; DoctrineEntryReadRepository::class,
+        EntryWriteRepository::class
+            =&gt; DoctrineEntryWriteRepository::class,
     ];
 }</code></pre></div>
                 </article>
@@ -710,7 +713,7 @@
                 <div class="step"><span class="step-number">04</span><strong>Aggregate</strong><br><span class="muted">Apply the business operation.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Write port</strong><br><span class="muted">Map and persist through Doctrine.</span></div>
             </div>
-            <p><code>AddNewExampleHandler</code>, <code>ChangeExampleHandler</code>, and <code>RemoveExampleHandler</code> return an event through <code>IntegrationEventTransaction</code>. It runs local subscribers before commit and writes the outbox when <code>DELIVER_VIA_QUEUE</code> is true. All participating database writes share that transaction.</p>
+            <p><code>AddEntryHandler</code>, <code>ChangeEntryHandler</code>, and <code>RemoveEntryHandler</code> return an event through <code>IntegrationEventTransaction</code>. It runs local subscribers before commit and writes the outbox when <code>DELIVER_VIA_QUEUE</code> is true. All participating database writes share that transaction.</p>
             <div class="callout danger">
                 <strong>Do not bypass the context</strong>
                 An HTTP action must not update a Doctrine record directly. A persistence adapter must not decide how an aggregate changes.
@@ -727,7 +730,7 @@
                 <div class="step"><span class="step-number">04</span><strong>DBAL adapter</strong><br><span class="muted">Run plain SQL for the use case.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Read model</strong><br><span class="muted">Return typed response data.</span></div>
             </div>
-            <p>The example read adapter returns <code>ExampleDetails</code>, <code>ExamplePage</code>, <code>ExampleGroupPage</code>, and identifiers. It filters removed records in SQL.</p>
+            <p>The example read adapter returns <code>EntryDetails</code>, <code>EntryPage</code>, <code>EntryGroupPage</code>, and identifiers. It filters removed records in SQL.</p>
         </section>
 
         <section id="persistence">
@@ -737,9 +740,9 @@
                     <span class="tag blue">Read side</span>
                     <h3>Doctrine DBAL and SQL</h3>
                     <ul>
-                        <li>Accept query contracts through <code>ExampleReadRepository</code>.</li>
+                        <li>Accept query contracts through <code>EntryReadRepository</code>.</li>
                         <li>Use use-case-specific SQL.</li>
-                        <li>Map rows with <code>ExampleReadModelMapper</code>.</li>
+                        <li>Map rows with <code>EntryReadModelMapper</code>.</li>
                         <li>Return context read models, not Doctrine records.</li>
                     </ul>
                 </article>
@@ -747,14 +750,14 @@
                     <span class="tag">Write side</span>
                     <h3>Doctrine ORM and records</h3>
                     <ul>
-                        <li>Accept aggregates through <code>ExampleWriteRepository</code>.</li>
-                        <li>Map with <code>ExampleRecord::fromDomain()</code> and <code>toDomain()</code>.</li>
+                        <li>Accept aggregates through <code>EntryWriteRepository</code>.</li>
+                        <li>Map with <code>EntryRecord::fromDomain()</code> and <code>toDomain()</code>.</li>
                         <li>Synchronize storage state after domain behavior runs.</li>
                         <li>Throw a context-safe error when an active record is absent.</li>
                     </ul>
                 </article>
             </div>
-            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>ExampleStore</code> for isolated tests. The memory store enforces the same active lookup identity uniqueness as Doctrine.</p>
+            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>EntryStore</code> for isolated tests. The memory store enforces the same active lookup identity uniqueness as Doctrine.</p>
             <div class="callout">
                 <strong>Doctrine discovery</strong>
                 <code>PathFinder::doctrineEntityPaths()</code> discovers <code>Domain/*/Adapters/Persistence/Doctrine/Entity</code> and one additional nested module depth.
@@ -824,13 +827,13 @@
                     <h3>Module-local tests</h3>
                     <p>Keep tests that belong to the module under the module <code>Tests/</code> directory. These tests move with the context.</p>
                     <div class="code-wrap"><pre><code>vendor/bin/phpunit \
-  src/Backendbase/Domain/ExampleBoundedContext/Tests</code></pre></div>
+  src/Backendbase/Domain/ExampleCatalog/Tests</code></pre></div>
                 </article>
                 <article class="card blue">
                     <h3>Platform and integration tests</h3>
                     <p>Keep architecture, shared, infrastructure, functional, and API-level tests under root <code>tests/</code>.</p>
                     <div class="code-wrap"><pre><code>vendor/bin/phpunit \
-  tests/Functional/ExampleLifecycleTest.php \
+  tests/Functional/EntryLifecycleTest.php \
   tests/Architecture/SharedDependencyBoundaryTest.php</code></pre></div>
                 </article>
             </div>
@@ -876,7 +879,7 @@
                     <tr><td>Provider data is trusted.</td><td>A wrong class name or malformed subscriber entry can fail container construction or event registration.</td></tr>
                     <tr><td>Dependency and registration checks</td><td>Dependency tests check declared PHP symbols. Attribute tests also resolve handlers and listeners from the production container. Other dynamic paths and business behavior need runtime tests.</td></tr>
                     <tr><td>Identity and access owns its port wiring.</td><td>Its context service provider binds account repositories, authorization state, and JWT token ports.</td></tr>
-                    <tr><td>One context is the full example.</td><td>New contexts must use <code>ExampleBoundedContext</code>, not empty or partial directories, as the implementation reference.</td></tr>
+                    <tr><td>One context is the full example.</td><td>Use the module structure in <code>ExampleCatalog</code> as a reference. Name each new context after its target business capability.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -908,18 +911,18 @@
                 <table>
                     <thead><tr><th>Purpose</th><th>Source</th></tr></thead>
                     <tbody>
-                    <tr><td>Reference context</td><td><code>src/Backendbase/Domain/ExampleBoundedContext</code></td></tr>
-                    <tr><td>Context provider</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php</code></td></tr>
+                    <tr><td>Reference context</td><td><code>src/Backendbase/Domain/ExampleCatalog</code></td></tr>
+                    <tr><td>Context provider</td><td><code>src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php</code></td></tr>
                     <tr><td>Provider contract</td><td><code>src/Backendbase/Shared/ServiceProvider.php</code></td></tr>
                     <tr><td>Provider discovery and bus wiring</td><td><code>config/dependencies/bounded-contexts.php</code> and <code>config/dependencies/modules.php</code></td></tr>
                     <tr><td>Doctrine entity discovery</td><td><code>src/Backendbase/Shared/Helpers/PathFinder.php</code></td></tr>
-                    <tr><td>Domain aggregate</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Domain/Example.php</code></td></tr>
-                    <tr><td>Read and write ports</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Example*Repository.php</code></td></tr>
-                    <tr><td>Doctrine adapters</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine</code></td></tr>
-                    <tr><td>Memory adapters</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory</code></td></tr>
+                    <tr><td>Domain aggregate</td><td><code>src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php</code></td></tr>
+                    <tr><td>Read and write ports</td><td><code>src/Backendbase/Domain/ExampleCatalog/Contracts/Entry*Repository.php</code></td></tr>
+                    <tr><td>Doctrine adapters</td><td><code>src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine</code></td></tr>
+                    <tr><td>Memory adapters</td><td><code>src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory</code></td></tr>
                     <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi</code></td></tr>
-                    <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Tests</code></td></tr>
-                    <tr><td>Functional lifecycle suite</td><td><code>tests/Functional/ExampleLifecycleTest.php</code></td></tr>
+                    <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleCatalog/Tests</code></td></tr>
+                    <tr><td>Functional lifecycle suite</td><td><code>tests/Functional/EntryLifecycleTest.php</code></td></tr>
                     <tr><td>Architecture boundaries</td><td><code>tests/Architecture</code></td></tr>
                     <tr><td>Project architecture rules</td><td><code>resources/docs/project.md</code></td></tr>
                     </tbody>

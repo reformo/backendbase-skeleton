@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\CQRS;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Command\AddNewExample;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
+use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
@@ -29,9 +29,9 @@ final class ContainerAwareBusTest extends TestCase
     public function itRejectsACommandContainerEntryWithTheWrongType(): void
     {
         $bus     = new ContainerAwareCommandBus($this->invalidContainer());
-        $command = new AddNewExample(
+        $command = new AddEntry(
             'example-id',
-            ExampleType::SYSTEM,
+            EntryType::SYSTEM,
             null,
             'settings',
             true,
@@ -49,7 +49,7 @@ final class ContainerAwareBusTest extends TestCase
     public function itRejectsAQueryContainerEntryWithTheWrongType(): void
     {
         $bus   = new ContainerAwareQueryBus($this->invalidContainer());
-        $query = new GetExampleGroupsByType(ExampleType::SYSTEM, null);
+        $query = new GetEntryGroupsByType(EntryType::SYSTEM, null);
 
         $this->expectException(UnexpectedValueException::class);
 

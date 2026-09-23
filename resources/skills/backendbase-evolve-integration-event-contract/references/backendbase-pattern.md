@@ -92,7 +92,7 @@ For breaking event-name changes, define dual publication or a controlled migrati
 
 - Registry identity is `eventName:eventVersion`.
 - Missing metadata, unknown versions, no subscriber, wrong subscriber interface, and mapping errors are permanent failures.
-- The current `NewExampleAdded` version-one producer publishes an outer `exampleId` plus a nested `command` object.
+- The current `EntryAdded` version-one producer publishes an outer `exampleId` plus a nested `command` object.
 - Its registered version-one carrier preserves the same outer and nested shape.
 - A real dispatcher contract test maps the producer arguments into the registered carrier. Preserve this evidence during contract changes.
 - Old messages can survive in outbox, primary queue, and dead-letter storage.
@@ -106,7 +106,7 @@ Do not purge queues, delete old outbox or inbox records, replay dead letters, ch
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
 ```sh
-vendor/bin/phpunit src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/IntegrationEvents
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrationEventRegistryTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php
@@ -129,9 +129,9 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcher.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php`
 - `config/dependencies/modules.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/IntegrationEvents/V1/NewExampleAddedPayload.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExternalIntegrationEvents/V1/NewExampleAddedMessage.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/V1/EntryAddedPayload.php`
+- `src/Backendbase/Domain/ExampleCatalog/Contracts/ExternalIntegrationEvents/V1/EntryAddedMessage.php`
 - `tests/Infrastructure/Adapters/Queue/InMemoryExternalIntegrationEventRegistryTest.php`
 - `tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php`
 - `resources/platform/05-integration-event-contracts.md`

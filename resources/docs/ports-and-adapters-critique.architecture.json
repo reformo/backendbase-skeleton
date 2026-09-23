@@ -49,7 +49,7 @@
       "tag": "handler metadata",
       "pos": [270, 260],
       "size": [170, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command/AddNewExample.php", "line": 14, "label": "Command mapping"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php", "line": 14, "label": "Command mapping"}]
     },
     {
       "id": "application",
@@ -59,7 +59,7 @@
       "pos": [550, 260],
       "size": [180, 76],
       "sources": [
-        {"path": "src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/AddNewExampleHandler.php", "line": 19, "label": "Command handler"},
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php", "line": 19, "label": "Command handler"},
         {"path": "src/Backendbase/Application/Messaging/OutboxRelayService.php", "line": 14, "label": "Messaging policy"}
       ]
     },
@@ -71,7 +71,7 @@
       "tag": "public snapshot",
       "pos": [850, 260],
       "size": [180, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleBoundedContext/Domain/Example.php", "line": 25, "end_line": 145, "label": "Example aggregate"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php", "line": 25, "end_line": 145, "label": "Example aggregate"}]
     },
     {
       "id": "ports",
@@ -81,7 +81,7 @@
       "pos": [550, 450],
       "size": [180, 76],
       "sources": [
-        {"path": "src/Backendbase/Domain/ExampleBoundedContext/Contracts/ExampleWriteRepository.php", "line": 10, "label": "Write repository port"},
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php", "line": 10, "label": "Write repository port"},
         {"path": "src/Backendbase/Shared/Integrations/MessagePublisher.php", "line": 9, "label": "Messaging port"}
       ]
     },
@@ -93,8 +93,8 @@
       "pos": [300, 600],
       "size": [190, 76],
       "sources": [
-        {"path": "src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/ExampleWriteRepository.php", "line": 17, "label": "Doctrine adapter"},
-        {"path": "src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Memory/ExampleWriteRepository.php", "line": 13, "label": "Memory adapter"}
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php", "line": 17, "label": "Doctrine adapter"},
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php", "line": 13, "label": "Memory adapter"}
       ]
     },
     {
@@ -131,7 +131,7 @@
       "size": [220, 82],
       "sources": [
         {"path": "config/dependencies/bounded-contexts.php", "line": 9, "end_line": 24, "label": "Module discovery"},
-        {"path": "src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php", "line": 17, "end_line": 48, "label": "Context bindings"}
+        {"path": "src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php", "line": 17, "end_line": 48, "label": "Context bindings"}
       ]
     }
   ],

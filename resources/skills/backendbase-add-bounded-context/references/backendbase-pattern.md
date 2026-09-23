@@ -12,7 +12,7 @@ Use this reference after target-project discovery. It is a decision guide, not a
 | Doctrine and memory implementations | `src/Backendbase/Domain/Catalog/Adapters` |
 | Production bindings and subscriber metadata | `src/Backendbase/Domain/Catalog/ServiceProvider.php` |
 | Movable module tests | `src/Backendbase/Domain/Catalog/Tests` |
-| Existing context-owned evidence and architecture policy | `src/Backendbase/Domain/ExampleBoundedContext/Tests` and `tests/Architecture` |
+| Existing context-owned evidence and architecture policy | `src/Backendbase/Domain/ExampleCatalog/Tests` and `tests/Architecture` |
 
 `Catalog` is an illustrative context name. Resolve the real name from the requested business capability. Create only rows required by that capability.
 
@@ -51,7 +51,7 @@ Current `phpunit.xml` includes both root `tests` and `src/Backendbase/Domain/*/T
 
 - Put new tests that must move with a bounded context under that context's `Tests` directory.
 - Put platform, Shared, infrastructure, API, functional, and architecture tests under root `tests`.
-- The current repository keeps Example domain, application, contract, and persistence tests under `src/Backendbase/Domain/ExampleBoundedContext/Tests`.
+- The current repository keeps catalog entry domain, application, contract, and persistence tests under `src/Backendbase/Domain/ExampleCatalog/Tests`.
 - Do not move existing tests only to normalize layout during an unrelated context change.
 
 Adapt these ownership rules to the target project's configured test roots. Do not create a source-owned test directory if the target runner cannot discover it.
@@ -75,7 +75,7 @@ Architecture tests prove dependency direction. This composition test separately 
 - Provider glob order is unsorted. Duplicate port keys can overwrite one another.
 - `PathFinder::doctrineEntityPaths()` sees direct context entities and one nested module level.
 - The Doctrine CLI schema filter currently collects service table names only from direct context entity folders. Prefer direct context placement unless the CLI is updated too.
-- `ExampleBoundedContext` is the complete source reference. No `Content` context currently exists. `IdentityAndAccess` also owns its port bindings through a context service provider.
+- `ExampleCatalog` is the complete source reference. No `Content` context currently exists. `IdentityAndAccess` also owns its port bindings through a context service provider.
 
 ## Verification map
 
@@ -100,13 +100,13 @@ This pattern was checked against:
 - `resources/platform/02-architecture.md`
 - `resources/platform/03-bounded-contexts.md`
 - `resources/platform/24-feature-workflow.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/ServiceProvider.php`
+- `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Shared/ServiceProvider.php`
 - `config/dependencies/bounded-contexts.php`
 - `config/dependencies/modules.php`
 - `src/Backendbase/Shared/Helpers/PathFinder.php`
 - `phpunit.xml`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/ServiceProviderTest.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/ExampleServiceTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/ServiceProviderTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/EntryServiceTest.php`
 - `tests/Architecture`
 - `.github/workflows/quality-gates.yml`

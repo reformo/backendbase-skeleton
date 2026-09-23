@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Http;
 
-use Backendbase\Domain\ExampleBoundedContext\Domain\Exception\ExampleAlreadyExists;
+use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Exception\AccountAlreadyRegistered;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Domain\IdentityAndAccess\Exception\InvalidCredentials;
@@ -52,7 +52,7 @@ final class DomainErrorProblemDetailsMapperTest extends TestCase
         $context = ['resourceId' => 'example-id'];
 
         yield 'example already exists' => [
-            ExampleAlreadyExists::create('Failure.', $context),
+            EntryAlreadyExists::create('Failure.', $context),
             [
                 'status' => 409,
                 'title' => 'Example Already Exists',

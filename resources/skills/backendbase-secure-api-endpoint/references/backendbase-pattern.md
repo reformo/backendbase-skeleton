@@ -79,7 +79,7 @@ Compare each result with the OpenAPI status and problem body. Include configured
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Middleware/AuthorizationMiddleware.php`
 - `src/Backendbase/Domain/IdentityAndAccess/Authorization/Acl.php`
 - `src/Backendbase/Shared/Authorization/AccessControl.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/`
 - `src/Backendbase/Shared/Http/Middleware/ValidateApiKey.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/ModuleConfig.php`

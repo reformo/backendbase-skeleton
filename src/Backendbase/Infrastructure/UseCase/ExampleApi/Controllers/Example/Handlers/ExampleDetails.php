@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleByCriteria;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ReadModel\ExampleDetails as ExampleDetailsReadModel;
+use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryByCriteria;
+use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryDetails as EntryDetailsReadModel;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
@@ -32,27 +32,27 @@ class ExampleDetails extends Action
     {
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
         $group        = (string) $this->request->getAttribute('example-group');
-        $exampleKey   = (string) $this->request->getAttribute('example-key');
+        $entryKey     = (string) $this->request->getAttribute('example-key');
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
 
-        $example = $this->queryBus->handle(new GetExampleByCriteria($type, $typeTargetId, $group, $exampleKey));
-        if (! $example instanceof ExampleDetailsReadModel) {
+        $entry = $this->queryBus->handle(new GetEntryByCriteria($type, $typeTargetId, $group, $entryKey));
+        if (! $entry instanceof EntryDetailsReadModel) {
             throw ResourceNotFound::create('The example was not found.');
         }
 
-        $details = $example->details();
+        $details = $entry->details();
         $data    = [
-            'uuid' => $example->uuid(),
-            'type' => $example->type()->value,
-            'typeTargetId' => $example->typeTargetId(),
-            'exampleGroup' => $example->group(),
-            'lookupKey' => $example->lookupKey(),
-            'lookupValue' => $example->lookupValue(),
+            'uuid' => $entry->uuid(),
+            'type' => $entry->type()->value,
+            'typeTargetId' => $entry->typeTargetId(),
+            'exampleGroup' => $entry->group(),
+            'lookupKey' => $entry->lookupKey(),
+            'lookupValue' => $entry->lookupValue(),
             'details' => $details,
-            'isActive' => $example->isActive(),
-            'updatedAt' => $example->updatedAt()->format(DATE_ATOM),
-            'createdAt' => $example->createdAt()->format(DATE_ATOM),
+            'isActive' => $entry->isActive(),
+            'updatedAt' => $entry->updatedAt()->format(DATE_ATOM),
+            'createdAt' => $entry->createdAt()->format(DATE_ATOM),
         ];
 
         return new JsonResponse(['example' => $data], 200);

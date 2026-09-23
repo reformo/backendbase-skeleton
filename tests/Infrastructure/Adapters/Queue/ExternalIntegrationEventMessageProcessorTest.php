@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Queue;
 
-use Backendbase\Domain\ExampleBoundedContext\Application\ExternalIntegrationEventSubscribers\ExampleBoundedContext\NewExampleAddedExternalSubscriber;
-use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedMessage;
+use Backendbase\Domain\ExampleCatalog\Application\ExternalIntegrationEventSubscribers\ExampleCatalog\EntryAddedExternalSubscriber;
+use Backendbase\Domain\ExampleCatalog\Contracts\ExternalIntegrationEvents\V1\EntryAddedMessage;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventDispatcher;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessageProcessor;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
@@ -26,7 +26,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
         [
             'eventName' => 'Example_NewExampleAdded_Event',
             'eventVersion' => '1.0',
-            'messageFQCN' => NewExampleAddedMessage::class,
+            'messageFQCN' => EntryAddedMessage::class,
         ],
     ];
 
@@ -35,14 +35,14 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
     {
         $eventManager = $this->createMock(EventManager::class);
         $eventManager->method('getSubscriber')->willReturn([
-            'subscriber' => NewExampleAddedExternalSubscriber::class,
+            'subscriber' => EntryAddedExternalSubscriber::class,
         ]);
         $eventManager->expects(self::once())
             ->method('dispatchExternalEvent')
             ->with(
                 'Example_NewExampleAdded_Event',
-                self::callback(static function (NewExampleAddedMessage $message): bool {
-                    self::assertSame('example-id', $message->exampleId());
+                self::callback(static function (EntryAddedMessage $message): bool {
+                    self::assertSame('example-id', $message->entryId());
 
                     return true;
                 }),
@@ -72,7 +72,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
         $logger->pushHandler($logHandler);
         $eventManager = $this->createMock(EventManager::class);
         $eventManager->method('getSubscriber')->willReturn([
-            'subscriber' => NewExampleAddedExternalSubscriber::class,
+            'subscriber' => EntryAddedExternalSubscriber::class,
         ]);
         $eventManager->expects(self::never())->method('dispatchExternalEvent');
         $failurePolicy = $this->createMock(QueueMessageFailurePolicy::class);

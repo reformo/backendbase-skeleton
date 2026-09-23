@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\Handlers;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\Query\GetExampleGroupsByType;
+use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Http\Actions\Action;
@@ -34,7 +34,7 @@ class ExampleGroups extends Action
         $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
 
         $pagination = new Pagination($pageSize, $page);
-        $result     = $this->queryBus->handle(new GetExampleGroupsByType($type, $typeTargetId, $pagination));
+        $result     = $this->queryBus->handle(new GetEntryGroupsByType($type, $typeTargetId, $pagination));
 
         return new JsonResponse([
             'pageSize' => $pageSize,

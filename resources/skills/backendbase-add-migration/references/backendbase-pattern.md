@@ -113,10 +113,10 @@ For new movable repository tests in an unmodified Backendbase project, use the c
 - `deployment/README.md`
 - `bin/deployment/build-release.sh`
 - `bin/deployment/deploy-release.sh`
-- `resources/database/Seeders/ExampleSeeder.php`
+- `resources/database/Seeders/EntrySeeder.php`
 - `tests/Deployment/deployment-scripts.sh`
 - `src/Backendbase/Shared/Migrations/BackendbaseAbstractMigration.php`
 - `tests/Shared/Persistence/Doctrine/DqlAndMigrationTest.php`
 - `resources/database/Migrations/Version20260825050000.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Adapters/Persistence/Doctrine/Entity/ExampleRecord.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Adapters/Persistence/Doctrine/ExampleRepositoryTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

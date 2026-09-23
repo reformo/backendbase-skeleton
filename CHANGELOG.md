@@ -37,6 +37,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Renamed the reference context to `ExampleCatalog` and its domain symbols to `Entry`, including commands, queries, events, repositories, tests, and the seeder. Updated reusable naming guidance while preserving HTTP, database, and published integration-event contracts.
 - Made development housekeeping regenerate and verify Composer supply-chain evidence from an isolated install after dependency updates.
 - Consolidated the integration-event outbox, inbox, failure tables, and indexes into the first migration for new databases.
 - Aligned reusable skills, platform guidance, and HTML guides with current event dispatch, relay modes, API routes, security, configuration, and source inventory.

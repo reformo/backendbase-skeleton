@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleRemoved;
+use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryRemoved;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Doctrine\DBAL\Connection;
@@ -46,10 +46,10 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
         $transaction = $this->transaction;
 
         $transaction->execute(
-            function (): ExampleRemoved {
+            function (): EntryRemoved {
                 $this->connection->insert('aggregate_write', ['id' => 'example-id']);
 
-                return new ExampleRemoved('example-id');
+                return new EntryRemoved('example-id');
             },
         );
 
@@ -59,8 +59,8 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
             'SELECT event_name, event_version, payload FROM integration_event_outbox',
         );
         self::assertIsArray($message);
-        self::assertSame(ExampleRemoved::EVENT_TYPE, $message['event_name']);
-        self::assertSame(ExampleRemoved::EVENT_VERSION, $message['event_version']);
+        self::assertSame(EntryRemoved::EVENT_TYPE, $message['event_name']);
+        self::assertSame(EntryRemoved::EVENT_VERSION, $message['event_version']);
         $payload = json_decode((string) $message['payload'], true, 512, JSON_THROW_ON_ERROR);
         self::assertSame(['exampleId' => 'example-id'], $payload);
     }
@@ -72,10 +72,10 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
 
         try {
             $transaction->execute(
-                function (): ExampleRemoved {
+                function (): EntryRemoved {
                     $this->connection->insert('aggregate_write', ['id' => 'example-id']);
 
-                    return new ExampleRemoved('example-id');
+                    return new EntryRemoved('example-id');
                 },
             );
             self::fail('The missing outbox table must fail the transaction.');
@@ -94,7 +94,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
 
         try {
             $transaction->execute(
-                function (): ExampleRemoved {
+                function (): EntryRemoved {
                     $this->connection->insert('aggregate_write', ['id' => 'example-id']);
 
                     throw new RuntimeException('The synchronous listener failed.');

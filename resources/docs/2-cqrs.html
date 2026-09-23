@@ -657,8 +657,8 @@
 
             <h3>Required attribute form</h3>
             <div class="code-wrap">
-                <pre><code>#[CQRSHandler(ChangeExampleHandler::class)]
-final class ChangeExample implements Command
+                <pre><code>#[CQRSHandler(ChangeEntryHandler::class)]
+final class ChangeEntry implements Command
 {
     // Contract data and serialization...
 }</code></pre>
@@ -667,7 +667,7 @@ final class ChangeExample implements Command
             <div class="callout danger">
                 <strong>Use a positional argument</strong>
                 The buses call <code>getArguments()[0]</code>.
-                Do not write <code>#[CQRSHandler(handlerName: ChangeExampleHandler::class)]</code> without changing both buses.
+                Do not write <code>#[CQRSHandler(handlerName: ChangeEntryHandler::class)]</code> without changing both buses.
             </div>
 
             <h3>Bus implementation</h3>
@@ -697,16 +697,16 @@ final class ChangeExample implements Command
 
             <h3>Command contract</h3>
             <div class="code-wrap">
-                <pre><code>#[CQRSHandler(RemoveExampleHandler::class)]
-readonly class RemoveExample implements Command
+                <pre><code>#[CQRSHandler(RemoveEntryHandler::class)]
+readonly class RemoveEntry implements Command
 {
     public function __construct(
-        private ExampleIdentity $identity,
+        private EntryIdentity $identity,
         private AccessControl $accessControl,
     ) {
     }
 
-    public function identity(): ExampleIdentity
+    public function identity(): EntryIdentity
     {
         return $this-&gt;identity;
     }
@@ -730,28 +730,28 @@ readonly class RemoveExample implements Command
 
             <h3>Command handler</h3>
             <div class="code-wrap">
-                <pre><code>readonly class RemoveExampleHandler implements CommandHandler
+                <pre><code>readonly class RemoveEntryHandler implements CommandHandler
 {
     public const string REQUIRED_PRIVILEGE = 'example.remove';
 
     public function __construct(
-        private ExampleWriteRepository $exampleRepository,
+        private EntryWriteRepository $entryRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
     ) {
     }
 
-    /** @param RemoveExample $command */
+    /** @param RemoveEntry $command */
     public function handle(Command $command): void
     {
         $command-&gt;accessControl()-&gt;isAllowed(self::REQUIRED_PRIVILEGE);
         $this-&gt;integrationEventTransaction-&gt;execute(
-            function () use ($command): ExampleRemoved {
-                $example = $this-&gt;exampleRepository
+            function () use ($command): EntryRemoved {
+                $entry = $this-&gt;entryRepository
                     -&gt;getActiveByIdentity($command-&gt;identity());
-                $example-&gt;remove();
-                $this-&gt;exampleRepository-&gt;save($example);
+                $entry-&gt;remove();
+                $this-&gt;entryRepository-&gt;save($entry);
 
-                return new ExampleRemoved($example-&gt;id());
+                return new EntryRemoved($entry-&gt;id());
             },
         );
     }
@@ -760,7 +760,7 @@ readonly class RemoveExample implements Command
 
             <h3>Command rules</h3>
             <ul>
-                <li>Use intention-revealing names such as <code>AddNewExample</code> or <code>RemoveExample</code>.</li>
+                <li>Use intention-revealing names such as <code>AddEntry</code> or <code>RemoveEntry</code>.</li>
                 <li>Convert external primitives into enums, value objects, and validated values before construction.</li>
                 <li>Carry only the data needed for one use case.</li>
                 <li>Dispatch one command from the controller and resolve authoritative state in the handler.</li>
@@ -772,7 +772,7 @@ readonly class RemoveExample implements Command
 
             <div class="callout command">
                 <strong>Patch commands can carry nullable fields</strong>
-                The current <code>ChangeExample</code> command uses nullable values to mean “not supplied.”
+                The current <code>ChangeEntry</code> command uses nullable values to mean “not supplied.”
                 Its handler passes those values to aggregate behavior.
             </div>
         </section>
@@ -783,12 +783,12 @@ readonly class RemoveExample implements Command
 
             <h3>Query contract</h3>
             <div class="code-wrap">
-                <pre><code>/** @implements Query&lt;ExampleDetails|null&gt; */
-#[CQRSHandler(GetExampleByCriteriaHandler::class)]
-final readonly class GetExampleByCriteria implements Query
+                <pre><code>/** @implements Query&lt;EntryDetails|null&gt; */
+#[CQRSHandler(GetEntryByCriteriaHandler::class)]
+final readonly class GetEntryByCriteria implements Query
 {
     public function __construct(
-        private ExampleType $type,
+        private EntryType $type,
         private int|null $typeTargetId,
         private string $group,
         private string $key,
@@ -814,18 +814,18 @@ final readonly class GetExampleByCriteria implements Query
 
             <h3>Query handler</h3>
             <div class="code-wrap">
-                <pre><code>/** @implements QueryHandler&lt;GetExampleByCriteria, ExampleDetails|null&gt; */
-final readonly class GetExampleByCriteriaHandler implements QueryHandler
+                <pre><code>/** @implements QueryHandler&lt;GetEntryByCriteria, EntryDetails|null&gt; */
+final readonly class GetEntryByCriteriaHandler implements QueryHandler
 {
     public function __construct(
-        private ExampleReadRepository $exampleRepository,
+        private EntryReadRepository $entryRepository,
     ) {
     }
 
-    /** @param GetExampleByCriteria $query */
-    public function handle(Query $query): ExampleDetails|null
+    /** @param GetEntryByCriteria $query */
+    public function handle(Query $query): EntryDetails|null
     {
-        return $this-&gt;exampleRepository-&gt;getExampleByCriteria($query);
+        return $this-&gt;entryRepository-&gt;getEntryByCriteria($query);
     }
 }</code></pre>
             </div>
@@ -861,12 +861,12 @@ final readonly class GetExampleByCriteriaHandler implements QueryHandler
                 <table>
                     <thead><tr><th>Concern</th><th>Write side</th><th>Read side</th></tr></thead>
                     <tbody>
-                        <tr><td>Port</td><td><code>ExampleWriteRepository</code></td><td><code>ExampleReadRepository</code></td></tr>
+                        <tr><td>Port</td><td><code>EntryWriteRepository</code></td><td><code>EntryReadRepository</code></td></tr>
                         <tr><td>Input</td><td>Aggregate or aggregate ID.</td><td>Concrete query contract.</td></tr>
                         <tr><td>Output</td><td>Aggregate for behavior, or <code>void</code>.</td><td>Read model, page, scalar, list, or <code>null</code>.</td></tr>
                         <tr><td>Doctrine API</td><td>Object-Relational Mapper (ORM) entity manager.</td><td>DBAL connection and plain SQL.</td></tr>
-                        <tr><td>Mapping</td><td><code>ExampleRecord</code> converts to and from the aggregate.</td><td><code>ExampleReadModelMapper</code> validates rows and builds read models.</td></tr>
-                        <tr><td>Business behavior</td><td>Runs on <code>Example</code>.</td><td>None. The adapter projects data.</td></tr>
+                        <tr><td>Mapping</td><td><code>EntryRecord</code> converts to and from the aggregate.</td><td><code>EntryReadModelMapper</code> validates rows and builds read models.</td></tr>
+                        <tr><td>Business behavior</td><td>Runs on <code>Entry</code>.</td><td>None. The adapter projects data.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -886,7 +886,7 @@ final readonly class GetExampleByCriteriaHandler implements QueryHandler
                 <li><strong>Read route, query, or request-body values.</strong></li>
                 <li><strong>Sanitize the input with <code>PayloadSanitizer</code>.</strong></li>
                 <li><strong>Validate types, formats, ranges, and enum values.</strong></li>
-                <li><strong>Create typed primitives such as <code>ExampleType</code> and <code>Pagination</code>.</strong></li>
+                <li><strong>Create typed primitives such as <code>EntryType</code> and <code>Pagination</code>.</strong></li>
                 <li><strong>Construct the command or query.</strong></li>
                 <li><strong>Dispatch once through <code>CommandBus</code> or <code>QueryBus</code>.</strong></li>
                 <li><strong>Map the result into an HTTP response.</strong></li>
@@ -911,7 +911,7 @@ $page = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
 $pagination = new Pagination($pageSize, $page);
 
 $result = $this-&gt;queryBus-&gt;handle(
-    new GetExampleGroupsByType($type, $typeTargetId, $pagination),
+    new GetEntryGroupsByType($type, $typeTargetId, $pagination),
 );</code></pre>
             </div>
 
@@ -923,7 +923,7 @@ $result = $this-&gt;queryBus-&gt;handle(
 
             <h3>Authoritative write lookup</h3>
             <p>
-                The change and remove controllers send <code>ExampleIdentity</code> in one command.
+                The change and remove controllers send <code>EntryIdentity</code> in one command.
                 The handler loads the active aggregate through its write repository inside the transaction.
                 It owns the missing-resource decision and current invariants.
             </p>
@@ -1037,8 +1037,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <thead><tr><th>Test level</th><th>Must prove</th><th>Reference</th></tr></thead>
                     <tbody>
                         <tr><td>Contract test</td><td>Accessors, nullable meaning, enum serialization, and JSON shape remain correct.</td><td><code>CommandAndQueryContractsTest</code></td></tr>
-                        <tr><td>Handler unit test</td><td>The handler uses the correct ports and places work inside required transactions.</td><td><code>AddNewExampleHandlerTest</code></td></tr>
-                        <tr><td>Bus lifecycle test</td><td>Attributes resolve handlers and commands affect later query results.</td><td><code>ExampleLifecycleTest</code></td></tr>
+                        <tr><td>Handler unit test</td><td>The handler uses the correct ports and places work inside required transactions.</td><td><code>AddEntryHandlerTest</code></td></tr>
+                        <tr><td>Bus lifecycle test</td><td>Attributes resolve handlers and commands affect later query results.</td><td><code>EntryLifecycleTest</code></td></tr>
                         <tr><td>Read repository test</td><td>SQL filters, ordering, null handling, pagination, and row mapping are correct.</td><td>Doctrine repository tests.</td></tr>
                         <tr><td>Write repository test</td><td>Aggregate mapping and persistence preserve domain state.</td><td>Doctrine repository tests.</td></tr>
                         <tr><td>HTTP validation test</td><td>Invalid external input fails before either bus runs.</td><td><code>ExampleInputValidationTest</code></td></tr>
@@ -1050,8 +1050,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
             <h3>Focused test command</h3>
             <div class="code-wrap">
                 <pre><code>vendor/bin/phpunit \
-  src/Backendbase/Domain/ExampleBoundedContext/Tests \
-  tests/Functional/ExampleLifecycleTest.php \
+  src/Backendbase/Domain/ExampleCatalog/Tests \
+  tests/Functional/EntryLifecycleTest.php \
   tests/Infrastructure/UseCase/ExampleApi/ExampleInputValidationTest.php \
   tests/Infrastructure/UseCase/ExampleApi/ExampleNotFoundTest.php</code></pre>
             </div>
@@ -1072,9 +1072,9 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <thead><tr><th>Command</th><th>Handler</th><th>Write behavior</th><th>Integration event</th></tr></thead>
                     <tbody>
                         <tr><td><code>QueueGreeting</code></td><td><code>QueueGreetingHandler</code></td><td>Request queued greeting delivery.</td><td><code>GreetingRequested</code></td></tr>
-                        <tr><td><code>AddNewExample</code></td><td><code>AddNewExampleHandler</code></td><td>Create and add an <code>Example</code>.</td><td><code>NewExampleAdded</code></td></tr>
-                        <tr><td><code>ChangeExample</code></td><td><code>ChangeExampleHandler</code></td><td>Load, change, and save an active <code>Example</code>.</td><td><code>ExampleChanged</code></td></tr>
-                        <tr><td><code>RemoveExample</code></td><td><code>RemoveExampleHandler</code></td><td>Load, remove, and save an active <code>Example</code>.</td><td><code>ExampleRemoved</code></td></tr>
+                        <tr><td><code>AddEntry</code></td><td><code>AddEntryHandler</code></td><td>Create and add an <code>Entry</code>.</td><td><code>EntryAdded</code></td></tr>
+                        <tr><td><code>ChangeEntry</code></td><td><code>ChangeEntryHandler</code></td><td>Load, change, and save an active <code>Entry</code>.</td><td><code>EntryChanged</code></td></tr>
+                        <tr><td><code>RemoveEntry</code></td><td><code>RemoveEntryHandler</code></td><td>Load, remove, and save an active <code>Entry</code>.</td><td><code>EntryRemoved</code></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1084,10 +1084,10 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 <table>
                     <thead><tr><th>Query</th><th>Handler</th><th>Result</th></tr></thead>
                     <tbody>
-                        <tr><td><code>GetExampleByCriteria</code></td><td><code>GetExampleByCriteriaHandler</code></td><td><code>ExampleDetails|null</code></td></tr>
-                        <tr><td><code>GetExampleIdByCriteria</code></td><td><code>GetExampleIdByCriteriaHandler</code></td><td><code>string|null</code></td></tr>
-                        <tr><td><code>GetExampleGroupsByType</code></td><td><code>GetExampleGroupsByTypeHandler</code></td><td><code>ExampleGroupPage</code></td></tr>
-                        <tr><td><code>GetExamplesByGroup</code></td><td><code>GetExamplesByGroupHandler</code></td><td><code>ExamplePage</code></td></tr>
+                        <tr><td><code>GetEntryByCriteria</code></td><td><code>GetEntryByCriteriaHandler</code></td><td><code>EntryDetails|null</code></td></tr>
+                        <tr><td><code>GetEntryIdByCriteria</code></td><td><code>GetEntryIdByCriteriaHandler</code></td><td><code>string|null</code></td></tr>
+                        <tr><td><code>GetEntryGroupsByType</code></td><td><code>GetEntryGroupsByTypeHandler</code></td><td><code>EntryGroupPage</code></td></tr>
+                        <tr><td><code>GetEntriesByGroup</code></td><td><code>GetEntriesByGroupHandler</code></td><td><code>EntryPage</code></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1116,7 +1116,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 </article>
                 <article class="card">
                     <h3>Mutable patch command</h3>
-                    <p><code>ChangeExample</code> uses setters. Build it fully before dispatch and do not reuse it after dispatch.</p>
+                    <p><code>ChangeEntry</code> uses setters. Build it fully before dispatch and do not reuse it after dispatch.</p>
                 </article>
                 <article class="card">
                     <h3>Write lookup stays in the handler</h3>
@@ -1124,7 +1124,7 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                 </article>
                 <article class="card">
                     <h3>Serialization asymmetry</h3>
-                    <p><code>AddNewExample::details()</code> changes <code>null</code> to an empty array, but <code>toArray()</code> keeps the original nullable property.</p>
+                    <p><code>AddEntry::details()</code> changes <code>null</code> to an empty array, but <code>toArray()</code> keeps the original nullable property.</p>
                 </article>
                 <article class="card">
                     <h3>One handler per contract</h3>
@@ -1167,10 +1167,10 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                         <tr><td>Command bus</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php</code></td></tr>
                         <tr><td>Query bus</td><td><code>src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php</code></td></tr>
                         <tr><td>Bus and handler definitions</td><td><code>config/dependencies/modules.php</code></td></tr>
-                        <tr><td>Command contracts</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Command/</code></td></tr>
-                        <tr><td>Query contracts</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Contracts/Query/</code></td></tr>
-                        <tr><td>Command handlers</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Application/CommandHandlers/</code></td></tr>
-                        <tr><td>Query handlers</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/Application/QueryHandlers/</code></td></tr>
+                        <tr><td>Command contracts</td><td><code>src/Backendbase/Domain/ExampleCatalog/Contracts/Command/</code></td></tr>
+                        <tr><td>Query contracts</td><td><code>src/Backendbase/Domain/ExampleCatalog/Contracts/Query/</code></td></tr>
+                        <tr><td>Command handlers</td><td><code>src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/</code></td></tr>
+                        <tr><td>Query handlers</td><td><code>src/Backendbase/Domain/ExampleCatalog/Application/QueryHandlers/</code></td></tr>
                         <tr><td>HTTP reference</td><td><code>src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/</code></td></tr>
                         <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
                     </tbody>

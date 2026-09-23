@@ -685,7 +685,7 @@
 
             <h3>Reference contract</h3>
             <div class="code-wrap">
-                <pre><code>final class ExampleChanged implements IntegrationEvent
+                <pre><code>final class EntryChanged implements IntegrationEvent
 {
     public const string EVENT_VERSION = '1.0';
     public const bool DELIVER_VIA_QUEUE = true;
@@ -693,7 +693,7 @@
 
     use IntegrationEventTrait;
 
-    public function __construct(private readonly ExampleChangedPayload $payload)
+    public function __construct(private readonly EntryChangedPayload $payload)
     {
         $this-&gt;occurredOn = DateTimeImmutable::create();
     }
@@ -742,7 +742,7 @@
 
             <div class="code-wrap">
                 <pre><code># Default service-name: example
-Event class:    ExampleChanged
+Event class:    EntryChanged
 Producer type:  Example_ExampleChanged
 Consumer name:  Example_ExampleChanged_Event</code></pre>
             </div>
@@ -755,6 +755,8 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
             <p>
                 The repository uses the current <code>Example_*</code> names for the example service.
                 Keep published names unchanged unless a planned migration replaces them.
+                The <code>ExampleCatalog</code> PHP classes use <code>Entry</code> names and <code>entryId()</code> accessors.
+                Version-one payloads and carrier constructor parameters retain <code>exampleId</code> for compatibility.
             </p>
         </section>
 
@@ -764,18 +766,18 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 
             <div class="code-wrap">
                 <pre><code>$this-&gt;integrationEventTransaction-&gt;execute(
-    function () use ($command): ExampleChanged {
-        $example = $this-&gt;exampleRepository
+    function () use ($command): EntryChanged {
+        $entry = $this-&gt;entryRepository
             -&gt;getActiveByIdentity($command-&gt;identity());
-        $example-&gt;change(
+        $entry-&gt;change(
             $command-&gt;isActive(),
             $command-&gt;value(),
             $command-&gt;details(),
         );
-        $this-&gt;exampleRepository-&gt;save($example);
+        $this-&gt;entryRepository-&gt;save($entry);
 
-        return new ExampleChanged(new ExampleChangedPayload(
-            exampleId: $example-&gt;id(),
+        return new EntryChanged(new EntryChangedPayload(
+            exampleId: $entry-&gt;id(),
             isActive: $command-&gt;isActive(),
             value: $command-&gt;value(),
             details: $command-&gt;details(),
@@ -818,7 +820,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
         <section id="versioning">
             <h2>Payloads and versions</h2>
             <p class="lede">
-                The <code>NewExampleAdded</code> producer payload and consumer message carrier are separate classes.
+                The <code>EntryAdded</code> producer payload and consumer message carrier are separate classes.
                 Their serialized shapes must match for a given event version. The greeting example registers its immutable <code>GreetingRequestedPayload</code> as both payload and <code>EventMessage</code> carrier.
             </p>
 
@@ -858,13 +860,13 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 
             <h3>Consumer schema example</h3>
             <div class="code-wrap">
-                <pre><code>final readonly class NewExampleAddedMessage implements EventMessage
+                <pre><code>final readonly class EntryAddedMessage implements EventMessage
 {
     public function __construct(
         private string $exampleId,
-        private NewExampleAddedCommand $command,
+        private EntryAddedCommand $command,
     ) {
-        if ($exampleId !== $command-&gt;exampleId()) {
+        if ($exampleId !== $command-&gt;entryId()) {
             throw new UnexpectedValueException('The external example identifiers must match.');
         }
     }
@@ -939,7 +941,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 
             <h3>External subscriber example</h3>
             <div class="code-wrap">
-                <pre><code>final readonly class NewExampleAddedExternalSubscriber
+                <pre><code>final readonly class EntryAddedExternalSubscriber
     implements ExternalIntegrationEventSubscriber
 {
     public const string EVENT_TYPE = 'Example_NewExampleAdded_Event';
@@ -948,10 +950,10 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
     {
     }
 
-    /** @param NewExampleAddedMessage $message */
+    /** @param EntryAddedMessage $message */
     public function handle(EventMessage $message): void
     {
-        $this-&gt;logger-&gt;debug('NewExampleAddedExternalSubscriber', $message-&gt;toArray());
+        $this-&gt;logger-&gt;debug('EntryAddedExternalSubscriber', $message-&gt;toArray());
         $this-&gt;logger-&gt;debug('External Done');
     }
 
@@ -985,17 +987,17 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                 <article class="card">
                     <h3>Internal registration</h3>
                     <div class="code-wrap"><pre><code>[
-    'events' =&gt; NewExampleAddedSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' =&gt; NewExampleAddedSubscriber::class,
+    'events' =&gt; EntryAddedSubscriber::getSubscribedEvents(),
+    'subscriberFQCN' =&gt; EntryAddedSubscriber::class,
 ]</code></pre></div>
                 </article>
                 <article class="card">
                     <h3>External registration</h3>
                     <div class="code-wrap"><pre><code>[
-    'events' =&gt; NewExampleAddedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' =&gt; NewExampleAddedExternalSubscriber::class,
-    'messageFQCN' =&gt; NewExampleAddedMessage::class,
-    'eventVersion' =&gt; NewExampleAdded::EVENT_VERSION,
+    'events' =&gt; EntryAddedExternalSubscriber::getSubscribedEvents(),
+    'subscriberFQCN' =&gt; EntryAddedExternalSubscriber::class,
+    'messageFQCN' =&gt; EntryAddedMessage::class,
+    'eventVersion' =&gt; EntryAdded::EVENT_VERSION,
 ]</code></pre></div>
                 </article>
             </div>
@@ -1025,7 +1027,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                     <thead><tr><th>Test</th><th>Must prove</th><th>Reference</th></tr></thead>
                     <tbody>
                         <tr><td>Schema test</td><td>The exact version string and payload array do not change.</td><td><code>IntegrationEventSchemaTest</code></td></tr>
-                        <tr><td>Command handler test</td><td>The handler passes the correct event and executes work inside the transaction callback.</td><td><code>AddNewExampleHandlerTest</code></td></tr>
+                        <tr><td>Command handler test</td><td>The handler passes the correct event and executes work inside the transaction callback.</td><td><code>AddEntryHandlerTest</code></td></tr>
                         <tr><td>Producer transaction tests</td><td>Both flags run local subscribers. Only true writes the outbox. Subscriber and insertion failures roll back all writes.</td><td><code>DoctrineIntegrationEventTransactionTest</code>, <code>TransactionalIntegrationEventDispatchTest</code>, <code>IntegrationEventDispatchFailureTest</code></td></tr>
                         <tr><td>Registry test</td><td>Name and version resolve the expected message class. Unknown versions fail.</td><td><code>InMemoryExternalIntegrationEventRegistryTest</code></td></tr>
                         <tr><td>Mapping test</td><td>Valid producer payload maps. Missing, extra, and wrong-type fields fail.</td><td><code>ExternalIntegrationEventDispatcherTest</code></td></tr>
@@ -1037,13 +1039,13 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 
             <h3>Producer-to-consumer contract assertion</h3>
             <div class="code-wrap">
-                <pre><code>$event = new NewExampleAdded(new NewExampleAddedPayload(/* explicit values */));
+                <pre><code>$event = new EntryAdded(new EntryAddedPayload(/* explicit values */));
 
 $eventManager-&gt;expects(self::once())
     -&gt;method('dispatchExternalEvent')
     -&gt;with(
-        NewExampleAddedExternalSubscriber::EVENT_TYPE,
-        self::callback(static function (NewExampleAddedMessage $message) use ($event): bool {
+        EntryAddedExternalSubscriber::EVENT_TYPE,
+        self::callback(static function (EntryAddedMessage $message) use ($event): bool {
             self::assertSame($event-&gt;getEventArguments(), $message-&gt;toArray());
 
             return true;
@@ -1051,7 +1053,7 @@ $eventManager-&gt;expects(self::once())
     );
 
 $dispatcher-&gt;dispatch(
-    NewExampleAddedExternalSubscriber::EVENT_TYPE,
+    EntryAddedExternalSubscriber::EVENT_TYPE,
     $event-&gt;eventVersion(),
     $event-&gt;getEventArguments(),
 );</code></pre>
@@ -1060,7 +1062,7 @@ $dispatcher-&gt;dispatch(
             <h3>Focused test command</h3>
             <div class="code-wrap">
                 <pre><code>vendor/bin/phpunit \
-  src/Backendbase/Domain/ExampleBoundedContext/Tests/Contracts/IntegrationEvents \
+  src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/IntegrationEvents \
   tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php \
   tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php \
   tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php \
@@ -1077,21 +1079,21 @@ $dispatcher-&gt;dispatch(
                     <thead><tr><th>Class</th><th>Published type</th><th>Version</th><th>Payload</th><th>Registered subscribers</th></tr></thead>
                     <tbody>
                         <tr>
-                            <td><code>NewExampleAdded</code></td>
+                            <td><code>EntryAdded</code></td>
                             <td><code>Example_NewExampleAdded</code></td>
                             <td><code>1.0</code></td>
-                            <td><code>V1/NewExampleAddedPayload</code></td>
+                            <td><code>V1/EntryAddedPayload</code></td>
                             <td>One internal subscriber and one external subscriber.</td>
                         </tr>
                         <tr>
-                            <td><code>ExampleChanged</code></td>
+                            <td><code>EntryChanged</code></td>
                             <td><code>Example_ExampleChanged</code></td>
                             <td><code>1.0</code></td>
-                            <td><code>V1/ExampleChangedPayload</code></td>
+                            <td><code>V1/EntryChangedPayload</code></td>
                             <td>None.</td>
                         </tr>
                         <tr>
-                            <td><code>ExampleRemoved</code></td>
+                            <td><code>EntryRemoved</code></td>
                             <td><code>Example_ExampleRemoved</code></td>
                             <td><code>1.0</code></td>
                             <td>Inline <code>exampleId</code> array.</td>
@@ -1110,7 +1112,7 @@ $dispatcher-&gt;dispatch(
 
             <div class="callout warning">
                 <strong>Unregistered external events still publish</strong>
-                <code>ExampleChanged</code> and <code>ExampleRemoved</code> enter the outbox.
+                <code>EntryChanged</code> and <code>EntryRemoved</code> enter the outbox.
                 The current consumer rejects either event if it receives it because no matching external subscriber and message contract are registered.
             </div>
         </section>
@@ -1118,7 +1120,7 @@ $dispatcher-&gt;dispatch(
         <section id="known-issue">
             <h2>Aligned version-one contract</h2>
             <p class="lede">
-                The registered <code>NewExampleAdded</code> consumer now preserves the released producer payload shape.
+                The registered <code>EntryAdded</code> consumer now preserves the released producer payload shape.
                 The real dispatcher maps this payload into typed outer and nested data transfer objects (DTOs).
             </p>
 
@@ -1165,7 +1167,7 @@ $dispatcher-&gt;dispatch(
                 <code>ProducerConsumerContractTest</code> creates the real producer event, reads the registered carrier from <code>ServiceProvider</code>, and dispatches through <code>InMemoryExternalIntegrationEventRegistry</code> and <code>ExternalIntegrationEventDispatcher</code>.
             </div>
 
-            <p><code>NewExampleAddedMessage</code> validates the outer identifier against <code>NewExampleAddedCommand</code>. It keeps the existing version-one wire contract unchanged.</p>
+            <p><code>EntryAddedMessage</code> validates the outer identifier against <code>EntryAddedCommand</code>. It keeps the existing version-one wire contract unchanged.</p>
         </section>
 
         <section id="checklist">
@@ -1208,7 +1210,7 @@ $dispatcher-&gt;dispatch(
                         <tr><td>Event manager</td><td><code>src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php</code></td></tr>
                         <tr><td>Container registration</td><td><code>config/dependencies/modules.php</code></td></tr>
                         <tr><td>Project rules</td><td><code>resources/docs/project.md</code></td></tr>
-                        <tr><td>Reference implementation</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/</code></td></tr>
+                        <tr><td>Reference implementation</td><td><code>src/Backendbase/Domain/ExampleCatalog/</code></td></tr>
                     </tbody>
                 </table>
             </div>

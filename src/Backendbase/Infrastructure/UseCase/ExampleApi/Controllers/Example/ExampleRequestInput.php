@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example;
 
-use Backendbase\Domain\ExampleBoundedContext\Domain\ExampleType;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\Exception\InvalidUserInput;
@@ -28,9 +28,9 @@ final class ExampleRequestInput
         return $value;
     }
 
-    public static function type(mixed $value): ExampleType
+    public static function type(mixed $value): EntryType
     {
-        $type = is_string($value) ? ExampleType::tryFrom($value) : null;
+        $type = is_string($value) ? EntryType::tryFrom($value) : null;
         if ($type === null) {
             throw InvalidUserInput::create('The example type is invalid.');
         }

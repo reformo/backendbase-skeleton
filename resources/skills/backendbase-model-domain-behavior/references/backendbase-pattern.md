@@ -55,7 +55,7 @@ The class and state object are illustrative. Preserve the target project's estab
 
 ## Current source behavior and limitations
 
-- `Example` is the primary aggregate reference. `IdentityAndAccess/Domain/Account` also implements production aggregate behavior.
+- `Entry` is the primary aggregate reference. `IdentityAndAccess/Domain/Account` also implements production aggregate behavior.
 - It stores a typed array snapshot and does not extend `Backendbase\Shared\Domain\Aggregate`.
 - The shared `Aggregate` event-recording API is exercised by test helpers, not by the production Example aggregate.
 - No automatic dispatcher drains `Aggregate::getRecordedEvents()` in the current production flow.
@@ -76,10 +76,10 @@ composer cs-check
 - `resources/docs/1-bounded-contexts.html`
 - `resources/platform/02-architecture.md`
 - `resources/platform/03-bounded-contexts.md`
-- `src/Backendbase/Domain/ExampleBoundedContext/Domain/Example.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Domain/ExampleType.php`
+- `src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php`
+- `src/Backendbase/Domain/ExampleCatalog/Domain/EntryType.php`
 - `src/Backendbase/Shared/Domain/Aggregate.php`
-- `src/Backendbase/Domain/ExampleBoundedContext/Tests/Domain/ExampleTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Domain/EntryTest.php`
 - `tests/Shared/Domain/SharedDomainSupportTest.php`
 - `tests/Architecture/DomainPurityTest.php`
 - `tests/Architecture/FrameworkImportBoundaryTest.php`
