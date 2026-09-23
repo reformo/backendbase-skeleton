@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleReadRepository as 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExampleWriteRepository as WriteRepositoryContract;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedCommand;
 use Backendbase\Domain\ExampleBoundedContext\Contracts\ExternalIntegrationEvents\V1\NewExampleAddedMessage;
+use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\V1\GreetingRequestedPayload;
 use Backendbase\Domain\ExampleBoundedContext\ServiceProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ final class ServiceProviderTest extends TestCase
             $subscribers[] = $subscriber;
         }
 
-        self::assertCount(2, $subscribers);
+        self::assertCount(3, $subscribers);
         $externalSubscriber = $subscribers[1];
         if (! isset($externalSubscriber['messageFQCN'], $externalSubscriber['eventVersion'])) {
             self::fail('The external subscriber contract is incomplete.');
@@ -38,6 +39,13 @@ final class ServiceProviderTest extends TestCase
 
         self::assertSame(NewExampleAddedMessage::class, $externalSubscriber['messageFQCN']);
         self::assertSame('1.0', $externalSubscriber['eventVersion']);
+        $greetingSubscriber = $subscribers[2];
+        if (! isset($greetingSubscriber['messageFQCN'], $greetingSubscriber['eventVersion'])) {
+            self::fail('The greeting subscriber contract is incomplete.');
+        }
+
+        self::assertSame(GreetingRequestedPayload::class, $greetingSubscriber['messageFQCN']);
+        self::assertSame('1.0', $greetingSubscriber['eventVersion']);
     }
 
     #[Test]

@@ -25,6 +25,7 @@ final class IntegrationEventBehaviorTest extends TestCase
         $changedPayload = new ExampleChangedPayload('example-id', false, 'changed', ['unit' => 'rows']);
         $changed        = new ExampleChanged($changedPayload);
         self::assertSame('Example_ExampleChanged', $changed->eventName());
+        self::assertTrue($changed->isExternal());
         self::assertSame('example-id', $changed->exampleId());
         self::assertSame($changedPayload->toArray(), $changedPayload->jsonSerialize());
 

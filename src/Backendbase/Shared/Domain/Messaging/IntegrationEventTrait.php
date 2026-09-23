@@ -32,6 +32,6 @@ trait IntegrationEventTrait
 
     public function isExternal(): bool
     {
-        return defined('static::IS_MESSAGING_EVENT') && static::IS_MESSAGING_EVENT;
+        return defined('static::DELIVER_VIA_QUEUE') && static::DELIVER_VIA_QUEUE;
     }
 }

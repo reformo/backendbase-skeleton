@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Deployment and Operations Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Deployment and Operations Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Release runbook</p><h1>Deployment and Operations</h1>
 <p class="lede">Release preparation, stage and production scripts, migrations, caches, workers, schedules, health checks, recovery, and current operational risks.</p>
 <div class="chips"><span class="chip">Release</span><span class="chip">Migrations</span><span class="chip">Caches</span><span class="chip">Workers</span><span class="chip">Recovery</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#preflight">2. Preflight</a><a href="#flow">3. Release flow</a><a href="#scripts">4. Current scripts</a>
 <a href="#database">5. Database</a><a href="#cache">6. Cache</a><a href="#workers">7. Workers and schedules</a><a href="#health">8. Health checks</a>
 <a href="#rollback">9. Recovery</a><a href="#secrets">10. Secrets</a><a href="#risks">11. Current risks</a><a href="#checklist">12. Checklist</a><a href="#sources">13. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>A release changes code, contracts, cache, and schema</h2>
 <p>Deployment is not only a source update. It must keep runtime configuration, generated OpenAPI, container cache, route cache, Doctrine cache, database migrations, and background consumers compatible.</p>
 <div class="callout danger"><strong>Production boundary:</strong> Execute deployment scripts only with explicit release authority and verified backups.</div>
@@ -35,6 +37,7 @@
 <ul><li>Back up or confirm recoverable database state before a risky migration.</li><li>Verify the migration metadata table.</li><li>Run only reviewed migrations.</li>
 <li>Watch locks and execution time for table changes.</li><li>Confirm application compatibility during rolling deployment.</li><li>Verify the schema and key queries after migration.</li></ul>
 <div class="callout warning"><strong>MySQL boundary:</strong> DDL can commit independently. Deployment records the dry-run SQL and migration output. A required hook confirms backup recovery before execution.</div>
+<p>The first migration now creates the complete integration-event schema for new databases. Databases that already ran the former five messaging migrations have different version records. Inspect their schema and migration metadata, then prepare a separate adoption plan before deployment.</p>
 <div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
 </section>
 <section id="cache"><p class="section-label">06 · Cache</p><h2>Clear generated data when its source changes</h2>
@@ -43,9 +46,9 @@
 </section>
 <section id="workers"><p class="section-label">07 · Workers and schedules</p><h2>Background delivery needs independent supervision</h2>
 <div class="table-wrap"><table><thead><tr><th>Process</th><th>Command</th><th>Recommended mode</th></tr></thead><tbody>
-<tr><td>Outbox relay</td><td><code>outbox:relay --limit=100</code></td><td>Frequent scheduler or managed loop</td></tr>
+<tr><td>Outbox relay</td><td><code>outbox:relay --continuous --limit=100</code></td><td>Long-running supervised worker; 250 ms idle check</td></tr>
 <tr><td>Outbox monitor</td><td><code>outbox:status --max-pending-age=300</code></td><td>Health scheduler and alert input</td></tr>
-<tr><td>Integration consumer</td><td><code>queue:consume [name]</code></td><td>Long-running supervised worker</td></tr>
+<tr><td>Integration consumer</td><td><code>queue:consume [name]</code></td><td>Separate long-running supervised worker</td></tr>
 <tr><td>Message cleanup</td><td><code>integration-messages:cleanup</code></td><td>Daily retention schedule</td></tr>
 </tbody></table></div>
 <div class="related"><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>

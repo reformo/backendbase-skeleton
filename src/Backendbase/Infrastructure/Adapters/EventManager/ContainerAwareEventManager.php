@@ -8,85 +8,69 @@ use Backendbase\Shared\Domain\Messaging\EventMessage;
 use Backendbase\Shared\Domain\Messaging\ExternalIntegrationEventSubscriber;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventSubscriber;
+use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use Backendbase\Shared\Services\EventManager\EventManager;
 use Override;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use UnexpectedValueException;
 
 class ContainerAwareEventManager implements EventManager
 {
-    private readonly ContainerAwareSubscriberRegistry $subscriberRegistry;
+    private readonly ContainerAwareSubscriberDispatcher $subscribers;
 
     public function __construct(
         ContainerInterface $container,
-        private readonly LoggerInterface $logger,
+        LoggerInterface $logger,
+        private readonly IntegrationEventOutbox $outbox,
     ) {
-        $this->subscriberRegistry = new ContainerAwareSubscriberRegistry($container);
+        $this->subscribers = new ContainerAwareSubscriberDispatcher($container, $logger);
     }
 
     #[Override]
     public function dispatchEvent(IntegrationEvent $event): void
     {
-        $this->logger->debug('ContainerAwareEventManager-1', ['event' => $event->eventName()]);
-        $subscribers = $this->getSubscriber($event->eventName());
-        if ($subscribers === []) {
+        $outbox = $this->outbox;
+        $outbox->assertTransactionActive();
+        $subscribers = $this->subscribers;
+        $subscribers->dispatchEvent($event);
+        if (! $event->isExternal()) {
             return;
         }
 
-        $this->logger->debug('ContainerAwareEventManager-2', ['event' => $event]);
-        foreach ($subscribers as $subscriberFQCN) {
-            $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
-            $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
-            if (! $subscriber instanceof IntegrationEventSubscriber) {
-                throw new UnexpectedValueException($subscriberFQCN . ' is not an integration event subscriber.');
-            }
-
-            $subscriber->handle($event);
-        }
+        $outbox->append($event);
     }
 
+    #[Override]
     public function dispatchExternalEvent(string $eventName, EventMessage $message): void
     {
-        $this->logger->debug('ContainerAwareEventManager-1', ['message' => $message->toArray()]);
-        $subscribers = $this->getSubscriber($eventName);
-        if ($subscribers === []) {
-            return;
-        }
-
-        foreach ($subscribers as $subscriberFQCN) {
-            $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
-            $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
-            if (! $subscriber instanceof ExternalIntegrationEventSubscriber) {
-                throw new UnexpectedValueException($subscriberFQCN . ' is not an external integration event subscriber.');
-            }
-
-            $subscriber->handle($message);
-        }
+        $subscribers = $this->subscribers;
+        $subscribers->dispatchExternalEvent($eventName, $message);
     }
 
     /** @return array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>> */
     #[Override]
     public function getSubscriber(string $event): array
     {
-        $subscribers = $this->subscriberRegistry->forEvent($event);
+        $subscribers = $this->subscribers;
 
-        $this->logger->debug('ContainerAwareEventManager-5', ['subscribers' => $subscribers]);
-
-        return $subscribers;
+        return $subscribers->getSubscriber($event);
     }
 
     /** @return array<string, array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>>> */
     #[Override]
     public function getAllSubscribers(): array
     {
-        return $this->subscriberRegistry->all();
+        $subscribers = $this->subscribers;
+
+        return $subscribers->getAllSubscribers();
     }
 
     #[Override]
     public function hasSubscriber(string $event): bool
     {
-        return $this->getSubscriber($event) !== [];
+        $subscribers = $this->subscribers;
+
+        return $subscribers->hasSubscriber($event);
     }
 
     /**
@@ -96,7 +80,8 @@ class ContainerAwareEventManager implements EventManager
     #[Override]
     public function addEventSubscriber(string|array $events, string $subscriberFQCN): void
     {
-        $this->subscriberRegistry->add($events, $subscriberFQCN);
+        $subscribers = $this->subscribers;
+        $subscribers->addEventSubscriber($events, $subscriberFQCN);
     }
 
     /**
@@ -106,6 +91,7 @@ class ContainerAwareEventManager implements EventManager
     #[Override]
     public function removeEventSubscriber(string|array $events, string $subscriberFQCN): void
     {
-        $this->subscriberRegistry->remove($events, $subscriberFQCN);
+        $subscribers = $this->subscribers;
+        $subscribers->removeEventSubscriber($events, $subscriberFQCN);
     }
 }

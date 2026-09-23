@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added `outbox:relay --continuous` to drain full batches and check for pending rows about every 250 ms.
+- Added an Example API greeting endpoint and a queue consumer that prints the submitted full name.
 - Added selectable Twilio and Netgsm SMS providers with validated settings and finite HTTP timeouts.
 - Added SES and SMTP email providers, conditional Firebase push registration, and typed notification settings.
 - Added ordered notification delivery results and partial-batch failure details.
@@ -35,6 +37,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Consolidated the integration-event outbox, inbox, failure tables, and indexes into the first migration for new databases.
+- Aligned reusable skills, platform guidance, and HTML guides with current event dispatch, relay modes, API routes, security, configuration, and source inventory.
+- Dispatched integration events inside the producer transaction, running local subscribers for both delivery modes and appending one outbox row only when `DELIVER_VIA_QUEUE` is true.
+- Renamed the integration event queue-delivery flag to `DELIVER_VIA_QUEUE`.
 - Refreshed Composer supply-chain evidence for the PHPStan 2.2.15 dependency update.
 - Corrected empty Composer lock object fields and refreshed quality report metrics for the current test suite.
 - Disabled automatic SES email retries so a connection failure cannot cause a second send attempt within one notification call.

@@ -1,6 +1,6 @@
 # Backendbase messaging operations pattern
 
-This reference adds finite operational controls around an existing transactional outbox and inbox. It does not install the messaging foundation or define an automatic dead-letter replay.
+This reference adds relay and finite maintenance controls around an existing transactional outbox and inbox. It does not install the messaging foundation or define an automatic dead-letter replay.
 
 ## Target discovery
 
@@ -23,7 +23,7 @@ Do not copy Backendbase command names, queue names, host paths, cron paths, rete
 | Cleanup operation | `IntegrationMessageLogCleaner` | Delete only old terminal evidence. |
 | Console adapter | relay, status, cleanup commands | Validate limits and expose useful exits. |
 | Scheduler | external platform | Run finite commands and prevent overlap. |
-| Worker supervisor | external platform | Own long-running consumers. |
+| Worker supervisor | external platform | Own the continuous relay and consumers as separate processes. |
 | Alerts | external platform | Convert status failures into operator action. |
 
 ## Reference command behavior
@@ -32,7 +32,8 @@ Backendbase currently uses these verified limits:
 
 | Operation | Reference limit | Failure exit |
 | --- | --- | --- |
-| Relay | 1 through 1000 rows | one or more publish failures |
+| Finite relay | 1 through 1000 rows per batch | one or more publish failures |
+| Continuous relay | same batch limit; 250 ms idle poll | reports batch failures; uncaught errors terminate the process |
 | Status | positive maximum pending age | old pending row or any retried row |
 | Cleanup | at least 30 retention days; 1 through 10000 rows per log | invalid input or cleanup failure |
 
@@ -49,7 +50,9 @@ $output->writeln('Published: ' . $result->published() . '; failed: ' . $result->
 return $result->failed() > 0 ? self::FAILURE : self::SUCCESS;
 ```
 
-Do not hide partial failure behind a success exit.
+Do not hide partial failure behind a success exit in finite mode.
+
+In unmodified Backendbase, `outbox:relay --continuous --limit=100` repeatedly calls the same relay operation. A full batch starts the next batch immediately. A partial or empty batch sleeps for 250 ms. Non-empty batches print published and failed counts. Publication failures retain the existing retry delay; polling does not bypass `available_at`. The command runs until terminated and has no custom signal handler. A supervisor owns restart and shutdown. Adapt timing and command names to the target project.
 
 ## Status operation
 
@@ -73,11 +76,11 @@ Never delete pending, claimed, unprocessed, or nonterminal failure rows. Use bou
 
 ## Scheduling model
 
-1. Run finite relay work frequently enough for the delivery objective.
+1. Run a continuous relay under a supervisor when low publication delay is required. Use a scheduled finite relay only as an alternative.
 2. Run status checks and send nonzero exits to monitoring.
 3. Run cleanup at a lower frequency under an approved retention policy.
-4. Use a platform lock or single-concurrency job for relay and cleanup.
-5. Run consumers under a supervisor, not cron.
+4. Prevent duplicate relay schedules and overlapping cleanup jobs. Claims protect intentional parallel relays.
+5. Run the continuous relay and consumer as separate supervised processes.
 
 The Backendbase repository contains no scheduler, supervisor, dashboard, or alert definition. Generate platform-specific files only when the user selects the platform and approves the scope.
 
@@ -132,7 +135,7 @@ Report operations, limits, retention, terminal predicates, exit conditions, sche
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified against current source on 2026-09-23:
 
 - `src/Backendbase/Shared/Integrations/OutboxRelay.php`
 - `src/Backendbase/Shared/Integrations/OutboxMonitor.php`

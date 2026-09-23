@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Notifications Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Notifications Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · External effects</p><h1>Notifications</h1>
 <p class="lede">Email, push, and SMS models; direct provider dispatch; SNS, Twilio, Netgsm, SES, SMTP, and Firebase adapters; configuration; and delivery failure policy.</p>
 <div class="chips"><span class="chip">Email</span><span class="chip">Push</span><span class="chip">SMS</span><span class="chip">SNS</span><span class="chip">Twilio</span><span class="chip">Netgsm</span><span class="chip">SES</span><span class="chip">SMTP</span><span class="chip">Firebase</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#flow">2. Delivery flow</a><a href="#models">3. Notification models</a><a href="#stack">4. Provider stack</a>
 <a href="#sms">5. SMS providers</a><a href="#push">6. Push with Firebase</a><a href="#email">7. Email providers</a><a href="#queue">8. Queue delivery requirements</a>
 <a href="#idempotency">9. Idempotency</a><a href="#configuration">10. Configuration</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Notification models are independent from providers</h2>
 <p>Shared notification objects describe a delivery request. The application-facing <code>Notify</code> port accepts one email, push, or SMS notification directly. <code>StackNotifier</code> selects a provider by notification type.</p>
 <div class="grid-3"><article class="card"><h3>Email</h3><p>Addresses, sender, subject, HTML, template data, and attachments.</p></article><article class="card"><h3>Push</h3><p>Title, body, topic, device token, image, and string-compatible data.</p></article><article class="card"><h3>SMS</h3><p>E.164 phone number and non-empty message.</p></article></div>
@@ -49,12 +51,13 @@
 <div class="table-wrap"><table><thead><tr><th>Failure</th><th>Outcome</th></tr></thead><tbody>
 <tr><td>Already in progress</td><td>Retry</td></tr><tr><td>External outcome unknown</td><td>Permanent failure policy</td></tr>
 <tr><td>Invalid JSON or value</td><td>Reject when metadata is missing; otherwise permanent failure</td></tr>
-<tr><td>Other provider or transport error</td><td>Transient failure policy</td></tr><tr><td>Success</td><td>Acknowledge and clear failure state</td></tr>
+<tr><td>Failure before the provider call starts</td><td>Retry only a classified transient failure.</td></tr>
+<tr><td>Provider call or completion write fails</td><td><code>ExternalEffectOutcomeUnknown</code>; require outcome review before retry.</td></tr><tr><td>Success</td><td>Acknowledge and clear failure state</td></tr>
 </tbody></table></div>
 <div class="related"><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>
 <section id="idempotency"><p class="section-label">09 · Idempotency</p><h2>External delivery needs explicit outcome state</h2>
-<p><code>ExternalEffectInbox::processOnce()</code> prevents concurrent or repeated provider calls. It distinguishes success, in-progress work, and unknown external outcome.</p>
+<p><code>ExternalEffectInbox::processOnce()</code> skips completed messages and blocks another attempt while a claim is active. An expired unfinished claim raises <code>ExternalEffectOutcomeUnknown</code>. It distinguishes success, in-progress work, and unknown external outcome.</p>
 <div class="callout warning">A provider can accept a request before the process records success. Treat an unknown outcome as a manual or permanent-failure case, not an automatic duplicate send.</div>
 </section>
 <section id="configuration"><p class="section-label">10 · Configuration</p><h2>Provider configuration belongs at the external boundary</h2>

@@ -54,17 +54,22 @@ bin/backendbase [command] [options]
 
 ### Transactional outbox
 
+Return integration events from `IntegrationEventTransaction::execute()`. Before commit, the event manager runs local subscribers for both flag values. `DELIVER_VIA_QUEUE = true` also appends an outbox row; `false` keeps delivery local. Business writes, local subscriber writes, and the outbox insert share one database transaction. A failure rolls back those writes.
+
 Apply migrations before a service publishes integration events:
 
 ```sh
 bin/doctrine migrations:migrate --no-interaction
 ```
 
-Run the relay from a scheduler or worker. Repeated runs publish pending messages and retry temporary failures:
+Run the continuous relay and queue consumer as separate supervised processes. The relay checks for new outbox rows about every 250 ms when a batch is not full:
 
 ```sh
-bin/backendbase outbox:relay --limit=100
+bin/backendbase outbox:relay --continuous --limit=100
+bin/backendbase queue:consume backendbase-queue
 ```
+
+Use `bin/backendbase outbox:relay --limit=100` for a single batch. The continuous relay retries temporary publication failures according to the outbox retry schedule.
 
 Monitor retries and the oldest pending message:
 

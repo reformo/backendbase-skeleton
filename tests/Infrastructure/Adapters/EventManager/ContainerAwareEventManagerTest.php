@@ -13,6 +13,7 @@ use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\NewExam
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\V1\NewExampleAddedPayload;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareSubscriberRegistry;
+use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use DI\Container;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -198,6 +199,7 @@ final class ContainerAwareEventManagerTest extends TestCase
             new ContainerAwareEventManager(
                 $container,
                 $logger,
+                $this->createStub(IntegrationEventOutbox::class),
             ),
             $logHandler,
         ];

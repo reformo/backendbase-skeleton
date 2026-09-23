@@ -142,7 +142,7 @@ Read only the selected reference sections needed for the task. Reuse established
 
 ## Snapshot policy
 
-The source guides describe the repository on 25 August 2026. Their disputed current-state claims were checked against source during this summary update.
+The platform files and numbered HTML guides describe the current source. Their latest consistency review was on 23 September 2026. Dated assessments retain their original verification scope; generated quality metrics use the latest local test artifacts.
 
 Treat design rules as requirements. Recheck statements marked as current state before later implementation work.
 

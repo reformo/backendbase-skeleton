@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase Messaging and Queue Operations</title>
     <style>
         :root {
@@ -440,31 +440,7 @@
             .card { padding: 17px; }
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #0d1422;
-                --surface: #131d2d;
-                --surface-soft: #182438;
-                --ink: #edf3ff;
-                --muted: #aab7ca;
-                --line: #2b3a50;
-                --brand: #7ea7ff;
-                --brand-soft: #1b315d;
-                --teal: #62d5c1;
-                --teal-soft: #123c38;
-                --amber: #f1c75b;
-                --amber-soft: #3b3014;
-                --red: #ff9d93;
-                --red-soft: #40201f;
-                --shadow: 0 16px 42px rgba(0,0,0,0.22);
-            }
-            .node { stroke: #647895; }
-            .node.brand { stroke: #7299e7; }
-            .node.teal { stroke: #4ca695; }
-            .node.amber { stroke: #b68b2f; }
-            .node.red { stroke: #b56c66; }
-            .flow-line { stroke: #91a5c1; }
-        }
+
 
         @media print {
             :root { color-scheme: light; }
@@ -477,8 +453,10 @@
             a { color: inherit; text-decoration: none; }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Operations Guide</p>
@@ -492,7 +470,7 @@
             <span class="pill">RabbitMQ 4.3</span>
             <span class="pill">Amazon SQS</span>
             <span class="pill">Doctrine DBAL</span>
-            <span class="pill">Source snapshot: 25 August 2026</span>
+            <span class="pill">Source review: 23 September 2026</span>
         </div>
     </div>
 </header>
@@ -517,7 +495,7 @@
         <a href="#source-map">Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
             <p class="lede">
@@ -532,7 +510,7 @@
                 </article>
                 <article class="card">
                     <span class="metric">Atomic producer</span>
-                    <p>The domain write and outbox insert commit in one database transaction.</p>
+                    <p>Business writes, local subscriber writes, and the optional outbox insert commit in one database transaction.</p>
                 </article>
                 <article class="card">
                     <span class="metric">Two drivers</span>
@@ -563,11 +541,11 @@
 bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 </li>
                 <li>
-                    <strong>Start the outbox relay.</strong>
-                    <div class="code-wrap"><pre><code>bin/backendbase outbox:relay --limit=100</code></pre></div>
+                    <strong>Start the outbox relay in its own terminal.</strong>
+                    <div class="code-wrap"><pre><code>bin/backendbase outbox:relay --continuous --limit=100</code></pre></div>
                 </li>
                 <li>
-                    <strong>Start the integration-event consumer.</strong>
+                    <strong>Start the integration-event consumer in another terminal.</strong>
                     <div class="code-wrap"><pre><code>bin/backendbase queue:consume backendbase-queue</code></pre></div>
                 </li>
                 <li>
@@ -590,7 +568,7 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
             <figure class="diagram">
                 <svg viewBox="0 0 1050 430" role="img" aria-label="End-to-end messaging architecture">
                     <title>End-to-end messaging architecture</title>
-                    <desc>A command writes domain data and an outbox row. A relay publishes the row. A consumer records an inbox row and dispatches a subscriber. Failed messages can enter a dead-letter queue.</desc>
+                    <desc>A command changes domain data and dispatches local integration subscribers in one transaction. DELIVER_VIA_QUEUE controls an additional outbox insert. After commit, a relay publishes the row. A consumer records an inbox row and dispatches an external subscriber without republishing. Failed messages can enter a dead-letter queue.</desc>
                     <defs>
                         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                             <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
@@ -660,8 +638,9 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 <li><code>IntegrationEventTransaction::execute()</code> starts a Doctrine transaction.</li>
                 <li>The callback reads or changes domain state and can run synchronous domain listeners.</li>
                 <li>The callback returns the complete <code>IntegrationEvent</code>.</li>
-                <li>The transaction inserts the event into <code>integration_event_outbox</code>.</li>
-                <li>The transaction commits both changes or rolls back both changes.</li>
+                <li>The transaction passes the event to <code>ContainerAwareEventManager</code>, which runs local subscribers for both delivery modes.</li>
+                <li>When <code>DELIVER_VIA_QUEUE</code> is true, the event manager appends one row through <code>IntegrationEventOutbox</code>.</li>
+                <li>The transaction commits business writes, local subscriber writes, and the optional outbox row together. Any failure rolls back those writes.</li>
                 <li>The relay later claims the oldest available row and publishes it.</li>
             </ol>
 
@@ -678,7 +657,7 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
 
             <div class="callout warning">
                 <strong>Keep external input and output outside the transaction</strong>
-                The transactional callback must not call a network service, process, or filesystem.
+                The transactional callback and local integration subscribers must not call a network service, process, or filesystem.
             </div>
 
             <h3>Relay state flow</h3>
@@ -947,7 +926,12 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                         <tr>
                             <td><code>bin/backendbase outbox:relay --limit=100</code></td>
                             <td>Limit: 1–1000. Processes oldest available messages first.</td>
-                            <td>Returns failure when one or more publications fail.</td>
+                            <td>Runs one batch. Returns failure when one or more publications fail.</td>
+                        </tr>
+                        <tr>
+                            <td><code>bin/backendbase outbox:relay --continuous --limit=100</code></td>
+                            <td>Drains full batches. Checks again about 250 ms after a partial or empty batch.</td>
+                            <td>Long-running process. Report publication failures and stop it with the process supervisor.</td>
                         </tr>
                         <tr>
                             <td><code>bin/backendbase outbox:status --max-pending-age=300</code></td>
@@ -968,22 +952,27 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 </table>
             </div>
 
-            <h3>Consumer process examples</h3>
+            <h3>Background process examples</h3>
             <div class="code-wrap">
-                <pre><code># Integration events
+                <pre><code># Start each command in its own terminal or supervised process.
+bin/backendbase outbox:relay --continuous --limit=100
 bin/backendbase queue:consume backendbase-queue</code></pre>
             </div>
 
+            <h3>Greeting example</h3>
+            <p>Send <code>POST /examples/hello</code> to the Example API with JSON <code>{"fullname":"Ada Lovelace"}</code>. Supply the API key, bearer token, and <code>example.add</code> privilege. A <code>202</code> response means the request is stored in the outbox.</p>
+            <p>Keep the continuous relay and consumer running to publish it. The consumer writes <code>hello Ada Lovelace</code> to its standard output. Output can repeat if the worker fails after writing but before the inbox transaction commits.</p>
+
             <div class="callout">
                 <strong>Use a process supervisor</strong>
-                Run consumers with systemd, Supervisor, Kubernetes, or another service manager.
+                Run the relay and consumer as separate processes with systemd, Supervisor, Kubernetes, or another service manager.
                 Cron does not restart a failed long-running process reliably.
             </div>
         </section>
 
         <section id="cron">
             <h2>Cron commands</h2>
-            <p class="lede">These Linux crontab entries run the finite maintenance commands.</p>
+            <p class="lede">These Linux crontab entries run finite maintenance commands. Use the relay cron entry only when the continuous relay is not running.</p>
 
             <div class="callout warning">
                 <strong>Assumption</strong>
@@ -991,13 +980,13 @@ bin/backendbase queue:consume backendbase-queue</code></pre>
                 These examples also require <code>flock</code>.
             </div>
 
-            <h3>Recommended crontab</h3>
+            <h3>Finite command crontab</h3>
             <div class="code-wrap">
                 <pre><code>SHELL=/bin/sh
 PATH=/usr/local/bin:/usr/bin:/bin
 APP_DIR=/srv/backendbase/current
 
-# Publish pending outbox messages every minute. Skip overlapping runs.
+# Optional: publish pending outbox messages every minute when no continuous relay runs.
 * * * * * cd "$APP_DIR" &amp;&amp; flock -n var/run/outbox-relay.lock bin/backendbase outbox:relay --limit=100 &gt;&gt; var/logs/outbox-relay.log 2&gt;&amp;1
 
 # Check outbox health every five minutes.
@@ -1085,7 +1074,7 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
 
         <section id="schema">
             <h2>Database records</h2>
-            <p class="lede">Five migrations create and extend three message-control tables.</p>
+            <p class="lede">The first migration creates all three message-control tables with their final columns and indexes.</p>
 
             <div class="grid">
                 <article class="card">
@@ -1142,7 +1131,7 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
                 </li>
                 <li>
                     <strong>Declare stable constants.</strong>
-                    Add <code>EVENT_TYPE</code>, <code>EVENT_VERSION</code>, and <code>IS_MESSAGING_EVENT = true</code>.
+                    Add <code>EVENT_TYPE</code>, <code>EVENT_VERSION</code>, and <code>DELIVER_VIA_QUEUE = true</code>.
                 </li>
                 <li>
                     <strong>Create a versioned payload.</strong>
@@ -1193,12 +1182,12 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
                         <tr>
                             <td>Pending count grows.</td>
                             <td>Run <code>outbox:status</code>. Check relay logs and broker access.</td>
-                            <td>Restore the broker or credentials. Run <code>outbox:relay</code> again.</td>
+                            <td>Restore the broker or credentials. Confirm that the continuous relay is running.</td>
                         </tr>
                         <tr>
                             <td>Retried outbox rows exist.</td>
                             <td>Inspect <code>attempts</code>, <code>last_error</code>, and <code>available_at</code>.</td>
-                            <td>Fix publication. The scheduled relay will retry automatically.</td>
+                            <td>Fix publication. The running relay retries when <code>available_at</code> permits it.</td>
                         </tr>
                         <tr>
                             <td>Consumer repeats one message.</td>
@@ -1306,13 +1295,14 @@ ORDER BY received_at DESC;</code></pre>
                         <tr><td>RabbitMQ adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php</code></td></tr>
                         <tr><td>SQS adapter, transport diagnostics, and envelope</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php</code>, <code>SqsTransport.php</code>, <code>SqsMessageMapper.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
+                        <tr><td>Conditional outbox insertion</td><td><code>src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php</code>, <code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php</code></td></tr>
                         <tr><td>Relay policy and orchestration</td><td><code>src/Backendbase/Application/Messaging/OutboxRelayService.php</code>, <code>OutboxRetryPolicy.php</code></td></tr>
                         <tr><td>Relay persistence and publication adapters</td><td><code>DoctrineOutboxMessageStore.php</code>, <code>OutboxMessagePublisher.php</code></td></tr>
                         <tr><td>Integration consumer</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
                         <tr><td>Inbox controls</td><td><code>DoctrineInboxMessageTransaction.php</code>, <code>DoctrineExternalEffectInbox.php</code></td></tr>
                         <tr><td>Failure policy and persistence</td><td><code>QueueMessageFailureService.php</code>, <code>DoctrineQueueMessageFailureStore.php</code></td></tr>
                         <tr><td>Operations commands</td><td><code>src/Backendbase/Infrastructure/UseCase/Console/Queue/</code></td></tr>
-                        <tr><td>Database schema</td><td><code>resources/database/Migrations/Version20260825000000.php</code> through <code>Version20260825040000.php</code></td></tr>
+                        <tr><td>Database schema</td><td><code>resources/database/Migrations/Version20260823000000.php</code></td></tr>
                         <tr><td>Reference event</td><td><code>src/Backendbase/Domain/ExampleBoundedContext/</code></td></tr>
                     </tbody>
                 </table>

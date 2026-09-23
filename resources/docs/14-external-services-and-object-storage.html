@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase External Services and Object Storage Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase External Services and Object Storage Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Integration boundaries</p><h1>External Services and Object Storage</h1>
 <p class="lede">Integration ownership, configuration, dependency injection, failure policy, S3 uploads, signed requests, tests, and the current operational limits.</p>
 <div class="chips"><span class="chip">Ports</span><span class="chip">Adapters</span><span class="chip">AWS S3</span><span class="chip">Timeouts</span><span class="chip">Tests</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#boundary">2. Integration boundary</a><a href="#workflow">3. Add a service</a><a href="#configuration">4. Configuration</a>
 <a href="#failures">5. Failure policy</a><a href="#storage-flow">6. Object-storage flow</a><a href="#downloads">7. Download URLs</a><a href="#uploads">8. Server uploads</a>
 <a href="#signed-post">9. Browser uploads</a><a href="#wiring">10. S3 wiring</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Keep vendor details at the infrastructure boundary</h2>
 <p>Application and domain code must depend on a project-owned port. An infrastructure adapter owns the vendor Software Development Kit (SDK), request mapping, and response mapping.</p>
 <div class="grid-3"><article class="card"><h3>Port</h3><p>Defines the capability in project terms.</p></article><article class="card"><h3>Adapter</h3><p>Maps the port to one vendor API.</p></article><article class="card"><h3>Composition</h3><p>Builds the client and adapter in the dependency container.</p></article></div>
@@ -60,6 +62,6 @@ vendor/bin/phpunit tests/Shared/Integrations</code></pre>
 <section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Storage port</td><td><code>src/Backendbase/Shared/Integrations/BucketService.php</code></td></tr><tr><td>S3 adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/S3Bucket.php</code></td></tr>
 <tr><td>Object-store settings</td><td><code>config/autoload/object-store.global.php</code></td></tr><tr><td>Dependency wiring</td><td><code>config/dependencies/aws.php</code></td></tr>
-<tr><td>External-service workflow</td><td><code>resources/docs/skills/add-external-service</code></td></tr>
+<tr><td>External-service workflow</td><td><code>resources/skills/backendbase-add-external-service/SKILL.md</code></td></tr>
 </tbody></table></div></section>
 </main></div><footer>Backendbase Core · External services and object storage guide</footer></body></html>

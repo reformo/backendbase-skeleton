@@ -73,7 +73,8 @@ Edit source release configuration, not generated release artifacts. Adapt the ma
 
 - `migrations.json` sets `all_or_nothing` to false and global `transactional` to true.
 - `BackendbaseAbstractMigration` overrides `isTransactional()` to false because MySQL DDL can implicitly commit and break Doctrine savepoints.
-- The shared migration base is tested, but the seven existing migration files still extend Doctrine `AbstractMigration`. Treat those files as historical SQL references, not the preferred new base.
+- The first migration `Version20260823000000` creates all integration-event tables and indexes. It and the account migration extend `BackendbaseAbstractMigration`. Two older Example migrations extend Doctrine `AbstractMigration`.
+- Existing databases that applied the former five messaging migrations cannot run the rewritten first migration directly. Compare their schema and Doctrine version records, then plan adoption before deployment. Do not delete their message data or mark a version applied without verification.
 - Use `IF NOT EXISTS` only when the migration has an explicit adoption plan and validates the complete existing schema.
 - `bin/doctrine` uses relative paths and must run from the repository root.
 - The CLI schema filter discovers direct context service tables and the Doctrine metadata table. Nested context entity discovery is not fully symmetric.

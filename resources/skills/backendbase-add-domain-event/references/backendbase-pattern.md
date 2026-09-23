@@ -7,7 +7,7 @@
 | Event contract | `Catalog/Contracts/DomainEvents` |
 | Listener | `Catalog/Application/DomainEventListener` |
 | Publish orchestration | The owning command handler or application service |
-| Publisher implementation | Shared container-aware publisher |
+| Publisher implementation | Infrastructure adapter for the shared publisher port |
 | Focused evidence | Context-owned event, listener, handler, composition, and lifecycle tests |
 
 `Catalog` is illustrative. Use the discovered owning context.
@@ -57,13 +57,15 @@ Use project-owned ports for listener effects. Do not add the illustrative projec
 Synchronous publication participates in rollback only when it runs inside the transaction that owns the write. Publish after the required persistence operation and before the callback returns:
 
 ```php
-$transaction->execute($realIntegrationEvent, function () use ($item, $domainEvent): void {
+$transaction->execute(function () use ($item, $domainEvent, $realIntegrationEvent): IntegrationEvent {
     $this->repository->save($item);
     $this->domainEventPublisher->publish($domainEvent);
+
+    return $realIntegrationEvent;
 });
 ```
 
-Use this exact outbox transaction shape only when the use case already requires the real integration event. A domain event does not justify an outbound event. When no outbound fact exists, use the target project's ordinary transaction abstraction or stop and report the missing capability.
+Use this transaction shape only when the use case already requires an integration event. The event can use local delivery or queue delivery. A domain event alone does not justify creating an integration event. When no integration event exists, use the target project's ordinary transaction abstraction or stop and report the missing capability.
 
 Do not put network, broker, process, or filesystem work in a transactional listener. Do not call the internal integration-event manager from the command handler.
 

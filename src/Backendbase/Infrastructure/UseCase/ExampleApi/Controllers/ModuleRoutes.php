@@ -11,6 +11,7 @@ namespace Backendbase\Infrastructure\UseCase\ExampleApi\Controllers;
 
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\ModuleConfig as AccountModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ModuleConfig as ExampleModuleConfig;
+use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Greeting\ModuleConfig as GreetingModuleConfig;
 
 class ModuleRoutes
 {
@@ -21,6 +22,7 @@ class ModuleRoutes
     {
         $this->addModule(AccountModuleConfig::ROUTE_KEY, AccountModuleConfig::class);
         $this->addModule(ExampleModuleConfig::ROUTE_KEY, ExampleModuleConfig::class);
+        $this->addModule(GreetingModuleConfig::ROUTE_KEY, GreetingModuleConfig::class);
     }
 
     /** @param class-string $moduleFQCN */

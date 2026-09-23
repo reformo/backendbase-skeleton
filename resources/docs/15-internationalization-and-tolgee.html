@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Internationalization and Tolgee Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Internationalization and Tolgee Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Language resources</p><h1>Internationalization and Tolgee</h1>
 <p class="lede">Runtime locale selection, local dictionaries, placeholders, missing-key behavior, Tolgee synchronization scripts, secure configuration, and current source-to-skill differences.</p>
 <div class="chips"><span class="chip">Translator</span><span class="chip">Accept-Language</span><span class="chip">Local dictionaries</span><span class="chip">Tolgee</span><span class="chip">Cron</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#runtime">2. Runtime flow</a><a href="#locale">3. Locale selection</a><a href="#dictionary">4. Dictionaries</a><a href="#translate">5. Translation calls</a>
 <a href="#missing">6. Missing keys</a><a href="#tolgee">7. Tolgee role</a><a href="#push">8. Local to Tolgee</a><a href="#pull">9. Tolgee to local</a><a href="#cron">10. Commands and cron</a>
 <a href="#security">11. Security and limits</a><a href="#mismatch">12. Current differences</a><a href="#tests">13. Tests</a><a href="#checklist">14. Checklist</a><a href="#sources">15. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>The runtime reads local PHP dictionaries</h2>
 <p><code>Translator</code> does not call Tolgee while it handles an HTTP request. The dependency container loads <code>resources/i18n/*.php</code> and selects one local locale.</p>
 <div class="grid-3"><article class="card"><h3>Runtime</h3><p>Loads local files and translates keys.</p></article><article class="card"><h3>Source workflow</h3><p>Synchronizes local keys with Tolgee.</p></article><article class="card"><h3>Deployment</h3><p>Must deliver generated local dictionaries.</p></article></div>
@@ -16,9 +18,9 @@
 <section id="runtime"><p class="section-label">02 · Runtime flow</p><h2>Translation stays inside the process</h2>
 <div class="diagram-wrap"><ol class="flow"><li><strong>Request</strong><small>has Accept-Language</small></li><li><strong>Container</strong><small>selects locale</small></li><li><strong>PHP files</strong><small>load dictionaries</small></li><li><strong>Translator</strong><small>looks up key</small></li><li><strong>Values</strong><small>replace placeholders</small></li><li><strong>Caller</strong><small>receives text or array</small></li></ol></div>
 <p>This flow has no runtime network request and no runtime Redis dependency.</p></section>
-<section id="locale"><p class="section-label">03 · Locale selection</p><h2>Use the first supported <code>Accept-Language</code> value</h2>
+<section id="locale"><p class="section-label">03 · Locale selection</p><h2>Check only the first <code>Accept-Language</code> value</h2>
 <ol class="steps"><li>Read <code>HTTP_ACCEPT_LANGUAGE</code>.</li><li>Use <code>tr-TR</code> when the header is missing or empty.</li><li>Take the first comma-separated language value.</li><li>Remove its optional quality weight.</li><li>Use <code>tr-TR</code> when no matching PHP file exists.</li></ol>
-<div class="callout warning">The current selector does not negotiate language ranges. For example, <code>en</code> does not match <code>en-US.php</code>.</div></section>
+<div class="callout warning">The selector does not try later header values when the first is unsupported. It does not negotiate language ranges. For example, <code>en</code> does not match <code>en-US.php</code>.</div></section>
 <section id="dictionary"><p class="section-label">04 · Dictionaries</p><h2>Use nested arrays with stable dotted keys</h2>
 <pre><code>return [
     'general' =&gt; [

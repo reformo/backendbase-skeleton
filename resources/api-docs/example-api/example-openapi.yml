@@ -162,6 +162,8 @@ paths:
     $ref: "./example/examples.yaml"
   /example-types/{type-slug}/groups/{example-group}/examples/{example-key}:
     $ref: "./example/example-details.yaml"
+  /examples/hello:
+    $ref: "./example/hello.yaml"
   /accounts:
     $ref: "./account/accounts.yaml"
   /accounts/{account-uuid}:

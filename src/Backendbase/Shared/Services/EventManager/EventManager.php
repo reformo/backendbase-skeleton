@@ -11,8 +11,10 @@ use Backendbase\Shared\Domain\Messaging\IntegrationEventSubscriber;
 
 interface EventManager
 {
+    /** Run local subscribers and optionally append to the outbox inside the active database transaction. */
     public function dispatchEvent(IntegrationEvent $event): void;
 
+    /** Run queue subscribers without publishing the received event again. */
     public function dispatchExternalEvent(string $eventName, EventMessage $message): void;
 
     /** @return array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>> */

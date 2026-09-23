@@ -59,7 +59,7 @@ final class InvoiceIssued implements IntegrationEvent
 {
     public const string EVENT_TYPE = 'Billing_InvoiceIssued';
     public const string EVENT_VERSION = '1.0';
-    public const bool IS_MESSAGING_EVENT = true;
+    public const bool DELIVER_VIA_QUEUE = true;
 
     use IntegrationEventTrait;
 
@@ -107,6 +107,8 @@ $this->integrationEventTransaction->execute(
 
 Do not pass the command or aggregate into the payload. The callback can mutate database state and run synchronous work that must control rollback. It cannot publish to a broker or call a remote service.
 
+In an unmodified Backendbase project, the transaction dispatches the returned event before commit. Registered local integration subscribers run synchronously. Their repositories share the transaction connection, and their failures roll back the command. Discover the corresponding dispatch owner in other target projects.
+
 ## Workflow
 
 1. Define the stable business fact and owning service.
@@ -123,7 +125,9 @@ Do not pass the command or aggregate into the payload. The callback can mutate d
 ## Invariants and risks
 
 - `EVENT_TYPE`, version, and serialized payload form one compatibility contract.
-- `IS_MESSAGING_EVENT` is a convention. Backendbase outbox storage does not check it before insertion.
+- Backendbase runs local subscribers for both `DELIVER_VIA_QUEUE` values. A true flag also appends one outbox row after local subscribers complete. A false flag keeps delivery local.
+- Producer dispatch requires an active transaction. The command writes, local subscriber writes, and optional outbox row share one connection and commit or roll back together.
+- A queued event can publish without local subscribers. Queue consumption must not republish the received event.
 - Use explicit JSON-compatible scalars and arrays.
 - Do not serialize commands, aggregates, Doctrine entities, or vendor objects.
 - Direct broker publication from a command handler loses atomicity.

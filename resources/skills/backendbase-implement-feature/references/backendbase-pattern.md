@@ -133,13 +133,15 @@ A handler coordinates work. Put state rules on the model. Put database and provi
 For a database change and an external integration event, use one local transaction:
 
 ```php
-$this->transaction->execute($integrationEvent, function () use ($aggregate, $domainEvent): void {
+$this->transaction->execute(function () use ($aggregate, $domainEvent, $integrationEvent): IntegrationEvent {
     $this->repository->add($aggregate);
     $this->domainEventPublisher->publish($domainEvent);
+
+    return $integrationEvent;
 });
 ```
 
-The transaction must write the business state and outbox row together. It must not call a broker, network service, process, or filesystem inside the callback.
+The transaction must commit business state, local integration subscriber writes, and optional outbox publication together. In unmodified Backendbase, the wrapper dispatches the returned event before commit. Both `DELIVER_VIA_QUEUE` values run local subscribers; true also appends one outbox row. The callback and local subscribers must not call a broker, network service, process, or filesystem. Discover the corresponding transaction and dispatch owners in other target projects.
 
 Consumers remain at-least-once. Use inbox idempotency for database work and an external-effect inbox for provider calls. Keep external event contracts versioned.
 
@@ -177,11 +179,11 @@ Backendbase discovers context service providers one directory below `src/Backend
 Do not copy these current source conditions into new work:
 
 - The sample version 1 producer and registered carrier use a nested `command` shape. Preserve exact producer-to-carrier mapping through the real dispatcher.
-- Some sample API runtime fields, pagination behavior, status codes, and OpenAPI declarations differ. Make the runtime, specification, and tests agree.
+- Shared-header enforcement, CORS, and the OpenAPI `datetime` timestamp format still need alignment. Pagination and security failure status codes match their documented behavior.
 - The sample aggregate does not automatically drain recorded events. Its command handler publishes a domain event explicitly.
 - New Backendbase migrations should extend `BackendbaseAbstractMigration`. Older migrations use a different base.
 - Direct Doctrine entity paths have broader tool support than nested entity paths in the current repository.
-- The notification example has incomplete provider wiring. Treat its interfaces and failure model as evidence, not the whole implementation.
+- Notification providers are wired, but no notification queue contract or consumer is registered. Define complete message and provider contracts for queued delivery.
 - The object-storage example has retry, content-type, and response-type limits. Add bounded retry and preserve object metadata.
 - `en-US.php` currently loads the Turkish dictionary. Use language-correct catalogs in new projects.
 - Shared object mapping drops unknown keys and permits scalar coercion. Use explicit boundary validation when the contract is strict.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase Integration Events</title>
     <style>
         :root {
@@ -452,37 +452,7 @@
             .contract-arrow { min-height: 34px; transform: rotate(90deg); }
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #100d17;
-                --surface: #191522;
-                --surface-soft: #211b2d;
-                --ink: #f3effa;
-                --muted: #b8aec7;
-                --line: #362e45;
-                --brand: #b69af5;
-                --brand-strong: #d2c2ff;
-                --brand-soft: #302451;
-                --cyan: #77d4dc;
-                --cyan-soft: #143b40;
-                --green: #72d5b8;
-                --green-soft: #163b31;
-                --amber: #f2c85a;
-                --amber-soft: #3b3012;
-                --red: #ff9c93;
-                --red-soft: #40201f;
-                --shadow: 0 16px 42px rgba(0,0,0,0.24);
-            }
-            .node { stroke: #756987; }
-            .node.brand { stroke: #8f75cd; }
-            .node.cyan { stroke: #4c939a; }
-            .node.green { stroke: #4c9a84; }
-            .node.amber { stroke: #ad872c; }
-            .node.red { stroke: #ae6660; }
-            .flow-line { stroke: #a89bb9; }
-            .flow-line.alt { stroke: #6bc8d0; }
-            .flow-line.fail { stroke: #e67d74; }
-        }
+
 
         @media print {
             :root { color-scheme: light; }
@@ -495,8 +465,10 @@
             a { color: inherit; text-decoration: none; }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Developer Guide</p>
@@ -510,7 +482,7 @@
             <span class="pill">Transactional outbox</span>
             <span class="pill">Versioned consumers</span>
             <span class="pill">Subscriber registry</span>
-            <span class="pill">Source snapshot: 25 August 2026</span>
+            <span class="pill">Source review: 23 September 2026</span>
         </div>
     </div>
 </header>
@@ -530,12 +502,12 @@
         <a href="#registration">Registration</a>
         <a href="#testing">Testing</a>
         <a href="#current-events">Current events</a>
-        <a href="#known-issue">Known contract issue</a>
+        <a href="#known-issue">Version-one compatibility</a>
         <a href="#checklist">Implementation checklist</a>
         <a href="#source-map">Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
             <p class="lede">
@@ -550,7 +522,7 @@
                 </article>
                 <article class="card">
                     <span class="metric">Atomic record</span>
-                    <p>The domain mutation and outbox insert commit or roll back together.</p>
+                    <p>Business writes, local subscriber writes, and the optional outbox insert commit or roll back together.</p>
                 </article>
                 <article class="card">
                     <span class="metric">Idempotent intake</span>
@@ -581,13 +553,13 @@
                         <tr>
                             <td>Producer integration event</td>
                             <td>Defines the published event name, version, time, and payload.</td>
-                            <td>Stored by <code>IntegrationEventTransaction</code>.</td>
+                            <td>Dispatched before commit by <code>IntegrationEventTransaction</code>. The flag controls additional outbox publication.</td>
                             <td><code>IntegrationEvent</code></td>
                         </tr>
                         <tr>
                             <td>Internal integration subscriber</td>
                             <td>Handles an <code>IntegrationEvent</code> in the current process.</td>
-                            <td>Only an explicit <code>EventManager::dispatchEvent()</code> call invokes it.</td>
+                            <td>The producer transaction calls <code>EventManager::dispatchEvent()</code> before commit.</td>
                             <td><code>IntegrationEventSubscriber</code></td>
                         </tr>
                         <tr>
@@ -609,7 +581,7 @@
             <div class="callout warning">
                 <strong>Internal subscribers are not part of the outbox consumer path</strong>
                 The queue processor dispatches only <code>ExternalIntegrationEventSubscriber</code> implementations.
-                Project rules also prohibit direct <code>dispatchEvent()</code> calls from command handlers.
+                Command handlers return the event from the transaction callback. The transaction wrapper owns producer dispatch.
             </div>
         </section>
 
@@ -620,7 +592,7 @@
             <figure class="diagram">
                 <svg viewBox="0 0 1120 485" role="img" aria-label="Integration event lifecycle">
                     <title>Integration event lifecycle</title>
-                    <desc>A command creates a versioned integration event. One transaction writes domain data and an outbox row. A relay publishes the event. A consumer records an inbox row, maps a versioned message, and invokes an external subscriber.</desc>
+                    <desc>A command returns a versioned integration event. The event manager runs local subscribers inside the same transaction. When DELIVER_VIA_QUEUE is true, it also writes an outbox row. After commit, a relay publishes the event. A consumer records an inbox row, maps a versioned message, and invokes an external subscriber without republishing.</desc>
                     <defs>
                         <marker id="event-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                             <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
@@ -633,15 +605,15 @@
 
                     <rect class="node brand" x="238" y="60" width="178" height="74" rx="12"></rect>
                     <text class="node-title" x="327" y="88" text-anchor="middle">IntegrationEvent</text>
-                    <text class="node-note" x="327" y="110" text-anchor="middle">name + version + payload</text>
+                    <text class="node-note" x="327" y="110" text-anchor="middle">Dispatch locally</text>
 
                     <rect class="node cyan" x="470" y="24" width="182" height="74" rx="12"></rect>
-                    <text class="node-title" x="561" y="52" text-anchor="middle">Domain tables</text>
+                    <text class="node-title" x="561" y="52" text-anchor="middle">Domain + local writes</text>
                     <text class="node-note" x="561" y="74" text-anchor="middle">Business mutation</text>
 
                     <rect class="node cyan" x="470" y="132" width="182" height="74" rx="12"></rect>
                     <text class="node-title" x="561" y="160" text-anchor="middle">Outbox row</text>
-                    <text class="node-note" x="561" y="182" text-anchor="middle">Same DB transaction</text>
+                    <text class="node-note" x="561" y="182" text-anchor="middle">Only when flag is true</text>
 
                     <rect class="node amber" x="706" y="132" width="158" height="74" rx="12"></rect>
                     <text class="node-title" x="785" y="160" text-anchor="middle">Relay + queue</text>
@@ -706,7 +678,7 @@
                         <tr><td><code>occurredOn()</code></td><td>Time when the domain fact occurred.</td><td><code>integration_event_outbox.occurred_at</code></td></tr>
                         <tr><td><code>getEventArguments()</code></td><td>JSON-compatible payload object.</td><td><code>integration_event_outbox.payload</code></td></tr>
                         <tr><td><code>toArray()</code></td><td>Array form for logs and serialization.</td><td>Delegates to <code>getEventArguments()</code> in the trait.</td></tr>
-                        <tr><td><code>isExternal()</code></td><td>Returns the <code>IS_MESSAGING_EVENT</code> flag.</td><td>Project convention for outbox events.</td></tr>
+                        <tr><td><code>isExternal()</code></td><td>Returns the <code>DELIVER_VIA_QUEUE</code> flag.</td><td>Controls the outbox insert after local subscribers run.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -716,7 +688,7 @@
                 <pre><code>final class ExampleChanged implements IntegrationEvent
 {
     public const string EVENT_VERSION = '1.0';
-    public const bool IS_MESSAGING_EVENT = true;
+    public const bool DELIVER_VIA_QUEUE = true;
     public const string EVENT_TYPE = 'Example_ExampleChanged';
 
     use IntegrationEventTrait;
@@ -744,9 +716,10 @@
             </div>
 
             <div class="callout warning">
-                <strong>The external flag is a convention, not a transaction guard</strong>
-                <code>DoctrineIntegrationEventTransaction</code> stores every event returned from the <code>execute()</code> callback.
-                It does not call <code>isExternal()</code> before insertion.
+                <strong>Local delivery always runs; queue delivery is additional</strong>
+                <code>DELIVER_VIA_QUEUE = false</code> runs local subscribers only.
+                <code>true</code> also appends one outbox row after local subscribers complete.
+                Producer dispatch requires an active database transaction, even for local-only delivery.
             </div>
         </section>
 
@@ -815,10 +788,11 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
             <ol class="steps">
                 <li><strong>Start one Doctrine transaction.</strong></li>
                 <li><strong>Run the database mutation callback.</strong></li>
-                <li><strong>Serialize <code>getEventArguments()</code> as JSON.</strong></li>
-                <li><strong>Insert a UUID version 7 outbox row.</strong></li>
-                <li><strong>Commit both writes or roll back both writes.</strong></li>
+                <li><strong>Dispatch the returned event to local subscribers inside that transaction.</strong></li>
+                <li><strong>For <code>DELIVER_VIA_QUEUE = true</code>, serialize the payload and insert one UUID version 7 outbox row.</strong></li>
+                <li><strong>Commit all database writes or roll them back together when a subscriber or outbox write fails.</strong></li>
             </ol>
+            <p>Subscriber repositories and the outbox adapter must use the same database connection. A true flag publishes even when no local subscriber is registered. Queue consumption uses <code>dispatchExternalEvent()</code> and never republishes the received event.</p>
 
             <div class="grid">
                 <article class="card">
@@ -844,8 +818,8 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
         <section id="versioning">
             <h2>Payloads and versions</h2>
             <p class="lede">
-                The producer payload and consumer message carrier are separate classes.
-                Their serialized shapes must still match for a given event version.
+                The <code>NewExampleAdded</code> producer payload and consumer message carrier are separate classes.
+                Their serialized shapes must match for a given event version. The greeting example registers its immutable <code>GreetingRequestedPayload</code> as both payload and <code>EventMessage</code> carrier.
             </p>
 
             <div class="table-wrap">
@@ -888,23 +862,24 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 {
     public function __construct(
         private string $exampleId,
-        private string $type,
-        private int|null $typeTargetId,
-        private string $group,
-        private bool $isActive,
-        private string $key,
-        private string $value,
-        private array $details,
+        private NewExampleAddedCommand $command,
     ) {
+        if ($exampleId !== $command-&gt;exampleId()) {
+            throw new UnexpectedValueException('The external example identifiers must match.');
+        }
     }
 
     public function toArray(): array
     {
         return [
             'exampleId' =&gt; $this-&gt;exampleId,
-            'type' =&gt; $this-&gt;type,
-            // Remaining fields...
+            'command' =&gt; $this-&gt;command-&gt;toArray(),
         ];
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this-&gt;toArray();
     }
 }</code></pre>
             </div>
@@ -955,9 +930,9 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                         <tr><td>Interface</td><td><code>IntegrationEventSubscriber</code></td><td><code>ExternalIntegrationEventSubscriber</code></td></tr>
                         <tr><td>Location</td><td><code>Application/IntegrationEventSubscribers</code></td><td><code>Application/ExternalIntegrationEventSubscribers/{SourceService}</code></td></tr>
                         <tr><td>Input</td><td><code>IntegrationEvent</code></td><td><code>EventMessage</code></td></tr>
-                        <tr><td>Invocation</td><td>Explicit <code>EventManager::dispatchEvent()</code></td><td>Queue processor calls <code>dispatchExternalEvent()</code></td></tr>
+                        <tr><td>Invocation</td><td>Producer transaction calls <code>EventManager::dispatchEvent()</code></td><td>Queue processor calls <code>dispatchExternalEvent()</code></td></tr>
                         <tr><td>Version registry</td><td>Not used.</td><td>Required.</td></tr>
-                        <tr><td>Outbox path</td><td>Not automatic.</td><td>Yes.</td></tr>
+                        <tr><td>Outbox write</td><td>After local dispatch when <code>DELIVER_VIA_QUEUE</code> is true.</td><td>None. Received events are not republished.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -976,7 +951,8 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
     /** @param NewExampleAddedMessage $message */
     public function handle(EventMessage $message): void
     {
-        $this-&gt;logger-&gt;debug('NewExampleAdded', $message-&gt;toArray());
+        $this-&gt;logger-&gt;debug('NewExampleAddedExternalSubscriber', $message-&gt;toArray());
+        $this-&gt;logger-&gt;debug('External Done');
     }
 
     public static function getSubscribedEvents(): array
@@ -985,6 +961,8 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
     }
 }</code></pre>
             </div>
+
+            <p>The sample subscribers log complete event payloads at debug level. Do not use this logging pattern for sensitive payloads.</p>
 
             <h3>Exact and wildcard names</h3>
             <p>
@@ -1023,6 +1001,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
             </div>
 
             <h3>Container startup</h3>
+            <p>The subscriber registry creates a fresh instance through reflection. Subscribers need an explicit constructor, even when it is empty. Constructor dependencies resolve from the container by type, then by parameter name. A binding for the subscriber class itself does not control construction.</p>
             <ol class="steps">
                 <li>The container scans <code>src/Backendbase/Domain/*/ServiceProvider.php</code>.</li>
                 <li>It adds every subscriber entry to <code>EventManager</code>.</li>
@@ -1047,7 +1026,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                     <tbody>
                         <tr><td>Schema test</td><td>The exact version string and payload array do not change.</td><td><code>IntegrationEventSchemaTest</code></td></tr>
                         <tr><td>Command handler test</td><td>The handler passes the correct event and executes work inside the transaction callback.</td><td><code>AddNewExampleHandlerTest</code></td></tr>
-                        <tr><td>Outbox transaction test</td><td>Mutation and event commit together. Either failure rolls both back.</td><td><code>DoctrineIntegrationEventTransactionTest</code></td></tr>
+                        <tr><td>Producer transaction tests</td><td>Both flags run local subscribers. Only true writes the outbox. Subscriber and insertion failures roll back all writes.</td><td><code>DoctrineIntegrationEventTransactionTest</code>, <code>TransactionalIntegrationEventDispatchTest</code>, <code>IntegrationEventDispatchFailureTest</code></td></tr>
                         <tr><td>Registry test</td><td>Name and version resolve the expected message class. Unknown versions fail.</td><td><code>InMemoryExternalIntegrationEventRegistryTest</code></td></tr>
                         <tr><td>Mapping test</td><td>Valid producer payload maps. Missing, extra, and wrong-type fields fail.</td><td><code>ExternalIntegrationEventDispatcherTest</code></td></tr>
                         <tr><td>Processor test</td><td>Success acknowledges, duplicates do not dispatch, invalid input rejects, and transient failures retry.</td><td><code>ExternalIntegrationEventMessageProcessorTest</code></td></tr>
@@ -1091,7 +1070,7 @@ $dispatcher-&gt;dispatch(
 
         <section id="current-events">
             <h2>Current example events</h2>
-            <p class="lede">The example bounded context defines three producer integration events.</p>
+            <p class="lede">The example bounded context defines four producer integration events.</p>
 
             <div class="table-wrap">
                 <table>
@@ -1117,6 +1096,13 @@ $dispatcher-&gt;dispatch(
                             <td><code>1.0</code></td>
                             <td>Inline <code>exampleId</code> array.</td>
                             <td>None.</td>
+                        </tr>
+                        <tr>
+                            <td><code>GreetingRequested</code></td>
+                            <td><code>Example_GreetingRequested</code></td>
+                            <td><code>1.0</code></td>
+                            <td><code>V1/GreetingRequestedPayload</code></td>
+                            <td>One external subscriber. No local subscriber.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1191,7 +1177,7 @@ $dispatcher-&gt;dispatch(
                 <li><strong>Choose a stable producer event type.</strong></li>
                 <li><strong>Create a versioned producer payload with explicit fields.</strong></li>
                 <li><strong>Implement <code>IntegrationEvent</code> and use <code>IntegrationEventTrait</code>.</strong></li>
-                <li><strong>Set <code>EVENT_TYPE</code>, <code>EVENT_VERSION</code>, and <code>IS_MESSAGING_EVENT</code>.</strong></li>
+                <li><strong>Set <code>EVENT_TYPE</code>, <code>EVENT_VERSION</code>, and <code>DELIVER_VIA_QUEUE</code>.</strong></li>
                 <li><strong>Write the mutation through <code>IntegrationEventTransaction::execute()</code>.</strong></li>
                 <li><strong>Create a matching versioned external message carrier.</strong></li>
                 <li><strong>Create the external subscriber with the <code>_Event</code> name.</strong></li>
@@ -1214,6 +1200,7 @@ $dispatcher-&gt;dispatch(
                         <tr><td>Producer event interface and trait</td><td><code>src/Backendbase/Shared/Domain/Messaging/IntegrationEvent.php</code>, <code>IntegrationEventTrait.php</code></td></tr>
                         <tr><td>Message and subscriber interfaces</td><td><code>src/Backendbase/Shared/Domain/Messaging/EventMessage.php</code>, <code>IntegrationEventSubscriber.php</code>, <code>ExternalIntegrationEventSubscriber.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>
+                        <tr><td>Transactional outbox writer</td><td><code>src/Backendbase/Shared/Persistence/Outbox/IntegrationEventOutbox.php</code>, <code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php</code></td></tr>
                         <tr><td>Outbox publication</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php</code></td></tr>
                         <tr><td>Message processing and mapping</td><td><code>ExternalIntegrationEventMessageProcessor.php</code>, <code>ExternalIntegrationEventDispatcher.php</code></td></tr>
                         <tr><td>Producer-to-consumer contract evidence</td><td><code>tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php</code></td></tr>

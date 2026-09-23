@@ -29,6 +29,7 @@ use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineExternalEffectInbox;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineInboxMessageTransaction;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventOutbox;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventTransaction;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationMessageLogCleaner;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessageStore;
@@ -54,6 +55,7 @@ use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
+use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
 use Backendbase\Shared\Services\EventManager\EventManager;
@@ -79,6 +81,7 @@ final class ProductionPortBindings
             ExternalIntegrationEventRegistry::class => InMemoryExternalIntegrationEventRegistry::class,
             InboxMessageTransaction::class => DoctrineInboxMessageTransaction::class,
             IntegrationEventTransaction::class => DoctrineIntegrationEventTransaction::class,
+            IntegrationEventOutbox::class => DoctrineIntegrationEventOutbox::class,
             IntegrationMessageLogCleaner::class => DoctrineIntegrationMessageLogCleaner::class,
             MessageConsumer::class => RabbitMQ::class,
             MessagePublisher::class => RabbitMQ::class,

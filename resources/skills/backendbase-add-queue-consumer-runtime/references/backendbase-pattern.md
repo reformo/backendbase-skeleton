@@ -89,7 +89,7 @@ The command must return the same processor outcome to either adapter. Broker-spe
 ## Finite versus long-running work
 
 - Queue consumers are long-running and require systemd, Supervisor, Kubernetes, or another service manager.
-- Outbox relay, status, and cleanup are finite and belong in a scheduler or managed finite loop.
+- Outbox relay supports a finite batch and a supervised continuous mode. Status and cleanup remain finite scheduled commands. Run the continuous relay beside the consumer.
 - Cron alone does not reliably restart a failed long-running consumer.
 - Worker processes must restart after releases or effective configuration changes.
 
@@ -131,7 +131,7 @@ Report command name, processor, queue source, transport parameters, registration
 
 ## Provenance
 
-Verified on 2026-08-29 from:
+Verified against current source on 2026-09-23:
 
 - `src/Backendbase/Shared/Integrations/MessageConsumer.php`
 - `src/Backendbase/Shared/Integrations/Messaging/Message.php`

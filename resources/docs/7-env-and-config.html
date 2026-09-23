@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase Environment and Configuration Guide</title>
     <style>
         :root {
@@ -30,29 +30,7 @@
             --max: 1180px;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #0d1511;
-                --surface: #17211c;
-                --surface-soft: #1b2821;
-                --ink: #eff7f2;
-                --muted: #b1c0b6;
-                --line: #304139;
-                --green: #79d6a5;
-                --green-soft: #193728;
-                --blue: #88b9ef;
-                --blue-soft: #182d45;
-                --amber: #efc46b;
-                --amber-soft: #423718;
-                --orange: #f3a179;
-                --orange-soft: #45291d;
-                --red: #ff9d95;
-                --red-soft: #482321;
-                --code: #08110d;
-                --code-ink: #edf6f0;
-                --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
-            }
-        }
+
 
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -411,8 +389,10 @@
             section { break-inside: avoid; }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Operations Guide</p>
@@ -424,7 +404,7 @@
             <span class="chip">Environment modes</span>
             <span class="chip">Secrets</span>
             <span class="chip">Runtime cache</span>
-            <span class="chip">Source snapshot: 25 August 2026</span>
+            <span class="chip">Source review: 23 September 2026</span>
         </div>
     </div>
 </header>
@@ -455,7 +435,7 @@
         <a href="#source-map">Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
             <p>Backendbase loads configuration from PHP arrays. Environment variables supply deployment values. <code>ConfigAggregator</code> merges shared files with one API-specific directory. Typed configuration objects validate the merged values and expose focused settings to runtime services.</p>
@@ -784,7 +764,7 @@ BACKENDBASE_JWT_SIGN_KEY=&lt;base64-secret&gt;</code></pre></div>
                     <tr><td>Public API</td><td>Loads optional <code>.env</code> only when merged config cache is absent.</td><td>Shared plus selected API</td><td>Merged config, container, proxies, routes in production</td></tr>
                     <tr><td><code>bin/backendbase</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared plus optional <code>config/console/*</code></td><td>No ConfigAggregator cache path</td></tr>
                     <tr><td><code>bin/doctrine</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared, ExampleApi, and optional console</td><td>Doctrine filesystem cache outside development</td></tr>
-                    <tr><td>Base integration test</td><td>Calls <code>load()</code>, so <code>.env</code> must exist.</td><td>Shared plus ExampleApi</td><td>Container is not compiled</td></tr>
+                    <tr><td>Base test helpers</td><td>Do not load Dotenv. Isolated tests provide their own environment values.</td><td>Shared plus ExampleApi</td><td>Container is not compiled</td></tr>
                     <tr><td>Tolgee scripts</td><td>Calls <code>safeLoad()</code>.</td><td>Reads shared global config directly</td><td>None</td></tr>
                     </tbody>
                 </table>
@@ -873,7 +853,7 @@ docker compose ps</code></pre></div>
             <div class="code-wrap"><pre><code>bin/backendbase clear-cache</code></pre></div>
             <div class="callout">
                 <strong>Current exit-code behavior</strong>
-                <code>ClearCache</code> deletes cache contents but returns <code>1</code>. Automation can interpret the command as failed even after deletion.
+                <code>ClearCache</code> returns <code>0</code> after a successful clear. Deployment stops when cache clearing fails.
             </div>
         </section>
 

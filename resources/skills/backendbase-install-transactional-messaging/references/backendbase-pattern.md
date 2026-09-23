@@ -19,8 +19,9 @@ Do not assume the `Backendbase\` namespace, Doctrine, MySQL, UUIDv7, table names
 | Role | Backendbase reference | Target responsibility |
 | --- | --- | --- |
 | Producer contract | `IntegrationEvent` | Stable name, version, time, and JSON object. |
-| Atomic write port | `IntegrationEventTransaction` | Commit business work and outbox row together. |
-| Outbox adapter | `DoctrineIntegrationEventTransaction` | Use the business database transaction manager. |
+| Atomic write port | `IntegrationEventTransaction` | Commit business work, local subscribers, and optional outbox publication together. |
+| Transaction adapter | `DoctrineIntegrationEventTransaction` | Run business work and dispatch its returned event before commit. |
+| Outbox writer | `IntegrationEventOutbox` and `DoctrineIntegrationEventOutbox` | Append to the active business transaction when queue delivery is selected. |
 | Relay application service | `OutboxRelayService` | Orchestrate claims and publication. Decide claim duration and retry delay. |
 | Outbox persistence adapter | `DoctrineOutboxMessageStore` | Claim rows and apply supplied publication or failure state. |
 | Publisher | `OutboxMessagePublisher` | Map an outbox row to the project queue port. |
@@ -28,7 +29,7 @@ Do not assume the `Backendbase\` namespace, Doctrine, MySQL, UUIDv7, table names
 | External-effect inbox | `ExternalEffectInbox` | Lease non-transactional provider effects. |
 | Failure application service | `QueueMessageFailureService` | Decide permanent and bounded transient outcomes. |
 | Failure persistence adapter | `DoctrineQueueMessageFailureStore` | Record, mark, and clear supplied failure state. |
-| Operations | relay, status, cleanup commands | Expose finite, monitorable work. |
+| Operations | relay, status, cleanup commands | Expose a finite or continuous relay and finite maintenance work. |
 
 ## Minimal project-owned contracts
 
@@ -78,21 +79,18 @@ Do not apply migrations until the user authorizes the exact target database and 
 
 ## Producer transaction
 
-The callback runs before the outbox insert inside one database transaction:
+In unmodified Backendbase, the transaction dispatches the callback's returned event before commit. Adapt the event manager and transaction names to the target:
 
 ```php
-$connection->transactional(static function () use ($transactionalWork, $outbox): void {
+$connection->transactional(static function () use ($transactionalWork, $eventManager): void {
     $event = $transactionalWork();
-    $outbox->insert(
-        $event->eventName(),
-        $event->eventVersion(),
-        $event->occurredOn(),
-        $event->getEventArguments(),
-    );
+    $eventManager->dispatchEvent($event);
 });
 ```
 
-Allowed callback work is authoritative database reads, database mutation, and synchronous domain work that must control rollback. The callback returns the event after required state is known. Network, process, filesystem, and direct broker publication are not allowed.
+The event manager runs local subscribers for both `DELIVER_VIA_QUEUE` values. A true flag then appends one outbox row, including when no local subscriber exists. Direct producer dispatch requires an active transaction. Keep one outbox insertion owner, and keep consumer dispatch separate so received events are not republished.
+
+Allowed callback and local subscriber work is authoritative database reads and database mutation on the shared connection. The callback returns the event after required state is known. Network, process, filesystem, and direct broker publication are not allowed. A failure rolls back business writes, subscriber writes, and outbox writes together.
 
 ## Relay state machine
 
@@ -141,7 +139,7 @@ Backendbase records a terminal transient failure on attempt five. Align the appl
 5. Implement database inbox deduplication and rollback tests.
 6. Add external-effect leasing only when a provider consumer needs it.
 7. Implement persistent failure tracking.
-8. Add finite relay, health, and cleanup commands.
+8. Add relay, health, and cleanup commands. Backendbase supports finite and continuous relay modes; health and cleanup remain finite.
 9. Register ports and adapters through the target container.
 10. Update architecture, configuration, operations, and deployment documentation.
 
@@ -185,12 +183,14 @@ Report contracts, schema and indexes, claim and retry values, exactly-once discl
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified against current source on 2026-09-23:
 
 - `src/Backendbase/Shared/Persistence/IntegrationEventTransaction.php`
 - `src/Backendbase/Shared/Persistence/InboxMessageTransaction.php`
 - `src/Backendbase/Shared/Persistence/ExternalEffectInbox.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php`
+- `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php`
+- `src/Backendbase/Shared/Persistence/Outbox/IntegrationEventOutbox.php`
 - `src/Backendbase/Application/Messaging/OutboxRelayService.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`
@@ -198,7 +198,7 @@ Verified on 2026-08-25 from:
 - `src/Backendbase/Application/Messaging/QueueMessageFailureService.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php`
-- `resources/database/Migrations/Version20260825000000.php` through `Version20260825040000.php`
+- `resources/database/Migrations/Version20260823000000.php`
 - `resources/platform/11-messaging-outbox.md`
 - `resources/platform/12-messaging-consumers.md`
 - `resources/docs/3-integration-events.html`

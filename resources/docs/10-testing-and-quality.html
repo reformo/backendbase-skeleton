@@ -1,19 +1,22 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Testing and Quality Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Testing and Quality Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Verification strategy</p><h1>Testing and Quality</h1>
 <p class="lede">Test ownership, fast feedback, database evidence, API checks, coverage, static analysis, coding standards, automation, and completion criteria.</p>
-<div class="chips"><span class="chip">PHPUnit 13</span><span class="chip">PHPStan level 8</span><span class="chip">Complexity ≤ 15</span><span class="chip">PHPCS</span><span class="chip">Coverage</span><span class="chip">Architecture tests</span></div></div></header>
+<div class="chips"><span class="chip">PHPUnit 13</span><span class="chip">PHPStan level 8</span><span class="chip">Complexity ≤ 12</span><span class="chip">PHPCS</span><span class="chip">Coverage</span><span class="chip">Architecture tests</span></div></div></header>
 <div class="layout"><nav aria-label="Page contents"><strong>Contents</strong>
 <a href="#overview">1. Overview</a><a href="#layout">2. Suite layout</a><a href="#layers">3. Test layers</a><a href="#fast">4. Fast tests</a>
 <a href="#database">5. Database tests</a><a href="#api">6. API and contract</a><a href="#static">7. Static checks</a><a href="#coverage">8. Coverage</a>
 <a href="#workflow">9. Verification workflow</a><a href="#automation">10. Automation state</a><a href="#gaps">11. Current gaps</a><a href="#commands">12. Commands</a><a href="#sources">13. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
 <p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
-<div class="summary-grid"><div class="stat"><strong>73</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
+<div class="summary-grid"><div class="stat"><strong>150</strong><span>PHP test classes</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
 </section>
 <section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
+<p>The test-class count uses <code>*Test.php</code> files under both suite roots, inspected on 23 September 2026.</p>
 <div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
 <tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Aggregates, handlers, contracts, repositories, and provider tests</td></tr>
 <tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS, primitives, HTTP, persistence, services</td></tr>

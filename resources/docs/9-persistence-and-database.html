@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Persistence and Database Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Persistence and Database Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Storage boundary</p><h1>Persistence and Database</h1>
 <p class="lede">Read and write ports, Doctrine ORM records, DBAL projections, mapping validation, migrations, seeders, transactions, and database tests.</p>
 <div class="chips"><span class="chip">Doctrine ORM</span><span class="chip">DBAL</span><span class="chip">MySQL</span><span class="chip">Migrations</span><span class="chip">Seeders</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#architecture">2. Architecture</a><a href="#write">3. Write persistence</a><a href="#read">4. Read projections</a>
 <a href="#mapping">5. Record mapping</a><a href="#discovery">6. Discovery and types</a><a href="#migrations">7. Migrations</a><a href="#seeders">8. Seeders</a>
 <a href="#transactions">9. Transactions</a><a href="#tests">10. Database tests</a><a href="#rules">11. Rules</a><a href="#commands">12. Commands</a><a href="#sources">13. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>The domain does not know Doctrine</h2>
 <p>Bounded-context contracts define persistence ports. Doctrine adapters implement those ports. Domain aggregates and read models remain independent from database records.</p>
 <div class="grid-3"><article class="card"><h3>Write side</h3><p>Doctrine ORM maps aggregate snapshots to records and saves state.</p></article><article class="card"><h3>Read side</h3><p>Doctrine DBAL runs explicit SQL and maps rows into immutable read models.</p></article><article class="card"><h3>Schema side</h3><p>Reviewed migrations own production schema changes. Seeders add approved reference data.</p></article></div>
@@ -46,6 +48,7 @@
 <li>Review every generated SQL statement.</li><li>Keep only the schema requested by the feature.</li><li>Use plain <code>CREATE TABLE</code> so unexpected existing tables stop the migration.</li><li>Use <code>IF NOT EXISTS</code> only with an explicit adoption plan and exact schema validation.</li>
 <li>Identify the prepared target database and inspect every pending migration.</li><li>Run <code>bin/doctrine migrations:migrate --dry-run --no-interaction</code> against that target.</li><li>Apply only with explicit authority for that database and every pending statement.</li><li>Verify the resulting schema after an approved application.</li></ol>
 <p>Feature implementation approval does not authorize database mutation. Report unavailable or unapproved targets as skipped verification. Use the manifest-backed deployment workflow for production.</p>
+<p>The first migration, <code>Version20260823000000</code>, creates all integration-event tables and indexes for a new database. Existing databases that ran the former five messaging migrations need a separate schema and migration-history reconciliation plan before using this rewritten history. Do not run the first migration against those tables.</p>
 <div class="callout danger"><strong>Hard boundary:</strong> Do not add unrequested tables, columns, indexes, timestamps, status fields, or audit fields.</div>
 </section>
 <section id="seeders"><p class="section-label">08 · Seeders</p><h2>Seed only approved reference data</h2>
@@ -54,7 +57,7 @@
 <li>Do not invoke the reference <code>ExampleSeeder</code> unless the feature explicitly needs that data.</li></ul>
 </section>
 <section id="transactions"><p class="section-label">09 · Transactions</p><h2>Use one transaction for state and its outbox event</h2>
-<p><code>IntegrationEventTransaction</code> coordinates a domain mutation and the integration event outbox insert. Inbox adapters coordinate consumer deduplication and external-effect state.</p>
+<p><code>IntegrationEventTransaction</code> runs business work and dispatches the returned integration event before commit. Local subscribers run for both delivery modes. <code>DELIVER_VIA_QUEUE = true</code> also appends an outbox row through <code>DoctrineIntegrationEventOutbox</code>. Subscriber repositories and the outbox writer share the business connection. A failure rolls back all database writes. Inbox adapters coordinate consumer deduplication and external-effect state.</p>
 <p>Identity and Access uses an ordinary account-row transaction for login and account changes. The lock covers account lookup through token storage or revocation and commit. It requires a fresh outermost transaction. It does not create an outbox event or change database structure.</p>
 <div class="related"><a href="3-integration-events.html">Integration Events</a><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>

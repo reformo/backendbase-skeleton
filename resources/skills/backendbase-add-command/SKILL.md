@@ -31,7 +31,7 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 4. Add the handler under the project's current command-handler directory.
 5. Load or create the aggregate, invoke domain behavior, and persist through a write port.
 6. Register or autowire the handler and its dependencies through the target composition root.
-7. Add an integration event only when a real cross-process fact is requested. Keep the business write and outbox insert in one transaction.
+7. Add an integration event only when the use case requires it. Keep business writes, local subscriber writes, and any outbox insert in one transaction.
 8. When a synchronous domain-listener failure must roll back the write, publish the domain event inside the same transaction callback after the required persistence operation.
 9. Test command serialization, handler orchestration, real bus resolution, the changed lifecycle, event ordering, and transaction rollback when a transaction is used.
 
@@ -44,8 +44,8 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 - Do not run SQL, build HTTP responses, or publish directly to a broker in the handler.
 - Do not call the internal integration-event manager directly from the handler.
 - The handler attribute does not register the handler. The container must resolve the handler and all dependencies.
-- When an integration event is required, the persisted state and outbox row commit or roll back together.
-- Do not create a fake integration event only to obtain an outbox transaction. Use the target's ordinary transaction mechanism when atomic database work is required without an outbound fact.
+- When an integration event is required, business writes, local subscriber writes, and any outbox row commit or roll back together.
+- Do not create a fake integration event only to obtain a transaction. Use the target's ordinary transaction mechanism when no integration event is required.
 - Place synchronous domain-event publication inside the real transaction only when listener failure is part of command rollback semantics.
 - Keep authoritative write lookup and missing-state decisions in the handler. A controller must not use a query to translate public identity before dispatch.
 - Do not invent a result, table field, event, adapter, or timestamp outside the request.

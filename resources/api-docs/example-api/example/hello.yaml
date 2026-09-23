@@ -1,0 +1,37 @@
+post:
+  tags:
+    - Example
+  operationId: queueGreeting
+  description: Store a greeting request in the outbox. Run the continuous outbox relay and queue consumer to print it. Requires the example.add privilege.
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - fullname
+          properties:
+            fullname:
+              type: string
+              minLength: 1
+              maxLength: 100
+              description: Name to print after "hello ". Leading and trailing whitespace is removed.
+              example: Ada Lovelace
+  responses:
+    202:
+      description: Greeting request stored for delivery
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+  security:
+    - apiKey: []
+      bearerAuth: []

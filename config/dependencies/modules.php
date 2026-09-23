@@ -11,6 +11,7 @@ use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Domain\DomainEventPublisher;
 use Backendbase\Shared\Integrations\ExternalIntegrationEventRegistry;
+use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use Backendbase\Shared\Services\EventManager\EventManager;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
@@ -22,7 +23,8 @@ return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         EventManager::class => static function (ContainerInterface $container) {
             $logger           = $container->get(LoggerInterface::class);
-            $eventManager     = new ContainerAwareEventManager($container, $logger);
+            $outbox           = $container->get(IntegrationEventOutbox::class);
+            $eventManager     = new ContainerAwareEventManager($container, $logger, $outbox);
             $serviceProviders = glob('src/Backendbase/Domain/*/ServiceProvider.php', GLOB_NOSORT);
             if ($serviceProviders === false) {
                 throw new RuntimeException('Cannot discover domain service providers.');

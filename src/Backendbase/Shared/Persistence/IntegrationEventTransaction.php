@@ -9,9 +9,11 @@ use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 interface IntegrationEventTransaction
 {
     /**
-     * Run the command's transactional work and outbox write in one transaction.
+     * Run business work, local integration subscribers, and optional outbox publication in one transaction.
      *
      * The work can include database mutations and synchronous domain listeners.
+     * Its returned event is dispatched before commit. DELIVER_VIA_QUEUE controls the outbox insert.
+     * Local integration subscribers run for both flag values and must use the same database connection.
      * It must not perform business-relevant network, process, or filesystem input and output.
      *
      * @param callable(): IntegrationEvent $transactionalWork

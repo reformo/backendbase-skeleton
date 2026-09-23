@@ -6,12 +6,16 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\ExampleBoundedContext\Contracts\IntegrationEvents\ExampleRemoved;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventTransaction;
+use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
+use Tests\Infrastructure\Composition\ProductionContainerFixture;
 
 use function json_decode;
 
@@ -20,18 +24,26 @@ use const JSON_THROW_ON_ERROR;
 final class DoctrineIntegrationEventTransactionTest extends TestCase
 {
     private Connection $connection;
+    private IntegrationEventTransaction $transaction;
 
     protected function setUp(): void
     {
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $this->connection->executeStatement('CREATE TABLE aggregate_write (id VARCHAR(36) NOT NULL PRIMARY KEY)');
+        $container   = ProductionContainerFixture::build([
+            Connection::class => $this->connection,
+            LoggerInterface::class => new NullLogger(),
+        ]);
+        $transaction = $container->get(IntegrationEventTransaction::class);
+        self::assertInstanceOf(DoctrineIntegrationEventTransaction::class, $transaction);
+        $this->transaction = $transaction;
     }
 
     #[Test]
     public function itCommitsTheMutationAndOutboxMessageTogether(): void
     {
         $this->createOutboxTable();
-        $transaction = new DoctrineIntegrationEventTransaction($this->connection);
+        $transaction = $this->transaction;
 
         $transaction->execute(
             function (): ExampleRemoved {
@@ -56,7 +68,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
     #[Test]
     public function itRollsBackTheMutationWhenTheOutboxWriteFails(): void
     {
-        $transaction = new DoctrineIntegrationEventTransaction($this->connection);
+        $transaction = $this->transaction;
 
         try {
             $transaction->execute(
@@ -78,7 +90,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
     public function itRollsBackTheMutationWhenTransactionalWorkFails(): void
     {
         $this->createOutboxTable();
-        $transaction = new DoctrineIntegrationEventTransaction($this->connection);
+        $transaction = $this->transaction;
 
         try {
             $transaction->execute(

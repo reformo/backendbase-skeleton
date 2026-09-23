@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase Use Case API Guide</title>
     <style>
         :root {
@@ -32,31 +32,7 @@
             --max: 1180px;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #0d111c;
-                --surface: #171d2b;
-                --surface-soft: #1b2232;
-                --ink: #f0f2f8;
-                --muted: #b2b9c8;
-                --line: #30394d;
-                --purple: #b6a5f5;
-                --purple-soft: #30284d;
-                --blue: #83b9f4;
-                --blue-soft: #172d48;
-                --cyan: #75d3dc;
-                --cyan-soft: #17383d;
-                --green: #7bd7a7;
-                --green-soft: #18382a;
-                --amber: #f0c369;
-                --amber-soft: #413619;
-                --red: #ff9c94;
-                --red-soft: #482321;
-                --code: #080d18;
-                --code-ink: #edf1fa;
-                --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
-            }
-        }
+
 
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -435,8 +411,10 @@
             section { break-inside: avoid; }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · HTTP Adapter Guide</p>
@@ -448,7 +426,7 @@
             <span class="chip">Middleware</span>
             <span class="chip">CQRS controllers</span>
             <span class="chip">OpenAPI and Bruno</span>
-            <span class="chip">Source snapshot: 25 August 2026</span>
+            <span class="chip">Source review: 23 September 2026</span>
         </div>
     </div>
 </header>
@@ -476,7 +454,7 @@
         <a href="#source-map">Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
             <p>A Use Case API is an HTTP adapter under <code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code>. It owns transport concerns. It does not own domain rules or persistence.</p>
@@ -484,7 +462,7 @@
                 <article class="card purple">
                     <span class="tag">Select</span>
                     <h3>Choose the API</h3>
-                    <p>A dedicated front controller or <code>X-Source-Id</code> selects the use-case directory and configuration slug.</p>
+                    <p>The shared bootstrap uses <code>X-Source-Id</code> to select the use-case directory and configuration slug for both public entry points.</p>
                 </article>
                 <article class="card blue">
                     <span class="tag blue">Translate</span>
@@ -521,10 +499,14 @@ src/Backendbase/Infrastructure/UseCase/ExampleApi/
     │   ├── ModuleConfig.php           # Four protected account routes
     │   ├── AccountRequestInput.php    # Boundary validation helpers
     │   └── Handlers/                  # HTTP actions
-    └── Example/
-        ├── ModuleConfig.php           # Six Example routes
-        ├── ExampleRequestInput.php    # Boundary validation helpers
-        └── Handlers/                  # HTTP actions
+    ├── Example/
+    │   ├── ModuleConfig.php           # Six Example routes
+    │   ├── ExampleRequestInput.php    # Boundary validation helpers
+    │   └── Handlers/                  # HTTP actions
+    └── Greeting/
+        ├── ModuleConfig.php           # POST /examples/hello
+        ├── GreetingRequestInput.php   # Full name validation
+        └── Handlers/                  # Queued greeting action
 
 config/example-api/                    # API settings
 resources/api-docs/example-api/        # OpenAPI source
@@ -551,7 +533,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
                     <rect x="238" y="68" width="160" height="82" rx="13" fill="#1c304a" stroke="#6ca6ed"/>
                     <text x="318" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">API selection</text>
-                    <text x="318" y="126" text-anchor="middle" fill="#cadcf2" font-size="12">front controller or source ID</text>
+                    <text x="318" y="126" text-anchor="middle" fill="#cadcf2" font-size="12">X-Source-Id header</text>
 
                     <rect x="446" y="68" width="200" height="82" rx="13" fill="#19363b" stroke="#69c7cf"/>
                     <text x="546" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Shared bootstrap</text>
@@ -606,7 +588,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                 <article class="card purple">
                     <span class="tag">Dedicated</span>
                     <h3><code>public/example-api/index.php</code></h3>
-                    <p>Sets <code>$useCaseName = 'ExampleApi'</code> and <code>$useCaseSlug = 'example-api'</code>, then includes the shared bootstrap.</p>
+                    <p>Sets API name and slug variables, then includes the shared bootstrap. The bootstrap does not read those variables; this path still requires <code>X-Source-Id: example</code>.</p>
                     <p>Development base URL: <code>http://127.0.0.1:8080/example-api</code>.</p>
                 </article>
                 <article class="card blue">
@@ -629,7 +611,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
         <section id="routing">
             <h2>Routing and modules</h2>
-            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers protected modules at <code>/accounts</code> and <code>/example-types</code>.</p>
+            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers modules at <code>/accounts</code>, <code>/example-types</code>, and <code>/examples</code>.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Method</th><th>Path</th><th>Action</th><th>Bearer middleware</th></tr></thead>
@@ -646,6 +628,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>NewExample</code></td><td>Yes</td></tr>
                     <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ChangeExampleDetails</code></td><td>Yes</td></tr>
                     <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>RemoveExample</code></td><td>Yes</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/examples/hello</code></td><td><code>QueueGreetingRequest</code></td><td>Yes</td></tr>
                     <tr><td><span class="method any">ANY</span></td><td><code>/{routes:.*}</code></td><td><code>NotFound</code></td><td>No</td></tr>
                     </tbody>
                 </table>
@@ -686,7 +669,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
         <section id="controllers">
             <h2>Controller pattern</h2>
-            <p>Each handler extends <code>Backendbase\Shared\Http\Actions\Action</code>. The base class stores the PSR-7 request, response, and route arguments before it calls <code>action()</code>.</p>
+            <p>Business handlers extend <code>Backendbase\Shared\Http\Actions\Action</code>. The transport-only <code>Liveness</code> handler is directly invokable. The base class stores the PSR-7 request, response, and route arguments before it calls <code>action()</code>.</p>
             <div class="code-wrap"><pre><code>final class ExampleAction extends Action
 {
     public function __construct(
@@ -744,7 +727,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <tr><td><code>Accept-Language</code></td><td>Required</td><td>Used by shared translation configuration through server state. The API middleware does not reject absence.</td></tr>
                     <tr><td><code>The-Timezone-IANA</code></td><td>Required</td><td>Protected routes create <code>clientTimezone</code>. Absence defaults to <code>UTC</code>.</td></tr>
                     <tr><td><code>X-Request-Id</code></td><td>Required</td><td>The logger uses it as <code>trace_id</code>. The logger generates a UUID when absent.</td></tr>
-                    <tr><td><code>X-Source-Id</code></td><td>Required</td><td>The shared front controller uses it to select <code>ExampleApi</code>. The dedicated front controller already selects the API.</td></tr>
+                    <tr><td><code>X-Source-Id</code></td><td>Required</td><td>The shared front controller uses it to select <code>ExampleApi</code>. The dedicated front controller also requires this header.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -755,7 +738,7 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                 <li><code>typeSlug</code> must map to an <code>ExampleType</code>.</li>
                 <li><code>typeTargetId</code> accepts null, an empty string, or a positive integer.</li>
                 <li><code>pageSize</code> and <code>page</code> default to <code>1000</code> and <code>1</code>.</li>
-                <li>PATCH accepts omitted <code>lookupValue</code>, <code>details</code>, and <code>isActive</code> fields. Supplied values must be a string, object, and boolean.</li>
+                <li>PATCH treats omitted and null <code>lookupValue</code>, <code>details</code>, and <code>isActive</code> fields as unchanged. Other supplied values must be a string, object, and boolean.</li>
                 <li><code>PayloadSanitizer</code> processes query and parsed-body arrays before use.</li>
             </ul>
             <div class="callout">
@@ -809,7 +792,9 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <tr><td>Readiness</td><td><code>200</code> or <code>503</code> JSON with dependency status values.</td><td><code>Readiness</code></td></tr>
                     <tr><td>Authentication token</td><td><code>201</code> JSON with <code>accessToken</code>.</td><td><code>Authenticate</code></td></tr>
                     <tr><td>Read success</td><td><code>200</code> JSON projection.</td><td>Read actions</td></tr>
-                    <tr><td>Write success</td><td><code>204</code> empty response. Create also returns <code>Backendbase-Insert-Id</code>.</td><td>Write actions</td></tr>
+                    <tr><td>Example write success</td><td>204 empty response. Example creation also returns <code>Backendbase-Insert-Id</code>.</td><td>Example write actions</td></tr>
+                        <tr><td>Account registration</td><td>201 JSON with <code>accountUuid</code>.</td><td><code>RegisterAccount</code></td></tr>
+                        <tr><td>Greeting request accepted</td><td>202 empty response after the outbox write.</td><td><code>QueueGreetingRequest</code></td></tr>
                     <tr><td>Invalid input</td><td><code>400</code> problem payload with <code>general/invalid-user-input</code>.</td><td><code>HttpErrorHandler</code></td></tr>
                     <tr><td>Missing example</td><td><code>404</code> problem payload with <code>general/resource-not-found</code>.</td><td><code>HttpErrorHandler</code></td></tr>
                     <tr><td>Unknown route</td><td><code>404</code> JSON. An <code>OPTIONS</code> fallback returns <code>204</code>.</td><td><code>NotFound</code></td></tr>
@@ -861,10 +846,10 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
 
         <section id="openapi">
             <h2>OpenAPI documentation</h2>
-            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components and three Example module path files.</p>
+            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components, Account path files, and Example path files including the greeting operation.</p>
             <div class="process" aria-label="OpenAPI generation flow">
                 <div class="step"><span class="step-number">01</span><strong>Edit operation</strong><br><span class="muted">Change the module YAML and shared references.</span></div>
-                <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference all five shared request headers.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference all four shared request headers.</span></div>
                 <div class="step"><span class="step-number">03</span><strong>Align security</strong><br><span class="muted">Match public or bearer-protected routing.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Generate</strong><br><span class="muted">Inline references into the public YAML file.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Review viewer</strong><br><span class="muted">Check schemas, examples, and status codes.</span></div>
@@ -885,17 +870,17 @@ tests/Infrastructure/UseCase/ExampleApi/</code></pre></div>
                     <h3>HTTP adapter tests</h3>
                     <ul>
                         <li>Input validation stops bus dispatch.</li>
-                        <li>Missing resources stop command dispatch.</li>
+                        <li>Missing write resources are reported by the command handler after dispatch.</li>
                         <li>Read actions map projections.</li>
                         <li>Write actions create correct commands.</li>
-                        <li>Module routing has four Account routes, six Example routes, and fifteen total routes.</li>
+                        <li>Module routing has four Account routes, six Example routes, one Greeting route, and sixteen total routes including root and fallback routes.</li>
                         <li>Root, authentication, and fallback responses are stable.</li>
                     </ul>
                 </article>
                 <article class="card purple">
                     <span class="tag">Bruno</span>
                     <h3>End-to-end collection</h3>
-                    <p>Fourteen YAML requests cover system status, authentication, the account lifecycle, and the Example lifecycle.</p>
+                    <p>Fifteen YAML requests cover system status, authentication, the account and Example lifecycles, and queued greeting delivery.</p>
                     <p>The local environment points to <code>http://127.0.0.1:8080/example-api</code>.</p>
                     <p>Each run writes an HTML report under <code>artifacts/bruno/example-api</code>.</p>
                 </article>
@@ -926,7 +911,7 @@ bin/bruno example-api local</code></pre></div>
                 <li>Success and error statuses match OpenAPI.</li>
                 <li>The controller does not access Doctrine.</li>
                 <li>Invalid input never reaches a bus.</li>
-                <li>Not-found writes never dispatch a command.</li>
+                <li>Write handlers own the missing-resource decision.</li>
                 <li>All affected consumer APIs are updated.</li>
             </ul>
         </section>
@@ -940,7 +925,7 @@ bin/bruno example-api local</code></pre></div>
                     <tbody>
                     <tr><td>Runtime adapter</td><td><code>src/Backendbase/Infrastructure/UseCase/{ApiName}</code></td></tr>
                     <tr><td>Dedicated entry point</td><td><code>public/{api-slug}/index.php</code></td></tr>
-                    <tr><td>API selection</td><td>Add source ID, class name, and slug to <code>public/index.php</code>.</td></tr>
+                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Shared/Http/Bootstrap/UseCaseTarget.php</code>.</td></tr>
                     <tr><td>Configuration</td><td><code>config/{api-slug}</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/{api-slug}</code></td></tr>
                     <tr><td>Generated docs</td><td><code>public/{api-slug}/docs</code></td></tr>
@@ -963,7 +948,7 @@ bin/bruno example-api local</code></pre></div>
                     <tr><td><code>Authenticate</code> verifies an active account and its Argon2id password hash.</td><td>The protected Account module registers, revises, retires, and lists accounts through ACL-checked commands and a query.</td></tr>
                     <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
                     <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
-                    <tr><td>Group pagination metadata is accepted without slicing the group list.</td><td>The response reports page values, while the current query returns the repository list.</td></tr>
+                    <tr><td>Group queries return <code>ExampleGroupPage</code>.</td><td>The response includes the complete distinct-group total and the requested page.</td></tr>
                     <tr><td>OpenAPI output is generated.</td><td>A source YAML change has no public effect until the merged file is regenerated.</td></tr>
                     </tbody>
                 </table>

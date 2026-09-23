@@ -6,6 +6,7 @@ use Backendbase\Application\Messaging\OutboxRelayService;
 use Backendbase\Application\Messaging\QueueMessageFailureService;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineExternalEffectInbox;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineInboxMessageTransaction;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventOutbox;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventTransaction;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationMessageLogCleaner;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessageStore;
@@ -25,6 +26,7 @@ use Backendbase\Shared\Persistence\Doctrine\DQL\FirstFunction;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
+use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
 use DI\ContainerBuilder;
@@ -52,6 +54,7 @@ use function DI\autowire;
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         IntegrationEventTransaction::class => autowire(DoctrineIntegrationEventTransaction::class),
+        IntegrationEventOutbox::class => autowire(DoctrineIntegrationEventOutbox::class),
         InboxMessageTransaction::class => autowire(DoctrineInboxMessageTransaction::class),
         ExternalEffectInbox::class => autowire(DoctrineExternalEffectInbox::class),
         OutboxRelay::class => autowire(OutboxRelayService::class),

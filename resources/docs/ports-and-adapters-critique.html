@@ -37,11 +37,7 @@
         html { scroll-behavior: smooth; scroll-padding-top: 18px; scrollbar-gutter: stable; }
         body {
             margin: 0;
-            background:
-                linear-gradient(rgba(23, 59, 80, 0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(23, 59, 80, 0.035) 1px, transparent 1px),
-                var(--page);
-            background-size: 32px 32px;
+            background: var(--page);
             color: var(--ink);
             font: 16px/1.62 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             text-rendering: optimizeLegibility;
@@ -495,7 +491,7 @@
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Architecture assessment · August 29, 2026</p>
         <h1>Ports and Adapters Architecture Critique</h1>
-        <p class="lede">A balanced strengths and weaknesses report based on current dependency direction, port ownership, adapter boundaries, framework isolation, and executable architecture rules.</p>
+        <p class="lede">A balanced strengths and weaknesses report based on the documented dependency direction, port ownership, adapter boundaries, framework isolation, and executable architecture rules.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Current code review</span>
             <span class="chip">Strong dependency direction</span>
@@ -628,7 +624,7 @@
                     <div><span class="badge medium">Medium · 03</span></div>
                     <div>
                         <h3>The Shared area has mixed architectural ownership</h3>
-                        <p><code>Shared</code> contains 126 PHP files. It includes domain contracts and primitives beside Slim actions, Symfony console bases, Doctrine helpers, migrations, and object mapping support.</p>
+                        <p><code>Shared</code> contains core contracts, primitives, and framework support. It includes domain contracts and primitives beside Slim actions, Symfony console bases, Doctrine helpers, migrations, and object mapping support.</p>
                         <p>The architecture test protects a selected framework-free core by excluding named framework directories. This rule is effective, but the top-level namespace remains a broad container.</p>
                         <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Http/Actions/Action.php"><code>Shared/Http/Actions/Action.php</code></a>, <a href="../../src/Backendbase/Shared/Migrations/BackendbaseAbstractMigration.php"><code>Shared/Migrations/BackendbaseAbstractMigration.php</code></a>, <a href="../../tests/Architecture/SharedCoreFrameworkBoundaryTest.php"><code>SharedCoreFrameworkBoundaryTest.php:35-55</code></a>.</p>
                     </div>
@@ -721,8 +717,8 @@
                     <tr><td><code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>411 tests and 1,714 assertions passed. The suite covered 4,012 of 4,012 executable lines.</td></tr>
                     <tr><td><code>composer phpstan -- --no-progress</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors across the configured application, test, tool, and database-delivery scope.</td></tr>
                     <tr><td><code>composer complexity</code></td><td><span class="badge strong">Passed</span></td><td>All 497 configured PHP files stayed at cyclomatic complexity 12 or less.</td></tr>
-                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The review covered 319 production PHP files, 126 Shared PHP files, 13 architecture test classes, configuration roots, and architecture documentation.</td></tr>
-                    <tr><td>Interactive architecture map</td><td><span class="badge medium">Historical</span></td><td>The linked map remains the validated revision <code>2c9bde9</code> snapshot. It does not show the current account lifecycle. This report rechecked current rules and source links separately.</td></tr>
+                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>The dated assessment covered 319 production PHP files, 126 Shared PHP files, and 13 architecture test classes. The 23 September source inventory contains 330 production files and 134 Shared files.</td></tr>
+                    <tr><td>Interactive architecture map</td><td><span class="badge strong">Refreshed</span></td><td>The linked map was checked against current source on 23 September. Its source revision is <code>7e546fa</code>. It shows dependency boundaries rather than individual Account or Example use cases.</td></tr>
                     <tr><td>Recent delivery controls</td><td><span class="badge strong">No direction change</span></td><td>The Composer supply-chain checker, evidence files, and release-manifest verification remain in tooling and deployment boundaries.</td></tr>
                     <tr><td>Recent production composition</td><td><span class="badge strong">Boundary preserved</span></td><td>The Identity and Access service provider owns its Doctrine, Redis authorization-state, and JWT bindings. Global dependency files keep platform and vendor connection concerns.</td></tr>
                     <tr><td>Recent account lifecycle</td><td><span class="badge strong">Boundary preserved</span></td><td>Protected account controllers use commands and a query. Handlers use read, write, authentication, and authorization-state ports. Doctrine, Redis, and JWT remain adapters.</td></tr>

@@ -7,6 +7,7 @@ namespace Tests\Infrastructure\UseCase\ExampleApi;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Account\ModuleConfig as AccountModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Example\ModuleConfig;
+use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\Greeting\ModuleConfig as GreetingModuleConfig;
 use Backendbase\Infrastructure\UseCase\ExampleApi\Controllers\ModuleRoutes;
 use Backendbase\Shared\Services\Settings as SettingsValue;
 use Backendbase\Shared\Settings;
@@ -78,13 +79,28 @@ final class ModuleRoutingTest extends TestCase
     }
 
     #[Test]
+    public function itRegistersTheProtectedGreetingRoute(): void
+    {
+        $app    = AppFactory::create();
+        $module = new GreetingModuleConfig();
+        $app->group('/examples', $module);
+
+        self::assertSame('examples', $module->routeKey());
+        self::assertSame(
+            '/examples/hello',
+            $app->getRouteCollector()->getNamedRoute('queueGreeting')->getPattern(),
+        );
+        self::assertSame(GreetingModuleConfig::class, (new ModuleRoutes())->getModules()['examples']);
+    }
+
+    #[Test]
     public function itRegistersTheCompleteApiRouteFile(): void
     {
         $app    = AppFactory::create();
         $routes = require dirname(__DIR__, 4) . '/src/Backendbase/Infrastructure/UseCase/ExampleApi/routes.php';
         $routes($app);
 
-        self::assertCount(15, $app->getRouteCollector()->getRoutes());
+        self::assertCount(16, $app->getRouteCollector()->getRoutes());
     }
 
     #[Test]
@@ -129,6 +145,10 @@ final class ModuleRoutingTest extends TestCase
             ->withHeader('Backendbase-Api-Key', 'example-api-key');
 
         self::assertSame(401, $app->handle($request)->getStatusCode());
+
+        $greetingRequest = (new ServerRequestFactory())->createServerRequest('POST', '/examples/hello')
+            ->withHeader('Backendbase-Api-Key', 'example-api-key');
+        self::assertSame(401, $app->handle($greetingRequest)->getStatusCode());
     }
 
     private function container(): ContainerInterface

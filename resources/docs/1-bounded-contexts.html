@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase Bounded Context Guide</title>
     <style>
         :root {
@@ -30,29 +30,7 @@
             --max: 1180px;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #0c1517;
-                --surface: #142023;
-                --surface-soft: #17262a;
-                --ink: #eef7f5;
-                --muted: #afc0bc;
-                --line: #2d4140;
-                --green: #62d4bd;
-                --green-soft: #173b35;
-                --blue: #89b8f4;
-                --blue-soft: #172d49;
-                --violet: #c0a8f5;
-                --violet-soft: #30254b;
-                --amber: #f2c76e;
-                --amber-soft: #413719;
-                --red: #ff9a92;
-                --red-soft: #482321;
-                --code: #081012;
-                --code-ink: #e7f2f0;
-                --shadow: 0 16px 42px rgba(0, 0, 0, 0.25);
-            }
-        }
+
 
         * { box-sizing: border-box; }
 
@@ -472,8 +450,10 @@
             section { break-inside: avoid; }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Architecture Guide</p>
@@ -484,7 +464,7 @@
             <span class="chip">Ports and adapters</span>
             <span class="chip">Automatic discovery</span>
             <span class="chip">Context communication</span>
-            <span class="chip">Source snapshot: 25 August 2026</span>
+            <span class="chip">Source review: 23 September 2026</span>
         </div>
     </div>
 </header>
@@ -510,7 +490,7 @@
         <a href="#source-map">Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
             <p>A bounded context gives one business model a clear language and ownership boundary. Backendbase represents that boundary as a module under <code>src/Backendbase/Domain/{ContextName}</code>.</p>
@@ -533,7 +513,7 @@
             </div>
             <div class="callout">
                 <strong>Reference implementation</strong>
-                Use <code>ExampleBoundedContext</code> as the current pattern. The repository guide explicitly excludes the empty <code>Content</code> directory as a reference.
+                Use <code>ExampleBoundedContext</code> as the current pattern. No <code>Content</code> context exists in the current source.
             </div>
         </section>
 
@@ -552,13 +532,8 @@
                     </tr>
                     <tr>
                         <td><code>IdentityAndAccess</code></td>
-                        <td>Authentication and authorization components. The main configuration and API modules reference these components directly.</td>
-                        <td>No <code>ServiceProvider.php</code></td>
-                    </tr>
-                    <tr>
-                        <td><code>Content</code></td>
-                        <td>Empty placeholder.</td>
-                        <td>No</td>
+                        <td>Account domain behavior, authentication, authorization ports, adapters, handlers, tests, and a context-owned service provider.</td>
+                        <td>Yes</td>
                     </tr>
                     </tbody>
                 </table>
@@ -735,7 +710,7 @@
                 <div class="step"><span class="step-number">04</span><strong>Aggregate</strong><br><span class="muted">Apply the business operation.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Write port</strong><br><span class="muted">Map and persist through Doctrine.</span></div>
             </div>
-            <p><code>AddNewExampleHandler</code>, <code>ChangeExampleHandler</code>, and <code>RemoveExampleHandler</code> wrap the mutation and outbox event with <code>IntegrationEventTransaction</code>.</p>
+            <p><code>AddNewExampleHandler</code>, <code>ChangeExampleHandler</code>, and <code>RemoveExampleHandler</code> return an event through <code>IntegrationEventTransaction</code>. It runs local subscribers before commit and writes the outbox when <code>DELIVER_VIA_QUEUE</code> is true. All participating database writes share that transaction.</p>
             <div class="callout danger">
                 <strong>Do not bypass the context</strong>
                 An HTTP action must not update a Doctrine record directly. A persistence adapter must not decide how an aggregate changes.
@@ -752,7 +727,7 @@
                 <div class="step"><span class="step-number">04</span><strong>DBAL adapter</strong><br><span class="muted">Run plain SQL for the use case.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Read model</strong><br><span class="muted">Return typed response data.</span></div>
             </div>
-            <p>The example read adapter returns <code>ExampleDetails</code>, <code>ExamplePage</code>, identifiers, and group lists. It filters removed records in SQL.</p>
+            <p>The example read adapter returns <code>ExampleDetails</code>, <code>ExamplePage</code>, <code>ExampleGroupPage</code>, and identifiers. It filters removed records in SQL.</p>
         </section>
 
         <section id="persistence">
@@ -899,7 +874,7 @@
                     <tr><td>Discovery uses relative paths.</td><td>Boot expects the project root as the current working directory.</td></tr>
                     <tr><td>Glob order is not sorted.</td><td>Duplicate definition keys are overwritten during iteration. Do not let contexts claim the same port.</td></tr>
                     <tr><td>Provider data is trusted.</td><td>A wrong class name or malformed subscriber entry can fail container construction or event registration.</td></tr>
-                    <tr><td>Architecture enforcement is static.</td><td>The suite checks declared PHP dependencies. It does not prove runtime registration, dynamic lookups, or business behavior.</td></tr>
+                    <tr><td>Dependency and registration checks</td><td>Dependency tests check declared PHP symbols. Attribute tests also resolve handlers and listeners from the production container. Other dynamic paths and business behavior need runtime tests.</td></tr>
                     <tr><td>Identity and access owns its port wiring.</td><td>Its context service provider binds account repositories, authorization state, and JWT token ports.</td></tr>
                     <tr><td>One context is the full example.</td><td>New contexts must use <code>ExampleBoundedContext</code>, not empty or partial directories, as the implementation reference.</td></tr>
                     </tbody>

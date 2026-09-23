@@ -11,12 +11,17 @@
 ## Subscriber types
 
 - Internal subscribers implement `IntegrationEventSubscriber`.
-- Internal subscribers run only after an explicit in-process dispatch.
+- Internal subscribers run synchronously when `IntegrationEventTransaction` dispatches its returned event before commit. Both `DELIVER_VIA_QUEUE` values run local subscribers.
+- Direct producer dispatch requires an active database transaction. Local subscriber writes must use that transaction's connection.
 - External subscribers implement `ExternalIntegrationEventSubscriber`.
 - External subscribers live under `Application/ExternalIntegrationEventSubscribers/{SourceService}`.
 - Versioned carriers live under `Contracts/ExternalIntegrationEvents/{Version}`.
 
+External dispatch never republishes the received event. The producer appends to the outbox only when `DELIVER_VIA_QUEUE` is `true`.
+
 Register each subscriber in the context `ServiceProvider`. External entries also require `messageFQCN` and `eventVersion`.
+
+The current registry constructs a fresh subscriber through reflection. Each subscriber needs an explicit constructor, including an empty constructor when it has no dependencies. Constructor dependencies resolve from the container by type, then by parameter name. A container binding for the subscriber class itself does not control this construction.
 
 The inbox identity is `(consumer_name, message_id)`. A processed duplicate acknowledges without dispatch.
 

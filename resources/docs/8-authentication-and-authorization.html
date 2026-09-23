@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase Authentication and Authorization Guide</title>
     <link rel="stylesheet" href="documentation.css">
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner">
     <p class="eyebrow">Backendbase Core · Identity boundary</p>
     <h1>Authentication and Authorization</h1>
@@ -22,7 +24,7 @@
     <a href="#failures">10. Failure behavior</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a>
     <a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
 </nav>
-<main>
+<main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Two checks protect a private operation</h2>
     <p>Authentication proves the token state. Authorization decides whether the authenticated user can perform an operation.</p>
     <div class="grid-3">

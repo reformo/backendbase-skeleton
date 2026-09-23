@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Error Handling and Observability Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Error Handling and Observability Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Diagnostic boundary</p><h1>Error Handling and Observability</h1>
 <p class="lede">Problem Details responses, domain exceptions, Slim failures, shutdown handling, logs, trace identifiers, health checks, queue monitoring, and diagnostic safety.</p>
 <div class="chips"><span class="chip">Problem Details</span><span class="chip">Monolog</span><span class="chip">Trace ID</span><span class="chip">Health</span><span class="chip">Failure paths</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#flow">2. Failure flow</a><a href="#problem">3. Problem Details</a><a href="#action">4. Domain errors</a>
 <a href="#http">5. HTTP errors</a><a href="#shutdown">6. Shutdown errors</a><a href="#logging">7. Logging</a><a href="#trace">8. Trace identifiers</a>
 <a href="#health">9. Health and monitoring</a><a href="#safety">10. Diagnostic safety</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a><a href="#sources">13. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Translate failures at architectural boundaries</h2>
 <p>Domain and application code raise typed failures. HTTP adapters translate them into stable public responses. Logs keep the internal diagnostic context.</p>
 <div class="grid-3"><article class="card"><h3>Expected problem</h3><p>A pure <code>DomainException</code> becomes <code>application/problem+json</code> at the HTTP boundary.</p></article><article class="card"><h3>HTTP or unexpected error</h3><p><code>HttpErrorHandler</code> maps Slim exceptions and safe server failures.</p></article><article class="card"><h3>PHP shutdown error</h3><p><code>ShutdownHandler</code> logs the last PHP error and emits a 500 response.</p></article></div>
@@ -74,7 +76,7 @@
 <li>Keep stack traces in internal logs.</li><li>Use stable public error codes for client behavior.</li><li>Preserve the previous exception when translating a failure.</li></ul>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known diagnostic limits</h2>
-<ul><li>Authorization middleware uses custom 400 bodies instead of the shared problem flow.</li>
+<ul><li>Authorization middleware builds problem-details responses directly: bearer failures use 401 and invalid time-zone headers use 400.</li>
 <li><code>TooManyRequests</code> uses status 409 instead of the common 429 status.</li><li>The logger records full traces for some application problems.</li>
 <li>No metrics, tracing exporter, dashboard, or alert configuration exists in the repository.</li></ul>
 </section>

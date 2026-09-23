@@ -41,7 +41,7 @@ Adapt the event fact, payload fields, listener behavior, publish point, and tran
 - Implement the listener interface and reject an unexpected concrete event.
 - Do not add domain-event metadata to a context `ServiceProvider`; attribute routing and container autowiring own this path.
 - Do not call `recordEvent()` unless the target project has an explicit drain and publish mechanism.
-- Do not create a fake integration event to obtain a transaction. Use an ordinary transaction abstraction unless a real outbound integration event is separately required.
+- Do not create a fake integration event to obtain a transaction. Use an ordinary transaction abstraction unless an integration event is separately required.
 - Do not route this event through the internal integration-event manager or a broker.
 - Do not use a domain event for asynchronous or cross-context delivery.
 

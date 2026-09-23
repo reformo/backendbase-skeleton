@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase OpenAPI and Bruno Guide</title>
     <style>
         :root {
@@ -33,32 +33,7 @@
             --max: 1200px;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #0d1419;
-                --surface: #162029;
-                --surface-soft: #1a2630;
-                --ink: #edf4f7;
-                --muted: #b2c0c8;
-                --line: #30404b;
-                --navy: #dceaf0;
-                --teal: #73d9ce;
-                --teal-soft: #173a38;
-                --blue: #8bc2ed;
-                --blue-soft: #183249;
-                --orange: #f0b46e;
-                --orange-soft: #44301c;
-                --green: #79d39d;
-                --green-soft: #193727;
-                --red: #ff9d96;
-                --red-soft: #482522;
-                --purple: #c5acef;
-                --purple-soft: #342947;
-                --code: #080f15;
-                --code-ink: #edf4f7;
-                --shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
-            }
-        }
+
 
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -539,8 +514,10 @@
             footer { width: min(calc(100% - 24px), var(--max)); }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Contract and executable examples</p>
@@ -548,8 +525,8 @@
         <p class="lede">A source-based guide to the Example API contract, merged specification, documentation viewer, Bruno collection, and contract checks.</p>
         <div class="chips" aria-label="Guide scope">
             <span class="chip">OpenAPI 3.0</span>
-            <span class="chip">8 operations</span>
-            <span class="chip">6 Bruno requests</span>
+            <span class="chip">15 operations</span>
+            <span class="chip">15 Bruno requests</span>
             <span class="chip">Local environment</span>
             <span class="chip">Contract alignment</span>
         </div>
@@ -580,15 +557,15 @@
         <a href="#sources">19. Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <p class="section-label">01 · Overview</p>
             <h2>One contract, three representations</h2>
             <p>The OpenAPI source defines the public contract. The generated YAML gives tools one complete file. Bruno sends example requests to the running API.</p>
             <div class="summary-grid">
-                <div class="stat"><strong>4</strong><span>OpenAPI source groups</span></div>
-                <div class="stat"><strong>14</strong><span>Documented operations</span></div>
-                <div class="stat"><strong>14</strong><span>Bruno API requests</span></div>
+                <div class="stat"><strong>6</strong><span>Feature path files</span></div>
+                <div class="stat"><strong>15</strong><span>Documented operations</span></div>
+                <div class="stat"><strong>15</strong><span>Bruno API requests</span></div>
                 <div class="stat"><strong>1</strong><span>Bruno environment</span></div>
             </div>
             <div class="callout good"><strong>Verified state:</strong> <code>public/example-api/docs/example-api-merged.yml</code> validates against the OpenAPI 3.0 schema.</div>
@@ -609,7 +586,8 @@
 │       └── example/
 │           ├── example-groups.yaml             # group list
 │           ├── examples.yaml                   # example list and create
-│           └── example-details.yaml            # get, change, and delete
+│           ├── example-details.yaml            # get, change, and delete
+│           └── hello.yaml                      # queue a greeting
 └── bruno/example-api/
     ├── opencollection.yml                       # collection root
     ├── environments/local.yml                   # local values
@@ -699,13 +677,18 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>apiMetadata</code></td><td>API key</td><td>Sequence 1</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/_status</code></td><td><code>livenessCheck</code></td><td>Public</td><td>Sequence 2</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/_status/ready</code></td><td><code>readinessCheck</code></td><td>Public</td><td>Sequence 3</td></tr>
-                        <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>authenticateUser</code></td><td>API key</td><td>Sequence 10</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>authenticateAccount</code></td><td>API key</td><td>Sequence 10</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/accounts</code></td><td><code>registerAccount</code></td><td>API key + bearer</td><td>Sequence 20</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/accounts</code></td><td><code>listAccounts</code></td><td>API key + bearer</td><td>Sequence 21</td></tr>
+                        <tr><td><span class="method patch">PATCH</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>reviseAccount</code></td><td>API key + bearer</td><td>Sequence 22</td></tr>
+                        <tr><td><span class="method delete">DELETE</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>retireAccount</code></td><td>API key + bearer</td><td>Sequence 23</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups</code></td><td><code>getExampleGroupsByType</code></td><td>API key</td><td>Sequence 40</td></tr>
-                        <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>getExamplesByGroup</code></td><td>API key</td><td>Sequence 42</td></tr>
                         <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>addNewExample</code></td><td>API key + bearer</td><td>Sequence 41</td></tr>
+                        <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>getExamplesByGroup</code></td><td>API key</td><td>Sequence 42</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/examples/hello</code></td><td><code>queueGreeting</code></td><td>API key + bearer</td><td>Sequence 42</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>getExampleByCriteria</code></td><td>API key</td><td>Sequence 43</td></tr>
-                        <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>removeExample</code></td><td>API key + bearer</td><td>Sequence 45</td></tr>
                         <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>changeExampleDetails</code></td><td>API key + bearer</td><td>Sequence 44</td></tr>
+                        <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>removeExample</code></td><td>API key + bearer</td><td>Sequence 45</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -723,7 +706,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <li>Uses OpenAPI <code>3.0.0</code>.</li>
                         <li>Defines local, stage, and production servers.</li>
                         <li>Defines <code>bearerAuth</code> and <code>apiKey</code>.</li>
-                        <li>References three feature path files.</li>
+                        <li>References six feature path files.</li>
                     </ul>
                 </article>
                 <article class="card">
@@ -732,6 +715,9 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <li><code>example-groups.yaml</code> owns one GET operation.</li>
                         <li><code>examples.yaml</code> owns GET and POST operations.</li>
                         <li><code>example-details.yaml</code> owns GET, PATCH, and DELETE operations.</li>
+                        <li><code>hello.yaml</code> owns POST greeting delivery.</li>
+                        <li><code>accounts.yaml</code> owns GET and POST account operations.</li>
+                        <li><code>account-by-uuid.yaml</code> owns PATCH and DELETE account operations.</li>
                     </ul>
                 </article>
             </div>
@@ -773,14 +759,14 @@ bin/bruno                                       # Bruno command wrapper</pre>
             <h2>Read and write operations use different declarations</h2>
             <div class="three-col">
                 <article class="card">
-                    <h3>Read operations</h3>
+                    <h3>Example read operations</h3>
                     <p><span class="badge">API key</span></p>
                     <p>The OpenAPI source declares <code>apiKey</code>. Bruno sends <code>Backendbase-Api-Key</code>.</p>
                 </article>
                 <article class="card">
-                    <h3>Write operations</h3>
+                    <h3>Protected operations</h3>
                     <p><span class="badge">API key</span> <span class="badge write">Bearer token</span></p>
-                    <p>POST, PATCH, and DELETE declare both schemes. Bruno sends both headers.</p>
+                    <p>Account operations, Example writes, and greeting delivery declare both schemes. Bruno sends both headers.</p>
                 </article>
                 <article class="card">
                     <h3>Authentication</h3>
@@ -814,7 +800,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</code></pre>
             </div>
             <div class="callout warning"><strong>Important:</strong> The generation script does not run validation. Run validation as a separate command.</div>
-            <p>Development housekeeping and test or production deployment scripts also generate the specification.</p>
+            <p>Development housekeeping and the immutable release artifact builder also generate the specification.</p>
         </section>
 
         <section id="viewer">
@@ -837,26 +823,31 @@ vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</
 
         <section id="bruno-collection">
             <p class="section-label">10 · Bruno collection</p>
-            <h2>Executable examples for the Example module</h2>
+            <h2>Executable examples for the Example API</h2>
             <p>The repository stores Bruno requests as YAML. Each file contains request metadata, method, URL, headers, query values, body, and assertions.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Sequence</th><th>Request file</th><th>Purpose</th><th>Expected status</th></tr></thead>
                     <tbody>
-                        <tr><td>1</td><td><code>system/api-metadata.yml</code></td><td>Read API metadata</td><td>200</td></tr>
-                        <tr><td>2</td><td><code>system/liveness-check.yml</code></td><td>Check process liveness</td><td>200</td></tr>
-                        <tr><td>3</td><td><code>system/readiness-check.yml</code></td><td>Check dependency readiness</td><td>200 or 503</td></tr>
-                        <tr><td>10</td><td><code>auth/authenticate-user.yml</code></td><td>Capture an access token</td><td>201</td></tr>
-                        <tr><td>40</td><td><code>example/list-example-groups.yml</code></td><td>List available groups</td><td>200</td></tr>
-                        <tr><td>41</td><td><code>example/add-example.yml</code></td><td>Create a test example</td><td>204</td></tr>
-                        <tr><td>42</td><td><code>example/list-examples.yml</code></td><td>Find examples in the group</td><td>200</td></tr>
-                        <tr><td>43</td><td><code>example/get-example-details.yml</code></td><td>Read the test example</td><td>200</td></tr>
-                        <tr><td>44</td><td><code>example/change-example-details.yml</code></td><td>Change the test example</td><td>204</td></tr>
-                        <tr><td>45</td><td><code>example/delete-example.yml</code></td><td>Delete the test example</td><td>204</td></tr>
+                        <tr><td>1</td><td><code>system/api-metadata.yml</code></td><td>API Metadata</td><td>200</td></tr>
+                        <tr><td>2</td><td><code>system/liveness-check.yml</code></td><td>Liveness Check</td><td>200</td></tr>
+                        <tr><td>3</td><td><code>system/readiness-check.yml</code></td><td>Readiness Check</td><td>200 or 503</td></tr>
+                        <tr><td>10</td><td><code>auth/authenticate-user.yml</code></td><td>Authenticate User</td><td>201</td></tr>
+                        <tr><td>20</td><td><code>account/register-account.yml</code></td><td>Register Account</td><td>201</td></tr>
+                        <tr><td>21</td><td><code>account/list-accounts.yml</code></td><td>List Accounts</td><td>200</td></tr>
+                        <tr><td>22</td><td><code>account/revise-account.yml</code></td><td>Revise Account</td><td>204</td></tr>
+                        <tr><td>23</td><td><code>account/retire-account.yml</code></td><td>Retire Account</td><td>204</td></tr>
+                        <tr><td>40</td><td><code>example/list-example-groups.yml</code></td><td>List Example Groups</td><td>200</td></tr>
+                        <tr><td>41</td><td><code>example/add-example.yml</code></td><td>Add New Example</td><td>204</td></tr>
+                        <tr><td>42</td><td><code>example/list-examples.yml</code></td><td>List Examples</td><td>200</td></tr>
+                        <tr><td>42</td><td><code>example/queue-greeting.yml</code></td><td>Queue Greeting</td><td>202</td></tr>
+                        <tr><td>43</td><td><code>example/get-example-details.yml</code></td><td>Get Example Details</td><td>200</td></tr>
+                        <tr><td>44</td><td><code>example/change-example-details.yml</code></td><td>Change Example Details</td><td>204</td></tr>
+                        <tr><td>45</td><td><code>example/delete-example.yml</code></td><td>Delete Example</td><td>204</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p>The collection covers all ten documented Example API operations.</p>
+            <p>The collection has one request for each of the fifteen documented operations. Greeting and example listing both use sequence 42; neither depends on the other.</p>
         </section>
 
         <section id="bruno-request">
@@ -991,9 +982,9 @@ runtime:
                     <thead><tr><th>Priority</th><th>Area</th><th>Current difference</th><th>Suggested action</th></tr></thead>
                     <tbody>
                         <tr><td><span class="badge note">Medium</span></td><td>Bruno report data</td><td>The report must remain safe to share.</td><td>Keep credentials and request and response bodies excluded.</td></tr>
-                        <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Body properties do not declare complete required-field rules.</td><td>Match schema requirements to boundary validation.</td></tr>
+                        <tr><td><span class="badge note">Medium</span></td><td>Request bodies</td><td>Example creation requires <code>lookupValue</code>. PATCH treats explicit null as omitted, although its schema does not declare those fields nullable.</td><td>Match schema requirements to boundary validation.</td></tr>
                         <tr><td><span class="badge note">Medium</span></td><td>CORS</td><td>Allowed headers omit <code>Accept-Language</code>.</td><td>Align CORS with the public header contract.</td></tr>
-                        <tr><td><span class="badge">Low</span></td><td>Tags</td><td><code>Identity &amp; Access</code> is used but absent from the root tag catalog.</td><td>Add the tag definition.</td></tr>
+                        <tr><td><span class="badge">Low</span></td><td>Detail timestamps</td><td>The controller emits <code>DATE_ATOM</code>, while OpenAPI uses the nonstandard <code>datetime</code> format.</td><td>Align the schema with the emitted date-time contract.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1076,7 +1067,7 @@ vendor/bin/phpunit tests/Infrastructure/UseCase/ExampleApi</code></pre>
                     </tbody>
                 </table>
             </div>
-            <p class="small">This guide describes the repository state inspected on 25 August 2026.</p>
+            <p class="small">This guide describes the source inspected on 23 September 2026.</p>
         </section>
     </main>
 </div>

@@ -357,16 +357,16 @@
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Assessment · 29 August 2026</p>
         <h1>Engineering Quality, Strengths, and Risks</h1>
-        <p class="lede">One current assessment of code quality, architecture, operational strengths, product risks, maintenance cost, and automated evidence.</p>
+        <p class="lede">A dated assessment with current local test metrics and source inventory. Dependency freshness and live-service checks retain their recorded verification date.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
             <span class="chip">Account provisioning is external</span>
-            <span class="chip"><span data-quality-metric="tests">527</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">545</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">Complexity ≤ 12</span>
-            <span class="chip">142 package digests verified</span>
-            <span class="chip">0 advisories · 0 abandoned</span>
+            <span class="chip">142 locked packages</span>
+            <span class="chip">Audit snapshot: 29 August 2026</span>
         </div>
     </div>
 </header>
@@ -419,26 +419,27 @@
                     <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 12.</td></tr>
                     <tr><td>Operations and documentation</td><td><strong>9.7/10</strong></td><td>Actions and Composer are pinned. Supply-chain, complexity, link, report, release, and changelog controls are executable.</td></tr>
                     <tr><td>Composer supply-chain controls</td><td><strong>9.0/10</strong></td><td>Exact tooling, policy checks, weekly audits, isolated installs, an SBOM, and package digests reduce the remaining risk to reviewed trust decisions.</td></tr>
-                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>Thirty-four of 35 direct runtime packages are current. The AWS and PHPUnit patches are complete. One Guzzle major upgrade remains. The 97-package runtime graph keeps upgrade cost material.</td></tr>
+                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>The current source has 37 direct runtime packages and 105 locked runtime packages. Dependency freshness was assessed on 29 August 2026 and has not been reassessed in this documentation review.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="summary-grid dependency-profile" aria-label="Dependency maintenance profile">
-                <div class="stat"><strong>35</strong><span>Direct runtime packages</span></div>
-                <div class="stat"><strong>97</strong><span>Locked runtime packages</span></div>
-                <div class="stat"><strong>34/35</strong><span>Current direct packages</span></div>
-                <div class="stat"><strong>0</strong><span>Advisories or abandoned packages</span></div>
+                <div class="stat"><strong>37</strong><span>Direct runtime packages</span></div>
+                <div class="stat"><strong>105</strong><span>Locked runtime packages</span></div>
+                <div class="stat"><strong>37</strong><span>Locked development packages</span></div>
+                <div class="stat"><strong>142</strong><span>Total locked packages</span></div>
             </div>
         </section>
 
         <section id="evidence">
             <p class="section-label">03 · Verification evidence</p>
-            <h2>Configured core checks pass</h2>
+            <h2>Recorded checks and current local metrics</h2>
+            <p>PHPUnit, coverage, and file-count values below use the latest local artifacts. The source inventory was checked on 23 September 2026. Other verification rows record the dated assessment; they do not imply a new live-service, security, or dependency audit.</p>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">527</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">1,924</span></strong><span>Passing assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">4,355</span>/<span data-quality-metric="total-lines">4,355</span></strong><span>Covered executable lines</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,034</span>/<span data-quality-metric="total-methods">1,034</span></strong><span>Covered methods</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">545</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">2,064</span></strong><span>Passing assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">4,459</span>/<span data-quality-metric="total-lines">4,459</span></strong><span>Covered executable lines</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,070</span>/<span data-quality-metric="total-methods">1,070</span></strong><span>Covered methods</span></div>
             </div>
             <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
                 <table class="report-table evidence-table">
@@ -447,13 +448,13 @@
                     </thead>
                     <tbody>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">527</span> tests and <span data-quality-metric="assertions">1,924</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">4,355</span> of <span data-quality-metric="total-lines">4,355</span> executable source lines were covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">1,034</span> of <span data-quality-metric="total-methods">1,034</span> methods were covered.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">545</span> tests and <span data-quality-metric="assertions">2,064</span> assertions passed.</td></tr>
+                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">4,459</span> of <span data-quality-metric="total-lines">4,459</span> executable source lines were covered.</td></tr>
+                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">1,070</span> of <span data-quality-metric="total-methods">1,070</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">537</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">553</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
@@ -476,8 +477,8 @@
                     <tr><td>SQS failure diagnostics</td><td><span class="badge">Pass</span></td><td>Swallowed handler exceptions record safe queue and message context before the message remains available for retry.</td></tr>
                     <tr><td>Changelog policy</td><td><span class="badge">Pass</span></td><td><code>CHANGELOG.md</code> exists, and contributor and agent guidance require each commit to update its <code>Unreleased</code> section.</td></tr>
                     <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
-                    <tr><td>Dependency pruning</td><td><span class="badge">Pass</span></td><td>Direct runtime requirements fell from 42 to 35. Locked runtime packages fell from 105 to 97. OpenAPI build tools moved to development-only installation.</td></tr>
-                    <tr><td>Dependency freshness</td><td><span class="badge">Pass</span></td><td>Thirty-four direct runtime packages are current. The AWS and PHPUnit patch updates are installed. Guzzle 8 remains a coordinated runtime upgrade. Doctrine Coding Standard 14 and PHP_CodeSniffer 4 remain a coordinated development-tool upgrade.</td></tr>
+                    <tr><td>Dependency pruning</td><td><span class="badge">Pass</span></td><td>The 29 August assessment recorded 35 direct and 97 locked runtime packages after pruning. Current notification dependencies bring those counts to 37 and 105. OpenAPI build tools remain development dependencies.</td></tr>
+                    <tr><td>Dependency freshness</td><td><span class="badge">Pass</span></td><td>The 29 August assessment recorded 34 current direct packages. Its proposed Guzzle and coding-tool upgrades require a new compatibility review against the current lock file.</td></tr>
                     <tr><td>Dependency audit</td><td><span class="badge">Pass</span></td><td>Composer reported no known security advisories and no abandoned packages.</td></tr>
                     <tr><td>OpenAPI</td><td><span class="badge">Pass</span></td><td>Source and merged API specifications passed validation.</td></tr>
                     <tr><td>Deployment tests</td><td><span class="badge">Pass</span></td><td>Deployment, failure recovery, and rollback scenarios passed.</td></tr>
@@ -572,7 +573,7 @@
                         <td><span class="badge">Low</span></td>
                         <td>Optional integration dependency surface</td>
                         <td><span class="cell-content">Projects maintain database, queue, cache, notification, cloud, and API packages even when they do not enable every capability.</span></td>
-                        <td><span class="cell-content">35 direct and 97 locked runtime packages remain. All are maintained, and 34 direct packages are current.</span></td>
+                        <td><span class="cell-content">37 direct and 105 locked runtime packages remain. Their current upstream release and advisory status was not checked during this documentation review.</span></td>
                     </tr>
                     <tr>
                         <td><span class="badge">Low</span></td>
@@ -644,7 +645,7 @@ composer reports:check
 composer run validate-example-api-spec
 vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 bash tests/Deployment/deployment-scripts.sh</code></pre>
-            <p>The assessment did not run the container-based dynamic security scan. The live Bruno collection passed all 14 requests against an isolated MySQL database with an ephemeral account.</p>
+            <p>The assessment did not run the container-based dynamic security scan. At that assessment, the live Bruno collection passed its 14 requests against an isolated MySQL database with an ephemeral account. The collection now has 15 requests; this documentation review did not run it.</p>
             <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
             <p>The assessment included the current account lifecycle, context-owned bindings, middleware placement, authorization revocation, path contracts, and quality evidence.</p>
         </section>

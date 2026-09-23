@@ -77,7 +77,7 @@ Use the target's production provider loader or a faithful test composition root.
 
 ## Transactional integration-event branch
 
-Use this branch only when another service must receive a business fact:
+Use this branch when the use case requires an integration event with local subscribers or queue delivery:
 
 ```php
 $transaction->execute(function () use ($item, $integrationEvent): IntegrationEvent {
@@ -87,11 +87,11 @@ $transaction->execute(function () use ($item, $integrationEvent): IntegrationEve
 });
 ```
 
-The transaction must persist the business state and outbox row together. Return the complete event after database work. Keep database reads that control the write inside the same transaction. Pure in-memory validation or object construction can occur before it.
+The transaction must commit business writes, local subscriber writes, and any outbox row together. Return the complete event after database work. Keep database reads that control the write inside the same transaction. Pure in-memory validation or object construction can occur before it. In unmodified Backendbase, local subscribers run for both `DELIVER_VIA_QUEUE` values; only `true` adds an outbox row.
 
-Do not call the broker in the callback. Test both commit and rollback. Force the outbox insert to fail and prove that no business state remains committed.
+Do not call the broker in the callback. Test both commit and rollback. Force a local subscriber failure and verify rollback. When queue delivery is enabled, also force the outbox insert to fail and prove that no business state remains committed.
 
-Do not create an integration event only to gain access to `IntegrationEventTransaction`. An integration event represents a real cross-process compatibility contract. When atomic database work needs no outbound fact, use the target project's ordinary transaction port or report that the required transaction capability is absent.
+Do not create an integration event only to gain access to `IntegrationEventTransaction`. When atomic database work needs no integration event, use the target project's ordinary transaction port or report that the required transaction capability is absent.
 
 ## Synchronous domain-event branch
 
@@ -106,7 +106,7 @@ $transaction->execute(function () use ($item, $domainEvent, $realIntegrationEven
 });
 ```
 
-The integration event in this example must already be required by the use case. Without a real outbound event, use an ordinary transaction abstraction instead. Do not call `EventManager::dispatchEvent()` or a broker from the command handler.
+The integration event in this example must already be required by the use case. It can use local or queue delivery. Without an integration event, use an ordinary transaction abstraction instead. Do not call `EventManager::dispatchEvent()` or a broker from the command handler.
 
 Test the required order and force listener failure. Verify that persisted state and any outbox row roll back together.
 
@@ -116,7 +116,7 @@ Test the required order and force listener failure. Verify that persisted state 
 - The attribute identifies a class but does not register it. The container must resolve the handler and its dependencies.
 - The bus provides no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 - Current production handlers live in `Application/CommandHandlers`. Container config also contains older alternate glob patterns; do not select them when the target follows the current reference.
-- Current Example handlers use `IntegrationEventTransaction` because their use cases publish integration events. Do not create a fake event only to obtain a transaction.
+- Current Example handlers return their integration events through `IntegrationEventTransaction`. The wrapper dispatches local subscribers before commit and selects additional outbox publication from `DELIVER_VIA_QUEUE`. Do not create a fake event only to obtain a transaction.
 - `AddNewExampleHandler` persists the aggregate and publishes its synchronous domain event inside the `IntegrationEventTransaction` callback. Its handler test asserts `transaction-start`, repository, domain event, then `transaction-end`.
 - `ChangeExampleHandler` and `RemoveExampleHandler` resolve `ExampleIdentity` through the write repository inside the transaction callback. Each callback returns the integration event after it knows the aggregate identifier.
 - Patch-style nullable fields mean "not supplied" only when the public contract defines that meaning.

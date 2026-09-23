@@ -101,9 +101,9 @@ Use a focused test matrix:
 
 These conditions are audit prompts. Do not reproduce them as target behavior.
 
-- `NewExample` casts or reads some body values without complete required-field validation.
+- `NewExample` validates `lookupValue` and optional body field types through `ExampleRequestInput`. It still casts route group data, and the sanitizer is not a complete validator.
 - `PayloadSanitizer` is not a complete validator and includes special transformations for some field names.
-- API-key and bearer failures return `400`, while current OpenAPI declares `401` and `403`.
+- API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
 - The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
 - Current privileged commands and the account-list query carry typed access control. Their handlers enforce named privileges before protected work.
 - `tests/ExampleApiTestCase.php` loads obsolete HTTP adapter paths. Use current focused tests or repair a full-stack helper only when the requested test needs it.

@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
-<title>Backendbase Shared Primitives and Object Mapping Guide</title><link rel="stylesheet" href="documentation.css"></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>Backendbase Shared Primitives and Object Mapping Guide</title><link rel="stylesheet" href="documentation.css">    <link rel="stylesheet" href="documentation-light.css">
+</head><body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner"><p class="eyebrow">Backendbase Core · Shared values</p><h1>Shared Primitives and Object Mapping</h1>
 <p class="lede">Identifiers, validated values, pagination, filters, collections, health data, request mapping, validation errors, serialization, and safe reuse boundaries.</p>
 <div class="chips"><span class="chip">Value objects</span><span class="chip">UUIDv7</span><span class="chip">Valinor</span><span class="chip">Validation</span><span class="chip">Serialization</span></div></div></header>
@@ -8,7 +10,7 @@
 <a href="#overview">1. Overview</a><a href="#catalog">2. Catalog</a><a href="#identifiers">3. Identifiers</a><a href="#validated">4. Validated strings</a><a href="#passwords">5. Password hashes</a>
 <a href="#query-values">6. Query values</a><a href="#collections">7. Collections and health</a><a href="#mapping-flow">8. Mapping flow</a><a href="#mapping-contract">9. Mapping contract</a>
 <a href="#errors">10. Mapping errors</a><a href="#boundaries">11. Reuse boundaries</a><a href="#gaps">12. Current gaps</a><a href="#tests">13. Tests</a><a href="#checklist">14. Checklist</a><a href="#sources">15. Source map</a>
-</nav><main>
+</nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Share stable technical values, not context rules</h2>
 <p>The shared primitive directory contains small types used across bounded contexts. A primitive should validate its own invariant and provide one stable representation.</p>
 <div class="callout warning">Keep business-specific decisions inside their owning bounded context. Do not move a type to <code>Shared</code> only because two classes use it.</div>

@@ -69,11 +69,11 @@ Use both types of route evidence:
 
 These conditions are audit prompts. Do not reproduce them as target behavior.
 
-- Existing Example route placeholder names are legacy camelCase. Follow the target project's current instructions for new names, then keep runtime and OpenAPI identical.
+- Example and Account route placeholders use `kebab-case`, matching OpenAPI and Bruno. Follow the target naming rule for new paths.
 - Read operations in the Example module are not bearer-protected, but API-key middleware still protects them. Platform guidance protects new consumer endpoints by default.
 - Current write routes add bearer middleware and enforce named privileges in their application handlers.
 - Current module tests check registry shape and API-key behavior, but they do not prove every protected route's bearer and ACL behavior.
-- Runtime and OpenAPI are not fully aligned on shared headers, security failure status, pagination, and some response fields.
+- Shared-header enforcement and CORS remain incomplete. Group pagination and security status codes now match their documented behavior. Detail timestamps still use the nonstandard OpenAPI format `datetime`.
 - Do not infer public policy from the HTTP method alone.
 
 ## Exact source provenance

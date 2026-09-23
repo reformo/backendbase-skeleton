@@ -1,0 +1,35 @@
+info:
+  name: "Queue Greeting"
+  type: "http"
+  seq: 42
+
+http:
+  method: "POST"
+  url: "{{baseUrl}}/examples/hello"
+  headers:
+    - name: "Backendbase-Api-Key"
+      value: "{{apiKey}}"
+    - name: "Accept-Language"
+      value: "{{acceptLanguage}}"
+    - name: "The-Timezone-IANA"
+      value: "{{timezone}}"
+    - name: "X-Request-Id"
+      value: "{{requestId}}"
+    - name: "X-Source-Id"
+      value: "{{sourceId}}"
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
+    - name: "Content-Type"
+      value: "application/json"
+  body:
+    type: "json"
+    data: |-
+      {
+        "fullname": "Ada Lovelace"
+      }
+
+runtime:
+  scripts:
+    - type: "tests"
+      code: |
+        expect(res.status).to.equal(202);

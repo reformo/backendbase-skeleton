@@ -52,11 +52,12 @@ backendbase-core/
 │   ├── database/
 │   │   ├── Migrations/                # Doctrine migration classes
 │   │   └── Seeders/                   # Database seeders
-│   ├── docs/                          # Project guide and local skills
+│   ├── docs/                          # Project guides and reports
+│   ├── platform/                      # Platform rules and task routing
+│   ├── skills/                        # Reusable task guidance
 │   └── i18n/                          # Translation files
 ├── src/Backendbase/
 │   ├── Domain/
-│   │   ├── Content/                   # Empty placeholder; not a reference implementation
 │   │   ├── ExampleBoundedContext/     # Current bounded-context reference
 │   │   │   ├── Adapters/Persistence/
 │   │   │   │   ├── Doctrine/          # Production persistence adapters
@@ -84,7 +85,7 @@ backendbase-core/
 │   │   ├── Health/                    # Bounded dependency readiness checks
 │   │   └── UseCase/
 │   │       ├── ExampleApi/
-│   │       │   ├── Controllers/Example/  # Example HTTP module
+│   │       │   ├── Controllers/         # Root, Account, Example, and Greeting HTTP modules
 │   │       │   ├── middleware.php
 │   │       │   └── routes.php
 │   │       └── Console/
@@ -122,7 +123,7 @@ Use the root `tests/` directory for tests that belong to the platform rather tha
 
 ### Domain And Application
 
-Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `ExampleBoundedContext` as the current reference implementation. The `Content` directory is empty and must not be used as a reference. Contracts represent command/query inputs and ports. Application handlers orchestrate use cases. Domain objects and services should hold business rules and invariants.
+Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `ExampleBoundedContext` as the current reference implementation. No `Content` context exists in the current source. Contracts represent command/query inputs and ports. Application handlers orchestrate use cases. Domain objects and services should hold business rules and invariants.
 
 ### Enforced Dependency Boundaries
 
@@ -148,7 +149,7 @@ Repository ports live in bounded-context `Contracts`. Write ports load and save 
 
 The current repository contains one HTTP API: `ExampleApi`. Its HTTP adapter lives under `src/Backendbase/Infrastructure/UseCase/ExampleApi`. Its public, configuration, OpenAPI, and Bruno roots use the `example-api` slug.
 
-Use `ExampleApi` as the reference implementation for controllers, routes, middleware, OpenAPI, and Bruno end-to-end patterns. Use `resources/docs/add-api` when the user requests another API. Do not assume that `UserApi`, `ExpertApi`, `AdminApi`, or `B2BApi` exists.
+Use `ExampleApi` as the reference implementation for controllers, routes, middleware, OpenAPI, and Bruno end-to-end patterns. Use `resources/skills/backendbase-add-use-case-api/SKILL.md` when the user requests another API. Do not assume that `UserApi`, `ExpertApi`, `AdminApi`, or `B2BApi` exists.
 
 Before implementing a feature, inspect the current `Infrastructure/UseCase` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
 
@@ -202,11 +203,11 @@ Identify the target database and inspect its pending migrations. Run `bin/doctri
 
 Database change boundary (hard rule): never create, alter, or drop any database table, column, index, or schema on your own initiative. Build ONLY the exact structure the user explicitly requested — no extra tables and no extra columns, not even "obvious" ones like timestamps, soft-delete, status, or audit fields, unless the user asked for them. If a feature seems to need a table or column the user did not mention, STOP and ask before creating it. When reviewing a generated `migrations:diff`, if it contains anything the user did not request, do not run `migrations:migrate` — report it and ask. The database structure is the user's decision, not yours.
 
-Command handlers may create integration events. Add producer event contracts under `Contracts/IntegrationEvents`. Use `IntegrationEventTransaction::execute()` to store the database mutation and outbox message in one transaction. Perform authoritative database work in its callback and return the complete event. Run synchronous domain listeners inside the transaction callback when their failure must roll back the command. Keep business-relevant external effects asynchronous through the outbox. Do not publish queue messages or call `EventManager::dispatchEvent()` directly from a command handler.
+Command handlers may create integration events. Add producer event contracts under `Contracts/IntegrationEvents`. Use `IntegrationEventTransaction::execute()` to commit business work, local subscriber writes, and optional outbox publication in one transaction. Perform authoritative database work in its callback and return the complete event. The transaction wrapper calls `EventManager::dispatchEvent()` before commit. Run synchronous domain listeners inside the transaction callback when their failure must roll back the command. Keep business-relevant external effects asynchronous through the outbox. Do not publish queue messages or call `EventManager::dispatchEvent()` directly from a command handler.
 
 New integration event types must follow `{PascalCaseServiceName}_{PascalCaseEventClassName}`. Read the service name from the `service-name` key in `config/autoload/global.php`. The current default is `example`, so a new `ExampleChanged` event uses `Example_ExampleChanged`. Existing published names are compatibility contracts. Do not rename them without a migration plan.
 
-Producer integration events that enter the outbox declare `IS_MESSAGING_EVENT = true`. The outbox relay publishes typed messages through the configured `MessagePublisher` adapter.
+Both `DELIVER_VIA_QUEUE` values run registered local integration subscribers synchronously. A true flag appends one outbox row after local subscribers complete, even when no local subscriber is registered. A false flag produces no outbox row. Producer dispatch requires an active database transaction. Subscriber repositories and `DoctrineIntegrationEventOutbox` must share its connection. Subscriber and outbox failures roll back the database work. The outbox relay publishes committed rows through the configured `MessagePublisher` adapter. Queue consumption uses `dispatchExternalEvent()` and does not republish the received event.
 
 Internal subscribers implement `IntegrationEventSubscriber` and live under `Application/IntegrationEventSubscribers`. External subscribers implement `ExternalIntegrationEventSubscriber` and live under `Application/ExternalIntegrationEventSubscribers/{SourceService}`. Versioned external message carriers live under `Contracts/ExternalIntegrationEvents/{Version}`. Register both subscriber types in the bounded context `ServiceProvider`.
 

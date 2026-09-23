@@ -91,9 +91,9 @@ Backendbase operations reference `Accept-Language`, `The-Timezone-IANA`, `X-Requ
 
 These differences are semantic audit prompts. Do not reproduce them as target behavior.
 
-- API-key and bearer failures return `400`; the contract declares `401` and `403`.
-- Some request bodies lack complete `required` declarations.
-- Some response fields and timestamp formats do not fully match controller output.
+- API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
+- Example creation requires `lookupValue`. PATCH treats explicit null as omitted, although its schema does not declare those fields nullable.
+- Example detail fields match the controller projection. Its timestamps use `DATE_ATOM`, while the specification labels them with the nonstandard `datetime` format.
 - CORS allowed headers omit `Accept-Language`.
 - The common file contains a second API-key scheme name that differs from the root document. Use one authoritative scheme.
 - Current specification validation succeeds despite these semantic differences. Do not treat schema validation as runtime evidence.

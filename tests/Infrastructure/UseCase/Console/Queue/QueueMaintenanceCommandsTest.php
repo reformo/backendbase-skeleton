@@ -12,8 +12,11 @@ use Backendbase\Shared\Integrations\Operation\OutboxRelayResult;
 use Backendbase\Shared\Integrations\OutboxRelay;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+
+use function microtime;
 
 final class QueueMaintenanceCommandsTest extends TestCase
 {
@@ -72,5 +75,41 @@ final class QueueMaintenanceCommandsTest extends TestCase
         $tester = new CommandTester(new RelayOutboxMessages($relay));
 
         self::assertSame(Command::INVALID, $tester->execute(['--limit' => '0']));
+        self::assertSame(Command::INVALID, $tester->execute(['--limit' => '1001', '--continuous' => true]));
+    }
+
+    #[Test]
+    public function itContinuouslyRelaysFullBatchesAndPollsAfterPartialOrEmptyBatches(): void
+    {
+        $calls = 0;
+        $relay = $this->createMock(OutboxRelay::class);
+        $relay->expects(self::exactly(4))
+            ->method('relay')
+            ->with(2)
+            ->willReturnCallback(static function () use (&$calls): OutboxRelayResult {
+                ++$calls;
+
+                return match ($calls) {
+                    1 => new OutboxRelayResult(2, 0),
+                    2 => new OutboxRelayResult(0, 1),
+                    3 => new OutboxRelayResult(0, 0),
+                    default => throw new RuntimeException('Stop the test relay.'),
+                };
+            });
+        $tester    = new CommandTester(new RelayOutboxMessages($relay));
+        $startedAt = microtime(true);
+
+        try {
+            $tester->execute(['--limit' => '2', '--continuous' => true]);
+            self::fail('The relay did not reach the test stop condition.');
+        } catch (RuntimeException $exception) {
+            self::assertSame('Stop the test relay.', $exception->getMessage());
+        }
+
+        self::assertGreaterThanOrEqual(0.45, microtime(true) - $startedAt);
+        self::assertStringContainsString('Idle poll: 250 ms.', $tester->getDisplay());
+        self::assertStringContainsString('Published: 2; failed: 0.', $tester->getDisplay());
+        self::assertStringContainsString('Published: 0; failed: 1.', $tester->getDisplay());
+        self::assertStringNotContainsString('Published: 0; failed: 0.', $tester->getDisplay());
     }
 }

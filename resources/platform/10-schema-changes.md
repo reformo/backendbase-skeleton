@@ -22,4 +22,6 @@ Seed only approved reference data. Make seeders idempotent. Do not add environme
 
 Review migration rollback and production compatibility before release.
 
+Migration-history rewrites require a separate adoption plan for databases that applied the old versions. Compare schema and version records before any migration command.
+
 Basis: `resources/docs/9-persistence-and-database.html`, `resources/docs/12-deployment-and-operations.html`.

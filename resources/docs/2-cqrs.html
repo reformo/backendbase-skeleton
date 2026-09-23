@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>Backendbase CQRS Guide</title>
     <style>
         :root {
@@ -446,35 +446,7 @@
             .card { padding: 17px; }
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --page: #0d141d;
-                --surface: #141e2a;
-                --surface-soft: #192535;
-                --ink: #eff5fc;
-                --muted: #afbdcd;
-                --line: #2d3b4c;
-                --command: #ff9b6a;
-                --command-soft: #45261d;
-                --query: #82b9f3;
-                --query-soft: #1a3554;
-                --teal: #6bd1c5;
-                --teal-soft: #143c37;
-                --amber: #f1c85c;
-                --amber-soft: #3b3012;
-                --red: #ff9b92;
-                --red-soft: #40201f;
-                --shadow: 0 16px 42px rgba(0,0,0,0.24);
-            }
-            .node { stroke: #65788d; }
-            .node.command { stroke: #b86d4d; }
-            .node.query { stroke: #5988b9; }
-            .node.teal { stroke: #4b9389; }
-            .node.amber { stroke: #aa852c; }
-            .flow-command { stroke: #e7895c; }
-            .flow-query { stroke: #72a9e2; }
-            .flow-neutral { stroke: #91a4b8; }
-        }
+
 
         @media print {
             :root { color-scheme: light; }
@@ -487,8 +459,10 @@
             a { color: inherit; text-decoration: none; }
         }
     </style>
+    <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Developer Guide</p>
@@ -502,7 +476,7 @@
             <span class="pill">Query bus</span>
             <span class="pill">Attribute routing</span>
             <span class="pill">Read and write ports</span>
-            <span class="pill">Source snapshot: 25 August 2026</span>
+            <span class="pill">Source review: 23 September 2026</span>
         </div>
     </div>
 </header>
@@ -528,7 +502,7 @@
         <a href="#source-map">Source map</a>
     </nav>
 
-    <main>
+    <main id="main-content">
         <section id="overview">
             <h2>Overview</h2>
             <p class="lede">
@@ -641,7 +615,7 @@
 
         <section id="contracts">
             <h2>Core contracts</h2>
-            <p class="lede">The shared CQRS namespace contains nine small types.</p>
+            <p class="lede">The CQRS design uses seven shared contract and attribute types plus two Infrastructure bus adapters.</p>
 
             <div class="table-wrap">
                 <table>
@@ -726,13 +700,20 @@ final class ChangeExample implements Command
                 <pre><code>#[CQRSHandler(RemoveExampleHandler::class)]
 readonly class RemoveExample implements Command
 {
-    public function __construct(private ExampleIdentity $identity)
-    {
+    public function __construct(
+        private ExampleIdentity $identity,
+        private AccessControl $accessControl,
+    ) {
     }
 
     public function identity(): ExampleIdentity
     {
         return $this-&gt;identity;
+    }
+
+    public function accessControl(): AccessControl
+    {
+        return $this-&gt;accessControl;
     }
 
     public function jsonSerialize(): mixed
@@ -751,6 +732,8 @@ readonly class RemoveExample implements Command
             <div class="code-wrap">
                 <pre><code>readonly class RemoveExampleHandler implements CommandHandler
 {
+    public const string REQUIRED_PRIVILEGE = 'example.remove';
+
     public function __construct(
         private ExampleWriteRepository $exampleRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
@@ -760,6 +743,7 @@ readonly class RemoveExample implements Command
     /** @param RemoveExample $command */
     public function handle(Command $command): void
     {
+        $command-&gt;accessControl()-&gt;isAllowed(self::REQUIRED_PRIVILEGE);
         $this-&gt;integrationEventTransaction-&gt;execute(
             function () use ($command): ExampleRemoved {
                 $example = $this-&gt;exampleRepository
@@ -937,11 +921,11 @@ $result = $this-&gt;queryBus-&gt;handle(
                 They do not validate fields, authorization, HTTP rules, or business invariants.
             </div>
 
-            <h3>Query before command</h3>
+            <h3>Authoritative write lookup</h3>
             <p>
-                The change and remove controllers first query an example ID, then dispatch a command.
-                These two dispatches are not one transaction.
-                The command handler reloads the active aggregate and must enforce current invariants.
+                The change and remove controllers send <code>ExampleIdentity</code> in one command.
+                The handler loads the active aggregate through its write repository inside the transaction.
+                It owns the missing-resource decision and current invariants.
             </p>
         </section>
 
@@ -972,8 +956,9 @@ $result = $this-&gt;queryBus-&gt;handle(
             </div>
 
             <p>
-                All three example command handlers use <code>IntegrationEventTransaction::execute()</code>.
-                It commits the aggregate mutation and outbox event together.
+                Example integration event producers use <code>IntegrationEventTransaction::execute()</code>.
+                It dispatches the returned event to local subscribers before commit.
+                Business writes, local subscriber writes, and the outbox row selected by <code>DELIVER_VIA_QUEUE</code> commit or roll back together.
             </p>
 
             <div class="callout command">
@@ -1073,19 +1058,20 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
 
             <div class="callout warning">
                 <strong>Missing bus failure-path coverage</strong>
-                Current tests do not directly cover a missing handler attribute, a named attribute argument, or a resolved class with the wrong handler interface.
+                <code>ContainerAwareBusTest</code> covers wrong handler interfaces. Attribute architecture tests validate production metadata. Missing or named attributes still lack dedicated bus runtime tests.
             </div>
         </section>
 
         <section id="catalog">
             <h2>Current CQRS catalog</h2>
-            <p class="lede">The example bounded context contains three commands and four queries.</p>
+            <p class="lede">The example bounded context contains four commands and four queries.</p>
 
             <h3>Commands</h3>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Command</th><th>Handler</th><th>Write behavior</th><th>Integration event</th></tr></thead>
                     <tbody>
+                        <tr><td><code>QueueGreeting</code></td><td><code>QueueGreetingHandler</code></td><td>Request queued greeting delivery.</td><td><code>GreetingRequested</code></td></tr>
                         <tr><td><code>AddNewExample</code></td><td><code>AddNewExampleHandler</code></td><td>Create and add an <code>Example</code>.</td><td><code>NewExampleAdded</code></td></tr>
                         <tr><td><code>ChangeExample</code></td><td><code>ChangeExampleHandler</code></td><td>Load, change, and save an active <code>Example</code>.</td><td><code>ExampleChanged</code></td></tr>
                         <tr><td><code>RemoveExample</code></td><td><code>RemoveExampleHandler</code></td><td>Load, remove, and save an active <code>Example</code>.</td><td><code>ExampleRemoved</code></td></tr>
@@ -1133,8 +1119,8 @@ QueryBus::class =&gt; fn (ContainerInterface $container) =&gt;
                     <p><code>ChangeExample</code> uses setters. Build it fully before dispatch and do not reuse it after dispatch.</p>
                 </article>
                 <article class="card">
-                    <h3>Query and command are not atomic</h3>
-                    <p>A controller sequence that queries an ID and then sends a command can observe concurrent changes.</p>
+                    <h3>Write lookup stays in the handler</h3>
+                    <p>Change and remove handlers resolve public identity inside their write transaction. Controllers dispatch one command.</p>
                 </article>
                 <article class="card">
                     <h3>Serialization asymmetry</h3>

@@ -20,7 +20,7 @@ Do not copy `Backendbase\`, `ExampleBoundedContext`, `Example_*`, subscriber nam
 | --- | --- | --- |
 | Input | producer `IntegrationEvent` | Subscribe to one existing event contract. |
 | Subscriber contract | `IntegrationEventSubscriber` | Use the internal interface only. |
-| Dispatch | `EventManager::dispatchEvent()` | Identify one explicit non-command-handler owner. |
+| Dispatch | `IntegrationEventTransaction` calls `EventManager::dispatchEvent()` | Identify the transaction owner that invokes local subscribers before commit. |
 | Registration | bounded-context `ServiceProvider` | Register event names and subscriber class. |
 | Resolution | `ContainerAwareEventManager` | Follow target container construction rules. |
 | Test | event-manager and provider tests | Prove dispatch and type safety. |
@@ -63,15 +63,15 @@ Backendbase internal registration contains no message carrier or version:
 
 ## Dispatch ownership
 
-Registration does not execute the subscriber. Backendbase only invokes it through an explicit call similar to:
+Registration alone does not execute the subscriber. In an unmodified Backendbase project, `IntegrationEventTransaction::execute()` runs business work and passes the returned event to the event manager before commit:
 
 ```php
 $eventManager->dispatchEvent($event);
 ```
 
-Do not add this call to a command handler. Backendbase command handlers use the transactional outbox for external business facts. If no valid orchestration or infrastructure boundary owns synchronous dispatch, stop and report that the subscriber would be inert.
+Do not add a second dispatch call to a command handler. Return the event from the transaction callback so the wrapper owns dispatch. In other target projects, verify the corresponding transaction owner before adding the subscriber.
 
-When a subscriber must control rollback, execute it through an already designed synchronous boundary inside the same database transaction. Do not invent this behavior from registration alone.
+Backendbase runs local subscribers for both `DELIVER_VIA_QUEUE` values. A true flag also writes one outbox row after local subscribers complete. Producer dispatch rejects a missing transaction before any subscriber runs. Local subscriber repositories and the outbox writer must use the same connection. A subscriber failure rolls back database work. Keep network, process, and filesystem effects out of local subscribers.
 
 ## Exact and wildcard subscriptions
 
@@ -98,6 +98,7 @@ Use wildcards only when the business request requires a stable family of events.
 - Command handlers must not call internal integration dispatch directly.
 - One bounded context must not import another context's implementation.
 - Avoid logging complete event payloads when they can contain sensitive data.
+- In unmodified Backendbase, subscriber resolution requires an explicit constructor, including an empty constructor when no dependencies exist. The registry creates a fresh subscriber through reflection and resolves each constructor dependency from the container by type, then by parameter name.
 
 ## Authorization boundary
 
@@ -124,7 +125,7 @@ Report the event, subscriber, dispatch owner, transaction behavior, registration
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified against current source on 2026-09-23:
 
 - `src/Backendbase/Shared/Domain/Messaging/IntegrationEventSubscriber.php`
 - `src/Backendbase/Shared/Services/EventManager/EventManager.php`

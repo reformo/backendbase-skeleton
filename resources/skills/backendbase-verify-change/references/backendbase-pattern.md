@@ -164,14 +164,14 @@ Backendbase stores these decisions as `migrationTarget` and `applicationRollback
 
 Use these as regression prompts. Do not preserve them as desired behavior:
 
-- `ValidateApiKey` is active in current `ExampleApi/middleware.php`; an older HTML guide says it is commented out.
+- `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify API-key and bearer policy independently.
 - `public/index.php` selects an API through `X-Source-Id` and `UseCaseTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
-- Some authentication failures return status 400 while the sample OpenAPI declares 401 or 403.
-- The sample detail response, pagination rules, and OpenAPI fields are not fully aligned.
+- API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
+- Example groups use a complete total and the requested page. Detail fields match the projection, but their OpenAPI timestamp format remains `datetime`.
 - The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.
-- Internal integration subscribers are registered but are not automatically dispatched.
+- Producer transactions dispatch local integration subscribers before commit. Verify both delivery flag values and rollback when a local subscriber fails.
 - SQS `REJECT` relies on external redrive configuration. RabbitMQ retry immediately requeues. Outbox publish retry has no terminal limit.
-- Notification provider wiring is incomplete and notification payload logging is unsafe.
+- SNS SMS and SES email are registered by default. Twilio, Netgsm, SMTP, and configured Firebase are available. No notification queue contract or consumer is registered.
 - Object-storage multipart retry is unbounded, signed POST omits content type, and downloads force `image/jpeg`.
 - `en-US.php` uses the Turkish dictionary.
 - Shared object mapping silently drops unknown keys and permits scalar coercion.

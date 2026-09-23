@@ -162,6 +162,7 @@ For an external effect, also test provider idempotency-key propagation, duplicat
 - Registry identity is event name plus event version.
 - Duplicate registry keys fail construction.
 - The event manager rejects internal subscribers matched on the external path.
+- The subscriber registry requires an explicit constructor, even when it is empty. It creates each subscriber through reflection and resolves dependencies by container type, then by parameter name. A subscriber-class container binding does not control construction.
 - Backendbase version-one `NewExampleAdded` publishes a nested `command` object. Its registered carrier now preserves that released shape with typed outer and nested DTOs.
 - `ProducerConsumerContractTest` maps the real producer arguments through the registered carrier and real dispatcher.
 - SQS reject behavior needs an infrastructure redrive policy.
@@ -195,7 +196,7 @@ Report producer name and version, exact carrier fields, source service, subscrib
 
 ## Provenance
 
-Verified on 2026-08-25 from:
+Verified against current source on 2026-09-23:
 
 - `src/Backendbase/Shared/Domain/Messaging/EventMessage.php`
 - `src/Backendbase/Shared/Domain/Messaging/ExternalIntegrationEventSubscriber.php`
