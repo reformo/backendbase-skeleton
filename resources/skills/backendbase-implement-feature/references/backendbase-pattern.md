@@ -149,6 +149,21 @@ The transaction must commit business state, local integration subscriber writes,
 
 Consumers remain at-least-once. Use inbox idempotency for database work and an external-effect inbox for provider calls. Keep external event contracts versioned.
 
+## Client-visible Write Results
+
+Inspect the target's response contract and identifier ownership. In an unmodified Backendbase project, command handlers and buses return `void`. Select one of these approaches:
+
+- Generate the public identifier before a create command or reuse an existing resource's public identity. Carry it in the command and return it only after successful execution.
+- For a resource representation, call one application orchestrator in the owning context. It executes the command, waits for commit, then reads through a query or read port. It returns a declared read model or immutable result object. Keep input and result contracts in the contract layer and HTTP mapping in the delivery adapter.
+
+Preserve context isolation and authorization for both the command and read, including direct read-port calls. Keep authoritative write lookup and transaction control in the handler or its called application service. Do not mutate the command or use events as a response channel.
+
+Verify that the read source meets the required consistency. An asynchronous projection can lag, and a later read does not guarantee an exact commit snapshot. Define missing-result and read-failure behavior after commit. A read failure does not undo the write. Do not repeat the command to recover a response. Neither approach retrieves an unpersisted handler-only result.
+
+Test identifier equality, command-failure behavior, and real container resolution. For orchestration, also test commit-before-read order, visibility, read authorization, and defined read-failure behavior.
+
+Current Backendbase create endpoints demonstrate the identifier approach. The orchestrator approach is permitted guidance, not an existing create-endpoint implementation.
+
 ## Boundary Rules
 
 - Validate HTTP path, query, body, header, and authentication data before dispatch.

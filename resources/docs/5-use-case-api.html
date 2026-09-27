@@ -699,7 +699,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                     <ul>
                         <li>Read path, query, header, and parsed-body data.</li>
                         <li>Sanitize and validate untrusted input.</li>
-                        <li>Create one command or query for the operation.</li>
+                        <li>Invoke one application operation through a command, query, or write-result orchestrator.</li>
                         <li>Map a read model to the response schema.</li>
                         <li>Select the HTTP status and response headers.</li>
                     </ul>
@@ -774,6 +774,14 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                 </article>
             </div>
             <p><code>ChangeExampleDetails</code> and <code>RemoveExample</code> put <code>EntryIdentity</code> in one command. Their handlers resolve the aggregate through the write repository and own the resource-not-found decision.</p>
+            <h3>Client-visible write results</h3>
+            <p>Command handlers and the command bus return <code>void</code>. A write response can use either approach:</p>
+            <ul>
+                <li><strong>Identifier only:</strong> Generate the public identifier before a create command or reuse an existing resource's public identity. Send it in the command and return it after successful execution. <code>RegisterAccount</code> returns <code>accountUuid</code> with status <code>201</code>. <code>NewExample</code> returns <code>Backendbase-Insert-Id</code> with status <code>204</code>.</li>
+                <li><strong>Resource representation:</strong> Call one application orchestrator with validated, typed input. It executes the command, waits for commit, then reads through a query or read port. It returns a declared result for the HTTP action to map. This is a permitted design, not the current create-endpoint implementation.</li>
+            </ul>
+            <p>Keep orchestration in the owning context's <code>Application</code> layer. Keep input and result contracts in <code>Contracts</code>. Preserve command and read authorization, including direct read-port calls. Keep authoritative write lookup and transaction control in the handler or its called application service.</p>
+            <p>For an immediate representation, verify that the read source observes the committed write. Define missing-result and read-failure behavior after commit. A failed read does not undo the write. Do not repeat the command to recover a response. Follow the <a href="2-cqrs.html#client-visible-write-results">CQRS result rules</a> for consistency limits and verification.</p>
             <div class="related">
                 <a href="2-cqrs.html">CQRS guide</a>
                 <a href="1-bounded-contexts.html">Bounded contexts guide</a>

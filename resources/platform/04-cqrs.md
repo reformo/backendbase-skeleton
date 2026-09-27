@@ -26,6 +26,23 @@ Pass `RegistryHandlerResolver::class` as the second argument to the `config/depe
 
 PHPDoc generics are not checked at runtime. Test each configured handler link and concrete handler contract.
 
-Each HTTP action dispatches one command or query for one operation. A write action carries public identity in its command. The command handler resolves current state through a write port and owns missing-state decisions.
+Each HTTP action invokes one application operation. Normally, it dispatches one command or query. A write action can instead call the application orchestrator described below. A write command carries public identity. Its handler resolves current state through a write port and owns missing-state decisions.
+
+## Client-visible write results
+
+Command handlers and the command bus still return `void`. Select the smallest approach that satisfies the response contract:
+
+1. **Identifier only:** For creation, generate the public identifier before dispatch and pass it in the command. For an existing resource, reuse its public identity. Return that identifier only after successful command execution. No orchestrator is needed. `RegisterAccount` uses this approach for its `accountUuid` response. `NewExample` uses it for the `Backendbase-Insert-Id` header.
+2. **Resource representation:** The HTTP action can call one application orchestrator with validated, typed input. The orchestrator dispatches one command, waits for successful completion and commit, then reads through a query or read port. It returns a declared read model or immutable result object. The HTTP action selects the response body, status, and headers.
+
+Place the orchestrator in the owning context's `Application` layer. Define its input and result contracts in that context's `Contracts` layer. Depend on bus interfaces and project-owned ports. Preserve context isolation, command authorization, and read authorization. A direct read-port call must enforce the same access policy as the corresponding query.
+
+Keep write lookup, invariants, and transaction control in the command handler or its called application service. The response read must not select the write target. Do not move HTTP handling or SQL into the orchestrator. Do not mutate a command or use an event to carry response data back to its caller.
+
+Define read consistency before selecting the second approach. An immediate representation requires a read source that can observe the committed write. An asynchronous projection or replica can lag. If that source cannot satisfy the response contract, use the identifier approach when the contract permits it. Otherwise, resolve the contract or read-source requirement before implementation. A later read represents resource state at read time; it does not guarantee the exact state at commit.
+
+Define missing-result and read-failure behavior after commit. A failed response read does not roll back the completed command. Do not automatically repeat the command to recover the response. These approaches cannot return a handler-only value that was neither supplied beforehand nor persisted for an authorized read.
+
+Verify identifier equality, no success response after command failure, and real runtime resolution. For an orchestrator, also verify write-before-read order, committed visibility, read authorization, and the defined missing-result and read-failure behavior. The orchestrator approach is permitted guidance; current create endpoints demonstrate the identifier approach.
 
 Basis: `resources/docs/2-cqrs.html`.

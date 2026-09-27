@@ -29,17 +29,30 @@ Use the target framework, request types, namespace, command and query buses, res
 ## Workflow
 
 1. Draft the method, path, operation name, security, request contract, response contract, and errors in the authoritative OpenAPI source.
-2. Reuse a complete typed command or query path. If it is absent, add its handler, ports, adapters, registration, and tests before endpoint wiring.
+2. Reuse a complete application path: a command, query, or write-result orchestrator described below. Add missing handlers, ports, adapters, registration, and tests before endpoint wiring.
 3. Do not create or change database structure unless the user explicitly requests that schema change.
 4. Add or reuse a small boundary validator for path, query, header, and body data.
 5. Sanitize where needed, then separately validate required state, types, formats, ranges, sizes, and allowed values before dispatch. Sanitization is not validation.
-6. Construct the typed command or query from validated values and dispatch it through the target bus.
-7. Dispatch one application message for one endpoint operation. Let a write command carry the public identity, and let its handler perform the authoritative lookup through a write port.
+6. Construct the command, query, or application-orchestrator input from validated values.
+7. Invoke one application operation through the target bus or write-result orchestrator. Keep public identity in the write command and authoritative lookup in its handler.
 8. Map the result to the exact documented response body, status, and headers.
 9. Register the route, then verify its API-key, bearer, and ACL policy across the complete stack. In an unmodified Backendbase API, default a new consumer operation to API key plus bearer unless the explicit target policy selects API-key-only or anonymous access. Use `security: []` only for an explicitly public operation.
 10. Reconcile the OpenAPI draft with the implemented route, middleware, validation, response, and errors. Update the affected request when the target maintains a Bruno collection.
 11. Test valid mapping, invalid input, bus non-dispatch on failure, empty or not-found behavior, response semantics, and actual route middleware.
 12. Verify runtime, OpenAPI, and tests agree on each request header and security requirement. Include maintained Bruno coverage and configured CORS when applicable.
+
+## Client-visible write results
+
+Discover the target's response contract and application-service conventions. In an unmodified Backendbase project, command handlers and buses return `void`:
+
+- For an identifier-only response, generate the public identifier before a create command or reuse an existing resource's public identity. Send it in the command and return it only after successful execution.
+- For a resource representation, call one application orchestrator in the owning context with validated, typed input. The orchestrator dispatches one command, waits for successful completion and commit, then reads through a query or read port. It returns a declared read model or immutable result object. Keep input and result contracts in the target's contract layer.
+- Keep command-then-read coordination outside the controller. Keep HTTP body, status, and header mapping in the controller. Preserve context isolation, command authorization, and read authorization, including direct read-port calls.
+- Require a read source that satisfies the response consistency contract. A delayed projection cannot guarantee immediate visibility. Define missing-result and read-failure behavior after commit. A failed read does not undo the write. Do not repeat the command to recover a response.
+- Keep authoritative write lookup and transaction control in the handler or its called application service. Do not mutate the command or use events as a response channel.
+- Test identifier equality and no success response after command failure. For orchestration, also test commit-before-read order, visibility, read authorization, read failures, and real runtime resolution.
+
+The second approach returns resource state at read time, not an exact commit snapshot. Neither approach retrieves an unpersisted handler-only value. Resolve incompatible response requirements before implementation. Read [the response examples](references/backendbase-pattern.md#client-visible-write-results) when selecting the approach.
 
 ## Backendbase invariants
 

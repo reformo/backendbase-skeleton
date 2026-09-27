@@ -4,6 +4,7 @@
 - Domain code must not depend on HTTP, Doctrine, queues, containers, application handlers, or infrastructure.
 - Contracts define commands, queries, ports, read models, and versioned event schemas.
 - Application handlers orchestrate use cases through domain objects and ports.
+- For a write response that needs a resource representation, an application orchestrator can coordinate one command and a subsequent read. Follow [the client-visible write-result rules](04-cqrs.md#client-visible-write-results).
 - Application handlers must not parse HTTP, run SQL, publish directly to brokers, or build HTTP responses.
 - Application services must not depend on `Infrastructure`.
 - `Infrastructure/Messaging` owns technical relay, claim, retry, and delivery-failure coordination.

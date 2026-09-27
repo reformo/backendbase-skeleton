@@ -60,6 +60,14 @@ final readonly class DiscontinueCatalogItemHandler implements CommandHandler
 
 Add transaction or event code only after discovering an explicit requirement and the target project's port.
 
+## Client-visible write results
+
+For an identifier-only response, a caller can generate `CatalogItemId` before sending a create command. It returns that same identifier only after successful execution.
+
+For a resource representation, a context-owned application orchestrator can dispatch the create command and read by the known public identity after commit. Use a query or read port with the required visibility and authorization. Return a declared result through the application contract. The delivery adapter maps the result to HTTP.
+
+In current Backendbase source, `RegisterAccount` returns the identifier as `accountUuid` with status `201`. `NewExample` returns it in `Backendbase-Insert-Id` with status `204`. These names and response shapes are examples only. The application-orchestrator approach is permitted by platform guidance; these endpoints do not implement it.
+
 ## Registration and runtime resolution
 
 The context registry identifies the handler. Add the mapping to `ServiceProvider::getHandlers()`:
@@ -152,6 +160,8 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `resources/platform/24-feature-workflow.md`
 - `src/Backendbase/Shared/CQRS/Command.php`
 - `src/Backendbase/Shared/CQRS/CommandHandler.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Account/Handlers/RegisterAccount.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php`
 - `src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php`
 - `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Domain/ExampleCatalog/Contracts/Command`

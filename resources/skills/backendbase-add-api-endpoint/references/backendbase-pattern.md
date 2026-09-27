@@ -4,8 +4,9 @@
 
 ```text
 discover affected API -> draft OpenAPI contract -> complete application path
--> PSR-7 request -> optional sanitizer -> boundary validator -> command/query -> bus
--> bus result -> response mapper -> PSR-7 response
+-> PSR-7 request -> optional sanitizer -> boundary validator
+-> command/query bus or application orchestrator
+-> confirmed identifier or declared read result -> response mapper -> PSR-7 response
 -> reconcile OpenAPI -> update maintained Bruno lifecycle -> semantic contract audit
 ```
 
@@ -56,9 +57,24 @@ The Backendbase shared headers are `Accept-Language`, `The-Timezone-IANA`, `X-Re
 
 ## Application and error boundaries
 
-Use one application message for one endpoint operation. Do not use a controller query to translate public identity for a write. Carry the identity in the command. Resolve the aggregate and enforce current invariants through a write port in the command handler.
+Invoke one application operation per endpoint through a command, query, or write-result orchestrator. Do not use a controller query to translate public identity for a write. Carry the identity in the command. Resolve the aggregate and enforce current invariants through a write port in the command handler.
 
 The Infrastructure HTTP error handler maps known domain errors, Slim failures, and unexpected failures. Do not build ad hoc error arrays in a controller or expose internal exception details.
+
+## Client-visible write results
+
+For an identifier-only response, generate the identifier before a create command or reuse an existing resource's public identity. Return it after successful execution. Current Backendbase examples are `RegisterAccount` (`201`, `accountUuid`) and `NewExample` (`204`, `Backendbase-Insert-Id`). Adapt names, statuses, and headers to the target contract.
+
+For a resource representation, the permitted application-orchestrator path is:
+
+```text
+HTTP action -> typed application input -> application orchestrator
+    -> command bus -> handler -> committed write
+    -> query bus or authorized read port -> declared result
+HTTP action -> documented response
+```
+
+This is an allowed design, not the current create-endpoint implementation. Verify the orchestrator and all dependencies through the target composition root. For immediate representations, prove that the selected read source observes the committed write. Test missing results and read failures after commit without repeating the write.
 
 ## Security layers
 
@@ -89,6 +105,7 @@ Use a focused test matrix:
 | Test | Evidence |
 | --- | --- |
 | Valid read or write | Exact typed message reaches the correct bus |
+| Write-result orchestrator | Typed input reaches the orchestrator; the authorized read follows the committed write |
 | Invalid input | Stable problem response and no bus dispatch |
 | Missing single resource | Documented not-found response |
 | Empty collection | Successful empty response shape |
@@ -117,6 +134,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ExampleRequestInput.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php`
+- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Account/Handlers/RegisterAccount.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/Examples.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/ExampleDetails.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php`

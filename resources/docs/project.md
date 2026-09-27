@@ -161,11 +161,18 @@ Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, 
 
 Commands and queries implement `Backendbase\Shared\CQRS\Command` or `Backendbase\Shared\CQRS\Query`. They have no handler attributes. The `config/dependencies.php` provider defaults to `RegistryHandlerResolver::class` and uses each context's `ServiceProvider::getHandlers()` mappings. `AttributeHandlerResolver` remains available for separately attributed contracts. Both buses obtain the selected handler from the PHP-DI container.
 
+Command handlers and the command bus return `void`. For a client-visible write result, use either approach:
+
+- Generate the public identifier before a create command or reuse an existing resource's public identity. Carry it in the command and return it only after successful execution.
+- For a resource representation, call one application orchestrator in the owning context. It executes the command, waits for commit, then reads through a query or read port. It returns a declared read model or immutable result object for the HTTP action to map.
+
+Keep orchestrator input and result contracts in `Contracts`. Preserve context isolation and authorization for both the command and read. Keep authoritative write lookup and transaction control in the handler or its called application service. Define read consistency and failures after commit. A failed response read does not undo the write and must not cause automatic command repetition. Follow [the client-visible write-result rules](../platform/04-cqrs.md#client-visible-write-results).
+
 ### Example API
 
 `ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
 
-When adding or changing an endpoint, use this adapter shape in each existing affected API. The current repository has only `ExampleApi`.
+When adding or changing an endpoint, invoke one application operation in each existing affected API. Direct command or query dispatch is the default. For a write response needing a resource representation, the action can instead call the application orchestrator described above. Current create endpoints use pre-generated identifiers. The current repository has only `ExampleApi`.
 
 ## Feature Flow
 

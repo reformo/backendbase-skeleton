@@ -756,12 +756,25 @@
                 <li>Use intention-revealing names such as <code>AddEntry</code> or <code>RemoveEntry</code>.</li>
                 <li>Convert external primitives into enums, value objects, and validated values before construction.</li>
                 <li>Carry only the data needed for one use case.</li>
-                <li>Dispatch one command from the controller and resolve authoritative state in the handler.</li>
+                <li>Dispatch one command from the controller or an application orchestrator. Resolve authoritative state in the handler.</li>
                 <li>Put business decisions on the aggregate, not in the controller.</li>
                 <li>Use the write repository port for aggregate persistence.</li>
                 <li>Start required transactions inside the handler or a called application service.</li>
                 <li>Return no data through <code>CommandBus</code>. Use a generated ID before dispatch when the response needs it.</li>
             </ul>
+
+            <h3 id="client-visible-write-results">Client-visible write results</h3>
+            <p>Command handlers and <code>CommandBus</code> still return <code>void</code>. Select the smallest approach that satisfies the response contract.</p>
+            <ol>
+                <li><strong>Identifier only:</strong> Generate the public identifier before a create command or reuse an existing resource's public identity. Carry it in the command and return it only after successful execution. No orchestrator is needed.</li>
+                <li><strong>Resource representation:</strong> The HTTP action can call one application orchestrator with validated, typed input. It dispatches one command, waits for successful completion and commit, then reads through a query or read port. It returns a declared read model or immutable result object. The HTTP action maps that result to the documented response.</li>
+            </ol>
+            <p>Place the orchestrator in the owning context's <code>Application</code> layer. Keep its input and result contracts in <code>Contracts</code>. Depend on bus interfaces and project-owned ports. Preserve context isolation and authorization for both the command and read, including direct read-port calls.</p>
+            <p>The command handler or its called application service retains authoritative write lookup and transaction control. Do not use the response read to select the write target. Keep HTTP and SQL outside the orchestrator. Do not mutate the command or use events as a response channel.</p>
+            <p>An immediate representation requires a read source that observes the committed write. An asynchronous projection or replica can lag. Use the identifier approach if the response contract permits it. Otherwise, resolve the consistency requirement before implementation. A later read returns resource state at read time, not a guaranteed commit snapshot.</p>
+            <p>Define missing-result and read-failure behavior after commit. A failed read does not undo the completed write. Do not automatically repeat the command to recover the response. Neither approach retrieves a handler-only value that was not supplied beforehand or persisted for an authorized read.</p>
+            <p>Test identifier equality, command-failure behavior, and runtime resolution. For an orchestrator, also test commit-before-read order, visibility, read authorization, missing results, and read failures.</p>
+            <p>Current <code>RegisterAccount</code> and <code>NewExample</code> endpoints use the identifier approach. The orchestrator approach is permitted guidance; these endpoints do not implement it.</p>
 
             <div class="callout command">
                 <strong>Patch commands can carry nullable fields</strong>
@@ -872,15 +885,15 @@ final readonly class GetEntryByCriteriaHandler implements QueryHandler
 
         <section id="http-boundary">
             <h2>HTTP adapter boundary</h2>
-            <p class="lede">Controllers translate untrusted HTTP data into one valid command or query for the operation.</p>
+            <p class="lede">Controllers validate HTTP input and invoke one application operation through a command, query, or write-result orchestrator.</p>
 
             <ol class="steps">
                 <li><strong>Read route, query, or request-body values.</strong></li>
                 <li><strong>Sanitize the input with <code>PayloadSanitizer</code>.</strong></li>
                 <li><strong>Validate types, formats, ranges, and enum values.</strong></li>
                 <li><strong>Create typed primitives such as <code>EntryType</code> and <code>Pagination</code>.</strong></li>
-                <li><strong>Construct the command or query.</strong></li>
-                <li><strong>Dispatch once through <code>CommandBus</code> or <code>QueryBus</code>.</strong></li>
+                <li><strong>Construct the command, query, or typed application-orchestrator input.</strong></li>
+                <li><strong>Dispatch through the appropriate bus or call one write-result orchestrator.</strong></li>
                 <li><strong>Map the result into an HTTP response.</strong></li>
             </ol>
 

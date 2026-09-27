@@ -17,7 +17,7 @@ Inspect only unknown facts needed by the affected behavior. Reuse applicable ins
 2. Inspect the nearest command and handler, affected domain behavior, transaction owner, registration, and focused tests.
 3. Trace the relevant aggregate, write port, transaction mechanism, caller boundary, domain-event publisher, and container registration path.
 4. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
-5. Confirm input fields, invariant, result semantics, transaction scope, and whether any event is explicitly required.
+5. Confirm input fields, invariant, result semantics, transaction scope, and whether any event is explicitly required. For client-visible write results, select an approach below.
 
 ## Target-project adaptation
 
@@ -34,6 +34,19 @@ Use the target project's namespace, command naming, value objects, aggregate, po
 7. Add an integration event only when the use case requires it. Keep business writes, local subscriber writes, and any outbox insert in one transaction.
 8. When a synchronous domain-listener failure must roll back the write, publish the domain event inside the same transaction callback after the required persistence operation.
 9. Test command serialization, handler orchestration, real bus resolution, the changed lifecycle, event ordering, and transaction rollback when a transaction is used.
+
+## Client-visible write results
+
+Discover the target's response contract, identifier ownership, read consistency, and application-service conventions. In an unmodified Backendbase project, both approaches preserve `void` command handlers and buses:
+
+- For an identifier-only response, generate the public identifier before a create command or reuse an existing resource's public identity. Pass it in the command and return it only after successful execution.
+- For a resource representation, permit one application orchestrator in the owning context. It dispatches the command, waits for successful completion and commit, then uses a query or read port. It returns a declared read model or immutable result object to the caller.
+- Keep input and result contracts in the target's contract layer. Keep HTTP mapping at the delivery boundary. Preserve context isolation, write authorization, and read authorization, including direct read-port calls.
+- Keep authoritative write lookup and transaction control in the handler or its called application service. Do not read first to select the write target. Do not mutate the command or use events as a response channel.
+- Verify that the read source satisfies the required consistency. A delayed projection cannot guarantee an immediate representation. Define missing-result and read-failure behavior after commit. Do not repeat the command to recover a response.
+- Test identifier equality and command-failure behavior. For orchestration, test commit-before-read order, visibility, read authorization, read failures, and actual container resolution.
+
+The second approach returns resource state at read time. It cannot recover a handler-only value that was not persisted. Resolve incompatible response requirements before implementation. Read [the result examples](references/backendbase-pattern.md#client-visible-write-results) when selecting the approach.
 
 ## Backendbase invariants
 

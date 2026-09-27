@@ -28,6 +28,7 @@ Read only needed sections of [the feature pattern](references/backendbase-patter
 | Where does the change belong? | Adaptation Map; Dependency Direction; Minimum Feature Slice |
 | Which delivery surfaces and contracts change? | Affected-delivery pass; Boundary Rules |
 | How are handlers and adapters reached? | CQRS Contract; Registration Checklist |
+| How does a write produce a client-visible result? | Client-visible Write Results |
 | How do persistence and events remain consistent? | Cross-layer implementation gates; Transactional Publication |
 | Which example limitations or checks matter? | Relevant Known Source Limits to Correct entries; Verification Baseline |
 
@@ -40,6 +41,7 @@ When scope expands, inspect the new surface and reassess affected decisions. Do 
 - Name new contexts after the target business capability. Omit `Context` and `BoundedContext` suffixes and demonstration prefixes. Use domain terms for entities and operations.
 - Validate untrusted input at its boundary. Keep business rules in domain behavior and vendor or database operations behind project-owned ports.
 - Align fields, types, required state, defaults, errors, authorization, and versions across participating contracts. Update every affected existing delivery surface.
+- For client-visible write results, use an identifier known before dispatch or an application orchestrator that reads after commit. Follow the result guidance in the feature pattern.
 - Verify actual container, bus, route, provider, or registry reachability when registration changes. Direct unit tests alone do not prove wiring.
 - Add integration events only when requested behavior requires them. Prove external producer-to-carrier mapping. Do not claim exactly-once delivery.
 - Generate a migration only for authorized schema scope after mapping and repository behavior are established. Review every statement and exclude unrelated changes.
