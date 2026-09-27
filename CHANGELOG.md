@@ -39,6 +39,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Aligned project, testing, maintenance, and reusable verification guidance with recent messaging, CQRS, Composer, and project-copy changes. Refreshed the interactive architecture map and its source references.
 - Documented identifier responses and application orchestrators for resource representations after writes. Aligned platform rules, guides, and reusable skills while preserving `void` command handlers.
 - Refreshed the engineering quality report from full-suite coverage and test results after adding the messaging dependency boundary.
 - Moved technical messaging coordination to `Infrastructure/Messaging`. Preserved port bindings and behavior, moved its tests, and added a dependency boundary for the new directory.

@@ -7,27 +7,43 @@
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/reformo/backendbase-skeleton",
-      "revision": "7e546fa577b28a98e2f167fda417f9d510230987"
+      "revision": "512267f78e31ac02deb4ee108a4ff7ec1670247d"
     },
     "viewBox": [1280, 680],
     "views": [
       {
         "id": "request-path",
         "label": "Primary request path",
-        "focus": ["inbound", "contracts", "application", "domain"],
+        "focus": [
+          "inbound",
+          "contracts",
+          "application",
+          "domain"
+        ],
         "note": "Follow an inbound request into framework-free business behavior."
       },
       {
         "id": "outbound-path",
         "label": "Outbound boundaries",
-        "focus": ["application", "ports", "contextAdapters", "platformAdapters"],
+        "focus": [
+          "application",
+          "ports",
+          "contextAdapters",
+          "platformAdapters",
+          "messaging"
+        ],
         "note": "See project-owned ports and the adapters that implement them."
       },
       {
         "id": "tradeoffs",
-        "label": "Boundary tradeoffs",
-        "focus": ["contracts", "application", "domain", "shared", "composition"],
-        "note": "Review the three main sources of structural coupling."
+        "label": "Dependency rules",
+        "focus": [
+          "contracts",
+          "messaging",
+          "shared",
+          "composition"
+        ],
+        "note": "Inspect registry mappings, Shared isolation, and technical messaging ownership."
       }
     ]
   },
@@ -39,29 +55,26 @@
       "sublabel": "Inbound adapters",
       "pos": [30, 260],
       "size": [150, 76],
-      "sources": [{"path": "src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/NewExample.php", "line": 23, "label": "HTTP adapter"}]
+      "sources": [{"path": "src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php", "line": 23, "label": "HTTP adapter"}]
     },
     {
       "id": "contracts",
       "type": "backend",
       "label": "Commands · Queries",
       "sublabel": "Inbound contracts",
-      "tag": "handler metadata",
+      "tag": "registry dispatch",
       "pos": [270, 260],
       "size": [170, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php", "line": 14, "label": "Command mapping"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php", "line": 12, "label": "Command contract"}]
     },
     {
       "id": "application",
       "type": "backend",
       "label": "Application Layer",
-      "sublabel": "Handlers and messaging policy",
+      "sublabel": "Use-case handlers",
       "pos": [550, 260],
       "size": [180, 76],
-      "sources": [
-        {"path": "src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php", "line": 19, "label": "Command handler"},
-        {"path": "src/Backendbase/Application/Messaging/OutboxRelayService.php", "line": 14, "label": "Messaging policy"}
-      ]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php", "line": 19, "label": "Command handler"}]
     },
     {
       "id": "domain",
@@ -71,7 +84,7 @@
       "tag": "typed snapshot",
       "pos": [850, 260],
       "size": [180, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php", "line": 25, "end_line": 145, "label": "Example aggregate"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php", "line": 11, "label": "Example aggregate"}]
     },
     {
       "id": "ports",
@@ -82,7 +95,7 @@
       "size": [180, 76],
       "sources": [
         {"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php", "line": 10, "label": "Write repository port"},
-        {"path": "src/Backendbase/Shared/Integrations/MessagePublisher.php", "line": 9, "label": "Messaging port"}
+        {"path": "src/Backendbase/Shared/Integrations/MessagePublisher.php", "line": 10, "label": "Messaging port"}
       ]
     },
     {
@@ -93,33 +106,34 @@
       "pos": [300, 600],
       "size": [190, 76],
       "sources": [
-        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php", "line": 17, "label": "Doctrine adapter"},
-        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php", "line": 13, "label": "Memory adapter"}
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php", "line": 16, "label": "Doctrine adapter"},
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php", "line": 12, "label": "Memory adapter"},
+        {"path": "src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php", "line": 19, "label": "Authorization store"}
       ]
     },
     {
       "id": "platformAdapters",
       "type": "external",
       "label": "Platform Adapters",
-      "sublabel": "Redis · broker · cloud",
+      "sublabel": "HTTP · broker · cloud",
       "pos": [820, 540],
       "size": [190, 76],
       "sources": [
-        {"path": "src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php", "line": 20, "label": "Queue adapter"},
-        {"path": "src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php", "line": 13, "label": "Authorization store"}
+        {"path": "src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php", "line": 26, "label": "Queue adapter"},
+        {"path": "src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php", "line": 23, "label": "HTTP framework base"}
       ]
     },
     {
       "id": "shared",
       "type": "cloud",
       "label": "Shared",
-      "sublabel": "Ports, primitives, and framework bases",
+      "sublabel": "Framework-free ports and values",
       "tag": "Shared contracts",
       "pos": [500, 70],
       "size": [250, 82],
       "sources": [
-        {"path": "tests/Architecture/SharedCoreFrameworkBoundaryTest.php", "line": 35, "end_line": 55, "label": "Shared exclusions"},
-        {"path": "src/Backendbase/Shared/Http/Actions/Action.php", "line": 23, "label": "HTTP framework base"}
+        {"path": "tests/Architecture/SharedFrameworkBoundaryTest.php", "line": 11, "label": "Shared framework isolation"},
+        {"path": "src/Backendbase/Shared/Time/Clock.php", "line": 9, "label": "UTC clock port"}
       ]
     },
     {
@@ -130,8 +144,21 @@
       "pos": [820, 70],
       "size": [220, 82],
       "sources": [
-        {"path": "config/dependencies/bounded-contexts.php", "line": 9, "end_line": 24, "label": "Module discovery"},
-        {"path": "src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php", "line": 17, "end_line": 48, "label": "Context bindings"}
+        {"path": "config/dependencies/bounded-contexts.php", "line": 11, "label": "Module and handler discovery"},
+        {"path": "src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php", "line": 50, "label": "Context handler registry"},
+        {"path": "src/Backendbase/Infrastructure/Adapters/CQRS/RegistryHandlerResolver.php", "line": 13, "label": "Registry resolver"}
+      ]
+    },
+    {
+      "id": "messaging",
+      "type": "messagebus",
+      "label": "Messaging Coordination",
+      "sublabel": "Infrastructure/Messaging",
+      "pos": [60, 70],
+      "size": [260, 82],
+      "sources": [
+        {"path": "src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php", "line": 13, "label": "Relay coordination"},
+        {"path": "tests/Architecture/MessagingDependencyBoundaryTest.php", "line": 14, "label": "Messaging dependency boundary"}
       ]
     }
   ],
@@ -140,15 +167,16 @@
   ],
   "connections": [
     {"id": "request-contract", "from": "inbound", "to": "contracts", "label": "dispatches", "variant": "emphasis"},
-    {"id": "contract-handler", "from": "contracts", "to": "application", "label": "names handler", "variant": "dashed"},
+    {"id": "contract-handler", "from": "contracts", "to": "application", "label": "bus dispatch", "variant": "dashed"},
     {"id": "application-domain", "from": "application", "to": "domain", "label": "invokes behavior", "variant": "emphasis"},
     {"id": "application-ports", "from": "application", "to": "ports", "label": "depends on", "variant": "emphasis", "labelAt": [640, 350]},
     {"id": "context-adapter-port", "from": "contextAdapters", "to": "ports", "label": "implements", "variant": "emphasis"},
-    {"id": "platform-adapter-port", "from": "platformAdapters", "to": "ports", "label": "implements"}
+    {"id": "platform-adapter-port", "from": "platformAdapters", "to": "ports", "label": "implements"},
+    {"id": "messaging-shared", "from": "messaging", "to": "shared", "label": "uses ports", "variant": "emphasis"}
   ],
   "cards": [
-    {"dot": "emerald", "title": "Strengths", "items": ["Business code depends on project-owned ports.", "Doctrine and memory adapters share behavior tests.", "Persistence reads a typed aggregate snapshot.", "Architecture rules enforce inward dependency direction."]},
-    {"dot": "amber", "title": "Weaknesses", "items": ["Contracts name concrete application handlers.", "Shared mixes core contracts with framework base classes."]},
-    {"dot": "cyan", "title": "Priority", "items": ["Keep the current boundaries and tests.", "Reduce Shared coupling before adding layers.", "Treat strict hexagonal purity as optional, not as the goal."]}
+    {"dot": "emerald", "title": "Business core", "items": ["Contracts stay independent of handlers.", "Context registries map commands and queries.", "Persistence reads typed aggregate snapshots."]},
+    {"dot": "cyan", "title": "Infrastructure", "items": ["Messaging coordinates relay, retry, and failure.", "Framework support stays outside Shared."]},
+    {"dot": "amber", "title": "Verification", "items": ["Architecture tests enforce dependency rules.", "Messaging decisions use an injected UTC clock."]}
   ]
 }

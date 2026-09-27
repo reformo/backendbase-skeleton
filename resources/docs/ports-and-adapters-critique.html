@@ -565,7 +565,7 @@
                         <div class="leak resolved"><strong>Strength: clear Shared ownership</strong><br>Shared contracts stay framework-free. Framework support belongs to Infrastructure.</div>
                     </div>
                 </div>
-                <figcaption>The flow shows the effective dependency rule. The <a href="ports-and-adapters-map.html">interactive architecture map</a> records the 23 September source snapshot before the Shared, CQRS contract, and inbound package changes.</figcaption>
+                <figcaption>The flow shows the effective dependency rule. The <a href="ports-and-adapters-map.html">interactive architecture map</a> records revision <code>512267f</code>, including registry dispatch, Shared isolation, inbound adapters, and Infrastructure messaging coordination.</figcaption>
             </figure>
         </section>
 
@@ -681,7 +681,7 @@
                     <tr><td><code>composer phpstan -- --no-progress</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors across the configured application, test, tool, and database-delivery scope.</td></tr>
                     <tr><td><code>composer complexity</code> and <code>composer cs-check</code></td><td><span class="badge strong">Passed</span></td><td>All 562 configured PHP files stayed at cyclomatic complexity 12 or less and passed the Doctrine coding standard.</td></tr>
                     <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Revision <code>2bd6922</code> contains 334 production PHP files, 119 Shared PHP files, and 14 architecture test classes.</td></tr>
-                    <tr><td>Interactive architecture map</td><td><span class="badge">Historical snapshot</span></td><td>The linked map records source revision <code>7e546fa</code> from 23 September. Its Shared and contract nodes and inbound source path predate the current layout.</td></tr>
+                    <tr><td>Interactive architecture map</td><td><span class="badge">Source snapshot</span></td><td>The linked map records source revision <code>512267f</code> from 28 September. Its source links reflect registry dispatch, Shared isolation, inbound adapters, and Infrastructure messaging coordination. This map update does not renew the test evidence above.</td></tr>
                     <tr><td>Recent delivery controls</td><td><span class="badge strong">No direction change</span></td><td>The Composer supply-chain checker, evidence files, and release-manifest verification remain in tooling and deployment boundaries.</td></tr>
                     <tr><td>Recent production composition</td><td><span class="badge strong">Boundary preserved</span></td><td>The Identity and Access service provider owns its Doctrine, Redis authorization-state, and JWT bindings. Global dependency files keep platform and vendor connection concerns.</td></tr>
                     <tr><td>Recent account lifecycle</td><td><span class="badge strong">Boundary preserved</span></td><td>Protected account controllers use commands and a query. Handlers use read, write, authentication, and authorization-state ports. Doctrine, Redis, and JWT remain adapters.</td></tr>

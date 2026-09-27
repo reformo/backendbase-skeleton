@@ -72,6 +72,8 @@ PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `publi
 
 `composer complexity` fails when one function or method has cyclomatic complexity greater than 12.
 
+`composer run cs-fix -- <path>` forwards arguments to `phpcbf`. The wrapper maps exit code `1` to success and preserves other exit codes.
+
 `composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
 
 `composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the canonical engineering quality report. `composer reports:check` fails when committed metrics are stale.
@@ -80,7 +82,9 @@ GitHub Actions provides quality gates, security checks, and release-artifact wor
 
 The Composer supply-chain workflow runs each week and for dependency changes. It copies reviewed Composer public keys into an isolated Composer home before it diagnoses Composer 2.10.3. It disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
 
-`bin/dev/housekeeping.sh` runs the same isolated validation and audit after `composer update`. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
+`bin/dev/housekeeping.sh` clears caches, fixes source style, generates OpenAPI, and runs `composer update`. It then runs `composer update --lock --no-install --no-plugins --no-scripts --no-interaction` before isolated validation and audit. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
+
+`bin/validate-agent-memory.sh` checks the local `.agents/memory` directories, templates, required fields, and orchestration rules. Run it from the repository root when that local memory structure exists. It does not validate application behavior.
 
 Generate supply-chain evidence only from a new isolated install with `--no-plugins --no-scripts`. Review every lock, SBOM, and digest change before approval. A digest detects changed content. It does not establish that new content is safe.
 

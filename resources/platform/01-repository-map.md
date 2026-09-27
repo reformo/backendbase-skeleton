@@ -25,6 +25,9 @@
 | Module-owned tests | `src/Backendbase/Domain/*/Tests` |
 | Runtime cache | `var/cache` |
 | Console entry point | `bin/backendbase` |
+| Local agent-memory validation | `bin/validate-agent-memory.sh` |
+| Project-copy configuration | `reformo-orchestration.ini` |
+| Local Nginx CDN template | `resources/docker/cdn.conf.template` |
 | Doctrine entry point | `bin/doctrine` |
 | Coverage, documentation-link, and report checks | `bin/check-coverage.php`, `bin/check-documentation-links.php`, `bin/update-quality-report.php` |
 

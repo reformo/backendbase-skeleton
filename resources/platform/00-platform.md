@@ -44,6 +44,7 @@ backendbase-core/
 │   ├── check-documentation-links.php  # Local documentation-link validation
 │   ├── composer-supply-chain.php       # SBOM and package-content verification
 │   ├── update-quality-report.php      # Generated quality-report metrics
+│   ├── validate-agent-memory.sh       # Local agent-memory structure validation
 │   ├── deployment/                    # Release build, deployment, and rollback scripts
 │   ├── dev/                           # Local maintenance scripts
 │   └── tolgee/                        # Translation synchronization scripts
@@ -107,6 +108,7 @@ backendbase-core/
 ├── composer.json                      # Dependencies and project commands
 ├── docker-compose.yaml                # Core services, local AWS endpoints, and local file delivery
 ├── migrations.json                    # Doctrine migration configuration
+├── reformo-orchestration.ini           # Project-copy settings and post-install commands
 ├── phpunit.xml                        # PHPUnit suite configuration
 ├── phpstan.neon                       # PHPStan level 8 configuration
 ├── phpcs.xml.dist                     # Doctrine coding-standard configuration
@@ -177,3 +179,7 @@ bin/doctrine migrations:status
 `bin/doctrine migrations:diff` writes a migration file. Run it only for an explicitly approved schema change after repository behavior is final.
 
 Use `bin/doctrine migrations:migrate --dry-run --no-interaction` against an identified, prepared target. Apply a migration only with explicit authority for that target database.
+
+## Project-copy settings
+
+`reformo-orchestration.ini` declares the base name, omitted files, preserved dependency sections, and post-install commands. See [the project-copy configuration](../../README.md#project-copy-configuration) for the current values and target effects.

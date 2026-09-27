@@ -19,10 +19,10 @@
 <p>The test-class count uses <code>*Test.php</code> files under both suite roots, inspected on 23 September 2026.</p>
 <div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
 <tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Aggregates, handlers, contracts, repositories, and provider tests</td></tr>
-<tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS, primitives, HTTP, persistence, services</td></tr>
-<tr><td><code>tests/Infrastructure</code></td><td>External adapters and use cases</td><td>Queue, notification, persistence, API controllers</td></tr>
+<tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS contracts, primitives, persistence ports, services</td></tr>
+<tr><td><code>tests/Infrastructure</code></td><td>Adapters and technical coordination</td><td>Queue, notification, persistence, HTTP support, API controllers, and messaging coordination</td></tr>
 <tr><td><code>tests/Functional</code></td><td>Complete in-process flows</td><td>Example lifecycle through both buses</td></tr>
-<tr><td><code>tests/Architecture</code></td><td>Parsed-symbol dependency and registry rules</td><td>Domain and Application direction, context isolation, both adapter directions, Shared framework imports, complete CQRS mappings, and listener targets</td></tr>
+<tr><td><code>tests/Architecture</code></td><td>Parsed-symbol dependency and registry rules</td><td>Domain and Application direction, messaging coordination, context isolation, both adapter directions, Shared framework imports, complete CQRS mappings, and listener targets</td></tr>
 <tr><td><code>tests/Tools</code></td><td>Operational support code</td><td>Tolgee translation synchronization helpers</td></tr>
 </tbody></table></div>
 </section>
@@ -54,6 +54,7 @@
 <tr><td>Rector</td><td>Not configured</td><td>No project configuration or direct Composer package exists</td></tr>
 </tbody></table></div>
 <div class="callout warning"><strong>Do not report Rector as passing.</strong> The repository does not configure or install Rector.</div>
+<p><code>composer run cs-fix -- &lt;path&gt;</code> forwards arguments to <code>phpcbf</code>. Its wrapper maps exit code <code>1</code> to success and preserves other exit codes.</p>
 </section>
 <section id="coverage"><p class="section-label">08 · Coverage</p><h2>Coverage reports show exercised code, not correctness</h2>
 <p><code>composer test</code> writes JUnit and Clover XML. <code>bin/check-coverage.php</code> requires 100% executable-line coverage.</p>
@@ -70,7 +71,8 @@
 <section id="automation"><p class="section-label">10 · Automation state</p><h2>Local and continuous-integration gates use the same commands</h2>
 <p>GitHub Actions installs reviewed Composer public keys before self-diagnosis. It also runs validation, a weekly dependency audit, isolated package-content verification, PHPUnit with the coverage gate, PHPStan, cyclomatic complexity, PHPCS, documentation-link validation, report-metric drift detection, and OpenAPI validation.</p>
 <div class="callout good"><strong>The supply-chain and documentation controls are executable.</strong> Actions use immutable commit SHAs. Composer is pinned to 2.10.3 and uses an isolated home with reviewed public keys. Isolated dependency review disables plugins and scripts before it verifies the SBOM and package digests.</div>
-<p>After <code>composer update</code>, <code>bin/dev/housekeeping.sh</code> validates and audits the lock, installs it in a temporary directory without plugins or scripts, and regenerates both supply-chain evidence files. Review the lock, SBOM, and digest changes before committing.</p>
+<p><code>bin/dev/housekeeping.sh</code> clears caches, fixes source style, generates OpenAPI, and runs <code>composer update</code>. It then runs <code>composer update --lock --no-install --no-plugins --no-scripts --no-interaction</code>. Next, it validates and audits the lock, installs it in a temporary directory without plugins or scripts, and regenerates both supply-chain evidence files. Review the lock, SBOM, and digest changes before committing.</p>
+<p><code>bin/validate-agent-memory.sh</code> checks the local <code>.agents/memory</code> directories, templates, required fields, and orchestration rules. Run it from the repository root when that local memory structure exists. It does not validate application behavior.</p>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known quality-tool differences</h2>
 <ul><li>Rector is not configured or installed.</li><li>Bruno needs external runtime state and is not a self-contained suite.</li></ul>

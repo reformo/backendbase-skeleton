@@ -144,6 +144,8 @@ Read only the selected reference sections needed for the task. Reuse established
 
 The platform files and numbered HTML guides describe the current source. Their latest consistency review was on 23 September 2026. Dated assessments retain their original verification scope; generated quality metrics use the latest local test artifacts.
 
+A focused review on 28 September 2026 checked commits from 25–28 September. It covered messaging placement, write-result guidance, maintenance commands, project-copy settings, and architecture-map source references.
+
 Treat design rules as requirements. Recheck statements marked as current state before later implementation work.
 
 Basis: `resources/docs/0-project.html` through `resources/docs/16-shared-primitives-and-object-mapping.html`.

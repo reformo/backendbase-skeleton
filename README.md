@@ -7,6 +7,18 @@ An MIT-licensed PHP 8.5 application template for Backendbase API services. It us
 composer --timeout=0 run start-apis
 ```
 
+## Project-copy Configuration
+
+[`reformo-orchestration.ini`](reformo-orchestration.ini) declares the project-copy settings:
+
+- `base-name` is `backendbase`.
+- `omit-files` excludes the orchestration file and three listed example/account migration files from the copy.
+- `preserve-manifest` preserves the target project's `composer.json` sections `require` and `require-dev`.
+- `post-install-run` lists these commands in order: `cp .env.example .env`, `composer update`, `mkdir -p ./artifacts`, and `bin/dev/housekeeping.sh`.
+
+The copy workflow replaces the target `.env` with `.env.example` before maintenance. Review the target configuration before running it.
+Housekeeping clears caches, fixes source style, generates OpenAPI, updates dependencies, and refreshes supply-chain evidence. See the [testing guide](resources/docs/10-testing-and-quality.html#automation).
+
 ## Local Infrastructure
 
 ```sh

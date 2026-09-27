@@ -28,6 +28,7 @@ backendbase-core/
 │   ├── check-coverage.php             # Executable-line coverage threshold
 │   ├── check-documentation-links.php  # Local documentation-link validation
 │   ├── update-quality-report.php      # Generated quality-report metrics
+│   ├── validate-agent-memory.sh       # Local agent-memory structure validation
 │   ├── deployment/                    # Deployment scripts
 │   ├── dev/                           # Local maintenance scripts
 │   └── tolgee/                        # Translation synchronization scripts
@@ -53,6 +54,7 @@ backendbase-core/
 │   │   ├── Migrations/                # Doctrine migration classes
 │   │   └── Seeders/                   # Database seeders
 │   ├── docs/                          # Project guides and reports
+│   ├── docker/cdn.conf.template        # Local Nginx file delivery and cache configuration
 │   ├── platform/                      # Platform rules and task routing
 │   ├── skills/                        # Reusable task guidance
 │   └── i18n/                          # Translation files
@@ -83,6 +85,7 @@ backendbase-core/
 │   │   ├── Adapters/                  # Console, HTTP, mapping, persistence, queue, and external adapters
 │   │   ├── Configuration/             # Typed runtime, AWS, queue, database, Redis, and logging settings
 │   │   ├── Health/                    # Bounded dependency readiness checks
+│   │   ├── Messaging/                 # Relay, retry, and delivery-failure coordination
 │   │   └── Inbound/                   # Consumer-specific API entry code
 │   │       └── ExampleApi/
 │   │           ├── Controllers/         # Root, Account, Example, and Greeting HTTP modules
@@ -127,13 +130,15 @@ Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-
 
 - Domain core code cannot depend on Application or Infrastructure.
 - Application code cannot depend on Infrastructure.
+- Technical messaging coordination under `Infrastructure/Messaging` can depend only on its own types, Shared contracts and values, and native PHP types.
 - Business layers cannot depend on concrete Adapters.
 - A bounded context cannot depend on another bounded context.
 - Business layers cannot import HTTP, persistence, messaging, dependency-injection, or vendor framework namespaces.
 - Shared code cannot depend on Application, Domain, or Infrastructure.
 - No Shared code can import framework namespaces.
 - Inbound and outbound adapters cannot depend on each other.
-- CQRS and domain-listener attributes use one positional same-context target that implements the correct interface and resolves from the production container.
+- Every command and query has a resolvable handler mapping in its context registry. Contracts cannot import handlers or declare handler attributes.
+- Domain-listener attributes use one positional same-context target that implements the correct interface and resolves from the production container.
 
 `Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts do not import their handlers.
 

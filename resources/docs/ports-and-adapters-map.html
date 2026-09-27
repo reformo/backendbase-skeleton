@@ -1,22 +1,33 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-preset="classic">
+<html lang="en" data-theme="dark" data-preset="classic">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light">
   <meta name="generator" content="archify 2.16.0-dev.0">
   <title>Backendbase Ports and Adapters Assessment Diagram</title>
   <script>
-    // Keep embedded and presentation views available from direct links.
+    // Resolve the theme before first paint so light-preference users don't
+    // see a dark flash. The toolbar script below re-applies with UI state.
     (function () {
       try {
-        var params = new URLSearchParams(window.location.search);
-        if (params.get('embed') === '1') {
-          document.documentElement.setAttribute('data-embed', 'true');
+        var theme = null;
+        try {
+          var param = new URLSearchParams(window.location.search).get('theme');
+          if (param === 'light' || param === 'dark') theme = param;
+          if (new URLSearchParams(window.location.search).get('embed') === '1') {
+            document.documentElement.setAttribute('data-embed', 'true');
+          }
+          if (new URLSearchParams(window.location.search).get('present') === '1') {
+            document.documentElement.setAttribute('data-present', 'true');
+          }
+        } catch (_) {}
+        if (!theme) {
+          try { theme = localStorage.getItem('archify-theme'); } catch (_) {}
         }
-        if (params.get('present') === '1') {
-          document.documentElement.setAttribute('data-present', 'true');
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
+        document.documentElement.setAttribute('data-theme', theme);
       } catch (_) {}
     })();
   </script>
@@ -682,7 +693,7 @@
     }
 
     html[data-preset="editorial"] h1,
-    html[data-preset="editorial"] .card h2 {
+    html[data-preset="editorial"] .card h3 {
       font-family: Georgia, 'Times New Roman', 'Songti SC', STSong, serif;
       letter-spacing: -0.02em;
     }
@@ -2929,7 +2940,7 @@
     .card-dot.orange   { background: var(--messagebus-stroke); }
     .card-dot.slate    { background: var(--external-stroke); }
 
-    .card h2 { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .card h3 { font-size: 0.875rem; font-weight: 600; color: var(--text); }
 
     .card ul {
       list-style: none;
@@ -3069,7 +3080,7 @@
       border-color: color-mix(in srgb, var(--arrow) 62%, var(--toolbar-border));
     }
     .toolbar button[aria-expanded="true"],
-    .toolbar button[aria-pressed="true"] {
+    .toolbar button[aria-pressed="true"]:not(#btn-theme) {
       background: color-mix(in srgb, var(--frontend-stroke) 10%, var(--toolbar-hover));
       border-color: color-mix(in srgb, var(--frontend-stroke) 48%, var(--toolbar-border));
     }
@@ -3113,6 +3124,14 @@
       transition: transform 0.15s ease;
     }
     [aria-expanded="true"] > .toolbar-chevron { transform: rotate(180deg); }
+    [data-theme="light"] #theme-icon {
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='10' cy='10' r='3.1'/%3E%3Cpath d='M10 2.2v1.4M10 16.4v1.4M2.2 10h1.4M16.4 10h1.4M4.5 4.5l1 1M14.5 14.5l1 1M15.5 4.5l-1 1M5.5 14.5l-1 1'/%3E%3C/g%3E%3C/svg%3E");
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='10' cy='10' r='3.1'/%3E%3Cpath d='M10 2.2v1.4M10 16.4v1.4M2.2 10h1.4M16.4 10h1.4M4.5 4.5l1 1M14.5 14.5l1 1M15.5 4.5l-1 1M5.5 14.5l-1 1'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    [data-theme="dark"] #theme-icon {
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M15.2 12.7A6.3 6.3 0 017.3 4.8a6.3 6.3 0 107.9 7.9Z' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'/%3E%3C/svg%3E");
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M15.2 12.7A6.3 6.3 0 017.3 4.8a6.3 6.3 0 107.9 7.9Z' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
     #btn-present[aria-pressed="false"] #present-icon {
       -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M7.2 3.2h-4v4M12.8 3.2h4v4M7.2 16.8h-4v-4M12.8 16.8h4v-4' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
       mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M7.2 3.2h-4v4M12.8 3.2h4v4M7.2 16.8h-4v-4M12.8 16.8h4v-4' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -3217,9 +3236,10 @@
       width: 2rem;
       height: 1.55rem;
       overflow: hidden;
-      border: 1px solid #cbd5e1;
+      border: 1px solid #64748b;
       border-radius: 0.24rem;
-      background: #f8fafc;
+      background: #0f172a;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
     }
     .preset-option-swatch::before,
     .preset-option-swatch::after { position: absolute; content: ""; }
@@ -3228,20 +3248,21 @@
       right: 0.35rem;
       bottom: 0.42rem;
       left: 0.35rem;
-      border: 1px solid #0891b2;
+      border: 1px solid #22d3ee;
       border-radius: 0.16rem;
-      background: rgba(34, 211, 238, 0.15);
+      background: rgba(34, 211, 238, 0.14);
     }
     .preset-option-swatch.signal-flow {
-      border-color: #cbd5e1;
-      background: #f3f8fb;
+      border-color: #29415f;
+      background: linear-gradient(135deg, #07101e 10%, #10243c 100%);
     }
     .preset-option-swatch.signal-flow::before {
       top: 50%;
       right: 0.2rem;
       left: 0.2rem;
       height: 1px;
-      background: linear-gradient(90deg, #0891b2, #7c3aed);
+      background: linear-gradient(90deg, #67e8f9, #c4b5fd);
+      box-shadow: 0 0 8px #67e8f9;
     }
     .preset-option-swatch.signal-flow::after {
       top: calc(50% - 0.13rem);
@@ -3249,15 +3270,16 @@
       width: 0.26rem;
       height: 0.26rem;
       border-radius: 50%;
-      background: #0891b2;
+      background: #67e8f9;
+      box-shadow: 0 0 7px #67e8f9;
     }
     .preset-option-swatch.blueprint {
-      border-color: #b9d8e5;
+      border-color: #34799a;
       border-radius: 0.08rem;
-      background-color: #f2f8fb;
+      background-color: #0a2031;
       background-image:
-        linear-gradient(rgba(8, 145, 178, 0.13) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(8, 145, 178, 0.13) 1px, transparent 1px);
+        linear-gradient(rgba(102, 217, 239, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(102, 217, 239, 0.18) 1px, transparent 1px);
       background-size: 0.42rem 0.42rem;
     }
     .preset-option-swatch.blueprint::before {
@@ -3265,7 +3287,7 @@
       right: 0.38rem;
       bottom: 0.34rem;
       left: 0.38rem;
-      border: 1px solid #0891b2;
+      border: 1px solid #66d9ef;
     }
     .preset-option-swatch.editorial {
       border-color: #b8aa94;
@@ -3899,7 +3921,7 @@
       .toolbar { gap: 0.25rem; }
       .toolbar button { padding-right: 0.58rem; padding-left: 0.58rem; }
       .toolbar #btn-motion { min-width: 4.4rem; padding-right: 0.58rem; padding-left: 0.58rem; }
-      #preset-label, #present-label { display: none; }
+      #theme-label, #preset-label, #present-label { display: none; }
       .guided-view-handoff { max-width: 6.5rem; }
     }
 
@@ -4820,10 +4842,17 @@
   </style>
 </head>
 <body>
-  <!-- Toolbar: live visual style, trace motion, presentation stage, and export.
+  <!-- Toolbar: theme, live visual style, trace motion, presentation stage, and export.
        Motion appears only for trace-enabled artifacts and has no shortcut;
-       Keyboard: S cycles style, F toggles the stage, E opens export. -->
+       Keyboard: T toggles theme, S cycles style, F toggles the stage, E opens export. -->
   <div class="toolbar" role="toolbar" aria-label="Diagram actions">
+    <button id="btn-theme" type="button"
+            title="Toggle theme (T)"
+            aria-label="Toggle color theme"
+            aria-pressed="false">
+      <span id="theme-icon" class="toolbar-icon" aria-hidden="true"></span>
+      <span id="theme-label">Dark</span>
+    </button>
     <div class="preset-wrap">
       <button id="btn-preset" type="button"
               title="Choose visual style (S cycles)"
@@ -4923,8 +4952,8 @@
       </div>
     </div>
 
-    <script id="archify-guided-views-data" type="application/json">[{"id":"request-path","label":"Primary request path","focus":["inbound","contracts","application","domain"],"note":"Follow an inbound request into framework-free business behavior."},{"id":"outbound-path","label":"Outbound boundaries","focus":["application","ports","contextAdapters","platformAdapters"],"note":"See project-owned ports and the adapters that implement them."},{"id":"tradeoffs","label":"Boundary tradeoffs","focus":["contracts","application","domain","shared","composition"],"note":"Review the three main sources of structural coupling."}]</script>
-    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/reformo/backendbase-skeleton","revision":"7e546fa577b28a98e2f167fda417f9d510230987","shortRevision":"7e546fa"},"referenceCount":15,"nodes":{"inbound":[{"path":"src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/NewExample.php","line":23,"label":"HTTP adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Infrastructure/UseCase/ExampleApi/Controllers/Example/Handlers/NewExample.php#L23"}],"contracts":[{"path":"src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php","line":14,"label":"Command mapping","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php#L14"}],"application":[{"path":"src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php","line":19,"label":"Command handler","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php#L19"},{"path":"src/Backendbase/Application/Messaging/OutboxRelayService.php","line":14,"label":"Messaging policy","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Application/Messaging/OutboxRelayService.php#L14"}],"domain":[{"path":"src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php","line":25,"endLine":145,"label":"Example aggregate","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php#L25-L145"}],"ports":[{"path":"src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php","line":10,"label":"Write repository port","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php#L10"},{"path":"src/Backendbase/Shared/Integrations/MessagePublisher.php","line":9,"label":"Messaging port","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Shared/Integrations/MessagePublisher.php#L9"}],"contextAdapters":[{"path":"src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php","line":17,"label":"Doctrine adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php#L17"},{"path":"src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php","line":13,"label":"Memory adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php#L13"}],"platformAdapters":[{"path":"src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php","line":20,"label":"Queue adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php#L20"},{"path":"src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php","line":13,"label":"Authorization store","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php#L13"}],"shared":[{"path":"tests/Architecture/SharedCoreFrameworkBoundaryTest.php","line":35,"endLine":55,"label":"Shared exclusions","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/tests/Architecture/SharedCoreFrameworkBoundaryTest.php#L35-L55"},{"path":"src/Backendbase/Shared/Http/Actions/Action.php","line":23,"label":"HTTP framework base","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Shared/Http/Actions/Action.php#L23"}],"composition":[{"path":"config/dependencies/bounded-contexts.php","line":9,"endLine":24,"label":"Module discovery","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/config/dependencies/bounded-contexts.php#L9-L24"},{"path":"src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php","line":17,"endLine":48,"label":"Context bindings","href":"https://github.com/reformo/backendbase-skeleton/blob/7e546fa577b28a98e2f167fda417f9d510230987/src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php#L17-L48"}]}}</script>
+    <script id="archify-guided-views-data" type="application/json">[{"id":"request-path","label":"Primary request path","focus":["inbound","contracts","application","domain"],"note":"Follow an inbound request into framework-free business behavior."},{"id":"outbound-path","label":"Outbound boundaries","focus":["application","ports","contextAdapters","platformAdapters","messaging"],"note":"See project-owned ports and the adapters that implement them."},{"id":"tradeoffs","label":"Dependency rules","focus":["contracts","messaging","shared","composition"],"note":"Inspect registry mappings, Shared isolation, and technical messaging ownership."}]</script>
+    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/reformo/backendbase-skeleton","revision":"512267f78e31ac02deb4ee108a4ff7ec1670247d","shortRevision":"512267f"},"referenceCount":18,"nodes":{"inbound":[{"path":"src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php","line":23,"label":"HTTP adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php#L23"}],"contracts":[{"path":"src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php","line":12,"label":"Command contract","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php#L12"}],"application":[{"path":"src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php","line":19,"label":"Command handler","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php#L19"}],"domain":[{"path":"src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php","line":11,"label":"Example aggregate","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php#L11"}],"ports":[{"path":"src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php","line":10,"label":"Write repository port","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php#L10"},{"path":"src/Backendbase/Shared/Integrations/MessagePublisher.php","line":10,"label":"Messaging port","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Shared/Integrations/MessagePublisher.php#L10"}],"contextAdapters":[{"path":"src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php","line":16,"label":"Doctrine adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php#L16"},{"path":"src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php","line":12,"label":"Memory adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php#L12"},{"path":"src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php","line":19,"label":"Authorization store","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php#L19"}],"platformAdapters":[{"path":"src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php","line":26,"label":"Queue adapter","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php#L26"},{"path":"src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php","line":23,"label":"HTTP framework base","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php#L23"}],"shared":[{"path":"tests/Architecture/SharedFrameworkBoundaryTest.php","line":11,"label":"Shared framework isolation","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/tests/Architecture/SharedFrameworkBoundaryTest.php#L11"},{"path":"src/Backendbase/Shared/Time/Clock.php","line":9,"label":"UTC clock port","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Shared/Time/Clock.php#L9"}],"composition":[{"path":"config/dependencies/bounded-contexts.php","line":11,"label":"Module and handler discovery","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/config/dependencies/bounded-contexts.php#L11"},{"path":"src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php","line":50,"label":"Context handler registry","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php#L50"},{"path":"src/Backendbase/Infrastructure/Adapters/CQRS/RegistryHandlerResolver.php","line":13,"label":"Registry resolver","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Infrastructure/Adapters/CQRS/RegistryHandlerResolver.php#L13"}],"messaging":[{"path":"src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php","line":13,"label":"Relay coordination","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php#L13"},{"path":"tests/Architecture/MessagingDependencyBoundaryTest.php","line":14,"label":"Messaging dependency boundary","href":"https://github.com/reformo/backendbase-skeleton/blob/512267f78e31ac02deb4ee108a4ff7ec1670247d/tests/Architecture/MessagingDependencyBoundaryTest.php#L14"}]}}</script>
     <script id="archify-i18n-data" type="application/json">{"locale":"en","messages":{"viewer.kind.frontend":"Frontend","viewer.kind.backend":"Backend","viewer.kind.database":"Database","viewer.kind.cloud":"Cloud","viewer.kind.security":"Security","viewer.kind.messagebus":"Message bus","viewer.kind.external":"External","viewer.kind.neutral":"Neutral","viewer.kind.node":"Node","viewer.kind.start":"Start","viewer.kind.active":"Active","viewer.kind.waiting":"Waiting","viewer.kind.decision":"Decision","viewer.kind.success":"Success","viewer.kind.failure":"Failure","viewer.toolbar.actions":"Diagram actions","viewer.theme.toggle.title":"Toggle theme (T)","viewer.theme.toggle":"Toggle color theme","viewer.theme.dark":"Dark","viewer.theme.light":"Light","viewer.preset.choose.title":"Choose visual style (S cycles)","viewer.preset.choose":"Choose visual style","viewer.preset.style":"Style","viewer.preset.menu":"Visual style","viewer.preset.identity":"Visual identity","viewer.preset.cycles":"S cycles","viewer.preset.classic":"Classic","viewer.preset.classic.short":"Classic","viewer.preset.classic.hint":"Stable technical default","viewer.preset.flow":"Signal Flow","viewer.preset.flow.short":"Flow","viewer.preset.flow.hint":"Motion-forward presentation","viewer.preset.blueprint":"Blueprint","viewer.preset.blueprint.hint":"Engineering review","viewer.preset.editorial":"Editorial","viewer.preset.editorial.hint":"Publication and launch notes","viewer.preset.badge.signalFlow":"SIGNAL FLOW","viewer.preset.badge.blueprint":"BLUEPRINT / REV 01","viewer.preset.badge.editorial":"EDITORIAL / FIELD NOTE","viewer.preset.badge.editorialPlate":"ARCHIFY / PLATE 04","viewer.preset.current":"Visual style: {style}. Choose visual style","viewer.motion.live":"Live","viewer.motion.still":"Still","viewer.motion.pause":"Pause motion","viewer.motion.resume":"Resume motion","viewer.motion.reduced":"Motion paused by reduced-motion preference","viewer.motion.hidden":"Motion paused while this page is hidden","viewer.motion.yielding":"Pause motion; currently yielding to {owner}","viewer.motion.yielding.title":"Live preview enabled · yielding to {owner}","viewer.owner.story":"the guided story","viewer.owner.chapter":"the active chapter","viewer.owner.chapterPreview":"the chapter delta preview","viewer.owner.handoff":"the chapter handoff","viewer.owner.route":"Route Probe","viewer.owner.lens":"Semantic Lens","viewer.owner.relationship":"Relationship Preview","viewer.owner.intent":"Intent Trace","viewer.owner.focus":"semantic focus","viewer.owner.legend":"legend preview","viewer.owner.reader":"reader interaction","viewer.present.enter":"Enter presentation stage","viewer.present.enter.title":"Presentation stage (F)","viewer.present.exit":"Exit presentation stage","viewer.present.exit.title":"Exit presentation stage (F or Escape)","viewer.present.present":"Present","viewer.present.exit.label":"Exit","viewer.export.button":"Export","viewer.export.button.title":"Export diagram (E)","viewer.export.diagram":"Export diagram","viewer.export.menu":"Export","viewer.export.subtitle":"Portable, clean outputs","viewer.export.share":"Share","viewer.export.shareCard":"Share Card","viewer.export.routeShareCard":"Route Share Card","viewer.export.reachShareCard":"Reach Share Card","viewer.export.copyShareCard":"Copy Share Card","viewer.export.copyDiagram":"Copy diagram","viewer.export.clipboardPng":"PNG to clipboard","viewer.export.raster":"Raster images","viewer.export.image":"Image","viewer.export.lossless":"Lossless image","viewer.export.compact":"Compact image","viewer.export.modern":"Modern image","viewer.export.vectorMotion":"Vector and motion","viewer.export.vectorMotion.heading":"Vector \u0026 motion","viewer.export.editable":"Editable vector","viewer.export.motion6s":"6s motion","viewer.export.unsupported":"Not supported by this browser","viewer.export.clipboardUnsupported":"Clipboard image write not supported by this browser","viewer.export.clipboardUnsupported.period":"Clipboard image write not supported by this browser.","viewer.export.clipboardUnsupported.short":"Clipboard image write not supported in this browser.","viewer.export.motionUnavailable":"Motion capture unavailable in this browser","viewer.export.webmUnavailable":"WebM unavailable in this browser","viewer.export.failed":"Export failed: {message}","viewer.export.unknownVariant":"Unknown Share Card variant: {variant}","viewer.export.routeRequired":"Trace a route before exporting a Route Share Card","viewer.export.reachRequired":"Trace authored reach before exporting a Reach Share Card","viewer.export.unknown":"unknown","viewer.export.routeFailed":"Route Share Card export failed: {message}","viewer.export.reachFailed":"Reach Share Card export failed: {message}","viewer.export.copyFailed":"Copy failed: {message}","viewer.export.copiedPng":"Copied PNG to clipboard","viewer.export.copiedShare":"Copied Share Card","viewer.export.downloadedShare":"Downloaded Share Card","viewer.export.downloadedRoute":"Downloaded Route Share Card","viewer.export.downloadedReach":"Downloaded Reach Share Card","viewer.export.downloadedWebm":"Downloaded WebM","viewer.export.recording":"Recording 6 seconds of motion…","viewer.export.card.routeSummary.one":"Route: {source} → {target} · {count} directed hop","viewer.export.card.routeSummary.other":"Route: {source} → {target} · {count} directed hops","viewer.export.card.reachSummary":"Authored {direction} from {origin} · {nodes} · {links} · max {hops}","viewer.export.card.node.one":"{count} node","viewer.export.card.node.other":"{count} nodes","viewer.export.card.link.one":"{count} link","viewer.export.card.link.other":"{count} links","viewer.export.card.hop.one":"{count} hop","viewer.export.card.hop.other":"{count} hops","viewer.export.card.routeBadge":"ARCHIFY · ROUTE · {hops}","viewer.export.card.reachBadge":"ARCHIFY · {direction} REACH","viewer.export.card.defaultBadge":"ARCHIFY · {preset} · {theme}","viewer.export.direction.upstream":"Upstream","viewer.export.direction.downstream":"Downstream","viewer.export.error.canvasUnavailable":"Canvas unavailable for {label}","viewer.export.error.contextUnavailable":"2D canvas context unavailable for {label}","viewer.export.error.toBlobUnavailable":"canvas.toBlob unavailable for {label}","viewer.export.error.toBlobNull":"canvas.toBlob returned no data for {label}","viewer.export.error.variantsCombined":"Share Card variants cannot be combined","viewer.export.error.viewerState":"Share Card export could not remove temporary viewer state","viewer.export.error.routeState":"Route Card export could not preserve the resolved route safely","viewer.export.error.reachState":"Reach Card export could not preserve authored reach safely","viewer.export.error.webmRequirements":"WebM motion export requires a trace animation and browser MediaRecorder support","viewer.export.error.mediaRecorder":"MediaRecorder failed","viewer.export.error.emptyWebm":"MediaRecorder produced an empty WebM","viewer.export.error.webmBackground":"SVG background could not be loaded for WebM export","viewer.guided.region":"Guided diagram views","viewer.guided.previous":"Previous guided view","viewer.guided.previous.title":"Previous guided view ([)","viewer.guided.next":"Next guided view","viewer.guided.next.title":"Next guided view (])","viewer.guided.views":"Guided views","viewer.guided.explore":"Explore this system","viewer.guided.intro":"Step through curated paths without changing the source diagram.","viewer.guided.trail":"Story trail","viewer.guided.beat":"Beat","viewer.guided.nextBeat":"Next","viewer.guided.play":"Play guided story","viewer.guided.play.title":"Play guided story (P)","viewer.guided.pause":"Pause guided story","viewer.guided.pause.title":"Pause guided story (P)","viewer.guided.replay":"Replay guided story","viewer.guided.replay.title":"Replay guided story (P)","viewer.guided.playStory":"Play story","viewer.guided.pauseStory":"Pause","viewer.guided.replayStory":"Replay story","viewer.guided.motionUnavailable":"Story playback unavailable while motion is Still","viewer.guided.enableMotion":"Switch motion to Live to play the guided story","viewer.guided.selectBeatLink":"Select a Story Beat to copy its exact link","viewer.guided.copyMoment":"Copy moment","viewer.guided.momentCopied":"Moment link copied","viewer.guided.momentCopyFailed":"Could not copy story moment link","viewer.guided.copied":"Copied","viewer.guided.copyFailed":"Copy failed","viewer.guided.showAll":"Show all","viewer.guided.showAll.aria":"Show entire diagram","viewer.guided.chapters":"Story chapters","viewer.guided.storyTrail":"Story trail for {label}: {count} beats","viewer.guided.chapter.open":"Open chapter {index} of {total}: {label}, {count} stops","viewer.guided.chapter.current":"Current chapter {index} of {total}: {label}, {count} stops","viewer.guided.chapter.selectedNodes":"{count} selected nodes","viewer.guided.chapter.stops":"{count} stops","viewer.guided.chapter.stop.one":"{count} stop","viewer.guided.chapter.stop.other":"{count} stops","viewer.guided.chapter.current.title":"{label} — current chapter, {count} stops","viewer.guided.chapter.delta.expanded":"{stay} stay, {enter} enter, {leave} leave","viewer.guided.chapter.delta.aria":"Open chapter {index} of {total}: {label}. Chapter focus delta: {delta}","viewer.guided.chapter.delta.title":"{label} — {delta} chapter focus","viewer.guided.handoff":"{from} → {to} · via {label}","viewer.guided.share.chapter":"Chapter {index} / {total}","viewer.guided.share.initial":"Chapter 01 / 01","viewer.guided.share.default":"Guided chapter","viewer.guided.state.ready":"Ready","viewer.guided.state.playing":"Playing","viewer.guided.state.settled":"Settled","viewer.guided.state.paused":"Paused","viewer.guided.state.pinned":"Pinned","viewer.guided.state.still":"Still","viewer.guided.share.step":"Step {index} / {total} · {label}","viewer.guided.share.staticMoment":"{step} · Static moment","viewer.guided.share.complete":"{count} steps complete · {note}","viewer.guided.share.settled":"Path settled for reading.","viewer.guided.share.staticPath":"{count} steps · Static path","viewer.guided.share.ready":"{count} steps · Ready","viewer.guided.share.aria":"{state} chapter {index} of {total}: {label}. {beat}. {route}","viewer.guided.beat.start":"Beat {index} / {total} · {label} · starting point","viewer.guided.beat.forward":"Beat {index} / {total} · {from} → {to}","viewer.guided.beat.reverse":"Beat {index} / {total} · {from} → {to} · reverse authored link","viewer.guided.beat.multiple":"Beat {index} / {total} · {from} ⇄ {to} · {count} authored links","viewer.guided.beat.group":"Beat {index} / {total} · {from} · {to} · grouped · no direct link","viewer.guided.beat.aria.prefix":"Story beat {index} of {total}: {label}. ","viewer.guided.beat.aria.start":"Starting point.","viewer.guided.beat.aria.forward":"From {from} through one authored forward relationship.","viewer.guided.beat.aria.reverse":"From {from}; the authored relationship points from {to} to {from}.","viewer.guided.beat.aria.multiple":"From {from} through {count} authored relationships; shown without arbitrary motion.","viewer.guided.beat.aria.group":"Grouped from {from} with no direct authored relationship.","viewer.guided.caption.start":"Starting point","viewer.guided.caption.grouped":"Grouped transition · no direct authored link","viewer.guided.caption.more":" +{count} more","viewer.guided.caption.reverse":"Reverse authored relationship","viewer.guided.caption.relationships":"{count} authored relationships","viewer.guided.caption.relationship":"Authored relationship","viewer.guided.caption.direction":"authored direction: {from} → {to}","viewer.guided.caption.starting":"Authored starting point","viewer.guided.beatLink":"Copy link to current story moment: Beat {index} of {total}: {label}","viewer.guided.noStory":"This diagram has no authored guided story.","viewer.guide.eyebrow":"Diagram guide","viewer.guide.close":"Close diagram guide","viewer.guide.inspecting":"Inspecting compiled semantics","viewer.guide.actions":"Diagram exploration actions","viewer.guide.find":"Find any node","viewer.guide.find.hint":"Search labels, responsibilities, kinds, and stable IDs.","viewer.guide.route":"Trace a route","viewer.guide.route.aria":"Trace a directed route","viewer.guide.route.hint":"Ask how two semantic nodes connect in authored direction.","viewer.guide.map":"See the whole system","viewer.guide.map.hint":"Open Semantic Radar with a live viewport and stable nodes.","viewer.guide.lens":"Compare semantic kinds","viewer.guide.lens.hint":"Count roles, reveal their traffic, and compare direct authored links.","viewer.guide.story":"Play the guided story","viewer.guide.story.hint":"Walk the authored chapters and real relationships.","viewer.guide.present":"Enter Presentation Stage","viewer.guide.present.hint":"Give the live diagram the viewport without changing export.","viewer.guide.shortcuts":"Additional keyboard shortcuts","viewer.guide.shortcut.export":"Export","viewer.guide.shortcut.theme":"Theme","viewer.guide.shortcut.style":"Style","viewer.guide.shortcut.reset":"Reset","viewer.guide.shortcut.zoomIn":"Zoom in","viewer.guide.shortcut.zoomOut":"Zoom out","viewer.guide.shortcut.close":"Close","viewer.guide.facts":"{nodes} · {relationships} · {views}","viewer.guide.fact.node.one":"{count} semantic node","viewer.guide.fact.node.other":"{count} semantic nodes","viewer.guide.fact.relationship.one":"{count} relationship","viewer.guide.fact.relationship.other":"{count} relationships","viewer.guide.fact.view.one":"{count} guided view","viewer.guide.fact.view.other":"{count} guided views","viewer.guide.story.available.one":"Walk {count} authored chapter and its real relationships.","viewer.guide.story.available.other":"Walk {count} authored chapters and their real relationships.","viewer.guide.story.unavailable":"No authored guided story in this diagram.","viewer.guide.open":"Open diagram guide","viewer.guide.noStory":"This diagram has no authored guided story.","viewer.finder.title":"Find a node","viewer.finder.close":"Close node finder","viewer.finder.placeholder":"Search labels or IDs","viewer.finder.search":"Search diagram nodes","viewer.finder.results":"Diagram nodes","viewer.finder.empty":"No matching nodes","viewer.finder.result.focus":"Focus {label}","viewer.finder.result.routeStart":"Choose {label} as route start","viewer.finder.result.routeTarget":"Choose {label} as route destination, {links}","viewer.finder.status.empty":"No matching nodes","viewer.finder.status.count.one":"{count} matching node","viewer.finder.status.count.other":"{count} matching nodes","viewer.finder.noun.nodes":"nodes","viewer.finder.link.one":"{count} link","viewer.finder.link.other":"{count} links","viewer.finder.result.focus.one":"Focus {label}, {count} related connection","viewer.finder.result.focus.other":"Focus {label}, {count} related connections","viewer.finder.status.filtered":"{visible} of {available} {noun}","viewer.finder.status.all":"{available} {noun}","viewer.passport.eyebrow":"Semantic passport","viewer.passport.metadata":"Node metadata","viewer.passport.evidence":"Verified source evidence","viewer.passport.verified":"Verified source","viewer.passport.reach":"Authored reach","viewer.passport.reach.trace":"Trace authored reachability","viewer.passport.upstream":"Upstream","viewer.passport.downstream":"Downstream","viewer.passport.upstream.trace":"Trace upstream authored reachability","viewer.passport.downstream.trace":"Trace downstream authored reachability","viewer.passport.close":"Close semantic passport","viewer.passport.copy":"Copy link","viewer.passport.copy.focus":"Copy link to focused node","viewer.passport.relations":"Relations","viewer.passport.relations.show":"Show connected relationships","viewer.passport.relations.hide":"Hide connected relationships","viewer.passport.relations.list":"Connected relationships","viewer.passport.copyRelation":"Copy relation","viewer.passport.copyNode":"Copy node","viewer.passport.copyPinned":"Copy link to pinned relationship","viewer.passport.copySource":"Copy link to source node","viewer.passport.copy.focused.success":"Focused node link copied","viewer.passport.copy.pinned.success":"Pinned relationship link copied","viewer.passport.copy.focused.failed":"Could not copy focused node link","viewer.passport.copy.pinned.failed":"Could not copy pinned relationship link","viewer.passport.relationship.none":"No connected relationships","viewer.passport.relationship.count.one":"{count} relation","viewer.passport.relationship.count.other":"{count} relations","viewer.passport.relationship.show.one":"Show {count} connected relationship","viewer.passport.relationship.show.other":"Show {count} connected relationships","viewer.passport.relationship.summary":"{out} outgoing · {in} incoming{loops}","viewer.passport.relationship.loops":" · {count} loop","viewer.passport.relationship.explorer":"Direct relationship explorer","viewer.passport.relationship.help":"Use arrow keys to explore relationships. Press Enter or Space to pin details; Escape clears.","viewer.passport.relationship.loopsBack":"loops back","viewer.passport.relationship.connectsTo":"connects to","viewer.passport.relationship.connectsFrom":"connects from","viewer.passport.relationship.pinned":"Pinned relationship · {from} → {to} · {label}","viewer.passport.relationship.inspect":"Inspect relationship {index} of {total}: {from} to {to}, {label}. Press Enter for details.","viewer.passport.relationship.group.out":"Outgoing","viewer.passport.relationship.group.in":"Incoming","viewer.passport.relationship.group.loop":"Self loops","viewer.passport.relationship.row":"{group}: {relationship}, {neighbor}","viewer.passport.relationship.direction.out":"OUT →","viewer.passport.relationship.direction.in":"← IN","viewer.passport.relationship.direction.loop":"LOOP","viewer.passport.sourceCount.one":"{count} verified source reference","viewer.passport.sourceCount.other":"{count} verified source references","viewer.passport.sourceMarker":"SRC","viewer.passport.beacon.one":"{count} verified source; focus this node to inspect","viewer.passport.beacon.other":"{count} verified sources; focus this node to inspect","viewer.passport.repository.open":"Open verified repository revision {revision}","viewer.passport.source.open":"Open verified source {path} at revision {revision}","viewer.passport.source.openLink":"Open ↗","viewer.passport.reach.upstream.one":"Trace {count} upstream authored node","viewer.passport.reach.upstream.other":"Trace {count} upstream authored nodes","viewer.passport.reach.downstream.one":"Trace {count} downstream authored node","viewer.passport.reach.downstream.other":"Trace {count} downstream authored nodes","viewer.passport.reach.noUpstream":"No upstream authored nodes","viewer.passport.reach.noDownstream":"No downstream authored nodes","viewer.passport.reach.status":"{direction} · {nodes} nodes · {links} links · max {hops} hops","viewer.route.eyebrow":"Route probe","viewer.route.start":"Choose a start node","viewer.route.start.find":"Find start","viewer.route.start.find.aria":"Find a route start","viewer.route.copy":"Copy link","viewer.route.copy.aria":"Copy link to traced route","viewer.route.clear":"Clear","viewer.route.clear.aria":"Clear route probe","viewer.route.traced":"Traced route","viewer.route.pickTwo":"Pick two semantic nodes on the diagram","viewer.route.pickOne":"Pick a semantic node on the diagram","viewer.route.controls":"Route journey controls","viewer.route.previous":"Previous route position","viewer.route.play":"Play route journey","viewer.route.pause":"Pause route journey","viewer.route.replay":"Replay route journey","viewer.route.next":"Next route position","viewer.route.journey":"Journey","viewer.route.pause.label":"Pause","viewer.route.replay.label":"Replay","viewer.route.overview":"Overview","viewer.route.overview.aria":"Show complete route overview","viewer.route.instructions":"Choose the source, then the destination. Direction matters.","viewer.route.destination":"Choose a destination from {label}","viewer.route.destination.find":"Find target","viewer.route.destination.find.aria":"Find a reachable route destination","viewer.route.differentDestination":"Choose a different destination","viewer.route.distinct":"A route needs two distinct semantic nodes.","viewer.route.unreachable":"No directed route to {label}","viewer.route.unreachable.detail":"{target} is not reachable from {source}. Pick a highlighted destination.","viewer.route.start.instructions":"Select the source. The next step will reveal only directed destinations.","viewer.route.copy.success":"Traced route link copied","viewer.route.copy.failed":"Could not copy traced route link","viewer.route.position":"Route position {index} of {total}: {label}","viewer.route.step":"Step {index} of {total} · {phase} · {label}","viewer.route.motionRequired":"Automatic journey requires Live motion","viewer.route.trigger.clear":"Clear traced route","viewer.route.overview.status":"{nodes} · {hops} · shortest authored route","viewer.route.overview.node.one":"{count} node","viewer.route.overview.node.other":"{count} nodes","viewer.route.overview.hop.one":"{count} directed hop","viewer.route.overview.hop.other":"{count} directed hops","viewer.route.phase.playing":"Playing","viewer.route.phase.complete":"Complete","viewer.route.phase.inspecting":"Inspecting","viewer.route.destination.count.one":"{count} directed destination available. Pick a highlighted node.","viewer.route.destination.count.other":"{count} directed destinations available. Pick a highlighted node.","viewer.route.noOutgoing":"No outgoing route starts here. Clear and choose another source.","viewer.route.result.title":"{source} to {target}","viewer.route.finder.source.title":"Choose route start","viewer.route.finder.source.placeholder":"Search route sources","viewer.route.finder.source.empty":"No matching route sources","viewer.route.finder.source.results":"Nodes that can start a route","viewer.route.finder.source.noun":"route sources","viewer.route.finder.source.badge":"start","viewer.route.finder.target.title":"Destination from {label}","viewer.route.finder.target.placeholder":"Search reachable destinations","viewer.route.finder.target.empty":"No matching reachable destinations","viewer.route.finder.target.results":"Reachable route destinations","viewer.route.finder.target.noun":"reachable destinations","viewer.route.hop.one":"{count} hop","viewer.route.hop.other":"{count} hops","viewer.lens.eyebrow":"Semantic lens","viewer.lens.title":"Compare system roles","viewer.lens.close":"Close semantic lens","viewer.lens.instruction":"Choose up to two semantic kinds. One reveals its real traffic; two compare only direct authored relationships.","viewer.lens.kinds":"Semantic kinds","viewer.lens.choose":"Choose a kind to inspect its nodes and touching relationships.","viewer.lens.copy":"Copy link to semantic lens","viewer.lens.clear":"Clear semantic lens","viewer.lens.open":"Open semantic lens","viewer.lens.openActive":"Open active semantic lens","viewer.lens.legend":"Semantic legend","viewer.lens.legend.inspect.one":"Inspect {label}, {count} node","viewer.lens.legend.inspect.other":"Inspect {label}, {count} nodes","viewer.lens.kind.count.one":"{label}, {count} node","viewer.lens.kind.count.other":"{label}, {count} nodes","viewer.lens.compare.one":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationship","viewer.lens.compare.other":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationships","viewer.lens.single":"{nodes} · {relationships} · connected peers remain visible","viewer.lens.node.one":"{count} {label} node","viewer.lens.node.other":"{count} {label} nodes","viewer.lens.relationship.one":"{count} touching relationship","viewer.lens.relationship.other":"{count} touching relationships","viewer.radar.title":"Semantic radar","viewer.radar.building":"Building overview","viewer.radar.openFull":"Open full semantic radar","viewer.radar.open":"Open radar","viewer.radar.close":"Close semantic radar","viewer.radar.surface":"Diagram overview. Click a node to focus it, or use arrow keys to pan.","viewer.radar.click":"Click node","viewer.radar.drag":"Drag to pan","viewer.radar.space":"Semantic radar needs more MAP space.","viewer.radar.nodes":"Semantic diagram radar nodes","viewer.radar.focus":"Focus {label} from Semantic Radar","viewer.radar.status":"{count} nodes · {viewport}","viewer.radar.fullMap":"{count} nodes · full map","viewer.radar.compacted":"Radar compacted to avoid covering the Semantic Passport or MAP controls.","viewer.radar.cancelWaiting":"Cancel semantic radar waiting for more MAP space","viewer.radar.needsSpace":"Semantic radar needs more visible MAP space","viewer.radar.viewport.full":"full map","viewer.radar.viewport.width":"{percent}% width","viewer.radar.viewport.scale":"{percent}% viewport","viewer.nav.controls":"Diagram view controls","viewer.nav.route":"Trace a directed route","viewer.nav.route.title":"Trace route (R)","viewer.nav.route.short":"PATH","viewer.nav.radar":"Open semantic radar","viewer.nav.radar.title":"Semantic radar (M)","viewer.nav.radar.short":"MAP","viewer.nav.lens":"Open semantic lens","viewer.nav.lens.title":"Semantic lens (L)","viewer.nav.lens.short":"LENS","viewer.nav.find":"Find a node","viewer.nav.find.title":"Find a node (/)","viewer.nav.guide":"Open diagram guide","viewer.nav.guide.title":"Diagram guide (?)","viewer.nav.zoomOut":"Zoom out","viewer.nav.zoomOut.title":"Zoom out (-)","viewer.nav.reset":"Reset diagram view","viewer.nav.reset.title":"Reset view (0)","viewer.nav.read":"READ","viewer.nav.zoomIn":"Zoom in","viewer.nav.zoomIn.title":"Zoom in (+)","viewer.nav.camera":"{hint}. Reset diagram view","viewer.nav.camera.title":"{semantic}{hint} · reset view (0)","viewer.nav.camera.semantic":"Semantic camera active · ","viewer.nav.level.map":"MAP","viewer.nav.level.read":"READ","viewer.nav.level.full":"FULL","viewer.nav.level.auto":"AUTO","viewer.nav.detail.map":"Zoom in to reveal relationship labels and node context","viewer.nav.detail.read":"Zoom in again to reveal tags and annotations","viewer.nav.detail.full":"Full diagram detail","viewer.intent.summary":"{label}. {out} outgoing, {in} incoming{loops}. {total} connections. Press Enter for details.","viewer.intent.loops":", {count} self loop","viewer.common.copied":"Copied","viewer.common.copyFailed":"Copy failed","viewer.common.copyLink":"Copy link","viewer.common.clear":"Clear","viewer.common.close":"Close"}}</script>
     <div class="guided-views no-print" id="guided-views" hidden aria-label="Guided diagram views">
       <button id="guided-view-prev" type="button" aria-label="Previous guided view" title="Previous guided view ([)">&#8592;</button>
@@ -4998,11 +5027,12 @@
 
         <!-- Connection paths (before components for correct z-order) -->
         <path data-edge-from="inbound" data-edge-to="contracts" data-edge-label="dispatches" data-edge-key="0" data-edge-id="request-contract" data-composition-points="180,298;270,298" d="M 180 298 L 270 298" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="contracts" data-edge-to="application" data-edge-label="names handler" data-edge-key="1" data-edge-id="contract-handler" data-composition-points="440,298;550,298" d="M 440 298 L 550 298" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="contracts" data-edge-to="application" data-edge-label="bus dispatch" data-edge-key="1" data-edge-id="contract-handler" data-composition-points="440,298;550,298" d="M 440 298 L 550 298" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="application" data-edge-to="domain" data-edge-label="invokes behavior" data-edge-key="2" data-edge-id="application-domain" data-composition-points="730,298;850,298" d="M 730 298 L 850 298" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="application" data-edge-to="ports" data-edge-label="depends on" data-edge-key="3" data-edge-id="application-ports" data-composition-points="640,336;640,450" d="M 640 336 L 640 450" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="contextAdapters" data-edge-to="ports" data-edge-label="implements" data-edge-key="4" data-edge-id="context-adapter-port" data-composition-points="490,638;520,638;520,488;550,488" d="M 490 638 L 512 638 Q 520 638 520 630 L 520 496 Q 520 488 528 488 L 550 488" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="platformAdapters" data-edge-to="ports" data-edge-label="implements" data-edge-key="5" data-edge-id="platform-adapter-port" data-composition-points="820,578;775,578;775,488;730,488" d="M 820 578 L 783 578 Q 775 578 775 570 L 775 496 Q 775 488 767 488 L 730 488" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="messaging" data-edge-to="shared" data-edge-label="uses ports" data-edge-key="6" data-edge-id="messaging-shared" data-composition-points="320,111;500,111" d="M 320 111 L 500 111" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
 
         <!-- Components -->
         <g id="node-inbound" data-node-id="inbound" data-node-label="HTTP · CLI · Queue" tabindex="0" role="button" aria-label="Focus HTTP · CLI · Queue, Inbound adapters, Architecture component" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Inbound adapters" data-node-context="Architecture component">
@@ -5019,8 +5049,8 @@
         <text data-detail="context" x="105" y="312" class="t-muted" font-size="9" text-anchor="middle">Inbound adapters</text>
         </g>
 
-        <g id="node-contracts" data-node-id="contracts" data-node-label="Commands · Queries" tabindex="0" role="button" aria-label="Focus Commands · Queries, Inbound contracts, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Inbound contracts" data-node-tag="handler metadata" data-node-context="Framework-free business core">
-          <title>Commands · Queries · Inbound contracts · Framework-free business core · handler metadata</title>
+        <g id="node-contracts" data-node-id="contracts" data-node-label="Commands · Queries" tabindex="0" role="button" aria-label="Focus Commands · Queries, Inbound contracts, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Inbound contracts" data-node-tag="registry dispatch" data-node-context="Framework-free business core">
+          <title>Commands · Queries · Inbound contracts · Framework-free business core · registry dispatch</title>
           <rect x="270" y="260" width="170" height="76" rx="6" class="c-mask"/>
           <rect x="270" y="260" width="170" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(276 266) scale(0.6875)">
@@ -5028,18 +5058,18 @@
           </g>
           <text data-node-label="" data-detail-anchor="" x="355" y="296" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Commands · Queries</text>
         <text data-detail="context" x="355" y="312" class="t-muted" font-size="9" text-anchor="middle">Inbound contracts</text>
-        <text data-detail="fine" x="355" y="328" class="t-backend" font-size="7" text-anchor="middle">handler metadata</text>
+        <text data-detail="fine" x="355" y="328" class="t-backend" font-size="7" text-anchor="middle">registry dispatch</text>
         </g>
 
-        <g id="node-application" data-node-id="application" data-node-label="Application Layer" tabindex="0" role="button" aria-label="Focus Application Layer, Handlers and messaging policy, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Handlers and messaging policy" data-node-context="Framework-free business core">
-          <title>Application Layer · Handlers and messaging policy · Framework-free business core</title>
+        <g id="node-application" data-node-id="application" data-node-label="Application Layer" tabindex="0" role="button" aria-label="Focus Application Layer, Use-case handlers, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Use-case handlers" data-node-context="Framework-free business core">
+          <title>Application Layer · Use-case handlers · Framework-free business core</title>
           <rect x="550" y="260" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="550" y="260" width="180" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(556 266) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="640" y="296" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Application Layer</text>
-        <text data-detail="context" x="640" y="312" class="t-muted" font-size="9" text-anchor="middle">Handlers and messaging policy</text>
+        <text data-detail="context" x="640" y="312" class="t-muted" font-size="9" text-anchor="middle">Use-case handlers</text>
         </g>
 
         <g id="node-domain" data-node-id="domain" data-node-label="Domain Model" tabindex="0" role="button" aria-label="Focus Domain Model, Aggregate rules, Framework-free business core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Aggregate rules" data-node-tag="typed snapshot" data-node-context="Framework-free business core">
@@ -5077,8 +5107,8 @@
         <text data-detail="context" x="395" y="652" class="t-muted" font-size="9" text-anchor="middle">Doctrine and memory</text>
         </g>
 
-        <g id="node-platformAdapters" data-node-id="platformAdapters" data-node-label="Platform Adapters" tabindex="0" role="button" aria-label="Focus Platform Adapters, Redis · broker · cloud, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="Redis · broker · cloud" data-node-context="Architecture component">
-          <title>Platform Adapters · Redis · broker · cloud · Architecture component</title>
+        <g id="node-platformAdapters" data-node-id="platformAdapters" data-node-label="Platform Adapters" tabindex="0" role="button" aria-label="Focus Platform Adapters, HTTP · broker · cloud, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="HTTP · broker · cloud" data-node-context="Architecture component">
+          <title>Platform Adapters · HTTP · broker · cloud · Architecture component</title>
           <rect x="820" y="540" width="190" height="76" rx="6" class="c-mask"/>
           <rect x="820" y="540" width="190" height="76" rx="6" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(826 546) scale(0.6875)">
@@ -5086,18 +5116,18 @@
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="915" y="576" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Platform Adapters</text>
-        <text data-detail="context" x="915" y="592" class="t-muted" font-size="9" text-anchor="middle">Redis · broker · cloud</text>
+        <text data-detail="context" x="915" y="592" class="t-muted" font-size="9" text-anchor="middle">HTTP · broker · cloud</text>
         </g>
 
-        <g id="node-shared" data-node-id="shared" data-node-label="Shared" tabindex="0" role="button" aria-label="Focus Shared, Ports, primitives, and framework bases, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Ports, primitives, and framework bases" data-node-tag="Shared contracts" data-node-context="Architecture component">
-          <title>Shared · Ports, primitives, and framework bases · Architecture component · Shared contracts</title>
+        <g id="node-shared" data-node-id="shared" data-node-label="Shared" tabindex="0" role="button" aria-label="Focus Shared, Framework-free ports and values, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Framework-free ports and values" data-node-tag="Shared contracts" data-node-context="Architecture component">
+          <title>Shared · Framework-free ports and values · Architecture component · Shared contracts</title>
           <rect x="500" y="70" width="250" height="82" rx="6" class="c-mask"/>
           <rect x="500" y="70" width="250" height="82" rx="6" class="c-cloud" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(506 76) scale(0.6875)">
             <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="625" y="109" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Shared</text>
-        <text data-detail="context" x="625" y="125" class="t-muted" font-size="9" text-anchor="middle">Ports, primitives, and framework bases</text>
+        <text data-detail="context" x="625" y="125" class="t-muted" font-size="9" text-anchor="middle">Framework-free ports and values</text>
         <text data-detail="fine" x="625" y="144" class="t-cloud" font-size="7" text-anchor="middle">Shared contracts</text>
         </g>
 
@@ -5113,14 +5143,28 @@
         <text data-detail="context" x="930" y="125" class="t-muted" font-size="9" text-anchor="middle">DI bindings and module discovery</text>
         </g>
 
+        <g id="node-messaging" data-node-id="messaging" data-node-label="Messaging Coordination" tabindex="0" role="button" aria-label="Focus Messaging Coordination, Infrastructure/Messaging, Architecture component" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="Infrastructure/Messaging" data-node-context="Architecture component">
+          <title>Messaging Coordination · Infrastructure/Messaging · Architecture component</title>
+          <rect x="60" y="70" width="260" height="82" rx="6" class="c-mask"/>
+          <rect x="60" y="70" width="260" height="82" rx="6" class="c-messagebus" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(66 76) scale(0.6875)">
+            <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>
+            <circle cx="5" cy="4.5" r="1" class="sigil-fill"/>
+            <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
+            <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="190" y="109" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Messaging Coordination</text>
+        <text data-detail="context" x="190" y="125" class="t-muted" font-size="9" text-anchor="middle">Infrastructure/Messaging</text>
+        </g>
+
         <!-- Connection labels -->
         <g data-detail="context" data-edge-from="inbound" data-edge-to="contracts" data-edge-label="dispatches" data-edge-key="0" data-edge-id="request-contract">
           <rect x="196" y="278" width="58" height="14" rx="3" class="c-mask"/>
           <text x="225" y="288" class="t-backend" font-size="8" text-anchor="middle">dispatches</text>
         </g>
-        <g data-detail="context" data-edge-from="contracts" data-edge-to="application" data-edge-label="names handler" data-edge-key="1" data-edge-id="contract-handler">
-          <rect x="458.8" y="278" width="72.4" height="14" rx="3" class="c-mask"/>
-          <text x="495" y="288" class="t-messagebus" font-size="8" text-anchor="middle">names handler</text>
+        <g data-detail="context" data-edge-from="contracts" data-edge-to="application" data-edge-label="bus dispatch" data-edge-key="1" data-edge-id="contract-handler">
+          <rect x="461.2" y="278" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="495" y="288" class="t-messagebus" font-size="8" text-anchor="middle">bus dispatch</text>
         </g>
         <g data-detail="context" data-edge-from="application" data-edge-to="domain" data-edge-label="invokes behavior" data-edge-key="2" data-edge-id="application-domain">
           <rect x="746.6" y="278" width="86.8" height="14" rx="3" class="c-mask"/>
@@ -5137,6 +5181,10 @@
         <g data-detail="context" data-edge-from="platformAdapters" data-edge-to="ports" data-edge-label="implements" data-edge-key="5" data-edge-id="platform-adapter-port">
           <rect x="746" y="513" width="58" height="14" rx="3" class="c-mask"/>
           <text x="775" y="523" class="t-muted" font-size="8" text-anchor="middle">implements</text>
+        </g>
+        <g data-detail="context" data-edge-from="messaging" data-edge-to="shared" data-edge-label="uses ports" data-edge-key="6" data-edge-id="messaging-shared">
+          <rect x="381" y="91" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="410" y="101" class="t-backend" font-size="8" text-anchor="middle">uses ports</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
@@ -5203,7 +5251,7 @@
           </button>
         </div>
         <div class="diagram-guide-shortcuts" aria-label="Additional keyboard shortcuts">
-          <span><kbd>E</kbd> Export</span><span><kbd>S</kbd> Style</span><span><kbd>0</kbd> Reset</span><span><kbd>+</kbd> Zoom in</span><span><kbd>-</kbd> Zoom out</span><span><kbd>Esc</kbd> Close</span>
+          <span><kbd>E</kbd> Export</span><span><kbd>T</kbd> Theme</span><span><kbd>S</kbd> Style</span><span><kbd>0</kbd> Reset</span><span><kbd>+</kbd> Zoom in</span><span><kbd>-</kbd> Zoom out</span><span><kbd>Esc</kbd> Close</span>
         </div>
         <p class="diagram-guide-feedback" id="diagram-guide-feedback" aria-live="polite"></p>
       </div>
@@ -5336,36 +5384,34 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot emerald"></div>
-          <h2>Strengths</h2>
+          <h3>Business core</h3>
         </div>
         <ul>
-          <li>&bull; Business code depends on project-owned ports.</li>
-          <li>&bull; Doctrine and memory adapters share behavior tests.</li>
-          <li>&bull; Persistence reads a typed aggregate snapshot.</li>
-          <li>&bull; Architecture rules enforce inward dependency direction.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-dot amber"></div>
-          <h2>Weaknesses</h2>
-        </div>
-        <ul>
-          <li>&bull; Contracts name concrete application handlers.</li>
-          <li>&bull; Shared mixes core contracts with framework base classes.</li>
+          <li>&bull; Contracts stay independent of handlers.</li>
+          <li>&bull; Context registries map commands and queries.</li>
+          <li>&bull; Persistence reads typed aggregate snapshots.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h2>Priority</h2>
+          <h3>Infrastructure</h3>
         </div>
         <ul>
-          <li>&bull; Keep the current boundaries and tests.</li>
-          <li>&bull; Reduce Shared coupling before adding layers.</li>
-          <li>&bull; Treat strict hexagonal purity as optional, not as the goal.</li>
+          <li>&bull; Messaging coordinates relay, retry, and failure.</li>
+          <li>&bull; Framework support stays outside Shared.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Verification</h3>
+        </div>
+        <ul>
+          <li>&bull; Architecture tests enforce dependency rules.</li>
+          <li>&bull; Messaging decisions use an injected UTC clock.</li>
         </ul>
       </div>
     </div>
@@ -5541,6 +5587,71 @@
         }
       });
       return { cycle: cycle, apply: apply, current: current, authored: authored, open: open, close: close, isOpen: isOpen };
+    })();
+
+    /* ============================================================
+       Theme toggle — persists to localStorage, respects system pref
+       ============================================================ */
+
+    Archify.theme = (function () {
+      var STORAGE_KEY = 'archify-theme';
+      var html = document.documentElement;
+      var btn = document.getElementById('btn-theme');
+      var label = document.getElementById('theme-label');
+
+      // localStorage can throw (blocked cookies, sandboxed iframes); the whole
+      // script element dies on an uncaught error, so guard every access.
+      function readStored() {
+        try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return null; }
+      }
+      function writeStored(value) {
+        try { localStorage.setItem(STORAGE_KEY, value); } catch (_) {}
+      }
+      function urlOverride() {
+        // URL param wins (useful for deterministic screenshots / share links)
+        try {
+          var param = new URLSearchParams(window.location.search).get('theme');
+          if (param === 'light' || param === 'dark') return param;
+        } catch (_) {}
+        return null;
+      }
+
+      function resolveInitial() {
+        var fromUrl = urlOverride();
+        if (fromUrl) return fromUrl;
+        var saved = readStored();
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+
+      function apply(theme) {
+        html.setAttribute('data-theme', theme);
+        label.textContent = viewerText(theme === 'dark' ? 'viewer.theme.dark' : 'viewer.theme.light');
+        btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+      }
+
+      function toggle() {
+        var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        apply(next);
+        writeStored(next);
+      }
+
+      apply(resolveInitial());
+      btn.addEventListener('click', toggle);
+
+      // Follow live OS theme changes while the user has no explicit preference.
+      try {
+        var media = window.matchMedia('(prefers-color-scheme: light)');
+        var onChange = function (e) {
+          var saved = readStored();
+          if (urlOverride() || saved === 'light' || saved === 'dark') return;
+          apply(e.matches ? 'light' : 'dark');
+        };
+        if (media.addEventListener) media.addEventListener('change', onChange);
+        else if (media.addListener) media.addListener(onChange);
+      } catch (_) {}
+
+      return { toggle: toggle };
     })();
 
     /* ============================================================
@@ -6767,7 +6878,7 @@
               toast(viewerText('viewer.export.downloadedShare'));
             })
           : format === 'svg'
-          ? Promise.resolve(serializeSvg(1, { autoTheme: false })).then(function (d) {
+          ? Promise.resolve(serializeSvg(1, { autoTheme: true })).then(function (d) {
               var blob = new Blob([d.svgString], { type: 'image/svg+xml;charset=utf-8' });
               recordExportReceipt('svg', blob, d.canonicalStateClean);
               download(blob, base + '.svg');
@@ -14395,6 +14506,7 @@
         if (action === 'story') return Archify.guidedViews.play();
         if (action === 'present') return Archify.presentation.enter();
         if (action === 'export') return Archify.exportMenu.open();
+        if (action === 'theme') return Archify.theme.toggle();
         if (action === 'preset') return Archify.preset.cycle();
         if (action === 'reset') return Archify.view.reset();
         if (action === 'zoom-in') return Archify.view.zoomIn();
@@ -14410,6 +14522,7 @@
           p: 'story',
           f: 'present',
           e: 'export',
+          t: 'theme',
           s: 'preset',
           '0': 'reset',
           '+': 'zoom-in',
@@ -14478,6 +14591,7 @@
     /* ============================================================
        Global keyboard shortcuts
        ? -> open Diagram Guide
+       T -> toggle theme
        S -> cycle visual style
        E -> open export menu
          F -> toggle presentation stage
@@ -14503,6 +14617,9 @@
       } else if (e.key === '/') {
         e.preventDefault();
         Archify.finder.open();
+      } else if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        Archify.theme.toggle();
       } else if (e.key === 's' || e.key === 'S') {
         e.preventDefault();
         Archify.preset.cycle();

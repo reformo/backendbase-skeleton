@@ -63,9 +63,11 @@ Backendbase tests these rules directly:
 - Business layers do not import framework packages.
 - Shared code does not import application services, domain modules, or infrastructure.
 - Application code does not import infrastructure.
+- Technical messaging coordination depends only on its own types, Shared contracts and values, and native PHP types.
 - No Shared code imports frameworks.
 - Inbound and outbound adapters do not import each other.
-- CQRS and domain-listener attributes have one positional same-context target with the correct interface and production-container binding.
+- Every command and query has a resolvable handler mapping in its context registry. CQRS contracts do not import handlers or declare handler attributes.
+- Domain-listener attributes have one positional same-context target with the correct interface and production-container binding.
 
 Equivalent current tests are:
 
@@ -76,15 +78,17 @@ tests/Architecture/BoundedContextIsolationTest.php
 tests/Architecture/FrameworkImportBoundaryTest.php
 tests/Architecture/SharedDependencyBoundaryTest.php
 tests/Architecture/ApplicationDependencyBoundaryTest.php
+tests/Architecture/MessagingDependencyBoundaryTest.php
 tests/Architecture/SharedFrameworkBoundaryTest.php
 tests/Architecture/InboundAdapterDependencyBoundaryTest.php
 tests/Architecture/OutboundAdapterDependencyBoundaryTest.php
 tests/Architecture/AttributeTargetBoundaryTest.php
+tests/Architecture/RegistryHandlerBoundaryTest.php
 ```
 
 Also check object-calisthenics or local design constraints from the target project. Do not refactor unrelated code during verification.
 
-Current Backendbase architecture policy deliberately permits `Psr\Log\LoggerInterface` as an application port. It permits CQRS and domain-event contracts to reference one same-context handler or listener through a positional attribute. Confirm the target project's policy before treating either direction as valid.
+Current Backendbase architecture policy permits `Psr\Log\LoggerInterface` as an application port. Domain-event contracts can reference a same-context listener through a positional attribute. CQRS contracts remain independent of handlers; context registries own their mappings. Discover the target project's resolver and registration policy before applying these Backendbase examples.
 
 ## Trust-Boundary Checks
 
