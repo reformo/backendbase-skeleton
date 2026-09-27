@@ -31,7 +31,7 @@ Thumbs.db
 .zed
 .junie
 /vendor/
-artifacts/
+artifacts/*
 !artifacts/.gittrack
 .phpunit.cache/
 .phpcs-cache

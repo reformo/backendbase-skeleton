@@ -132,8 +132,7 @@
         "start-apis": "php -S 0.0.0.0:8080 -t public",
         "complexity": "vendor/bin/phpcs --standard=phpcs-complexity.xml.dist --warning-severity=0",
         "cs-check": "vendor/bin/phpcs",
-        "cs-fix": "vendor/bin/phpcbf -e -a",
-        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",
+        "cs-fix": "sh -c 'vendor/bin/phpcbf \"$@\"; code=$?; [ \"$code\" -eq 1 ] && exit 0; exit \"$code\"' --",        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",
         "test": [
             "vendor/bin/phpunit --testdox --fail-on-warning --coverage-clover clover.xml --log-junit artifacts/junit.xml",
             "php bin/check-coverage.php clover.xml",
