@@ -361,7 +361,7 @@
         <div class="chips" aria-label="Report summary">
             <span class="chip">Code quality: 9.4/10</span>
             <span class="chip">Account provisioning is external</span>
-            <span class="chip"><span data-quality-metric="tests">556</span> tests</span>
+            <span class="chip"><span data-quality-metric="tests">557</span> tests</span>
             <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
             <span class="chip">PHPStan level 8</span>
             <span class="chip">Complexity ≤ 12</span>
@@ -396,7 +396,7 @@
                 <strong>Production-readiness constraint:</strong>
                 <code>POST /auth</code> verifies database-backed Argon2id credentials. The release seeds no account credential, so provision the first account through an approved operation.
             </div>
-            <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have automated verification. The architecture subset passed 19 tests and 84 assertions.</p>
+            <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have automated verification. The architecture subset passed 20 tests and 86 assertions.</p>
             <p>The account lifecycle keeps its dependency direction. Protected HTTP controllers call commands and a query. Their handlers depend on account repository, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapters.</p>
             <p>Context registries now map every command and query to a handler. Framework support is in Infrastructure. Shared contracts remain framework-free. Transactional integration events run local subscribers before optional outbox insertion.</p>
             <p>Typed settings, strict numeric parsing, observable queue failures, and a lazy Redis connection reduce boundary risk. A scheduled audit, CycloneDX software bill of materials (SBOM), and package-content digests support dependency review.</p>
@@ -434,10 +434,10 @@
         <section id="evidence">
             <p class="section-label">03 · Verification evidence</p>
             <h2>Recorded checks and current local metrics</h2>
-            <p>PHPUnit, coverage, PHPStan, complexity, and coding standards were checked locally on 24 September 2026. The source review used revision <code>2bd6922</code>. Source and dependency counts use this workspace. Other rows describe source configuration or earlier recorded checks. This review did not run live-service, security, or dependency audits.</p>
+            <p>PHPUnit, coverage, PHPStan, complexity, and coding standards were checked locally on 24 September 2026. PHPUnit, coverage, inventory metrics, and the architecture subset were refreshed on 27 September 2026. The source review used revision <code>2bd6922</code>. Source and dependency counts use this workspace. Other rows describe source configuration or earlier recorded checks. This review did not run live-service, security, or dependency audits.</p>
             <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">556</span></strong><span>Passing PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">2,053</span></strong><span>Passing assertions</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">557</span></strong><span>Passing PHPUnit tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">2,055</span></strong><span>Passing assertions</span></div>
                 <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">4,553</span>/<span data-quality-metric="total-lines">4,553</span></strong><span>Covered executable lines</span></div>
                 <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,092</span>/<span data-quality-metric="total-methods">1,092</span></strong><span>Covered methods</span></div>
             </div>
@@ -448,17 +448,17 @@
                     </thead>
                     <tbody>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">556</span> tests and <span data-quality-metric="assertions">2,053</span> assertions passed.</td></tr>
+                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td><span data-quality-metric="tests">557</span> tests and <span data-quality-metric="assertions">2,055</span> assertions passed.</td></tr>
                     <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-lines">4,553</span> of <span data-quality-metric="total-lines">4,553</span> executable source lines were covered.</td></tr>
                     <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>All <span data-quality-metric="covered-methods">1,092</span> of <span data-quality-metric="total-methods">1,092</span> methods were covered.</td></tr>
                     <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
                     <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">571</span> checked files passed the Doctrine coding standard.</td></tr>
+                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">572</span> checked files passed the Doctrine coding standard.</td></tr>
                     <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
                     <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
                     <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
-                    <tr><td>Architecture boundaries</td><td><span class="badge">Pass</span></td><td>19 tests and 84 assertions cover dependency direction, Shared framework isolation, context boundaries, and all command and query registry mappings.</td></tr>
+                    <tr><td>Architecture boundaries</td><td><span class="badge">Pass</span></td><td>20 tests and 86 assertions cover dependency direction, messaging coordination, Shared framework isolation, context boundaries, and all command and query registry mappings.</td></tr>
                     <tr><td>Account lifecycle</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> authenticates active accounts. Protected <code>GET /accounts</code>, <code>POST /accounts</code>, and <code>PATCH</code> or <code>DELETE /accounts/{account-uuid}</code> operations use typed commands, a query, access control, and repository ports.</td></tr>
                     <tr><td>Authorization-state revocation</td><td><span class="badge">Local pass</span></td><td>Authentication and account changes share an account-row transaction. SQLite tests cover lock ordering, two-connection exclusion, refreshed grants, and rollback. MySQL lock scheduling remains unverified.</td></tr>
                     <tr><td>Transactional integration events</td><td><span class="badge">Pass</span></td><td>Tests cover local subscribers, optional outbox insertion, rejection outside a transaction, and rollback of combined writes.</td></tr>
