@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Composition;
 
-use Backendbase\Application\Messaging\OutboxRelayService;
-use Backendbase\Application\Messaging\QueueMessageFailureService;
 use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\EntryReadRepository;
 use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\EntryWriteRepository;
 use Backendbase\Domain\ExampleCatalog\Contracts\EntryReadRepository as EntryReadRepositoryPort;
@@ -40,6 +38,8 @@ use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 use Backendbase\Infrastructure\Adapters\S3Bucket;
 use Backendbase\Infrastructure\Adapters\Time\SystemClock;
+use Backendbase\Infrastructure\Messaging\OutboxRelayService;
+use Backendbase\Infrastructure\Messaging\QueueMessageFailureService;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Domain\DomainEventPublisher;

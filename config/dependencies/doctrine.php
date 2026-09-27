@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Backendbase\Application\Messaging\OutboxRelayService;
-use Backendbase\Application\Messaging\QueueMessageFailureService;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineExternalEffectInbox;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineInboxMessageTransaction;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineIntegrationEventOutbox;
@@ -16,6 +14,8 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DQL\FirstFunction;
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Configuration\DatabaseSettings;
+use Backendbase\Infrastructure\Messaging\OutboxRelayService;
+use Backendbase\Infrastructure\Messaging\QueueMessageFailureService;
 use Backendbase\Shared\Helpers\PathFinder;
 use Backendbase\Shared\Integrations\IntegrationMessageLogCleaner;
 use Backendbase\Shared\Integrations\OutboxMonitor;

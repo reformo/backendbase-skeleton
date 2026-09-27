@@ -2,6 +2,8 @@
 
 The transactional outbox separates business completion from broker availability.
 
+`Infrastructure/Messaging` owns relay, publication, and retry coordination. These services use Shared ports for storage, publication, and time.
+
 ## Write and relay flow
 
 1. A command handler passes authoritative database work to `IntegrationEventTransaction`.

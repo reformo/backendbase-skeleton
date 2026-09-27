@@ -598,6 +598,7 @@
 │   ├── api-docs/               # OpenAPI source
 │   ├── bruno/                  # executable API requests
 │   ├── database/               # migrations and seeders
+│   ├── docker/                 # local Nginx CDN template
 │   ├── docs/                   # project documentation
 │   └── i18n/                   # translations
 ├── src/Backendbase/
@@ -652,7 +653,7 @@
                     <text x="670" y="59" text-anchor="middle" fill="#4f5f59" font-size="14" font-weight="700">Shared supplies CQRS, HTTP, domain, persistence, integration, primitive, and service building blocks</text>
                 </svg>
             </div>
-            <p>The architecture suite enforces Domain and Application direction, bounded-context isolation, both adapter directions, Shared framework isolation, complete CQRS registry mappings, listener target integrity, and the rule that <code>Shared</code> must not depend on <code>Application</code>, <code>Domain</code>, or <code>Infrastructure</code>.</p>
+            <p>The architecture suite enforces Domain and Application direction, messaging coordination dependencies, bounded-context isolation, both adapter directions, Shared framework isolation, complete CQRS registry mappings, listener target integrity, and the rule that <code>Shared</code> must not depend on <code>Application</code>, <code>Domain</code>, or <code>Infrastructure</code>.</p>
         </section>
 
         <section id="boundaries">
@@ -666,6 +667,7 @@
                         <tr><td>Application</td><td>Commands, queries, handlers, orchestration, subscribers</td><td>HTTP parsing and direct concrete infrastructure calls</td></tr>
                         <tr><td>Contracts</td><td>Ports, command and query inputs, read models, event contracts</td><td>Adapter implementation details</td></tr>
                         <tr><td>Infrastructure</td><td>Controllers, database adapters, queue adapters, external services</td><td>Business rules that belong to aggregates</td></tr>
+                        <tr><td>Infrastructure/Messaging</td><td>Technical relay, claim, retry, and delivery-failure coordination through Shared ports</td><td>Concrete adapter, framework, and business-context dependencies</td></tr>
                         <tr><td>Shared</td><td>Stable framework-independent building blocks</td><td>Dependencies on application modules</td></tr>
                     </tbody>
                 </table>

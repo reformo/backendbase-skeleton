@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Application\Messaging;
+namespace Backendbase\Infrastructure\Messaging;
 
 use Backendbase\Shared\Integrations\Operation\OutboxRelayResult;
 use Backendbase\Shared\Integrations\OutboxPublisher;

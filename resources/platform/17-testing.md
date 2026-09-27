@@ -15,7 +15,7 @@ Use the smallest check that proves the change. Expand checks as risk increases.
 - Use `docker compose up -d` for local S3, SQS, SNS, SES, and CloudFront API integration tests.
 - Create and remove emulator resources in each integration test setup. Do not add the emulator to the default suite.
 - Keep invalid input, rollback, retry, mapping, and not-found paths explicit.
-- Keep dependency-direction tests separate for Application, Shared, inbound adapters, and outbound adapters.
+- Keep dependency-direction tests separate for Application, Shared, messaging coordination, inbound adapters, and outbound adapters.
 - Verify every CQRS contract has a registry mapping and no handler attribute. Verify domain-listener targets and production-container resolution.
 
 ## Select verification by changed behavior

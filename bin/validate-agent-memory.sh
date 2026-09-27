@@ -3,7 +3,7 @@ set -eu
 
 fail()
 {
-    printf '%s\n' "memory-check: $1" >&2
+    printf '%s\n' "validate-agent-memory: $1" >&2
     exit 1
 }
 
@@ -89,4 +89,4 @@ grep -Fq "sole source of truth" "$orchestration" || fail "canonical source bound
 grep -Fqx '*' "$memory_root/runtime/.gitignore" || fail "runtime content is not ignored"
 grep -Fqx '!.gitignore' "$memory_root/runtime/.gitignore" || fail "runtime .gitignore is not retained"
 
-printf '%s\n' "memory-check: ok"
+printf '%s\n' "validate-agent-memory: ok"

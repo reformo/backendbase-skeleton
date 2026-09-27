@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Application\Messaging;
+namespace Tests\Infrastructure\Messaging;
 
-use Backendbase\Application\Messaging\QueueMessageFailureService;
+use Backendbase\Infrastructure\Messaging\QueueMessageFailureService;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
 use DateTimeImmutable;

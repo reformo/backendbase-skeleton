@@ -9,7 +9,7 @@ Integration consumers use an inbox transaction. External-effect consumers use a 
 - Success commits consumer database work and `processed_at` together.
 - Permanent contract failures reject the message.
 - Transient failures retry through `QueueMessageFailureService`.
-- The application service makes delivery failures terminal after five attempts.
+- `Infrastructure/Messaging/QueueMessageFailureService` makes delivery failures terminal after five attempts.
 - `DoctrineQueueMessageFailureStore` only records, marks, and clears supplied failure state.
 - `QueueMessageFailureService` and the database inbox read `Shared/Time/Clock` for failure and completion timestamps used by retention.
 

@@ -124,7 +124,7 @@ Select checks for the changed behavior and target policy. Command lists are exam
 
 ```sh
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageOperationsTest.php
-vendor/bin/phpunit tests/Application/Messaging/OutboxRelayServiceTest.php
+vendor/bin/phpunit tests/Infrastructure/Messaging/OutboxRelayServiceTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStoreTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Console/Queue/QueueMaintenanceCommandsTest.php
 vendor/bin/phpunit tests/Infrastructure/Adapters/Console/Queue/ShowOutboxStatusTest.php
@@ -146,8 +146,8 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Shared/Integrations/OutboxRelay.php`
 - `src/Backendbase/Shared/Integrations/OutboxMonitor.php`
 - `src/Backendbase/Shared/Integrations/IntegrationMessageLogCleaner.php`
-- `src/Backendbase/Application/Messaging/OutboxRelayService.php`
-- `src/Backendbase/Application/Messaging/OutboxPublication.php`
+- `src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php`
+- `src/Backendbase/Infrastructure/Messaging/OutboxPublication.php`
 - `src/Backendbase/Shared/Time/Clock.php`
 - `config/dependencies/time.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`

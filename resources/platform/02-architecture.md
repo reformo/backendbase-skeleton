@@ -6,6 +6,8 @@
 - Application handlers orchestrate use cases through domain objects and ports.
 - Application handlers must not parse HTTP, run SQL, publish directly to brokers, or build HTTP responses.
 - Application services must not depend on `Infrastructure`.
+- `Infrastructure/Messaging` owns technical relay, claim, retry, and delivery-failure coordination.
+- Messaging coordination may depend only on its own types, Shared contracts and values, and native PHP types. It must not import concrete adapters, frameworks, or business contexts.
 - Infrastructure adapters map project contracts to frameworks, databases, brokers, and vendors.
 - Infrastructure adapters must not make business decisions.
 - `Infrastructure/Inbound` holds consumer-specific entry code outside bounded contexts.
@@ -23,6 +25,6 @@
 - Every command and query must map to a resolvable handler in its context registry. Contracts must not import handlers.
 - Domain-listener attributes must have one positional target in the same context. The target must implement the correct interface and resolve from the production container.
 
-Architecture tests under `tests/Architecture` enforce domain purity, context isolation, Application direction, both adapter directions, Shared framework isolation, registry mappings, domain-listener targets, and the Shared boundary.
+Architecture tests under `tests/Architecture` enforce domain purity, context isolation, Application direction, messaging coordination dependencies, both adapter directions, Shared framework isolation, registry mappings, domain-listener targets, and the Shared boundary.
 
 Basis: `resources/docs/0-project.html`, `resources/docs/1-bounded-contexts.html`, `resources/docs/10-testing-and-quality.html`.

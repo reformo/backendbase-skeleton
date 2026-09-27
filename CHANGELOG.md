@@ -39,6 +39,9 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Moved technical messaging coordination to `Infrastructure/Messaging`. Preserved port bindings and behavior, moved its tests, and added a dependency boundary for the new directory.
+- Moved the agent-memory validation script to `bin/validate-agent-memory.sh` and clarified its output label.
+- Moved the local Nginx CDN template to `resources/docker` and updated its Docker Compose mount.
 - Set Monolog timestamps explicitly to UTC, independent of the process time zone. Preserved explicit time-zone support in the date helper and documented audit-only timestamp usage.
 - Renamed consumer API entry code from `Infrastructure/UseCase` to `Infrastructure/Inbound` and moved operational console commands to `Infrastructure/Adapters/Console`. Renamed the API selector to `ConsumerApiTarget` and updated bootstrap, tests, and guidance.
 - Reassessed the engineering quality and Ports and Adapters reports against the current source and local checks. Corrected stale architecture counts and separated current evidence from historical and incomplete checks.

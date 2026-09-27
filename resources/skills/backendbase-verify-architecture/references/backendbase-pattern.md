@@ -10,6 +10,7 @@
 | Business layers | Configured framework namespace prefixes |
 | Shared | `Backendbase\Application`, `Backendbase\Domain`, and `Backendbase\Infrastructure` |
 | Application | `Backendbase\Infrastructure` |
+| Technical messaging coordination | Dependencies outside its own types, Shared contracts and values, and native PHP types |
 | Shared | Configured framework namespace prefixes |
 | Inbound adapter | Any concrete outbound adapter class |
 | Outbound adapter | Any concrete inbound adapter class |
@@ -87,6 +88,7 @@ vendor/bin/phpunit tests/Architecture/BoundedContextIsolationTest.php
 vendor/bin/phpunit tests/Architecture/FrameworkImportBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/SharedDependencyBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/ApplicationDependencyBoundaryTest.php
+vendor/bin/phpunit tests/Architecture/MessagingDependencyBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/SharedFrameworkBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/InboundAdapterDependencyBoundaryTest.php
 vendor/bin/phpunit tests/Architecture/OutboundAdapterDependencyBoundaryTest.php
@@ -118,6 +120,7 @@ Create or select `{RealCompositionTestPath}` for the changed provider, container
 - `tests/Architecture/FrameworkImportBoundaryTest.php`
 - `tests/Architecture/SharedDependencyBoundaryTest.php`
 - `tests/Architecture/ApplicationDependencyBoundaryTest.php`
+- `tests/Architecture/MessagingDependencyBoundaryTest.php`
 - `tests/Architecture/SharedFrameworkBoundaryTest.php`
 - `tests/Architecture/InboundAdapterDependencyBoundaryTest.php`
 - `tests/Architecture/OutboundAdapterDependencyBoundaryTest.php`

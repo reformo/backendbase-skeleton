@@ -22,15 +22,17 @@ Do not assume the `Backendbase\` namespace, Doctrine, MySQL, UUIDv7, table names
 | Atomic write port | `IntegrationEventTransaction` | Commit business work, local subscribers, and optional outbox publication together. |
 | Transaction adapter | `DoctrineIntegrationEventTransaction` | Run business work and dispatch its returned event before commit. |
 | Outbox writer | `IntegrationEventOutbox` and `DoctrineIntegrationEventOutbox` | Append to the active business transaction when queue delivery is selected. |
-| Relay application service | `OutboxRelayService`, `OutboxPublication`, `OutboxRetryPolicy` | Orchestrate publication and calculate claim and retry deadlines from clock readings. |
+| Relay coordination service | `OutboxRelayService`, `OutboxPublication`, `OutboxRetryPolicy` | Orchestrate publication and calculate claim and retry deadlines from clock readings. |
 | Current time | `Shared/Time/Clock` | Supply a UTC instant for scheduling and retention. Reuse the target clock contract. |
 | Outbox persistence adapter | `DoctrineOutboxMessageStore` | Claim rows and apply supplied publication or failure state. |
 | Publisher | `OutboxMessagePublisher` | Map an outbox row to the project queue port. |
 | Database inbox | `InboxMessageTransaction` | Deduplicate and commit database work atomically. |
 | External-effect inbox | `ExternalEffectInbox` | Lease non-transactional provider effects. |
-| Failure application service | `QueueMessageFailureService` | Decide permanent and bounded transient outcomes. |
+| Failure coordination service | `QueueMessageFailureService` | Decide permanent and bounded transient outcomes. |
 | Failure persistence adapter | `DoctrineQueueMessageFailureStore` | Record, mark, and clear supplied failure state. |
 | Operations | relay, status, cleanup commands | Expose a finite or continuous relay and finite maintenance work. |
+
+In unmodified Backendbase, technical coordination services live in `Infrastructure/Messaging`. They depend only on their own types, Shared contracts and values, and native PHP types. Adapt this placement and dependency check to the target project.
 
 ## Minimal project-owned contracts
 
@@ -194,15 +196,15 @@ Verified against current source on 2026-09-23:
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php`
 - `src/Backendbase/Shared/Persistence/Outbox/IntegrationEventOutbox.php`
-- `src/Backendbase/Application/Messaging/OutboxRelayService.php`
-- `src/Backendbase/Application/Messaging/OutboxPublication.php`
+- `src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php`
+- `src/Backendbase/Infrastructure/Messaging/OutboxPublication.php`
 - `src/Backendbase/Shared/Time/Clock.php`
 - `config/dependencies/time.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Inbox/ExternalEffectClaims.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineOutboxMessageStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php`
-- `src/Backendbase/Application/Messaging/QueueMessageFailureService.php`
+- `src/Backendbase/Infrastructure/Messaging/QueueMessageFailureService.php`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineQueueMessageFailureStore.php`
 - `src/Backendbase/Infrastructure/Adapters/Queue/OutboxMessagePublisher.php`
 - `resources/database/Migrations/Version20260823000000.php`

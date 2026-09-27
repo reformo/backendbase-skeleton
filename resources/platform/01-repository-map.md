@@ -7,6 +7,7 @@
 | Technology and HTTP adapters | `src/Backendbase/Infrastructure` |
 | Reusable HTTP adapter support | `src/Backendbase/Infrastructure/Adapters/Http` |
 | Operational console adapter | `src/Backendbase/Infrastructure/Adapters/Console` |
+| Technical messaging coordination | `src/Backendbase/Infrastructure/Messaging` |
 | Consumer-specific entry code | `src/Backendbase/Infrastructure/Inbound` |
 | Reusable Doctrine adapter support | `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine` |
 | Typed runtime and adapter settings | `src/Backendbase/Infrastructure/Configuration` |

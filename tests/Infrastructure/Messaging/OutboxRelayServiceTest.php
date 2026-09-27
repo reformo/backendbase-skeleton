@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Application\Messaging;
+namespace Tests\Infrastructure\Messaging;
 
-use Backendbase\Application\Messaging\OutboxRelayService;
-use Backendbase\Application\Messaging\OutboxRetryPolicy;
+use Backendbase\Infrastructure\Messaging\OutboxRelayService;
+use Backendbase\Infrastructure\Messaging\OutboxRetryPolicy;
 use Backendbase\Shared\Integrations\Operation\OutboxPublicationResult;
 use Backendbase\Shared\Integrations\OutboxPublisher;
 use Backendbase\Shared\Persistence\ClaimedOutboxMessage;

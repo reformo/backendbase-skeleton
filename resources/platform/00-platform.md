@@ -71,6 +71,7 @@ backendbase-core/
 │   ├── database/
 │   │   ├── Migrations/                # Doctrine migrations
 │   │   └── Seeders/                   # Database seeders
+│   ├── docker/cdn.conf.template       # Nginx file delivery and cache configuration
 │   ├── docs/                          # Detailed project guides and reports
 │   ├── i18n/                          # Local translation dictionaries
 │   ├── security/                      # Composer SBOM and reviewed package digests
@@ -90,6 +91,7 @@ backendbase-core/
 │   ├── Infrastructure/
 │   │   ├── Adapters/                  # Console, HTTP, mapping, database, queue, and external adapters
 │   │   ├── Health/                    # Dependency readiness checks
+│   │   ├── Messaging/                 # Relay, retry, and delivery-failure coordination
 │   │   └── Inbound/                   # Consumer-specific API entry code
 │   │       └── ExampleApi/            # ExampleApi middleware, routes, and controllers
 │   └── Shared/
@@ -104,7 +106,6 @@ backendbase-core/
 ├── AGENTS.md                          # Repository agent rules
 ├── composer.json                      # Dependencies and project commands
 ├── docker-compose.yaml                # Core services, local AWS endpoints, and local file delivery
-├── docker/cdn.conf.template           # Nginx file delivery and cache configuration
 ├── migrations.json                    # Doctrine migration configuration
 ├── phpunit.xml                        # PHPUnit suite configuration
 ├── phpstan.neon                       # PHPStan level 8 configuration

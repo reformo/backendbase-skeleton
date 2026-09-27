@@ -109,7 +109,7 @@ services:
       BUCKET_NAME: ${BUCKET_NAME:-backendbase-v3}
       NGINX_ENVSUBST_FILTER: ^BUCKET_NAME$
     volumes:
-      - ./docker/cdn.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./resources/docker/cdn.conf.template:/etc/nginx/templates/default.conf.template:ro
     depends_on:
       ministack:
         condition: service_healthy

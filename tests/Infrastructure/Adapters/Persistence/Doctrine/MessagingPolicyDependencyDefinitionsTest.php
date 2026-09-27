@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
-use Backendbase\Application\Messaging\OutboxRelayService;
-use Backendbase\Application\Messaging\QueueMessageFailureService;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessageStore;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineQueueMessageFailureStore;
+use Backendbase\Infrastructure\Messaging\OutboxRelayService;
+use Backendbase\Infrastructure\Messaging\QueueMessageFailureService;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\OutboxRelay;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
@@ -24,7 +24,7 @@ use Psr\Log\NullLogger;
 final class MessagingPolicyDependencyDefinitionsTest extends TestCase
 {
     #[Test]
-    public function itBindsApplicationPoliciesToDoctrineMechanisms(): void
+    public function itBindsMessagingPoliciesToDoctrineMechanisms(): void
     {
         $containerBuilder = new ContainerBuilder();
         $provider         = require 'config/dependencies/doctrine.php';

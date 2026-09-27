@@ -605,7 +605,7 @@
                         <h3>Audit timestamps retain static time access</h3>
                         <p>The Example and Account aggregates and integration events use the date helper for audit timestamps. It defaults to UTC and supports explicit time zones.</p>
                         <p>Messaging availability, retries, claims, age checks, and retention now use <code>Shared/Time/Clock</code>. Tests can supply exact instants. Remaining static audit timestamps cannot be frozen through this port. The logger independently enforces UTC in its factory.</p>
-                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Helpers/DateTimeImmutable.php"><code>Shared/Helpers/DateTimeImmutable.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php"><code>Entry.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php"><code>Account.php</code></a>, and <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Helpers/DateTimeImmutable.php"><code>Shared/Helpers/DateTimeImmutable.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php"><code>Entry.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php"><code>Account.php</code></a>, and <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>.</p>
                     </div>
                     <div class="action"><strong>Recommended action</strong>Use the UTC clock or an explicit timestamp when new aggregate behavior depends on time. Keep explicit time-zone support for date construction.</div>
                 </article>
@@ -634,8 +634,8 @@
                     <p>Doctrine and memory repositories pass shared Example and Account contract suites for results, ordering, uniqueness, removal, and replacement.</p>
                 </article>
                 <article class="card">
-                    <h3>Application-owned messaging policy</h3>
-                    <p>Application services own relay, retry, and failure decisions. The integration transaction runs local subscribers and appends queued events before commit. Persistence adapters apply supplied state changes.</p>
+                    <h3>Infrastructure messaging coordination</h3>
+                    <p><code>Infrastructure/Messaging</code> owns technical relay, retry, and failure decisions through Shared ports. A dedicated architecture test prevents concrete adapter, framework, and business-context dependencies. The integration transaction runs local subscribers and appends queued events before commit. Persistence adapters apply supplied state changes.</p>
                 </article>
                 <article class="card">
                     <h3>Executable architecture rules</h3>
@@ -650,7 +650,7 @@
                     <p>Commands and queries carry use-case data without importing handlers. Registry mappings own handler selection.</p>
                 </article>
             </div>
-            <p class="evidence">Example evidence: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php"><code>AddEntryHandler.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/CommandHandlers/RegisterAccountHandler.php"><code>RegisterAccountHandler.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/AccountWriteRepository.php"><code>AccountWriteRepository.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Memory/MemoryAccountRepository.php"><code>MemoryAccountRepository.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Persistence/AccountRepositoryContract.php"><code>AccountRepositoryContract.php</code></a>, <a href="../../src/Backendbase/Application/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>, and <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php</code></a>.</p>
+            <p class="evidence">Example evidence: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php"><code>AddEntryHandler.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/CommandHandlers/RegisterAccountHandler.php"><code>RegisterAccountHandler.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Contracts/AccountWriteRepository.php"><code>AccountWriteRepository.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Memory/MemoryAccountRepository.php"><code>MemoryAccountRepository.php</code></a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Persistence/AccountRepositoryContract.php"><code>AccountRepositoryContract.php</code></a>, <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>, and <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php</code></a>.</p>
         </section>
 
         <section id="roadmap">

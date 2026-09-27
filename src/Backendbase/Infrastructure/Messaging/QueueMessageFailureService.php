@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Application\Messaging;
+namespace Backendbase\Infrastructure\Messaging;
 
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
