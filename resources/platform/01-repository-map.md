@@ -23,6 +23,7 @@
 | Local translations | `resources/i18n` |
 | Platform tests | `tests` |
 | Module-owned tests | `src/Backendbase/Domain/*/Tests` |
+| PRD backend task planning | [backendbase-plan-prd-tasks](../skills/backendbase-plan-prd-tasks/SKILL.md) |
 | Runtime cache | `var/cache` |
 | Console entry point | `bin/backendbase` |
 | Local agent-memory validation | `bin/validate-agent-memory.sh` |

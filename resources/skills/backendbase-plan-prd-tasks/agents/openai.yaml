@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Backend Tasks from a PRD"
+  short_description: "Plan backend tasks with dependencies and blocker issues"
+  default_prompt: "Use $backendbase-plan-prd-tasks to turn this PRD into backend tasks with dependencies, blocker issues, readiness, and completion checks, excluding client implementation work."

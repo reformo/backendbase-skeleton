@@ -10,6 +10,7 @@ Start with the requested outcome and the nearest source or document. Use the tab
 - Read `02-architecture.md` when code placement, dependencies, or architectural boundaries are affected.
 - Use `01-repository-map.md` when the relevant files are not known.
 - Use `24-feature-workflow.md` when several implementation surfaces need coordination.
+- Use [backendbase-plan-prd-tasks](../skills/backendbase-plan-prd-tasks/SKILL.md) to extract ordered backend tasks from a PRD.
 - Read [the skill-authoring rules](../skills/AGENTS.md) when creating or changing reusable skills.
 - A prose-only correction needs the affected document and its checks. It does not need platform or implementation skills.
 - Read the detailed HTML guides only when a selected summary does not answer a required question.
@@ -31,6 +32,7 @@ Before delivery, confirm the changed surfaces follow their applicable rules. Rep
 | Affected concern | Consult when needed |
 | --- | --- |
 | Locate a change | `01-repository-map.md` |
+| Plan backend tasks from a PRD | `24-feature-workflow.md`, [backendbase-plan-prd-tasks](../skills/backendbase-plan-prd-tasks/SKILL.md) |
 | Coordinate a feature | `02-architecture.md`, `24-feature-workflow.md` |
 | Domain feature | `03-bounded-contexts.md`, `04-cqrs.md`, `09-persistence.md`, `17-testing.md`, `24-feature-workflow.md` |
 | HTTP endpoint | `07-http-api.md`, `08-api-contracts.md`, `14-security.md`, `16-errors-observability.md`, `17-testing.md` |
@@ -49,7 +51,7 @@ Before delivery, confirm the changed surfaces follow their applicable rules. Rep
 
 Select the smallest skill that supplies a needed procedure or invariant. Add another skill only when it supplies relevant guidance not already covered.
 
-Use `backendbase-implement-feature` for coordinated changes across architectural surfaces. Use `backendbase-verify-change` for a requested cross-layer review or a risk that needs that review. Ordinary completion does not require loading both.
+Use `backendbase-plan-prd-tasks` for PRD task extraction and dependency planning. It excludes client implementation tasks. Use `backendbase-implement-feature` for coordinated changes across architectural surfaces. Use `backendbase-verify-change` for a requested cross-layer review or a risk that needs that review. Ordinary completion does not require loading all three.
 
 Read only the selected reference sections needed for the task. Reuse established discovery and successful checks across skills. Adapt Backendbase examples to the target project.
 
@@ -57,6 +59,7 @@ Read only the selected reference sections needed for the task. Reuse established
 
 | Skill | Use it for |
 | --- | --- |
+| [`backendbase-plan-prd-tasks`](../skills/backendbase-plan-prd-tasks/SKILL.md) | Extract backend tasks with dependencies, blocker issues, readiness, requirement coverage, and completion checks from a PRD. |
 | [`backendbase-implement-feature`](../skills/backendbase-implement-feature/SKILL.md) | Coordinate one feature across several architecture layers. |
 | [`backendbase-test-domain-feature`](../skills/backendbase-test-domain-feature/SKILL.md) | Add focused domain, CQRS, repository, lifecycle, or composition tests. |
 | [`backendbase-verify-architecture`](../skills/backendbase-verify-architecture/SKILL.md) | Verify dependency direction and bounded-context isolation. |

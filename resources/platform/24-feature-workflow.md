@@ -12,6 +12,18 @@ When scope expands, inspect the added surface and reassess affected decisions. R
 
 Platform rules remain requirements. Report a conflict before choosing a deviation. Existing explicit authority remains valid for the same action, target, and scope.
 
+## Plan backend tasks from a PRD
+
+Use [backendbase-plan-prd-tasks](../skills/backendbase-plan-prd-tasks/SKILL.md) to convert a product requirements document (PRD) into an ordered backend task plan.
+
+- Start from current source and complete backend outcomes. Keep shared prerequisites small and name their dependent tasks.
+- Include the required contracts, persistence, tests, and documentation in each behavior task.
+- Separate required dependencies from preferred delivery order. Record blocker issues, their affected tasks, owners, status, and resolution evidence.
+- Derive task readiness from accepted prerequisite outputs and current blockers. Reassess dependent tasks when those conditions change.
+- Record completion checks and coverage of the PRD identifiers. Block only work that depends on an unresolved condition.
+- Include server responsibilities from mixed requirements. Record client-only responsibilities as scope exclusions without creating client tasks.
+- Keep the output as a proposed plan unless task creation or implementation was requested.
+
 ## Deliver the requested behavior
 
 - Define the observable outcome and completion checks. Resolve material contract or policy decisions before dependent implementation.
