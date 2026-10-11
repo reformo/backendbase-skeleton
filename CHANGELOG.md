@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added Claude Code counterparts for the five agent roles, Sonnet and Opus model defaults, and shared project instructions.
+- Added five project-scoped Codex agents, project model defaults, and a coordinated planning, implementation, and review workflow.
 - Added a project-owned UTC clock for messaging availability, retries, claims, age checks, and retention. Added fixed-clock boundary tests and production binding coverage.
 - Added attribute and context registry resolvers for command and query handlers. Dependency definitions select the registry by default, and context service providers own handler mappings.
 - Added `outbox:relay --continuous` to drain full batches and check for pending rows about every 250 ms.
@@ -39,6 +41,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Enabled Fast mode for the Codex implementer.
 - Aligned project, testing, maintenance, and reusable verification guidance with recent messaging, CQRS, Composer, and project-copy changes. Refreshed the interactive architecture map and its source references.
 - Documented identifier responses and application orchestrators for resource representations after writes. Aligned platform rules, guides, and reusable skills while preserving `void` command handlers.
 - Refreshed the engineering quality report from full-suite coverage and test results after adding the messaging dependency boundary.

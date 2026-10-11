@@ -258,6 +258,54 @@ Select additional skills only for required procedures or invariants not already 
 
 The root `AGENTS.md` defines authorization and completion. Existing explicit authority covers the same operation, target, and scope. Local code changes do not authorize database application, deployment, or remote synchronization.
 
+## Codex Agent Workflow
+
+Project model defaults live in [.codex/config.toml](../../.codex/config.toml).
+The main agent uses `gpt-6.1-sol` with `high` reasoning effort.
+The `planner` and `implementer` request Fast mode with `max` reasoning effort.
+Five [custom agent definitions](../../.codex/agents) supply planning, test analysis, plan review, implementation, and code review.
+The [root agent workflow](../../AGENTS.md#9-agent-workflow) defines their order, review decisions, and correction rules.
+
+The main agent coordinates every stage.
+The `test_analyst` defines test scope before implementation and audits test sources and execution evidence afterward.
+After implementation, `code_reviewer` and the test audit can run in parallel against the same code state.
+The main agent combines required findings before requesting corrections.
+Each custom agent disables further delegation.
+The `implementer` uses `workspace-write` mode. The other custom agents use `read-only` mode.
+
+Start a new Codex session after changing these files.
+Codex loads project configuration for trusted projects.
+Explicit session settings can override project model defaults.
+
+## Claude Code Agent Workflow
+
+Project defaults live in [.claude/settings.json](../../.claude/settings.json).
+The main agent uses the `sonnet` alias with `high` effort.
+Five [Claude agent definitions](../../.claude/agents) preserve the Codex roles, prompts, effort levels, and review decisions.
+The [CLAUDE.md](../../CLAUDE.md) file imports `AGENTS.md` through `@AGENTS.md`.
+Both clients use the [same workflow](../../AGENTS.md#9-agent-workflow).
+
+Sonnet supplies planning, test analysis, and implementation. Opus supplies plan and code review.
+The aliases resolve according to the installed client and provider.
+This mapping follows the responsibilities of each role.
+
+The four analysis roles use read tools and `plan` permission mode.
+The `implementer` receives editing and shell tools and inherits session permissions.
+All five tool lists exclude delegation tools.
+
+The Sonnet planner uses normal mode.
+Claude Fast mode is a session setting for supported Opus models.
+The subagent format has no Fast mode field. See [Claude Fast mode](https://code.claude.com/docs/en/fast-mode).
+
+The project sets `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` to `5`.
+Native enforcement requires Claude Code 2.1.217 or later.
+Earlier clients rely on the five-agent limit in project instructions.
+See [Claude subagent limits](https://code.claude.com/docs/en/sub-agents#concurrent-subagent-limit).
+
+Start a new Claude Code session after creating these files.
+Ask Claude to list project subagents and confirm the five configured names.
+Model execution and account access require a live session.
+
 ## Commands
 
 Prefer project scripts when dependencies are installed:
