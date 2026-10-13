@@ -16,6 +16,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added an Architecture Decision Record (ADR) template at [resources/adr/template.md](resources/adr/template.md).
 - Added Claude Code counterparts for the five agent roles, Sonnet and Opus model defaults, and shared project instructions.
 - Added five project-scoped Codex agents, project model defaults, and a coordinated planning, implementation, and review workflow.
 - Added a project-owned UTC clock for messaging availability, retries, claims, age checks, and retention. Added fixed-clock boundary tests and production binding coverage.
