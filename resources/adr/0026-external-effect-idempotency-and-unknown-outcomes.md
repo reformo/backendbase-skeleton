@@ -1,6 +1,6 @@
 # ADR-0026: External-Effect Idempotency and Unknown Outcomes
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-08-31
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
@@ -11,9 +11,9 @@ A provider call cannot share a database transaction. A timeout or completion-rec
 
 Idempotency permits repeated requests for one operation without repeating its external effect.
 
-The [external-effect inbox](../platform/12-messaging-consumers.md) provides a 300-second claim and blocks automatic repetition of unknown outcomes. Production use still needs a provider-specific completion policy.
+The [external-effect inbox](../platform/12-messaging-consumers.md) provides a 300-second claim and blocks automatic repetition of unknown outcomes. The target policy uses this lease with evidence-based manual outcome resolution. Provider-specific recovery procedures and queued-consumer integration remain pending.
 
-- **Constraints:** Do not repeat an unknown outcome automatically. Preserve stable operation identity. Separate provider acceptance from final delivery.
+- **Constraints:** Do not repeat an unknown outcome automatically. Lease expiry does not authorize a new provider call. Preserve stable operation identity. Separate provider acceptance from final delivery. Record provider evidence and operator decisions before resolving an uncertain outcome.
 
 ## Considered Options
 
@@ -31,16 +31,16 @@ The [external-effect inbox](../platform/12-messaging-consumers.md) provides a 30
 
 ## Decision Made
 
-- **Chosen Option:** Not selected. Existing lease behavior remains the safety boundary for future queued external effects.
-- **Rationale:** Select the completion and reconciliation contract for each provider before production use. A lease cannot prove that a provider call happened once.
+- **Chosen Option:** Option B: Inbox lease with manual outcome resolution.
+- **Rationale:** The existing conservative lease mechanism blocks automatic repetition while an operation is active or its outcome is unknown. Operators resolve uncertainty through provider records and stable operation identity. Insufficient evidence keeps the operation blocked.
 
 ## Consequences
 
-- **Positive:** An accepted policy will give uncertain effects a defined recovery path.
-- **Negative / Trade-offs:** The [current inbox implementation](../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php) is a foundation. No notification queue consumer currently uses it.
+- **Positive:** Uncertain effects have an explicit manual recovery path. Completed duplicates acknowledge without another provider call. Expired incomplete claims remain blocked until their outcomes are resolved.
+- **Negative / Trade-offs:** Manual resolution adds operator work and can delay delivery. A lease does not guarantee exactly-once external effects. The [current inbox implementation](../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php) is a foundation. No notification queue consumer currently uses it.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Define operation identity and provider guarantees. Specify accepted, completed, failed, and unknown states. Add reconciliation before queued delivery.
-- **Verification:** Test active and expired claims, provider timeout after acceptance, completion-record failure, duplicates, and evidence-based recovery.
+- **Rollout Steps:** Define operation identity and provider-specific accepted, completed, failed, and unknown states. Claim the inbox lease before each provider call. Assign manual resolution ownership and document the required provider evidence. Record resolution decisions. Permit a controlled new attempt only when evidence confirms that the provider did not accept the operation. Complete recovery procedures before queued delivery.
+- **Verification:** Test active and expired claims, provider timeout after acceptance, completion-record failure, duplicates, and evidence-based manual resolution. Verify lease expiry alone never repeats a provider call. Verify insufficient evidence preserves the blocked state. Verify completed effects acknowledge and controlled retry requires confirmed absence of provider acceptance.
 - **Review Date:** Review before adding a queued external-effect consumer or changing provider guarantees.

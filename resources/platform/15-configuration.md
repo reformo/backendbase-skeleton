@@ -34,6 +34,8 @@ There is no single configuration schema. Focused settings objects validate requi
 
 `RedisJsonInterface` uses a PHP-DI lazy proxy. The first Redis command initializes the proxy and connection. The Redis readiness `PING` intentionally performs this initialization. Doctrine DBAL also delays its MySQL socket until the first database operation.
 
+Docker Compose and the security workflow use the same pinned Redis 8.10.2 image. Redis data stays under `var/docker-data/redis`. The separate Redis Insight service connects to `redis:6379` and maps container port `5540` to `BACKENDBASE_DEV_REDIS_INSIGHT_PORT`, which defaults to `8001`.
+
 Runtime components do not call `Settings::get()`. Configuration boundary objects are the only application classes that read the generic merged settings.
 
 `config/dependencies/time.php` binds `Shared/Time/Clock` to `Infrastructure/Adapters/Time/SystemClock`. It always returns UTC, independent of the process time zone. Tests can replace this binding with a fixed clock.

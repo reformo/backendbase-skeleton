@@ -2,7 +2,8 @@ name = "test_analyst"
 description = "Define test scope before implementation and audit actual tests and execution evidence after implementation."
 
 model = "gpt-6.1-sol"
-model_reasoning_effort = "max"
+model_reasoning_effort = "high"
+service_tier = "fast"
 sandbox_mode = "read-only"
 
 developer_instructions = """

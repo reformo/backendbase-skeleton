@@ -1,6 +1,6 @@
 # ADR-0007: Production Operating Model
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-08-31
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
@@ -9,9 +9,11 @@
 
 Release scripts define artifact build, activation, rollback, and server hooks. They do not fully define process supervision, scheduling, capacity, or operational ownership.
 
+The target operating model uses managed servers with supervised application processes. Hosting-provider selection, supervision, scheduling, server hooks, and recovery verification remain pending.
+
 The [deployment workflow](../../deployment/README.md) and [deployment guidance](../platform/18-deployment.md) require a production operating model.
 
-- **Constraints:** Supervise HTTP and queue processes. Restart workers after activation. Define backup, recovery, scheduling, and alert ownership.
+- **Constraints:** Deploy reviewed immutable release artifacts. Keep secrets outside archives. Supervise the HTTP runtime, outbox relay, and queue consumers. Restart workers after activation. Define backup, recovery, scheduling, and alert ownership.
 
 ## Considered Options
 
@@ -29,16 +31,16 @@ The [deployment workflow](../../deployment/README.md) and [deployment guidance](
 
 ## Decision Made
 
-- **Chosen Option:** Not selected. Both options require an operating-environment decision.
-- **Rationale:** Select the model from availability targets, team capability, recovery requirements, and measured operating cost. Deployment scripts alone do not resolve this choice.
+- **Chosen Option:** Option A: Managed servers with supervised application processes.
+- **Rationale:** The existing immutable release workflow and server hooks fit managed servers. Explicit process supervision provides startup and recovery controls. Scheduling and assigned operational owners cover maintenance, backup, monitoring, and capacity responsibilities.
 
 ## Consequences
 
-- **Positive:** An accepted operating model will assign responsibility for each required process and recovery action.
-- **Negative / Trade-offs:** Either option adds environment-specific configuration and continuing operational work.
+- **Positive:** Releases use the existing activation and rollback flow. Each required process and recovery action has a defined operational owner. Supervisors start and recover the configured application processes.
+- **Negative / Trade-offs:** The team remains responsible for server configuration, supervision, scheduling, security updates, capacity, and recovery. Each environment needs working server hooks and verified operating procedures.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Define service targets and process inventory. Select the target model. Document supervision, scheduling, backup hooks, and worker restart procedures.
-- **Verification:** Demonstrate process recovery, release activation, worker restart, backup restoration, and rollback in the selected environment.
+- **Rollout Steps:** Define service targets and process inventory. Select the hosting provider, supervisor, and scheduler. Configure processes to use the active release. Implement backup and process-activation hooks. Assign operational owners. Document restart, scheduled maintenance, monitoring, backup restoration, and rollback procedures.
+- **Verification:** Demonstrate process recovery after failure and server reboot in a prepared stage environment. Verify release activation reloads the HTTP runtime and restarts relay and queue workers from the active revision. Test scheduled maintenance, readiness, backup restoration, and application rollback.
 - **Review Date:** Review before the first production deployment and when availability or capacity requirements change.

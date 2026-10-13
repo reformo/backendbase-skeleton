@@ -261,7 +261,10 @@ The root `AGENTS.md` defines authorization and completion. Existing explicit aut
 
 Project model defaults live in [.codex/config.toml](../../.codex/config.toml).
 The main agent uses `gpt-6.1-sol` with `high` reasoning effort.
-The `planner` and `implementer` request Fast mode with `max` reasoning effort.
+All five custom agents use `gpt-6.1-sol`.
+The `planner` and `implementer` request Fast mode with `xhigh` reasoning effort.
+The `test_analyst` requests Fast mode with `high` reasoning effort.
+The `plan_reviewer` and `code_reviewer` use standard speed with `max` reasoning effort.
 Five [custom agent definitions](../../.codex/agents) supply planning, test analysis, plan review, implementation, and code review.
 The [root agent workflow](../../AGENTS.md#9-agent-workflow) defines their order, review decisions, and correction rules.
 
@@ -280,7 +283,7 @@ Explicit session settings can override project model defaults.
 
 Project defaults live in [.claude/settings.json](../../.claude/settings.json).
 The main agent uses the `sonnet` alias with `high` effort.
-Five [Claude agent definitions](../../.claude/agents) preserve the Codex roles, prompts, effort levels, and review decisions.
+Five [Claude agent definitions](../../.claude/agents) preserve the Codex roles, prompts, and review decisions.
 The [CLAUDE.md](../../CLAUDE.md) file imports `AGENTS.md` through `@AGENTS.md`.
 Both clients use the [same workflow](../../AGENTS.md#9-agent-workflow).
 

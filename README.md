@@ -27,6 +27,8 @@ docker compose up -d
 
 MySQL, Redis, Redis Insight, RabbitMQ, MiniStack, Nginx, and StackPort bind to <code>127.0.0.1</code> by default. Configure their local ports and credentials with the <code>BACKENDBASE_DEV_*</code> variables in <code>.env.example</code>.
 
+Redis uses the official Redis 8.10.2 image with JSON and Search support on AMD64 and ARM64 systems. Redis Insight runs separately at `http://127.0.0.1:8001` and connects to `redis:6379` inside Docker. Both images use pinned digests. Redis keeps its existing data path at `var/docker-data/redis`.
+
 RabbitMQ Management: http://127.0.0.1:15672
 
 StackPort UI: http://127.0.0.1:8082

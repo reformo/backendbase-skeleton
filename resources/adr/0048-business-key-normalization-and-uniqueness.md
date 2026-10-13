@@ -1,6 +1,6 @@
 # ADR-0048: Business-Key Normalization and Uniqueness
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-08-31
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
@@ -11,7 +11,9 @@ The target Turkish collation affects key equality. Global Account email and acto
 
 The [decision report](references/2026-10-13-identity-access-decisions.md#open-choices-and-verification-gaps) leaves exact normalization, uniqueness scope, and active-key rules open.
 
-- **Constraints:** Define normalization in Domain. Keep Account identity global. Test actual key equality before migration. Do not infer a universal rule from conceptual SQL.
+This record selects realm-scoped actor login names with explicit normalization. Exact normalization steps, Account email rules, deleted-row reuse, and implementation remain pending.
+
+- **Constraints:** Define normalization in Domain. Scope actor login lookup and uniqueness to the trusted USER or ADMIN realm. Use the same normalized value for lookup, persistence, and uniqueness checks. Keep Account identity global and Account email rules separate. Define deleted-row participation explicitly. Test actual key equality before migration.
 
 ## Considered Options
 
@@ -29,16 +31,16 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#open-ch
 
 ## Decision Made
 
-- **Chosen Option:** Not selected. Uniqueness scope must be defined for each required business key.
-- **Rationale:** The report defines the text standard and domain ownership but asks whether business uniqueness is global. Login names may need no uniqueness if the domain does not require it.
+- **Chosen Option:** Option B: Realm-scoped actor login names with explicit normalization.
+- **Rationale:** USER and ADMIN manage actor login names independently while referencing global Accounts. Login lookup and uniqueness use the pair (realm, normalized login name). The same normalized name may exist in different realms. Domain-defined normalization and matching database constraints must enforce equivalent names within each realm.
 
 ## Consequences
 
-- **Positive:** A selected policy will align domain normalization, database constraints, lookup, key reuse, and restoration.
-- **Negative / Trade-offs:** I/İ/ı/i, accents, Unicode normalization, and trailing spaces can change equality. Soft-deleted rows and active replacement require explicit treatment.
+- **Positive:** Actor login uniqueness has an explicit realm boundary. Lookup and database constraints follow the same normalization contract. Names in one realm do not reserve names in another.
+- **Negative / Trade-offs:** Every actor login lookup and uniqueness check requires a trusted realm. I/İ/ı/i, accents, Unicode normalization, and trailing spaces can change equality. Account email, deleted-row reuse, and restoration rules need separate explicit domain definitions.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Inventory required keys. Define normalization, comparison exceptions, uniqueness scope, and deleted-row reuse. Analyze existing duplicates before choosing constraints.
-- **Verification:** Test normalized lookup, equivalent and distinct keys, concurrent duplicates, approved reuse, and restoration conflicts on the target collation.
+- **Rollout Steps:** Inventory required actor login keys. Define case, Unicode, whitespace, and comparison rules in Domain. Define deleted-row participation, reuse, and restoration behavior. Analyze existing duplicates within each realm. Apply the same normalization to lookup and persistence. Add realm-scoped uniqueness constraints under the approved lifecycle rules. Define Account email rules separately before changing them.
+- **Verification:** Test normalized lookup and equivalent and distinct keys on the target collation. Reject conflicting normalized names within one realm. Permit the same normalized name across USER and ADMIN. Test Turkish I/İ/ı/i, accents, Unicode forms, trailing spaces, concurrent duplicates, approved reuse, and restoration conflicts. Verify lookup never searches another realm implicitly.
 - **Review Date:** Review before creating key constraints or changing login and email normalization.

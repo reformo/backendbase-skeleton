@@ -1,8 +1,9 @@
 name = "plan_reviewer"
 description = "Review the plan and test scope for requirement coverage, project compliance, feasibility, and implementation readiness."
 
-model = "gpt-6-astra"
-model_reasoning_effort = "high"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "max"
+service_tier = "default"
 sandbox_mode = "read-only"
 
 developer_instructions = """

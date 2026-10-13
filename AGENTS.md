@@ -191,10 +191,16 @@ Use ASD-STE100 Simplified Technical English for all agent responses.
 
 ## 9. Agent Workflow
 
-The main agent coordinates this workflow. Use it for planning requests and tasks that require code changes.
+The main agent works alone by default.
+Use this workflow only when the user explicitly requests the Agent Workflow for the current task.
+Use subagents only when the user explicitly requests subagents or the Agent Workflow for the current task.
+The main agent completes planning, implementation, verification, and review alone when no such request exists.
+Planning requests, code changes, task size, and complexity do not activate the workflow or subagents.
+
+The main agent coordinates this workflow when requested.
 Answer greetings, status questions, and simple information requests directly.
 
-Use the configuration for the current client. Both clients follow the stages below.
+Use the configuration for the current client. Both clients follow the stages below when the workflow is explicitly requested.
 
 ### Codex configuration
 
@@ -203,11 +209,11 @@ The main agent uses `gpt-6.1-sol` with `high` reasoning effort.
 
 | Agent | Model | Reasoning effort | Responsibility |
 | --- | --- | --- | --- |
-| [planner](.codex/agents/planner.toml) | `gpt-6.1-sol` | `max`, Fast mode | Prepare and revise the plan. |
-| [test_analyst](.codex/agents/test_analyst.toml) | `gpt-6.1-sol` | `max` | Define test scope and audit implemented tests. |
-| [plan_reviewer](.codex/agents/plan_reviewer.toml) | `gpt-6-astra` | `high` | Review the plan and test scope. |
-| [implementer](.codex/agents/implementer.toml) | `gpt-6.1-sol` | `max`, Fast mode | Implement changes, write tests, and run checks. |
-| [code_reviewer](.codex/agents/code_reviewer.toml) | `gpt-6-astra` | `xhigh` | Review actual code changes and regression risks. |
+| [planner](.codex/agents/planner.toml) | `gpt-6.1-sol` | `xhigh`, Fast mode | Prepare and revise the plan. |
+| [test_analyst](.codex/agents/test_analyst.toml) | `gpt-6.1-sol` | `high`, Fast mode | Define test scope and audit implemented tests. |
+| [plan_reviewer](.codex/agents/plan_reviewer.toml) | `gpt-6.1-sol` | `max` | Review the plan and test scope. |
+| [implementer](.codex/agents/implementer.toml) | `gpt-6.1-sol` | `xhigh`, Fast mode | Implement changes, write tests, and run checks. |
+| [code_reviewer](.codex/agents/code_reviewer.toml) | `gpt-6.1-sol` | `max` | Review actual code changes and regression risks. |
 
 ### Claude Code configuration
 

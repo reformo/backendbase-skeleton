@@ -767,9 +767,9 @@
 
         <section id="docker">
             <h2>Local Docker services</h2>
-            <p><code>docker-compose.yaml</code> provides six default development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
+            <p><code>docker-compose.yaml</code> provides seven default development dependencies. Every published port binds to <code>127.0.0.1</code> by default.</p>
             <div class="grid three">
-                <article class="card green"><span class="tag">Redis Stack 7.4.0-v8</span><h3>Ports 6379 and 8001</h3><p>Uses a pinned image digest, persists data under <code>var/docker-data/redis</code>, and has a health check.</p></article>
+                <article class="card green"><span class="tag">Redis 8.10.2</span><h3>Ports 6379 and 8001</h3><p>Uses a pinned image digest, persists data under <code>var/docker-data/redis</code>, and has a health check. Redis Insight 3.8.0 runs separately on host port 8001 and connects to <code>redis:6379</code>.</p></article>
                 <article class="card blue"><span class="tag blue">MySQL 8.4</span><h3>Port 3306</h3><p>Creates the local database and user, persists data under <code>var/docker-data/mysql</code>, and has a health check.</p></article>
                 <article class="card amber"><span class="tag amber">RabbitMQ 4.3</span><h3>Ports 5672 and 15672</h3><p>Uses environment-backed credentials, a named volume, and a health check.</p></article>
                 <article class="card"><span class="tag">MiniStack 1.5.14</span><h3>Port 4566</h3><p>Provides local S3, SQS, SNS, SES, and CloudFront APIs. It saves state and creates the configured bucket and queue at startup. CloudFront distributions do not deliver content.</p></article>

@@ -10,7 +10,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 - Doctrine Object-Relational Mapper (ORM) handles writes.
 - Doctrine Database Abstraction Layer (DBAL) handles read projections.
 - MySQL 8 stores business and message data.
-- Redis supplies shared JSON storage and a readiness check.
+- Redis 8 supplies shared JSON storage and a readiness check. Docker Compose runs Redis Insight as a separate service.
 - RabbitMQ or Amazon Simple Queue Service (SQS) transports messages.
 - OpenAPI defines HTTP contracts. Bruno runs executable API examples.
 - PHPUnit, PHPStan level 8, cyclomatic complexity, and PHPCS verify changes.

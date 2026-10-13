@@ -16,6 +16,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added an [ADR browser](resources/adr/index.html) with all records, search, status filters, and a wide accessible Markdown modal. Added an offline document snapshot and a rebuild and parity-check command.
 - Added ADR-0036 through ADR-0048 for the final identity, authentication, UUIDv7, Doctrine, collation, relationship, concurrency, reporting, and migration decisions. Added an English decision-source reference for the 13 October 2026 report.
 - Added 35 platform Architecture Decision Records under `resources/adr`, using the ADR template and excluding ExampleCatalog-specific decisions. Recorded Mehmet Korkmaz as owner and decider with the date `2026-08-31`.
 - Added an Architecture Decision Record (ADR) template at [resources/adr/template.md](resources/adr/template.md).
@@ -50,6 +51,16 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Accepted ADR-0025 Option A for a bounded replay window with matching inbox retention. Recorded identity preservation, age enforcement, recovery margins, and cleanup protection requirements.
+- Accepted ADR-0007 Option A for managed servers with supervised application processes. Recorded process ownership, server hooks, scheduling, and recovery verification requirements.
+- Accepted ADR-0048 Option B for realm-scoped actor login names with explicit normalization. Aligned ADR-0044 and recorded lookup, uniqueness, and lifecycle verification requirements.
+- Accepted ADR-0026 Option B for inbox leases with manual outcome resolution. Recorded evidence requirements, blocked unknown outcomes, and controlled retry conditions.
+- Accepted ADR-0032 Option A for strict boundary validation with explicit mapping exceptions. Recorded default rejection rules, contract compatibility, and exception verification requirements.
+- Accepted ADR-0008 Option A for a shared database with exclusive context table ownership. Aligned logical-reference guidance and the source comparison with the selected ownership policy.
+- Accepted ADR-0011 Option A for a managed secret store with controlled runtime injection. Recorded access, rotation, revocation, and process-refresh requirements.
+- Accepted ADR-0047 Option B for supported read-only Doctrine mapping of the generated UUID projection. Recorded persistence and schema-diff checks for implementation.
+- Replaced Redis Stack 7.4 with pinned Redis 8.10.2 images in Docker Compose and the security workflow. Preserved Redis data storage and the local Redis Insight interface through a separate pinned service.
+- Required an explicit user request before starting the Agent Workflow or subagents. The main agent completes tasks alone by default.
 - Reconciled seven existing ADRs with the final report. Superseded ADR-0029 with realm-specific authentication and accepted the minimum observability signal policy. Preserved unresolved choices and recorded target implementation gaps.
 - Consolidated Example table creation and active lookup uniqueness into `Version20260823215059`. Updated release metadata and migration-history adoption guidance.
 - Changed Example writes to API-key protection only. Removed bearer and privilege inputs while preserving validation, transactions, and response identifiers.

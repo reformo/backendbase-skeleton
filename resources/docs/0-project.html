@@ -573,7 +573,7 @@
                         <tr><td>HTTP messages</td><td>Laminas Diactoros</td><td>3.8.0 PSR-7 implementation</td></tr>
                         <tr><td>Persistence</td><td>Doctrine ORM and DBAL</td><td>3.7.2 and 4.4.4</td></tr>
                         <tr><td>Database</td><td>MySQL</td><td>8.4 local container</td></tr>
-                        <tr><td>Cache</td><td>Redis Stack</td><td>Redis and RedisJSON</td></tr>
+                        <tr><td>Cache</td><td>Redis 8</td><td>Redis and RedisJSON, with separate Redis Insight</td></tr>
                         <tr><td>Messaging</td><td>RabbitMQ or Amazon SQS</td><td>Transactional outbox delivery</td></tr>
                         <tr><td>Console</td><td>Symfony Console</td><td>8.1.7 through <code>bin/backendbase</code></td></tr>
                         <tr><td>Tests</td><td>PHPUnit</td><td>13.3.4</td></tr>
@@ -811,7 +811,7 @@ bin/doctrine migrations:migrate --dry-run --no-interaction</code></pre>
                 <li>Install PHP 8.5, Composer, Docker, and the required PHP extensions.</li>
                 <li>Install locked Composer dependencies.</li>
                 <li>Create <code>.env</code> from <code>.env.example</code>. Set local values.</li>
-                <li>Start MySQL, Redis Stack, RabbitMQ, MiniStack, Nginx, and StackPort.</li>
+                <li>Start MySQL, Redis 8, Redis Insight, RabbitMQ, MiniStack, Nginx, and StackPort.</li>
                 <li>Verify the local database target and review the migration dry run.</li>
                 <li>Apply migrations only with explicit authority for that database.</li>
                 <li>Generate the merged Example API OpenAPI file.</li>

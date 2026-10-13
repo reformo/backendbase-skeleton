@@ -2,7 +2,7 @@ name = "implementer"
 description = "Implement the reviewed plan, write the required tests, run authorized checks, and correct required review findings."
 
 model = "gpt-6.1-sol"
-model_reasoning_effort = "max"
+model_reasoning_effort = "xhigh"
 service_tier = "fast"
 sandbox_mode = "workspace-write"
 

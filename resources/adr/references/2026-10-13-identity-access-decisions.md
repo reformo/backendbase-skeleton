@@ -143,7 +143,7 @@ Those policy choices remain in [ADR-0007](../0007-production-operating-model.md)
 
 - [ADR-0029](../0029-security-responsibility-after-identity-and-access-removal.md) records the previous API-key-only identity boundary. [ADR-0037](../0037-user-and-system-admin-jwt-realms.md) supersedes that decision.
 - Consumer API separation remains valid. [ADR-0028](../0028-consumer-api-isolation-and-selection.md) adds trusted route-based realm policy.
-- [ADR-0008](../0008-database-ownership-between-bounded-contexts.md) remains Proposed. A no-foreign-key rule does not choose physical database ownership.
+- The report leaves physical database ownership open. [ADR-0008](../0008-database-ownership-between-bounded-contexts.md) now accepts a shared database with exclusive context table ownership.
 - [ADR-0027](../0027-domain-aggregates-and-persistence-records.md) retains domain and persistence separation with explicit identifier mapping and logical references.
 - Architecture, CQRS, event, outbox, release, and external-capability decisions remain valid where the report does not replace them.
 - The current repository already includes Ramsey UUID packages, UUIDv7 generation, and `uuid_binary` registration.

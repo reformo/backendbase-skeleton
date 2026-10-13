@@ -2,7 +2,7 @@ name = "planner"
 description = "Analyze the user request and prepare an actionable plan with scope, dependencies, acceptance criteria, and verification."
 
 model = "gpt-6.1-sol"
-model_reasoning_effort = "max"
+model_reasoning_effort = "xhigh"
 service_tier = "fast"
 sandbox_mode = "read-only"
 

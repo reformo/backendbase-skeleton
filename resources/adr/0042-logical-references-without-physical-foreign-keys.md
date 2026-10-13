@@ -35,7 +35,7 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#referen
 ## Consequences
 
 - **Positive:** Aggregate relationships use independent identifier references. No readable UUID projection becomes a relationship key.
-- **Negative / Trade-offs:** Integrity needs reconciliation and concurrent-writer tests. Physical database ownership remains open in [ADR-0008](0008-database-ownership-between-bounded-contexts.md).
+- **Negative / Trade-offs:** Integrity needs reconciliation and concurrent-writer tests. [ADR-0008](0008-database-ownership-between-bounded-contexts.md) selects a shared database with exclusive context table ownership. Cross-context relationship checks must use published contracts.
 
 ## Implementation & Validation
 
