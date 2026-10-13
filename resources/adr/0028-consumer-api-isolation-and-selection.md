@@ -11,7 +11,9 @@ Different consumers can need different HTTP routes, middleware, and public contr
 
 [HTTP guidance](../platform/07-http-api.md) and [architecture rules](../platform/02-architecture.md) place consumer entry code under Infrastructure/Inbound.
 
-- **Constraints:** Select the API before composition. Keep each API's entry code and configuration separate. Preserve module independence from HTTP.
+The [final decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) adds separate USER and ADMIN inbound security policies. The report's route examples are conceptual; exact endpoints still require public contracts.
+
+- **Constraints:** Select the API before composition. Keep inbound code and configuration separate. Select JWT realm policy from trusted route configuration before token validation.
 
 ## Considered Options
 
@@ -35,10 +37,10 @@ Different consumers can need different HTTP routes, middleware, and public contr
 ## Consequences
 
 - **Positive:** Routes, middleware, controllers, configuration, OpenAPI, and Bruno can be maintained per consumer.
-- **Negative / Trade-offs:** The shared [front controller](../../public/index.php) selects through X-Source-Id. An API-specific front controller alone does not replace this selector.
+- **Negative / Trade-offs:** The current [front controller](../../public/index.php) selects through X-Source-Id. Consumer selection does not authenticate an actor. Unverified token claims cannot select realm keys or policy.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Register each consumer target. Keep its inbound code and configuration together. Declare route modules explicitly.
-- **Verification:** Test missing, invalid, and supported selectors. Verify each selected route and middleware set through the real bootstrap.
+- **Rollout Steps:** Preserve consumer API structure. Declare route modules and trusted [realm policies](0037-user-and-system-admin-jwt-realms.md). Keep authenticated principal construction within inbound middleware.
+- **Verification:** Test API selectors and actual bootstrap policy. Reject cross-realm tokens and mismatched principals. Verify that unverified claims cannot alter the expected realm.
 - **Review Date:** Review when a new consumer API or selector strategy is introduced.

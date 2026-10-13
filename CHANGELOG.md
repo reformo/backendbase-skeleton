@@ -16,6 +16,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Added ADR-0036 through ADR-0048 for the final identity, authentication, UUIDv7, Doctrine, collation, relationship, concurrency, reporting, and migration decisions. Added an English decision-source reference for the 13 October 2026 report.
 - Added 35 platform Architecture Decision Records under `resources/adr`, using the ADR template and excluding ExampleCatalog-specific decisions. Recorded Mehmet Korkmaz as owner and decider with the date `2026-08-31`.
 - Added an Architecture Decision Record (ADR) template at [resources/adr/template.md](resources/adr/template.md).
 - Added Claude Code counterparts for the five agent roles, Sonnet and Opus model defaults, and shared project instructions.
@@ -49,6 +50,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Reconciled seven existing ADRs with the final report. Superseded ADR-0029 with realm-specific authentication and accepted the minimum observability signal policy. Preserved unresolved choices and recorded target implementation gaps.
 - Consolidated Example table creation and active lookup uniqueness into `Version20260823215059`. Updated release metadata and migration-history adoption guidance.
 - Changed Example writes to API-key protection only. Removed bearer and privilege inputs while preserving validation, transactions, and response identifiers.
 - Updated current API, configuration, queue, platform, and reusable skill guidance. Preserved dated assessment evidence.

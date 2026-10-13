@@ -11,7 +11,9 @@ The platform enforces PHP context boundaries but currently supplies one Doctrine
 
 [Doctrine composition](../../config/dependencies/doctrine.php) and [persistence guidance](../platform/09-persistence.md) leave physical data ownership policy open.
 
-- **Constraints:** Define table ownership, migration ownership, permitted joins, transaction boundaries, and access through contracts.
+The [final decision report](references/2026-10-13-identity-access-decisions.md#repository-comparison) selects logical references without physical foreign keys. It does not select shared or separate context databases.
+
+- **Constraints:** Define table ownership, migration ownership, permitted joins, and contract access. Preserve the selected no-foreign-key policy. Keep coupled business, subscriber, and outbox writes on one transaction connection.
 
 ## Considered Options
 
@@ -35,10 +37,10 @@ The platform enforces PHP context boundaries but currently supplies one Doctrine
 ## Consequences
 
 - **Positive:** An accepted policy will make schema and data access ownership reviewable.
-- **Negative / Trade-offs:** Strong ownership can require event-fed projections or application coordination for cross-context data.
+- **Negative / Trade-offs:** Strong ownership can require event-fed projections or application coordination. Separate connections cannot preserve the current shared-connection transaction without an explicit transaction design.
 
 ## Implementation & Validation
 
 - **Rollout Steps:** Inventory table owners and cross-context reads. Define permitted access. Select physical isolation and migration ownership rules.
-- **Verification:** Review SQL and migration changes against table ownership. Test forbidden access where the selected isolation model can enforce it.
+- **Verification:** Review SQL and migrations against table ownership and [logical-reference policy](0042-logical-references-without-physical-foreign-keys.md). Verify transaction atomicity and forbidden access under the selected connection model.
 - **Review Date:** Review before adding a second business context or changing database isolation.

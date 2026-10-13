@@ -1,0 +1,153 @@
+# Decision Source: Identity and Access Architecture Report
+
+- **Source date:** 2026-10-13.
+- **Revision:** 08.
+- **Original document:** `identity_access_uuidv7_doctrine_mysql84_utf8mb4_tr0900_tenantsiz_mimari_aksiyon_plani_2026-10-13.html`.
+- **SHA-256:** `73628454c6da1af90d6198865dc721b14a0e25bda2a7076a8c0442b1a25e0a3e`.
+
+This reference summarizes the final decisions and open choices in the source report. It provides a repository-local reference for the ADRs.
+
+The report contains conceptual code, SQL, routes, and an action plan. It states that the author did not inspect the repository or execute migrations. Accepted ADRs record approved target decisions. They do not establish that those decisions are implemented.
+
+## Accepted Decisions
+
+### Context and Actor Scope
+
+Source sections: `overview`, `decisions`, and `domain`.
+
+- Use one IdentityAndAccess bounded context for Account, credentials, authentication challenges, sessions, token issuance, and access policy.
+- Use global Account identity with separate User and System Admin aggregates for actor business behavior and lifecycle.
+- Keep the scope to User and System Admin. The report defines no tenant model or additional actor types.
+- Separate login flows do not require separate identity contexts.
+- Preserve the existing project directories and framework conventions.
+- Keep domain rules in Domain and orchestration in Application.
+
+Records: [ADR-0036](../0036-single-identity-and-access-context-and-global-accounts.md) and [ADR-0046](../0046-authentication-challenges-and-mfa-gated-sessions.md).
+
+### Realm Authentication and Sessions
+
+Source sections: `onboarding`, `jwt`, `redis`, and `middleware`.
+
+- Separate USER and ADMIN authentication realms by issuer, audience, signing key, and expected actor type.
+- Select realm policy from trusted route configuration before validating the token.
+- Validate signature, permitted algorithm, issuer, audience, expiration, not-before time, and actor type.
+- Keep account and actor identifiers as UUID strings in JWT and JSON.
+- Require an active access-token record identified by `jti` and an active session identified by `sid`.
+- Match token, session, account, actor, and realm identities before constructing a verified principal.
+- Store access-token and session records successfully, with expiry, before returning the access token.
+- Reject access when Redis validation cannot complete. Use a safe service-unavailable error contract for dependency failure.
+- Use trusted current account status or version checks together with Redis revocation when an account is closed.
+- MySQL and Redis do not form one atomic database transaction.
+- Keep ownership verification, login multi-factor authentication (MFA), and actor approval as separate processes.
+- Do not issue a fully authorized session before required MFA completes.
+- Keep permission and lifecycle decisions in Application and Domain.
+
+Records: [ADR-0037](../0037-user-and-system-admin-jwt-realms.md), [ADR-0038](../0038-redis-token-allowlist-and-session-lifecycle.md), and [ADR-0046](../0046-authentication-challenges-and-mfa-gated-sessions.md).
+
+### Entity Identifier Representation
+
+Source sections: `uuid`, `index-economics`, and `doctrine`.
+
+- Generate entity and aggregate identifiers with `ramsey/uuid` UUIDv7 before persistence.
+- Store primary identifiers and logical references as `BINARY(16)`.
+- Use assigned identifiers and the Doctrine `uuid_binary` type from `ramsey/uuid-doctrine`.
+- Use natural UUID byte order. Do not use UUIDv1 ordered-time swapping.
+- Use `BIN_TO_UUID(id, 0)` and `UUID_TO_BIN(:uuid, 0)` when SQL conversion is needed.
+- Expose a readable `uuid CHAR(36) CHARACTER SET ascii COLLATE ascii_bin` virtual generated projection.
+- Keep the readable projection out of primary keys, relationship references, and normal lookup indexes.
+- Use binary columns for lookups and joins.
+- Keep Doctrine and Ramsey conversion inside adapters. Domain identifiers can use project-owned value objects.
+- Use explicit creation and business dates for reports. UUIDv7 generation time does not reconstruct an old record's creation time.
+- Measure actual index size and query latency. The report's index-size arithmetic is illustrative.
+
+Records: [ADR-0039](../0039-uuidv7-identifiers-and-binary-storage.md), [ADR-0040](../0040-assigned-uuid-identifiers-in-doctrine.md), and [ADR-0047](../0047-generated-uuid-projection-mapping.md).
+
+### Database Text Standard
+
+Source sections: `charset`, `schema`, and `open`.
+
+- Use MySQL 8.4 and InnoDB for the target database.
+- Use `utf8mb4` with `utf8mb4_tr_0900_ai_ci` for database and business-table defaults.
+- Configure the DBAL connection charset as `utf8mb4`.
+- Keep binary identifiers independent of text collation.
+- Override the readable UUID projection with `ascii` and `ascii_bin`.
+- Define login, email, and technical-code normalization in Domain. Field-specific text comparison exceptions remain possible.
+- Test Turkish I variants, accents, Unicode normalization, and trailing-space behavior against business uniqueness rules.
+- Analyze existing duplicates, index changes, locks, and generated-column overrides before collation conversion.
+
+Records: [ADR-0041](../0041-mysql84-character-set-and-turkish-collation.md) and [ADR-0048](../0048-business-key-normalization-and-uniqueness.md).
+
+### References, Transactions, and Lifecycle
+
+Source sections: `schema`, `transactions`, `lifecycle`, and `history`.
+
+- Do not create physical foreign-key constraints.
+- Use indexed binary logical references and explicit existence, access, and lifecycle validation.
+- Retain primary keys, applicable uniqueness constraints, nullability constraints, and indexes.
+- Prevent ORM associations, cascades, or schema generation from adding unapproved foreign keys or lifecycle effects.
+- Commit writes that must change together in one MySQL transaction.
+- Use optimistic integer state versions for ordinary aggregate updates.
+- Use a common selective locking protocol for reference creation and lifecycle changes.
+- Use exclusive locking or atomic conditional updates for shared capacity and counter invariants.
+- Fully roll back before bounded retry after eligible deadlocks or lock timeouts.
+- Restart a failed ORM attempt with a clean EntityManager and UnitOfWork.
+- Preserve the current isolation level unless a command-specific change is reviewed and tested.
+- Keep reporting read-only and use an appropriate consistent snapshot without unnecessary row locks.
+- Use soft deletion for visibility separately from domain lifecycle state.
+- Include deleted records in historical reports using their stored values.
+- Do not require event sourcing or past-state reconstruction for this reporting requirement.
+- Apply active-key uniqueness only where the domain requires it.
+- Validate lifecycle and key conflicts during restoration.
+
+Records: [ADR-0042](../0042-logical-references-without-physical-foreign-keys.md), [ADR-0043](../0043-optimistic-concurrency-and-selective-locking.md), and [ADR-0044](../0044-soft-deletion-active-uniqueness-and-historical-reporting.md).
+
+### Migration, Measurement, and Verification
+
+Source sections: `migration`, `risk`, `plan`, and `tests`.
+
+- Inventory target identifiers, references, contracts, sessions, caches, jobs, collations, and migration history before drafting conversion.
+- Where integer identifiers exist, use staged UUID allocation, a persistent identifier map, backfill, reference conversion, cutover, and later cleanup.
+- Verify complete backfill and zero duplicate or orphan logical references.
+- Assess old JWT and Redis identifier compatibility before cutover.
+- Review generated-column schema differences and collation uniqueness changes.
+- Test UUID persistence and hydration, natural byte order, virtual projection, and schema-diff preservation.
+- Test cross-realm rejection, token/session mismatch, revocation, and Redis failure.
+- Test soft deletion, controlled restoration conflicts, optimistic conflicts, and locking races.
+- Use real MySQL 8.4 and Redis 8 for affected integration behavior. Use separate database connections for concurrency tests.
+- Memory and SQLite tests do not prove InnoDB locking behavior.
+- Measure point-lookup and command latency, reference joins, index size, and buffer use on representative data.
+- Monitor lock waits, deadlocks, reconciliation, schema drift, revocation delay, and security rejection rates.
+- Keep raw JWTs, private keys, and sensitive payloads out of diagnostics.
+- Record recovery evidence before authorized target migration.
+
+Records: [ADR-0014](../0014-test-architecture-and-quality-gates.md), [ADR-0015](../0015-mysql-migration-lifecycle-and-baseline-adoption.md), [ADR-0018](../0018-production-observability.md), and [ADR-0045](../0045-staged-identifier-and-collation-migration.md).
+
+## Open Choices and Verification Gaps
+
+Source sections: `onboarding`, `doctrine`, and `open`.
+
+- Choose whether the virtual UUID projection remains unmapped with migration guards or receives supported read-only Doctrine mapping.
+- Define normalization and uniqueness scope for each business key. Do not treat the report's sample login index as a universal domain rule.
+- Confirm integer identifier scope and any technical outbox or cache identifier exceptions from the target inventory.
+- Choose conversion or controlled logout for legacy sessions if they exist.
+- Confirm deployed database and Redis versions, data volume, migration recovery limits, and generated-column schema behavior.
+- Confirm the Admin invitation, approval, phishing-resistant MFA, and recovery policies. The report describes preferences without choosing exact mechanisms.
+- Set bounded retry limits, eligible errors, lock order, and any command-specific isolation exceptions.
+- Select observability tools, signal retention, alert thresholds, and incident ownership.
+
+The report does not select a hosting model, global database separation policy, secret-store provider, replay window, provider-effect reconciliation policy, or general mapper strictness.
+
+Those policy choices remain in [ADR-0007](../0007-production-operating-model.md), [ADR-0008](../0008-database-ownership-between-bounded-contexts.md), [ADR-0011](../0011-secret-storage-and-rotation.md), [ADR-0025](../0025-replay-and-deduplication-retention.md), [ADR-0026](../0026-external-effect-idempotency-and-unknown-outcomes.md), and [ADR-0032](../0032-boundary-validation-and-object-mapping-policy.md).
+
+## Repository Comparison
+
+- [ADR-0029](../0029-security-responsibility-after-identity-and-access-removal.md) records the previous API-key-only identity boundary. [ADR-0037](../0037-user-and-system-admin-jwt-realms.md) supersedes that decision.
+- Consumer API separation remains valid. [ADR-0028](../0028-consumer-api-isolation-and-selection.md) adds trusted route-based realm policy.
+- [ADR-0008](../0008-database-ownership-between-bounded-contexts.md) remains Proposed. A no-foreign-key rule does not choose physical database ownership.
+- [ADR-0027](../0027-domain-aggregates-and-persistence-records.md) retains domain and persistence separation with explicit identifier mapping and logical references.
+- Architecture, CQRS, event, outbox, release, and external-capability decisions remain valid where the report does not replace them.
+- The current repository already includes Ramsey UUID packages, UUIDv7 generation, and `uuid_binary` registration.
+- The current lock file records Doctrine ORM 3.7.2, DBAL 4.4.4, Ramsey UUID 4.9.4, and Ramsey UUID Doctrine 2.1.0.
+- The report's assumption that existing identifiers are integers is not a repository-wide finding. Confirm every target schema before selecting migration steps.
+- The current repository has no IdentityAndAccess implementation. Authentication and schema target decisions require later implementation and target verification.
+- This reconciliation changes ADR documentation. It does not execute the report's application or migration plan.

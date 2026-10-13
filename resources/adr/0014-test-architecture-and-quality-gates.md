@@ -11,7 +11,9 @@ The platform needs evidence for behavior, adapter contracts, dependency boundari
 
 [Testing guidance](../platform/17-testing.md) defines risk-based local checks. [Composer scripts](../../composer.json) define the full executable-line coverage gate.
 
-- **Constraints:** Keep tests isolated. Use provider doubles. Enforce PHPStan level 8, complexity at most 12, coding style, and architecture boundaries for code changes.
+The [final decision report](references/2026-10-13-identity-access-decisions.md#migration-measurement-and-verification) requires real MySQL 8.4 and Redis 8 evidence for the new target behavior. Memory and SQLite tests do not prove InnoDB locking or Redis authentication behavior.
+
+- **Constraints:** Keep tests isolated and use provider doubles. Preserve PHPStan level 8, complexity at most 12, style, coverage, and architecture gates. Use identified prepared targets for service-backed checks.
 
 ## Considered Options
 
@@ -30,15 +32,15 @@ The platform needs evidence for behavior, adapter contracts, dependency boundari
 ## Decision Made
 
 - **Chosen Option:** Option A.
-- **Rationale:** Automated boundary and behavior checks make platform rules observable. Local checks remain proportionate to the changed behavior.
+- **Rationale:** Automated checks make platform rules observable. Verification must also use the real database and Redis where their transaction, mapping, locking, and failure semantics control behavior.
 
 ## Consequences
 
 - **Positive:** Movable module tests remain with their module. Full-suite results include executable-line coverage and deployment fixtures.
-- **Negative / Trade-offs:** The [release workflow](../../.github/workflows/release-artifact.yml) currently disables coverage while invoking the coverage-required test script. This gate needs alignment.
+- **Negative / Trade-offs:** Real-service checks add environment and recovery requirements. The [release workflow](../../.github/workflows/release-artifact.yml) still disables coverage while invoking the coverage-required test script. The new target checks are requirements, not completed evidence.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Maintain tests by ownership. Select local checks by risk. Preserve full continuous-integration and release gates. Resolve coverage configuration before relying on release execution.
-- **Verification:** Verify behavior assertions, architecture checks, PHP analysis, style, complexity, documentation links, and full-suite coverage. Confirm evidence applies to the current revision.
+- **Rollout Steps:** Maintain tests by ownership and risk. Add isolated MySQL 8.4 and Redis 8 scenarios for the target changes. Preserve existing gates and resolve release coverage configuration.
+- **Verification:** Check UUID round trips, virtual columns, collation, and schema differences. Use separate connections for concurrency races and deadlock recovery. Test realm rejection, revocation, Redis failure, deletion, and restoration. Confirm current-revision evidence for all existing gates.
 - **Review Date:** Review when test isolation, coverage scope, or release gates change.

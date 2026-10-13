@@ -11,7 +11,9 @@ Schema changes must preserve application behavior and have an explicit recovery 
 
 The [schema-change rules](../platform/10-schema-changes.md) separate migration drafts, target execution, and adoption of rewritten migration history.
 
-- **Constraints:** Apply only requested schema changes. Identify the database target. Obtain explicit execution authority. Compare existing schema and version records before baseline adoption.
+The [final decision report](references/2026-10-13-identity-access-decisions.md#migration-measurement-and-verification) adds staged identifier and collation conversion. Its integer-ID assumption must be verified against the actual target schema.
+
+- **Constraints:** Apply only requested schema changes with explicit target authority. Compare schema and migration history before adoption. Inventory identifier, reference, session, and collation compatibility before conversion.
 
 ## Considered Options
 
@@ -35,10 +37,10 @@ The [schema-change rules](../platform/10-schema-changes.md) separate migration d
 ## Consequences
 
 - **Positive:** Deployment records identify the migration target and recovery evidence.
-- **Negative / Trade-offs:** Application rollback cannot guarantee schema rollback. Existing database adoption requires a separate reviewed plan.
+- **Negative / Trade-offs:** Application rollback cannot guarantee schema rollback. Existing database adoption and conversion require reviewed plans, duplicate analysis, and recovery evidence.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Complete repository behavior. Review migration SQL. Compare target state. Record recovery. Apply only with authority for that database.
-- **Verification:** Review dry-run SQL against the identified target. Verify resulting schema and repository behavior. Use [deployment recovery guidance](../../deployment/README.md).
+- **Rollout Steps:** Complete repository behavior and target inventory. Follow [staged conversion](0045-staged-identifier-and-collation-migration.md) where needed. Review SQL and recovery before authorized execution.
+- **Verification:** Review dry-run SQL on the identified target. Verify identifier maps, logical references, business-key equality, and generated-column preservation. Rehearse [deployment recovery](../../deployment/README.md) before cutover.
 - **Review Date:** Review when migration history is rewritten or a schema change affects backward compatibility.
