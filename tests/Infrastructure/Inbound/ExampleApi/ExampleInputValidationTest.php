@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Inbound\ExampleApi;
 
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
-use Backendbase\Domain\IdentityAndAccess\Exception\AuthorizationExpired;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ExampleGroups;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\InvalidUserInput;
@@ -50,14 +47,6 @@ final class ExampleInputValidationTest extends TestCase
         $this->expectException(InvalidUserInput::class);
 
         ExampleRequestInput::positiveInteger([], 'page');
-    }
-
-    #[Test]
-    public function itRejectsAMissingAuthorizationContext(): void
-    {
-        $this->expectException(AuthorizationExpired::class);
-
-        ExampleRequestInput::accessControl(null);
     }
 
     #[Test]
@@ -118,7 +107,6 @@ final class ExampleInputValidationTest extends TestCase
         ));
         $request = (new ServerRequestFactory())
             ->createServerRequest('PATCH', '/examples/system/settings/page-size')
-            ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
             ->withParsedBody($payload);
 
         return $app->handle($request);

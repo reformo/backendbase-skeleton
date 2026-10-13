@@ -24,4 +24,10 @@ Review migration rollback and production compatibility before release.
 
 Migration-history rewrites require a separate adoption plan for databases that applied the old versions. Compare schema and version records before any migration command.
 
+## Current migration history
+
+`Version20260823000000` creates the integration-event tables. `Version20260823215059` creates the complete Example table, including generated uniqueness columns and the active lookup identity index. Both migrations use the non-transactional MySQL base.
+
+The former Example uniqueness migration `Version20260825050000` has been consolidated into table creation. Existing databases that ran either former Example migration need schema and version-record reconciliation before deployment. Do not rerun table creation against an existing Example table.
+
 Basis: `resources/docs/9-persistence-and-database.html`, `resources/docs/12-deployment-and-operations.html`.

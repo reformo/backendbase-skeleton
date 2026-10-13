@@ -525,7 +525,7 @@
         <p class="lede">A source-based guide to the Example API contract, merged specification, documentation viewer, Bruno collection, and contract checks.</p>
         <div class="chips" aria-label="Guide scope">
             <span class="chip">OpenAPI 3.0</span>
-            <span class="chip">15 operations</span>
+            <span class="chip">9 operations</span>
             <span class="chip">15 Bruno requests</span>
             <span class="chip">Local environment</span>
             <span class="chip">Contract alignment</span>
@@ -580,25 +580,15 @@
 │   ├── common/components.yaml                  # shared headers and responses
 │   └── example-api/
 │       ├── example-openapi.yml                 # root contract and servers
-│       ├── account/
-│       │   ├── accounts.yaml                    # list and register
-│       │   └── account-by-uuid.yaml             # revise and retire
 │       └── example/
 │           ├── example-groups.yaml             # group list
 │           ├── examples.yaml                   # example list and create
-│           ├── example-details.yaml            # get, change, and delete
-│           └── hello.yaml                      # queue a greeting
+│           └── example-details.yaml            # get, change, and delete
 └── bruno/example-api/
     ├── opencollection.yml                       # collection root
     ├── environments/local.yml                   # local values
     ├── system/                                  # ordered metadata and status requests
     │   ├── folder.yml                           # collection sequence 1
-    │   └── *.yml
-    ├── auth/                                    # ordered authentication request
-    │   ├── folder.yml                           # collection sequence 2
-    │   └── *.yml
-    ├── account/                                 # ordered account lifecycle requests
-    │   ├── folder.yml                           # collection sequence 3
     │   └── *.yml
     └── example/                                 # ordered example lifecycle requests
         ├── folder.yml                           # collection sequence 4
@@ -677,18 +667,12 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>apiMetadata</code></td><td>API key</td><td>Sequence 1</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/_status</code></td><td><code>livenessCheck</code></td><td>Public</td><td>Sequence 2</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/_status/ready</code></td><td><code>readinessCheck</code></td><td>Public</td><td>Sequence 3</td></tr>
-                        <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>authenticateAccount</code></td><td>API key</td><td>Sequence 10</td></tr>
-                        <tr><td><span class="method post">POST</span></td><td><code>/accounts</code></td><td><code>registerAccount</code></td><td>API key + bearer</td><td>Sequence 20</td></tr>
-                        <tr><td><span class="method get">GET</span></td><td><code>/accounts</code></td><td><code>listAccounts</code></td><td>API key + bearer</td><td>Sequence 21</td></tr>
-                        <tr><td><span class="method patch">PATCH</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>reviseAccount</code></td><td>API key + bearer</td><td>Sequence 22</td></tr>
-                        <tr><td><span class="method delete">DELETE</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>retireAccount</code></td><td>API key + bearer</td><td>Sequence 23</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups</code></td><td><code>getExampleGroupsByType</code></td><td>API key</td><td>Sequence 40</td></tr>
-                        <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>addNewExample</code></td><td>API key + bearer</td><td>Sequence 41</td></tr>
+                        <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>addNewExample</code></td><td>API key</td><td>Sequence 41</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>getExamplesByGroup</code></td><td>API key</td><td>Sequence 42</td></tr>
-                        <tr><td><span class="method post">POST</span></td><td><code>/examples/hello</code></td><td><code>queueGreeting</code></td><td>API key + bearer</td><td>Sequence 42</td></tr>
                         <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>getExampleByCriteria</code></td><td>API key</td><td>Sequence 43</td></tr>
-                        <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>changeExampleDetails</code></td><td>API key + bearer</td><td>Sequence 44</td></tr>
-                        <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>removeExample</code></td><td>API key + bearer</td><td>Sequence 45</td></tr>
+                        <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>changeExampleDetails</code></td><td>API key</td><td>Sequence 44</td></tr>
+                        <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>removeExample</code></td><td>API key</td><td>Sequence 45</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -705,7 +689,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
                     <ul>
                         <li>Uses OpenAPI <code>3.0.0</code>.</li>
                         <li>Defines local, stage, and production servers.</li>
-                        <li>Defines <code>bearerAuth</code> and <code>apiKey</code>.</li>
+                        <li>Defines the <code>apiKey</code> security scheme.</li>
                         <li>References six feature path files.</li>
                     </ul>
                 </article>
@@ -715,9 +699,6 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <li><code>example-groups.yaml</code> owns one GET operation.</li>
                         <li><code>examples.yaml</code> owns GET and POST operations.</li>
                         <li><code>example-details.yaml</code> owns GET, PATCH, and DELETE operations.</li>
-                        <li><code>hello.yaml</code> owns POST greeting delivery.</li>
-                        <li><code>accounts.yaml</code> owns GET and POST account operations.</li>
-                        <li><code>account-by-uuid.yaml</code> owns PATCH and DELETE account operations.</li>
                     </ul>
                 </article>
             </div>
@@ -756,32 +737,11 @@ bin/bruno                                       # Bruno command wrapper</pre>
 
         <section id="security">
             <p class="section-label">07 · Security contract</p>
-            <h2>Read and write operations use different declarations</h2>
-            <div class="three-col">
-                <article class="card">
-                    <h3>Example read operations</h3>
-                    <p><span class="badge">API key</span></p>
-                    <p>The OpenAPI source declares <code>apiKey</code>. Bruno sends <code>Backendbase-Api-Key</code>.</p>
-                </article>
-                <article class="card">
-                    <h3>Protected operations</h3>
-                    <p><span class="badge">API key</span> <span class="badge write">Bearer token</span></p>
-                    <p>Account operations, Example writes, and greeting delivery declare both schemes. Bruno sends both headers.</p>
-                </article>
-                <article class="card">
-                    <h3>Authentication</h3>
-                    <p><span class="badge">API key</span></p>
-                    <p>Bruno sequence 10 calls <code>POST /auth</code> and stores the returned access token for protected lifecycle requests.</p>
-                </article>
-            </div>
-            <div class="code-shell">
-                <button class="copy-button" type="button">Copy</button>
-                <pre><code>security:
-  - apiKey: []
-    bearerAuth: []</code></pre>
-            </div>
-            <p>Both keys in one security requirement mean logical AND. Separate list items would mean logical OR.</p>
-            <div class="callout good"><strong>Runtime alignment:</strong> Missing or invalid API keys and bearer tokens return status <code>401</code>. ACL denials return status <code>403</code>.</div>
+            <h2>Example reads and writes require an API key</h2>
+            <p>Metadata and Example operations declare <code>apiKey</code>. Bruno sends <code>Backendbase-Api-Key</code>. Liveness and readiness declare <code>security: []</code>.</p>
+            <div class="code-shell"><pre><code>security:
+  - apiKey: []</code></pre></div>
+            <div class="callout good"><strong>Runtime alignment:</strong> Missing or invalid API keys return status <code>401</code> before dispatch.</div>
         </section>
 
         <section id="generation">
@@ -832,22 +792,16 @@ vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</
                         <tr><td>1</td><td><code>system/api-metadata.yml</code></td><td>API Metadata</td><td>200</td></tr>
                         <tr><td>2</td><td><code>system/liveness-check.yml</code></td><td>Liveness Check</td><td>200</td></tr>
                         <tr><td>3</td><td><code>system/readiness-check.yml</code></td><td>Readiness Check</td><td>200 or 503</td></tr>
-                        <tr><td>10</td><td><code>auth/authenticate-user.yml</code></td><td>Authenticate User</td><td>201</td></tr>
-                        <tr><td>20</td><td><code>account/register-account.yml</code></td><td>Register Account</td><td>201</td></tr>
-                        <tr><td>21</td><td><code>account/list-accounts.yml</code></td><td>List Accounts</td><td>200</td></tr>
-                        <tr><td>22</td><td><code>account/revise-account.yml</code></td><td>Revise Account</td><td>204</td></tr>
-                        <tr><td>23</td><td><code>account/retire-account.yml</code></td><td>Retire Account</td><td>204</td></tr>
                         <tr><td>40</td><td><code>example/list-example-groups.yml</code></td><td>List Example Groups</td><td>200</td></tr>
                         <tr><td>41</td><td><code>example/add-example.yml</code></td><td>Add New Example</td><td>204</td></tr>
                         <tr><td>42</td><td><code>example/list-examples.yml</code></td><td>List Examples</td><td>200</td></tr>
-                        <tr><td>42</td><td><code>example/queue-greeting.yml</code></td><td>Queue Greeting</td><td>202</td></tr>
                         <tr><td>43</td><td><code>example/get-example-details.yml</code></td><td>Get Example Details</td><td>200</td></tr>
                         <tr><td>44</td><td><code>example/change-example-details.yml</code></td><td>Change Example Details</td><td>204</td></tr>
                         <tr><td>45</td><td><code>example/delete-example.yml</code></td><td>Delete Example</td><td>204</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p>The collection has one request for each of the fifteen documented operations. Greeting and example listing both use sequence 42; neither depends on the other.</p>
+            <p>The collection has one request for each of the nine documented operations.</p>
         </section>
 
         <section id="bruno-request">
@@ -867,8 +821,6 @@ http:
   headers:
     - name: "Backendbase-Api-Key"
       value: "{{apiKey}}"
-    - name: "Authorization"
-      value: "Bearer {{accessToken}}"
 
 runtime:
   scripts:
@@ -882,8 +834,8 @@ runtime:
                     <p>Read requests check status and important response fields. Write requests check status.</p>
                 </article>
                 <article class="card">
-                    <h3>Authentication</h3>
-                    <p>The authentication request captures <code>accessToken</code> for protected lifecycle requests.</p>
+                    <h3>API protection</h3>
+                    <p>Each protected request sends the configured API key.</p>
                 </article>
             </div>
             <p>The lifecycle generates a run-unique <code>example-key</code> before it creates the example.</p>
@@ -891,14 +843,9 @@ runtime:
 
         <section id="run-sequence">
             <p class="section-label">12 · Run sequence</p>
-            <h2>Authentication precedes the lifecycle</h2>
+            <h2>API-key requests run the Example lifecycle</h2>
             <div class="diagram-wrap">
                 <ol class="flow-list" aria-label="Bruno request sequence">
-                    <li><strong>10 · Authenticate</strong><small>capture access token</small></li>
-                    <li><strong>20 · Register account</strong><small>capture account UUID</small></li>
-                    <li><strong>21 · List accounts</strong><small>check account projection</small></li>
-                    <li><strong>22 · Revise account</strong><small>replace privileges</small></li>
-                    <li><strong>23 · Retire account</strong><small>soft remove account</small></li>
                     <li><strong>40 · List groups</strong><small>confirm fixture group</small></li>
                     <li><strong>41 · Add</strong><small>create by the generated example-key</small></li>
                     <li><strong>42 · List</strong><small>check collection</small></li>
@@ -913,7 +860,7 @@ runtime:
             </div>
             <p>The wrapper changes to <code>resources/bruno/example-api</code>, runs Bruno, and writes <code>artifacts/bruno/example-api/local.html</code>.</p>
             <div class="callout"><strong>Report privacy:</strong> The HTML report omits request and response bodies, bearer tokens, and API keys.</div>
-            <div class="callout"><strong>Account preparation:</strong> The local environment needs an account with the listed privileges. The DAST workflow provisions an ephemeral account after migrations.</div>
+            <div class="callout"><strong>API preparation:</strong> The local environment needs a prepared API and its key. The DAST workflow creates an Example fixture after migrations.</div>
         </section>
 
         <section id="environments">
@@ -923,9 +870,8 @@ runtime:
                 <table>
                     <thead><tr><th>Variable group</th><th>Variables</th><th>Use</th></tr></thead>
                     <tbody>
-                        <tr><td>Connection</td><td><code>baseUrl</code>, <code>apiKey</code>, <code>accessToken</code></td><td>Target and credentials</td></tr>
+                        <tr><td>Connection</td><td><code>baseUrl</code>, <code>apiKey</code></td><td>Target and credentials</td></tr>
                         <tr><td>Context</td><td><code>acceptLanguage</code>, <code>timezone</code>, <code>requestId</code>, <code>sourceId</code></td><td>Shared request headers</td></tr>
-                        <tr><td>Authentication</td><td><code>email</code>, <code>password</code></td><td>Authentication request input</td></tr>
                         <tr><td>Example fixture</td><td><code>type-slug</code>, <code>example-group</code>, <code>example-key</code>, <code>typeTargetId</code>, <code>exampleLookupValue</code></td><td>Request path and body values</td></tr>
                     </tbody>
                 </table>
@@ -1058,10 +1004,9 @@ vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi</code></pre>
                         <tr><td>Documentation viewer</td><td><a href="../../public/example-api/docs/index.php"><code>public/example-api/docs/index.php</code></a></td></tr>
                         <tr><td>Bruno collection root</td><td><a href="../bruno/example-api/opencollection.yml"><code>resources/bruno/example-api/opencollection.yml</code></a></td></tr>
                         <tr><td>Bruno environment</td><td><a href="../bruno/example-api/environments/local.yml"><code>resources/bruno/example-api/environments/local.yml</code></a></td></tr>
-                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/{system,auth,account,example}/*.yml</code></td></tr>
+                        <tr><td>Bruno requests</td><td><code>resources/bruno/example-api/{system,example}/*.yml</code></td></tr>
                         <tr><td>Bruno HTML report</td><td><code>artifacts/bruno/example-api/local.html</code></td></tr>
                         <tr><td>Bruno wrapper</td><td><a href="../../bin/bruno"><code>bin/bruno</code></a></td></tr>
-                        <tr><td>DAST account fixture</td><td><code>.github/scripts/provision-dast-account.php</code></td></tr>
                         <tr><td>Related runtime guide</td><td><a href="5-use-case-api.html"><code>resources/docs/5-use-case-api.html</code></a></td></tr>
                         <tr><td>Related configuration guide</td><td><a href="7-env-and-config.html"><code>resources/docs/7-env-and-config.html</code></a></td></tr>
                     </tbody>

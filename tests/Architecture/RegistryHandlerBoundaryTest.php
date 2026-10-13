@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Architecture;
 
 use Backendbase\Domain\ExampleCatalog\ServiceProvider as ExampleCatalogServiceProvider;
-use Backendbase\Domain\IdentityAndAccess\ServiceProvider as IdentityAndAccessServiceProvider;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandHandler;
@@ -18,7 +17,6 @@ use Tests\TestCase;
 
 use function array_keys;
 use function array_map;
-use function array_merge;
 use function is_a;
 use function sort;
 use function str_contains;
@@ -28,10 +26,7 @@ final class RegistryHandlerBoundaryTest extends TestCase
     #[Test]
     public function everyCommandAndQueryUsesAResolvableRegistryHandler(): void
     {
-        $mappings            = array_merge(
-            ExampleCatalogServiceProvider::getHandlers(),
-            IdentityAndAccessServiceProvider::getHandlers(),
-        );
+        $mappings            = ExampleCatalogServiceProvider::getHandlers();
         $contracts           = self::contractClasses();
         $registeredContracts = array_keys($mappings);
         sort($contracts);

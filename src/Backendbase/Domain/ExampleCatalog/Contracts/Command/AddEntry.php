@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
@@ -20,7 +19,6 @@ class AddEntry implements Command
         private bool $isActive,
         private string $key,
         private string $value,
-        private AccessControl $accessControl,
         private array|null $details = [],
     ) {
     }
@@ -64,11 +62,6 @@ class AddEntry implements Command
     public function value(): string
     {
         return $this->value;
-    }
-
-    public function accessControl(): AccessControl
-    {
-        return $this->accessControl;
     }
 
     #[Override]

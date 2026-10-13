@@ -1,78 +1,66 @@
 ---
 name: backendbase-secure-api-endpoint
-description: Protect an existing Backendbase-style API operation with the established API-key, JWT bearer, and ACL mechanisms. Do not use to create a new identity provider, credential flow, or generic middleware.
+description: Protect an existing API operation with the target project's established API-key and access-control mechanisms. Do not create an identity provider or credential flow.
 ---
 
 # Secure an API endpoint
 
 ## Outcome
 
-Apply an explicit public or protected policy to one operation. Keep routing, authorization context, application decisions, OpenAPI security, and failure tests aligned.
+Apply the requested security policy to one operation. Keep routing, application decisions, OpenAPI, and failure tests aligned.
 
 ## Task-scoped discovery
 
-Inspect only unknown facts needed by the affected behavior. Reuse applicable instructions and verified project facts while their sources remain unchanged.
+1. Read applicable target-project instructions.
+2. Inspect the affected route, middleware, application checks, public contract, and focused tests.
+3. Discover the owning API, selection mechanism, middleware order, configuration keys, headers, and security schemes.
+4. Identify available API-key, identity, and access-control mechanisms. Inspect token settings and state only when the target uses tokens.
+5. Resolve the operation's identity requirement, privilege requirement, public exceptions, and failure status contract.
+6. Read only needed sections of [the security pattern](references/backendbase-pattern.md).
 
-1. Read applicable `AGENTS.md` files.
-2. Inspect the affected route, authentication stack, application privilege checks, public contract, and focused security tests.
-3. Discover the owning API and trace source selection, API-context setup, API-key middleware, bearer validation, JWT settings and state, request attributes, ACL usage, CORS, and OpenAPI schemes.
-4. Resolve the exact API-key rule, identity requirement, named privilege, public exception if any, expected claims, and `401` versus `403` behavior.
-5. Confirm how the real route stack proves each layer and where runtime currently differs from the intended contract.
-6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
-
-Ask before making an endpoint public or changing token and privilege semantics.
+Reuse verified project facts while their source remains unchanged. Report a required mechanism that the target does not provide. Do not invent a credential flow.
 
 ## Target-project adaptation
 
-Use the target identity model, claims, issuer, audience, key storage, revocation store, roles, privileges, headers, and status contract. Never copy Backendbase signing data, API keys, token values, user fixtures, or hosts.
+Use target namespaces, routes, configuration, identity models, ports, headers, and test helpers. Backendbase paths and names are role examples. Never copy signing data, API keys, tokens, hosts, or user fixtures.
+
+Ask only when an unresolved security decision materially changes public behavior. Existing authority for the same policy remains valid.
 
 ## Workflow
 
-1. State whether the operation is anonymous, API-key-only, bearer-authenticated, or privilege-protected. For a new operation in an unmodified Backendbase consumer API, select API key plus bearer unless an explicit policy requires another mode.
-2. Apply only the API-key and bearer layers selected in step 1, at the narrowest correct scope.
-3. Pass the established typed authorization context through the input contract for each named privilege.
-4. Enforce the named privilege at the application handler boundary before protected work.
-5. Keep credential parsing and token validation outside controllers.
-6. Use `security: []` only when all applicable runtime security layers intentionally permit anonymous access.
-7. Declare identical API-key and bearer requirements and failure responses in OpenAPI.
-8. Align every security-related header across runtime validation and OpenAPI. Also align configured CORS and maintained Bruno coverage when applicable.
-9. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
-10. Test missing, malformed, expired, revoked, forbidden, and allowed paths as applicable.
-11. Exercise the real route and middleware stack. Unit tests of middleware or ACL alone do not prove route protection.
+1. State whether the operation requires anonymous access, an API key, user identity, or a named privilege.
+2. Apply only the established mechanisms required by that policy.
+3. Pass typed access control into an application contract when a named privilege is required.
+4. Enforce that privilege at the application-handler boundary before protected work.
+5. Keep credential parsing and validation in the transport boundary.
+6. Declare the same security requirements and failure responses in OpenAPI.
+7. Use `security: []` only when all applicable runtime layers permit anonymous access.
+8. Align runtime headers, configured CORS, and maintained Bruno requests.
+9. Regenerate and validate source and generated contracts.
+10. Test allowed and denied paths through the actual route stack.
 
-## Backendbase invariants
+Test expired or revoked credentials only when the selected mechanism provides those states.
 
-- New consumer endpoints are protected by default.
-- In an unmodified Backendbase consumer API, a new operation requires API key plus bearer by default. API-key-only or anonymous access requires an explicit policy.
-- In an unmodified Backendbase API, `AuthorizationMiddleware` supplies identity data and typed `AccessControl`.
-- In an unmodified Backendbase API, commands and queries that need a named privilege require `AccessControl`.
-- In an unmodified Backendbase API, application handlers ask `AccessControl` for the named privilege before protected work.
-- Other projects must use their equivalent typed authorization service at the discovered application boundary.
-- API-key validation, bearer authentication, and ACL authorization are independent policy layers.
-- An API-key-only operation is protected; an anonymous operation uses `security: []` and a matching runtime bypass.
-- `full-privileges` and `system-admin` are current Backendbase policy names, not portable defaults. Do not create equivalent bypasses unless the target policy requires them.
-- JWT validation includes signature, time, issuer, audience, token ID, and Redis state.
-- A missing identity is `401`; a valid identity without permission is `403` in the intended public contract.
-- Secrets, tokens, and personal identity data are not logged.
+## Backendbase reference policy
+
+- An unmodified Backendbase API uses API-key protection for metadata and all Example reads and writes.
+- Liveness and readiness are public.
+- The current repository has no built-in bearer identity or account flow.
+- Shared `AccessControl` remains available for application privilege decisions.
+- Internal `QueueGreeting` checks `example.add` before its transaction. It has no HTTP route.
+- Other projects must use their discovered security policy and equivalent application boundary.
+- An API-key-only operation is protected. It does not establish a user identity.
+- Keep API-key validation, identity validation, and application privileges as separate decisions when they exist.
+- Do not log secrets or unnecessary personal data.
 
 ## Verification
 
-Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+Select checks for the changed behavior and target policy. Adapt every command and path to the target runner. Reuse successful checks while their inputs remain unchanged.
 
-```sh
-vendor/bin/phpunit src/Backendbase/Domain/IdentityAndAccess/Tests
-vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}/Middleware
-vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php
-vendor/bin/phpunit tests/Infrastructure/Inbound/{ApiName}/ModuleRoutingTest.php
-vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
-composer run generate-{api-slug}-spec
-vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
-git diff -- public/{api-slug}/docs/{api-slug}-merged.yml
-composer phpstan
-composer complexity
-composer cs-check
-```
+Backendbase route evidence uses `tests/Infrastructure/Inbound/ExampleApi` and `tests/Infrastructure/Adapters/Http/Middleware`. Internal greeting policy uses its context-owned handler tests. These are examples, not required target paths.
+
+Run focused boundary tests, source and generated OpenAPI validation, and the target's required analysis, complexity, and style checks. A middleware unit test alone does not prove route protection.
 
 ## Completion report
 
-Report the operation, each applied security layer, privilege, request attributes used, status contract, route-level evidence, and blocked required checks.
+Report each applied security layer, request context, status contract, actual route evidence, and concrete verification blockers.

@@ -91,7 +91,7 @@ createArtifact() {
     composerLockSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$fixturePath/composer.lock")"
     composerSbomSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$fixturePath/resources/security/composer-sbom.cdx.json")"
     composerPackageContentSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$fixturePath/resources/security/composer-package-content.json")"
-    printf '{"revision":"%s","composerLockSha256":"%s","composerSbomSha256":"%s","composerPackageContentSha256":"%s","migrationTarget":"Backendbase\\\\Migrations\\\\Version20260825050000","applicationRollbackSafe":true}\n' \
+    printf '{"revision":"%s","composerLockSha256":"%s","composerSbomSha256":"%s","composerPackageContentSha256":"%s","migrationTarget":"Backendbase\\\\Migrations\\\\Version20260823215059","applicationRollbackSafe":true}\n' \
         "$revision" \
         "$composerLockSha256" \
         "$composerSbomSha256" \

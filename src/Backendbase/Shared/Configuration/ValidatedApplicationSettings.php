@@ -16,13 +16,6 @@ use function is_string;
  * @phpstan-type DatabaseSettings array{connect: string}
  * @phpstan-type ReadinessSettings array{timeoutSeconds: float}
  * @phpstan-type RedisSettings array{host: string, port: int}
- * @phpstan-type JwtValues array{
- *     alias: string,
- *     issuer: non-empty-string,
- *     permitted-for: non-empty-string,
- *     sign-key: non-empty-string,
- *     duration: string
- * }
  * @phpstan-type RuntimeSettings array{
  *     basePath: string,
  *     cdnBaseUrl: string,
@@ -67,32 +60,6 @@ final class ValidatedApplicationSettings
         }
 
         return ['host' => $settings['host'], 'port' => $settings['port']];
-    }
-
-    /** @return JwtValues */
-    public static function jwt(mixed $settings): array
-    {
-        if (
-            ! is_array($settings)
-            || ! is_string($settings['alias'] ?? null)
-            || ! is_string($settings['issuer'] ?? null)
-            || $settings['issuer'] === ''
-            || ! is_string($settings['permitted-for'] ?? null)
-            || $settings['permitted-for'] === ''
-            || ! is_string($settings['sign-key'] ?? null)
-            || $settings['sign-key'] === ''
-            || ! is_string($settings['duration'] ?? null)
-        ) {
-            throw new UnexpectedValueException('The JWT settings are invalid.');
-        }
-
-        return [
-            'alias' => $settings['alias'],
-            'issuer' => $settings['issuer'],
-            'permitted-for' => $settings['permitted-for'],
-            'sign-key' => $settings['sign-key'],
-            'duration' => $settings['duration'],
-        ];
     }
 
     /** @return RuntimeSettings */

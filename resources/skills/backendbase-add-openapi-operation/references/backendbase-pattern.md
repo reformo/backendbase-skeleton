@@ -17,10 +17,9 @@ get:
       description: OK
   security:
     - apiKey: []
-      bearerAuth: []
 ```
 
-This security example requires both schemes. Use `security: []` only for an explicitly public operation.
+This current Backendbase example requires an API key. Use `security: []` only for an explicitly public operation.
 
 ## Draft and reconciliation lifecycle
 
@@ -81,7 +80,9 @@ security:
   - bearerAuth: []
 ```
 
-ACL is an application authorization decision rather than an OpenAPI security scheme in the current pattern. Document its `403` outcome and keep the named privilege explicit in runtime code and tests.
+Use bearer examples only when the target provides bearer authentication. Backendbase currently provides API-key HTTP protection only.
+
+ACL is an application authorization decision rather than an OpenAPI security scheme. Document its `403` outcome and keep the named privilege explicit in runtime code and tests.
 
 ## Shared headers
 
@@ -91,7 +92,7 @@ Backendbase operations reference `Accept-Language`, `The-Timezone-IANA`, `X-Requ
 
 These differences are semantic audit prompts. Do not reproduce them as target behavior.
 
-- API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
+- Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
 - Example creation requires `lookupValue`. PATCH treats explicit null as omitted, although its schema does not declare those fields nullable.
 - Example detail fields match the controller projection. Its timestamps use `DATE_ATOM`, while the specification labels them with the nonstandard `datetime` format.
 - CORS allowed headers omit `Accept-Language`.

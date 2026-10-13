@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Inbound\ExampleApi;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\TokenValidator;
-use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Account\ModuleConfig as AccountModuleConfig;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ModuleConfig;
-use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Greeting\ModuleConfig as GreetingModuleConfig;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\ModuleRoutes;
 use Backendbase\Shared\Services\Settings as SettingsValue;
 use Backendbase\Shared\Settings;
@@ -59,48 +56,13 @@ final class ModuleRoutingTest extends TestCase
     }
 
     #[Test]
-    public function itRegistersAllAccountModuleRoutes(): void
-    {
-        $app    = AppFactory::create();
-        $module = new AccountModuleConfig();
-        $app->group('/accounts', $module);
-
-        self::assertSame('accounts', $module->routeKey());
-        self::assertCount(4, $app->getRouteCollector()->getRoutes());
-        self::assertSame('registerAccount', $app->getRouteCollector()->getNamedRoute('registerAccount')->getName());
-        self::assertSame('retireAccount', $app->getRouteCollector()->getNamedRoute('retireAccount')->getName());
-        self::assertSame(
-            '/accounts/{account-uuid}',
-            $app->getRouteCollector()->getNamedRoute('reviseAccount')->getPattern(),
-        );
-
-        $modules = (new ModuleRoutes())->getModules();
-        self::assertSame(AccountModuleConfig::class, $modules['accounts']);
-    }
-
-    #[Test]
-    public function itRegistersTheProtectedGreetingRoute(): void
-    {
-        $app    = AppFactory::create();
-        $module = new GreetingModuleConfig();
-        $app->group('/examples', $module);
-
-        self::assertSame('examples', $module->routeKey());
-        self::assertSame(
-            '/examples/hello',
-            $app->getRouteCollector()->getNamedRoute('queueGreeting')->getPattern(),
-        );
-        self::assertSame(GreetingModuleConfig::class, (new ModuleRoutes())->getModules()['examples']);
-    }
-
-    #[Test]
     public function itRegistersTheCompleteApiRouteFile(): void
     {
         $app    = AppFactory::create();
         $routes = require dirname(__DIR__, 4) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
         $routes($app);
 
-        self::assertCount(16, $app->getRouteCollector()->getRoutes());
+        self::assertCount(10, $app->getRouteCollector()->getRoutes());
     }
 
     #[Test]
@@ -128,29 +90,6 @@ final class ModuleRoutingTest extends TestCase
         self::assertSame(200, $liveness->getStatusCode());
     }
 
-    #[Test]
-    public function itProtectsAccountRoutesWithBearerAuthorization(): void
-    {
-        AppFactory::setContainer($this->container());
-        $app        = AppFactory::create();
-        $middleware = require dirname(__DIR__, 4)
-            . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php';
-        $routes     = require dirname(__DIR__, 4)
-            . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
-        $middleware($app);
-        $routes($app);
-        $app->addRoutingMiddleware();
-
-        $request = (new ServerRequestFactory())->createServerRequest('GET', '/accounts')
-            ->withHeader('Backendbase-Api-Key', 'example-api-key');
-
-        self::assertSame(401, $app->handle($request)->getStatusCode());
-
-        $greetingRequest = (new ServerRequestFactory())->createServerRequest('POST', '/examples/hello')
-            ->withHeader('Backendbase-Api-Key', 'example-api-key');
-        self::assertSame(401, $app->handle($greetingRequest)->getStatusCode());
-    }
-
     private function container(): ContainerInterface
     {
         $containerBuilder = new ContainerBuilder();
@@ -160,7 +99,6 @@ final class ModuleRoutingTest extends TestCase
                 'cdnBaseUrl' => '',
             ]),
             LoggerInterface::class => new NullLogger(),
-            TokenValidator::class => $this->createStub(TokenValidator::class),
         ]);
 
         return $containerBuilder->build();

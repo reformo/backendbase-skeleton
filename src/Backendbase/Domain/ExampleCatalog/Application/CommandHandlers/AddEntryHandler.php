@@ -18,8 +18,6 @@ use Override;
 
 readonly class AddEntryHandler implements CommandHandler
 {
-    public const string REQUIRED_PRIVILEGE = 'example.add';
-
     public function __construct(
         private EntryWriteRepository $entryRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
@@ -31,7 +29,6 @@ readonly class AddEntryHandler implements CommandHandler
     #[Override]
     public function handle(Command $command): void
     {
-        $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
         $entry = Entry::create(
             $command->entryId(),
             $command->type(),

@@ -8,7 +8,6 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -37,9 +36,8 @@ class ChangeExampleDetails extends Action
         $details      = ExampleRequestInput::optionalObjectOrNull($payload['details'] ?? null, 'details');
         $isActive     = ExampleRequestInput::optionalBooleanOrNull($payload['isActive'] ?? null, 'isActive');
 
-        $identity      = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
-        $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
-        $command       = new ChangeEntry($identity, $accessControl)
+        $identity = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
+        $command  = new ChangeEntry($identity)
             ->setDetails($details)
             ->setValue($lookupValue)
             ->setIsActive($isActive);

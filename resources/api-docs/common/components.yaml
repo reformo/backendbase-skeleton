@@ -147,11 +147,6 @@ schemas:
         value: application/json
 
   securitySchemes:
-    bearerAuth:
-      type: http
-      description: JWT Authorization header using the Bearer scheme.
-      scheme: bearer
-      bearerFormat: JWT
     apiKey:
       type: apiKey
       description: User Id for request

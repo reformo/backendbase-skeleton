@@ -17,8 +17,6 @@ http:
       value: "{{requestId}}"
     - name: "X-Source-Id"
       value: "{{sourceId}}"
-    - name: "Authorization"
-      value: "Bearer {{accessToken}}"
   params:
     - name: "typeTargetId"
       value: "{{typeTargetId}}"

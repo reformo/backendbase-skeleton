@@ -4,145 +4,88 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
-    <title>Backendbase Authentication and Authorization Guide</title>
+    <title>Backendbase API Keys and Access Control Guide</title>
     <link rel="stylesheet" href="documentation.css">
     <link rel="stylesheet" href="documentation-light.css">
 </head>
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner">
-    <p class="eyebrow">Backendbase Core · Identity boundary</p>
-    <h1>Authentication and Authorization</h1>
-    <p class="lede">Account credential verification, JWT issue, Redis-backed validation, request authorization, access-control checks, API keys, security boundaries, and current runtime gaps.</p>
-    <div class="chips"><span class="chip">JWT</span><span class="chip">Redis</span><span class="chip">ACL</span><span class="chip">API keys</span><span class="chip">Middleware</span></div>
+    <p class="eyebrow">Backendbase Core · Security boundary</p>
+    <h1>API Keys and Access Control</h1>
+    <p class="lede">API-key protection for HTTP operations and typed access control for the internal greeting command.</p>
+    <div class="chips"><span class="chip">API keys</span><span class="chip">Middleware</span><span class="chip">Shared contracts</span></div>
 </div></header>
 <div class="layout">
 <nav aria-label="Page contents"><strong>Contents</strong>
     <a href="#overview">1. Overview</a><a href="#map">2. Component map</a><a href="#flow">3. Request flow</a>
-    <a href="#issue">4. Token issue</a><a href="#validate">5. Token validation</a><a href="#acl">6. Access control</a>
-    <a href="#api-key">7. API keys</a><a href="#routes">8. Route policy</a><a href="#configuration">9. Configuration</a>
-    <a href="#failures">10. Failure behavior</a><a href="#gaps">11. Current gaps</a><a href="#tests">12. Tests</a>
-    <a href="#checklist">13. Checklist</a><a href="#sources">14. Source map</a>
+    <a href="#acl">4. Internal access control</a><a href="#api-key">5. API keys</a><a href="#routes">6. Route policy</a>
+    <a href="#configuration">7. Configuration</a><a href="#failures">8. Failure behavior</a><a href="#gaps">9. Current limits</a>
+    <a href="#tests">10. Tests</a><a href="#sources">11. Source map</a>
 </nav>
 <main id="main-content">
-<section id="overview"><p class="section-label">01 · Overview</p><h2>Two checks protect a private operation</h2>
-    <p>Authentication proves the token state. Authorization decides whether the authenticated user can perform an operation.</p>
-    <div class="grid-3">
-        <article class="card"><h3>Token ports</h3><p>HTTP inputs issue and validate tokens through application ports. The JWT and Redis adapters stay behind these contracts.</p></article>
-        <article class="card"><h3>Authorization middleware</h3><p>Reads the bearer token and adds user, time zone, and access-control attributes to the request.</p></article>
-        <article class="card"><h3>ACL</h3><p>Allows a named privilege, full privileges, or the <code>system-admin</code> role.</p></article>
-    </div>
-    <div class="callout warning"><strong>Current scope:</strong> <code>POST /auth</code> verifies database-backed credentials. Protected <code>/accounts</code> operations register, revise, retire, and list accounts.</div>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>HTTP operations use API-key protection</h2>
+    <p>ExampleApi requires the configured API key for metadata and every Example read or write. Liveness and readiness remain public.</p>
+    <p>The API has no built-in account or token flow. The IdentityAndAccess context and Greeting HTTP endpoints have been removed.</p>
 </section>
-<section id="map"><p class="section-label">02 · Component map</p><h2>Identity code and HTTP security are separate</h2>
-    <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th><th>State</th></tr></thead><tbody>
-        <tr><td><code>TokenIssuer</code></td><td>Application input port for token issue.</td><td>Token issue contract</td></tr>
-        <tr><td><code>TokenValidator</code></td><td>Application input port for token validation and revocation.</td><td>Token validation contract</td></tr>
-        <tr><td><code>AuthorizationStore</code></td><td>Application output port for authorization state.</td><td>Redis adapter</td></tr>
-        <tr><td><code>AccountAuthenticationRepository</code></td><td>Read an active account and its active privilege slugs.</td><td>Doctrine DBAL adapter</td></tr>
-        <tr><td><code>AccountWriteRepository</code></td><td>Register, load, revise, and retire active accounts.</td><td>Doctrine ORM adapter</td></tr>
-        <tr><td><code>AccountReadRepository</code></td><td>List active account projections and active privilege slugs.</td><td>Doctrine DBAL adapter</td></tr>
-        <tr><td><code>AuthenticateAccount</code></td><td>Verify an Argon2id password hash and issue a token.</td><td>Application service</td></tr>
-        <tr><td><code>Jwt</code></td><td>Coordinate the JWT codec and authorization store.</td><td>Signed token plus port calls</td></tr>
-        <tr><td><code>AuthorizationMiddleware</code></td><td>Validate the bearer header and enrich the request.</td><td>PSR-7 attributes</td></tr>
-        <tr><td><code>Acl</code></td><td>Enforce privilege checks.</td><td>Token privilege list</td></tr>
-        <tr><td><code>ValidateApiKey</code></td><td>Validate an API-specific key or identifier mode.</td><td>Settings and request attributes</td></tr>
-        <tr><td><code>SessionMiddleware</code></td><td>Start a PHP session when an authorization server value exists.</td><td>PHP session</td></tr>
+<section id="map"><p class="section-label">02 · Component map</p><h2>HTTP protection and internal access control have separate owners</h2>
+    <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
+        <tr><td><code>ValidateApiKey</code></td><td>Validate an API-specific key before dispatch.</td></tr>
+        <tr><td><code>ApiKeySettings</code></td><td>Validate configuration and compare the expected key.</td></tr>
+        <tr><td><code>AccessControl</code></td><td>Shared interface for an application privilege decision.</td></tr>
+        <tr><td><code>QueueGreetingHandler</code></td><td>Check <code>example.add</code> before the internal greeting transaction.</td></tr>
     </tbody></table></div>
 </section>
-<section id="flow"><p class="section-label">03 · Request flow</p><h2>Bearer validation enriches the request</h2>
+<section id="flow"><p class="section-label">03 · Request flow</p><h2>Validate the API key before controller dispatch</h2>
     <div class="diagram-wrap"><ol class="flow">
-        <li><strong>Client</strong><small>sends bearer token</small></li><li><strong>Middleware</strong><small>parses scheme + token</small></li>
-        <li><strong>JWT</strong><small>checks cryptography + claims</small></li><li><strong>Redis</strong><small>confirms token is active</small></li>
-        <li><strong>Request</strong><small>receives identity + access control</small></li><li><strong>Controller</strong><small>dispatches the command</small></li>
-        <li><strong>Handler</strong><small>checks the named privilege</small></li>
+        <li><strong>Client</strong><small>sends API key</small></li><li><strong>API context</strong><small>sets API attributes</small></li>
+        <li><strong>Validation</strong><small>compares configured key</small></li><li><strong>Controller</strong><small>validates input</small></li>
+        <li><strong>Handler</strong><small>executes the use case</small></li>
     </ol></div>
-    <p>The middleware adds <code>authorizedUserId</code>, <code>authorizedUserData</code>, <code>clientTimezone</code>, and typed <code>AccessControl</code>. It also keeps the concrete <code>Acl</code> attribute for compatibility.</p>
+    <p>Example write commands contain business input. They do not receive bearer identity or access-control attributes.</p>
 </section>
-<section id="issue"><p class="section-label">04 · Token issue</p><h2>Token issue creates cryptographic and server-side state</h2>
-    <ol class="steps"><li>Create a random token identifier.</li><li>Set issuer, audience, identifier claim, custom user claim, and expiry.</li>
-        <li>Sign with HMAC SHA-256 and the Base64 signing key.</li><li>Store <code>JWT:{alias}:{jti}</code> in Redis with a time-to-live.</li>
-        <li>Store user data, token history, privileges, and claim metadata under the alias and user identifier.</li></ol>
-    <p>The default alias is <code>USER</code>. The default issuer is <code>backendbase-api</code>. The default duration is 24 hours.</p>
-    <div class="callout"><strong>Credential authentication:</strong> <code>POST /auth</code> loads a non-deleted account by email. It verifies the Argon2id password hash. It returns 401 without identifying the failed credential.</div>
+<section id="acl"><p class="section-label">04 · Internal access control</p><h2>Keep the internal greeting privilege check</h2>
+    <p><code>QueueGreeting</code> requires a full name and typed Shared <code>AccessControl</code>. Its handler checks <code>example.add</code> before starting the integration-event transaction.</p>
+    <p>The caller must supply the interface implementation. Tests use interface doubles for allowed and denied calls. No HTTP route dispatches this command.</p>
+    <div class="related"><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>
-<section id="validate"><p class="section-label">05 · Token validation</p><h2>Redis enables immediate revocation</h2>
-    <ul><li>The token must parse as an unencrypted signed JWT.</li><li>The token identifier must be a non-empty string.</li>
-        <li>The Redis token key must exist.</li><li>The signature, current time, issuer, token identifier, and audience must validate.</li>
-        <li>The Redis user record must exist.</li></ul>
-    <p>The clock permits 30 seconds of leeway. A failed validation raises <code>AuthorizationExpired</code> with a stable internal identifier.</p>
-    <p>Login, account revision, and account retirement acquire the same account-row write lock. Login holds the lock through account lookup, password verification, and Redis token storage. Account changes hold it through revocation and database commit.</p>
-    <p><code>withAuthenticationLock()</code> and <code>withAccountLock()</code> start an outermost transaction. An unchanged UUID assignment acquires the row lock without changing account values. The ORM refreshes the account and its grants after lock acquisition. A waiting login reads the committed state.</p>
-    <p>Revision and retirement remove Redis authorization state before the database change. Revocation failures stop the change. Database failures roll back the change and close the failed ORM unit of work. Token-issue failures release the lock. Existing transactions are rejected to prevent stale snapshots.</p>
-    <p>Do not issue account tokens from snapshots loaded outside this locked authentication flow. SQLite tests use two connections to prove lock exclusion and rollback. They do not prove MySQL-specific lock scheduling.</p>
-    <div class="callout"><strong>Operational dependency:</strong> JWT issue and validation require Redis and RedisJSON. A valid signature alone is not sufficient.</div>
+<section id="api-key"><p class="section-label">05 · API keys</p><h2>API-key validation depends on request attributes</h2>
+    <p>ExampleApi middleware sets <code>apiName</code>, <code>apiKeyHeaderName</code>, and <code>useIdentifierAsApiKey</code> before <code>ValidateApiKey</code> runs.</p>
+    <p>Normal mode compares <code>Backendbase-Api-Key</code> with <code>example-api.api-key</code>. Identifier mode requires a non-empty header.</p>
+    <p>Configured public path prefixes bypass validation. OPTIONS returns an empty 200 response.</p>
 </section>
-<section id="acl"><p class="section-label">06 · Access control</p><h2>Check one named privilege at the application boundary</h2>
-    <pre><code>$command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);</code></pre>
-    <p>The check succeeds when the user has the requested privilege, has <code>full-privileges</code>, or uses role <code>system-admin</code>. A denied check throws <code>ResourceAccessForbidden</code> with HTTP status 403.</p>
-    <p>Example command handlers require <code>example.add</code>, <code>example.change</code>, or <code>example.remove</code>. Account command and query handlers require <code>account.register</code>, <code>account.revise</code>, <code>account.retire</code>, or <code>account.list</code>. They check access before repository work.</p>
-    <div class="callout warning">Do not read the raw privilege array in controllers. Pass typed access control through the application input and enforce it in the handler.</div>
-</section>
-<section id="api-key"><p class="section-label">07 · API keys</p><h2>API-key validation depends on request attributes</h2>
-    <p>ExampleApi middleware sets <code>apiName</code>, <code>apiKeyHeaderName</code>, and <code>useIdentifierAsApiKey</code>. <code>ValidateApiKey</code> then compares the request header with API settings.</p>
-    <div class="table-wrap"><table><thead><tr><th>Case</th><th>Behavior</th></tr></thead><tbody>
-        <tr><td>OPTIONS</td><td>Returns an empty 200 response.</td></tr><tr><td>Configured public path</td><td>Skips API-key validation.</td></tr>
-        <tr><td>Identifier mode</td><td>Requires a non-empty header but does not compare it with a configured secret.</td></tr>
-<tr><td>Normal mode</td><td>Compares the header with <code>{api-name}.api-key</code>. Only the configured public path prefixes skip this check.</td></tr>
-    </tbody></table></div>
-    <div class="callout good"><strong>Current state:</strong> ExampleApi enables <code>ValidateApiKey::class</code>. OpenAPI and Bruno declare and send the same <code>Backendbase-Api-Key</code> header.</div>
-</section>
-<section id="routes"><p class="section-label">08 · Route policy</p><h2>Protect new endpoints by default</h2>
-    <p>Group new consumer endpoints with <code>AuthorizationMiddleware</code>. Leave an endpoint public only for a clear bootstrap, callback, webhook, or public-information use case.</p>
-    <p>The current Example module protects POST, PATCH, and DELETE routes. Their application handlers also enforce named privileges. GET routes are not grouped with bearer authorization.</p>
+<section id="routes"><p class="section-label">06 · Route policy</p><h2>Protect new endpoints by default</h2>
+    <p>Use the existing API-key middleware for new consumer operations. Declare anonymous policy explicitly in routing and OpenAPI.</p>
+    <p>Metadata and all six Example routes require an API key. Liveness and readiness use <code>security: []</code>.</p>
     <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
-<section id="configuration"><p class="section-label">09 · Configuration</p><h2>JWT settings form one security contract</h2>
-    <div class="table-wrap"><table><thead><tr><th>Setting</th><th>Source</th><th>Purpose</th></tr></thead><tbody>
-        <tr><td><code>BACKENDBASE_JWT_SIGN_KEY</code></td><td>Environment</td><td>Base64 HMAC signing key</td></tr>
-        <tr><td><code>EXAMPLE_API_JWT_PERMITTED_FOR</code></td><td>Environment or <code>example-api</code></td><td>Audience</td></tr>
-        <tr><td><code>issuer</code></td><td><code>backendbase-api</code></td><td>Token issuer</td></tr>
-        <tr><td><code>duration</code></td><td><code>PT24H</code></td><td>Token lifetime</td></tr>
-        <tr><td><code>EXAMPLE_API_KEY</code></td><td>Environment</td><td>Expected API key when middleware is enabled</td></tr>
-    </tbody></table></div>
+<section id="configuration"><p class="section-label">07 · Configuration</p><h2>Keep the key outside source control</h2>
+    <p><code>EXAMPLE_API_KEY</code> supplies the expected API key through <code>config/example-api/global.php</code>. Do not log or return this value.</p>
+    <p>JWT runtime settings, environment declarations, the IdentityAndAccess migration, and its privilege seeder have been removed.</p>
     <div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
-<section id="failures"><p class="section-label">10 · Failure behavior</p><h2>Security errors need stable public status codes</h2>
-    <p>Invalid credentials, API keys, and bearer tokens return 401. The ACL uses status 403. Invalid time-zone headers return 400.</p>
-    <div class="callout good"><strong>Contract alignment:</strong> Runtime authentication and authorization status codes match the OpenAPI security responses.</div>
+<section id="failures"><p class="section-label">08 · Failure behavior</p><h2>Security errors use stable public responses</h2>
+    <p>A missing or invalid API key returns 401 with code <code>identity-access/api-key-invalid</code> before command dispatch.</p>
+    <p>The shared <code>ResourceAccessForbidden</code> mapping remains available with status 403. Internal greeting denial stops the transaction.</p>
 </section>
-<section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known security limits</h2>
-    <ul><li>Password reset and credential rotation endpoints are outside the current scope.</li><li><code>ValidateApiKey</code> contains public paths that do not belong to the current ExampleApi route set.</li>
-        <li><code>SessionMiddleware</code> is available but is not part of the inspected ExampleApi middleware chain.</li></ul>
+<section id="gaps"><p class="section-label">09 · Current limits</p><h2>Known limits</h2>
+    <ul><li>The API-key public-path list includes prefixes outside the current ExampleApi route set.</li>
+        <li>The shared OpenAPI headers are not all enforced at runtime.</li><li>CORS omits <code>Accept-Language</code>.</li></ul>
+    <p>Databases that executed the removed account migration can still contain account and privilege tables. Review their schema and migration history before deployment.</p>
 </section>
-<section id="tests"><p class="section-label">12 · Tests</p><h2>Verify cryptography, state, middleware, and policy</h2>
-    <pre><code>vendor/bin/phpunit src/Backendbase/Domain/IdentityAndAccess/Tests
+<section id="tests"><p class="section-label">10 · Tests</p><h2>Verify actual routes and internal command policy</h2>
+    <pre><code>vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware
-vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi</code></pre>
-    <p>Cover token issue, claim validation, Redis revocation, expiry, malformed tokens, request attributes, ACL allow and deny paths, API-key modes, and protected route grouping.</p>
+vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/QueueGreetingHandlerTest.php</code></pre>
+    <p>Route tests verify allowed writes, missing or invalid API keys, retained responses, and removed endpoints. Internal tests verify greeting authorization and duplicate delivery.</p>
 </section>
-<section id="checklist"><p class="section-label">13 · Checklist</p><h2>Review every security change</h2>
-    <ul><li>Credentials are verified before token issue.</li><li>Secrets are not logged or returned.</li><li>Issuer, audience, expiry, and Redis state are validated.</li>
-        <li>Routes have an explicit public or protected policy.</li><li>ACL checks use stable privilege names.</li><li>401 and 403 responses match OpenAPI.</li>
-        <li>Failure paths have focused tests.</li></ul>
-</section>
-<section id="sources"><p class="section-label">14 · Source map</p><h2>Primary sources</h2>
+<section id="sources"><p class="section-label">11 · Source map</p><h2>Primary sources</h2>
     <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
-        <tr><td>Token ports</td><td><code>Domain/IdentityAndAccess/Contracts/</code></td></tr>
-        <tr><td>JWT adapter</td><td><code>Domain/IdentityAndAccess/Adapters/Authentication/Jwt.php</code></td></tr>
-        <tr><td>Account authentication</td><td><code>Domain/IdentityAndAccess/Application/AuthenticateAccount.php</code></td></tr>
-        <tr><td>Account authentication repository</td><td><code>Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineAccountAuthenticationRepository.php</code></td></tr>
-        <tr><td>Account lifecycle handlers</td><td><code>Domain/IdentityAndAccess/Application/CommandHandlers/</code></td></tr>
-        <tr><td>Account repositories</td><td><code>Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineAccountReadRepository.php</code> and <code>DoctrineAccountWriteRepository.php</code></td></tr>
-        <tr><td>Authorization store adapter</td><td><code>Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php</code></td></tr>
-        <tr><td>Bearer middleware</td><td><code>Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddleware.php</code></td></tr>
-        <tr><td>Access-control contract</td><td><code>Shared/Authorization/AccessControl.php</code></td></tr>
-        <tr><td>ACL</td><td><code>Domain/IdentityAndAccess/Authorization/Acl.php</code></td></tr>
-        <tr><td>Privilege enforcement</td><td><code>Domain/ExampleCatalog/Application/CommandHandlers/</code></td></tr>
-        <tr><td>API key</td><td><code>Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php</code></td></tr>
-        <tr><td>Authentication action</td><td><code>Infrastructure/Inbound/ExampleApi/Controllers/Root/Authenticate.php</code></td></tr>
-        <tr><td>JWT configuration</td><td><code>config/example-api/jwt.global.php</code></td></tr>
+        <tr><td>API key</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php">ValidateApiKey.php</a></td></tr>
+        <tr><td>API middleware</td><td><a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php">middleware.php</a></td></tr>
+        <tr><td>Access-control contract</td><td><a href="../../src/Backendbase/Shared/Authorization/AccessControl.php">AccessControl.php</a></td></tr>
+        <tr><td>Internal greeting</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/QueueGreetingHandler.php">QueueGreetingHandler.php</a></td></tr>
     </tbody></table></div>
 </section>
-</main></div><footer>Backendbase Core · Authentication and authorization guide</footer>
+</main></div><footer>Backendbase Core · API keys and access control guide</footer>
 </body></html>

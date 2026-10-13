@@ -72,7 +72,6 @@ post:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
-      bearerAuth: [ ]
 
 get:
   tags:

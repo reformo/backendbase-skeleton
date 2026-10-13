@@ -33,7 +33,7 @@ Use the target API namespace, routing framework, module interface, naming rules,
 3. Confirm that every handler can call a complete command or query application path before adding controller wiring.
 4. Create the target module configuration using the project's route-module contract.
 5. Register the module in the API's explicit module registry.
-6. Group bearer-authenticated operations with the established bearer middleware. In an unmodified Backendbase API, use this as the default for new consumer operations unless the explicit target policy selects API-key-only or anonymous access. Keep API-key-only operations outside that group, and treat ACL policy as a separate layer.
+6. Apply the target security policy with its established middleware. Current Backendbase operations use API-key protection. Add identity or privilege layers only when the target provides and requires them.
 7. Add or connect handlers without moving business logic into routing code.
 8. Reconcile route placeholders, operation names, security, responses, and shared headers with OpenAPI and any configured CORS policy.
 9. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
@@ -47,11 +47,11 @@ Use the target API namespace, routing framework, module interface, naming rules,
 - In an unmodified Backendbase API, `ROUTE_KEY` and `routeKey()` identify the same prefix.
 - In an unmodified Backendbase API, `ModuleRoutes` registers every module explicitly.
 - Route names are unique and match the corresponding OpenAPI operation IDs.
-- In an unmodified Backendbase API, a bearer-authenticated subgroup preserves the module base path and adds `AuthorizationMiddleware`.
+- Current Backendbase Example routes use the API-wide key middleware without an identity subgroup.
 - Routing code selects transport policy only. It does not contain domain decisions.
 - Path placeholders and OpenAPI parameter names match exactly.
 - An API-key-only operation is protected. Only an intentional anonymous operation uses `security: []`.
-- For a new Backendbase consumer operation, API-key-only access is an explicit exception to the API-key-plus-bearer default.
+- Protect new Backendbase consumer operations with an API key unless their explicit policy permits anonymous access.
 - A route group that validates bearer identity does not replace an explicit ACL decision when a privilege is required.
 - Adding a module does not authorize a new database schema or speculative application behavior.
 

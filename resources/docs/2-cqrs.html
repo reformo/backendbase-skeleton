@@ -695,18 +695,12 @@
 {
     public function __construct(
         private EntryIdentity $identity,
-        private AccessControl $accessControl,
     ) {
     }
 
     public function identity(): EntryIdentity
     {
         return $this-&gt;identity;
-    }
-
-    public function accessControl(): AccessControl
-    {
-        return $this-&gt;accessControl;
     }
 
     public function jsonSerialize(): mixed
@@ -725,8 +719,6 @@
             <div class="code-wrap">
                 <pre><code>readonly class RemoveEntryHandler implements CommandHandler
 {
-    public const string REQUIRED_PRIVILEGE = 'example.remove';
-
     public function __construct(
         private EntryWriteRepository $entryRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
@@ -736,11 +728,10 @@
     /** @param RemoveEntry $command */
     public function handle(Command $command): void
     {
-        $command-&gt;accessControl()-&gt;isAllowed(self::REQUIRED_PRIVILEGE);
         $this-&gt;integrationEventTransaction-&gt;execute(
             function () use ($command): EntryRemoved {
-                $entry = $this-&gt;entryRepository
-                    -&gt;getActiveByIdentity($command-&gt;identity());
+                $identity = $command-&gt;identity();
+                $entry    = $this-&gt;entryRepository-&gt;getActiveByIdentity($identity);
                 $entry-&gt;remove();
                 $this-&gt;entryRepository-&gt;save($entry);
 
@@ -774,7 +765,7 @@
             <p>An immediate representation requires a read source that observes the committed write. An asynchronous projection or replica can lag. Use the identifier approach if the response contract permits it. Otherwise, resolve the consistency requirement before implementation. A later read returns resource state at read time, not a guaranteed commit snapshot.</p>
             <p>Define missing-result and read-failure behavior after commit. A failed read does not undo the completed write. Do not automatically repeat the command to recover the response. Neither approach retrieves a handler-only value that was not supplied beforehand or persisted for an authorized read.</p>
             <p>Test identifier equality, command-failure behavior, and runtime resolution. For an orchestrator, also test commit-before-read order, visibility, read authorization, missing results, and read failures.</p>
-            <p>Current <code>RegisterAccount</code> and <code>NewExample</code> endpoints use the identifier approach. The orchestrator approach is permitted guidance; these endpoints do not implement it.</p>
+            <p>The current <code>NewExample</code> endpoint returns the command identifier in <code>Backendbase-Insert-Id</code> after successful execution. The orchestrator approach is permitted guidance; this endpoint does not implement it.</p>
 
             <div class="callout command">
                 <strong>Patch commands can carry nullable fields</strong>
@@ -848,7 +839,7 @@ final readonly class GetEntryByCriteriaHandler implements QueryHandler
 
             <div class="callout warning">
                 <strong>Authorization is not write-only</strong>
-                Apply handler authorization to every sensitive command or query. The <code>account.list</code> operation is a protected query.
+                Apply handler authorization to each command or query that requires a named privilege. Carry typed access control and check it before protected work.
             </div>
 
             <div class="callout">

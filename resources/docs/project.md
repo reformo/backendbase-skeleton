@@ -60,7 +60,7 @@ backendbase-core/
 │   └── i18n/                          # Translation files
 ├── src/Backendbase/
 │   ├── Domain/
-│   │   ├── ExampleCatalog/     # Current bounded-context reference
+│   │   └── ExampleCatalog/     # Current bounded-context reference
 │   │   │   ├── Adapters/Persistence/
 │   │   │   │   ├── Doctrine/          # Production persistence adapters
 │   │   │   │   └── Memory/            # In-memory test adapters
@@ -80,7 +80,6 @@ backendbase-core/
 │   │   │   ├── Domain/                # Aggregates, value objects, and domain enums
 │   │   │   ├── Tests/
 │   │   │   └── ServiceProvider.php    # Port, handler, and subscriber registration
-│   │   └── IdentityAndAccess/         # Authentication and authorization context
 │   ├── Infrastructure/
 │   │   ├── Adapters/                  # Console, HTTP, mapping, persistence, queue, and external adapters
 │   │   ├── Configuration/             # Typed runtime, AWS, queue, database, Redis, and logging settings
@@ -88,11 +87,11 @@ backendbase-core/
 │   │   ├── Messaging/                 # Relay, retry, and delivery-failure coordination
 │   │   └── Inbound/                   # Consumer-specific API entry code
 │   │       └── ExampleApi/
-│   │           ├── Controllers/         # Root, Account, Example, and Greeting HTTP modules
+│   │           ├── Controllers/         # Root and Example HTTP modules
 │   │           ├── middleware.php
 │   │           └── routes.php
 │   └── Shared/
-│       ├── Configuration/             # Shared HTTP, JWT, and configuration validation types
+│       ├── Configuration/             # Shared HTTP and configuration validation types
 │       ├── CQRS/                      # Command and query buses
 │       ├── Domain/                    # Domain events and base domain types
 │       ├── Integrations/              # Infrastructure ports
@@ -158,7 +157,7 @@ Use `ExampleApi` as the reference implementation for controllers, routes, middle
 
 Before implementing a feature, inspect the current `Infrastructure/Inbound` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
 
-All new consumer API endpoints must be grouped with `AuthorizationMiddleware` by default. Leave a new endpoint ungrouped only when the request strictly states that authorization is not required, or when it is clearly a public/common endpoint such as registration/authentication bootstrap, callback/webhook handling, or non-user-related public information. If it is not clear whether a public exception applies, ask before implementing the route.
+Protect new consumer API endpoints with the existing API-key middleware by default. Define anonymous access explicitly. Example reads and writes require an API key. Internal `QueueGreeting` retains its Shared `AccessControl` check.
 
 Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. Add all four shared header references to each new OpenAPI operation's `parameters` section. Follow `resources/api-docs/example-api/example/examples.yaml`.
 

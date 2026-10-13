@@ -42,8 +42,8 @@ Build a small dependency table before changing the stack:
 | Consumer | Required value | Producer | Required execution relation |
 | --- | --- | --- | --- |
 | API-key validator | API name, header name, and key mode | API-context middleware | Context executes first |
-| Bearer middleware | Authorization and timezone headers | Client plus boundary policy | Validate before typed identity attributes |
-| Controller | Authorized identity and ACL | Bearer middleware | Middleware executes before action |
+| Identity middleware, when provided by the target | Target credential headers | Client plus boundary policy | Validate before typed identity attributes |
+| Controller | Context required by the target policy | Established middleware | Middleware executes before action |
 
 Add one full-route test for each important relation. A direct middleware unit test cannot prove registration order.
 
@@ -70,20 +70,18 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - The public-path list includes paths that are not part of the Example API route set.
 - OPTIONS returns an empty `200`; the fallback action returns `204` for OPTIONS. Keep one intentional contract.
 - The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
-- Existing write routes add bearer middleware and enforce named privileges in their application handlers.
+- Current Example reads and writes require an API key. No built-in identity middleware supplies authorization attributes.
 - OpenAPI validation can succeed while middleware status, headers, or bypass behavior differs. Run a semantic audit.
 
 ## Exact source provenance
 
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
-- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddleware.php`
 - `config/example-api/http-headers.global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/common/components.yaml`
 - `resources/bruno/example-api/`
 - `tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php`
-- `tests/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
 - `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
 - `resources/docs/project.md`
 - `resources/platform/07-http-api.md`

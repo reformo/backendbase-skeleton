@@ -63,7 +63,7 @@ The Infrastructure HTTP error handler maps known domain errors, Slim failures, a
 
 ## Client-visible write results
 
-For an identifier-only response, generate the identifier before a create command or reuse an existing resource's public identity. Return it after successful execution. Current Backendbase examples are `RegisterAccount` (`201`, `accountUuid`) and `NewExample` (`204`, `Backendbase-Insert-Id`). Adapt names, statuses, and headers to the target contract.
+For an identifier-only response, generate the identifier before a create command or reuse an existing resource's public identity. Return it after successful execution. The current Backendbase example is `NewExample` (`204`, `Backendbase-Insert-Id`). Adapt names, statuses, and headers to the target contract.
 
 For a resource representation, the permitted application-orchestrator path is:
 
@@ -81,8 +81,8 @@ This is an allowed design, not the current create-endpoint implementation. Verif
 Decide each layer independently:
 
 - API-key middleware controls access to the API surface.
-- Bearer middleware validates identity and supplies identity attributes.
-- The application handler checks the requested privilege before protected work.
+- When the target provides and requires identity middleware, it validates credentials and supplies typed identity attributes.
+- The application handler checks a named privilege only when the target policy requires it.
 - An OpenAPI operation is anonymous only when its runtime policy permits anonymous access and it declares `security: []`.
 
 An API-key-only route is not public. A bearer-protected route is not fully authorized when the use case also requires a named privilege.
@@ -120,9 +120,9 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 
 - `NewExample` validates `lookupValue` and optional body field types through `ExampleRequestInput`. It still casts route group data, and the sanitizer is not a complete validator.
 - `PayloadSanitizer` is not a complete validator and includes special transformations for some field names.
-- API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
+- Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
 - The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
-- Current privileged commands and the account-list query carry typed access control. Their handlers enforce named privileges before protected work.
+- Example HTTP commands do not require access control. Internal `QueueGreeting` carries typed access control and checks its privilege before its transaction.
 - `tests/ExampleApiTestCase.php` loads obsolete HTTP adapter paths. Use current focused tests or repair a full-stack helper only when the requested test needs it.
 
 ## Exact source provenance
@@ -134,7 +134,6 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ExampleRequestInput.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php`
-- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Account/Handlers/RegisterAccount.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/Examples.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/ExampleDetails.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/ChangeExampleDetails.php`

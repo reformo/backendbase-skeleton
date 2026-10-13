@@ -77,7 +77,7 @@
 <li>Keep stack traces in internal logs.</li><li>Use stable public error codes for client behavior.</li><li>Preserve the previous exception when translating a failure.</li></ul>
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known diagnostic limits</h2>
-<ul><li>Authorization middleware builds problem-details responses directly: bearer failures use 401 and invalid time-zone headers use 400.</li>
+<ul><li>API-key middleware builds a stable problem-details response with status 401 for a missing or invalid API key.</li>
 <li><code>TooManyRequests</code> uses status 409 instead of the common 429 status.</li><li>The logger records full traces for some application problems.</li>
 <li>No metrics, tracing exporter, dashboard, or alert configuration exists in the repository.</li></ul>
 </section>

@@ -17,8 +17,6 @@ http:
       value: "{{requestId}}"
     - name: "X-Source-Id"
       value: "{{sourceId}}"
-    - name: "Authorization"
-      value: "Bearer {{accessToken}}"
     - name: "Content-Type"
       value: "application/json"
   body:

@@ -105,69 +105,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Readiness'
       security: []
-  /auth:
-    post:
-      tags:
-        - Identity & Access
-      operationId: authenticateAccount
-      description: Authenticate an account and issue an access token
-      parameters:
-        - $ref: '../common/components.yaml#/headers/Accept-Language'
-        - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
-        - $ref: '../common/components.yaml#/headers/X-Request-Id'
-        - $ref: '../common/components.yaml#/headers/X-Source-Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              additionalProperties: false
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                  maxLength: 254
-                password:
-                  type: string
-                  minLength: 1
-                  maxLength: 1024
-
-      responses:
-        201:
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                required:
-                  - accessToken
-                properties:
-                  accessToken:
-                    type: "string"
-        400:
-          $ref: '../common/components.yaml#/schemas/400'
-        401:
-          $ref: '../common/components.yaml#/schemas/401'
-        403:
-          $ref: '../common/components.yaml#/schemas/403'
-      security:
-        - apiKey: [ ]
-
   /example-types/{type-slug}/groups:
     $ref: "./example/example-groups.yaml"
   /example-types/{type-slug}/groups/{example-group}/examples:
     $ref: "./example/examples.yaml"
   /example-types/{type-slug}/groups/{example-group}/examples/{example-key}:
     $ref: "./example/example-details.yaml"
-  /examples/hello:
-    $ref: "./example/hello.yaml"
-  /accounts:
-    $ref: "./account/accounts.yaml"
-  /accounts/{account-uuid}:
-    $ref: "./account/account-by-uuid.yaml"
 
 components:
   schemas:
@@ -201,16 +144,10 @@ components:
               type: string
               enum: [ready, unavailable]
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT Authorization header using the Bearer scheme.
     apiKey:
       type: apiKey
       in: header
       name: Backendbase-Api-Key
 tags:
   - name: System
-  - name: Identity & Access
   - name: Example

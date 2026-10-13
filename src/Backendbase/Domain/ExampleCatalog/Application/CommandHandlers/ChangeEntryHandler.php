@@ -15,8 +15,6 @@ use Override;
 
 readonly class ChangeEntryHandler implements CommandHandler
 {
-    public const string REQUIRED_PRIVILEGE = 'example.change';
-
     public function __construct(
         private EntryWriteRepository $entryRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
@@ -27,7 +25,6 @@ readonly class ChangeEntryHandler implements CommandHandler
     #[Override]
     public function handle(Command $command): void
     {
-        $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
         $this->integrationEventTransaction->execute(
             function () use ($command): EntryChanged {
                 $identity = $command->identity();

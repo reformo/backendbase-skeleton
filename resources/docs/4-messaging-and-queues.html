@@ -964,7 +964,7 @@ bin/backendbase queue:consume backendbase-queue</code></pre>
             </div>
 
             <h3>Greeting example</h3>
-            <p>Send <code>POST /examples/hello</code> to the Example API with JSON <code>{"fullname":"Ada Lovelace"}</code>. Supply the API key, bearer token, and <code>example.add</code> privilege. A <code>202</code> response means the request is stored in the outbox.</p>
+            <p>Dispatch the internal <code>QueueGreeting</code> command with a full name and typed Shared <code>AccessControl</code>. Its handler checks <code>example.add</code> before storing the event in the outbox. No HTTP route dispatches this command.</p>
             <p>Keep the continuous relay and consumer running to publish it. The consumer writes <code>hello Ada Lovelace</code> to its standard output. Output can repeat if the worker fails after writing but before the inbox transaction commits.</p>
 
             <div class="callout">

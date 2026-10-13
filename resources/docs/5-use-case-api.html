@@ -494,19 +494,11 @@ src/Backendbase/Infrastructure/Inbound/ExampleApi/
 ├── routes.php                        # Root, modules, and fallback routes
 └── Controllers/
     ├── ModuleRoutes.php              # Module registry
-    ├── Root/                          # Health, authentication, not found
-    ├── Account/
-    │   ├── ModuleConfig.php           # Four protected account routes
-    │   ├── AccountRequestInput.php    # Boundary validation helpers
-    │   └── Handlers/                  # HTTP actions
-    ├── Example/
-    │   ├── ModuleConfig.php           # Six Example routes
-    │   ├── ExampleRequestInput.php    # Boundary validation helpers
-    │   └── Handlers/                  # HTTP actions
-    └── Greeting/
-        ├── ModuleConfig.php           # POST /examples/hello
-        ├── GreetingRequestInput.php   # Full name validation
-        └── Handlers/                  # Queued greeting action
+    ├── Root/                          # Metadata, health, not found
+    └── Example/
+        ├── ModuleConfig.php           # Six API-key-protected Example routes
+        ├── ExampleRequestInput.php    # Boundary validation helpers
+        └── Handlers/                  # HTTP actions
 
 config/example-api/                    # API settings
 resources/api-docs/example-api/        # OpenAPI source
@@ -611,32 +603,28 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
 
         <section id="routing">
             <h2>Routing and modules</h2>
-            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers modules at <code>/accounts</code>, <code>/example-types</code>, and <code>/examples</code>.</p>
+            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers modules at <code>/example-types</code>.</p>
             <div class="table-wrap">
                 <table>
-                    <thead><tr><th>Method</th><th>Path</th><th>Action</th><th>Bearer middleware</th></tr></thead>
+                    <thead><tr><th>Method</th><th>Path</th><th>Action</th><th>API key</th></tr></thead>
                     <tbody>
-                    <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>Root</code></td><td>No</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td><code>/auth</code></td><td><code>Authenticate</code></td><td>No</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/accounts</code></td><td><code>Accounts</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td><code>/accounts</code></td><td><code>RegisterAccount</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method patch">PATCH</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>ReviseAccount</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method delete">DELETE</span></td><td><code>/accounts/{account-uuid}</code></td><td><code>RetireAccount</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups</code></td><td><code>ExampleGroups</code></td><td>No</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>Examples</code></td><td>No</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ExampleDetails</code></td><td>No</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>NewExample</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ChangeExampleDetails</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>RemoveExample</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td><code>/examples/hello</code></td><td><code>QueueGreetingRequest</code></td><td>Yes</td></tr>
-                    <tr><td><span class="method any">ANY</span></td><td><code>/{routes:.*}</code></td><td><code>NotFound</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td><code>Root</code></td><td>Required</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/_status</code></td><td><code>Liveness</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/_status/ready</code></td><td><code>Readiness</code></td><td>No</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups</code></td><td><code>ExampleGroups</code></td><td>Required</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>Examples</code></td><td>Required</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ExampleDetails</code></td><td>Required</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>NewExample</code></td><td>Required</td></tr>
+                    <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ChangeExampleDetails</code></td><td>Required</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>RemoveExample</code></td><td>Required</td></tr>
+                    <tr><td><span class="method any">ANY</span></td><td><code>/{routes:.*}</code></td><td><code>NotFound</code></td><td>Required outside public paths</td></tr>
                     </tbody>
                 </table>
             </div>
             <p><code>ModuleConfig::ROUTE_KEY</code> defines the prefix. <code>ModuleRoutes</code> must import and register every new module explicitly.</p>
             <div class="callout">
                 <strong>Default authorization rule for new routes</strong>
-                Put each new endpoint in an <code>AuthorizationMiddleware</code> group unless the request clearly defines a public endpoint.
+                Protect each new endpoint with API-key middleware unless its explicit policy permits anonymous access.
             </div>
         </section>
 
@@ -654,9 +642,9 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                     <p><code>IpAddress</code> stores the resolved address in the <code>ClientIp</code> request attribute.</p>
                 </article>
                 <article class="card purple">
-                    <span class="tag">Bearer token</span>
-                    <h3>Protected route group</h3>
-                    <p>The authorization middleware validates a Redis-backed JSON Web Token and adds user, timezone, and access-control attributes.</p>
+                    <span class="tag">API key</span>
+                    <h3>API protection</h3>
+                    <p><code>ValidateApiKey</code> checks the configured API key before dispatch. Example writes do not receive authorization attributes.</p>
                 </article>
             </div>
             <p>The shared bootstrap also adds body parsing, routing, error middleware, a shutdown handler, and the response emitter.</p>
@@ -664,7 +652,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                 <strong>API-key validation is active</strong>
                 <code>ExampleApi/middleware.php</code> adds <code>ValidateApiKey::class</code>. It validates <code>Backendbase-Api-Key</code> on non-public paths and returns status <code>401</code> for a missing or invalid key.
             </div>
-            <p>Protected routes expect <code>Authorization: Bearer &lt;accessToken&gt;</code>. Missing or invalid bearer data returns status <code>401</code>.</p>
+            <p>Protected routes expect <code>Backendbase-Api-Key</code>. Missing or invalid API keys return status <code>401</code>.</p>
         </section>
 
         <section id="controllers">
@@ -777,7 +765,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <h3>Client-visible write results</h3>
             <p>Command handlers and the command bus return <code>void</code>. A write response can use either approach:</p>
             <ul>
-                <li><strong>Identifier only:</strong> Generate the public identifier before a create command or reuse an existing resource's public identity. Send it in the command and return it after successful execution. <code>RegisterAccount</code> returns <code>accountUuid</code> with status <code>201</code>. <code>NewExample</code> returns <code>Backendbase-Insert-Id</code> with status <code>204</code>.</li>
+                <li><strong>Identifier only:</strong> Generate the public identifier before a create command or reuse an existing resource's public identity. Send it in the command and return it after successful execution. <code>NewExample</code> returns <code>Backendbase-Insert-Id</code> with status <code>204</code>.</li>
                 <li><strong>Resource representation:</strong> Call one application orchestrator with validated, typed input. It executes the command, waits for commit, then reads through a query or read port. It returns a declared result for the HTTP action to map. This is a permitted design, not the current create-endpoint implementation.</li>
             </ul>
             <p>Keep orchestration in the owning context's <code>Application</code> layer. Keep input and result contracts in <code>Contracts</code>. Preserve command and read authorization, including direct read-port calls. Keep authoritative write lookup and transaction control in the handler or its called application service.</p>
@@ -798,11 +786,8 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                     <tr><td>API metadata</td><td><code>200</code> JSON with API name, version, build, and timestamp.</td><td><code>Root</code></td></tr>
                     <tr><td>Liveness</td><td><code>200</code> JSON with <code>status: alive</code>.</td><td><code>Liveness</code></td></tr>
                     <tr><td>Readiness</td><td><code>200</code> or <code>503</code> JSON with dependency status values.</td><td><code>Readiness</code></td></tr>
-                    <tr><td>Authentication token</td><td><code>201</code> JSON with <code>accessToken</code>.</td><td><code>Authenticate</code></td></tr>
                     <tr><td>Read success</td><td><code>200</code> JSON projection.</td><td>Read actions</td></tr>
                     <tr><td>Example write success</td><td>204 empty response. Example creation also returns <code>Backendbase-Insert-Id</code>.</td><td>Example write actions</td></tr>
-                        <tr><td>Account registration</td><td>201 JSON with <code>accountUuid</code>.</td><td><code>RegisterAccount</code></td></tr>
-                        <tr><td>Greeting request accepted</td><td>202 empty response after the outbox write.</td><td><code>QueueGreetingRequest</code></td></tr>
                     <tr><td>Invalid input</td><td><code>400</code> problem payload with <code>general/invalid-user-input</code>.</td><td><code>HttpErrorHandler</code></td></tr>
                     <tr><td>Missing example</td><td><code>404</code> problem payload with <code>general/resource-not-found</code>.</td><td><code>HttpErrorHandler</code></td></tr>
                     <tr><td>Unknown route</td><td><code>404</code> JSON. An <code>OPTIONS</code> fallback returns <code>204</code>.</td><td><code>NotFound</code></td></tr>
@@ -823,14 +808,6 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                         <li>API version <code>1.0.0</code></li>
                         <li><code>EXAMPLE_API_KEY</code></li>
                         <li>Route cache: <code>var/cache/example-api/routes.php</code></li>
-                    </ul>
-                </article>
-                <article class="card blue">
-                    <h3><code>config/example-api/jwt.global.php</code></h3>
-                    <ul>
-                        <li>Alias, issuer, and audience</li>
-                        <li><code>BACKENDBASE_JWT_SIGN_KEY</code></li>
-                        <li>Token duration <code>PT24H</code></li>
                     </ul>
                 </article>
                 <article class="card cyan">
@@ -854,11 +831,11 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
 
         <section id="openapi">
             <h2>OpenAPI documentation</h2>
-            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components, Account path files, and Example path files including the greeting operation.</p>
+            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components and the three Example path files.</p>
             <div class="process" aria-label="OpenAPI generation flow">
                 <div class="step"><span class="step-number">01</span><strong>Edit operation</strong><br><span class="muted">Change the module YAML and shared references.</span></div>
                 <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference all four shared request headers.</span></div>
-                <div class="step"><span class="step-number">03</span><strong>Align security</strong><br><span class="muted">Match public or bearer-protected routing.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Align security</strong><br><span class="muted">Match anonymous or API-key-protected routing.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Generate</strong><br><span class="muted">Inline references into the public YAML file.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Review viewer</strong><br><span class="muted">Check schemas, examples, and status codes.</span></div>
             </div>
@@ -881,21 +858,21 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                         <li>Missing write resources are reported by the command handler after dispatch.</li>
                         <li>Read actions map projections.</li>
                         <li>Write actions create correct commands.</li>
-                        <li>Module routing has four Account routes, six Example routes, one Greeting route, and sixteen total routes including root and fallback routes.</li>
-                        <li>Root, authentication, and fallback responses are stable.</li>
+                        <li>Module routing has six Example routes and ten total routes including root and fallback routes.</li>
+                        <li>Root and fallback responses are stable.</li>
                     </ul>
                 </article>
                 <article class="card purple">
                     <span class="tag">Bruno</span>
                     <h3>End-to-end collection</h3>
-                    <p>Fifteen YAML requests cover system status, authentication, the account and Example lifecycles, and queued greeting delivery.</p>
+                    <p>Nine YAML requests cover system status and the Example lifecycle.</p>
                     <p>The local environment points to <code>http://127.0.0.1:8080/example-api</code>.</p>
                     <p>Each run writes an HTML report under <code>artifacts/bruno/example-api</code>.</p>
                 </article>
             </div>
             <div class="code-wrap"><pre><code>vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi
 bin/bruno example-api local</code></pre></div>
-            <p>Run PHPUnit without external services when possible. Bruno requires the API, configured dependencies, and a prepared account.</p>
+            <p>Run PHPUnit without external services when possible. Bruno requires a prepared API, configured dependencies, and the API key.</p>
         </section>
 
         <section id="add-endpoint">
@@ -907,7 +884,7 @@ bin/bruno example-api local</code></pre></div>
                 <li>Create an <code>Action</code> under the affected API module.</li>
                 <li>Sanitize and validate all untrusted input before bus dispatch.</li>
                 <li>Add the route to <code>ModuleConfig</code>.</li>
-                <li>Group the route with <code>AuthorizationMiddleware</code> by default.</li>
+                <li>Use API-key protection by default.</li>
                 <li>Add focused controller and routing tests.</li>
                 <li>Regenerate the OpenAPI file.</li>
                 <li>Add or update the Bruno request when end-to-end coverage is required.</li>
@@ -953,7 +930,6 @@ bin/bruno example-api local</code></pre></div>
                     <tbody>
                     <tr><td>The CORS allow-header list omits <code>Accept-Language</code>.</td><td>Browser preflight can reject requests that send this documented header.</td></tr>
                     <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
-                    <tr><td><code>Authenticate</code> verifies an active account and its Argon2id password hash.</td><td>The protected Account module registers, revises, retires, and lists accounts through ACL-checked commands and a query.</td></tr>
                     <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
                     <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
                     <tr><td>Group queries return <code>EntryGroupPage</code>.</td><td>The response includes the complete distinct-group total and the requested page.</td></tr>
@@ -995,7 +971,6 @@ composer complexity</code></pre></div>
                     <tr><td>Module registry</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php</code></td></tr>
                     <tr><td>Reference module</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example</code></td></tr>
                     <tr><td>HTTP action base</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php</code></td></tr>
-                    <tr><td>Authorization middleware</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddleware.php</code></td></tr>
                     <tr><td>Error handler</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
                     <tr><td>Response emitter</td><td><code>src/Backendbase/Infrastructure/Adapters/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
                     <tr><td>API configuration</td><td><code>config/example-api</code></td></tr>

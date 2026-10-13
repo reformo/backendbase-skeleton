@@ -9,9 +9,7 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers;
  * When a new module is added, then its ModuleConfig class must be imported and added here
  * */
 
-use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Account\ModuleConfig as AccountModuleConfig;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ModuleConfig as ExampleModuleConfig;
-use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Greeting\ModuleConfig as GreetingModuleConfig;
 
 class ModuleRoutes
 {
@@ -20,9 +18,7 @@ class ModuleRoutes
 
     public function __construct()
     {
-        $this->addModule(AccountModuleConfig::ROUTE_KEY, AccountModuleConfig::class);
         $this->addModule(ExampleModuleConfig::ROUTE_KEY, ExampleModuleConfig::class);
-        $this->addModule(GreetingModuleConfig::ROUTE_KEY, GreetingModuleConfig::class);
     }
 
     /** @param class-string $moduleFQCN */

@@ -10,10 +10,8 @@ use Backendbase\Domain\ExampleCatalog\Contracts\EntryWriteRepository;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryAdded;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventPublisher;
-use Backendbase\Shared\Exception\ResourceAccessForbidden;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -21,45 +19,9 @@ use PHPUnit\Framework\TestCase;
 final class AddEntryHandlerTest extends TestCase
 {
     #[Test]
-    public function itRejectsTheCommandBeforeStartingTheTransaction(): void
-    {
-        $accessControl = $this->createMock(AccessControl::class);
-        $accessControl->expects(self::once())
-            ->method('isAllowed')
-            ->with(AddEntryHandler::REQUIRED_PRIVILEGE)
-            ->willThrowException(ResourceAccessForbidden::create('Forbidden.'));
-        $transaction = $this->createMock(IntegrationEventTransaction::class);
-        $transaction->expects(self::never())->method('execute');
-        $handler = new AddEntryHandler(
-            $this->createStub(EntryWriteRepository::class),
-            $transaction,
-            $this->createStub(DomainEventPublisher::class),
-        );
-        $command = new AddEntry(
-            'example-id',
-            EntryType::SYSTEM,
-            null,
-            'settings',
-            true,
-            'page-size',
-            '25',
-            $accessControl,
-        );
-
-        $this->expectException(ResourceAccessForbidden::class);
-
-        $handler->handle($command);
-    }
-
-    #[Test]
     public function itPublishesTheDomainEventInsideTheIntegrationTransaction(): void
     {
-        $calls         = [];
-        $accessControl = $this->createMock(AccessControl::class);
-        $accessControl->expects(self::once())
-            ->method('isAllowed')
-            ->with(AddEntryHandler::REQUIRED_PRIVILEGE)
-            ->willReturn(true);
+        $calls      = [];
         $command    = new AddEntry(
             'example-id',
             EntryType::SYSTEM,
@@ -68,7 +30,6 @@ final class AddEntryHandlerTest extends TestCase
             true,
             'page-size',
             '25',
-            $accessControl,
         );
         $repository = $this->createMock(EntryWriteRepository::class);
         $repository->expects(self::once())

@@ -35,7 +35,7 @@ Run the continuous relay and consumer as separate supervised processes. The rela
 
 ## Greeting example
 
-`POST /examples/hello` on the Example API accepts `{"fullname":"Ada Lovelace"}`. An API key, bearer token, and `example.add` privilege are required. A successful request returns `202` after it writes `Example_GreetingRequested` version `1.0` to the outbox.
+The internal `QueueGreeting` command accepts a full name and typed Shared `AccessControl`. Its handler checks `example.add` before writing `Example_GreetingRequested` version `1.0` to the outbox. No HTTP route dispatches this command.
 
 Keep `bin/backendbase outbox:relay --continuous --limit=100` and `bin/backendbase queue:consume backendbase-queue` running to publish the message and print `hello Ada Lovelace` in the worker output. The consumer uses the existing inbox key to skip a delivered duplicate. Output can repeat if the worker writes it but fails before the inbox transaction commits.
 

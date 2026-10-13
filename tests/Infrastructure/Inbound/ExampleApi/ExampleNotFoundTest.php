@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Inbound\ExampleApi;
 
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ChangeExampleDetails;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ExampleDetails;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\RemoveExample;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
@@ -71,7 +69,6 @@ final class ExampleNotFoundTest extends TestCase
         ));
         $request = (new ServerRequestFactory())
             ->createServerRequest($method, '/examples/system/settings/key')
-            ->withAttribute(AccessControl::class, new Acl(['full-privileges']))
             ->withParsedBody([]);
 
         return $app->handle($request);

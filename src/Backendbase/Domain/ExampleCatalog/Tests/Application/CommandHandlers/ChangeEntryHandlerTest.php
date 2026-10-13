@@ -11,38 +11,12 @@ use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryChanged;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Shared\Authorization\AccessControl;
-use Backendbase\Shared\Exception\ResourceAccessForbidden;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class ChangeEntryHandlerTest extends TestCase
 {
-    #[Test]
-    public function itRejectsTheCommandBeforeStartingTheTransaction(): void
-    {
-        $accessControl = $this->createMock(AccessControl::class);
-        $accessControl->expects(self::once())
-            ->method('isAllowed')
-            ->with(ChangeEntryHandler::REQUIRED_PRIVILEGE)
-            ->willThrowException(ResourceAccessForbidden::create('Forbidden.'));
-        $transaction = $this->createMock(IntegrationEventTransaction::class);
-        $transaction->expects(self::never())->method('execute');
-        $handler = new ChangeEntryHandler(
-            $this->createStub(EntryWriteRepository::class),
-            $transaction,
-        );
-        $command = new ChangeEntry(
-            new EntryIdentity(EntryType::SYSTEM, null, 'settings', 'page-size'),
-            $accessControl,
-        );
-
-        $this->expectException(ResourceAccessForbidden::class);
-
-        $handler->handle($command);
-    }
-
     #[Test]
     public function itResolvesTheWriteTargetInsideTheIntegrationTransaction(): void
     {
@@ -85,12 +59,7 @@ final class ChangeEntryHandlerTest extends TestCase
                 self::assertSame('example-id', $event->entryId());
                 $calls[] = 'transaction-end';
             });
-        $accessControl = $this->createMock(AccessControl::class);
-        $accessControl->expects(self::once())
-            ->method('isAllowed')
-            ->with(ChangeEntryHandler::REQUIRED_PRIVILEGE)
-            ->willReturn(true);
-        $command = new ChangeEntry($identity, $accessControl);
+        $command = new ChangeEntry($identity);
         $command->setValue('50');
 
         $handler = new ChangeEntryHandler($repository, $transaction);

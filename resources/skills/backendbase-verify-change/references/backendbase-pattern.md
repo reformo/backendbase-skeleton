@@ -168,9 +168,9 @@ Backendbase stores these decisions as `migrationTarget` and `applicationRollback
 
 Use these as regression prompts. Do not preserve them as desired behavior:
 
-- `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify API-key and bearer policy independently.
+- `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify the discovered target security policy; current Example operations use API-key protection only.
 - `public/index.php` selects an API through `X-Source-Id` and `ConsumerApiTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
-- API-key and bearer failures return `401`. Named privilege denials return `403`. Invalid time-zone headers return `400`.
+- Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
 - Example groups use a complete total and the requested page. Detail fields match the projection, but their OpenAPI timestamp format remains `datetime`.
 - The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.
 - Producer transactions dispatch local integration subscribers before commit. Verify both delivery flag values and rollback when a local subscriber fails.
@@ -179,7 +179,7 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - Object-storage multipart retry is unbounded, signed POST omits content type, and downloads force `image/jpeg`.
 - `en-US.php` uses the Turkish dictionary.
 - Shared object mapping silently drops unknown keys and permits scalar coercion.
-- Password hashing input needs stricter boundary review. Pagination rejects non-positive page sizes and overflowing offsets; HTTP boundaries also reject non-positive page numbers.
+- Pagination rejects non-positive page sizes and overflowing offsets; HTTP boundaries also reject non-positive page numbers.
 - The current repository has no metrics exporter, worker supervisor definition, scheduler definition, or automatic dead-letter replay.
 - Shared OpenAPI parameters mark four request headers as required, but current runtime does not reject every missing header. The ExampleApi CORS allow-list also omits `Accept-Language`.
 

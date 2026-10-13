@@ -131,7 +131,7 @@ bin/bruno example-api local
 ```
 
 Each run writes a human-readable HTML report to `artifacts/bruno/{collection}/{environment}.html`.
-The selected environment must point to a running API with a prepared account and its required privileges.
+The selected environment must point to a prepared API with the configured API key.
 
 ## Project Policies
 

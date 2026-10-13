@@ -13,7 +13,6 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryIdByCriteria;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\Primitives\Pagination;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -23,8 +22,7 @@ final class CommandAndQueryContractsTest extends TestCase
     #[Test]
     public function itSerializesEntryCommands(): void
     {
-        $accessControl = new Acl(['full-privileges']);
-        $add           = new AddEntry(
+        $add = new AddEntry(
             'example-id',
             EntryType::USER,
             42,
@@ -32,14 +30,13 @@ final class CommandAndQueryContractsTest extends TestCase
             true,
             'theme',
             'dark',
-            $accessControl,
             null,
         );
         self::assertSame([], $add->details());
         self::assertSame($add->toArray(), $add->jsonSerialize());
 
         $identity = new EntryIdentity(EntryType::USER, 42, 'settings', 'theme');
-        $change   = new ChangeEntry($identity, $accessControl);
+        $change   = new ChangeEntry($identity);
         self::assertSame($identity, $change->identity());
         self::assertNull($change->isActive());
         self::assertNull($change->value());
@@ -59,7 +56,7 @@ final class CommandAndQueryContractsTest extends TestCase
             'details' => ['contrast' => 'high'],
         ], $change->jsonSerialize());
 
-        $remove = new RemoveEntry($identity, $accessControl);
+        $remove = new RemoveEntry($identity);
         self::assertSame($identity, $remove->identity());
         self::assertSame(['identity' => $identity->toArray()], $remove->toArray());
         self::assertSame($remove->toArray(), $remove->jsonSerialize());

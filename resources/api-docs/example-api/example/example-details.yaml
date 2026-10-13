@@ -149,7 +149,6 @@ patch:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
-      bearerAuth: [ ]
 
 delete:
   tags:
@@ -194,4 +193,3 @@ delete:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
-      bearerAuth: [ ]

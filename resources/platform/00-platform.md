@@ -10,7 +10,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 - Doctrine Object-Relational Mapper (ORM) handles writes.
 - Doctrine Database Abstraction Layer (DBAL) handles read projections.
 - MySQL 8 stores business and message data.
-- Redis stores JSON Web Token (JWT) state.
+- Redis supplies shared JSON storage and a readiness check.
 - RabbitMQ or Amazon Simple Queue Service (SQS) transports messages.
 - OpenAPI defines HTTP contracts. Bruno runs executable API examples.
 - PHPUnit, PHPStan level 8, cyclomatic complexity, and PHPCS verify changes.
@@ -19,7 +19,6 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 
 - `ExampleApi` is the only consumer API.
 - `ExampleCatalog` is the complete business-module reference.
-- `IdentityAndAccess` supplies authentication and authorization components.
 - Run project commands from the repository root.
 
 ## Composition roots
@@ -79,7 +78,7 @@ backendbase-core/
 │   └── platform/                      # Modular agent context and task routing
 ├── src/Backendbase/
 │   ├── Domain/
-│   │   ├── ExampleCatalog/     # Complete bounded-context reference
+│   │   └── ExampleCatalog/     # Complete bounded-context reference
 │   │   │   ├── Adapters/Persistence/
 │   │   │   │   ├── Doctrine/          # Production read and write adapters
 │   │   │   │   └── Memory/            # In-memory test adapters
@@ -88,7 +87,6 @@ backendbase-core/
 │   │   │   ├── Domain/                # Aggregate, enum, and business rules
 │   │   │   ├── Tests/                 # Module-owned tests
 │   │   │   └── ServiceProvider.php    # Port bindings and subscriber metadata
-│   │   └── IdentityAndAccess/         # Authentication and authorization components
 │   ├── Infrastructure/
 │   │   ├── Adapters/                  # Console, HTTP, mapping, database, queue, and external adapters
 │   │   ├── Health/                    # Dependency readiness checks

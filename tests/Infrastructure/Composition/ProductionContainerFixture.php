@@ -71,13 +71,6 @@ final class ProductionContainerFixture
                 'region' => 'eu-central-1',
                 'endpoint' => '',
             ],
-            'jwt' => [
-                'alias' => 'test',
-                'duration' => 'PT1H',
-                'issuer' => 'backendbase',
-                'permitted-for' => 'backendbase-client',
-                'sign-key' => 'MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=',
-            ],
         ];
     }
 }

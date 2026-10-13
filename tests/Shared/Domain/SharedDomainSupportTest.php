@@ -7,7 +7,6 @@ namespace Tests\Shared\Domain;
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Domain\ExampleCatalog\Contracts\DomainEvents\EntryAdded;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventTrait;
@@ -30,7 +29,6 @@ final class SharedDomainSupportTest extends TestCase
             true,
             'key',
             'value',
-            new Acl(['full-privileges']),
         );
         $event   = new EntryAdded('example-id', $command);
         $aggregate->recordEvent($event);
@@ -53,7 +51,6 @@ final class SharedDomainSupportTest extends TestCase
             true,
             'key',
             'value',
-            new Acl(['full-privileges']),
         );
 
         $aggregate->recordEvent(new EntryAdded('example-id', $command));

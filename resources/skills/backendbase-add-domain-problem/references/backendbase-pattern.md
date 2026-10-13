@@ -85,7 +85,6 @@ composer cs-check
 - `src/Backendbase/Shared/Domain/Exception/DomainException.php`
 - `src/Backendbase/Shared/Exception/ResourceNotFound.php`
 - `src/Backendbase/Shared/Exception/InvalidUserInput.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Exception/AuthorizationExpired.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/HttpErrorHandler.php`
 - `tests/Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapperTest.php`

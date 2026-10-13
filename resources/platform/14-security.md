@@ -1,50 +1,33 @@
-# Authentication and Authorization
+# API Keys and Access Control
 
-Authentication validates token identity and state. Authorization decides whether that identity can perform an operation.
+ExampleApi protects metadata and all Example reads and writes with an API key. Liveness and readiness remain public.
 
-## JWT
+## HTTP policy
 
-- Tokens use HMAC SHA-256 and a Base64 signing key.
-- Validate signature, time, issuer, audience, token identifier, and Redis state.
-- Redis enables immediate token revocation.
-- The default alias is `USER`.
-- The default issuer is `backendbase-api`.
-- The default lifetime is 24 hours.
+- `ValidateApiKey` validates `Backendbase-Api-Key` against `EXAMPLE_API_KEY`.
+- API context middleware supplies `apiName`, `apiKeyHeaderName`, and `useIdentifierAsApiKey` before validation.
+- Missing or invalid API keys return status 401 before controller dispatch.
+- Example write commands and handlers do not require bearer identity or named privileges.
+- Protect new consumer endpoints with the existing API-key middleware by default.
+- Declare anonymous policy explicitly in routing and OpenAPI.
+- Do not log API keys or return them in diagnostics.
 
-HTTP inputs depend on the `TokenIssuer` and `TokenValidator` application ports. The JWT adapter implements both ports.
+The IdentityAndAccess context, token services, account operations, and Greeting HTTP routes have been removed. The API has no built-in user authentication flow.
 
-`AuthorizationStore` isolates Redis-backed token state from token orchestration.
+## Internal access control
 
-`POST /auth` validates a non-deleted account from `example_accounts`. It verifies the stored Argon2id password hash. It stores active privilege slugs in the JWT authorization state.
+Shared `AccessControl` remains a framework-independent application contract. Internal `QueueGreeting` requires it and checks `example.add` before its integration-event transaction. Its caller must supply an implementation of this contract. Tests use interface doubles for allowed and denied paths.
 
-The protected `/accounts` module registers, revises, retires, and lists accounts. Registration hashes the supplied password with Argon2id before it reaches the command. Revision can replace active privilege grants. Retirement sets `deleted_at`, so later authentication cannot load the account.
+Keep required privilege decisions at the application-handler boundary. Do not make these decisions only in a delivery adapter. A shared `ResourceAccessForbidden` error still maps to status 403.
 
-Login, account revision, and account retirement use the same account-row write lock. Authentication holds the lock from the account read through Redis token storage. A change holds the lock from the authoritative account read through revocation and database commit. A waiting login reads the committed account state before checking credentials.
+## Removed database artifacts
 
-`AccountAuthenticationRepository::withAuthenticationLock()` and `AccountWriteRepository::withAccountLock()` own this persistence boundary. Doctrine starts an outermost transaction and locks the existing account row without changing its values. Existing transactions are rejected because they can contain stale snapshots. Account loads refresh the ORM record and its privilege grants. Memory adapters provide sequential callbacks and rollback behavior, not cross-process locks.
+The IdentityAndAccess migration, privilege seeder, and seeder test have been removed. New databases do not create account or privilege tables.
 
-Revision and retirement still revoke Redis-backed authorization state before the database change. A revocation failure stops the change. A database failure rolls back account changes and closes the failed ORM unit of work. Revoked tokens remain revoked after rollback. Token-issue failures release the account lock. Do not issue account tokens from previously loaded snapshots outside this authentication flow.
+Databases that executed the removed migration require a schema and migration-history adoption plan before deployment. See [the database guide](../docs/9-persistence-and-database.html#migrations). Apply database changes only with explicit authority for the target database.
 
-`AuthorizationMiddleware` adds `authorizedUserId`, `authorizedUserData`, `clientTimezone`, `Acl`, and `AccessControl` request attributes.
+## Current limits
 
-`Acl::isAllowed()` accepts a named privilege, `full-privileges`, or the `system-admin` role. Denial uses status 403.
-
-These commands and queries require `AccessControl`. Their application handlers check these privileges before protected work:
-
-- `example.add`
-- `example.change`
-- `example.remove`
-- `account.register`
-- `account.revise`
-- `account.retire`
-- `account.list`
-
-Keep privilege checks at the application handler boundary. Do not make this decision only in an HTTP controller.
-
-Protect new endpoints by default. Make public policy explicit in routing and OpenAPI.
-
-ExampleApi middleware adds `ValidateApiKey`. It validates `Backendbase-Api-Key` outside configured public paths and returns status 401 on failure.
-
-Invalid credentials, API keys, and bearer tokens return status 401. ACL denials return status 403. Invalid time-zone headers return status 400.
+The API-key middleware has public path prefixes outside the current route set. Shared OpenAPI headers are not all enforced at runtime. The CORS header list omits `Accept-Language`.
 
 Basis: `resources/docs/5-use-case-api.html`, `resources/docs/7-env-and-config.html`, `resources/docs/8-authentication-and-authorization.html`.

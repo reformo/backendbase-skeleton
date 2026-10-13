@@ -27,7 +27,6 @@ final class ValidatedApplicationSettingsTest extends TestCase
             ['host' => '127.0.0.1', 'port' => 6379],
             ValidatedApplicationSettings::redis(['host' => '127.0.0.1', 'port' => 6379]),
         );
-        self::assertSame(self::jwt(), ValidatedApplicationSettings::jwt(self::jwt()));
     }
 
     /** @param callable(mixed): array<string, mixed> $validator */
@@ -63,24 +62,6 @@ final class ValidatedApplicationSettingsTest extends TestCase
             ValidatedApplicationSettings::redis(...),
             ['host' => '127.0.0.1', 'port' => '6379'],
             'The Redis settings are invalid.',
-        ];
-
-        yield 'JWT' => [
-            ValidatedApplicationSettings::jwt(...),
-            [...self::jwt(), 'sign-key' => ''],
-            'The JWT settings are invalid.',
-        ];
-    }
-
-    /** @return array<string, string> */
-    private static function jwt(): array
-    {
-        return [
-            'alias' => 'USER',
-            'issuer' => 'backendbase-api',
-            'permitted-for' => 'example-api',
-            'sign-key' => 'MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=',
-            'duration' => 'PT24H',
         ];
     }
 }

@@ -5,15 +5,15 @@
 | Role | Backendbase reference | Target adaptation |
 | --- | --- | --- |
 | Root | `opencollection.yml` uses OpenCollection 1.0 | Keep the target's collection format |
-| Environment | `environments/local.yml` holds connection, context, auth, and fixture variables | Store safe placeholders only |
-| Authentication | Sequence 10 posts credentials and captures a token | Use the target auth contract |
+| Environment | `environments/local.yml` holds connection, context, and fixture variables | Store safe placeholders only |
+| Security | Current requests send an API key without a token flow | Discover the target security mechanism |
 | Lifecycle | Sequences 40-45 create, list, get, change, and delete | Use target dependencies and cleanup |
 | Wrapper | `bin/bruno` runs the collection and writes an HTML report | Preserve target reporting controls |
 
 ## Lifecycle data flow
 
 ```text
-safe environment placeholders -> authentication -> capture runtime token
+safe environment placeholders -> credentials required by the target policy
 -> create with run-unique data -> capture runtime resource identifier
 -> read/list -> update -> verify -> delete -> verify cleanup
 ```
@@ -38,7 +38,7 @@ runtime:
         expect(res.getBody()).to.have.property("item");
 ```
 
-Add all required headers from variables. A write request also needs a safe uniqueness or cleanup plan.
+Add all required headers from variables. Add token acquisition only when the target provides that flow. A write request also needs a safe uniqueness or cleanup plan.
 
 ## Semantic request audit
 
@@ -67,7 +67,7 @@ A passing Bruno request proves only the assertions it contains. It does not prov
 
 These conditions are audit prompts. Do not copy their values or behavior into the target collection.
 
-- The checked `local.yml` keeps token and runtime identifier values empty. Do not add live values.
+- The checked `local.yml` contains an API-key placeholder and an empty runtime identifier. Do not add live values.
 - The lifecycle generates a run-unique `example-key`; an interrupted run does not block the next create.
 - The current create request does not capture or assert the documented insert-ID response header.
 - Bruno proves selected behavior against a running target. It does not prove complete schema conformance or every failure path.
@@ -77,7 +77,6 @@ These conditions are audit prompts. Do not copy their values or behavior into th
 
 - `resources/bruno/example-api/opencollection.yml`
 - `resources/bruno/example-api/environments/local.yml`
-- `resources/bruno/example-api/auth/authenticate-user.yml`
 - `resources/bruno/example-api/example/add-example.yml`
 - `resources/bruno/example-api/example/get-example-details.yml`
 - `resources/bruno/example-api/example/change-example-details.yml`

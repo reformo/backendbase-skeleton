@@ -7,7 +7,6 @@ namespace Tests\Infrastructure\Adapters\CQRS;
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\CQRS\AttributeHandlerResolver;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
@@ -45,7 +44,6 @@ final class ContainerAwareBusTest extends TestCase
             true,
             'key',
             'value',
-            new Acl(['full-privileges']),
         );
 
         $this->expectException(UnexpectedValueException::class);

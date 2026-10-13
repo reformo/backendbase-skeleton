@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Configuration;
 
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
-use Backendbase\Shared\Configuration\JwtSettings;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Settings;
-use DateInterval;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use UnexpectedValueException;
@@ -44,25 +42,5 @@ final class RuntimeSettingsTest extends TestCase
         $this->expectExceptionMessage('The application runtime settings are invalid.');
 
         new ApplicationRuntimeSettings(new Settings(['base-path' => 42]));
-    }
-
-    #[Test]
-    public function itProvidesJwtValues(): void
-    {
-        $settings = new JwtSettings(new Settings([
-            'jwt' => [
-                'alias' => 'USER',
-                'issuer' => 'backendbase-api',
-                'permitted-for' => 'example-api',
-                'sign-key' => 'signing-key',
-                'duration' => 'PT24H',
-            ],
-        ]));
-
-        self::assertSame('USER', $settings->alias());
-        self::assertSame('backendbase-api', $settings->issuer());
-        self::assertSame('example-api', $settings->permittedFor());
-        self::assertSame('signing-key', $settings->signingKey());
-        self::assertEquals(new DateInterval('PT24H'), $settings->duration());
     }
 }

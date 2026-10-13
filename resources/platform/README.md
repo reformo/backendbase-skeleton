@@ -95,7 +95,7 @@ Read only the selected reference sections needed for the task. Reuse established
 | [`backendbase-add-use-case-api`](../skills/backendbase-add-use-case-api/SKILL.md) | Scaffold a new consumer API surface. |
 | [`backendbase-add-api-module`](../skills/backendbase-add-api-module/SKILL.md) | Add a route-prefix module to an existing API. |
 | [`backendbase-add-api-endpoint`](../skills/backendbase-add-api-endpoint/SKILL.md) | Implement one endpoint in an existing API module. |
-| [`backendbase-secure-api-endpoint`](../skills/backendbase-secure-api-endpoint/SKILL.md) | Apply API-key, bearer, and ACL policy to an operation. |
+| [`backendbase-secure-api-endpoint`](../skills/backendbase-secure-api-endpoint/SKILL.md) | Apply the target API-key and access-control policy to an operation. |
 | [`backendbase-add-http-middleware`](../skills/backendbase-add-http-middleware/SKILL.md) | Add or change PSR-15 middleware and its order. |
 | [`backendbase-add-openapi-operation`](../skills/backendbase-add-openapi-operation/SKILL.md) | Add or change one OpenAPI operation. |
 | [`backendbase-add-bruno-api-test`](../skills/backendbase-add-bruno-api-test/SKILL.md) | Add an executable API request or lifecycle test. |

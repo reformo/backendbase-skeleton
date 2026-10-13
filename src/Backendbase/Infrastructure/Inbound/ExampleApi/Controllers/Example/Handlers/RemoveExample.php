@@ -8,7 +8,6 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\RemoveEntry as RemoveEnt
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -34,9 +33,8 @@ class RemoveExample extends Action
         $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
 
-        $identity      = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
-        $accessControl = ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class));
-        $this->commandBus->handle(new RemoveEntryCommand($identity, $accessControl));
+        $identity = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
+        $this->commandBus->handle(new RemoveEntryCommand($identity));
 
         return new EmptyResponse(204);
     }

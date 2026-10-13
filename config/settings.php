@@ -11,7 +11,6 @@ use Backendbase\Infrastructure\Configuration\QueueSettings;
 use Backendbase\Infrastructure\Configuration\RedisSettings;
 use Backendbase\Shared\Configuration\ApiKeySettings;
 use Backendbase\Shared\Configuration\HttpHeaderSettings;
-use Backendbase\Shared\Configuration\JwtSettings;
 use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Settings as SettingsInterface;
 use DI\ContainerBuilder;
@@ -29,7 +28,6 @@ return static function (ContainerBuilder $containerBuilder, array $config): void
         AwsSettings::class => autowire(AwsSettings::class),
         DatabaseSettings::class => autowire(DatabaseSettings::class),
         HttpHeaderSettings::class => autowire(HttpHeaderSettings::class),
-        JwtSettings::class => autowire(JwtSettings::class),
         LoggingSettings::class => autowire(LoggingSettings::class),
         NotificationSettings::class => autowire(NotificationSettings::class),
         QueueSettings::class => autowire(QueueSettings::class),

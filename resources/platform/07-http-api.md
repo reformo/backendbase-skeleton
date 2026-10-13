@@ -23,7 +23,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 - Select the documented status and headers.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.
 
-Group new consumer endpoints with `AuthorizationMiddleware` by default. It validates through `TokenValidator` and supplies typed `AccessControl`. Leave a route public only for a clear public use case.
+Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example reads and writes use API-key protection only.
 
 Every new OpenAPI operation must reference `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`.
 

@@ -19,7 +19,6 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryIdByCriteria;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\ExampleCatalog\ServiceProvider;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
 use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
@@ -37,11 +36,10 @@ final class EntryLifecycleTest extends TestCase
     #[Test]
     public function itRunsTheCompleteEntryLifecycleThroughTheBuses(): void
     {
-        $container     = $this->container();
-        $resolver      = new RegistryHandlerResolver(ServiceProvider::getHandlers());
-        $commandBus    = new ContainerAwareCommandBus($container, $resolver);
-        $queryBus      = new ContainerAwareQueryBus($container, $resolver);
-        $accessControl = new Acl(['full-privileges']);
+        $container  = $this->container();
+        $resolver   = new RegistryHandlerResolver(ServiceProvider::getHandlers());
+        $commandBus = new ContainerAwareCommandBus($container, $resolver);
+        $queryBus   = new ContainerAwareQueryBus($container, $resolver);
 
         $commandBus->handle(new AddEntry(
             'first-id',
@@ -51,7 +49,6 @@ final class EntryLifecycleTest extends TestCase
             true,
             'first-key',
             'first-value',
-            $accessControl,
             ['unit' => 'items'],
         ));
         $commandBus->handle(new AddEntry(
@@ -62,7 +59,6 @@ final class EntryLifecycleTest extends TestCase
             true,
             'second-key',
             'second-value',
-            $accessControl,
         ));
         $commandBus->handle(new AddEntry(
             'user-id',
@@ -72,7 +68,6 @@ final class EntryLifecycleTest extends TestCase
             true,
             'theme',
             'dark',
-            $accessControl,
         ));
 
         $groupPage = $queryBus->handle(new GetEntryGroupsByType(EntryType::SYSTEM, null));
@@ -92,7 +87,7 @@ final class EntryLifecycleTest extends TestCase
             null,
             'settings',
             'first-key',
-        ), $accessControl);
+        ));
         $change->setIsActive(false)->setValue('changed')->setDetails(['unit' => 'rows']);
         $commandBus->handle($change);
 
@@ -132,7 +127,7 @@ final class EntryLifecycleTest extends TestCase
             null,
             'settings',
             'second-key',
-        ), $accessControl));
+        )));
         self::assertNull($queryBus->handle(new GetEntryIdByCriteria(
             EntryType::SYSTEM,
             null,
@@ -163,7 +158,7 @@ final class EntryLifecycleTest extends TestCase
             null,
             'settings',
             'second-key',
-        ), $accessControl));
+        )));
     }
 
     private function container(): Container

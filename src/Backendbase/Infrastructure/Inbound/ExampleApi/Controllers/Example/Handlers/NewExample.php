@@ -7,7 +7,6 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Hand
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
-use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -54,7 +53,6 @@ class NewExample extends Action
             $isActive,
             $lookupKey,
             htmlspecialchars_decode($lookupValue),
-            ExampleRequestInput::accessControl($this->request->getAttribute(AccessControl::class)),
             $details,
         );
 

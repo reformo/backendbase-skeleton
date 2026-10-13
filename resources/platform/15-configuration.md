@@ -2,7 +2,7 @@
 
 Environment variables supply deployment values. PHP configuration arrays define the raw structure. PHP-DI exposes typed settings objects.
 
-Configuration boundary objects validate the merged array once. They expose typed values for application runtime, database, queue, AWS, Redis, logging, HTTP, and JSON Web Token settings.
+Configuration boundary objects validate the merged array once. They expose typed values for application runtime, database, queue, AWS, Redis, logging, and HTTP settings.
 
 AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, readiness, and AWS client adapters receive those leaf objects directly. Only an external Software Development Kit builder converts typed settings into an SDK array.
 
@@ -32,16 +32,16 @@ A cached public boot skips Dotenv. Restart long-running workers after configurat
 
 There is no single configuration schema. Focused settings objects validate required nested values when PHP-DI resolves each lazy dependency.
 
-`RedisJsonInterface` uses a PHP-DI lazy proxy. Resolving JWT services does not construct the native Redis client or open a socket. The first Redis command initializes the proxy and connection. The Redis readiness `PING` intentionally performs this initialization. Doctrine DBAL also delays its MySQL socket until the first database operation.
+`RedisJsonInterface` uses a PHP-DI lazy proxy. The first Redis command initializes the proxy and connection. The Redis readiness `PING` intentionally performs this initialization. Doctrine DBAL also delays its MySQL socket until the first database operation.
 
 Runtime components do not call `Settings::get()`. Configuration boundary objects are the only application classes that read the generic merged settings.
 
-`config/dependencies/time.php` binds `Shared/Time/Clock` to `Infrastructure/Adapters/Time/SystemClock`. It always returns UTC, independent of the process time zone. Tests can replace this binding with a fixed clock. JWT adapters retain their existing vendor UTC clock binding.
+`config/dependencies/time.php` binds `Shared/Time/Clock` to `Infrastructure/Adapters/Time/SystemClock`. It always returns UTC, independent of the process time zone. Tests can replace this binding with a fixed clock.
 
 `config/dependencies/logger.php` sets Monolog's time zone to UTC. Logger timestamps do not depend on the date helper or the application clock.
 
 Numeric configuration uses strict integer and finite-float parsers. Error messages identify the invalid key without exposing its value.
 
-Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep database, broker, AWS, JWT, API, object-store, and Tolgee secrets outside source and logs.
+Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep database, broker, AWS, API, object-store, and Tolgee secrets outside source and logs.
 
 Basis: `resources/docs/7-env-and-config.html`.

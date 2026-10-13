@@ -1,103 +1,78 @@
 # Backendbase endpoint security pattern
 
-## Security layers
+## Current HTTP flow
 
 ```text
-API selection -> Slim route match -> API context -> API-key middleware
--> route-level bearer identity -> typed authorization context -> controller
--> command or query -> application-handler authorization -> protected work
+API selection -> route match -> API context -> API-key validation
+-> controller input validation -> command or query -> application work
 ```
 
-This is the effective current Backendbase order. Slim routing is added after the API middleware registrations, so last-in, first-out execution matches the route before those middleware run. Recompute the order for a target framework instead of copying source registration order.
+Slim uses last-in, first-out middleware execution. The API context runs before the key validator. Discover the target framework's execution order.
 
-| Layer | Backendbase behavior | Target adaptation |
+| Role | Current Backendbase source | Target decision |
 | --- | --- | --- |
-| API key | Compares a configured API secret except explicit public paths | Header, lookup, public policy, failure status |
-| JWT | HMAC SHA-256 with Base64 key; validates claims and Redis state | Target algorithm and revocation contract |
-| Request identity | Adds user, timezone, and typed access-control attributes | Target typed identity context |
-| Application authorization | Handler checks the named privilege before protected work | Target privilege and role model |
-| OpenAPI | Privileged operations declare API key and bearer together | Exact target scheme semantics |
+| API key | `ValidateApiKey` compares the configured key | Header, key storage, public paths, failure contract |
+| API context | Middleware supplies API name, header name, and key mode | Typed or validated target request context |
+| HTTP policy | Example reads and writes require an API key | Requested target policy and available mechanisms |
+| Application access control | Internal `QueueGreeting` uses Shared `AccessControl` | Target privilege contract and caller implementation |
+| OpenAPI | Protected HTTP operations declare `apiKey` | Exact target security schemes |
+
+Backendbase has no built-in token issuer, bearer middleware, account flow, or ACL implementation. Do not assume another target has these mechanisms.
 
 ## Policy matrix
 
 | Policy | Runtime requirement | OpenAPI requirement |
 | --- | --- | --- |
-| Anonymous | Every applicable security layer intentionally bypasses the route | `security: []` |
-| API key only | API-wide key middleware validates the request | One API-key scheme |
-| Authenticated | API key and bearer middleware both validate | Both schemes in one requirement |
-| Privileged | Authentication plus an explicit named ACL check | Authentication schemes plus documented `403` |
+| Anonymous | All applicable security layers permit the route | `security: []` |
+| API key only | Established key middleware validates the request | One API-key scheme |
+| User identity | Target identity mechanism validates the request | The target's identity scheme |
+| Named privilege | Required authentication plus an application privilege check | Applicable schemes and documented denial response |
 
-Two schemes in one OpenAPI requirement are logical AND. Two separate requirement objects are logical OR. Do not call an API-key-only route public.
+Two schemes in one requirement mean logical AND. Separate requirement objects mean logical OR. Add a scheme only when the target runtime supports it.
 
-A protected route group adds the established `AuthorizationMiddleware`. The controller passes the typed context into the command or query. The application handler keeps the decision explicit:
+## Internal authorization example
+
+The internal greeting handler receives typed access control and asks it for the required privilege before its transaction:
 
 ```php
-$command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
+$accessControl = $command->accessControl();
+$accessControl->isAllowed(self::REQUIRED_PRIVILEGE);
 ```
 
-Prefer a typed identity or authorization service when the target supplies one. Do not make authorization decisions from unvalidated token claims.
-
-`Acl::isAllowed()` throws the current forbidden problem when the named privilege is absent. Invoke it at the application handler boundary before repository, transaction, or external-service work. Do not inspect raw privilege arrays.
-
-## Account revocation concurrency
-
-Discover how the target serializes credential reads, token storage, and account changes. A login must not store old authorization after revocation completes. Test both operation orders and failures. A second read without synchronization does not close the race.
-
-In an unmodified Backendbase project, authentication and account changes lock the same existing account row in an outermost transaction. The authentication repository holds the lock through token storage. The write repository holds it through revocation and commit. Account loading refreshes ORM state and privilege grants. Existing transactions are rejected to prevent stale snapshots. No schema column or token-format change is required.
-
-Keep provider calls outside unrelated business transactions. In an unmodified Backendbase project, this narrow authentication boundary includes the required Redis state operations. Do not issue account tokens from previously loaded snapshots outside the target's synchronization boundary. Backendbase SQLite tests prove two-connection exclusion and rollback, not MySQL-specific lock scheduling.
+Its caller supplies an `AccessControl` implementation. Tests supply interface doubles. Adapt the port, privilege, and denial behavior to the target. Do not add an HTTP route to reproduce this example.
 
 ## Route-level proof
 
-Test security through the actual route stack. Cover the applicable cases:
+Test applicable cases through the real route stack:
 
-- Anonymous access to an explicitly public operation.
-- Missing or invalid API key.
-- Missing, malformed, expired, or revoked bearer token.
-- Authenticated identity without the named privilege.
-- Administrative or explicit privilege success.
-- Invalid security-related headers, including timezone, when the contract requires validation.
+- Allowed access under the selected policy.
+- Missing or invalid API key when a key is required.
+- Invalid or expired identity credentials when the target supports them.
+- A valid identity without the required privilege when the operation requires one.
+- Anonymous access when explicitly permitted.
 
-Compare each result with the OpenAPI status and problem body. Include configured CORS policy and maintained Bruno requests when applicable. Middleware and ACL unit tests remain useful, but they do not prove that a route uses them.
+Check status, problem body, and non-dispatch on failure. Compare runtime with OpenAPI, configured CORS, and maintained Bruno requests.
 
-## Current source limitations
+## Current source limits
 
-- Existing Example read routes omit bearer middleware but still require the global API key outside configured bypasses.
-- The API-key public-path list includes paths that are not part of the Example API route set.
-- The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
-- Do not encode these gaps as reusable policy.
+- The API-key public-path list includes prefixes outside the current ExampleApi route set.
+- The shared OpenAPI headers are not all enforced at runtime.
+- CORS omits `Accept-Language`.
 
-## Exact source provenance
+These limits are audit prompts. Do not copy them as target policy.
 
-- `src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/Jwt.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtTokenCodec.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtTokenConfiguration.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenIssuer.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Contracts/TokenValidator.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Contracts/AuthorizationStore.php`
-- `src/Backendbase/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddleware.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Authorization/Acl.php`
+## Source provenance
+
 - `src/Backendbase/Shared/Authorization/AccessControl.php`
-- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/`
+- `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/QueueGreetingHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
-- `config/example-api/jwt.global.php`
 - `config/example-api/http-headers.global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
-- `resources/api-docs/example-api/example/`
 - `resources/bruno/example-api/example/`
-- `src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Authentication/JwtTest.php`
-- `tests/Infrastructure/Inbound/ExampleApi/Middleware/AuthorizationMiddlewareTest.php`
-- `src/Backendbase/Domain/IdentityAndAccess/Tests/Authorization/AclTest.php`
+- `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/QueueGreetingHandlerTest.php`
 - `tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php`
-- `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
-- `resources/docs/project.md`
-- `resources/docs/8-authentication-and-authorization.html`
-- `resources/platform/07-http-api.md`
-- `resources/platform/08-api-contracts.md`
+- `tests/Infrastructure/Inbound/ExampleApi/ExampleWriteRoutingTest.php`
 - `resources/platform/14-security.md`
-- `resources/platform/16-errors-observability.md`
-
-These files define the current mechanism, not target credentials or policy names.
+- `resources/docs/8-authentication-and-authorization.html`

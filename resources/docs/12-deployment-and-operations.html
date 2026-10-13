@@ -38,6 +38,9 @@
 <li>Watch locks and execution time for table changes.</li><li>Confirm application compatibility during rolling deployment.</li><li>Verify the schema and key queries after migration.</li></ul>
 <div class="callout warning"><strong>MySQL boundary:</strong> DDL can commit independently. Deployment records the dry-run SQL and migration output. A required hook confirms backup recovery before execution.</div>
 <p>The first migration now creates the complete integration-event schema for new databases. Databases that already ran the former five messaging migrations have different version records. Inspect their schema and migration metadata, then prepare a separate adoption plan before deployment.</p>
+<p>The release target is <code>Backendbase\Migrations\Version20260823215059</code>, the latest remaining migration. It creates the complete Example table. The separate Example uniqueness migration and the IdentityAndAccess migration and privilege seeder have been removed.</p>
+<p>Databases that executed either former Example migration need a schema and migration-history adoption plan before deployment. Compare the generated uniqueness columns, active lookup index, and recorded versions with the consolidated migration. Do not rerun table creation against an existing Example table.</p>
+<p>Deployment rejects unregistered migration versions. For a database that executed the removed migration, compare its schema and migration records before deployment. Prepare a separate adoption plan. Change account tables or migration records only with explicit authority for that database.</p>
 <div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
 </section>
 <section id="cache"><p class="section-label">06 · Cache</p><h2>Clear generated data when its source changes</h2>
@@ -63,7 +66,7 @@
 <li>Use the required backup hook before migration.</li><li>Use <code>rollback-release.sh</code> only for the recorded previous revision.</li><li>Preserve recovery files, failed messages, and logs for diagnosis.</li></ul>
 </section>
 <section id="secrets"><p class="section-label">10 · Secrets</p><h2>Inject target values outside source control</h2>
-<p>Each release links to a protected environment file under <code>/opt/backendbase/shared</code>. Protect database credentials, JWT signing keys, API keys, RabbitMQ credentials, AWS credentials, object-store credentials, and Tolgee keys.</p>
+<p>Each release links to a protected environment file under <code>/opt/backendbase/shared</code>. Protect database credentials, API keys, RabbitMQ credentials, AWS credentials, object-store credentials, and Tolgee keys.</p>
 <div class="callout danger">Do not print or archive environment files in deployment output.</div>
 </section>
 <section id="risks"><p class="section-label">11 · Current risks</p><h2>Known operational limits</h2>

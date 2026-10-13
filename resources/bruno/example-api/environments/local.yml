@@ -4,8 +4,6 @@ variables:
     value: http://127.0.0.1:8080/example-api
   - name: apiKey
     value: local-api-key
-  - name: accessToken
-    value: ""
   - name: acceptLanguage
     value: tr-TR
   - name: timezone
@@ -14,16 +12,6 @@ variables:
     value: 019f0325-5940-7702-8488-3cfe56553586
   - name: sourceId
     value: example
-  - name: email
-    value: admin@example.com
-  - name: password
-    value: secret
-  - name: accountEmail
-    value: managed-account@example.com
-  - name: accountPassword
-    value: managed-secret
-  - name: account-uuid
-    value: ""
   - name: type-slug
     value: system
   - name: example-group

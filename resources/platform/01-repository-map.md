@@ -11,7 +11,7 @@
 | Consumer-specific entry code | `src/Backendbase/Infrastructure/Inbound` |
 | Reusable Doctrine adapter support | `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine` |
 | Typed runtime and adapter settings | `src/Backendbase/Infrastructure/Configuration` |
-| Cross-module HTTP and JWT settings | `src/Backendbase/Shared/Configuration` |
+| Shared HTTP and configuration validation settings | `src/Backendbase/Shared/Configuration` |
 | Example API adapter | `src/Backendbase/Infrastructure/Inbound/ExampleApi` |
 | Shared configuration | `config/autoload` |
 | Example API configuration | `config/example-api` |

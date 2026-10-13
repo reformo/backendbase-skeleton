@@ -15,12 +15,10 @@ use Backendbase\Domain\ExampleCatalog\Contracts\EntryReadRepository;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryGroupPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\IdentityAndAccess\Application\QueryHandlers\ListAccountsHandler;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
-use Backendbase\Domain\IdentityAndAccess\Contracts\Query\ListAccounts;
 use Backendbase\Infrastructure\Adapters\CQRS\AttributeHandlerResolver;
 use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Infrastructure\Health\RabbitMQConnectionFactory;
+use Backendbase\Shared\Authorization\AccessControl;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\HandlerResolver;
 use Backendbase\Shared\CQRS\QueryBus;
@@ -82,30 +80,29 @@ final class ProductionContainerTest extends TestCase
     }
 
     #[Test]
-    public function itLoadsHandlerMappingsFromBothContextsInRegistryMode(): void
+    public function itLoadsExampleCatalogHandlerMappingsInRegistryMode(): void
     {
         $transaction = $this->createMock(IntegrationEventTransaction::class);
         $transaction->expects(self::once())->method('execute');
         $page       = new EntryGroupPage(['settings'], 1);
         $repository = $this->createMock(EntryReadRepository::class);
         $repository->expects(self::once())->method('getEntryGroupsByType')->willReturn($page);
-        $container = ProductionContainerFixture::build([
+        $container     = ProductionContainerFixture::build([
             IntegrationEventTransaction::class => $transaction,
             EntryReadRepository::class => $repository,
         ]);
-        $resolver  = $container->get(HandlerResolver::class);
+        $accessControl = $this->createMock(AccessControl::class);
+        $accessControl->expects(self::once())->method('isAllowed')
+            ->with(QueueGreetingHandler::REQUIRED_PRIVILEGE)->willReturn(true);
+        $resolver = $container->get(HandlerResolver::class);
         self::assertInstanceOf(RegistryHandlerResolver::class, $resolver);
 
         self::assertSame(
             QueueGreetingHandler::class,
-            $resolver->handlerFor(new QueueGreeting('Ada', new Acl(['full-privileges']))),
-        );
-        self::assertSame(
-            ListAccountsHandler::class,
-            $resolver->handlerFor(new ListAccounts(new Acl(['full-privileges']))),
+            $resolver->handlerFor(new QueueGreeting('Ada', $accessControl)),
         );
 
-        $container->get(CommandBus::class)->handle(new QueueGreeting('Ada', new Acl(['full-privileges'])));
+        $container->get(CommandBus::class)->handle(new QueueGreeting('Ada', $accessControl));
         self::assertSame(
             $page,
             $container->get(QueryBus::class)->handle(new GetEntryGroupsByType(EntryType::SYSTEM, null)),

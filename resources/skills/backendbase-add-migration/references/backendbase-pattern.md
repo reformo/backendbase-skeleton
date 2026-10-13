@@ -73,7 +73,8 @@ Edit source release configuration, not generated release artifacts. Adapt the ma
 
 - `migrations.json` sets `all_or_nothing` to false and global `transactional` to true.
 - `BackendbaseAbstractMigration` overrides `isTransactional()` to false because MySQL DDL can implicitly commit and break Doctrine savepoints.
-- The first migration `Version20260823000000` creates all integration-event tables and indexes. It and the account migration extend `BackendbaseAbstractMigration`. Two older Example migrations extend Doctrine `AbstractMigration`.
+- The first migration `Version20260823000000` creates all integration-event tables and indexes. The consolidated `Version20260823215059` creates the complete Example table, including active lookup uniqueness. Both extend `BackendbaseAbstractMigration`.
+- Existing databases that applied either former Example migration need a schema and version-record adoption plan. Compare the final table definition before reconciling records. Do not rerun table creation against an existing Example table.
 - Existing databases that applied the former five messaging migrations cannot run the rewritten first migration directly. Compare their schema and Doctrine version records, then plan adoption before deployment. Do not delete their message data or mark a version applied without verification.
 - Use `IF NOT EXISTS` only when the migration has an explicit adoption plan and validates the complete existing schema.
 - `bin/doctrine` uses relative paths and must run from the repository root.
@@ -117,6 +118,6 @@ For new movable repository tests in an unmodified Backendbase project, use the c
 - `tests/Deployment/deployment-scripts.sh`
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/BackendbaseAbstractMigration.php`
 - `tests/Infrastructure/Adapters/Persistence/Doctrine/DqlAndMigrationTest.php`
-- `resources/database/Migrations/Version20260825050000.php`
+- `resources/database/Migrations/Version20260823215059.php`
 - `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php`
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

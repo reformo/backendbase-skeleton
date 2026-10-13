@@ -7,7 +7,6 @@ namespace Tests\Infrastructure\Adapters\DomainEvents;
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Domain\ExampleCatalog\Contracts\DomainEvents\EntryAdded;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\DomainEvents\ContainerAwareDomainEventPublisher;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventTrait;
@@ -64,7 +63,6 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
             true,
             'key',
             'value',
-            new Acl(['full-privileges']),
         );
 
         $this->expectException(UnexpectedValueException::class);

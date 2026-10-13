@@ -8,6 +8,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ## Unreleased
 
+### Removed
+
+- Removed the IdentityAndAccess migration, privilege seeder, and seeder test. Updated the release migration target to the latest remaining migration.
+- Removed the IdentityAndAccess bounded context, account and authentication operations, and Greeting HTTP endpoints with their OpenAPI and Bruno definitions.
+- Removed orphan JWT configuration and DAST account provisioning. DAST uses API-key-protected Example writes. Internal QueueGreeting authorization and queue delivery remain available.
+
 ### Added
 
 - Added Claude Code counterparts for the five agent roles, Sonnet and Opus model defaults, and shared project instructions.
@@ -40,6 +46,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added reviewed Composer public keys for deterministic isolated self-diagnosis.
 
 ### Changed
+
+- Consolidated Example table creation and active lookup uniqueness into `Version20260823215059`. Updated release metadata and migration-history adoption guidance.
+- Changed Example writes to API-key protection only. Removed bearer and privilege inputs while preserving validation, transactions, and response identifiers.
+- Updated current API, configuration, queue, platform, and reusable skill guidance. Preserved dated assessment evidence.
 
 - Enabled Fast mode for the Codex implementer.
 - Aligned project, testing, maintenance, and reusable verification guidance with recent messaging, CQRS, Composer, and project-copy changes. Refreshed the interactive architecture map and its source references.

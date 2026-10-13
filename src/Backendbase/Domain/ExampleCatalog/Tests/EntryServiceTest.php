@@ -16,7 +16,6 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\ExampleCatalog\ServiceProvider;
-use Backendbase\Domain\IdentityAndAccess\Authorization\Acl;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareCommandBus;
 use Backendbase\Infrastructure\Adapters\CQRS\ContainerAwareQueryBus;
 use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
@@ -110,7 +109,6 @@ class EntryServiceTest extends TestCase
             true,
             'max-list-item',
             '10',
-            new Acl(['full-privileges']),
         );
 
         $this->commandBus->handle($command);
@@ -144,7 +142,6 @@ class EntryServiceTest extends TestCase
             true,
             'min-list-item',
             '2',
-            new Acl(['full-privileges']),
         );
 
         $this->commandBus->handle($command);

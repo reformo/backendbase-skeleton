@@ -14,8 +14,6 @@ use Override;
 
 readonly class RemoveEntryHandler implements CommandHandler
 {
-    public const string REQUIRED_PRIVILEGE = 'example.remove';
-
     public function __construct(
         private EntryWriteRepository $entryRepository,
         private IntegrationEventTransaction $integrationEventTransaction,
@@ -26,7 +24,6 @@ readonly class RemoveEntryHandler implements CommandHandler
     #[Override]
     public function handle(Command $command): void
     {
-        $command->accessControl()->isAllowed(self::REQUIRED_PRIVILEGE);
         $this->integrationEventTransaction->execute(
             function () use ($command): EntryRemoved {
                 $identity = $command->identity();

@@ -32,7 +32,7 @@ Each HTTP action invokes one application operation. Normally, it dispatches one 
 
 Command handlers and the command bus still return `void`. Select the smallest approach that satisfies the response contract:
 
-1. **Identifier only:** For creation, generate the public identifier before dispatch and pass it in the command. For an existing resource, reuse its public identity. Return that identifier only after successful command execution. No orchestrator is needed. `RegisterAccount` uses this approach for its `accountUuid` response. `NewExample` uses it for the `Backendbase-Insert-Id` header.
+1. **Identifier only:** For creation, generate the public identifier before dispatch and pass it in the command. For an existing resource, reuse its public identity. Return that identifier only after successful command execution. No orchestrator is needed. The current `NewExample` endpoint uses this approach for its `Backendbase-Insert-Id` header.
 2. **Resource representation:** The HTTP action can call one application orchestrator with validated, typed input. The orchestrator dispatches one command, waits for successful completion and commit, then reads through a query or read port. It returns a declared read model or immutable result object. The HTTP action selects the response body, status, and headers.
 
 Place the orchestrator in the owning context's `Application` layer. Define its input and result contracts in that context's `Contracts` layer. Depend on bus interfaces and project-owned ports. Preserve context isolation, command authorization, and read authorization. A direct read-port call must enforce the same access policy as the corresponding query.

@@ -36,7 +36,7 @@ Use the target framework, request types, namespace, command and query buses, res
 6. Construct the command, query, or application-orchestrator input from validated values.
 7. Invoke one application operation through the target bus or write-result orchestrator. Keep public identity in the write command and authoritative lookup in its handler.
 8. Map the result to the exact documented response body, status, and headers.
-9. Register the route, then verify its API-key, bearer, and ACL policy across the complete stack. In an unmodified Backendbase API, default a new consumer operation to API key plus bearer unless the explicit target policy selects API-key-only or anonymous access. Use `security: []` only for an explicitly public operation.
+9. Register the route, then verify its API-key, bearer, and ACL policy across the complete stack. In an unmodified Backendbase API, use API-key protection unless the explicit policy permits anonymous access. Use `security: []` only for an explicitly public operation.
 10. Reconcile the OpenAPI draft with the implemented route, middleware, validation, response, and errors. Update the affected request when the target maintains a Bruno collection.
 11. Test valid mapping, invalid input, bus non-dispatch on failure, empty or not-found behavior, response semantics, and actual route middleware.
 12. Verify runtime, OpenAPI, and tests agree on each request header and security requirement. Include maintained Bruno coverage and configured CORS when applicable.
@@ -61,7 +61,7 @@ The second approach returns resource state at read time, not an exact commit sna
 - Invalid input never reaches a command or query bus.
 - A boundary failure never dispatches a command or query. The command handler owns authoritative missing-state and invariant decisions for a write.
 - Request and response attributes follow the active project convention and match OpenAPI exactly.
-- In an unmodified Backendbase API, new consumer operations require API key plus bearer by default. API-key-only or anonymous access requires an explicit target policy.
+- In an unmodified Backendbase API, consumer operations use API-key protection. Apply the discovered target policy in other projects.
 - API-key validation, bearer authentication, and ACL authorization are separate decisions.
 - Do not leave a new command or query without a resolvable handler and complete application-path tests.
 - Known problem exceptions use the shared problem-details response path.
