@@ -36,11 +36,18 @@ final class IntegrationEventSchemaMigrationTest extends TestCase
         self::assertFalse($migration->isTransactional());
         $migration->up(new Schema());
         $statements = array_map(static fn (Query $query): string => $query->getStatement(), $migration->getSql());
-        self::assertCount(3, $statements);
+        self::assertCount(5, $statements);
         self::assertStringStartsWith('CREATE TABLE integration_event_outbox (', $statements[0]);
         self::assertStringStartsWith('CREATE TABLE integration_event_inbox (', $statements[1]);
         self::assertStringStartsWith('CREATE TABLE integration_event_delivery_failure (', $statements[2]);
         self::assertStringContainsString('event_version VARCHAR(32) NOT NULL', $statements[0]);
+        self::assertStringContainsString('destination VARCHAR(100) CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL', $statements[0]);
+        self::assertStringStartsWith('CREATE TABLE external_effect_resolution (', $statements[3]);
+        self::assertStringStartsWith('CREATE TABLE integration_event_replay (', $statements[4]);
+        self::assertStringContainsString('external_effect_resolution_message_idx (consumer_name, message_id)', $statements[3]);
+        self::assertStringContainsString('integration_event_replay_message_idx (consumer_name, message_id)', $statements[4]);
+        self::assertStringContainsString('integration_event_inbox_message_processed_idx (message_id, processed_at)', $statements[1]);
+        self::assertStringContainsString('integration_event_delivery_failure_message_terminal_idx (message_id, dead_lettered_at)', $statements[2]);
         self::assertStringContainsString('claim_token CHAR(36) DEFAULT NULL', $statements[0]);
         self::assertStringContainsString(
             'integration_event_outbox_pending_idx (published_at, available_at, claim_until, created_at)',

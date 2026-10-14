@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
@@ -15,6 +16,7 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
@@ -22,6 +24,7 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\UnitOfWork\EntityMa
 use DateTimeImmutable;
 use Doctrine\ORM\Configuration;
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class IdentityPersistenceFailureTest extends TestCase
@@ -51,12 +54,17 @@ final class IdentityPersistenceFailureTest extends TestCase
         $store->transaction(static fn () => $store->saveActor($actor));
     }
 
-    public function testActorAccountReferenceCannotChangeAndStaleRevisionsCannotWrite(): void
+    #[DataProvider('actorRealms')]
+    public function testActorAccountReferenceCannotChangeAndStaleRevisionsCannotWrite(Realm $realm): void
     {
         $now         = new DateTimeImmutable('2026-10-14T10:00:00Z');
-        $actor       = User::create(IdentityId::create(), IdentityId::create(), new LoginName('test.user'), $now);
-        $record      = IdentityUser::create($actor);
-        $replacement = new User(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()]);
+        $actor       = $realm === Realm::USER
+            ? User::create(IdentityId::create(), IdentityId::create(), new LoginName('test.user'), $now)
+            : SystemAdmin::invite(IdentityId::create(), IdentityId::create(), new LoginName('test.admin'), 'invitation', $now);
+        $record      = $actor instanceof User ? IdentityUser::create($actor) : IdentityAdmin::create($actor);
+        $replacement = $actor instanceof User
+            ? new User(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()])
+            : new SystemAdmin(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()]);
         try {
             $record->synchronize($replacement);
             self::fail('The Account reference must be immutable.');
@@ -68,6 +76,13 @@ final class IdentityPersistenceFailureTest extends TestCase
         $accountRecord = IdentityAccount::create($account);
         $this->expectException(IdentityConflict::class);
         $accountRecord->assertRevision(2);
+    }
+
+    /** @return iterable<string, array{Realm}> */
+    public static function actorRealms(): iterable
+    {
+        yield 'User' => [Realm::USER];
+        yield 'Admin' => [Realm::ADMIN];
     }
 
     public function testIdentityTransactionsCannotNest(): void

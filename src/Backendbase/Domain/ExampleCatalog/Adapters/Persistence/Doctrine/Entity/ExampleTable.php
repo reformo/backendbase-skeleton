@@ -26,6 +26,8 @@ use Ramsey\Uuid\UuidInterface;
 #[Table(name: 'example_table', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[Index(name: 'example_search_idx', columns: ['type', 'type_target_id', 'lookup_group', 'lookup_key', 'is_active', 'deleted_at'])]
 #[Index(name: 'example_relation_idx', columns: ['type', 'type_target_id', 'lookup_key', 'deleted_at'])]
+#[Index(name: 'example_groups_idx', columns: ['type', 'type_target_id', 'deleted_at', 'lookup_group'])]
+#[Index(name: 'example_group_entries_idx', columns: ['type', 'type_target_id', 'lookup_group', 'deleted_at', 'created_at', 'id'])]
 #[UniqueConstraint(
     name: 'example_active_data_unq',
     columns: ['type', 'normalized_type_target_id', 'lookup_group', 'lookup_key', 'active_uniqueness_key'],
@@ -37,20 +39,15 @@ class ExampleTable implements DoctrineEntity
     #[Id]
     #[Column(type: UuidBinaryType::NAME)]
     protected UuidInterface $id;
-
     #[Column(type: Types::STRING, length: 36, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['fixed' => true, 'charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL')]
     private string $uuid;
-
     #[Version]
     #[Column(type: Types::INTEGER)]
     private int $version = 1;
-
     #[Column(type: Types::ENUM, length: 32, enumType: EntryType::class)]
     private EntryType $type;
-
     #[Column(name: 'type_target_id', type: Types::BIGINT, nullable: true, options: ['unsigned' => true])]
-    private int|null $typeTargetId = null;
-
+    private int|null $typeTargetId      = null;
     #[Column(
         name: 'normalized_type_target_id',
         type: Types::BIGINT,
@@ -62,7 +59,6 @@ class ExampleTable implements DoctrineEntity
         generated: 'ALWAYS',
     )]
     private int $normalizedTypeTargetId = 0;
-
     #[Column(name: 'lookup_group', type: Types::STRING, length: 32)]
     private string $group;
 

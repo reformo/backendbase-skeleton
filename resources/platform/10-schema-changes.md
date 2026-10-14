@@ -22,20 +22,32 @@ Seed only approved reference data. Make seeders idempotent. Do not add environme
 
 Review migration rollback and production compatibility before release.
 
+Required indexes for authorized query patterns must be included in the same change as the query.
+Review existing primary, unique, and composite index prefixes before adding an index.
+Keep ORM index metadata and forward migrations aligned. Do not rewrite applied migration history to add an index.
+For non-transactional index creation, inspect completed indexes after partial failure before planning recovery.
+
 Migration-history rewrites require a separate adoption plan for databases that applied the old versions. Compare schema and version records before any migration command.
 
 ## Current migration history
 
-`Version20260823000000` creates the integration-event tables. `Version20260823215059` creates the complete Example table, including generated uniqueness columns and the active lookup identity index. Both migrations use the non-transactional MySQL base.
-`Version20261014010000` adds stable outbox destinations and recovery audit records.
-`Version20261014020000` creates the four identity tables with assigned binary UUIDs and read-only virtual projections.
-`Version20261014030000` stages Example conversion with a copied UUID table and atomic rename.
-`Version20261014040000` records local identity operator decisions and serializes first-Admin setup.
-The release manifest pins `Version20261014040000`. Application rollback to the previous integer-key version is unsafe.
-Retain the Example legacy table until the reviewed recovery obligations are complete.
-See [Example conversion](operations/example-uuid-conversion.md).
+The migration history supports fresh installations only. Three migrations create the final schema directly:
 
-The former Example uniqueness migration `Version20260825050000` has been consolidated into table creation. Existing databases that ran either former Example migration need schema and version-record reconciliation before deployment. Do not rerun table creation against an existing Example table.
+| Migration | Final schema |
+| --- | --- |
+| `Version20260823000000` | Outbox, inbox, delivery failures, replay and resolution evidence, destinations, and cleanup indexes |
+| `Version20260823215059` | Example binary UUID keys, virtual public UUIDs, versions, microsecond timestamps, active uniqueness, and query indexes |
+| `Version20261014020000` | Account, User, Admin, challenge, and operator evidence tables |
+
+The release manifest pins `Version20261014020000`. Application rollback to the previous integer-key version remains unsafe.
+Messaging and identity rollbacks reject evidence removal. Example rollback drops its table only through an explicitly authorized operation.
+Fresh installation creates no Example shadow or legacy table and performs no copy or rename.
+See [migration consolidation and adoption](operations/migration-consolidation.md).
+
+The former recovery, Example conversion, identity operator, and query-index migrations have been incorporated into these installations.
+Do not run the consolidated history on a database that applied earlier versions.
+Existing databases require a separate adoption plan based on their schema, data, and recorded versions.
+Do not delete data or mark versions executed without verifying every consolidated object.
 
 Basis: `resources/docs/9-persistence-and-database.html`, `resources/docs/12-deployment-and-operations.html`.
 

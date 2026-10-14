@@ -43,6 +43,19 @@ final class Version20260826000000 extends BackendbaseAbstractMigration
 
 The table, index, version, and description are illustrative. Generate them from the authorized target mapping and current migration clock.
 
+## Required query indexes
+
+Review actual target queries, including ORM criteria, joins, range filters, grouping, and stable pagination order.
+Use an existing primary, unique, or composite index when its leading columns fit the query.
+Add missing required indexes in the same change as the authorized query feature.
+Keep mapped indexes and migration SQL aligned. Do not rewrite applied history.
+Use target-specific names, tables, column order, data sizes, and optimizer evidence.
+
+In an unmodified Backendbase project, fresh-installation migrations create Example group and pagination indexes and message-first cleanup probes.
+`RequiredQueryIndexesTest` checks column order, installation SQL, and SQLite query patterns. `MySqlQueryIndexesTest` checks native fresh installation on a prepared MySQL target.
+SQLite plan results do not establish MySQL index selection or production speed.
+Inspect completed indexes and their columns before recovering from partial non-transactional DDL.
+
 ## Review checklist
 
 - The repository behavior and metadata tests pass before diff generation.
@@ -73,10 +86,11 @@ Edit source release configuration, not generated release artifacts. Adapt the ma
 
 - `migrations.json` sets `all_or_nothing` to false and global `transactional` to true.
 - `BackendbaseAbstractMigration` overrides `isTransactional()` to false because MySQL DDL can implicitly commit and break Doctrine savepoints.
-- The first migration `Version20260823000000` creates all integration-event tables and indexes. The consolidated `Version20260823215059` creates the complete Example table, including active lookup uniqueness. Both extend `BackendbaseAbstractMigration`.
-- The later staged Example conversion preserves existing public UUIDs as binary primary keys and retains its original table for forward recovery. Its release disallows rollback to the integer-key application.
-- Existing databases that applied either former Example migration need a schema and version-record adoption plan. Compare the final table definition before reconciling records. Do not rerun table creation against an existing Example table.
-- Existing databases that applied the former five messaging migrations cannot run the rewritten first migration directly. Compare their schema and Doctrine version records, then plan adoption before deployment. Do not delete their message data or mark a version applied without verification.
+- The history supports fresh installations only. `Version20260823000000` creates final messaging and recovery tables. `Version20260823215059` creates the final binary Example schema. `Version20261014020000` creates final identity and operator tables.
+- The final release target is `Version20261014020000`. Rollback to the former integer-key application remains unsafe.
+- Fresh installation has no Example copy, atomic rename, or retained legacy table. A populated integer-key database needs a separate reviewed conversion.
+- Existing databases that applied any former history require schema and version-record reconciliation before adoption. Do not rerun consolidated creation, delete records, or mark versions executed without verified equivalence and target authority.
+- See `resources/platform/operations/migration-consolidation.md` for the Backendbase consolidation map. Adapt its roles and adoption checks to the actual target.
 - Use `IF NOT EXISTS` only when the migration has an explicit adoption plan and validates the complete existing schema.
 - `bin/doctrine` uses relative paths and must run from the repository root.
 - The CLI schema filter discovers direct context service tables and the Doctrine metadata table. Nested context entity discovery is not fully symmetric.

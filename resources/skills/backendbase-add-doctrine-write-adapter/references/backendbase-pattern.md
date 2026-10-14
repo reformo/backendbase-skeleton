@@ -79,6 +79,11 @@ private CatalogItemType $type;
 
 In an unmodified Backendbase project, derive each mapped entity class name from its full table name in PascalCase. Preserve table prefixes and words. For example, `example_table` maps to `ExampleTable`, and `identity_account` maps to `IdentityAccount`. Adapt this convention to the target project.
 
+Each entity declares all mapped fields directly, including identifiers, versions, and timestamps.
+Entity classes have no parent class. Do not hide mapped fields in traits or mapped superclasses.
+Interfaces and behavior-only traits can supply shared contracts or methods.
+Adapt identifiers, columns, and mapping behavior to the target schema.
+
 - `ExampleTable` demonstrates UUID, enum, JSON, generated columns, timestamps, soft removal, indexes, and active-record uniqueness. These are Example-specific choices.
 - `PathFinder::doctrineEntityPaths()` discovers direct context entity directories and one nested level.
 - The Doctrine CLI schema filter currently collects table names only from direct context entity directories. Prefer direct context placement unless that CLI logic changes too.
@@ -113,6 +118,7 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Shared/Helpers/PathFinder.php`
 - `config/dependencies/doctrine.php`
+- `tests/Infrastructure/Adapters/Persistence/Doctrine/Mapping/EntityFieldOwnershipTest.php`
 - `bin/doctrine`
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/DoctrineEntryRepositoryTestCase.php`
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ActorRecord;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentifiedRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityChallenge;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
@@ -34,9 +33,9 @@ final readonly class IdentityRecordStore
      *
      * @return TRecord|null
      *
-     * @template TRecord of IdentifiedRecord
+     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser
      */
-    public function find(string $class, string $id, bool|null $write = false): IdentifiedRecord|null
+    public function find(string $class, string $id, bool|null $write = false): IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser|null
     {
         $session    = $this->session;
         $manager    = $session->manager();
@@ -60,7 +59,7 @@ final readonly class IdentityRecordStore
         return $this->find(IdentityAccount::class, $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
     }
 
-    public function actor(Realm $realm, string $id, bool $write = false): ActorRecord
+    public function actor(Realm $realm, string $id, bool $write = false): IdentityAdmin|IdentityUser
     {
         return $this->find(self::actorClass($realm), $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
     }
@@ -71,9 +70,9 @@ final readonly class IdentityRecordStore
      *
      * @return TRecord|null
      *
-     * @template TRecord of IdentifiedRecord
+     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser
      */
-    public function activeBy(string $class, array $criteria, bool $lock = true): IdentifiedRecord|null
+    public function activeBy(string $class, array $criteria, bool $lock = true): IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser|null
     {
         $criteria['deletedAt'] = null;
         $session               = $this->session;
@@ -87,7 +86,7 @@ final readonly class IdentityRecordStore
         return $lock ? $this->find($class, $record->id()) : $record;
     }
 
-    public function refreshUnderLock(IdentifiedRecord $record, bool $write): void
+    public function refreshUnderLock(IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser $record, bool $write): void
     {
         $session    = $this->session;
         $manager    = $session->manager();
@@ -96,7 +95,7 @@ final readonly class IdentityRecordStore
         $manager->refresh($record, $lock);
     }
 
-    public function refreshPersistedUnderLock(IdentifiedRecord $record, bool $write): void
+    public function refreshPersistedUnderLock(IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser $record, bool $write): void
     {
         $session = $this->session;
         $manager = $session->manager();
@@ -108,7 +107,7 @@ final readonly class IdentityRecordStore
         $this->refreshUnderLock($record, $write);
     }
 
-    public function persist(IdentifiedRecord $record): void
+    public function persist(IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser $record): void
     {
         $session = $this->session;
         $manager = $session->manager();

@@ -34,7 +34,7 @@ final class ExampleSchemaMigrationTest extends TestCase
             $statement,
         );
         self::assertStringContainsString(
-            'active_uniqueness_key TINYINT UNSIGNED GENERATED ALWAYS AS (IF(deleted_at IS NULL, 1, NULL)) STORED',
+            'active_uniqueness_key TINYINT UNSIGNED GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) STORED',
             $statement,
         );
         self::assertStringContainsString(
@@ -42,7 +42,12 @@ final class ExampleSchemaMigrationTest extends TestCase
                 . '(type, normalized_type_target_id, lookup_group, lookup_key, active_uniqueness_key)',
             $statement,
         );
-        self::assertStringContainsString('UNIQUE INDEX example_uuid_unq (uuid)', $statement);
+        self::assertStringContainsString('id BINARY(16) NOT NULL', $statement);
+        self::assertStringContainsString('BIN_TO_UUID(id, 0)) VIRTUAL', $statement);
+        self::assertStringContainsString('version INT DEFAULT 1 NOT NULL', $statement);
+        self::assertStringContainsString('created_at DATETIME(6) NOT NULL', $statement);
+        self::assertStringNotContainsString('AUTO_INCREMENT', $statement);
+        self::assertStringNotContainsString('example_uuid_unq', $statement);
         self::assertStringContainsString(
             'INDEX example_search_idx (type, type_target_id, lookup_group, lookup_key, is_active, deleted_at)',
             $statement,
@@ -52,7 +57,9 @@ final class ExampleSchemaMigrationTest extends TestCase
             $statement,
         );
         self::assertStringNotContainsString('example_data_unq', $statement);
-        self::assertStringEndsWith(') DEFAULT CHARACTER SET utf8mb4', $statement);
+        self::assertStringContainsString('INDEX example_groups_idx (type, type_target_id, deleted_at, lookup_group)', $statement);
+        self::assertStringContainsString('INDEX example_group_entries_idx (type, type_target_id, lookup_group, deleted_at, created_at, id)', $statement);
+        self::assertStringEndsWith(') DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_tr_0900_ai_ci ENGINE = InnoDB', $statement);
     }
 
     #[Test]

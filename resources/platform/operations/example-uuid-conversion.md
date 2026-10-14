@@ -1,6 +1,9 @@
-# Example UUID Conversion
+# Existing Example UUID Conversion Planning
 
-The conversion preserves each existing public UUID and every HTTP field.
+Fresh installation creates the final binary UUID schema directly.
+The consolidated history contains no executable integer-to-UUID conversion migration.
+An existing database requires a separate reviewed conversion and [history adoption plan](migration-consolidation.md).
+That conversion must preserve each existing public UUID and every HTTP field.
 The new primary key is `UUID_TO_BIN(uuid, 0)`. New entries allocate UUIDv7.
 The generated public projection is `BIN_TO_UUID(id, 0)`.
 The opaque integer `typeTargetId` remains unchanged. No identity reference is invented for that selector.
@@ -14,16 +17,17 @@ Resolve external foreign-key references before replacing the primary key.
 Rehearse the copy on a target clone. Resolve lookup-key collisions under `utf8mb4_tr_0900_ai_ci` before cutover.
 Confirm capacity for both tables, the required lock interval, and a tested backup.
 Stop all Example writers and old application processes before applying the conversion.
-The migration requires MySQL `LOCK TABLES` authority for its copy and atomic rename.
+The reviewed conversion requires MySQL `LOCK TABLES` authority for its copy and atomic rename.
 
-## Migration phases
+## Required conversion phases
 
-`Version20261014030000` creates `example_table_uuid` with the final mapping.
-The migration holds write locks through copy and atomic rename, then releases them.
-The copy preserves UUID bytes, selectors, values, JSON details, active state, deletion state, and timestamps.
+The former `Version20261014030000` has been removed from the fresh-installation history.
+A separately reviewed conversion must create a shadow table with the final mapping and required query indexes.
+The reviewed conversion must hold write locks through copy and atomic rename, then releases them.
+The copy must preserve UUID bytes, selectors, values, JSON details, active state, deletion state, and timestamps.
 Database primary and active-identity constraints reject duplicate keys during the copy.
-The migration atomically renames the original to `example_table_legacy_20261014` and activates the copy.
-The legacy table keeps its original integer-to-public-UUID map for forward recovery.
+The reviewed conversion must atomically retain the original under a target-specific recovery name and activate the copy.
+The retained table must keep its original integer-to-public-UUID map for forward recovery.
 New timestamps use `DATETIME(6)`. Existing second precision is preserved without invented microseconds.
 
 Require equal row counts and a full UUID and content comparison before starting the new application.
@@ -39,7 +43,8 @@ Correct the cause and reconcile the completed migration phases before another at
 An interrupted version record after cutover requires schema and migration-record reconciliation.
 Do not rerun the complete migration against the activated binary schema.
 
-The release manifest marks previous-application rollback unsafe.
+The release manifest keeps previous-application rollback unsafe.
+Do not reconcile existing migration records or apply a conversion without explicit authority for that target.
 Use a reviewed forward migration and the retained map for any required data recovery.
 Keep the legacy table read-only to application code.
 Remove it only after backup, reference, and recovery obligations have been reviewed and authorized.

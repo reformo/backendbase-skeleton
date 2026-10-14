@@ -38,9 +38,15 @@ Adapt the port operations, identifier, table and column mapping, enum and JSON h
 
 ## Backendbase invariants
 
+- Review selective SQL, query-builder, and ORM lookup patterns against existing index prefixes.
+- Add missing required indexes, applicable ORM metadata, forward migrations, and regression checks in the same authorized change.
+- Document intentional aggregate or validation scans. Verify optimizer decisions on an identified, prepared target database.
 - Domain and contracts must not import Doctrine.
 - Handlers depend on the write port, not the Doctrine adapter.
 - Record and adapter map state; aggregate methods decide behavior.
+- Declare every mapped field directly in the entity class, including shared identifiers, versions, and timestamps.
+- Entity classes must not extend another class or receive mapped fields from traits.
+- Use interfaces or behavior-only traits when the target needs a common persistence contract.
 - Active lookups must enforce the domain's removal semantics consistently.
 - In an unmodified Backendbase project, map native string-backed enums with `Types::ENUM` and `enumType: EnumClass::class`.
 - Adapt enum storage to the target database and Doctrine version when they use a different supported mapping.
@@ -51,7 +57,7 @@ Adapt the port operations, identifier, table and column mapping, enum and JSON h
 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
 
-Run focused mapping and repository tests. Test provider composition when bindings change and architecture when dependencies change. Run PHPStan level 8, the configured complexity check, and PHPCS. Run `orm:validate-schema` only against a prepared database. Memory tests do not prove ORM mapping. Use the migration skill only after production-metadata repository tests pass.
+Run focused mapping and repository tests. Verify that entities have no parent class and declare their mapped fields directly. Compare metadata and generated schema SQL when field placement changes. Test provider composition when bindings change and architecture when dependencies change. Run PHPStan level 8, the configured complexity check, and PHPCS. Run `orm:validate-schema` only against a prepared database. Memory tests do not prove ORM mapping. Use the migration skill only after production-metadata repository tests pass.
 
 ## Completion report
 

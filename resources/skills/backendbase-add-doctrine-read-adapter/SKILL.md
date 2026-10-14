@@ -39,6 +39,9 @@ Adapt SQL, selected fields, criteria, null semantics, filters, ordering, paginat
 
 ## Backendbase invariants
 
+- Review selective SQL, query-builder, and ORM lookup patterns against existing index prefixes.
+- Add missing required indexes, applicable ORM metadata, forward migrations, and regression checks in the same authorized change.
+- Document intentional aggregate or validation scans. Verify optimizer decisions on an identified, prepared target database.
 - Use Doctrine DBAL for read projections; do not reconstitute aggregates on the query path.
 - Keep SQL in the read adapter and business decisions outside it.
 - Use one executable statement per DBAL call. Do not use `SELECT *`.

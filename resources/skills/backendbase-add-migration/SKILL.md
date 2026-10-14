@@ -40,6 +40,9 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 
 ## Backendbase invariants
 
+- Review selective SQL, query-builder, and ORM lookup patterns against existing index prefixes.
+- Add missing required indexes, applicable ORM metadata, forward migrations, and regression checks in the same authorized change.
+- Document intentional aggregate or validation scans. Verify optimizer decisions on an identified, prepared target database.
 - Do not add or alter any table, column, index, timestamp, status, audit field, or data outside explicit scope.
 - Do not apply a diff that contains an unexplained change. Report it and request a decision.
 - Use `Backendbase\Migrations` and `resources/database/Migrations` in an unmodified Backendbase project.

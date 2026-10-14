@@ -15,7 +15,7 @@ use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryTokenRegistry;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
-use Backendbase\Migrations\Version20261014040000;
+use Backendbase\Migrations\Version20261014020000;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -38,10 +38,10 @@ final class MySqlOperatorTest extends TestCase
             self::markTestSkipped('An explicitly prepared MySQL 8.4 target is required.');
         }
 
-        $fixture = IsolatedMySql::create();
+        $fixture = IsolatedMySql::create(false);
         try {
             $connection = $fixture->connection();
-            $migration  = new Version20261014040000($connection, new NullLogger());
+            $migration  = new Version20261014020000($connection, new NullLogger());
             $migration->up(new Schema());
             foreach ($migration->getSql() as $query) {
                 $connection->executeStatement($query->getStatement());

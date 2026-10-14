@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Challenges\Challenge;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use DateTimeImmutable;
@@ -18,8 +19,19 @@ use Ramsey\Uuid\UuidInterface;
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_challenge', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'identity_challenge_account_idx', columns: ['account_id', 'expires_at'])]
-class IdentityChallenge extends IdentifiedRecord
+class IdentityChallenge
 {
+    #[ORM\Id]
+    #[ORM\Column(type: UuidBinaryType::NAME)]
+    protected UuidInterface $id;
+
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['fixed' => true, 'charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL')]
+    protected string $uuid;
+
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
+    protected int $version = 1;
+
     #[ORM\Column(name: 'account_id', type: UuidBinaryType::NAME)]
     private UuidInterface $accountId;
 
@@ -79,5 +91,25 @@ class IdentityChallenge extends IdentifiedRecord
             'authVersion' => StateField::integer($this->state, 'authVersion'),
             'revision' => $this->version,
         ]);
+    }
+
+    public function id(): string
+    {
+        $id = $this->id;
+
+        return $id->toString();
+    }
+
+    public function assertRevision(int $expected): void
+    {
+        if ($expected !== $this->version) {
+            throw IdentityConflict::create('The identity record changed. Reload the record before another attempt.');
+        }
+    }
+
+    private function assignId(string $id): void
+    {
+        $this->id   = Uuid::fromString($id);
+        $this->uuid = $id;
     }
 }

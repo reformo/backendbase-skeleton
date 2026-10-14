@@ -25,9 +25,11 @@ Recovery audit records keep the original message and consumer strings.
 
 ExampleCatalog uses an integer `typeTargetId` selector. The repository contains no owning entity table for that selector.
 Do not invent a mapping to User or Admin identifiers.
-The staged Example conversion reuses each existing public UUID through `UUID_TO_BIN(uuid, 0)`.
+Fresh installation creates the final binary Example schema directly.
+An existing database requires a separate conversion plan that preserves its public UUIDs.
 New entries allocate UUIDv7. HTTP fields and the opaque integer selector remain unchanged.
-The retained `example_table_legacy_20261014` table is a recovery artifact. No runtime adapter writes it.
+The consolidated history creates no shadow or legacy Example table.
+Any retained tables from an earlier conversion remain recovery artifacts. No runtime adapter writes them.
 
 ## Writer checks
 
@@ -43,6 +45,8 @@ Historical projections use stored fields without write locks or joins to live Ac
 
 ## Adoption gates
 
+The consolidated migrations support fresh installations only.
+See [migration adoption](operations/migration-consolidation.md) before using an existing database.
 Inventory actual target tables, references, existing identifiers, collations, and migration history before deployment.
 Compare known old IdentityAndAccess artifacts with this table list. Do not adopt unknown rows or sessions automatically.
 Use controlled logout for previous token and session formats. New realm policies and allowlists accept only the current format.

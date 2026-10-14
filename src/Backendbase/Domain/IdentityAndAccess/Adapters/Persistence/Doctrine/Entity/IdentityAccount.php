@@ -6,18 +6,33 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Ent
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidBinaryType;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_account', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\UniqueConstraint(name: 'identity_account_active_email_unq', columns: ['active_email'])]
-class IdentityAccount extends IdentifiedRecord
+class IdentityAccount
 {
+    #[ORM\Id]
+    #[ORM\Column(type: UuidBinaryType::NAME)]
+    protected UuidInterface $id;
+
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['fixed' => true, 'charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL')]
+    protected string $uuid;
+
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
+    protected int $version = 1;
+
     #[ORM\Column(name: 'normalized_email', type: Types::STRING, length: 254, options: ['charset' => 'ascii', 'collation' => 'ascii_bin'])]
     private string $email;
 
@@ -95,5 +110,25 @@ class IdentityAccount extends IdentifiedRecord
     public function replaceCredentials(array $credentials): void
     {
         $this->credentials = $credentials;
+    }
+
+    public function id(): string
+    {
+        $id = $this->id;
+
+        return $id->toString();
+    }
+
+    public function assertRevision(int $expected): void
+    {
+        if ($expected !== $this->version) {
+            throw IdentityConflict::create('The identity record changed. Reload the record before another attempt.');
+        }
+    }
+
+    private function assignId(string $id): void
+    {
+        $this->id   = Uuid::fromString($id);
+        $this->uuid = $id;
     }
 }

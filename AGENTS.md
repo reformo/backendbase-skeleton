@@ -112,7 +112,7 @@ Finish when the requested behavior works, required checks pass, and affected doc
 5. Use at most one object access operator (`->` or `?->`) per statement to avoid traversing object graphs (Law of Demeter).
 6. Do not abbreviate class, method, property, or variable names; use complete, intention-revealing names.
 7. Keep classes small — no more than 150 lines per class file and no more than 10 class files per namespace directory.
-8. Use no more than two instance properties per class.
+8. Use no more than two instance properties per class. Doctrine entity mapped fields are exempt because each entity must declare all of its fields directly.
 9. Do not expose public properties or trivial getters and setters for callers to make business decisions; put that behavior on the object (Tell, don't ask).
 10. Keep cyclomatic complexity at 12 or less for each function and method.
 
@@ -134,6 +134,25 @@ Finish when the requested behavior works, required checks pass, and affected doc
 - Use consistent tag names for the same endpoint group across APIs.
 - Add a description to each root tag declaration.
 - Run the API validation command after generation. It checks source and merged documents for schema and tag rules.
+
+### Doctrine entities
+
+- Declare every mapped field directly in its Doctrine entity class, including shared identifiers, versions, and timestamps.
+- Doctrine entity classes must not extend another class.
+- Do not declare mapped fields in traits or mapped superclasses.
+- Use interfaces or behavior-only traits when shared behavior needs a common contract.
+- Derive each entity class name from its full table name in PascalCase.
+
+### SQL indexes
+
+- Review index coverage for every new or changed SQL, query-builder, and Doctrine lookup query.
+- Selective lookups, joins, retention checks, and paginated reads must have suitable primary, unique, or composite indexes.
+- Add missing required indexes, applicable ORM metadata, forward migrations, and regression checks in the same change.
+- Check composite index column order against equality filters, range filters, grouping, and stable ordering.
+- Do not add an index already covered by an existing index prefix.
+- Record intentional full scans for whole-table aggregates, system views, and migration validation.
+- Use representative `EXPLAIN` plans on an identified, prepared MySQL target to verify optimizer decisions. Report unverified plans.
+- An index migration draft does not authorize application to a database.
 
 ## 7. Defensive Programming
 

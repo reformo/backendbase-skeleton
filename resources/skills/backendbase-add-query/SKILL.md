@@ -36,6 +36,9 @@ Preserve the target project's namespace, query naming, value objects, read-model
 
 ## Backendbase invariants
 
+- Review selective SQL, query-builder, and ORM lookup patterns against existing index prefixes.
+- Add missing required indexes, applicable ORM metadata, forward migrations, and regression checks in the same authorized change.
+- Document intentional aggregate or validation scans. Verify optimizer decisions on an identified, prepared target database.
 - In an unmodified Backendbase project, keep the query free of handler imports and attributes.
 - Map the query to its handler in the context `ServiceProvider::getHandlers()`.
 - Declare the query result with PHPDoc generics on both query and handler.

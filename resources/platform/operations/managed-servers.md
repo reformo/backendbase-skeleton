@@ -66,4 +66,5 @@ Pending proof hashes also require their original verification key until expiry o
 Do not record environment values, passwords, factor secrets, tokens, or provider responses in logs.
 
 Use [identity operator procedures](identity-operator.md) for first-Admin setup, recovery, and factor key rotation.
-Use [Example conversion](example-uuid-conversion.md) for the staged binary UUID cutover.
+Use [migration adoption](migration-consolidation.md) before deploying consolidated migrations to an existing database.
+Use [Example conversion planning](example-uuid-conversion.md) when an existing database retains integer Example keys.
