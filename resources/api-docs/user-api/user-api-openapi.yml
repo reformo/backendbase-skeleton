@@ -44,14 +44,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - registration
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 201
-                  data:
+                  registration:
                     $ref: '#/components/schemas/Registration'
         400:
           description: 'Invalid request'
@@ -121,14 +116,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - ownershipVerification
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  ownershipVerification:
                     $ref: '#/components/schemas/Completed'
         400:
           description: 'Invalid request'
@@ -198,14 +188,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - challenge
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  challenge:
                     $ref: '#/components/schemas/Challenge'
         400:
           description: 'Invalid request'
@@ -275,14 +260,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - enrollment
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  enrollment:
                     $ref: '#/components/schemas/Enrollment'
         400:
           description: 'Invalid request'
@@ -352,14 +332,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - enrollment
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  enrollment:
                     $ref: '#/components/schemas/Completed'
         400:
           description: 'Invalid request'
@@ -429,14 +404,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - challenge
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  challenge:
                     $ref: '#/components/schemas/Challenge'
         400:
           description: 'Invalid request'
@@ -506,14 +476,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - session
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  session:
                     $ref: '#/components/schemas/Session'
         400:
           description: 'Invalid request'
@@ -585,14 +550,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - user
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  user:
                     $ref: '#/components/schemas/Identity'
         400:
           description: 'Invalid request'
@@ -657,14 +617,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - token
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  token:
                     $ref: '#/components/schemas/Completed'
         400:
           description: 'Invalid request'
@@ -729,14 +684,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - session
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  session:
                     $ref: '#/components/schemas/Completed'
         400:
           description: 'Invalid request'
@@ -801,14 +751,9 @@ paths:
                 type: object
                 additionalProperties: false
                 required:
-                  - statusCode
-                  - data
+                  - account
                 properties:
-                  statusCode:
-                    type: integer
-                    enum:
-                      - 200
-                  data:
+                  account:
                     $ref: '#/components/schemas/Completed'
         400:
           description: 'Invalid request'

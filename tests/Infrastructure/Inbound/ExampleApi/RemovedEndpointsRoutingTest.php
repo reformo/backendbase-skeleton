@@ -31,6 +31,8 @@ final class RemovedEndpointsRoutingTest extends TestCase
 
         self::assertSame(404, $response->getStatusCode());
         self::assertSame('http/not-found', $payload['code']);
+        self::assertSame('Not Found', $payload['title']);
+        self::assertSame(404, $payload['status']);
     }
 
     /** @return iterable<string, array{string, string}> */

@@ -127,6 +127,16 @@ Finish when the requested behavior works, required checks pass, and affected doc
 - Use `camelCase` for request query parameters and request-body fields.
 - Use `camelCase` for response object attributes.
 
+### JSON response keys
+
+- Use response keys that describe the returned resource or result, such as `user`, `admin`, `challenge`, or `session`.
+- Do not place successful response values inside a generic `data` wrapper.
+- Use singular keys for one resource and plural keys for collections. Follow `camelCase`.
+- Select response keys in the HTTP adapter. Keep transport names out of domain commands and read models.
+- Preserve documented pagination metadata, health fields, and empty responses.
+- Keep Problem Details fields at the root. Do not wrap errors inside a resource key.
+- Update runtime responses, OpenAPI sources, merged YAML, maintained request assertions, tests, and guidance in the same change.
+
 ### OpenAPI tags
 
 - Group every OpenAPI operation with a non-empty `tags` list.

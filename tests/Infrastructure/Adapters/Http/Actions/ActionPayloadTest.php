@@ -14,20 +14,29 @@ final class ActionPayloadTest extends TestCase
     #[Test]
     public function itSerializesDataAndErrorPayloads(): void
     {
-        $dataPayload = new ActionPayload(201, ['id' => 'resource-id']);
+        $dataPayload = new ActionPayload(201, ['resource' => ['id' => 'resource-id']]);
         self::assertSame(201, $dataPayload->getStatusCode());
-        self::assertSame(['id' => 'resource-id'], $dataPayload->getData());
+        self::assertSame(['resource' => ['id' => 'resource-id']], $dataPayload->getData());
         self::assertNull($dataPayload->getError());
         self::assertSame([
-            'statusCode' => 201,
-            'data' => ['id' => 'resource-id'],
+            'resource' => ['id' => 'resource-id'],
         ], $dataPayload->jsonSerialize());
 
         $error        = new ActionError(400, 'Invalid', 'invalid', 'about:blank', 'Bad input');
         $errorPayload = new ActionPayload(400, null, $error);
         self::assertSame($error, $errorPayload->getError());
         self::assertSame($error->jsonSerialize(), $errorPayload->jsonSerialize());
-        self::assertSame(['statusCode' => 204], (new ActionPayload(204))->jsonSerialize());
+        self::assertSame([], (new ActionPayload(204))->jsonSerialize());
+        $problem = $errorPayload->jsonSerialize();
+        self::assertSame(400, $problem['status']);
+    }
+
+    #[Test]
+    public function itPreservesEmptyAndObjectData(): void
+    {
+        self::assertSame(['users' => []], (new ActionPayload(200, ['users' => []]))->jsonSerialize());
+        $data = (object) ['user' => (object) ['accountId' => 'account-id']];
+        self::assertSame($data, (new ActionPayload(200, $data))->jsonSerialize());
     }
 
     #[Test]

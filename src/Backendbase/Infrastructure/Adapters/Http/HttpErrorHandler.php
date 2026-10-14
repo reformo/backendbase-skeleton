@@ -71,7 +71,11 @@ final class HttpErrorHandler extends SlimErrorHandler
         );
 
         if ($exception instanceof HttpException) {
-            $statusCode = $exception->getCode();
+            $statusCode      = $exception->getCode();
+            $responseFactory = $this->responseFactory;
+            $httpResponse    = $responseFactory->createResponse($statusCode);
+            $title           = $httpResponse->getReasonPhrase();
+            $error->setTitle($title);
             $error->setDescription($exception->getMessage());
             HttpExceptionProblemDetailsMapper::map($exception, $error);
         }
@@ -93,6 +97,7 @@ final class HttpErrorHandler extends SlimErrorHandler
             ]);
         }
 
+        $error->setStatus($statusCode);
         $payload = $error->jsonSerialize();
         if ($exception instanceof DomainException && ! array_key_exists('message', $payload)) {
             $payload['message'] = $payload['detail'];

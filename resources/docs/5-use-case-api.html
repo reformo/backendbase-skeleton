@@ -473,7 +473,8 @@
                 <article class="card cyan">
                     <span class="tag cyan">Return</span>
                     <h3>Shape HTTP output</h3>
-                    <p>Actions convert read models and domain errors into status codes, JSON, headers, or empty responses.</p>
+                    <p>Actions convert read models and domain errors into HTTP status codes, JSON, headers, or empty responses.</p>
+                    <p>Successful bodies use descriptive keys such as <code>user</code>, <code>admin</code>, and <code>challenge</code>. Do not add generic <code>data</code> wrappers or <code>statusCode</code>. <code>ActionPayload</code> serializes the supplied named body directly. Existing direct projections, health bodies, and empty responses keep their documented shapes. Problem Details errors retain <code>status</code> equal to the HTTP response status. Slim exception titles use standard HTTP reason phrases. Domain errors retain their mapped problem titles.</p>
                 </article>
             </div>
             <div class="callout info">

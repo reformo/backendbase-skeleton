@@ -47,6 +47,8 @@ final class RootControllersTest extends TestCase
         self::assertSame(404, $notFound->getStatusCode());
         $payload = json_decode((string) $notFound->getBody(), true, 512, JSON_THROW_ON_ERROR);
         self::assertSame('http/not-found', $payload['code']);
+        self::assertSame('Not Found', $payload['title']);
+        self::assertSame(404, $payload['status']);
 
         $options = $action($factory->createServerRequest('OPTIONS', '/missing'), new Response(), []);
         self::assertSame(204, $options->getStatusCode());

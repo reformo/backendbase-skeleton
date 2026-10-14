@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\IdentityApi\Controllers;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ActionPayload;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -24,6 +25,9 @@ final class CurrentIdentity extends Action
         $identity = $principal->identity();
         $realm    = $principal->realm();
 
-        return new JsonResponse(new ActionPayload(200, ['accountId' => $identity['accountId'], 'actorId' => $identity['actorId'], 'realm' => $realm->value]), 200, ['Cache-Control' => 'no-store']);
+        $responseKey = $realm === Realm::USER ? 'user' : 'admin';
+        $payload     = new ActionPayload(200, [$responseKey => ['accountId' => $identity['accountId'], 'actorId' => $identity['actorId'], 'realm' => $realm->value]]);
+
+        return new JsonResponse($payload, 200, ['Cache-Control' => 'no-store']);
     }
 }

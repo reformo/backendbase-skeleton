@@ -71,15 +71,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - registration
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 201
-                    type: integer
-                  data:
+                  registration:
                     $ref: '#/components/schemas/Registration'
                 additionalProperties: false
         '400':
@@ -171,15 +166,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - ownershipVerification
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  ownershipVerification:
                     $ref: '#/components/schemas/Completed'
                 additionalProperties: false
         '400':
@@ -271,15 +261,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - challenge
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  challenge:
                     $ref: '#/components/schemas/Challenge'
                 additionalProperties: false
         '400':
@@ -371,15 +356,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - enrollment
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  enrollment:
                     $ref: '#/components/schemas/Enrollment'
                 additionalProperties: false
         '400':
@@ -471,15 +451,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - enrollment
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  enrollment:
                     $ref: '#/components/schemas/Completed'
                 additionalProperties: false
         '400':
@@ -571,15 +546,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - challenge
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  challenge:
                     $ref: '#/components/schemas/Challenge'
                 additionalProperties: false
         '400':
@@ -671,15 +641,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - session
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  session:
                     $ref: '#/components/schemas/Session'
                 additionalProperties: false
         '400':
@@ -764,15 +729,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - user
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  user:
                     $ref: '#/components/schemas/Identity'
                 additionalProperties: false
         '400':
@@ -859,15 +819,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - token
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  token:
                     $ref: '#/components/schemas/Completed'
                 additionalProperties: false
         '400':
@@ -954,15 +909,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - session
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  session:
                     $ref: '#/components/schemas/Completed'
                 additionalProperties: false
         '400':
@@ -1049,15 +999,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - statusCode
-                  - data
+                  - account
                 type: object
                 properties:
-                  statusCode:
-                    enum:
-                      - 200
-                    type: integer
-                  data:
+                  account:
                     $ref: '#/components/schemas/Completed'
                 additionalProperties: false
         '400':

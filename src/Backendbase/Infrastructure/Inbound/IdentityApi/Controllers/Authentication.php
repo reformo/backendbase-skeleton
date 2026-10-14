@@ -36,6 +36,20 @@ final class Authentication extends Action
         $command    = $input->command($identifier->toString(), $action, $realm, $request);
         $dispatch   = $this->dispatch;
 
-        return $dispatch->execute($command);
+        return $dispatch->execute($command, self::responseKey($action));
+    }
+
+    private static function responseKey(string $action): string
+    {
+        return match ($action) {
+            'register' => 'registration',
+            'verify-ownership' => 'ownershipVerification',
+            'resend-ownership', 'begin-login' => 'challenge',
+            'prepare-mfa', 'complete-mfa' => 'enrollment',
+            'complete-login', 'logout' => 'session',
+            'revoke-token' => 'token',
+            'close-account' => 'account',
+            default => throw new RuntimeException('The authentication response key is not configured.'),
+        };
     }
 }

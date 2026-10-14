@@ -11,7 +11,10 @@ use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+use function json_decode;
 use function str_repeat;
+
+use const JSON_THROW_ON_ERROR;
 
 final class BoundaryFailureTest extends TestCase
 {
@@ -23,6 +26,11 @@ final class BoundaryFailureTest extends TestCase
         $api      = IdentityApiFixture::create($fixture, Realm::USER);
         $response = $api->request($method, $path, $payload);
         self::assertSame($status, $response->getStatusCode());
+        self::assertSame('application/problem+json', $response->getHeaderLine('Content-Type'));
+        $problem = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($problem);
+        self::assertArrayHasKey('status', $problem);
+        self::assertSame($status, $problem['status']);
         $connection = $fixture->connection();
         self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
         self::assertStringNotContainsString('valid-password-123', (string) $response->getBody());
@@ -46,6 +54,29 @@ final class BoundaryFailureTest extends TestCase
         yield 'missing bearer' => ['GET', '/identity', null, 401];
         yield 'invalid bearer' => ['GET', '/identity', null, 401];
         yield 'removed greeting' => ['POST', '/greetings', [], 404];
+    }
+
+    #[DataProvider('missingRoutes')]
+    public function testMissingRoutesReturnMatchingHttpAndProblemStatus(Realm $realm, string $method): void
+    {
+        $api      = IdentityApiFixture::create(IdentityFixture::create(), $realm);
+        $response = $api->request($method, '/missing-route');
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('application/problem+json', $response->getHeaderLine('Content-Type'));
+        $problem = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($problem);
+        self::assertSame(404, $problem['status']);
+        self::assertSame('http/resource-not-found', $problem['code']);
+        self::assertSame('Not Found', $problem['title']);
+    }
+
+    /** @return iterable<string, array{Realm, string}> */
+    public static function missingRoutes(): iterable
+    {
+        yield 'user get' => [Realm::USER, 'GET'];
+        yield 'user post' => [Realm::USER, 'POST'];
+        yield 'admin get' => [Realm::ADMIN, 'GET'];
+        yield 'admin post' => [Realm::ADMIN, 'POST'];
     }
 
     public function testHealthRoutesAreAnonymousAndAdminRegistrationIsAbsent(): void
@@ -72,7 +103,7 @@ final class BoundaryFailureTest extends TestCase
         self::assertSame(201, $api->request('POST', '/auth/register', ['email' => 'test@example.com', 'loginName' => 'test.user', 'password' => 'valid-password-123'])->getStatusCode());
         $resend = $api->request('POST', '/auth/ownership/resend', ['loginName' => 'test.user', 'password' => 'valid-password-123']);
         self::assertSame(200, $resend->getStatusCode());
-        $data = UserFlowTest::data($resend);
+        $data = UserFlowTest::resource($resend, 'challenge');
         self::assertSame(300, $data['expiresIn']);
         self::assertNotEmpty($data['challengeId']);
     }

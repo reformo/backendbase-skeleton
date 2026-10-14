@@ -48,6 +48,8 @@ final class ActorHistory extends Action
         $queries = $this->queries;
         $history = $queries->handle(new GetActorHistory($principal, $realm, $actorId));
 
-        return new JsonResponse(new ActionPayload(200, $history), 200, ['Cache-Control' => 'no-store']);
+        $payload = new ActionPayload(200, ['actor' => $history]);
+
+        return new JsonResponse($payload, 200, ['Cache-Control' => 'no-store']);
     }
 }

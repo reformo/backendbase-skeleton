@@ -41,28 +41,33 @@ final class AdminFlowTest extends TestCase
         $api       = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $response  = $api->request('POST', '/administration/admins/invite', ['accountId' => $target['accountId'], 'loginName' => 'target.user', 'evidence' => 'ticket:invite-1'], $token);
         self::assertSame(201, $response->getStatusCode());
-        $invite = UserFlowTest::data($response);
+        $invite = UserFlowTest::resource($response, 'invitation');
         self::assertFalse($invite['approved']);
         $targetAdminId = UserFlowTest::text($invite, 'actorId');
         $response      = $api->request('POST', '/auth/login', ['loginName' => 'target.user', 'password' => 'valid-password-123']);
         self::assertSame(401, $response->getStatusCode());
         $response = $api->request('POST', '/administration/admins/approve', ['actorId' => $targetAdminId, 'evidence' => 'ticket:approval-1'], $token);
         self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], UserFlowTest::resource($response, 'admin'));
         $response = $api->request('POST', '/auth/login', ['loginName' => 'target.user', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
-        $begin    = UserFlowTest::data($response);
+        $begin    = UserFlowTest::resource($response, 'challenge');
         $response = $api->request('POST', '/auth/login/complete', ['challengeId' => UserFlowTest::text($begin, 'challengeId'), 'code' => IdentityScenario::code($fixture, $target['secret'])]);
         self::assertSame(200, $response->getStatusCode());
-        $session     = UserFlowTest::data($response);
+        $session     = UserFlowTest::resource($response, 'session');
         $targetToken = UserFlowTest::text($session, 'accessToken');
-        self::assertSame(200, $api->request('GET', '/identity', token: $targetToken)->getStatusCode());
+        $response    = $api->request('GET', '/identity', token: $targetToken);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('ADMIN', UserFlowTest::resource($response, 'admin')['realm']);
         $userApi = IdentityApiFixture::create($fixture, Realm::USER);
         self::assertSame(401, $userApi->request('GET', '/identity', token: $targetToken)->getStatusCode());
         IdentityScenario::advance($fixture, 'PT31S');
         $userPrincipal = IdentityScenario::principal($fixture, $target['secret'], Realm::USER, 'target.user');
         $userToken     = $issuer->issue($userPrincipal, $clock->sessionExpiresAt());
         self::assertSame(401, $api->request('GET', '/identity', token: $userToken)->getStatusCode());
-        self::assertSame(200, $api->request('DELETE', '/identity/session', token: $targetToken)->getStatusCode());
+        $response = $api->request('DELETE', '/identity/session', token: $targetToken);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], UserFlowTest::resource($response, 'session'));
         self::assertSame(401, $api->request('GET', '/identity', token: $targetToken)->getStatusCode());
     }
 
@@ -80,15 +85,16 @@ final class AdminFlowTest extends TestCase
         $api       = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $response  = $api->request('POST', '/administration/actors/change', ['actorId' => $target['actorId'], 'realm' => 'USER', 'action' => 'remove'], $token);
         self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], UserFlowTest::resource($response, 'actor'));
         $response = $api->request('GET', '/administration/actors/USER/' . $target['actorId'], token: $token);
         self::assertSame(200, $response->getStatusCode());
-        $history = UserFlowTest::data($response);
+        $history = UserFlowTest::resource($response, 'actor');
         self::assertSame('target.user', $history['loginName']);
         self::assertIsString($history['createdAt']);
         self::assertIsString($history['deletedAt']);
         self::assertSame(200, $api->request('POST', '/administration/actors/change', ['actorId' => $target['actorId'], 'realm' => 'USER', 'action' => 'restore'], $token)->getStatusCode());
         $response = $api->request('GET', '/administration/actors/USER/' . $target['actorId'], token: $token);
-        $history  = UserFlowTest::data($response);
+        $history  = UserFlowTest::resource($response, 'actor');
         self::assertNull($history['deletedAt']);
     }
 }

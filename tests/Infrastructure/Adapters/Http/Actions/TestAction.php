@@ -24,6 +24,6 @@ final class TestAction extends Action
     {
         $argument = $this->resolveArg($this->missingArgument ? 'missing' : 'resourceId');
 
-        return $this->respondWithData(['resourceId' => $argument], 201);
+        return $this->respondWithData(['resource' => ['resourceId' => $argument]], 201);
     }
 }

@@ -25,7 +25,9 @@ final class AccountClosureTest extends TestCase
         $clock     = $container->get(AuthenticationClock::class);
         $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
         $api       = IdentityApiFixture::create($fixture, Realm::USER);
-        self::assertSame(200, $api->request('DELETE', '/identity/account', token: $token)->getStatusCode());
+        $response  = $api->request('DELETE', '/identity/account', token: $token);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], UserFlowTest::resource($response, 'account'));
         self::assertSame(401, $api->request('GET', '/identity', token: $token)->getStatusCode());
         self::assertSame(401, $api->request('POST', '/auth/login', ['loginName' => 'ada.user', 'password' => 'valid-password-123'])->getStatusCode());
     }

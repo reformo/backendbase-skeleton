@@ -29,9 +29,10 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
-        expect(body.statusCode).to.equal(res.status);
-        expect(body).to.have.property("data");
-        expect(body.data.challengeId).to.match(/^[0-9a-f-]{36}$/);
-        bru.setVar("challengeId", body.data.challengeId);
-        expect(body.data.otpauthUri).to.match(/^otpauth:\/\/totp\//);
-        expect(body.data.totpSecret).to.match(/^[A-Z2-7]+$/);
+        expect(body).not.to.have.property("statusCode");
+        expect(body).to.have.property("enrollment");
+        expect(body).not.to.have.property("data");
+        expect(body.enrollment.challengeId).to.match(/^[0-9a-f-]{36}$/);
+        bru.setVar("challengeId", body.enrollment.challengeId);
+        expect(body.enrollment.otpauthUri).to.match(/^otpauth:\/\/totp\//);
+        expect(body.enrollment.totpSecret).to.match(/^[A-Z2-7]+$/);

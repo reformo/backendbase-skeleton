@@ -992,7 +992,11 @@ vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi</code></pre>
                         <li>Path and query parameters match runtime input.</li>
                         <li>Required headers match middleware.</li>
                         <li>Body required fields match validation.</li>
-                        <li>Response fields and status codes match output.</li>
+                        <li>Response fields and HTTP status codes match output.</li>
+                        <li>Successful bodies use descriptive resource or result keys and omit generic <code>data</code> and <code>statusCode</code>.</li>
+                        <li>Current identity uses <code>user</code> in UserApi and <code>admin</code> in SystemAdminApi.</li>
+                        <li>Problem Details retains integer <code>status</code> equal to the HTTP response status.</li>
+                        <li>Slim exception titles match HTTP reason phrases. Domain error titles describe the mapped problem type.</li>
                         <li>Security requirements match enforcement.</li>
                     </ul>
                 </article>

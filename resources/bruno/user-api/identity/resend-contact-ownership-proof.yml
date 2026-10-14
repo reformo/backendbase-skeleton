@@ -29,7 +29,8 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
-        expect(body.statusCode).to.equal(res.status);
-        expect(body).to.have.property("data");
-        expect(body.data.challengeId).to.match(/^[0-9a-f-]{36}$/);
-        bru.setVar("challengeId", body.data.challengeId);
+        expect(body).not.to.have.property("statusCode");
+        expect(body).to.have.property("challenge");
+        expect(body).not.to.have.property("data");
+        expect(body.challenge.challengeId).to.match(/^[0-9a-f-]{36}$/);
+        bru.setVar("challengeId", body.challenge.challengeId);

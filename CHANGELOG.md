@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Removed
 
+- Remove top-level `statusCode` from successful response envelopes. Preserve success values and Problem Details `status`. Update identity OpenAPI sources and merged YAML, Bruno assertions, regression tests, and HTTP contract guidance.
+
 - Removed the IdentityAndAccess migration, privilege seeder, and seeder test. Updated the release migration target to the latest remaining migration.
 - Removed the IdentityAndAccess bounded context, account and authentication operations, and Greeting HTTP endpoints with their OpenAPI and Bruno definitions.
 - Removed orphan JWT configuration and DAST account provisioning. DAST uses API-key-protected Example writes. Internal QueueGreeting authorization and queue delivery remain available.
@@ -63,6 +65,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Align Slim Problem Details titles with HTTP reason phrases, including `Not Found` for 404 and `Method Not Allowed` for 405. Preserve mapped domain titles and safe 500 responses. Extend HTTP and route regression tests and update error contract guidance.
+
+- Synchronize Problem Details `status` with the HTTP response status for Slim, domain, and unexpected exceptions. Fix missing-route bodies that reported 500 with HTTP 404. Add regressions for both identity APIs, Example not-found responses, and HTTP exception mappings.
+
 - Load production Doctrine type registration in the standalone query test, including `uuid_binary`.
 - Flushed ORM changes before integration-event and inbox completion commits. Cleared failed ORM state and used fresh identity units during bounded retries.
 - Stopped queue consumers after an ORM flush closes the persistence session. Preserved bounded retry outcomes and supervisor recovery.
@@ -72,6 +78,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed exception messages and call arguments from HTTP and queue diagnostics. Applied body and metadata validation before parsing and logger creation.
 
 ### Changed
+
+- Replace generic success `data` wrappers with resource and result keys, including `user`, `admin`, `registration`, `challenge`, `enrollment`, and `session`. Preserve payload fields and HTTP/error contracts. Update OpenAPI sources, merged YAML, Bruno assertions, regression tests, and guidance. Require descriptive response keys in project and skill rules.
 
 - Consolidate seven migration drafts into three final-schema installations for messaging, ExampleCatalog, and IdentityAndAccess. Include recovery and operator evidence and required indexes at creation. Remove the staged Example conversion from fresh installation. Update release metadata, regression tests, and existing-database adoption guidance.
 

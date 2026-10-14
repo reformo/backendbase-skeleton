@@ -57,6 +57,17 @@ An early OpenAPI operation defines the intended public result. It is not final u
 | Success body and headers | Controller response | Target response adapter |
 | Error body and status | Problem exception or middleware response | Target public error boundary |
 
+## Response bodies
+
+In an unmodified Backendbase project, successful bodies use descriptive resource or result keys and omit generic `data` and `statusCode` wrappers.
+`ActionPayload` serializes a supplied named body directly. Choose keys in the HTTP adapter.
+Current identity uses `user` in UserApi and `admin` in SystemAdminApi. Authentication results use names such as `challenge` and `session`.
+The HTTP response carries the status code. Problem Details errors retain integer `status` equal to the HTTP response status.
+Slim exceptions use the standard HTTP reason phrase as `title`. Preserve mapped domain-specific titles and safe details.
+Direct projections, health bodies, and empty responses keep their documented shapes.
+Adapt envelope keys, media types, and error formats to the target contract. Do not impose Backendbase envelopes on another project.
+Compare source schemas, generated documents, runtime bodies, and maintained request assertions after a response change.
+
 ## Semantic contract audit
 
 Compare these values directly. A document validator cannot do this comparison.

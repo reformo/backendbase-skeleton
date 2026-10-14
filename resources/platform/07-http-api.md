@@ -20,7 +20,14 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 - Keep command-then-read coordination in the application orchestrator. Document read consistency and failures after commit. Keep HTTP response mapping in the action.
 - Pass typed `AccessControl` into a privileged command or query. Keep the named privilege decision in its application handler.
 - Map the result to the documented response shape.
-- Select the documented status and headers.
+- Select the documented HTTP status and headers.
+- Successful JSON bodies use descriptive resource or result keys, such as `user`, `admin`, or `challenge`.
+- Do not use generic `data` wrappers or top-level `statusCode` fields.
+- Pass the complete named response body to `ActionPayload`. It serializes that body without adding a wrapper.
+- Choose response keys in the HTTP adapter, with singular names for resources and plural names for collections.
+- Keep existing direct projections, health bodies, and empty responses in their documented shapes.
+- Problem Details errors retain their integer `status` field. It must equal the HTTP response status.
+- Slim exception titles use the standard HTTP reason phrase. Domain error titles describe the mapped problem type.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.
 
 Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example reads and writes use API-key protection only.

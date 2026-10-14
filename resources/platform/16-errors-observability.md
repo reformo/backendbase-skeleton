@@ -8,6 +8,12 @@ Translate failures at architectural boundaries. Keep public error bodies stable 
 - `DomainErrorProblemDetailsMapper` owns each stable `type`, `code`, `title`, and `status` value.
 - `EntryAlreadyExists` maps to a stable 409 Conflict response at the HTTP adapter.
 - The Infrastructure HTTP error handler maps domain errors, Slim exceptions, and unexpected exceptions.
+- Problem Details retains its integer `status` field. It must equal the HTTP response status.
+- The HTTP error handler synchronizes `ActionError` before serialization for Slim, domain, and unexpected exceptions.
+- Slim exceptions use the HTTP response reason phrase as `title`, such as `Not Found` for 404.
+- Derive transport titles from the configured response factory. Preserve domain-specific titles from the domain error mapper.
+- Unexpected failures retain `Internal Server Error` with status 500.
+- Successful response envelopes omit `statusCode`. This rule does not remove error `status` fields.
 - `ShutdownHandler` logs fatal PHP errors and emits a structured 500 response.
 - Stage, CI, production, and unknown environments hide internal exception details.
 

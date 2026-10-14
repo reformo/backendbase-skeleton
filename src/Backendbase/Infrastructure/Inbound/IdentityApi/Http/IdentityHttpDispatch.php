@@ -16,11 +16,14 @@ final readonly class IdentityHttpDispatch
     {
     }
 
-    public function execute(IdentityCommand $command): ResponseInterface
+    public function execute(IdentityCommand $command, string $responseKey): ResponseInterface
     {
         $operation = $this->operation;
         $result    = $operation->execute($command);
 
-        return new JsonResponse(new ActionPayload($result->status(), $result->data()), $result->status(), ['Cache-Control' => 'no-store']);
+        $status  = $result->status();
+        $payload = new ActionPayload($status, [$responseKey => $result->data()]);
+
+        return new JsonResponse($payload, $status, ['Cache-Control' => 'no-store']);
     }
 }

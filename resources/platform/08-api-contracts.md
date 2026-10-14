@@ -14,6 +14,40 @@ OpenAPI defines the public contract. Bruno supplies executable examples against 
 - Use the same tag name for the same endpoint group across APIs.
 - Use shared headers and problem responses from `resources/api-docs/common/components.yaml`.
 
+## Response status and bodies
+
+Successful JSON bodies use descriptive resource or result keys without generic `data` wrappers or top-level `statusCode` fields.
+The HTTP response carries the status code. Keep existing resource fields and their nested values.
+Use singular resource keys, plural collection keys, and `camelCase`. Select the key in the HTTP adapter.
+`ActionPayload` serializes the supplied body directly, including named object values and empty collections.
+Preserve direct Example projections, health bodies, and empty responses where those shapes are documented.
+Problem Details errors retain their integer `status` field and `application/problem+json` media type.
+The error body status must equal the HTTP response status, including missing routes and unsupported methods.
+Slim exceptions use standard HTTP titles: 404 returns `Not Found`, and 405 returns `Method Not Allowed`.
+Domain errors retain their mapped problem titles. Unexpected failures return `Internal Server Error` with status 500.
+Bruno checks the HTTP status, the documented response key, resource fields, and absence of top-level `data` and `statusCode`.
+
+## Identity response keys
+
+| Endpoint or result | Response key |
+| --- | --- |
+| UserApi current identity | `user` |
+| SystemAdminApi current identity | `admin` |
+| User registration | `registration` |
+| Contact ownership verification | `ownershipVerification` |
+| Contact proof resend and password authentication start | `challenge` |
+| TOTP enrollment preparation and completion | `enrollment` |
+| Authentication completion and session termination | `session` |
+| Access token revocation | `token` |
+| Account closure | `account` |
+| Admin invitation | `invitation` |
+| Admin approval | `admin` |
+| Actor change and actor history | `actor` |
+
+Completion responses keep the existing `completed` field inside the named result.
+Choose response names from the public resource or result. Do not expose internal command or class names as wrapper keys.
+Keep Problem Details fields at the root without a resource wrapper.
+
 ## Change rule
 
 Review the route, middleware, controller, OpenAPI operation, Bruno request, and tests as one contract change.

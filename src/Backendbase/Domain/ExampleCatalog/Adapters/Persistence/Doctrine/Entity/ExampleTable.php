@@ -39,7 +39,7 @@ class ExampleTable implements DoctrineEntity
     #[Id]
     #[Column(type: UuidBinaryType::NAME)]
     protected UuidInterface $id;
-    #[Column(type: Types::STRING, length: 36, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['fixed' => true, 'charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL')]
+    #[Column(type: Types::STRING, length: 36, nullable: true, insertable: false, updatable: false, options: ['fixed' => true, 'charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'CHAR(36) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL', generated: 'ALWAYS')]
     private string $uuid;
     #[Version]
     #[Column(type: Types::INTEGER)]

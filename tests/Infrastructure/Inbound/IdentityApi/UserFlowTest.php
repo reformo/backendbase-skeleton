@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
+use function array_keys;
 use function json_decode;
 
 use const JSON_THROW_ON_ERROR;
@@ -26,7 +27,7 @@ final class UserFlowTest extends TestCase
         $api      = IdentityApiFixture::create($identity, Realm::USER);
         $response = $api->request('POST', '/auth/register', ['email' => 'ADA@EXAMPLE.COM', 'loginName' => 'Ada.User', 'password' => 'valid-password-123']);
         self::assertSame(201, $response->getStatusCode());
-        $registration = self::data($response);
+        $registration = self::resource($response, 'registration');
         self::assertArrayNotHasKey('accessToken', $registration);
         $challenge     = self::text($registration, 'challengeId');
         $container     = $identity->container();
@@ -34,39 +35,44 @@ final class UserFlowTest extends TestCase
         self::assertInstanceOf(CapturedOwnershipNotifier::class, $notifications);
         $response = $api->request('POST', '/auth/ownership/verify', ['challengeId' => $challenge, 'code' => $notifications->code($challenge)]);
         self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], self::resource($response, 'ownershipVerification'));
         $response = $api->request('POST', '/auth/mfa/enrollment', ['loginName' => 'ADA.USER', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
-        $enrollment = self::data($response);
+        $enrollment = self::resource($response, 'enrollment');
         $secret     = self::text($enrollment, 'totpSecret');
         self::assertStringStartsWith('otpauth://totp/', self::text($enrollment, 'otpauthUri'));
         $response = $api->request('POST', '/auth/mfa/enrollment/complete', ['challengeId' => self::text($enrollment, 'challengeId'), 'code' => IdentityScenario::code($identity, $secret)]);
         self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], self::resource($response, 'enrollment'));
         IdentityScenario::advance($identity, 'PT31S');
         $response = $api->request('POST', '/auth/login', ['loginName' => 'ada.user', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
-        $begin    = self::data($response);
+        $begin    = self::resource($response, 'challenge');
         $response = $api->request('POST', '/auth/login/complete', ['challengeId' => self::text($begin, 'challengeId'), 'code' => IdentityScenario::code($identity, $secret)]);
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
-        $session  = self::data($response);
+        $session  = self::resource($response, 'session');
         $token    = self::text($session, 'accessToken');
         $response = $api->request('GET', '/identity', token: $token);
         self::assertSame(200, $response->getStatusCode());
-        $current = self::data($response);
+        $current = self::resource($response, 'user');
         self::assertSame($registration['accountId'], $current['accountId']);
         self::assertSame('USER', $current['realm']);
-        self::assertSame(200, $api->request('DELETE', '/identity/token', token: $token)->getStatusCode());
+        $response = $api->request('DELETE', '/identity/token', token: $token);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], self::resource($response, 'token'));
         self::assertSame(401, $api->request('GET', '/identity', token: $token)->getStatusCode());
     }
 
     /** @return array<string, mixed> */
-    public static function data(ResponseInterface $response): array
+    public static function resource(ResponseInterface $response, string $responseKey): array
     {
         $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($payload);
-        self::assertIsArray($payload['data'] ?? null);
+        self::assertSame([$responseKey], array_keys($payload));
+        self::assertIsArray($payload[$responseKey] ?? null);
 
-        return $payload['data'];
+        return $payload[$responseKey];
     }
 
     /** @param array<string, mixed> $data */

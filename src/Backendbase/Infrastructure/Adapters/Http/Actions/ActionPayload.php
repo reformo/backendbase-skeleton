@@ -33,21 +33,19 @@ class ActionPayload implements JsonSerializable
         return $this->error;
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<array-key, mixed>|object */
     #[Override]
-    public function jsonSerialize(): array
+    public function jsonSerialize(): array|object
     {
-        $payload = [
-            'statusCode' => $this->statusCode,
-        ];
-
         if ($this->data !== null) {
-            $payload['data'] = $this->data;
-        } elseif ($this->error !== null) {
-            return $this->error
-                ->jsonSerialize();
+            return $this->data;
         }
 
-        return $payload;
+        $error = $this->error;
+        if ($error !== null) {
+            return $error->jsonSerialize();
+        }
+
+        return [];
     }
 }

@@ -56,6 +56,9 @@ The second approach returns resource state at read time, not an exact commit sna
 
 ## Backendbase invariants
 
+- In an unmodified Backendbase API, success bodies use descriptive resource or result keys without generic `data` or `statusCode` wrappers.
+- Select response keys at the HTTP boundary. Match the target contract, naming convention, schemas, generated documents, and request assertions.
+
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.

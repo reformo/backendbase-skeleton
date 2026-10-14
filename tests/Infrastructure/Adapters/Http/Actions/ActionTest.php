@@ -35,7 +35,7 @@ final class ActionTest extends TestCase
 
         self::assertSame(201, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
-        self::assertSame('resource-id', $payload['data']['resourceId']);
+        self::assertSame(['resource' => ['resourceId' => 'resource-id']], $payload);
     }
 
     #[Test]

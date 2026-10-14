@@ -26,10 +26,12 @@
   "status": 404,
   "detail": "The example was not found."
 }</code></pre>
+<p>Problem Details retains its integer <code>status</code> field. It must equal the HTTP response status. Successful bodies use descriptive resource or result keys and omit <code>data</code> and <code>statusCode</code> wrappers. Problem Details fields remain at the root without a resource wrapper.</p>
+<p>Slim exceptions use the standard HTTP reason phrase as <code>title</code>. A missing route returns <code>Not Found</code> with status 404. Domain errors retain titles that describe their mapped problem type, such as <code>Resource Not Found</code>.</p>
 <p><code>ActionError</code> serializes these fields and merges approved context. <code>DomainErrorProblemDetailsMapper</code> provides status, type, code, and title.</p>
 </section>
 <section id="action"><p class="section-label">04 · Domain errors</p><h2>The HTTP adapter maps known domain errors</h2>
-<p><code>HttpErrorHandler</code> passes each domain error to <code>DomainErrorProblemDetailsMapper</code>. It then translates message keys, replaces <code>:placeholder</code> values, and returns JSON.</p>
+<p><code>HttpErrorHandler</code> passes each domain error to <code>DomainErrorProblemDetailsMapper</code>. It synchronizes the error status with the selected HTTP status before serialization. It then translates message keys, replaces <code>:placeholder</code> values, and returns JSON. Slim exceptions, missing routes, and unexpected failures use the same status synchronization.</p>
 <p>Domain and application code do not contain HTTP status, type, code, or title values.</p>
 <p><code>EntryAlreadyExists</code> maps to status 409 and code <code>example/already-exists</code>. Repository adapters throw the same pure domain error for active identity conflicts.</p>
 <div class="callout warning">Only put public and non-sensitive values in additional problem data. The array becomes part of the response.</div>
@@ -43,7 +45,8 @@
 <tr><td>Bad request</td><td><code>http/bad-request</code></td><td><code>BAD_REQUEST</code></td></tr>
 <tr><td>Not implemented</td><td><code>http/not-implemented</code></td><td><code>NOT_IMPLEMENTED</code></td></tr>
 </tbody></table></div>
-<p>Unexpected exceptions return a safe 500 message. Only local development aliases and the test mode can add exception details to the response. Stage, CI, production, and unknown modes hide them.</p>
+<p>The HTTP error handler derives Slim exception titles from its configured response factory. This applies to mapped exceptions and other HTTP exceptions, such as 410 <code>Gone</code>. It preserves existing problem codes, types, and details.</p>
+<p>Unexpected exceptions return <code>Internal Server Error</code> and a safe 500 message. Only local development aliases and the test mode can add exception details to the response. Stage, CI, production, and unknown modes hide them.</p>
 </section>
 <section id="shutdown"><p class="section-label">06 · Shutdown errors</p><h2>Fatal PHP state still gets a structured response</h2>
 <p>The shutdown handler ignores deprecation errors. It logs other last-error data and passes an internal-server exception to the HTTP error handler.</p>

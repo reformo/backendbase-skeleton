@@ -29,8 +29,9 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
-        expect(body.statusCode).to.equal(res.status);
-        expect(body).to.have.property("data");
-        expect(body.data.tokenType).to.equal("Bearer");
-        expect(body.data.accessToken).to.be.a("string");
-        bru.setVar("accessToken", body.data.accessToken);
+        expect(body).not.to.have.property("statusCode");
+        expect(body).to.have.property("session");
+        expect(body).not.to.have.property("data");
+        expect(body.session.tokenType).to.equal("Bearer");
+        expect(body.session.accessToken).to.be.a("string");
+        bru.setVar("accessToken", body.session.accessToken);

@@ -42,6 +42,9 @@ Use the target API version, source layout, servers, media types, component names
 
 ## Backendbase invariants
 
+- In an unmodified Backendbase API, success bodies use descriptive resource or result keys without generic `data` or `statusCode` wrappers.
+- Select response keys at the HTTP boundary. Match the target contract, naming convention, schemas, generated documents, and request assertions.
+
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.

@@ -34,6 +34,16 @@ final class Administration extends Action
         $command    = $input->command($identifier->toString(), $action, $request);
         $dispatch   = $this->dispatch;
 
-        return $dispatch->execute($command);
+        return $dispatch->execute($command, self::responseKey($action));
+    }
+
+    private static function responseKey(string $action): string
+    {
+        return match ($action) {
+            'invite-admin' => 'invitation',
+            'approve-admin' => 'admin',
+            'change-actor' => 'actor',
+            default => throw new RuntimeException('The administration response key is not configured.'),
+        };
     }
 }

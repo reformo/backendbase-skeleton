@@ -63,6 +63,8 @@ final class HttpErrorHandlerTest extends TestCase
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame(500, $response->getStatusCode());
+        self::assertSame(500, $payload['status']);
+        self::assertSame('Internal Server Error', $payload['title']);
         self::assertSame('application/problem+json', $response->getHeaderLine('Content-Type'));
         self::assertSame('server/internal-error', $payload['code']);
         self::assertSame('An internal error has occurred while processing your request.', $payload['detail']);
@@ -81,20 +83,23 @@ final class HttpErrorHandlerTest extends TestCase
     {
         $request = (new ServerRequestFactory())->createServerRequest('GET', '/resource');
         $cases   = [
-            [new HttpNotFoundException($request), 'http/resource-not-found'],
-            [new HttpMethodNotAllowedException($request), 'http/not-allowed'],
-            [new HttpUnauthorizedException($request), 'http/unauthenticated'],
-            [new HttpForbiddenException($request), 'http/insufficient-privileges'],
-            [new HttpBadRequestException($request), 'http/bad-request'],
-            [new HttpNotImplementedException($request), 'http/not-implemented'],
-            [new HttpGoneException($request), 'server/internal-error'],
+            [new HttpNotFoundException($request), 'http/resource-not-found', 'Not Found'],
+            [new HttpMethodNotAllowedException($request), 'http/not-allowed', 'Method Not Allowed'],
+            [new HttpUnauthorizedException($request), 'http/unauthenticated', 'Unauthorized'],
+            [new HttpForbiddenException($request), 'http/insufficient-privileges', 'Forbidden'],
+            [new HttpBadRequestException($request), 'http/bad-request', 'Bad Request'],
+            [new HttpNotImplementedException($request), 'http/not-implemented', 'Not Implemented'],
+            [new HttpGoneException($request), 'server/internal-error', 'Gone'],
         ];
 
-        foreach ($cases as [$exception, $expectedCode]) {
+        foreach ($cases as [$exception, $expectedCode, $expectedTitle]) {
             $response = $this->handler()->__invoke($request, $exception, false, false, false);
             $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             self::assertSame($exception->getCode(), $response->getStatusCode());
+            self::assertSame($response->getStatusCode(), $payload['status']);
+            self::assertSame('application/problem+json', $response->getHeaderLine('Content-Type'));
             self::assertSame($expectedCode, $payload['code']);
+            self::assertSame($expectedTitle, $payload['title']);
         }
     }
 
@@ -109,7 +114,9 @@ final class HttpErrorHandlerTest extends TestCase
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame(404, $response->getStatusCode());
+        self::assertSame(404, $payload['status']);
         self::assertSame('general/resource-not-found', $payload['code']);
+        self::assertSame('Resource Not Found', $payload['title']);
         self::assertSame('Resource missing.', $payload['message']);
     }
 
@@ -122,6 +129,8 @@ final class HttpErrorHandlerTest extends TestCase
         $response = $this->handler()->__invoke($request, $exception, true, false, false);
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame(500, $payload['status']);
         self::assertSame('RuntimeException', $payload['exceptionDetails']['exception']);
         self::assertSame('Detailed failure.', $payload['exceptionDetails']['message']);
     }
