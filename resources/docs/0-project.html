@@ -843,6 +843,7 @@ composer run start-apis</code></pre>
                 </table>
             </div>
             <p>Docker Compose binds each infrastructure port to <code>127.0.0.1</code> by default. MiniStack starts with the default command. CloudFront distributions do not deliver content. Nginx serves the configured bucket through <code>CDN_BASE_URL</code> and caches successful responses for 60 seconds. Open StackPort at <code>http://127.0.0.1:8082</code> to inspect local AWS resources.</p>
+            <p>MySQL starts with <code>utf8mb4</code> and <code>utf8mb4_tr_0900_ai_ci</code> defaults for fresh databases. Existing databases require a reviewed conversion. See <a href="../platform/operations/database-collation.md">database collation procedures</a>.</p>
         </section>
 
         <section id="api-contract">

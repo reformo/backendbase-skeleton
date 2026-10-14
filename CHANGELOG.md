@@ -20,6 +20,9 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add native MySQL regressions for Turkish collation and NO PAD uniqueness, deadlock rollback and retry, active-login restore conflicts, and challenge creation during User removal. Add JWT contract and Redis recovery regressions.
+- Add database collation, session recovery, and identity acceptance procedures. Reconcile the architecture report with the current JWT contract, identifier scope, password authentication, and fresh-installation migration support.
+
 - Add deterministic tests for Redis session validation and revocation, connection reuse, transaction retries and rollback, managed-record locks, stale revisions, generated projections, and recovery record locks.
 
 - Add required indexes for Example group reads, stable entry pagination, and cross-consumer message cleanup. Add index coverage, SQLite query-plan checks, and an opt-in MySQL migration check.
@@ -69,6 +72,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Exclude the DBAL-owned operator evidence table from the native recovery test's ORM schema comparison.
+
 - Audit all 38 API operations for response contract parity. Use `apiMetadata` for Example metadata, declare required Example response fields and list timestamps, preserve empty JSON objects, and return complete catch-all Problem Details. Align Bruno health assertions and add source, merged, Bruno, and runtime response checks.
 
 - Align Slim Problem Details titles with HTTP reason phrases, including `Not Found` for 404 and `Method Not Allowed` for 405. Preserve mapped domain titles and safe 500 responses. Extend HTTP and route regression tests and update error contract guidance.
@@ -84,6 +89,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed exception messages and call arguments from HTTP and queue diagnostics. Applied body and metadata validation before parsing and logger creation.
 
 ### Changed
+
+- Set MySQL server defaults to `utf8mb4` and `utf8mb4_tr_0900_ai_ci` for fresh database initialization. Keep existing-database conversion explicit.
 
 - Update `aws/aws-sdk-php` to `3.401.2` and `symfony/polyfill-deepclone` to `v1.43.2`. Refresh the Composer lock file, software bill of materials, and package content digests.
 

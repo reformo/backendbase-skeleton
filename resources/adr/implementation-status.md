@@ -23,7 +23,7 @@ Starting source revision: `ddc9946`.
 | [ADR-0015](0015-mysql-migration-lifecycle-and-baseline-adoption.md) | Implemented; verification below | Released creation history is retained. New migration drafts define forward recovery and adoption gates. |
 | [ADR-0016](0016-injectable-application-time-in-utc.md) | Implemented; verification below | Injected clocks remain authoritative. The immutable Doctrine datetime type reads and writes UTC microseconds. |
 | [ADR-0017](0017-liveness-and-dependency-readiness.md) | Implemented; verification below | Identity APIs expose liveness and dependency readiness contracts. No business operation runs through a health probe. |
-| [ADR-0018](0018-production-observability.md) | Implemented signals; workload evidence pending | HTTP duration and outcome logs and MySQL index, buffer, and lock diagnostics use safe fields. Production collection, representative latency, reconciliation, schema drift, and revocation-delay evidence remain operational work. |
+| [ADR-0018](0018-production-observability.md) | Implemented signals; workload evidence pending | HTTP duration and outcome logs and MySQL index, buffer, and lock diagnostics use safe fields. The identity acceptance procedure defines reconciliation queries and measurement gates. Production collection and representative workload evidence remain operational work. |
 | [ADR-0019](0019-domain-events-and-integration-events.md) | Implemented; verification below | Domain listeners and integration event subscribers remain separate. Wire event names and versions stay compatible. |
 | [ADR-0020](0020-atomic-business-changes-local-subscribers-and-outbox.md) | Implemented; verification below | Shared ORM transactions flush before database commit and clear failed units of work. |
 | [ADR-0021](0021-message-delivery-and-inbox-deduplication.md) | Implemented; verification below | Inbox claims and completion use original message and consumer identities. An ORM flush failure rolls back and stops the consumer when its persistence session closes. A fresh unit processes the next message. |
@@ -44,19 +44,36 @@ Starting source revision: `ddc9946`.
 | [ADR-0036](0036-single-identity-and-access-context-and-global-accounts.md) | Implemented; verification below | Global Accounts own contact and credentials. Each Account has at most one User and one Admin, including historical actor rows. |
 | [ADR-0037](0037-user-and-system-admin-jwt-realms.md) | Implemented; verification below | USER and ADMIN JWTs use separate issuers, audiences, signing keys, and route-selected realm validation. |
 | [ADR-0038](0038-redis-token-allowlist-and-session-lifecycle.md) | Implemented; verification below | Redis 8 atomically records token and session allowlists. Expiry, revocation, Account blocking, and outage behavior are tested. |
-| [ADR-0039](0039-uuidv7-identifiers-and-binary-storage.md) | Implemented; verification below | Identity and Example use assigned natural binary UUIDs. Example conversion preserves existing public UUIDs; new aggregate IDs use UUIDv7. |
+| [ADR-0039](0039-uuidv7-identifiers-and-binary-storage.md) | Implemented for fresh installations | Identity and Example use assigned natural binary UUIDs. New aggregate IDs use UUIDv7. An existing Example database needs a separately reviewed conversion that preserves public UUIDs. |
 | [ADR-0040](0040-assigned-uuid-identifiers-in-doctrine.md) | Implemented; verification below | Ramsey uuid_binary mappings use assigned identifiers. Real MySQL tests verify legacy and new UUID round trips. |
-| [ADR-0041](0041-mysql84-character-set-and-turkish-collation.md) | Implemented; verification below | New tables use MySQL 8.4, InnoDB, utf8mb4, and Turkish UCA 9.0 collation. Identity business keys use explicit ASCII binary rules. |
+| [ADR-0041](0041-mysql84-character-set-and-turkish-collation.md) | Implemented for fresh installations | Docker MySQL server defaults and new business tables use utf8mb4 and Turkish UCA 9.0 collation. Native tests verify case, accent, Unicode composition, and NO PAD uniqueness. Existing databases need reviewed conversion. Identity keys retain explicit ASCII binary rules. |
 | [ADR-0042](0042-logical-references-without-physical-foreign-keys.md) | Implemented; verification below | Identity relationships use scalar UUID references and writer checks. No new physical foreign keys or cascades are created. |
 | [ADR-0043](0043-optimistic-concurrency-and-selective-locking.md) | Implemented; verification below | Optimistic versions, Account-first locks, fresh retry units, and ORM flush boundaries are tested. Locked actor authorization reloads reject concurrent removal. Repeated Account locks preserve pending credential changes. |
 | [ADR-0044](0044-soft-deletion-active-uniqueness-and-historical-reporting.md) | Implemented; verification below | Active keys can be reused after deletion. Restoration conflicts roll back, and historical actor records remain visible to authorized queries. |
-| [ADR-0045](0045-staged-identifier-and-collation-migration.md) | Implemented; verification below | Example conversion uses a locked shadow copy and atomic rename. The original table is retained; interrupted phases require reconciliation. |
+| [ADR-0045](0045-staged-identifier-and-collation-migration.md) | Fresh installation implemented; existing-target conversion pending | Consolidated migrations create final tables. The former conversion migration is removed. Existing databases need a target-specific forward conversion, recovery rehearsal, and migration-record adoption plan. |
 | [ADR-0046](0046-authentication-challenges-and-mfa-gated-sessions.md) | Superseded by ADR-0049 | Ownership and actor approval remain separate. TOTP enrollment, login challenges, and factor recovery are removed. |
 | [ADR-0047](0047-generated-uuid-projection-mapping.md) | Implemented; verification below | Supported read-only generated projections round-trip on MySQL 8.4 and produce no repeated ORM schema differences. |
 | [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Actor names and Account emails use lowercase ASCII normalization. Database constraints enforce realm-scoped active uniqueness and lifetime actor cardinality. |
 | [ADR-0049](0049-password-authentication-without-totp.md) | Implemented | Password login issues realm sessions after ownership, Account state, and actor approval checks. |
 
 ## Verification
+
+### Architecture reconciliation on 15 October 2026
+
+Starting source revision: `dac1ab0`.
+
+- The full suite passes 854 tests and 11,056 assertions with no skipped service tests.
+- Executable-line coverage remains 5,577 of 5,577 lines (100%). Method coverage remains 1,334 of 1,334 methods (100%).
+- Seventeen added cases cover the JWT wire contract, native MySQL collation and deadlock behavior, restore conflicts, relationship races, and Redis recovery.
+- Native checks use disposable MySQL 8.4.11 and Redis 8.10.2 containers without project data mounts.
+- Separate PHP processes observe real InnoDB lock waits. The deadlock test verifies error 1213, full rollback, and a fresh retry EntityManager.
+- Fresh image database creation inherits utf8mb4 and utf8mb4_tr_0900_ai_ci from the configured server flags.
+- Recovery-schema verification excludes the DBAL-owned operator evidence table from ORM comparison.
+- PHPStan level 8, coding style, and cyclomatic complexity checks pass.
+- The maintained architecture reference preserves the existing JWT contract and records fresh-installation and identifier exceptions.
+- No existing project database was converted. Production failover, representative latency, and deployment acceptance remain target-specific work.
+
+### Previous deterministic coverage verification
 
 Local verification on 15 October 2026 covers the 26 previously uncovered lines from starting revision `a36e691`.
 
@@ -86,6 +103,8 @@ All service checks use dedicated temporary containers without project data volum
 
 - ADR-0011 needs the managed secret provider before its retrieval and renewal integration can be completed.
 - Collect representative p95/p99 latency, reconciliation, schema drift, and revocation-delay evidence before production acceptance under ADR-0018.
+- Complete the [identity acceptance procedure](../platform/operations/identity-acceptance.md) on the selected staging topology.
+- Follow [session recovery](../platform/operations/identity-session-recovery.md) before reopening traffic after uncertain Redis revocation durability.
 - Install and activate systemd units only on an authorized Linux target after setting host paths and runtime injection.
 - Apply migration drafts only to a named, authorized target after adoption, backup, and recovery checks.
 - Reconcile original destinations and occurrence timestamps for legacy message rows before publication or replay.

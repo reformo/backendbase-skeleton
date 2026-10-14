@@ -86,6 +86,13 @@ SQLite tests verify transaction rollback. Redis doubles verify commands, key sco
 Production Doctrine metadata and the MySQL platform verify generated lock queries.
 Native MySQL and Redis tests verify engine locking and Lua execution on prepared targets.
 
+`JwtContractTest` checks emitted claim names and the separate actor and Account meanings.
+Native MySQL tests cover Turkish UCA comparison and NO PAD uniqueness, error 1213 rollback, and active-login restoration conflicts.
+`MySqlRelationshipRaceTest` checks challenge creation against User removal with separate PHP processes and observed lock waits.
+`RedisRecoveryTest` uses fixture-owned `DUMP` and `RESTORE` records to check loss, partial recovery, reconnection, and current Account closure.
+The Redis recovery Account gate uses isolated SQLite persistence. It does not prove MySQL/Redis atomicity or production replica durability.
+See [identity acceptance](operations/identity-acceptance.md) for remaining deployment measurements and failover evidence.
+
 `composer complexity` fails when one function or method has cyclomatic complexity greater than 12.
 
 `composer run cs-fix -- <path>` forwards arguments to `phpcbf`. The wrapper maps exit code `1` to success and preserves other exit codes.

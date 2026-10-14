@@ -15,6 +15,16 @@ Liveness and readiness remain public in each API.
 - Signing uses HS256 with configured 32-byte keys and explicit key identifiers.
 - Verification checks signature, algorithm, issuer, audience, dates, realm, actor type, and canonical identifiers.
 
+## JWT contract
+
+`sub` identifies the actor. `accountId` identifies the global Account.
+`realm` is `USER` or `ADMIN`. `actorType` is `User` or `SystemAdmin`, respectively.
+`authVersion` is the Account authentication version as an integer.
+`jti` and `sid` are canonical UUID strings for token and session identity.
+Tokens also contain `iss`, `aud`, `iat`, `nbf`, and `exp`.
+The header contains `alg: HS256`, `typ: JWT`, and the configured `kid`.
+Do not replace these fields with the architecture report's conceptual `actor_id` or `actor_type` examples.
+
 Missing or invalid credentials return a safe 401 response.
 Missing authentication state or a Redis outage returns a safe 503 response.
 Identity uniqueness and state conflicts return a safe 409 response.
@@ -45,6 +55,7 @@ Factor recovery and factor rewrapping actions are absent.
 
 Session issuance stores both `jti` and `sid` allowlist records before token delivery.
 Redis records use realm and Account prefixes and include matching identity and credential version data.
+Keys follow `identity:{REALM:accountId}:jti:tokenId`, `identity:{REALM:accountId}:sid:sessionId`, and `identity:{REALM:accountId}:blocked`.
 Authentication requires both records and current MySQL Account and actor state.
 Token expiry and session expiry are bounded to the configured lifetime, between 60 and 3600 seconds.
 The default lifetime is 900 seconds. The API provides no refresh-token flow.
@@ -53,6 +64,11 @@ Token revocation removes its `jti` record. Logout removes the active session and
 Account closure disables the Account and increments its authentication version before Redis revocation.
 Current database state denies old tokens even if Redis revocation fails.
 MySQL and Redis do not share one transaction.
+
+Do not restore old identity allowlists after losing revocation evidence.
+Invalidate both realms' affected allowlists and require login before reopening authentication traffic.
+Current Account checks protect closure and authentication-version changes. They cannot recover a lost token-only revocation.
+See [session recovery](operations/identity-session-recovery.md).
 
 ## Internal policy
 

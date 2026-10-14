@@ -39,6 +39,8 @@
 <section id="database"><p class="section-label">05 · Database tests</p><h2>Use real mapping metadata and isolated schemas</h2>
 <p>Doctrine repository tests use production mapping metadata. They verify state mapping, SQL filters, ordering, pagination, null behavior, JSON data, enums, and rollback.</p>
 <div class="callout warning">Do not copy mapped tables into handwritten test DDL. Use Doctrine <code>SchemaTool</code> with the production record metadata.</div>
+<p>Native MySQL tests verify Turkish UCA and NO PAD uniqueness, deadlock rollback, active-login restore conflicts, and challenge creation during User removal. Concurrency tests use separate PHP processes and observed InnoDB lock waits.</p>
+<p>JWT tests preserve actor and Account claim meanings. Native Redis recovery tests cover missing and partial allowlists, reconnection, and current Account closure. Production replica failover and representative measurements require separate evidence. See <a href="../platform/operations/identity-acceptance.md">identity acceptance</a>.</p>
 <div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
 </section>
 <section id="api"><p class="section-label">06 · API and contract</p><h2>Verify both adapter behavior and the published contract</h2>

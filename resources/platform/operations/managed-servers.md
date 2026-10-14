@@ -68,3 +68,6 @@ Do not record environment values, passwords, tokens, or provider responses in lo
 Use [identity operator procedures](identity-operator.md) for first-Admin setup.
 Use [migration adoption](migration-consolidation.md) before deploying consolidated migrations to an existing database.
 Use [Example conversion planning](example-uuid-conversion.md) when an existing database retains integer Example keys.
+Use [database collation procedures](database-collation.md) to verify database defaults and preserve column overrides.
+Complete [identity acceptance evidence](identity-acceptance.md) before production acceptance.
+Use [session recovery](identity-session-recovery.md) after Redis restore or uncertain failover.

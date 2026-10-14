@@ -43,4 +43,5 @@ See the [implementation register](implementation-status.md) for current code, ve
 
 - **Rollout Steps:** Define realm-prefixed access and session records. Store state before token delivery. Implement token, session, and account revocation coordination.
 - **Verification:** Use prepared Redis 8 tests for expiry, logout, revocation, identity mismatch, failed issuance, dependency outage, and account closure races.
+- **Recovery:** Do not reactivate old identity allowlists after losing revocation evidence. Require controlled logout for affected namespaces before reopening authentication traffic. Follow [session recovery](../platform/operations/identity-session-recovery.md). Current Account state protects closure and version changes, but cannot reconstruct token-only revocations.
 - **Review Date:** Review when token lifetime, Redis recovery, account revocation, or session schema changes.

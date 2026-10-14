@@ -45,7 +45,8 @@ final class MySqlRecoveryTest extends TestCase
             }
 
             $configuration = $connection->getConfiguration();
-            $configuration->setSchemaAssetsFilter(static fn (string $table): bool => str_starts_with($table, 'identity_'));
+            // Operator evidence is DBAL-owned and has no ORM mapping.
+            $configuration->setSchemaAssetsFilter(static fn (string $table): bool => str_starts_with($table, 'identity_') && $table !== 'identity_operator_action');
             $manager         = $fixture->manager();
             $metadataFactory = $manager->getMetadataFactory();
             self::assertSame([], new SchemaTool($manager)->getUpdateSchemaSql($metadataFactory->getAllMetadata()));

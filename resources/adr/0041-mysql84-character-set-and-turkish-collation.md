@@ -41,6 +41,6 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#databas
 
 See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
-- **Rollout Steps:** Inventory current collations. Define domain key rules. Review duplicate and index impact. Apply explicit target defaults only through approved migrations.
+- **Rollout Steps:** Use explicit MySQL server defaults for fresh Docker database initialization. Inventory existing database and column collations. Review duplicate and index impact before a separately authorized conversion. Follow [database collation procedures](../platform/operations/database-collation.md).
 - **Verification:** Verify server support, connection charset, and actual table definitions on MySQL 8.4. Test I/İ/ı/i, accents, normalization, trailing spaces, and generated-field overrides.
 - **Review Date:** Review when text equality, supported locales, database versions, or business-key rules change.

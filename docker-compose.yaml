@@ -29,6 +29,9 @@ services:
       - backendbase_net
   mysql:
     image: mysql:8.4.11@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_tr_0900_ai_ci
     container_name: backendbase-db
     ports:
       - "127.0.0.1:${BACKENDBASE_DEV_MYSQL_PORT:-3306}:3306"

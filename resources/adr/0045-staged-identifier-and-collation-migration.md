@@ -39,6 +39,7 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#migrati
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Inventory the target and stop Example writers. Validate canonical existing UUIDs and all references. Create `example_table_uuid`. Copy existing UUIDs with `UUID_TO_BIN(uuid, 0)`. Enforce the selected collation and active uniqueness during the copy. Atomically rename the original table to `example_table_legacy_20261014` and activate the copy. Retain the original table for reviewed forward recovery. New timestamps use UTC microseconds. Do not restart an interrupted migration without inspecting its completed phase.
+- **Current artifacts:** Consolidated migrations create final tables for fresh installations only. The former Example shadow-copy conversion migration was removed. No automatic existing-database conversion or adoption command is supplied.
+- **Rollout Steps:** Inventory the named existing target and its migration records. Prepare a separate forward conversion and recovery plan. Preserve existing public UUIDs, logical references, collation overrides, and audit evidence. Rehearse copying and any atomic rename on an isolated clone. Retain the original identifier map for reviewed forward recovery. Follow [migration adoption](../platform/operations/migration-consolidation.md) and [Example conversion planning](../platform/operations/example-uuid-conversion.md).
 - **Verification:** Require complete backfill and zero duplicate or orphan references. Rehearse recovery on prepared staging data. Verify schema differences, sessions, jobs, reports, index size, and collation behavior.
 - **Review Date:** Review before each target cutover or change to legacy identity and text compatibility.
