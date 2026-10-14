@@ -47,6 +47,12 @@ final readonly class RedisSettings
         return ($this->values['tls'] ? 'tls://' : '') . $this->values['host'];
     }
 
+    /** @return array{stream: array{verify_peer: true, verify_peer_name: true}}|null */
+    public function connectionContext(): array|null
+    {
+        return $this->values['tls'] ? ['stream' => ['verify_peer' => true, 'verify_peer_name' => true]] : null;
+    }
+
     /** @return string|array{string, string}|null */
     public function credentials(): string|array|null
     {

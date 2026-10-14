@@ -79,7 +79,7 @@ jobs:
 
       - name: Run release gates
         run: |
-          composer run test
+          bash bin/tests/redis-failover.sh composer run test
           composer run phpstan
           composer run complexity
           composer run cs-check

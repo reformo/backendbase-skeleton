@@ -178,7 +178,9 @@ Source sections: `onboarding`, `doctrine`, and `open`.
 
 Native regression tests cover MySQL deadlocks, Turkish collation, active-key restore conflicts, and challenge creation versus User removal.
 Redis recovery tests cover missing and partial allowlists, reconnect behavior, and stale records after Account closure.
-These tests do not establish a production replica topology, failover durability, or representative performance.
+An isolated Sentinel suite also tests planned promotion, primary failure, stale revocations, and lost quorum in both realms.
+The suite proves the controlled-logout requirement after revocation loss. It does not select a production topology or establish provider durability.
+See the [failover test procedure](../../platform/operations/redis-failover-tests.md).
 Use the [acceptance procedure](../../platform/operations/identity-acceptance.md) for those deployment gates.
 
 The report does not select a hosting model, global database separation policy, secret-store provider, replay window, provider-effect reconciliation policy, or general mapper strictness.

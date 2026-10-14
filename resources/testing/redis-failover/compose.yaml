@@ -1,0 +1,57 @@
+x-redis-image: &redis-image redis:8.10.2@sha256:2c2dff791878316e3b083188be0d578423b24813cdda5de0e80ea4f7b3e6bfd6
+x-redis-health: &redis-health
+  test: ["CMD", "redis-cli", "ping"]
+  interval: 1s
+  timeout: 1s
+  retries: 30
+x-sentinel: &sentinel
+  image: *redis-image
+  entrypoint: ["/bin/sh", "-ec"]
+  command:
+    - |
+      if [ ! -f /tmp/sentinel.conf ]; then
+        primaryAddress="$$(getent hosts primary | cut -d ' ' -f 1)"
+        printf '%s\n' \
+          'port 26379' \
+          'bind 0.0.0.0' \
+          'protected-mode no' \
+          'sentinel resolve-hostnames yes' \
+          "sentinel monitor identity $${primaryAddress} 6379 2" \
+          'sentinel down-after-milliseconds identity 1000' \
+          'sentinel failover-timeout identity 5000' \
+          'sentinel parallel-syncs identity 1' > /tmp/sentinel.conf
+      fi
+      exec redis-server /tmp/sentinel.conf --sentinel
+  ports: ["127.0.0.1::26379"]
+  depends_on:
+    primary:
+      condition: service_healthy
+    replica:
+      condition: service_healthy
+  healthcheck:
+    <<: *redis-health
+    test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+
+services:
+  primary:
+    image: *redis-image
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--protected-mode", "no", "--repl-diskless-sync-delay", "0"]
+    ports: ["127.0.0.1::6379"]
+    tmpfs: ["/data"]
+    healthcheck: *redis-health
+  replica:
+    image: *redis-image
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--protected-mode", "no", "--replicaof", "primary", "6379"]
+    ports: ["127.0.0.1::6379"]
+    tmpfs: ["/data"]
+    depends_on:
+      primary:
+        condition: service_healthy
+    healthcheck: *redis-health
+  sentinel-one: *sentinel
+  sentinel-two: *sentinel
+  sentinel-three: *sentinel
+
+networks:
+  default:
+    driver: bridge

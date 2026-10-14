@@ -25,10 +25,11 @@ return static function (ContainerBuilder $containerBuilder): void {
             $port        = $settings->port();
             $timeout     = $settings->readinessTimeoutSeconds();
             $credentials = $settings->credentials();
+            $context     = $settings->connectionContext();
 
-            return new SessionRedis(static function () use ($host, $port, $timeout, $credentials): Redis {
+            return new SessionRedis(static function () use ($host, $port, $timeout, $credentials, $context): Redis {
                 $client = new Redis();
-                $client->connect($host, $port, $timeout, context: ['stream' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+                $client->connect($host, $port, $timeout, context: $context);
                 $client->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
                 if ($credentials !== null) {
                     if (! $client->auth($credentials)) {
@@ -55,7 +56,7 @@ return static function (ContainerBuilder $containerBuilder): void {
                     $host,
                     $port,
                     $timeout,
-                    context: ['stream' => ['verify_peer' => true, 'verify_peer_name' => true]],
+                    context: $redisSettings->connectionContext(),
                 );
                 $redisClient->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
                 $credentials = $redisSettings->credentials();

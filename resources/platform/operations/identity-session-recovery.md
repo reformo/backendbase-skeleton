@@ -39,7 +39,12 @@ It verifies rejection after total loss, partial restoration, and client reconnec
 It also restores records after MySQL Account closure and verifies that both realms remain denied.
 That Account check uses the isolated SQLite identity fixture. It tests the Redis recovery boundary, not cross-service commit atomicity.
 
-The tests do not run a replica election or establish acknowledged-write durability.
-Before production acceptance, rehearse the selected replica or managed-service failover with issued and revoked sessions.
+`RedisFailoverTest` runs real Sentinel elections in a disposable primary, replica, and three-Sentinel topology.
+It verifies planned promotion, primary failure, loss of revocation writes, and loss of Sentinel majority in both realms.
+The stale-replica case proves why controlled logout is required when acknowledged revocations are lost.
+See the [isolated failover runner](redis-failover-tests.md) for commands, boundaries, and cleanup.
+
+These tests establish the local topology's behavior. They do not establish a managed service's durability or recovery objectives.
+Before production acceptance, rehearse the selected deployment with issued and revoked sessions.
 Record the recovery-point policy, outage interval, revocation durability, namespace invalidation, and fresh-login result.
 Use [identity acceptance](identity-acceptance.md) to record the target and results.

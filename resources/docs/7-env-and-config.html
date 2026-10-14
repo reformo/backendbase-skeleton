@@ -792,6 +792,7 @@
             <div class="code-wrap"><pre><code>docker compose up -d
 docker compose ps</code></pre></div>
             <p>Docker Compose values are local development defaults. Application variables in <code>.env.example</code> reference the same development values. Do not copy them into stage or production secrets.</p>
+            <p>Plain Redis endpoints use no TLS stream context. Configured TLS endpoints verify the peer and peer name. The session and JSON client factories use the same typed connection policy.</p>
         </section>
 
         <section id="secrets">

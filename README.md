@@ -19,6 +19,8 @@ composer --timeout=0 run start-apis
 The copy workflow replaces the target `.env` with `.env.example` before maintenance. Review the target configuration before running it.
 Housekeeping clears caches, fixes source style, generates OpenAPI, updates dependencies, and refreshes supply-chain evidence. See the [testing guide](resources/docs/10-testing-and-quality.html#automation).
 
+Run isolated Redis Sentinel checks with `bash bin/tests/redis-failover.sh`. The runner creates and removes its own primary, replica, and three Sentinels. See [Redis failover tests](resources/platform/operations/redis-failover-tests.md).
+
 ## Local Infrastructure
 
 ```sh

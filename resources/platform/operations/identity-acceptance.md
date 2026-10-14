@@ -25,6 +25,7 @@ Native tests cover these requirements:
 | Challenge creation versus User removal in both orderings | `MySqlRelationshipRaceTest` |
 | Native token/session activation, expiry, and revocation | `RedisSessionTest` |
 | Missing, restored, and reconnected authentication state | `RedisRecoveryTest` |
+| Sentinel promotion, primary failure, stale replicas, and lost quorum | `RedisFailoverTest` |
 
 Concurrency workers use separate PHP processes and database connections.
 Tests wait for an observed InnoDB lock wait before allowing the competing transaction to proceed.
@@ -76,6 +77,8 @@ Do not publish fixture timings as production performance evidence.
 ## Redis and collection operations
 
 Rehearse the selected Redis service failure, failover, and recovery procedure.
+Use the [isolated failover runner](redis-failover-tests.md) for repeatable local Sentinel evidence.
+Provider-specific deployment acceptance remains separate from this fixture.
 Verify existing revoked sessions remain denied or require controlled namespace invalidation.
 Follow [session recovery](identity-session-recovery.md) when revocation durability is uncertain.
 Record exporter, storage, retention, alert thresholds, and incident ownership before production activation.

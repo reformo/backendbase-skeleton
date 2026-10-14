@@ -20,6 +20,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add a disposable Redis primary, replica, and three-Sentinel test environment. Verify planned promotion, primary failure, lost revocations, and lost Sentinel quorum in both authentication realms. Run the failover tests in quality and release gates.
+
 - Add native MySQL regressions for Turkish collation and NO PAD uniqueness, deadlock rollback and retry, active-login restore conflicts, and challenge creation during User removal. Add JWT contract and Redis recovery regressions.
 - Add database collation, session recovery, and identity acceptance procedures. Reconcile the architecture report with the current JWT contract, identifier scope, password authentication, and fresh-installation migration support.
 
@@ -71,6 +73,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added reviewed Composer public keys for deterministic isolated self-diagnosis.
 
 ### Fixed
+
+- Use a TLS stream context only for configured Redis TLS endpoints. Plain Redis connections no longer attempt a TLS handshake.
 
 - Exclude the DBAL-owned operator evidence table from the native recovery test's ORM schema comparison.
 

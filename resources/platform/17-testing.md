@@ -91,6 +91,11 @@ Native MySQL tests cover Turkish UCA comparison and NO PAD uniqueness, error 121
 `MySqlRelationshipRaceTest` checks challenge creation against User removal with separate PHP processes and observed lock waits.
 `RedisRecoveryTest` uses fixture-owned `DUMP` and `RESTORE` records to check loss, partial recovery, reconnection, and current Account closure.
 The Redis recovery Account gate uses isolated SQLite persistence. It does not prove MySQL/Redis atomicity or production replica durability.
+`RedisFailoverTest` runs eight cases through a disposable primary, replica, and three Sentinels.
+It verifies planned promotion, primary failure, stale revocations, and quorum loss through the production Redis connection provider.
+Use `bash bin/tests/redis-failover.sh` to run the dedicated cases.
+Quality and release workflows run `bash bin/tests/redis-failover.sh composer test` with their separate MySQL and standalone Redis fixtures.
+Ordinary PHPUnit skips failover cases unless the isolated runner supplies its generated project name and test flag.
 See [identity acceptance](operations/identity-acceptance.md) for remaining deployment measurements and failover evidence.
 
 `composer complexity` fails when one function or method has cyclomatic complexity greater than 12.

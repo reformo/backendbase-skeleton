@@ -41,8 +41,16 @@ final class RedisSecuritySettingsTest extends TestCase
         $root     = ['redis' => ['host' => 'redis.example.com', 'port' => 6379, 'password' => 'test-password', 'tls' => true], 'readiness' => ['timeoutSeconds' => 2]];
         $password = new RedisSettings(new Settings($root));
         self::assertSame('tls://redis.example.com', $password->connectionHost());
+        self::assertSame(['stream' => ['verify_peer' => true, 'verify_peer_name' => true]], $password->connectionContext());
         self::assertSame('test-password', $password->credentials());
         $acl = new RedisSettings(new Settings([...$root, 'redis' => [...$root['redis'], 'username' => 'application']]));
         self::assertSame(['application', 'test-password'], $acl->credentials());
+    }
+
+    public function testPlainConnectionsDoNotActivateATlsStreamContext(): void
+    {
+        $settings = new RedisSettings(new Settings(['redis' => ['host' => '127.0.0.1', 'port' => 6379], 'readiness' => ['timeoutSeconds' => 2]]));
+        self::assertSame('127.0.0.1', $settings->connectionHost());
+        self::assertNull($settings->connectionContext());
     }
 }

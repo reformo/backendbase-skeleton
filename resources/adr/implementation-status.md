@@ -58,6 +58,23 @@ Starting source revision: `ddc9946`.
 
 ## Verification
 
+### Redis Sentinel failover on 15 October 2026
+
+Starting source revision: `de4e775`.
+
+- The full suite passes 863 tests and 11,139 assertions with no skipped cases.
+- Executable-line coverage is 5,578 of 5,578 lines (100%). Method coverage is 1,335 of 1,335 methods (100%).
+- Eight native cases exercise planned promotion, primary failure, lost revocations, and lost Sentinel majority in USER and ADMIN.
+- The runner recreates a primary, replica, and three Sentinels on a separate project network with random loopback ports and temporary storage.
+- Application tests resolve both Redis client factories from production dependency definitions and validate real JWTs and Redis Lua state.
+- A native regression exposed forced TLS negotiation on plain endpoints. Both client factories now use the typed conditional TLS context.
+- TLS configuration tests preserve peer verification. The failover topology itself uses plain connections.
+- Lost revocation tests demonstrate acceptance of stale sessions before controlled invalidation. Account block markers survive invalidation, and fresh login works afterward.
+- The application still requires a stable primary endpoint or an endpoint update and new connection after promotion.
+- Quality and release workflows run the full suite through the isolated failover runner.
+- PHPStan level 8, coding style, complexity, coverage, and isolated deployment checks pass.
+- No development or production service was changed. Provider-specific durability and recovery objectives still need deployment acceptance.
+
 ### Architecture reconciliation on 15 October 2026
 
 Starting source revision: `dac1ab0`.
