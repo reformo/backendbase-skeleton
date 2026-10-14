@@ -1,0 +1,24 @@
+get:
+  tags:
+    - System
+  operationId: readinessCheck
+  description: Check bounded connections to required dependencies
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  responses:
+    200:
+      description: All dependencies are ready
+      content:
+        application/json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Readiness'
+    503:
+      description: One or more dependencies are unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Readiness'
+  security: []

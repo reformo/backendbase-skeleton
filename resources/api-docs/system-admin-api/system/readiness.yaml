@@ -1,0 +1,34 @@
+get:
+  tags:
+    - System
+  operationId: systemadminReadiness
+  summary: 'Readiness check'
+  parameters:
+    -
+      $ref: '../../common/components.yaml#/headers/Accept-Language'
+    -
+      $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    -
+      $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    -
+      name: X-Source-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - system-admin
+  security: []
+  responses:
+    200:
+      description: Available
+      content:
+        application/json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Readiness'
+    503:
+      description: Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Readiness'

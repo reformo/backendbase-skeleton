@@ -38,6 +38,9 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 
 ## Backendbase invariants
 
+- Group OpenAPI path files in logical feature folders with lowercase `kebab-case` names under the owning API source directory.
+- Store all methods for one path in one YAML file. Reference every path from the root through a relative `$ref`.
+- Apply this layout to metadata and health endpoints. Resolve component references from each containing file.
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.

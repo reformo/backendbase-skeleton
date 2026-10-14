@@ -81,6 +81,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Group all OpenAPI endpoint definitions in feature folders and reference each path from its API root. Preserve all 38 operation contracts. Update contract tests, project rules, platform guidance, and API skills for the source layout.
+
 - Replace generic success `data` wrappers with resource and result keys, including `user`, `admin`, `registration`, `challenge`, `enrollment`, and `session`. Preserve payload fields and HTTP/error contracts. Update OpenAPI sources, merged YAML, Bruno assertions, regression tests, and guidance. Require descriptive response keys in project and skill rules.
 
 - Consolidate seven migration drafts into three final-schema installations for messaging, ExampleCatalog, and IdentityAndAccess. Include recovery and operator evidence and required indexes at creation. Remove the staged Example conversion from fresh installation. Update release metadata, regression tests, and existing-database adoption guidance.

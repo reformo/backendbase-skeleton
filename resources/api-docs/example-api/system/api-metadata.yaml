@@ -1,0 +1,44 @@
+get:
+  tags:
+    - System
+  operationId: apiMetadata
+  description: Read API build metadata
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - $ref: '../../common/components.yaml#/headers/X-Source-Id'
+  responses:
+    200:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - "apiMetadata"
+            properties:
+              apiMetadata:
+                additionalProperties: false
+                required:
+                  - "version"
+                  - "buildId"
+                  - "cdnBaseUrl"
+                properties:
+                  version:
+                    type: "string"
+                    example: "1.0.0"
+                  buildId:
+                    type: "string"
+                    example: "0.0.1"
+                  cdnBaseUrl:
+                    type: "string"
+                    example: ""
+                type: "object"
+    401:
+      $ref: '../../common/components.yaml#/schemas/401'
+    403:
+      $ref: '../../common/components.yaml#/schemas/403'
+  security:
+    - apiKey: [ ]

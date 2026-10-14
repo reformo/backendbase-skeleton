@@ -7,6 +7,11 @@ OpenAPI defines the public contract. Bruno supplies executable examples against 
 - Edit OpenAPI source under `resources/api-docs`.
 - Do not hand-edit generated `public/*/docs/*-merged.yml` documents.
 - Regenerate the merged file after each source change.
+- Group endpoint definitions in logical feature folders under each API source directory.
+- Use lowercase `kebab-case` folder and file names.
+- Store one Path Item Object per YAML file, with all methods for that path.
+- Keep every root `paths` entry as a relative `$ref`, including metadata and health endpoints.
+- Resolve each `$ref` from its containing file. Adjust shared and root component references when moving definitions.
 - Keep route placeholders equal to OpenAPI path parameter names.
 - Keep one unique operation ID per operation.
 - Group every operation with a non-empty `tags` list, including operations in referenced path files.
@@ -107,13 +112,18 @@ Quality and release workflows use the grouped identity commands.
 
 ## Endpoint groups
 
-| Endpoint group | Tag |
-| --- | --- |
-| `/auth/*` | `Authentication` |
-| `/identity` and `/identity/*` | `Identity` |
-| `/administration/*` | `Administration` |
-| `/`, `/_status`, `/_status/ready` | `System` |
-| `/example-types/*` | `Example` |
+| Endpoint group | Source folder | Tag |
+| --- | --- | --- |
+| `/auth/*` | `authentication/` | `Authentication` |
+| `/identity` and `/identity/*` | `identity/` | `Identity` |
+| `/administration/*` | `administration/` | `Administration` |
+| `/`, `/_status`, `/_status/ready` | `system/` | `System` |
+| `/example-types/*` | `example/` | `Example` |
+
+Each API root owns metadata, servers, tags, components, and the path reference index.
+Endpoint files own operation definitions. Keep methods for one path together.
+For example, UserApi references `./authentication/login.yaml` from its root `paths` entry for `/auth/login`.
+That file references shared headers through `../../common/components.yaml` and root schemas through `../user-api-openapi.yml#/components/schemas/...`.
 
 Each API validation command runs schema validation and `bin/check-openapi-tags.php` for source and merged documents.
 The tag check resolves referenced path files. It rejects missing or empty operation tags, undeclared tags, duplicate declarations, and blank or padded names.

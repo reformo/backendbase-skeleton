@@ -60,6 +60,9 @@ The second approach returns resource state at read time, not an exact commit sna
 - Select response keys at the HTTP boundary. Match the target contract, naming convention, schemas, generated documents, and request assertions.
 
 - Group every OpenAPI operation with a non-empty `tags` list.
+- Place the endpoint definition in its logical feature folder with lowercase `kebab-case` names under the owning API source directory.
+- Keep all methods for one path in one YAML file. Reference that file from the root `paths` entry through a relative `$ref`.
+- Apply this layout to metadata and health endpoints. Resolve component references from each containing file.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.
 - In an unmodified Backendbase API, actions extend the HTTP adapter `Action` base. Other projects must use their established HTTP and error boundary.

@@ -137,8 +137,12 @@ Finish when the requested behavior works, required checks pass, and affected doc
 - Keep Problem Details fields at the root. Do not wrap errors inside a resource key.
 - Update runtime responses, OpenAPI sources, merged YAML, maintained request assertions, tests, and guidance in the same change.
 
-### OpenAPI tags
+### OpenAPI source layout and tags
 
+- Group endpoint definitions by logical feature under each API source directory. Use lowercase `kebab-case` folder and file names.
+- Store one Path Item Object per YAML file. Keep all methods for the same path in that file.
+- Keep every root `paths` entry as a relative `$ref` to its group file, including metadata and health endpoints.
+- Resolve references relative to the file that contains them. Update component references when moving endpoint definitions.
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the root document's `tags` section.
 - Use consistent tag names for the same endpoint group across APIs.

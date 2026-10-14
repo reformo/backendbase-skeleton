@@ -2,7 +2,25 @@
 
 ## Composition
 
-The root document owns API metadata, servers, root operations, security schemes, tags, and feature references. Feature files own operations for one resource path. A common components file owns shared request headers and problem responses.
+The root document owns API metadata, servers, components, security schemes, tags, and the path reference index.
+Each root `paths` entry references one Path Item Object in a logical feature folder.
+Each path file owns all methods for one resource path. Metadata and health operations follow the same rule.
+Use lowercase `kebab-case` folder and file names. A common components file owns shared request headers and problem responses.
+
+Current Backendbase folders are `authentication/`, `identity/`, `administration/`, `system/`, and `example/` where applicable.
+Adapt these group names to the target features.
+
+```yaml
+paths:
+  /auth/login:
+    $ref: './authentication/login.yaml'
+  /_status:
+    $ref: './system/liveness.yaml'
+```
+
+Resolve every reference from its containing file.
+In a group file, shared components use `../../common/components.yaml`.
+Root schemas use `../{root-spec}.yml#/components/schemas/{schema-name}`. Use the actual target root filename and schema name.
 
 ```yaml
 get:

@@ -1,0 +1,71 @@
+post:
+  tags:
+    - Authentication
+  operationId: userPrepareTotpEnrollment
+  summary: 'Prepare TOTP enrollment'
+  parameters:
+    -
+      $ref: '../../common/components.yaml#/headers/Accept-Language'
+    -
+      $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    -
+      $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    -
+      name: X-Source-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - user
+  security: []
+  responses:
+    200:
+      description: 'Completed operation'
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            enum:
+              - no-store
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - enrollment
+            properties:
+              enrollment:
+                $ref: '../user-api-openapi.yml#/components/schemas/Enrollment'
+    400:
+      description: 'Invalid request'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../user-api-openapi.yml#/components/schemas/Problem'
+    401:
+      description: 'Authentication denied'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../user-api-openapi.yml#/components/schemas/Problem'
+    409:
+      description: 'Identity conflict'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../user-api-openapi.yml#/components/schemas/Problem'
+    503:
+      description: 'Authentication dependency unavailable'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../user-api-openapi.yml#/components/schemas/Problem'
+  requestBody:
+    required: true
+    description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+    content:
+      application/json:
+        schema:
+          $ref: '../user-api-openapi.yml#/components/schemas/LoginInput'

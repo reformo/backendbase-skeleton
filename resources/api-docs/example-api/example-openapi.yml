@@ -14,101 +14,11 @@ servers:
     description: EXAMPLE API Production URL
 paths:
   /:
-    get:
-      tags:
-        - System
-      operationId: apiMetadata
-      description: Read API build metadata
-      parameters:
-        - $ref: '../common/components.yaml#/headers/Accept-Language'
-        - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
-        - $ref: '../common/components.yaml#/headers/X-Request-Id'
-        - $ref: '../common/components.yaml#/headers/X-Source-Id'
-      responses:
-        200:
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: false
-                required:
-                  - "apiMetadata"
-                properties:
-                  apiMetadata:
-                    additionalProperties: false
-                    required:
-                      - "version"
-                      - "buildId"
-                      - "cdnBaseUrl"
-                    properties:
-                      version:
-                        type: "string"
-                        example: "1.0.0"
-                      buildId:
-                        type: "string"
-                        example: "0.0.1"
-                      cdnBaseUrl:
-                        type: "string"
-                        example: ""
-                    type: "object"
-        401:
-          $ref: '../common/components.yaml#/schemas/401'
-        403:
-          $ref: '../common/components.yaml#/schemas/403'
-      security:
-        - apiKey: [ ]
+    $ref: "./system/api-metadata.yaml"
   /_status:
-    get:
-      tags:
-        - System
-      operationId: livenessCheck
-      description: Check whether the API process can serve requests
-      parameters:
-        - $ref: '../common/components.yaml#/headers/Accept-Language'
-        - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
-        - $ref: '../common/components.yaml#/headers/X-Request-Id'
-        - $ref: '../common/components.yaml#/headers/X-Source-Id'
-      responses:
-        200:
-          description: Process is alive
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: false
-                required:
-                  - status
-                properties:
-                  status:
-                    type: string
-                    enum: [alive]
-      security: []
+    $ref: "./system/liveness.yaml"
   /_status/ready:
-    get:
-      tags:
-        - System
-      operationId: readinessCheck
-      description: Check bounded connections to required dependencies
-      parameters:
-        - $ref: '../common/components.yaml#/headers/Accept-Language'
-        - $ref: '../common/components.yaml#/headers/The-Timezone-IANA'
-        - $ref: '../common/components.yaml#/headers/X-Request-Id'
-        - $ref: '../common/components.yaml#/headers/X-Source-Id'
-      responses:
-        200:
-          description: All dependencies are ready
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Readiness'
-        503:
-          description: One or more dependencies are unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Readiness'
-      security: []
+    $ref: "./system/readiness.yaml"
   /example-types/{type-slug}/groups:
     $ref: "./example/example-groups.yaml"
   /example-types/{type-slug}/groups/{example-group}/examples:

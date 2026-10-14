@@ -1,0 +1,95 @@
+get:
+  tags:
+    - Administration
+  operationId: systemadminReadActorHistory
+  summary: 'Read actor history'
+  parameters:
+    -
+      $ref: '../../common/components.yaml#/headers/Accept-Language'
+    -
+      $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    -
+      $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    -
+      name: X-Source-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - system-admin
+    -
+      name: realm
+      in: path
+      required: true
+      schema:
+        type: string
+        enum:
+          - USER
+          - ADMIN
+    -
+      name: actor-id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        pattern: '^[0-9a-f-]{36}$'
+  security:
+    -
+      bearerToken: {}
+  responses:
+    200:
+      description: 'Completed operation'
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            enum:
+              - no-store
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - actor
+            properties:
+              actor:
+                $ref: '../system-admin-api-openapi.yml#/components/schemas/ActorHistory'
+    400:
+      description: 'Invalid request'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    401:
+      description: 'Authentication denied'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    409:
+      description: 'Identity conflict'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    503:
+      description: 'Authentication dependency unavailable'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    403:
+      description: 'Actor authority denied'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    404:
+      description: 'The stored actor was not found'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'

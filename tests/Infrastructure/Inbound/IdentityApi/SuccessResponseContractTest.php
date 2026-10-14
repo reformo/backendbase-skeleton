@@ -6,9 +6,13 @@ namespace Tests\Infrastructure\Inbound\IdentityApi;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Yaml\Yaml;
+use Tests\Support\Http\ApiResponseAssertions;
 
 use function array_keys;
+use function json_decode;
+use function json_encode;
+
+use const JSON_THROW_ON_ERROR;
 
 final class SuccessResponseContractTest extends TestCase
 {
@@ -32,7 +36,8 @@ final class SuccessResponseContractTest extends TestCase
     #[DataProvider('documents')]
     public function testSourceAndMergedSuccessSchemasUseDescriptiveKeys(string $file, int $expectedEnvelopes, string $identityKey): void
     {
-        $document = Yaml::parseFile($file);
+        $specification = ApiResponseAssertions::document($file);
+        $document      = json_decode(json_encode($specification->getSerializableData(), JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($document);
         self::assertIsArray($document['paths']);
         $envelopes = 0;

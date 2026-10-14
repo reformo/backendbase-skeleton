@@ -27,6 +27,11 @@ If runtime implementation is outside scope, deliver the contract draft and repor
 
 Use the target API version, source layout, servers, media types, component names, security schemes, generation command, tag groups, and compatibility policy. Do not copy Backendbase hosts, headers, example credentials, resource fields, or fixture values unless the target uses them.
 
+Group endpoint definitions in logical feature folders under the owning API source directory. Use lowercase `kebab-case` names.
+Store one Path Item Object per YAML file, with all methods for that path.
+Keep each root `paths` entry as a relative `$ref`, including metadata and health endpoints.
+Resolve references from their containing file. Adjust shared and root component references when moving definitions.
+
 ## Workflow
 
 1. Draft the intended method, path, inputs, security, success response, headers, and errors in the authoritative OpenAPI source.

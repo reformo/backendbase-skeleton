@@ -10,13 +10,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Slim\Factory\AppFactory;
 use Symfony\Component\Yaml\Yaml;
+use Tests\Support\Http\ApiResponseAssertions;
 
 use function glob;
+use function json_decode;
+use function json_encode;
 use function preg_replace;
 use function sort;
 use function str_replace;
 use function str_starts_with;
 use function strtoupper;
+
+use const JSON_THROW_ON_ERROR;
 
 final class ApiContractTest extends TestCase
 {
@@ -37,7 +42,8 @@ final class ApiContractTest extends TestCase
             }
         }
 
-        $specification = Yaml::parseFile('resources/api-docs/' . $slug . '/' . $slug . '-openapi.yml');
+        $document      = ApiResponseAssertions::document('resources/api-docs/' . $slug . '/' . $slug . '-openapi.yml');
+        $specification = json_decode(json_encode($document->getSerializableData(), JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($specification);
         self::assertIsArray($specification['paths']);
         $documented = [];

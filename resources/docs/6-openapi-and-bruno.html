@@ -579,12 +579,24 @@
             <pre class="tree" aria-label="OpenAPI and Bruno file tree">resources/
 ├── api-docs/
 │   ├── common/components.yaml                  # shared headers and responses
-│   └── example-api/
-│       ├── example-openapi.yml                 # root contract and servers
-│       └── example/
-│           ├── example-groups.yaml             # group list
-│           ├── examples.yaml                   # example list and create
-│           └── example-details.yaml            # get, change, and delete
+│   ├── example-api/
+│   │   ├── example-openapi.yml                 # metadata, components, and path references
+│   │   ├── system/                             # metadata, liveness, and readiness paths
+│   │   └── example/
+│   │       ├── example-groups.yaml             # group list
+│   │       ├── examples.yaml                   # example list and create
+│   │       └── example-details.yaml            # get, change, and delete
+│   ├── user-api/
+│   │   ├── user-api-openapi.yml                # metadata, components, and path references
+│   │   ├── authentication/                     # registration, ownership, enrollment, and login
+│   │   ├── identity/                           # current identity, token, session, and account
+│   │   └── system/                             # liveness and readiness paths
+│   └── system-admin-api/
+│       ├── system-admin-api-openapi.yml        # metadata, components, and path references
+│       ├── authentication/                     # ownership, enrollment, and login
+│       ├── identity/                           # current identity, token, session, and account
+│       ├── administration/                     # admin and actor operations
+│       └── system/                             # liveness and readiness paths
 └── bruno/example-api/
     ├── opencollection.yml                       # collection root
     ├── environments/local.yml                   # local values
@@ -684,7 +696,10 @@ bin/bruno                                       # Bruno command wrapper</pre>
             <p class="section-label">05 · OpenAPI source</p>
             <h2>The root document composes the contract</h2>
             <p>Example metadata uses <code>apiMetadata</code>. Lists use <code>exampleGroups</code> or <code>examples</code> with root pagination fields. Details use <code>example</code>. Empty detail maps serialize as <code>{}</code>. See the <a href="../platform/08-api-contracts.md">response contract guide</a> for all API key groups and automated check limits.</p>
-            <p><code>example-openapi.yml</code> owns the OpenAPI version, title, servers, root operations, security schemes, tags, and path references.</p>
+            <p>Each API root owns the OpenAPI version, title, servers, components, security schemes, tags, and path references.</p>
+            <p>Group endpoint definitions in logical feature folders. Use lowercase <code>kebab-case</code> folder and file names. Each YAML file contains one Path Item Object with all methods for that path.</p>
+            <p>Every root <code>paths</code> entry must use a relative <code>$ref</code>, including metadata and health endpoints. Resolve references from their containing file.</p>
+            <p>Group files reference shared components through <code>../../common/components.yaml</code>. Reference root schemas through <code>../{root-spec}.yml#/components/schemas/{schema-name}</code>.</p>
             <p>Every operation must define a non-empty <code>tags</code> list. Declare each assigned tag with a description in the root document. Use consistent names across APIs.</p>
             <div class="table-wrap"><table><thead><tr><th>Endpoint group</th><th>Tag</th></tr></thead><tbody>
                 <tr><td><code>/auth/*</code></td><td>Authentication</td></tr>
@@ -700,7 +715,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <li>Uses OpenAPI <code>3.0.0</code>.</li>
                         <li>Defines local, stage, and production servers.</li>
                         <li>Defines the <code>apiKey</code> security scheme.</li>
-                        <li>References three feature path files.</li>
+                        <li>References three system path files and three example path files.</li>
                     </ul>
                 </article>
                 <article class="card">
@@ -709,12 +724,19 @@ bin/bruno                                       # Bruno command wrapper</pre>
                         <li><code>example-groups.yaml</code> owns one GET operation.</li>
                         <li><code>examples.yaml</code> owns GET and POST operations.</li>
                         <li><code>example-details.yaml</code> owns GET, PATCH, and DELETE operations.</li>
+                        <li><code>system/</code> contains metadata, liveness, and readiness path files.</li>
                     </ul>
                 </article>
             </div>
             <div class="code-shell">
                 <button class="copy-button" type="button">Copy</button>
                 <pre><code>paths:
+  /:
+    $ref: "./system/api-metadata.yaml"
+  /_status:
+    $ref: "./system/liveness.yaml"
+  /_status/ready:
+    $ref: "./system/readiness.yaml"
   /example-types/{type-slug}/groups:
     $ref: "./example/example-groups.yaml"
   /example-types/{type-slug}/groups/{example-group}/examples:
@@ -1026,6 +1048,8 @@ vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi</code></pre>
                         <tr><td>OpenAPI root</td><td><a href="../api-docs/example-api/example-openapi.yml"><code>resources/api-docs/example-api/example-openapi.yml</code></a></td></tr>
                         <tr><td>Shared components</td><td><a href="../api-docs/common/components.yaml"><code>resources/api-docs/common/components.yaml</code></a></td></tr>
                         <tr><td>Example paths</td><td><code>resources/api-docs/example-api/example/*.yaml</code></td></tr>
+                        <tr><td>System paths</td><td><code>resources/api-docs/{api-slug}/system/*.yaml</code></td></tr>
+                        <tr><td>Identity realm paths</td><td><code>resources/api-docs/{api-slug}/{authentication,identity,administration}/*.yaml</code></td></tr>
                         <tr><td>Generated contract</td><td><a href="../../public/example-api/docs/example-api-merged.yml"><code>public/example-api/docs/example-api-merged.yml</code></a></td></tr>
                         <tr><td>Documentation viewer</td><td><a href="../../public/example-api/docs/index.php"><code>public/example-api/docs/index.php</code></a></td></tr>
                         <tr><td>Bruno collection root</td><td><a href="../bruno/example-api/opencollection.yml"><code>resources/bruno/example-api/opencollection.yml</code></a></td></tr>
