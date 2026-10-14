@@ -67,7 +67,8 @@ final class HttpErrorHandlerTest extends TestCase
         self::assertSame('server/internal-error', $payload['code']);
         self::assertSame('An internal error has occurred while processing your request.', $payload['detail']);
         self::assertArrayNotHasKey('exceptionDetails', $payload);
-        self::assertTrue($logHandler->hasErrorThatContains('Sensitive implementation failure.'));
+        self::assertTrue($logHandler->hasErrorThatContains('HTTP request failed.'));
+        self::assertFalse($logHandler->hasErrorThatContains('Sensitive implementation failure.'));
         $record = $logHandler->getRecords()[0];
         self::assertSame(RuntimeException::class, $record->context['exception']);
         self::assertIsString($record->context['file']);

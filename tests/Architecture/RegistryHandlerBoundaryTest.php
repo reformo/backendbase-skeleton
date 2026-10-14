@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Architecture;
 
 use Backendbase\Domain\ExampleCatalog\ServiceProvider as ExampleCatalogServiceProvider;
+use Backendbase\Domain\IdentityAndAccess\ServiceProvider as IdentityServiceProvider;
 use Backendbase\Shared\CQRS\Attributes\CQRSHandler;
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandHandler;
@@ -26,7 +27,7 @@ final class RegistryHandlerBoundaryTest extends TestCase
     #[Test]
     public function everyCommandAndQueryUsesAResolvableRegistryHandler(): void
     {
-        $mappings            = ExampleCatalogServiceProvider::getHandlers();
+        $mappings            = [...ExampleCatalogServiceProvider::getHandlers(), ...IdentityServiceProvider::getHandlers()];
         $contracts           = self::contractClasses();
         $registeredContracts = array_keys($mappings);
         sort($contracts);

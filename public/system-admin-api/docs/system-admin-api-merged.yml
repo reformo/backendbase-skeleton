@@ -1,0 +1,1853 @@
+openapi: 3.0.0
+info:
+  title: 'Backendbase ADMIN API'
+  description: 'Realm-specific password and TOTP authentication. Contact ownership verification is a separate gate. Admin enrollment also requires invitation and approval.'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://127.0.0.1:8080/system-admin-api'
+paths:
+  /auth/ownership/verify:
+    post:
+      summary: 'Verify contact ownership'
+      operationId: systemadminVerifyContactOwnership
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProofInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /auth/ownership/resend:
+    post:
+      summary: 'Resend contact ownership proof'
+      operationId: systemadminResendContactOwnershipProof
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Challenge'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /auth/mfa/enrollment:
+    post:
+      summary: 'Prepare TOTP enrollment'
+      operationId: systemadminPrepareTotpEnrollment
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Enrollment'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /auth/mfa/enrollment/complete:
+    post:
+      summary: 'Complete TOTP enrollment'
+      operationId: systemadminCompleteTotpEnrollment
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProofInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /auth/login:
+    post:
+      summary: 'Begin password authentication'
+      operationId: systemadminBeginPasswordAuthentication
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Challenge'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /auth/login/complete:
+    post:
+      summary: 'Complete TOTP authentication'
+      operationId: systemadminCompleteTotpAuthentication
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProofInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Session'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /identity:
+    get:
+      summary: 'Read current identity'
+      operationId: systemadminReadCurrentIdentity
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Identity'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /identity/token:
+    delete:
+      summary: 'Revoke current access token'
+      operationId: systemadminRevokeCurrentAccessToken
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /identity/session:
+    delete:
+      summary: 'End current session'
+      operationId: systemadminEndCurrentSession
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /identity/account:
+    delete:
+      summary: 'Close Account'
+      operationId: systemadminCloseAccount
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /administration/admins/invite:
+    post:
+      summary: 'Invite Admin'
+      operationId: systemadminInviteAdmin
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminInvitationInput'
+        required: true
+      responses:
+        '201':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 201
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/AdminInvitation'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Actor authority denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /administration/admins/approve:
+    post:
+      summary: 'Approve Admin'
+      operationId: systemadminApproveAdmin
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminApprovalInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Actor authority denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /administration/actors/change:
+    post:
+      summary: 'Remove or restore actor'
+      operationId: systemadminRemoveOrRestoreActor
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      requestBody:
+        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActorChangeInput'
+        required: true
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Completed'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Actor authority denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  '/administration/actors/{realm}/{actor-id}':
+    get:
+      summary: 'Read actor history'
+      operationId: systemadminReadActorHistory
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+        -
+          name: realm
+          in: path
+          required: true
+          schema:
+            enum:
+              - USER
+              - ADMIN
+            type: string
+        -
+          name: actor-id
+          in: path
+          required: true
+          schema:
+            pattern: '^[0-9a-f-]{36}$'
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Completed operation'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - statusCode
+                  - data
+                type: object
+                properties:
+                  statusCode:
+                    enum:
+                      - 200
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/ActorHistory'
+                additionalProperties: false
+        '400':
+          description: 'Invalid request'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Authentication denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Identity conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Authentication dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Actor authority denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: 'The stored actor was not found'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /_status:
+    get:
+      summary: 'Liveness check'
+      operationId: systemadminLiveness
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      responses:
+        '200':
+          description: Available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liveness'
+      security: []
+  /_status/ready:
+    get:
+      summary: 'Readiness check'
+      operationId: systemadminReadiness
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+      responses:
+        '200':
+          description: Available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Readiness'
+        '503':
+          description: Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Readiness'
+      security: []
+components:
+  schemas:
+    RegistrationInput:
+      required:
+        - email
+        - loginName
+        - password
+      type: object
+      properties:
+        email:
+          maxLength: 254
+          type: string
+          description: 'ASCII email address normalized to lowercase.'
+          format: email
+        loginName:
+          maxLength: 64
+          minLength: 3
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
+          type: string
+          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+        password:
+          maxLength: 128
+          minLength: 12
+          type: string
+          description: 'UTF-8, at most 512 bytes, without null bytes.'
+          format: password
+      additionalProperties: false
+    LoginInput:
+      required:
+        - loginName
+        - password
+      type: object
+      properties:
+        loginName:
+          maxLength: 64
+          minLength: 3
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
+          type: string
+          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+        password:
+          maxLength: 128
+          minLength: 12
+          type: string
+          description: 'UTF-8, at most 512 bytes, without null bytes.'
+          format: password
+      additionalProperties: false
+    ProofInput:
+      required:
+        - challengeId
+        - code
+      type: object
+      properties:
+        challengeId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        code:
+          pattern: '^[0-9]{6}$'
+          type: string
+      additionalProperties: false
+    Challenge:
+      required:
+        - challengeId
+        - expiresIn
+      type: object
+      properties:
+        challengeId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        expiresIn:
+          enum:
+            - 300
+          type: integer
+      additionalProperties: false
+    Registration:
+      required:
+        - accountId
+        - actorId
+        - challengeId
+        - expiresIn
+      type: object
+      properties:
+        accountId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        actorId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        challengeId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        expiresIn:
+          enum:
+            - 300
+          type: integer
+      additionalProperties: false
+    Enrollment:
+      required:
+        - challengeId
+        - totpSecret
+        - otpauthUri
+        - expiresIn
+      type: object
+      properties:
+        challengeId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        totpSecret:
+          pattern: '^[A-Z2-7]{32}$'
+          type: string
+        otpauthUri:
+          type: string
+        expiresIn:
+          enum:
+            - 300
+          type: integer
+      additionalProperties: false
+    Completed:
+      required:
+        - completed
+      type: object
+      properties:
+        completed:
+          enum:
+            - true
+          type: boolean
+      additionalProperties: false
+    Session:
+      required:
+        - accessToken
+        - tokenType
+        - expiresAt
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          enum:
+            - Bearer
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    Identity:
+      required:
+        - accountId
+        - actorId
+        - realm
+      type: object
+      properties:
+        accountId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        actorId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        realm:
+          enum:
+            - USER
+            - ADMIN
+          type: string
+      additionalProperties: false
+    AdminInvitationInput:
+      required:
+        - accountId
+        - loginName
+        - evidence
+      type: object
+      properties:
+        accountId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        loginName:
+          maxLength: 64
+          minLength: 3
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
+          type: string
+          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+        evidence:
+          maxLength: 160
+          minLength: 1
+          type: string
+      additionalProperties: false
+    AdminApprovalInput:
+      required:
+        - actorId
+        - evidence
+      type: object
+      properties:
+        actorId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        evidence:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Must differ from the invitation evidence. Self-approval is forbidden.'
+      additionalProperties: false
+    ActorChangeInput:
+      required:
+        - actorId
+        - realm
+        - action
+      type: object
+      properties:
+        actorId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        realm:
+          enum:
+            - USER
+            - ADMIN
+          type: string
+        action:
+          enum:
+            - remove
+            - restore
+          type: string
+      additionalProperties: false
+    AdminInvitation:
+      required:
+        - actorId
+        - approved
+      type: object
+      properties:
+        actorId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        approved:
+          enum:
+            - false
+          type: boolean
+      additionalProperties: false
+    ActorHistory:
+      required:
+        - actorId
+        - accountId
+        - realm
+        - loginName
+        - approved
+        - createdAt
+        - deletedAt
+      type: object
+      properties:
+        actorId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        accountId:
+          pattern: '^[0-9a-f-]{36}$'
+          type: string
+          format: uuid
+        realm:
+          enum:
+            - USER
+            - ADMIN
+          type: string
+        loginName:
+          maxLength: 64
+          minLength: 3
+          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
+          type: string
+          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+        approved:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    Problem:
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - code
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        code:
+          type: string
+    Liveness:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          enum:
+            - alive
+          type: string
+      additionalProperties: false
+    Readiness:
+      required:
+        - status
+        - checks
+      type: object
+      properties:
+        status:
+          enum:
+            - ready
+            - unavailable
+          type: string
+        checks:
+          type: object
+          additionalProperties:
+            enum:
+              - ready
+              - unavailable
+            type: string
+      additionalProperties: false
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

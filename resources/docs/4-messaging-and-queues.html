@@ -788,6 +788,11 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 It then maps the versioned payload and dispatches external subscribers.
             </p>
 
+            <p>An ORM flush failure can close the persistence session. The inbox then raises <code>ConsumerRestartRequired</code>.
+                RabbitMQ settles the bounded retry or reject outcome. SQS keeps the message for visibility timeout or redrive.
+                Both consumers stop before another delivery. The command exits with failure and a safe restart message.
+                The supervisor starts a fresh process and persistence session.</p>
+
             <figure class="diagram">
                 <svg viewBox="0 0 1080 590" role="img" aria-label="Consumer decision flow">
                     <title>Consumer decision flow</title>
@@ -969,7 +974,7 @@ bin/backendbase queue:consume backendbase-queue</code></pre>
 
             <div class="callout">
                 <strong>Use a process supervisor</strong>
-                Run the relay and consumer as separate processes with systemd, Supervisor, Kubernetes, or another service manager.
+                Run relay and consumer processes through the supplied Linux systemd units. The production model uses managed servers.
                 Cron does not restart a failed long-running process reliably.
             </div>
         </section>
@@ -1273,7 +1278,7 @@ ORDER BY received_at DESC;</code></pre>
                 </article>
                 <article class="card">
                     <h3>No automatic dead-letter replay</h3>
-                    <p>The application tracks terminal failures but provides no replay command.</p>
+                    <p>The application provides evidence-based manual replay and external-outcome resolution commands. Replay retains original message metadata and is limited to seven days.</p>
                     <p><strong>Result:</strong> Validate and replay dead letters through an approved operational process.</p>
                 </article>
                 <article class="card">

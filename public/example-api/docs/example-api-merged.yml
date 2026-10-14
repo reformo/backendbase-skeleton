@@ -27,7 +27,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -36,7 +36,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -46,7 +46,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -168,7 +168,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -177,7 +177,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -187,7 +187,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -232,7 +232,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -241,7 +241,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -251,7 +251,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -295,7 +295,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -304,7 +304,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -314,7 +314,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -533,7 +533,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -542,7 +542,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -552,7 +552,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -806,7 +806,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -815,7 +815,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -825,7 +825,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -864,6 +864,7 @@ paths:
           schema:
             type: string
       requestBody:
+        description: 'The encoded JSON object must not exceed 65536 bytes. Unknown fields and coerced scalar types are rejected.'
         content:
           application/json:
             schema:
@@ -887,6 +888,7 @@ paths:
                   type: string
                 details:
                   type: object
+                  nullable: true
                   example:
                     title:
                       en: 'English title'
@@ -896,7 +898,10 @@ paths:
                       logDate: '2024-01-01T13:45:00'
                 isActive:
                   type: boolean
+                  description: 'Omitted or null values use the API v1 default of true.'
+                  nullable: true
                   example: true
+              additionalProperties: false
         required: true
       responses:
         '204':
@@ -1050,7 +1055,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -1059,7 +1064,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -1069,7 +1074,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -1167,10 +1172,10 @@ paths:
                         example: true
                       updatedAt:
                         type: string
-                        format: datetime
+                        format: date-time
                       createdAt:
                         type: string
-                        format: datetime
+                        format: date-time
         '401':
           description: Unauthorized
           content:
@@ -1280,7 +1285,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -1289,7 +1294,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -1299,7 +1304,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -1464,7 +1469,7 @@ paths:
           name: Accept-Language
           in: header
           description: 'selected language'
-          required: true
+          required: false
           schema:
             type: string
             default: tr-TR
@@ -1473,7 +1478,7 @@ paths:
           name: The-Timezone-IANA
           in: header
           description: "Client's timezone"
-          required: true
+          required: false
           schema:
             type: string
             format: 'Timezone IANA name'
@@ -1483,7 +1488,7 @@ paths:
           name: X-Request-Id
           in: header
           description: 'Trace Id for request'
-          required: true
+          required: false
           schema:
             type: string
             format: uuid
@@ -1530,6 +1535,7 @@ paths:
             type: string
             format: '<ulid> or string'
       requestBody:
+        description: 'The encoded JSON object must not exceed 65536 bytes. Unknown fields are rejected. API v1 treats omitted or null update fields as unchanged.'
         content:
           application/json:
             schema:
@@ -1537,15 +1543,19 @@ paths:
               properties:
                 lookupValue:
                   type: string
+                  nullable: true
                 details:
                   type: object
+                  nullable: true
                 isActive:
                   type: boolean
+                  nullable: true
                   example: true
                 typeTargetId:
                   type: integer
                   format: int64
                   nullable: true
+              additionalProperties: false
       responses:
         '204':
           description: 'No Content'

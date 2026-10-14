@@ -24,10 +24,12 @@ post:
         type: string
   requestBody:
     required: true
+    description: The encoded JSON object must not exceed 65536 bytes. Unknown fields and coerced scalar types are rejected.
     content:
       application/json:
         schema:
           type: object
+          additionalProperties: false
           required:
             - lookupValue
           properties:
@@ -47,6 +49,7 @@ post:
               type: string
             details:
               type: object
+              nullable: true
               example:
                 title:
                   en: "English title"
@@ -57,6 +60,8 @@ post:
 
             isActive:
               type: boolean
+              nullable: true
+              description: Omitted or null values use the API v1 default of true.
               example: true
 
   responses:

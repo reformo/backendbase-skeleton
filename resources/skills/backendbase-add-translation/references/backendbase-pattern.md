@@ -38,7 +38,7 @@ Every locale must contain `orders.not-found` and the `:orderId` placeholder. A l
 
 ## Current source limitations
 
-- `resources/i18n/en-US.php` requires and returns the Turkish dictionary, so English currently contains Turkish values.
+- `resources/i18n/en-US.php` contains an independent English catalog with matching keys and placeholders.
 - There is no language-range negotiation such as `en` to `en-US`.
 - There is no per-key fallback.
 - Do not use the current English file as a translation template.

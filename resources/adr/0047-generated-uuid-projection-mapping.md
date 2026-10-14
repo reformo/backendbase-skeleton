@@ -9,7 +9,7 @@
 
 The readable uuid column is a virtual database projection. Doctrine must not write it or remove it through an unintended schema difference.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#open-choices-and-verification-gaps) presents two mapping strategies without selecting one. This record selects supported read-only Doctrine mapping. Implementation and database-backed verification remain pending.
+The [decision report](references/2026-10-13-identity-access-decisions.md#open-choices-and-verification-gaps) presents two mapping strategies without selecting one. This record selects supported read-only Doctrine mapping. Identity projections use supported noninsertable, nonupdatable generated Doctrine columns. MySQL 8.4 tests verify UUID round trips and repeated schema comparison without differences.
 
 - **Constraints:** Preserve CHAR(36), ascii, ascii_bin, BIN_TO_UUID(id, 0), and VIRTUAL semantics. Keep the projection separate from ORM identity and domain identity.
 
@@ -38,6 +38,8 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#open-ch
 - **Negative / Trade-offs:** Generated-column handling depends on supported ORM and DBAL behavior. Package upgrades require renewed persistence and schema-diff verification.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Map uuid as a database-generated, read-only projection. Exclude it from inserts and updates. Preserve the migration-owned column definition. Verify insert, update, hydration, and repeated schema comparisons on an isolated MySQL 8.4 schema.
 - **Verification:** Require no application writes to uuid and no unintended DROP or MODIFY. Check hydrated values against BIN_TO_UUID(id, 0). Preserve CHAR(36), ascii, ascii_bin, and VIRTUAL semantics through repeated schema comparisons.

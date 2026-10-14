@@ -12,6 +12,7 @@ use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Backendbase\Shared\Integrations\Operation\MessagePublicationResult;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Override;
@@ -87,12 +88,21 @@ class RabbitMQ implements MessageConsumer, MessagePublisher
     {
         try {
             $outcome = $handler(RabbitMQMessageMapper::inboundMessage($message, $queue));
+        } catch (ConsumerRestartRequired $exception) {
+            $this->settleMessage($message, $exception->outcome());
+
+            throw $exception;
         } catch (Throwable) {
             $message->nack(true);
 
             return;
         }
 
+        $this->settleMessage($message, $outcome);
+    }
+
+    private function settleMessage(AMQPMessage $message, QueueMessageHandlingOutcome $outcome): void
+    {
         if ($outcome === QueueMessageHandlingOutcome::ACKNOWLEDGE) {
             $message->ack();
 

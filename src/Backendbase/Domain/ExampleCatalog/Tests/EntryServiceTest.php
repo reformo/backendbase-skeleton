@@ -129,9 +129,7 @@ class EntryServiceTest extends TestCase
         $this->assertSame('EntryAddedListener', $domainEventRecords[0]->message);
         $this->assertSame(EntryAdded::class, $domainEventRecords[0]->context['eventName']);
         $this->assertNotEmpty($domainEventRecords[0]->context['occurredOn']);
-        $arguments = $domainEventRecords[0]->context['arguments'];
-        $this->assertIsArray($arguments);
-        $this->assertSame($entryId, $arguments['exampleId'] ?? null);
+        $this->assertArrayNotHasKey('arguments', $domainEventRecords[0]->context);
 
         $entryId2 = Uuid::uuid7()->toString();
         $command  = new AddEntry(

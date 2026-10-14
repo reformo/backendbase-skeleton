@@ -26,7 +26,7 @@
 <main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>HTTP operations use API-key protection</h2>
     <p>ExampleApi requires the configured API key for metadata and every Example read or write. Liveness and readiness remain public.</p>
-    <p>The API has no built-in account or token flow. The IdentityAndAccess context and Greeting HTTP endpoints have been removed.</p>
+    <p>IdentityAndAccess owns global Accounts and realm-specific User and SystemAdmin actors. UserApi and SystemAdminApi expose separate authentication flows. Greeting HTTP endpoints remain absent.</p>
 </section>
 <section id="map"><p class="section-label">02 · Component map</p><h2>HTTP protection and internal access control have separate owners</h2>
     <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
@@ -61,7 +61,7 @@
 </section>
 <section id="configuration"><p class="section-label">07 · Configuration</p><h2>Keep the key outside source control</h2>
     <p><code>EXAMPLE_API_KEY</code> supplies the expected API key through <code>config/example-api/global.php</code>. Do not log or return this value.</p>
-    <p>JWT runtime settings, environment declarations, the IdentityAndAccess migration, and its privilege seeder have been removed.</p>
+    <p>New identity configuration declares separate realm issuers, audiences, signing keys, encrypted factor keys, and bounded session lifetimes. The identity migration creates Account, User, Admin, and challenge records with assigned binary UUIDv7 identifiers.</p>
     <div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
 <section id="failures"><p class="section-label">08 · Failure behavior</p><h2>Security errors use stable public responses</h2>
@@ -87,5 +87,15 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/Comma
         <tr><td>Internal greeting</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/QueueGreetingHandler.php">QueueGreetingHandler.php</a></td></tr>
     </tbody></table></div>
 </section>
-</main></div><footer>Backendbase Core · API keys and access control guide</footer>
-</body></html>
+<section id="identity-realms"><h2>Identity realms and session gates</h2>
+<p>Set <code>X-Source-Id</code> to <code>user</code> or <code>system-admin</code>. The trusted route selects USER or ADMIN authentication policy. A client header does not grant authority.</p>
+<p>User registration creates one global Account and one User actor. Verify the Account email through a separate ownership challenge. Enroll a Time-based One-time Password (TOTP) factor before session issuance.</p>
+<p>Admin enrollment requires an existing verified Account, invitation evidence, and separate approval evidence. An Admin cannot approve its own invitation. Both realms require password and TOTP authentication.</p>
+<p>Login returns a short-lived JSON Web Token (JWT) only after Redis records both token and session allowlist entries. Request validation checks signature, issuer, audience, realm, actor type, expiry, both Redis records, and current Account and actor state.</p>
+<p>Token revocation removes the current token entry. Logout removes token and session entries. Account closure disables the Account, increments its authentication version, and blocks both realms.</p>
+<p>Local root operator commands record first-Admin invitation, approval, and lost-factor recovery evidence. Recovery requires ownership verification and new TOTP enrollment before a new session.</p>
+<p>Protected actor mutations reload persisted authorization under Account-first locks after a target reference lookup. A concurrently removed Admin cannot restore itself through stale managed state.</p>
+<p><a href="../platform/14-security.md">Read the full identity policy</a>. Review the <a href="../api-docs/user-api/user-api-openapi.yml">User API contract</a> and <a href="../api-docs/system-admin-api/system-admin-api-openapi.yml">System Admin API contract</a>.</p>
+</section>
+</main></div><footer>Backendbase Core · Identity, API keys, and access control guide</footer>
+<section><h2>Local operator procedures</h2><p>First-Admin setup uses separate local root invitation and approval commands. Lost-TOTP recovery records separate evidence, revokes credentials, and requires contact ownership verification and new TOTP enrollment. Operator commands do not issue tokens.</p><p><a href="../platform/operations/identity-operator.md">Identity operator procedures</a></p></section></body></html>

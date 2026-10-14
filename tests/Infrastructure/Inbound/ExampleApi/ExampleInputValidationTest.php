@@ -56,6 +56,10 @@ final class ExampleInputValidationTest extends TestCase
             [['lookupValue' => []], 'The lookupValue value must be a string.'],
             [['details' => 'invalid'], 'The details value must be an object.'],
             [['isActive' => 'true'], 'The isActive value must be a boolean.'],
+            [['typeTargetId' => '1'], 'The typeTargetId value must be a positive integer.'],
+            [['typeTargetId' => 1.0], 'The typeTargetId value must be a positive integer.'],
+            [['typeTargetId' => ''], 'The typeTargetId value must be a positive integer.'],
+            [['unknownField' => true], 'The request body contains unknown fields.'],
         ];
 
         foreach ($cases as [$payload, $detail]) {

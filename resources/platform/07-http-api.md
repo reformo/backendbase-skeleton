@@ -4,7 +4,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 
 ## Runtime
 
-- Both public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `ConsumerApiTarget`.
+- All public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `ConsumerApiTarget`.
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
 - API middleware, routes, controllers, configuration, OpenAPI, and Bruno use matching class and slug names.
 - `ModuleRoutes` must register each HTTP module explicitly.
@@ -25,6 +25,14 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 
 Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example reads and writes use API-key protection only.
 
-Every new OpenAPI operation must reference `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`.
+`X-Source-Id` selects `example`, `user`, or `system-admin`. The header does not grant access.
+Realm endpoints use route-owned bearer authentication. Public authentication and health routes explicitly permit anonymous access.
+Optional locale, timezone, and trace headers use documented defaults.
 
 Basis: `resources/docs/5-use-case-api.html`.
+
+The bootstrap validates supplied trace UUIDs and timezone values before logger creation. Missing optional headers retain documented defaults.
+JSON body limits run before parsing. Identity inputs require JSON objects, while token, session, and Account deletion require empty bodies.
+
+Browser OPTIONS preflight can select a fixed consumer from its API path without an `X-Source-Id` value.
+Ordinary requests still require the declared source header. Preflight does not invoke authentication or business handlers.

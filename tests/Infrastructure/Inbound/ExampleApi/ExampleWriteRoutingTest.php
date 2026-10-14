@@ -98,15 +98,19 @@ final class ExampleWriteRoutingTest extends TestCase
             ->willReturnCallback(static function (Command $dispatched) use (&$command): void {
                 $command = $dispatched;
             });
-        $app      = ExampleApiFixture::build($bus);
+        $app     = ExampleApiFixture::build($bus);
+        $payload = [
+            'lookupValue' => '25 & items',
+            'isActive' => false,
+            'details' => ['unit' => 'items'],
+        ];
+        if ($method === 'POST') {
+            $payload['lookupKey'] = 'page-size';
+        }
+
         $request  = (new ServerRequestFactory())->createServerRequest($method, $path)
             ->withHeader('Backendbase-Api-Key', 'example-api-key')
-            ->withParsedBody([
-                'lookupKey' => 'page-size',
-                'lookupValue' => '25 & items',
-                'isActive' => false,
-                'details' => ['unit' => 'items'],
-            ]);
+            ->withParsedBody($payload);
         $response = $app->handle($request);
         self::assertSame(204, $response->getStatusCode());
         self::assertSame('', (string) $response->getBody());

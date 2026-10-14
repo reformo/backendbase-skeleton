@@ -9,7 +9,7 @@
 
 The target architecture contains User and System Admin actors linked to global Account identity. Authentication flows must preserve common identity rules and separate actor business lifecycles.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#context-and-actor-scope) selects one IdentityAndAccess context. This is a target decision; the current repository has no implementation of that context.
+The [decision report](references/2026-10-13-identity-access-decisions.md#context-and-actor-scope) selects one IdentityAndAccess context. The context now owns Account, User, SystemAdmin, authentication challenge, credential, token, and session behavior.
 
 - **Constraints:** Keep existing directories and framework conventions. Limit actor scope to User and System Admin. Keep domain rules outside controllers, SQL, Redis, and JWT adapters.
 
@@ -35,9 +35,11 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#context
 ## Consequences
 
 - **Positive:** Account identity is global. User and Admin aggregates retain their own identifiers, lifecycle rules, and scalar Account references.
-- **Negative / Trade-offs:** Actor cardinality and business-key rules still need domain definitions. The report defines no tenant model or additional actor types.
+- **Negative / Trade-offs:** One Account can own at most one User and one SystemAdmin, including removed actor records. Account email is a global active key. Actor login names are active realm keys under ADR-0048. The report defines no tenant model or additional actor types.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Inventory existing aggregate ownership. Add identity contracts and orchestration within the current module structure. Bind JWT, Redis, and notification capabilities through ports.
 - **Verification:** Check domain purity, context composition, actor lifecycle boundaries, and identifiers. Verify both realms resolve through the same identity capability.

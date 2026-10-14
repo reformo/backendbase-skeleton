@@ -52,7 +52,8 @@
 <section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>
 <p><code>config/dependencies/logger.php</code> explicitly sets UTC. Formatted timestamps include <code>+00:00</code> regardless of the process time zone. Logging uses Monolog’s clock independently of the application clock.</p>
 <p>The configured logger name is <code>backendbase-app</code>. It writes to standard output when the <code>docker</code> environment key exists. Otherwise, it writes to <code>var/logs/app.log</code>.</p>
-<p>Unexpected failures log the exception class, message, file, line, and trace. Protect log access and retention because this context can contain internal data.</p>
+<p>Unexpected HTTP failures log exception class, file, line, and sanitized stack frames. They exclude messages and call arguments.</p>
+<p>Domain listeners and integration event dispatchers log safe event metadata. They exclude event objects, arguments, payload arrays, and business values at every log level.</p>
 <p>When an SQS handler throws, <code>SqsTransport</code> records safe exception, queue, and message context. It excludes the message body and receipt handle. <code>SqsQueue</code> leaves the message available for retry.</p>
 <p><code>BACKENDBASE_LOGGER_LEVEL</code> is the primary level input. <code>BACKENDBASE_DEBUG</code> is the fallback.</p>
 <div class="callout warning">Use valid Monolog level names. Invalid names fail while configuration is evaluated.</div>
@@ -79,7 +80,7 @@
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known diagnostic limits</h2>
 <ul><li>API-key middleware builds a stable problem-details response with status 401 for a missing or invalid API key.</li>
 <li><code>TooManyRequests</code> uses status 409 instead of the common 429 status.</li><li>The logger records full traces for some application problems.</li>
-<li>No metrics, tracing exporter, dashboard, or alert configuration exists in the repository.</li></ul>
+<li>HTTP measurements and aggregate MySQL diagnostics are available. The repository has no tracing exporter, dashboard, or alert backend.</li></ul>
 </section>
 <section id="tests"><p class="section-label">12 · Tests</p><h2>Verify public safety and internal evidence</h2>
 <pre><code>vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Actions

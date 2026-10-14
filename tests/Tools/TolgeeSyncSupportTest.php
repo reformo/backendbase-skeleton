@@ -10,9 +10,8 @@ use RuntimeException;
 
 use function Backendbase\TolgeeSync\expand;
 use function Backendbase\TolgeeSync\flatten;
-use function dirname;
 
-require_once dirname(__DIR__, 2) . '/bin/tolgee/sync-support.php';
+require_once 'bin/tolgee/sync-support.php';
 
 final class TolgeeSyncSupportTest extends TestCase
 {

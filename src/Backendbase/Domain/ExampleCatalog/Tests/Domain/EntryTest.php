@@ -11,7 +11,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
+use Ramsey\Uuid\Uuid;
 
 final class EntryTest extends TestCase
 {
@@ -82,8 +82,9 @@ final class EntryTest extends TestCase
     #[Test]
     public function itExposesThePersistedRecordIdentifier(): void
     {
-        $entry    = Entry::create(
-            'example-id',
+        $identifier = Uuid::uuid7();
+        $entry      = Entry::create(
+            $identifier->toString(),
             EntryType::SYSTEM,
             null,
             'settings',
@@ -92,10 +93,7 @@ final class EntryTest extends TestCase
             '25',
             [],
         );
-        $record   = EntryRecord::fromDomain($entry);
-        $property = new ReflectionProperty($record, 'id');
-        $property->setValue($record, 42);
-
-        self::assertSame(42, $record->id());
+        $record     = EntryRecord::fromDomain($entry);
+        self::assertSame($identifier->toString(), $record->id());
     }
 }

@@ -203,9 +203,9 @@ Do not copy these current source conditions into new work:
 - New Backendbase migrations should extend `BackendbaseAbstractMigration`. Older migrations use a different base.
 - Direct Doctrine entity paths have broader tool support than nested entity paths in the current repository.
 - Notification providers are wired, but no notification queue contract or consumer is registered. Define complete message and provider contracts for queued delivery.
-- The object-storage example has retry, content-type, and response-type limits. Add bounded retry and preserve object metadata.
-- `en-US.php` currently loads the Turkish dictionary. Use language-correct catalogs in new projects.
-- Shared object mapping drops unknown keys and permits scalar coercion. Use explicit boundary validation when the contract is strict.
+- Object storage has bounded transient retries, exact signed POST key and type, and preserved download metadata.
+- English and Turkish use independent language-correct catalogs with matching placeholders.
+- Shared object mapping rejects unknown fields and incorrect scalar types. Validate payload shape and size at the boundary.
 
 ## Verification Baseline
 

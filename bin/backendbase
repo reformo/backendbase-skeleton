@@ -2,7 +2,7 @@
 <?php
 declare(strict_types=1);
 
-$projectRoot = __DIR__.'/..';
+$projectRoot = dirname(__DIR__);
 chdir($projectRoot);
 
 require 'vendor/autoload.php';
@@ -13,7 +13,7 @@ use Dotenv\Dotenv;
 use Laminas\ConfigAggregator\ConfigAggregator;
 use Laminas\ConfigAggregator\PhpFileProvider;
 
-$dotenv = Dotenv::createUnsafeImmutable(dirname(__DIR__));
+$dotenv = Dotenv::createUnsafeImmutable($projectRoot);
 $dotenv->safeLoad();
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 $containerBuilder = new ContainerBuilder();

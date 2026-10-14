@@ -37,9 +37,11 @@ final class EntrySeeder
             return;
         }
 
-        $now = DateTimeImmutable::create()->format('Y-m-d H:i:s');
+        $time = DateTimeImmutable::create();
+        $now  = $time->format('Y-m-d H:i:s.u');
+        $id   = Uuid::uuid7();
         $connection->insert('example_table', [
-            'uuid'           => Uuid::uuid4()->toString(),
+            'id'             => $id->getBytes(),
             'type'           => 'system',
             'type_target_id' => null,
             'lookup_group'   => 'examples',

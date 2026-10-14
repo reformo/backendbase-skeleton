@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function array_key_exists;
-use function dirname;
 
 final class ObjectStoreConfigurationTest extends TestCase
 {
@@ -24,7 +23,7 @@ final class ObjectStoreConfigurationTest extends TestCase
             $_ENV['OBJECT_STORE_ENDPOINT'] = '';
             $_ENV['AWS_ENDPOINT']          = 'https://s3.example.com';
 
-            $config = require dirname(__DIR__, 3) . '/config/autoload/object-store.global.php';
+            $config = require 'config/autoload/object-store.global.php';
 
             self::assertSame('https://s3.example.com', $config['objectStore']['endpoint']);
         } finally {

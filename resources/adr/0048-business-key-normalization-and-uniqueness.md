@@ -11,7 +11,7 @@ The target Turkish collation affects key equality. Global Account email and acto
 
 The [decision report](references/2026-10-13-identity-access-decisions.md#open-choices-and-verification-gaps) leaves exact normalization, uniqueness scope, and active-key rules open.
 
-This record selects realm-scoped actor login names with explicit normalization. Exact normalization steps, Account email rules, deleted-row reuse, and implementation remain pending.
+This record selects realm-scoped actor login names with explicit normalization. Login names contain 3 to 64 ASCII letters, digits, dots, underscores, or hyphens and start with an alphanumeric character. Domain normalization converts them to lowercase. Account emails use valid lowercase ASCII addresses. Active actor names can be reused after deletion. Conflicting restoration is rejected. Account email uniqueness is global among active Accounts.
 
 - **Constraints:** Define normalization in Domain. Scope actor login lookup and uniqueness to the trusted USER or ADMIN realm. Use the same normalized value for lookup, persistence, and uniqueness checks. Keep Account identity global and Account email rules separate. Define deleted-row participation explicitly. Test actual key equality before migration.
 
@@ -37,9 +37,11 @@ This record selects realm-scoped actor login names with explicit normalization. 
 ## Consequences
 
 - **Positive:** Actor login uniqueness has an explicit realm boundary. Lookup and database constraints follow the same normalization contract. Names in one realm do not reserve names in another.
-- **Negative / Trade-offs:** Every actor login lookup and uniqueness check requires a trusted realm. I/İ/ı/i, accents, Unicode normalization, and trailing spaces can change equality. Account email, deleted-row reuse, and restoration rules need separate explicit domain definitions.
+- **Negative / Trade-offs:** Every actor login lookup and uniqueness check requires a trusted realm. I/İ/ı/i, accents, Unicode normalization, and trailing spaces can change equality. Non-ASCII login names and emails, leading or trailing whitespace, and invalid bounds are rejected. Closed Account emails and removed actor names can be reused under the active-key rules.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Inventory required actor login keys. Define case, Unicode, whitespace, and comparison rules in Domain. Define deleted-row participation, reuse, and restoration behavior. Analyze existing duplicates within each realm. Apply the same normalization to lookup and persistence. Add realm-scoped uniqueness constraints under the approved lifecycle rules. Define Account email rules separately before changing them.
 - **Verification:** Test normalized lookup and equivalent and distinct keys on the target collation. Reject conflicting normalized names within one realm. Permit the same normalized name across USER and ADMIN. Test Turkish I/İ/ı/i, accents, Unicode forms, trailing spaces, concurrent duplicates, approved reuse, and restoration conflicts. Verify lookup never searches another realm implicitly.

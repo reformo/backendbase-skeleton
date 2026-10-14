@@ -25,6 +25,10 @@ final readonly class DoctrineIntegrationMessageLogCleaner implements Integration
             throw new InvalidArgumentException('Integration message retention must be at least 30 days.');
         }
 
+        if ($limit < 1 || $limit > 10000) {
+            throw new InvalidArgumentException('The cleanup limit must be between 1 and 10000.');
+        }
+
         $clock      = $this->clock;
         $now        = $clock->now();
         $cutoffDate = $now->modify('-' . $retentionDays . ' days');
@@ -43,6 +47,8 @@ final readonly class DoctrineIntegrationMessageLogCleaner implements Integration
             ->select('id')
             ->from('integration_event_outbox')
             ->where('published_at < :cutoff')
+            ->andWhere('NOT EXISTS (SELECT 1 FROM integration_event_inbox i WHERE i.message_id = integration_event_outbox.id AND i.processed_at IS NULL)')
+            ->andWhere('NOT EXISTS (SELECT 1 FROM integration_event_delivery_failure f WHERE f.message_id = integration_event_outbox.id AND f.dead_lettered_at IS NULL)')
             ->setParameter('cutoff', $cutoff)
             ->orderBy('published_at', 'ASC')
             ->setMaxResults($limit)
@@ -65,6 +71,8 @@ final readonly class DoctrineIntegrationMessageLogCleaner implements Integration
             ->select('consumer_name', 'message_id')
             ->from('integration_event_inbox')
             ->where('processed_at < :cutoff')
+            ->andWhere('NOT EXISTS (SELECT 1 FROM integration_event_outbox o WHERE o.id = integration_event_inbox.message_id AND o.published_at IS NULL)')
+            ->andWhere('NOT EXISTS (SELECT 1 FROM integration_event_delivery_failure f WHERE f.message_id = integration_event_inbox.message_id AND f.consumer_name = integration_event_inbox.consumer_name AND f.dead_lettered_at IS NULL)')
             ->setParameter('cutoff', $cutoff)
             ->orderBy('processed_at', 'ASC')
             ->setMaxResults($limit)
@@ -90,6 +98,8 @@ final readonly class DoctrineIntegrationMessageLogCleaner implements Integration
             ->select('consumer_name', 'message_id')
             ->from('integration_event_delivery_failure')
             ->where('dead_lettered_at < :cutoff')
+            ->andWhere('NOT EXISTS (SELECT 1 FROM integration_event_inbox i WHERE i.message_id = integration_event_delivery_failure.message_id AND i.consumer_name = integration_event_delivery_failure.consumer_name AND i.processed_at IS NULL)')
+            ->andWhere('NOT EXISTS (SELECT 1 FROM integration_event_outbox o WHERE o.id = integration_event_delivery_failure.message_id AND o.published_at IS NULL)')
             ->setParameter('cutoff', $cutoff)
             ->orderBy('dead_lettered_at', 'ASC')
             ->setMaxResults($limit)

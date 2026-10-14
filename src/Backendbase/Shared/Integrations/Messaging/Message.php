@@ -13,7 +13,8 @@ final readonly class Message
      *     id: string|null,
      *     eventVersion: string|null,
      *     destination: string|null,
-     *     routingKey: string|null
+     *     routingKey: string|null,
+     *     occurredAt: string|null
      * }
      */
     private array $values;
@@ -26,6 +27,7 @@ final readonly class Message
         string|null $eventVersion = null,
         string|null $destination = null,
         string|null $routingKey = null,
+        string|null $occurredAt = null,
     ) {
         $this->values = [
             'body' => $body,
@@ -34,6 +36,7 @@ final readonly class Message
             'eventVersion' => $eventVersion,
             'destination' => $destination,
             'routingKey' => $routingKey,
+            'occurredAt' => $occurredAt,
         ];
     }
 
@@ -66,5 +69,10 @@ final readonly class Message
     public function routingKey(): string|null
     {
         return $this->values['routingKey'];
+    }
+
+    public function occurredAt(): string|null
+    {
+        return $this->values['occurredAt'];
     }
 }

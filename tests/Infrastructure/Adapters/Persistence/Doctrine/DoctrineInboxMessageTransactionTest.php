@@ -12,6 +12,7 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Tests\Support\Persistence\EntityManagerFactory;
 use Tests\Support\Time\FrozenClock;
 
 final class DoctrineInboxMessageTransactionTest extends TestCase
@@ -41,7 +42,7 @@ final class DoctrineInboxMessageTransactionTest extends TestCase
     #[Test]
     public function itCommitsTheSubscriberWriteAndInboxRecordOnce(): void
     {
-        $transaction = new DoctrineInboxMessageTransaction($this->connection, $this->clock);
+        $transaction = new DoctrineInboxMessageTransaction(EntityManagerFactory::create($this->connection), $this->clock);
         $handler     = function (): void {
             $this->connection->insert('subscriber_write', ['id' => 'write-id']);
             $this->clock->advance(new DateInterval('PT2S'));
@@ -60,7 +61,7 @@ final class DoctrineInboxMessageTransactionTest extends TestCase
     #[Test]
     public function itRollsBackTheInboxRecordWhenTheSubscriberFails(): void
     {
-        $transaction = new DoctrineInboxMessageTransaction($this->connection, $this->clock);
+        $transaction = new DoctrineInboxMessageTransaction(EntityManagerFactory::create($this->connection), $this->clock);
 
         try {
             $transaction->processOnce(

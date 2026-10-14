@@ -7,6 +7,7 @@ namespace Backendbase\Infrastructure\Adapters\Console\Queue;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessageProcessor;
 use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Override;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,10 +41,16 @@ class ContainerAwareQueueConsumer extends Command
     {
         $output->writeln('<info>----Queue consumer started-----</info>');
         $destination = $input->getArgument('name') ?? 'backendbase-queue';
-        $this->consumer->consume(
-            new MessageSubscription((string) $destination, 20),
-            $this->messageProcessor->process(...),
-        );
+        try {
+            $this->consumer->consume(
+                new MessageSubscription((string) $destination, 20),
+                $this->messageProcessor->process(...),
+            );
+        } catch (ConsumerRestartRequired) {
+            $output->writeln('<error>The consumer requires a fresh persistence session. Supervisor restart is required.</error>');
+
+            return self::FAILURE;
+        }
 
         return self::SUCCESS;
     }

@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\SessionLifetime;
 use Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
+use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Translator;
 use Backendbase\Utility\Pipeline\Pipeline;
@@ -15,6 +17,11 @@ use Psr\Container\ContainerInterface;
 
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
+        SessionLifetime::class => static function (ContainerInterface $container): SessionLifetime {
+            $settings = $container->get(IdentitySettings::class);
+
+            return new SessionLifetime($settings->tokenLifetimeSeconds());
+        },
         PipelineInterface::class => static fn (ContainerInterface $container) => Pipeline::withContainer($container),
         ObjectMapper::class => static function (ContainerInterface $container) {
             $settings = $container->get(ApplicationRuntimeSettings::class);

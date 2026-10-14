@@ -17,8 +17,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Slim\Factory\AppFactory;
 
-use function dirname;
-
 final class ModuleRoutingTest extends TestCase
 {
     #[Test]
@@ -59,7 +57,7 @@ final class ModuleRoutingTest extends TestCase
     public function itRegistersTheCompleteApiRouteFile(): void
     {
         $app    = AppFactory::create();
-        $routes = require dirname(__DIR__, 4) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
+        $routes = require 'src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
         $routes($app);
 
         self::assertCount(10, $app->getRouteCollector()->getRoutes());
@@ -70,10 +68,8 @@ final class ModuleRoutingTest extends TestCase
     {
         AppFactory::setContainer($this->container());
         $app        = AppFactory::create();
-        $middleware = require dirname(__DIR__, 4)
-            . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php';
-        $routes     = require dirname(__DIR__, 4)
-            . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
+        $middleware = require 'src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php';
+        $routes     = require 'src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
         $middleware($app);
         $routes($app);
         $app->addRoutingMiddleware();

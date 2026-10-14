@@ -77,7 +77,11 @@ composer install \
     cd "$releaseRoot"
     composer run generate-example-api-spec
     composer run validate-example-api-spec
+    composer run generate-identity-api-specs
+    composer run validate-identity-api-specs
     vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
+    vendor/bin/php-openapi validate --silent public/user-api/docs/user-api-merged.yml
+    vendor/bin/php-openapi validate --silent public/system-admin-api/docs/system-admin-api-merged.yml
 )
 
 composer install \

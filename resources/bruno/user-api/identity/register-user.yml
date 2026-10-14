@@ -1,0 +1,36 @@
+info:
+  name: 'Register User'
+  type: http
+  seq: 10
+http:
+  method: POST
+  url: '{{baseUrl}}/auth/register'
+  headers:
+    -
+      name: X-Source-Id
+      value: user
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{email}}",
+        "loginName": "{{loginName}}",
+        "password": "{{password}}"
+      }
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(201);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");
+        expect(body.data.challengeId).to.match(/^[0-9a-f-]{36}$/);
+        bru.setVar("challengeId", body.data.challengeId);

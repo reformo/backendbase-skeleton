@@ -52,7 +52,7 @@ Use target-approved text. Copy key structure and placeholders, not source-langua
 
 ## Current source limitations
 
-- `en-US.php` currently requires `tr-TR.php`, so it is not an independent English catalog.
+- `en-US.php` is an independent English catalog. Tests compare its keys and placeholders with Turkish.
 - `en` does not match `en-US.php`.
 - Missing keys do not fall back to the default catalog.
 - Adding negotiation or fallback is a separate behavior change and needs explicit scope.

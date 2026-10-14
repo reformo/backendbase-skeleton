@@ -1,0 +1,37 @@
+info:
+  name: 'Invite Admin'
+  type: http
+  seq: 20
+http:
+  method: POST
+  url: '{{baseUrl}}/administration/admins/invite'
+  headers:
+    -
+      name: X-Source-Id
+      value: system-admin
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Authorization
+      value: 'Bearer {{accessToken}}'
+    -
+      name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "accountId": "{{targetAccountId}}",
+        "loginName": "{{targetLoginName}}",
+        "evidence": "{{invitationEvidence}}"
+      }
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(201);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");

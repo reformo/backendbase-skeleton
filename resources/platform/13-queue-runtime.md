@@ -14,9 +14,18 @@ The composition root configures the RabbitMQ readiness connection factory. The r
 | Retry | Requeue immediately | Keep until visibility timeout |
 | Reject | Dead-letter without requeue | Keep until redrive policy acts |
 
-RabbitMQ declares a dead-letter queue. SQS requires an infrastructure redrive policy. The application has no automatic replay command.
+RabbitMQ declares a dead-letter queue. SQS requires an infrastructure redrive policy. `outbox:replay` previews one replay by default. `--apply` records operator evidence and schedules the original message.
+`external-effect:resolve` records accepted or confirmed nonaccepted provider outcomes. Active claims cannot be resolved.
+Only confirmed nonacceptance releases an uncertain external-effect claim for another attempt.
+Replay uses the original UTC occurrence time and permits at most seven days.
 
 When an SQS handler throws, the transport logs the exception type, queue name, message identifier, location, and trace. It does not log the message body or receipt handle. The adapter does not acknowledge the message, so the visibility timeout still controls retry.
+
+An ORM flush failure can close the persistence session. The inbox adapter then raises `ConsumerRestartRequired`.
+The message processor records the bounded retry outcome. RabbitMQ settles that outcome before the failure escapes.
+SQS keeps the message for visibility timeout or redrive. Both consumers stop before another delivery.
+The console command exits with failure and a safe restart message. It excludes previous database exception details.
+The supervisor restarts the process with a fresh persistence session. Do not suppress this failure in a consumer wrapper.
 
 The outbox uses the configured default queue or route. It does not select a route per row.
 

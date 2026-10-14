@@ -12,6 +12,8 @@ Integration consumers use an inbox transaction. External-effect consumers use a 
 - `Infrastructure/Messaging/QueueMessageFailureService` makes delivery failures terminal after five attempts.
 - `DoctrineQueueMessageFailureStore` only records, marks, and clears supplied failure state.
 - `QueueMessageFailureService` and the database inbox read `Shared/Time/Clock` for failure and completion timestamps used by retention.
+- An ORM flush failure that closes the persistence session raises `ConsumerRestartRequired` after transaction rollback.
+- The processor preserves the bounded retry outcome. Both transports stop consumption so the supervisor creates a fresh persistence session.
 
 ## External effects
 

@@ -798,7 +798,7 @@ bin/doctrine migrations:migrate --dry-run --no-interaction</code></pre>
                     <p><code>config/example-api/*</code> defines the API version, key, headers, base path, and route cache.</p>
                 </article>
             </div>
-            <p>The bootstrap loads <code>.env</code> when the compiled configuration cache does not exist. It merges shared providers with the selected API providers.</p>
+            <p>The bootstrap loads optional <code>.env</code> values and merges runtime providers on every request. It does not persist merged secrets or compiled container definitions.</p>
             <p>Typed settings objects validate application runtime, database, queue, AWS, Redis, logging, and HTTP values. Adapters receive immutable leaf settings instead of configuration arrays.</p>
             <div class="callout danger"><strong>Secret rule:</strong> Keep real keys, tokens, passwords, and service credentials out of version control. Use <code>.env.example</code> as a local aid. Configuration files define the supported variables.</div>
             <p>See the environment guide for precedence, cache behavior, queue selection, AWS validation, and common failure modes.</p>

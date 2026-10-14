@@ -16,6 +16,14 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add local root identity operator actions for audited first-Admin enrollment, lost-TOTP recovery, and persistent factor key rewrap.
+- Add staged Example binary UUID conversion that preserves public UUIDs and retains the legacy table for forward recovery.
+
+
+- Implemented IdentityAndAccess with global Accounts, separate User and SystemAdmin realms, contact ownership challenges, password and TOTP authentication, and Redis token and session allowlists. Added strict HTTP contracts and Bruno request collections.
+- Added assigned binary UUIDv7 identity records, read-only generated projections, optimistic versions, selective locks, soft deletion, active key uniqueness, and historical actor projections. Added forward migration drafts and a table ownership inventory.
+- Added preview-first outbox replay and external-outcome resolution with operator evidence. Enforced a seven-day replay window and protected recovery records under the minimum 30-day retention policy.
+- Added Linux systemd service and timer templates, safe request measurements, aggregate MySQL diagnostics, and isolated MySQL 8.4 and Redis 8 verification in quality and release workflows.
 - Added an [ADR browser](resources/adr/index.html) with all records, search, status filters, and a wide accessible Markdown modal. Added an offline document snapshot and a rebuild and parity-check command.
 - Added ADR-0036 through ADR-0048 for the final identity, authentication, UUIDv7, Doctrine, collation, relationship, concurrency, reporting, and migration decisions. Added an English decision-source reference for the 13 October 2026 report.
 - Added 35 platform Architecture Decision Records under `resources/adr`, using the ADR template and excluding ExampleCatalog-specific decisions. Recorded Mehmet Korkmaz as owner and decider with the date `2026-08-31`.
@@ -49,8 +57,22 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added an opt-in Moto integration profile and a tracked environment example for local S3, SQS, and SNS endpoints.
 - Added reviewed Composer public keys for deterministic isolated self-diagnosis.
 
+### Fixed
+
+- Load production Doctrine type registration in the standalone query test, including `uuid_binary`.
+- Flushed ORM changes before integration-event and inbox completion commits. Cleared failed ORM state and used fresh identity units during bounded retries.
+- Stopped queue consumers after an ORM flush closes the persistence session. Preserved bounded retry outcomes and supervisor recovery.
+- Reloaded actor authorization under Account-first locks to prevent a concurrently removed Admin from restoring itself.
+- Removed event objects and business payloads from domain listener and integration subscriber diagnostic logs.
+- Bounded S3 multipart retries and signing expiry, enforced exact upload key and content type, and preserved download content type.
+- Removed exception messages and call arguments from HTTP and queue diagnostics. Applied body and metadata validation before parsing and logger creation.
+
 ### Changed
 
+- Set the PHPUnit working directory to the project root. Use root-relative paths for project configuration and test fixtures. Reuse the console project root for Dotenv.
+- Disabled persistent merged-configuration and container credential caches. Added separate signing-key and encrypted-factor rotation settings. Managed secret-provider selection remains a deployment decision. Local root identity commands record separate authorization evidence for privileged recovery.
+- Synchronized accepted ADRs, platform guidance, API contracts, operations, skills, and the ADR implementation register with the implemented behavior.
+- Applied ADR strict object-mapping defaults, safe mapping errors, language-correct English translations, and release coverage configuration.
 - Accepted ADR-0025 Option A for a bounded replay window with matching inbox retention. Recorded identity preservation, age enforcement, recovery margins, and cleanup protection requirements.
 - Accepted ADR-0007 Option A for managed servers with supervised application processes. Recorded process ownership, server hooks, scheduling, and recovery verification requirements.
 - Accepted ADR-0048 Option B for realm-scoped actor login names with explicit normalization. Aligned ADR-0044 and recorded lookup, uniqueness, and lifecycle verification requirements.

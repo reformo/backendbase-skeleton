@@ -176,11 +176,12 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - Producer transactions dispatch local integration subscribers before commit. Verify both delivery flag values and rollback when a local subscriber fails.
 - SQS `REJECT` relies on external redrive configuration. RabbitMQ retry immediately requeues. Outbox publish retry has no terminal limit.
 - SNS SMS and SES email are registered by default. Twilio, Netgsm, SMTP, and configured Firebase are available. No notification queue contract or consumer is registered.
-- Object-storage multipart retry is unbounded, signed POST omits content type, and downloads force `image/jpeg`.
-- `en-US.php` uses the Turkish dictionary.
-- Shared object mapping silently drops unknown keys and permits scalar coercion.
+- Object storage bounds transient attempts, enforces signed POST key and type, and preserves download metadata.
+- English uses an independent catalog with matching keys and placeholders.
+- Shared object mapping rejects unknown fields and incorrect scalar types.
 - Pagination rejects non-positive page sizes and overflowing offsets; HTTP boundaries also reject non-positive page numbers.
-- The current repository has no metrics exporter, worker supervisor definition, scheduler definition, or automatic dead-letter replay.
+- The repository provides safe HTTP measurements, MySQL diagnostic metrics, and Linux systemd units and timers.
+- Manual replay and external-outcome resolution require recorded operator evidence. No automatic dead-letter replay exists.
 - Shared OpenAPI parameters mark four request headers as required, but current runtime does not reject every missing header. The ExampleApi CORS allow-list also omits `Accept-Language`.
 
 ## Backendbase CI and verification commands

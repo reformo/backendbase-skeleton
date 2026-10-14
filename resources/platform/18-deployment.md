@@ -20,10 +20,14 @@ The artifact builder first installs dependencies without plugins or scripts. It 
 
 The release manifest binds the release to `composer.lock`, the CycloneDX SBOM, and the package-content manifest with SHA-256 checksums.
 
-Clear merged configuration, route, container, and Doctrine metadata caches when their sources change. Restart workers after activation.
+Clear route, Doctrine, and mapping metadata caches when their sources change. Restart workers after activation.
+Runtime secrets are injected outside releases. Configuration and container definitions are rebuilt without persistent credential caches.
 
 Keep the recorded previous release available. Prefer forward repair after partially committed MySQL data-definition changes.
 
-Current deployment scripts require server-specific backup and process-activation hooks. `deployment/release.json` supplies migration and rollback policy for the generated `release-manifest.json`. The repository provides no worker supervisor, scheduler, or alerts.
+Current deployment scripts require server-specific backup and process-activation hooks. `deployment/release.json` supplies migration and rollback policy for the generated `release-manifest.json`. Linux systemd units provide worker supervision and relay and cleanup timers. See [managed server operations](operations/managed-servers.md).
+The managed secret provider remains a required selection before production activation.
+Use the local root identity commands with separate invitation and approval evidence for first-Admin setup and lost-TOTP recovery.
+See [identity operator procedures](operations/identity-operator.md).
 
 Basis: `resources/docs/12-deployment-and-operations.html`.

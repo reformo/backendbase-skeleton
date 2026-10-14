@@ -1,0 +1,36 @@
+info:
+  name: 'Complete TOTP authentication'
+  type: http
+  seq: 16
+http:
+  method: POST
+  url: '{{baseUrl}}/auth/login/complete'
+  headers:
+    -
+      name: X-Source-Id
+      value: user
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "challengeId": "{{challengeId}}",
+        "code": "{{code}}"
+      }
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");
+        expect(body.data.tokenType).to.equal("Bearer");
+        expect(body.data.accessToken).to.be.a("string");
+        bru.setVar("accessToken", body.data.accessToken);

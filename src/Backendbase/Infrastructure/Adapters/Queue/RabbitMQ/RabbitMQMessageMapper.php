@@ -24,6 +24,7 @@ final class RabbitMQMessageMapper
             'messageBody' => $message->body(),
             'eventVersion' => $message->eventVersion(),
             'data' => $message->data(),
+            'occurredAt' => $message->occurredAt(),
         ];
 
         return new AMQPMessage(
@@ -59,6 +60,12 @@ final class RabbitMQMessageMapper
             is_string($version) ? $version : null,
             $queue,
             $message->getRoutingKey(),
+            self::nullableString($payload['occurredAt'] ?? null),
         );
+    }
+
+    private static function nullableString(mixed $value): string|null
+    {
+        return is_string($value) ? $value : null;
     }
 }

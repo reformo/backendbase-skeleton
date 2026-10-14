@@ -25,10 +25,10 @@ readonly class EntryAddedListener implements DomainEventListener
             throw new UnexpectedValueException($domainEvent::class . ' is not an EntryAdded event.');
         }
 
+        $occurredOn = $domainEvent->occurredOn();
         $this->logger->debug('EntryAddedListener', [
             'eventName' => $domainEvent->eventName(),
-            'occurredOn' => $domainEvent->occurredOn()->format(DateTimeInterface::ATOM),
-            'arguments' => $domainEvent->getEventArguments(),
+            'occurredOn' => $occurredOn->format(DateTimeInterface::ATOM),
         ]);
     }
 }

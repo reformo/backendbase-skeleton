@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Http;
 
+use Backendbase\Infrastructure\Adapters\Diagnostics\SafeExceptionContext;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Services\Translator;
@@ -51,12 +52,7 @@ final class HttpErrorHandler extends SlimErrorHandler
 
     private function logThrowable(Throwable $exception): void
     {
-        $this->logger->error($exception->getMessage(), [
-            'exception' => $exception::class,
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
-        ]);
+        $this->logger->error('HTTP request failed.', SafeExceptionContext::from($exception));
     }
 
     /** @throws ReflectionException */
@@ -92,7 +88,7 @@ final class HttpErrorHandler extends SlimErrorHandler
                     'message' => $exception->getMessage(),
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
-                    'trace' => $exception->getTrace(),
+                    'trace' => SafeExceptionContext::frames($exception),
                 ],
             ]);
         }

@@ -9,7 +9,7 @@
 
 Release scripts define artifact build, activation, rollback, and server hooks. They do not fully define process supervision, scheduling, capacity, or operational ownership.
 
-The target operating model uses managed servers with supervised application processes. Hosting-provider selection, supervision, scheduling, server hooks, and recovery verification remain pending.
+The target operating model uses managed servers with supervised application processes. Linux systemd supervises application processes. Repository units define relay and cleanup timers and queue consumer instances. Host installation, secret-provider authentication, backup hooks, and activation remain deployment operations.
 
 The [deployment workflow](../../deployment/README.md) and [deployment guidance](../platform/18-deployment.md) require a production operating model.
 
@@ -40,6 +40,8 @@ The [deployment workflow](../../deployment/README.md) and [deployment guidance](
 - **Negative / Trade-offs:** The team remains responsible for server configuration, supervision, scheduling, security updates, capacity, and recovery. Each environment needs working server hooks and verified operating procedures.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Define service targets and process inventory. Select the hosting provider, supervisor, and scheduler. Configure processes to use the active release. Implement backup and process-activation hooks. Assign operational owners. Document restart, scheduled maintenance, monitoring, backup restoration, and rollback procedures.
 - **Verification:** Demonstrate process recovery after failure and server reboot in a prepared stage environment. Verify release activation reloads the HTTP runtime and restarts relay and queue workers from the active revision. Test scheduled maintenance, readiness, backup restoration, and application rollback.

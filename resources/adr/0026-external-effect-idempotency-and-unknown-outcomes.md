@@ -11,7 +11,7 @@ A provider call cannot share a database transaction. A timeout or completion-rec
 
 Idempotency permits repeated requests for one operation without repeating its external effect.
 
-The [external-effect inbox](../platform/12-messaging-consumers.md) provides a 300-second claim and blocks automatic repetition of unknown outcomes. The target policy uses this lease with evidence-based manual outcome resolution. Provider-specific recovery procedures and queued-consumer integration remain pending.
+The [external-effect inbox](../platform/12-messaging-consumers.md) provides a 300-second claim and blocks automatic repetition of unknown outcomes. The target policy uses this lease with evidence-based manual outcome resolution. The preview-first resolution command records accepted or confirmed nonaccepted outcomes with operator and evidence references. Ownership notifications use the same external-effect inbox.
 
 - **Constraints:** Do not repeat an unknown outcome automatically. Lease expiry does not authorize a new provider call. Preserve stable operation identity. Separate provider acceptance from final delivery. Record provider evidence and operator decisions before resolving an uncertain outcome.
 
@@ -37,9 +37,11 @@ The [external-effect inbox](../platform/12-messaging-consumers.md) provides a 30
 ## Consequences
 
 - **Positive:** Uncertain effects have an explicit manual recovery path. Completed duplicates acknowledge without another provider call. Expired incomplete claims remain blocked until their outcomes are resolved.
-- **Negative / Trade-offs:** Manual resolution adds operator work and can delay delivery. A lease does not guarantee exactly-once external effects. The [current inbox implementation](../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php) is a foundation. No notification queue consumer currently uses it.
+- **Negative / Trade-offs:** Manual resolution adds operator work and can delay delivery. A lease does not guarantee exactly-once external effects. The [current inbox implementation](../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineExternalEffectInbox.php) is a foundation. Ownership notification delivery uses stable challenge identity through this inbox. Provider-specific evidence must support each manual decision.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Define operation identity and provider-specific accepted, completed, failed, and unknown states. Claim the inbox lease before each provider call. Assign manual resolution ownership and document the required provider evidence. Record resolution decisions. Permit a controlled new attempt only when evidence confirms that the provider did not accept the operation. Complete recovery procedures before queued delivery.
 - **Verification:** Test active and expired claims, provider timeout after acceptance, completion-record failure, duplicates, and evidence-based manual resolution. Verify lease expiry alone never repeats a provider call. Verify insufficient evidence preserves the blocked state. Verify completed effects acknowledge and controlled retry requires confirmed absence of provider acceptance.

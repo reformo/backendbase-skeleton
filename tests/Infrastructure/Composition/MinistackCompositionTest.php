@@ -18,7 +18,8 @@ final class MinistackCompositionTest extends TestCase
         $configuration = self::arrayValue(Yaml::parseFile('docker-compose.yaml'));
         $services      = self::arrayValue($configuration['services'] ?? null);
 
-        self::assertCount(6, $services);
+        self::assertCount(7, $services);
+        self::assertArrayHasKey('redisinsight', $services);
         self::assertArrayNotHasKey('profiles', self::arrayValue($services['redis'] ?? null));
         self::assertArrayNotHasKey('profiles', self::arrayValue($services['mysql'] ?? null));
         self::assertArrayNotHasKey('profiles', self::arrayValue($services['rabbitmq'] ?? null));

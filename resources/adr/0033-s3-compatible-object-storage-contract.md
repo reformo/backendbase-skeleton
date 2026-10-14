@@ -35,7 +35,7 @@ Applications need object download links and upload operations without depending 
 ## Consequences
 
 - **Positive:** Configured CDN URLs serve downloads. Without a CDN base, the adapter creates time-limited signed S3 requests.
-- **Negative / Trade-offs:** Current limits include forced JPEG download content type, unenforced upload content type, and an unbounded multipart retry.
+- **Negative / Trade-offs:** Download signing preserves object content type. Upload signing binds the exact key and declared content type. SDK requests and multipart parts use bounded transient retries. Signed operations expire within seven days.
 
 ## Implementation & Validation
 

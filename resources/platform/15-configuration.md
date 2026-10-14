@@ -8,6 +8,13 @@ AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, read
 
 `NotificationSettings` selects SNS, Twilio, or Netgsm SMS delivery. SNS is the default. Twilio and Netgsm require credentials, a sender, and a finite timeout. It selects SES or SMTP email delivery. SES is the default. SMTP requires a host and finite timeout. A non-empty `FIREBASE_PROJECT_ID` enables push delivery. Firebase uses a finite timeout and an optional service-account path.
 
+## Project file paths
+
+The HTTP, console, Doctrine, and PHPUnit bootstraps change the working directory to the project root.
+Load project files with root-relative paths, such as `config/dependencies.php` and `resources/i18n/en-US.php`.
+The default local log path is `var/logs/app.log`.
+Standalone maintenance and translation tools resolve their own project root.
+
 ## Precedence and loading
 
 - `backendbaseEnv()` reads `$_ENV`, then the process environment, then a code default.
@@ -22,7 +29,8 @@ Use exact `BACKENDBASE_ENV` values: `dev`, `test`, `ci`, `stage`, or `production
 
 Select the CQRS resolver in dependency definitions. The `config/dependencies.php` provider defaults to `RegistryHandlerResolver::class`. The registry resolver reads handler mappings from each context's `ServiceProvider::getHandlers()`. `AttributeHandlerResolver` requires attributed contracts and cannot dispatch the current commands and queries.
 
-The public API can cache merged configuration, the container, proxies, and routes. Clear cache after environment, route, or dependency changes:
+The public API reloads runtime configuration and builds container definitions without persistent credential caches.
+It can cache routes, Doctrine metadata, and mapping metadata. Clear these caches after their sources change:
 
 ```sh
 bin/backendbase clear-cache
@@ -47,3 +55,6 @@ Numeric configuration uses strict integer and finite-float parsers. Error messag
 Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep database, broker, AWS, API, object-store, and Tolgee secrets outside source and logs.
 
 Basis: `resources/docs/7-env-and-config.html`.
+
+Identity signing and factor keys use active and previous key identifiers. See [security policy](14-security.md).
+Redis settings support optional ACL credentials and verified TLS. Malformed connection values are rejected.

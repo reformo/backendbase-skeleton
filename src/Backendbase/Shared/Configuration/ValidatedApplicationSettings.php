@@ -11,11 +11,14 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
+use function preg_match;
+use function str_contains;
+use function strlen;
 
 /**
  * @phpstan-type DatabaseSettings array{connect: string}
  * @phpstan-type ReadinessSettings array{timeoutSeconds: float}
- * @phpstan-type RedisSettings array{host: string, port: int}
+ * @phpstan-type RedisSettings array{host: string, port: int, username: string, password: string, tls: bool}
  * @phpstan-type RuntimeSettings array{
  *     basePath: string,
  *     cdnBaseUrl: string,
@@ -59,7 +62,33 @@ final class ValidatedApplicationSettings
             throw new UnexpectedValueException('The Redis settings are invalid.');
         }
 
-        return ['host' => $settings['host'], 'port' => $settings['port']];
+        $credentials = self::redisCredentials($settings);
+        $tls         = $settings['tls'] ?? false;
+        if ($settings['host'] === '' || preg_match('/[\x00-\x20\x7f]/', $settings['host']) === 1 || $settings['port'] < 1 || $settings['port'] > 65535 || ! is_bool($tls)) {
+            throw new UnexpectedValueException('The Redis connection settings are invalid.');
+        }
+
+        return ['host' => $settings['host'], 'port' => $settings['port'], 'tls' => $tls, ...$credentials];
+    }
+
+    /**
+     * @param array<array-key, mixed> $settings
+     *
+     * @return array{username: string, password: string}
+     */
+    private static function redisCredentials(array $settings): array
+    {
+        $username = $settings['username'] ?? '';
+        $password = $settings['password'] ?? '';
+        if (! is_string($username) || ! is_string($password)) {
+            throw new UnexpectedValueException('The Redis credential settings are invalid.');
+        }
+
+        if (strlen($username) > 255 || strlen($password) > 1024 || str_contains($username, "\0") || str_contains($password, "\0") || ($username !== '' && $password === '')) {
+            throw new UnexpectedValueException('The Redis credential settings are invalid.');
+        }
+
+        return ['username' => $username, 'password' => $password];
     }
 
     /** @return RuntimeSettings */

@@ -11,7 +11,7 @@ $backendbaseDebug = backendbaseEnv('BACKENDBASE_LOGGER_LEVEL') ?? backendbaseEnv
 return [
     'logger' => [
         'name' => 'backendbase-app',
-        'path' => backendbaseEnv('docker') !== null ? 'php://stdout' : __DIR__ . '/../../var/logs/app.log',
+        'path' => backendbaseEnv('docker') !== null ? 'php://stdout' : 'var/logs/app.log',
         'level' => $backendbaseDebug !== null ? Level::{ucfirst((string) $backendbaseDebug)} : Level::Info,
     ],
 ];

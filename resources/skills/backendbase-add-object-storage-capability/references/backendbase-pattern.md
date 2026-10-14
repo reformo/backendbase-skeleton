@@ -13,21 +13,22 @@ interface BucketService
 }
 ```
 
-The S3 adapter owns `S3ClientInterface`, commands, presigned requests, upload streams, multipart recovery, and signed POST construction. Project callers see strings and arrays, not SDK objects.
+The S3 adapter owns `S3ClientInterface`, commands, presigned requests, upload streams, bounded multipart part retries, and signed POST construction. Project callers see strings and arrays, not SDK objects.
 
 | Concern | Backendbase behavior | Safer target decision |
 | --- | --- | --- |
 | Downloads | CDN URL when configured, otherwise signed S3 request | Normalize base URL and validate expiration |
-| Server upload | Stream plus `ObjectUploader`; resume multipart | Bound attempts and close resources on every path |
-| Browser upload | Private signed POST for one key prefix | Enforce type, size, key, and expiration policy |
+| Server upload | Stream plus `ObjectUploader`; at most three transient attempts | Bound attempts and close resources on every path |
+| Browser upload | Private signed POST with exact key and content type | Enforce type, size, key, and expiration policy |
 | Composition | Object-store config creates S3 client and adapter | Validate settings and support deployment credential policy |
 | Tests | AWS `MockHandler` checks commands and results | Cover failure and exhaustion paths without network |
 
 ## Current source limitations
 
-- Multipart recovery has no explicit attempt limit.
-- Signed POST accepts `contentType` but does not include it in policy.
-- Signed download forces `image/jpeg`.
+- Transient failures permit two retries. Permanent failures stop immediately.
+- Signed POST policy requires the exact key and content type.
+- Signed downloads preserve the stored object content type.
+- Signing expiration is bounded to 1 through 604800 seconds.
 - Object-store settings use `OBJECT_STORE_ENDPOINT`, or use `AWS_ENDPOINT` when the object-store value is unset or empty.
 - S3 composition always creates explicit credentials, including empty values, instead of using the shared AWS credential-chain behavior.
 - Do not preserve these behaviors unless the target contract explicitly requires them.

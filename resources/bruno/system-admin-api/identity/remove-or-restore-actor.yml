@@ -1,0 +1,37 @@
+info:
+  name: 'Remove or restore actor'
+  type: http
+  seq: 22
+http:
+  method: POST
+  url: '{{baseUrl}}/administration/actors/change'
+  headers:
+    -
+      name: X-Source-Id
+      value: system-admin
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Authorization
+      value: 'Bearer {{accessToken}}'
+    -
+      name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "actorId": "{{targetActorId}}",
+        "realm": "{{targetRealm}}",
+        "action": "{{actorAction}}"
+      }
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");

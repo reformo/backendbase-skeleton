@@ -26,7 +26,7 @@ abstract class IntegrationEventDispatchTestCase extends TestCase
         $connection->executeStatement('CREATE TABLE aggregate_write (id TEXT PRIMARY KEY)');
         $connection->executeStatement(
             'CREATE TABLE integration_event_outbox ('
-            . 'id TEXT PRIMARY KEY, event_name TEXT, event_version TEXT, payload TEXT, '
+            . 'id TEXT PRIMARY KEY, destination TEXT, event_name TEXT, event_version TEXT, payload TEXT, '
             . 'occurred_at TEXT, created_at TEXT, available_at TEXT, published_at TEXT, '
             . 'attempts INTEGER, last_error TEXT)',
         );

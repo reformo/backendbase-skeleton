@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "composerLockSha256": "fed5dadacb83471543a9674cf9bc0572aba07de7a0416e0cb5522cefcf6068b5",
+    "composerLockSha256": "3257bbc0e18c4b8f797551a97d7f94af9bb049660b69d1d1636cc8b20987b89b",
     "packages": [
         {
             "name": "adbario/php-dot-notation",

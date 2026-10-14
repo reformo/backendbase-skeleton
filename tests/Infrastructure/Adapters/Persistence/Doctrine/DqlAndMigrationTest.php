@@ -9,15 +9,11 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\BackendbaseAbstract
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DQL\FirstFunction;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Ramsey\Uuid\Doctrine\UuidType;
-
-use function dirname;
 
 final class DqlAndMigrationTest extends TestCase
 {
@@ -37,14 +33,12 @@ final class DqlAndMigrationTest extends TestCase
     #[Test]
     public function itLimitsAFirstSubqueryToOneRow(): void
     {
-        if (! Type::hasType(UuidType::NAME)) {
-            Type::addType(UuidType::NAME, UuidType::class);
-        }
+        require 'config/doctrine-types.php';
 
-        $configuration = ORMSetup::createAttributeMetadataConfiguration([
-            dirname(__DIR__, 5)
-                . '/src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity',
-        ], true);
+        $configuration = ORMSetup::createAttributeMetadataConfiguration(
+            ['src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity'],
+            true,
+        );
         $configuration->enableNativeLazyObjects(true);
         $configuration->addCustomStringFunction(FirstFunction::FUNCTION_NAME, FirstFunction::class);
         $connection    = DriverManager::getConnection(

@@ -41,7 +41,7 @@ Local-to-remote flattens nested arrays, rejects empty or dotted source segments,
 - Remote sync aborts without changes when a locale export contains no scoped keys.
 - File replacement is atomic per locale, but only one writer should run.
 - Live Tolgee must not be used by automated tests.
-- Current `en-US.php` contains Turkish values; a sync can expose or replace that mismatch, so review the diff.
+- `en-US.php` contains English values. Review every synchronization diff for language, keys, and placeholders.
 
 ## Exact source provenance
 

@@ -35,7 +35,7 @@ HTTP translation should not depend on a remote translation service. Catalog chan
 ## Consequences
 
 - **Positive:** The first Accept-Language value selects a supported exact locale. Missing or unsupported values use tr-TR.
-- **Negative / Trade-offs:** Missing keys return the locale-qualified key without per-key fallback. The current English dictionary loads Turkish values.
+- **Negative / Trade-offs:** Missing keys return the locale-qualified key without per-key fallback. The English catalog has independent English values and verified placeholder parity with Turkish.
 
 ## Implementation & Validation
 

@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Hand
 
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
+use Backendbase\Infrastructure\Adapters\Http\Input\RequestObjectInput;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Utility\Arrays\PayloadSanitizer;
@@ -33,8 +34,12 @@ class NewExample extends Action
     {
         $type         = (string) $this->request->getAttribute('type-slug');
         $group        = (string) $this->request->getAttribute('example-group');
-        $payload      = PayloadSanitizer::sanitize($this->request->getParsedBody());
-        $typeTargetId = ExampleRequestInput::optionalTypeTargetId($payload['typeTargetId'] ?? null);
+        $payload      = RequestObjectInput::read(
+            $this->request->getParsedBody(),
+            ['typeTargetId', 'lookupKey', 'lookupValue', 'details', 'isActive'],
+        );
+        $typeTargetId = RequestObjectInput::positiveIntegerOrNull($payload['typeTargetId'] ?? null, 'typeTargetId');
+        $payload      = PayloadSanitizer::sanitize($payload);
         $entryId      = Uuid::uuid7()->toString();
         $lookupKey    = ExampleRequestInput::optionalString(
             $payload['lookupKey'] ?? null,

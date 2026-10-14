@@ -8,7 +8,7 @@ use DI\ContainerBuilder;
 
 use function DI\get;
 
-include_once __DIR__ . '/doctrine-types.php';
+include_once 'config/doctrine-types.php';
 
 /** @param class-string<HandlerResolver> $resolverClass */
 return static function (ContainerBuilder $containerBuilder, string $resolverClass = RegistryHandlerResolver::class): void {
@@ -28,7 +28,7 @@ return static function (ContainerBuilder $containerBuilder, string $resolverClas
     ];
 
     foreach ($providerFiles as $providerFile) {
-        $provider = require __DIR__ . '/dependencies/' . $providerFile;
+        $provider = require 'config/dependencies/' . $providerFile;
         $provider($containerBuilder);
     }
 

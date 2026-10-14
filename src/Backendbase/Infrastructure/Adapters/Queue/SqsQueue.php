@@ -9,6 +9,7 @@ use Backendbase\Shared\Integrations\MessageConsumer;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Backendbase\Shared\Integrations\Operation\MessagePublicationResult;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Override;
@@ -87,6 +88,9 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
             $messageId = $message['MessageId'] ?? null;
             $messageId = is_string($messageId) ? $messageId : null;
             $this->transport->reportHandlingFailure($exception, $queueName, $messageId);
+            if ($exception instanceof ConsumerRestartRequired) {
+                throw $exception;
+            }
 
             return;
         }
@@ -107,6 +111,10 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
     {
         $queueUrl = $this->settings->queueUrl();
         if ($queueUrl !== null && $queueUrl !== '') {
+            if ($queueName !== null && $queueName !== $this->settings->queueName()) {
+                throw new UnexpectedValueException('The requested consumer does not match the configured queue URL.');
+            }
+
             return $queueUrl;
         }
 

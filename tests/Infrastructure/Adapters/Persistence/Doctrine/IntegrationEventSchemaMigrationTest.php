@@ -15,7 +15,6 @@ use Psr\Log\NullLogger;
 use function array_map;
 use function array_slice;
 use function basename;
-use function dirname;
 use function file_get_contents;
 use function glob;
 
@@ -24,13 +23,13 @@ final class IntegrationEventSchemaMigrationTest extends TestCase
     #[Test]
     public function itCreatesTheFinalMessagingSchemaBeforeOtherMigrations(): void
     {
-        $migrationFiles = glob(dirname(__DIR__, 5) . '/resources/database/Migrations/Version*.php');
+        $migrationFiles = glob('resources/database/Migrations/Version*.php');
         self::assertIsArray($migrationFiles);
         self::assertSame('Version20260823000000.php', basename($migrationFiles[0]));
         foreach (array_slice($migrationFiles, 1) as $migrationFile) {
             $source = file_get_contents($migrationFile);
             self::assertIsString($source);
-            self::assertDoesNotMatchRegularExpression('/integration_event_/', $source);
+            self::assertDoesNotMatchRegularExpression('/CREATE TABLE integration_event_(outbox|inbox|delivery_failure)\s*\(/', $source);
         }
 
         $migration = $this->migration();

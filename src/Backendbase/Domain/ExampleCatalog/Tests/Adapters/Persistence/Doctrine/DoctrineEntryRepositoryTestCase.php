@@ -10,14 +10,16 @@ use Backendbase\Domain\ExampleCatalog\Contracts\EntryReadRepository as EntryRead
 use Backendbase\Domain\ExampleCatalog\Contracts\EntryWriteRepository as EntryWriteRepositoryContract;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
+use Pdo\Sqlite;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Uuid;
 
+use function assert;
 use function dirname;
+use function str_replace;
 
 abstract class DoctrineEntryRepositoryTestCase extends TestCase
 {
@@ -27,18 +29,26 @@ abstract class DoctrineEntryRepositoryTestCase extends TestCase
 
     protected function setUp(): void
     {
-        if (! Type::hasType(UuidType::NAME)) {
-            Type::addType(UuidType::NAME, UuidType::class);
-        }
-
+        require 'config/doctrine-types.php';
         $configuration = ORMSetup::createAttributeMetadataConfiguration([
             dirname(__DIR__, 4) . '/Adapters/Persistence/Doctrine/Entity',
         ], true);
         $configuration->enableNativeLazyObjects(true);
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], $configuration);
-        $entityManager    = new EntityManager($this->connection, $configuration);
-        $schemaTool       = new SchemaTool($entityManager);
-        $schemaTool->createSchema($entityManager->getMetadataFactory()->getAllMetadata());
+        $nativeConnection = $this->connection->getNativeConnection();
+        assert($nativeConnection instanceof Sqlite);
+        $nativeConnection->createFunction('BIN_TO_UUID', static function (string $bytes, int $swap): string {
+            $uuid = Uuid::fromBytes($bytes);
+
+            return $uuid->toString();
+        }, 2, Sqlite::DETERMINISTIC);
+        $entityManager   = new EntityManager($this->connection, $configuration);
+        $schemaTool      = new SchemaTool($entityManager);
+        $metadataFactory = $entityManager->getMetadataFactory();
+        foreach ($schemaTool->getCreateSchemaSql($metadataFactory->getAllMetadata()) as $statement) {
+            $this->connection->executeStatement(str_replace('CHAR(36) CHARACTER SET ascii COLLATE ascii_bin', 'TEXT', $statement));
+        }
+
         $this->readRepository  = new EntryReadRepository($this->connection);
         $this->writeRepository = new EntryWriteRepository($entityManager);
     }

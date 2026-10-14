@@ -9,7 +9,7 @@
 
 Doctrine must persist the approved UUID without database-generated replacement or domain dependence on ORM types.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#entity-identifier-representation) selects ramsey/uuid-doctrine uuid_binary. [Type registration](../../config/doctrine-types.php) already exists; complete mapping coverage remains unverified.
+The [decision report](references/2026-10-13-identity-access-decisions.md#entity-identifier-representation) selects ramsey/uuid-doctrine uuid_binary. [Type registration](../../config/doctrine-types.php) already exists; Identity and Example mappings use assigned identifiers. Legacy UUID and new UUIDv7 round trips are verified on MySQL 8.4.
 
 - **Constraints:** Assign identity before persist. Preserve existing mapping conventions. Keep Doctrine and Ramsey conversion at the persistence adapter boundary.
 
@@ -38,6 +38,8 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#entity-
 - **Negative / Trade-offs:** Custom types for multiple domain identifier classes require a demonstrated need. The readable generated field has a separate [mapping choice](0047-generated-uuid-projection-mapping.md).
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Reuse registered uuid_binary support. Map record identity as assigned. Convert typed domain identity inside adapters. Preserve current attribute or XML conventions.
 - **Verification:** Test persist and hydrate through the production container and real MySQL. Verify stable identity values, record lookup, byte order, and reviewed schema differences.

@@ -1,0 +1,26 @@
+info:
+  name: 'Read current identity'
+  type: http
+  seq: 16
+http:
+  method: GET
+  url: '{{baseUrl}}/identity'
+  headers:
+    -
+      name: X-Source-Id
+      value: system-admin
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Authorization
+      value: 'Bearer {{accessToken}}'
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");

@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Types\UtcDateTimeImmutableType;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Types\UtcDateTimeMutableType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Dunglas\DoctrineJsonOdm\Serializer;
 use Dunglas\DoctrineJsonOdm\Type\JsonDocumentType;
 use Ramsey\Uuid\Doctrine\UuidBinaryType;
@@ -12,6 +15,9 @@ use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
+Type::overrideType(Types::DATETIME_IMMUTABLE, UtcDateTimeImmutableType::class);
+Type::overrideType(Types::DATETIME_MUTABLE, UtcDateTimeMutableType::class);
 
 if (! Type::hasType('uuid')) {
     Type::addType('uuid', UuidType::class);

@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Tests\Architecture\Support\PhpConstructionScanner;
 
 use function array_merge;
-use function dirname;
 use function in_array;
 use function sort;
 use function str_contains;
@@ -20,7 +19,10 @@ final class VendorConnectionConstructionBoundaryTest extends TestCase
         'new Aws\S3\S3Client' => ['config/dependencies/aws.php'],
         'new Aws\Sns\SnsClient' => ['config/dependencies/aws.php'],
         'new Aws\Sqs\SqsClient' => ['config/dependencies/aws.php'],
-        'new Doctrine\ORM\EntityManager' => ['config/dependencies/doctrine.php'],
+        'new Doctrine\ORM\EntityManager' => [
+            'config/dependencies/doctrine.php',
+            'src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/UnitOfWork/EntityManagerFactory.php',
+        ],
         'new Redis' => ['config/dependencies/redis.php'],
         'new Redislabs\Module\RedisJson\RedisJson' => ['config/dependencies/redis.php'],
         'new Redislabs\RedisClient\Redis' => ['config/dependencies/redis.php'],
@@ -34,7 +36,7 @@ final class VendorConnectionConstructionBoundaryTest extends TestCase
     #[Test]
     public function vendorConnectionsAreCreatedOnlyInCompositionRootsOrFactories(): void
     {
-        $projectRoot   = dirname(__DIR__, 2);
+        $projectRoot   = '.';
         $constructions = array_merge(
             PhpConstructionScanner::constructionsByFile($projectRoot, 'config'),
             PhpConstructionScanner::constructionsByFile($projectRoot, 'src/Backendbase'),

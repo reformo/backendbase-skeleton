@@ -14,8 +14,6 @@ use Psr\Log\NullLogger;
 use Slim\App;
 use Slim\Factory\AppFactory;
 
-use function dirname;
-
 final class ExampleApiFixture
 {
     /** @return App<ContainerInterface|null> */
@@ -32,7 +30,7 @@ final class ExampleApiFixture
         ]);
         AppFactory::setContainer($builder->build());
         $app        = AppFactory::create();
-        $directory  = dirname(__DIR__, 4) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi';
+        $directory  = 'src/Backendbase/Infrastructure/Inbound/ExampleApi';
         $middleware = require $directory . '/middleware.php';
         $routes     = require $directory . '/routes.php';
         $middleware($app);

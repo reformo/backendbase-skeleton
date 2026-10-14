@@ -14,7 +14,9 @@ use Backendbase\Infrastructure\Configuration\Aws\SqsSettings;
 use Backendbase\Shared\Configuration\ValidatedAwsSettings;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -30,6 +32,14 @@ final class SqsQueueTest extends TestCase
 {
     private const string QUEUE_URL = 'https://sqs.eu-central-1.amazonaws.com/123456789012/events';
 
+    public function testConfiguredQueueUrlCannotBeRetargetedToAnotherConsumer(): void
+    {
+        $handler = new MockHandler([]);
+        $queue   = self::queue($handler);
+        $this->expectException(UnexpectedValueException::class);
+        $queue->consume(new MessageSubscription('other-consumer'), static fn (): QueueMessageHandlingOutcome => QueueMessageHandlingOutcome::ACKNOWLEDGE);
+    }
+
     #[Test]
     public function itPublishesTheBackendbaseMessageEnvelope(): void
     {
@@ -44,6 +54,7 @@ final class SqsQueueTest extends TestCase
                         'eventVersion' => '1.0',
                         'data' => ['id' => 'item-1'],
                         'tag' => 'collection.created',
+                        'occurredAt' => null,
                     ],
                     json_decode($command['MessageBody'], true, 512, JSON_THROW_ON_ERROR),
                 );
@@ -181,12 +192,12 @@ final class SqsQueueTest extends TestCase
                 'SQS message handling failed. The message remains available for retry.',
                 self::callback(static function (array $context) use ($failure): bool {
                     self::assertSame(RuntimeException::class, $context['exception']);
-                    self::assertSame('Handler failed.', $context['message']);
+                    self::assertArrayNotHasKey('message', $context);
                     self::assertSame('first', $context['message_id']);
                     self::assertSame('events', $context['queue_name']);
                     self::assertSame($failure->getFile(), $context['file']);
                     self::assertSame($failure->getLine(), $context['line']);
-                    self::assertSame($failure->getTraceAsString(), $context['trace']);
+                    self::assertStringNotContainsString('Handler failed.', $context['trace']);
                     self::assertArrayNotHasKey('message_body', $context);
                     self::assertArrayNotHasKey('receipt_handle', $context);
 
@@ -272,6 +283,43 @@ final class SqsQueueTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
 
         $queue->publish(new Message('Event'));
+    }
+
+    #[DataProvider('restartOutcomes')]
+    public function testClosedPersistenceSessionStopsTheBatchAndContinuousConsumer(QueueMessageHandlingOutcome $outcome): void
+    {
+        $handler = new MockHandler([
+            new Result([
+                'Messages' => [
+                    ['Body' => '{}', 'MessageId' => 'first', 'ReceiptHandle' => 'receipt-1'],
+                    ['Body' => '{}', 'MessageId' => 'second', 'ReceiptHandle' => 'receipt-2'],
+                ],
+            ]),
+        ]);
+        $failure = new ConsumerRestartRequired(new RuntimeException('Database flush failed.'), $outcome);
+        $logger  = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('error');
+        $queue = self::queue($handler, ['continuous' => true], $logger);
+        $calls = 0;
+        try {
+            $queue->consume(new MessageSubscription('events'), static function () use ($failure, &$calls): never {
+                ++$calls;
+
+                throw $failure;
+            });
+            self::fail('The consumer must propagate the restart signal.');
+        } catch (ConsumerRestartRequired $exception) {
+            self::assertSame($failure, $exception);
+            self::assertSame(1, $calls);
+            self::assertCount(0, $handler);
+        }
+    }
+
+    /** @return iterable<string, array{QueueMessageHandlingOutcome}> */
+    public static function restartOutcomes(): iterable
+    {
+        yield 'retry' => [QueueMessageHandlingOutcome::RETRY];
+        yield 'retry limit' => [QueueMessageHandlingOutcome::REJECT];
     }
 
     /** @param array<string, bool|int|string> $overrides */

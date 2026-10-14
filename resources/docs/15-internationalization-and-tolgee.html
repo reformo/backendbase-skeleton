@@ -58,7 +58,7 @@ bin/tolgee/sync-remote-keys --help
 <section id="security"><p class="section-label">11 · Security and limits</p><h2>Protect the project API key and bound HTTP work</h2>
 <ul><li><code>TOLGEE_API_KEY</code> is required and must stay in secret storage.</li><li><code>TOLGEE_API_URL</code> defaults to <code>https://app.tolgee.io</code>.</li><li>The shared HTTP client uses a 10-second connection timeout.</li><li>The shared HTTP client uses a 30-second request timeout.</li><li>The script checks HTTP status and response content.</li><li>Do not write the API key to logs or commands stored in shell history.</li></ul></section>
 <section id="mismatch"><p class="section-label">12 · Current differences</p><h2>Current source limitations</h2>
-<ul><li><code>en-US.php</code> currently requires <code>tr-TR.php</code>. English responses therefore contain Turkish values.</li><li>The locale selector supports exact filenames only.</li><li>There is no fallback from a selected locale to a default dictionary for a missing key.</li></ul></section>
+<ul><li><code>en-US.php</code> contains an independent English catalog. Tests verify matching keys and placeholder names.</li><li>The locale selector supports exact filenames only.</li><li>There is no fallback from a selected locale to a default dictionary for a missing key.</li></ul></section>
 <section id="tests"><p class="section-label">13 · Tests</p><h2>Verify lookup, synchronization, and file safety</h2>
 <pre><code>vendor/bin/phpunit tests/Shared/Services/SharedServicesTest.php
 bin/tolgee/sync-local-keys --help

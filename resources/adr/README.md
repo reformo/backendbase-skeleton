@@ -4,6 +4,8 @@ Open [index.html](index.html) to browse all numbered Architecture Decision Recor
 Select a record to read its Markdown content in a wide modal.
 Use search and status filters to find a decision.
 
+See [implementation status](implementation-status.md) for required work and verification coverage.
+
 The modal supports keyboard navigation, Escape, a close button, and backdrop dismissal.
 Links to other ADRs and local reference documents open in the same modal.
 

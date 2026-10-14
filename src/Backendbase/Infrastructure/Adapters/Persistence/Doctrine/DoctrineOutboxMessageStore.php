@@ -69,7 +69,7 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
         DateTimeImmutable $claimUntil,
     ): ClaimedOutboxMessage|null {
         $query = $connection->createQueryBuilder()
-            ->select('id', 'event_name', 'event_version', 'payload', 'attempts')
+            ->select('id', 'event_name', 'event_version', 'payload', 'attempts', 'occurred_at', 'destination')
             ->from(self::OUTBOX_TABLE)
             ->where('published_at IS NULL')
             ->andWhere('available_at <= :now')
@@ -104,6 +104,8 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
             (string) $message['payload'],
             (int) $message['attempts'],
             $claimToken,
+            (string) $message['occurred_at'],
+            $message['destination'] === null ? null : (string) $message['destination'],
         );
     }
 }

@@ -28,6 +28,8 @@ final class OutboxMessagePublisherTest extends TestCase
                 ['exampleId' => 'example-id'],
                 'message-id',
                 '1.0',
+                destination: 'events',
+                occurredAt: '2026-10-14 10:00:00.000000',
             ))
             ->willReturn(new MessagePublicationResult('transport-id'));
         $adapter = new OutboxMessagePublisher($publisher, new Logger('outbox-publisher-test'));
@@ -61,6 +63,20 @@ final class OutboxMessagePublisherTest extends TestCase
             $payload,
             0,
             'claim-token',
+            '2026-10-14 10:00:00.000000',
+            'events',
         );
+    }
+
+    public function testLegacyRowsCannotPublishWithoutAuthoritativeOriginalMetadata(): void
+    {
+        $publisher = $this->createMock(MessagePublisher::class);
+        $publisher->expects(self::never())->method('publish');
+        $handler = new TestHandler();
+        $logger  = new Logger('outbox-publisher-test');
+        $logger->pushHandler($handler);
+        $adapter = new OutboxMessagePublisher($publisher, $logger);
+        self::assertFalse($adapter->publish(new ClaimedOutboxMessage('legacy-message', 'Example_Removed', '1.0', '{}', 0, 'claim-token'))->isSuccessful());
+        self::assertTrue($handler->hasErrorThatContains('Outbox message publication failed.'));
     }
 }

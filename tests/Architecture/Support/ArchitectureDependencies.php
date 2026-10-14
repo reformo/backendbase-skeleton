@@ -6,7 +6,6 @@ namespace Tests\Architecture\Support;
 
 use function array_filter;
 use function array_push;
-use function dirname;
 use function sort;
 use function str_ends_with;
 use function str_replace;
@@ -21,19 +20,19 @@ final class ArchitectureDependencies
     /** @return array<string, list<string>> */
     public static function domain(): array
     {
-        return PhpDependencyScanner::dependenciesByFile(self::projectRoot(), 'src/Backendbase/Domain');
+        return PhpDependencyScanner::dependenciesByFile('.', 'src/Backendbase/Domain');
     }
 
     /** @return array<string, list<string>> */
     public static function shared(): array
     {
-        return PhpDependencyScanner::dependenciesByFile(self::projectRoot(), 'src/Backendbase/Shared');
+        return PhpDependencyScanner::dependenciesByFile('.', 'src/Backendbase/Shared');
     }
 
     /** @return array<string, list<string>> */
     public static function source(): array
     {
-        return PhpDependencyScanner::dependenciesByFile(self::projectRoot(), 'src/Backendbase');
+        return PhpDependencyScanner::dependenciesByFile('.', 'src/Backendbase');
     }
 
     public static function className(string $file): string
@@ -92,11 +91,6 @@ final class ArchitectureDependencies
             $dependenciesByFile,
             static fn (string $file, string $dependency): bool => self::startsWithOne($dependency, $prefixes),
         );
-    }
-
-    private static function projectRoot(): string
-    {
-        return dirname(__DIR__, 3);
     }
 
     /**

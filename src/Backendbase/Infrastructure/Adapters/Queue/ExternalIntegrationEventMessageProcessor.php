@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
+use Backendbase\Infrastructure\Adapters\Diagnostics\SafeExceptionContext;
 use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\ReplayWindow;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
@@ -22,6 +25,7 @@ final readonly class ExternalIntegrationEventMessageProcessor
         private InboxMessageTransaction $inboxMessageTransaction,
         private QueueMessageFailurePolicy $failurePolicy,
         private LoggerInterface $logger,
+        private ReplayWindow $replayWindow,
     ) {
     }
 
@@ -31,10 +35,11 @@ final readonly class ExternalIntegrationEventMessageProcessor
         $messageId    = $message->id();
         try {
             [$eventType, $eventVersion, $validatedConsumerName, $validatedMessageId] = $this->metadata($message);
+            $this->replayWindow->assertEligible($message->occurredAt());
         } catch (UnexpectedValueException $exception) {
             $this->logger->error('Queue message mapping failed.', [
                 'message_id' => $messageId,
-                'message' => $exception->getMessage(),
+                'failure_type' => $exception::class,
             ]);
 
             if (! is_string($consumerName) || ! is_string($messageId)) {
@@ -65,7 +70,7 @@ final readonly class ExternalIntegrationEventMessageProcessor
         } catch (MappingError | UnexpectedValueException $exception) {
             $this->logger->error('Queue message mapping failed.', [
                 'message_id' => $messageId,
-                'message' => $exception->getMessage(),
+                'failure_type' => $exception::class,
             ]);
 
             return $this->failurePolicy->permanentFailure(
@@ -75,19 +80,20 @@ final readonly class ExternalIntegrationEventMessageProcessor
             );
         } catch (Throwable $exception) {
             $this->logger->error('Queue message processing failed.', [
-                'exception' => $exception::class,
                 'message_id' => $messageId,
-                'message' => $exception->getMessage(),
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'trace' => $exception->getTraceAsString(),
+                ...SafeExceptionContext::from($exception),
             ]);
 
-            return $this->failurePolicy->transientFailure(
+            $outcome = $this->failurePolicy->transientFailure(
                 $validatedConsumerName,
                 $validatedMessageId,
                 $exception::class,
             );
+            if ($exception instanceof ConsumerRestartRequired) {
+                throw new ConsumerRestartRequired($exception, $outcome);
+            }
+
+            return $outcome;
         }
     }
 

@@ -11,6 +11,7 @@
 <a href="#mapping">5. Record mapping</a><a href="#discovery">6. Discovery and types</a><a href="#migrations">7. Migrations</a><a href="#seeders">8. Seeders</a>
 <a href="#transactions">9. Transactions</a><a href="#tests">10. Database tests</a><a href="#rules">11. Rules</a><a href="#commands">12. Commands</a><a href="#sources">13. Source map</a>
 </nav><main id="main-content">
+<div class="callout"><strong>ADR implementation:</strong> Read the <a href="../adr/implementation-status.md">implementation register</a> and <a href="../platform/14-security.md">identity security policy</a> for current identity realms, binary UUID mapping, service tests, and recovery operations.</div>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>The domain does not know Doctrine</h2>
 <p>Bounded-context contracts define persistence ports. Doctrine adapters implement those ports. Domain aggregates and read models remain independent from database records.</p>
 <div class="grid-3"><article class="card"><h3>Write side</h3><p>Doctrine ORM maps typed aggregate snapshots to records and saves state.</p></article><article class="card"><h3>Read side</h3><p>Doctrine DBAL runs explicit SQL and maps rows into immutable read models.</p></article><article class="card"><h3>Schema side</h3><p>Reviewed migrations own production schema changes. Seeders add approved reference data.</p></article></div>
@@ -98,4 +99,4 @@ bin/doctrine orm:clear-cache:result</code></pre>
 <tr><td>Row mapper</td><td><code>EntryReadModelMapper.php</code></td></tr><tr><td>CLI</td><td><code>bin/doctrine</code></td></tr>
 <tr><td>Migrations</td><td><code>resources/database/Migrations</code></td></tr><tr><td>Seeders</td><td><code>resources/database/Seeders</code></td></tr>
 </tbody></table></div></section>
-</main></div><footer>Backendbase Core · Persistence and database guide</footer></body></html>
+</main></div><footer>Backendbase Core · Persistence and database guide</footer><section><h2>Example binary UUID conversion</h2><p>Example primary keys use assigned binary UUIDs. The virtual public UUID and all API fields remain unchanged. The staged migration retains the original table for forward recovery. Previous-application rollback is unsafe.</p><p><a href="../platform/operations/example-uuid-conversion.md">Conversion procedure</a></p></section></body></html>

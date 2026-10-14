@@ -39,6 +39,6 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#migrati
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Inventory the target. Allocate and map UUIDs where required. Backfill and convert references. Verify compatibility and duplicates. Cut over, then remove legacy fields after recovery review.
+- **Rollout Steps:** Inventory the target and stop Example writers. Validate canonical existing UUIDs and all references. Create `example_table_uuid`. Copy existing UUIDs with `UUID_TO_BIN(uuid, 0)`. Enforce the selected collation and active uniqueness during the copy. Atomically rename the original table to `example_table_legacy_20261014` and activate the copy. Retain the original table for reviewed forward recovery. New timestamps use UTC microseconds. Do not restart an interrupted migration without inspecting its completed phase.
 - **Verification:** Require complete backfill and zero duplicate or orphan references. Rehearse recovery on prepared staging data. Verify schema differences, sessions, jobs, reports, index size, and collation behavior.
 - **Review Date:** Review before each target cutover or change to legacy identity and text compatibility.

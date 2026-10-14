@@ -17,6 +17,9 @@ The logger factory explicitly sets UTC. Formatted log records include the `+00:0
 
 Log exception type, stable operation, message ID, and trace ID. Do not log credentials, tokens, notification content, or unnecessary personal data.
 
+Domain listeners and integration event dispatchers log event names, versions, timestamps, and subscriber or message classes only.
+Do not log event objects, event arguments, payload arrays, or business values, including at debug level.
+
 When an SQS handler throws, `SqsTransport` records safe exception, queue, and message identifiers. It does not record the message body or receipt handle. `SqsQueue` leaves the message unacknowledged for retry after the visibility timeout.
 
 ## Health signals
@@ -26,6 +29,9 @@ When an SQS handler throws, `SqsTransport` records safe exception, queue, and me
 - `outbox:status` checks pending and retried publication state.
 - Delivery records, SQS transport logs, and dead-letter queues show consumer failures.
 
-No metrics, trace exporter, dashboard, or alert configuration exists in the repository.
+`MeasureRequest` records method, route pattern, status, and elapsed milliseconds. It excludes URLs, bodies, and credentials.
+`SafeExceptionContext` excludes exception messages and call arguments from production HTTP logs.
+`database:diagnostics` reads aggregate MySQL version, charset, collation, lock, buffer, data-size, and index-size metrics.
+The repository has no trace exporter, dashboard, or alert backend.
 
 Basis: `resources/docs/11-error-handling-and-observability.html`.

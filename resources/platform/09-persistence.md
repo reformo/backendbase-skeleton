@@ -28,4 +28,18 @@ Doctrine repository tests must also use production mapping metadata and Doctrine
 
 Example group queries return `EntryGroupPage`. Both adapters count all matching distinct groups before pagination. Doctrine applies the requested limit and offset in SQL. It does not truncate the result set at 1,000 groups.
 
+Identity and Example records use assigned binary UUID identifiers, read-only virtual UUID projections, and optimistic versions.
+New aggregate identifiers use UUIDv7. Example conversion preserves existing public UUIDs, including legacy UUID versions.
+Identity mutations use selective Account-first locks.
+Reload persisted actor authorization under those locks after an unlocked reference lookup.
+Preserve pending Account credential changes and skip database refresh for newly inserted Actors.
+See [table ownership](database-table-ownership.md) for scalar references and migration gates.
+Identity units create a fresh EntityManager through the platform factory for each eligible retry.
+Transaction adapters flush pending ORM state before commit.
+An inbox flush failure that closes the EntityManager stops the consumer through `ConsumerRestartRequired`.
+The supervisor restarts the process before another message can use the closed unit.
+
 Basis: `resources/docs/1-bounded-contexts.html`, `resources/docs/9-persistence-and-database.html`.
+
+Doctrine framework mutable datetime fields also use UTC microsecond SQL declarations and preserve their PHP mutable type.
+This keeps migration metadata compatible with immutable business datetime introspection.

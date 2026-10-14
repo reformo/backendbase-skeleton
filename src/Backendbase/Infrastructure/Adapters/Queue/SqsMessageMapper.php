@@ -24,6 +24,7 @@ final class SqsMessageMapper
             'eventVersion' => $message->eventVersion(),
             'data' => $message->data(),
             'tag' => $message->routingKey(),
+            'occurredAt' => $message->occurredAt(),
         ], JSON_THROW_ON_ERROR);
     }
 
@@ -44,6 +45,7 @@ final class SqsMessageMapper
             self::nullableString($version),
             $queueName,
             self::stringOrDefault($routingKey, $queueName),
+            self::nullableString($payload['occurredAt'] ?? null),
         );
     }
 

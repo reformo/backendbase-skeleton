@@ -26,6 +26,10 @@ Nginx serves the configured MiniStack bucket at `http://127.0.0.1:8081/`. Set lo
 
 StackPort connects to MiniStack through `http://ministack:4566` and exposes a local resource browser at `http://127.0.0.1:8082`.
 
-Current S3 limits include an unbounded multipart retry, forced JPEG download content type, and an unenforced upload content type.
+S3 operations use at most three attempts for transient failures. Multipart retries preserve the upload and part identity.
+Access denial and other permanent failures stop immediately. Failed multipart transfers are not restarted indefinitely.
+Download signing preserves the object content type. Signed POST policies require the exact key and content type.
+Signing expiry must be between 1 and 604800 seconds. Temporary credentials can expire earlier.
+A missing or unreadable local upload file fails before a provider request.
 
 Basis: `resources/docs/14-external-services-and-object-storage.html`.

@@ -38,14 +38,14 @@
 <li>Watch locks and execution time for table changes.</li><li>Confirm application compatibility during rolling deployment.</li><li>Verify the schema and key queries after migration.</li></ul>
 <div class="callout warning"><strong>MySQL boundary:</strong> DDL can commit independently. Deployment records the dry-run SQL and migration output. A required hook confirms backup recovery before execution.</div>
 <p>The first migration now creates the complete integration-event schema for new databases. Databases that already ran the former five messaging migrations have different version records. Inspect their schema and migration metadata, then prepare a separate adoption plan before deployment.</p>
-<p>The release target is <code>Backendbase\Migrations\Version20260823215059</code>, the latest remaining migration. It creates the complete Example table. The separate Example uniqueness migration and the IdentityAndAccess migration and privilege seeder have been removed.</p>
+<p>The release target is <code>Backendbase\Migrations\Version20261014040000</code>. New migrations add recovery audit records, identity tables, staged Example UUID conversion, and operator evidence. Application rollback to the integer-key release is unsafe. Retain the original Example table for reviewed forward recovery.</p>
 <p>Databases that executed either former Example migration need a schema and migration-history adoption plan before deployment. Compare the generated uniqueness columns, active lookup index, and recorded versions with the consolidated migration. Do not rerun table creation against an existing Example table.</p>
 <p>Deployment rejects unregistered migration versions. For a database that executed the removed migration, compare its schema and migration records before deployment. Prepare a separate adoption plan. Change account tables or migration records only with explicit authority for that database.</p>
 <div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
 </section>
 <section id="cache"><p class="section-label">06 · Cache</p><h2>Clear generated data when its source changes</h2>
 <p><code>bin/backendbase clear-cache</code> removes files under the new release <code>var/cache</code>. A successful clear returns exit code zero. Strict deployment stops on a cache failure.</p>
-<ul><li>Clear merged configuration after environment or configuration changes.</li><li>Clear route cache after route changes.</li><li>Clear container compilation after dependency changes.</li><li>Clear Doctrine metadata after mapping changes.</li></ul>
+<ul><li>Reload injected runtime secrets after environment changes.</li><li>Clear route cache after route changes.</li><li>Rebuild container definitions on each request.</li><li>Clear Doctrine metadata after mapping changes.</li></ul>
 </section>
 <section id="workers"><p class="section-label">07 · Workers and schedules</p><h2>Background delivery needs independent supervision</h2>
 <div class="table-wrap"><table><thead><tr><th>Process</th><th>Command</th><th>Recommended mode</th></tr></thead><tbody>

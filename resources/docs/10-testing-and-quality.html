@@ -11,6 +11,7 @@
 <a href="#database">5. Database tests</a><a href="#api">6. API and contract</a><a href="#static">7. Static checks</a><a href="#coverage">8. Coverage</a>
 <a href="#workflow">9. Verification workflow</a><a href="#automation">10. Automation state</a><a href="#gaps">11. Current gaps</a><a href="#commands">12. Commands</a><a href="#sources">13. Source map</a>
 </nav><main id="main-content">
+<div class="callout"><strong>ADR implementation:</strong> Read the <a href="../adr/implementation-status.md">implementation register</a> and <a href="../platform/14-security.md">identity security policy</a> for current identity realms, binary UUID mapping, service tests, and recovery operations.</div>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
 <p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
 <div class="summary-grid"><div class="stat"><strong>150</strong><span>PHP test classes</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
@@ -99,6 +100,7 @@ vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
 bin/bruno example-api local
 # Report: artifacts/bruno/example-api/local.html</code></pre>
 <p><code>composer test</code> runs PHPUnit, enforces 100% executable-line coverage, then runs <code>tests/Deployment/deployment-scripts.sh</code>.</p>
+<p><code>tests/bootstrap.php</code> changes the working directory to the project root before loading Composer. Project test fixtures use root-relative paths. Module-owned tests can use file-relative paths for fixtures that move with their bounded context.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>

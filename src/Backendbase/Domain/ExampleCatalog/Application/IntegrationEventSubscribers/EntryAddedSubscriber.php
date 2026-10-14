@@ -21,7 +21,10 @@ readonly class EntryAddedSubscriber implements IntegrationEventSubscriber
     #[Override]
     public function handle(IntegrationEvent $integrationEvent): void
     {
-        $this->logger->debug('EntryAddedSubscriber', $integrationEvent->toArray());
+        $this->logger->debug('EntryAddedSubscriber', [
+            'eventName' => $integrationEvent->eventName(),
+            'eventVersion' => $integrationEvent->eventVersion(),
+        ]);
     }
 
     /** @return array<int, string> */

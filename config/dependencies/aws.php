@@ -46,6 +46,7 @@ return static function (ContainerBuilder $containerBuilder): void {
                     'timeout' => $timeoutSeconds,
                 ],
                 'region' => $region,
+                'retries' => 2,
                 'version' => 'latest',
             ]);
         },

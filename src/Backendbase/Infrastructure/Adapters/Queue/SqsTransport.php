@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
 use Aws\Sqs\SqsClient;
+use Backendbase\Infrastructure\Adapters\Diagnostics\SafeExceptionContext;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -79,13 +80,9 @@ final readonly class SqsTransport
     public function reportHandlingFailure(Throwable $exception, string $queueName, string|null $messageId): void
     {
         $this->logger->error('SQS message handling failed. The message remains available for retry.', [
-            'exception' => $exception::class,
-            'message' => $exception->getMessage(),
             'message_id' => $messageId,
+            ...SafeExceptionContext::from($exception),
             'queue_name' => $queueName,
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
         ]);
     }
 }

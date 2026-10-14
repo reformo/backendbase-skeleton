@@ -31,7 +31,10 @@ final class ContainerAwareSubscriberDispatcher
             return;
         }
 
-        $this->logger->debug('ContainerAwareEventManager-2', ['event' => $event]);
+        $this->logger->debug('ContainerAwareEventManager-2', [
+            'eventName' => $event->eventName(),
+            'eventVersion' => $event->eventVersion(),
+        ]);
         foreach ($subscribers as $subscriberFQCN) {
             $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
             $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
@@ -45,7 +48,10 @@ final class ContainerAwareSubscriberDispatcher
 
     public function dispatchExternalEvent(string $eventName, EventMessage $message): void
     {
-        $this->logger->debug('ContainerAwareEventManager-1', ['message' => $message->toArray()]);
+        $this->logger->debug('ContainerAwareEventManager-1', [
+            'eventName' => $eventName,
+            'messageType' => $message::class,
+        ]);
         $subscribers = $this->getSubscriber($eventName);
         if ($subscribers === []) {
             return;

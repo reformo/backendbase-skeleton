@@ -39,6 +39,9 @@ The [outbox rules](../platform/11-messaging-outbox.md) and [consumer inbox rules
 
 ## Implementation & Validation
 
+The inbox flushes ORM changes before completion. A flush failure that closes the persistence session stops the consumer.
+The message processor preserves the bounded retry outcome. The supervisor creates a fresh process before another message is handled.
+
 - **Rollout Steps:** Preserve message identity through transport. Dispatch inside the inbox transaction. Commit the processed marker before acknowledgment.
 - **Verification:** Test duplicates, rollback, and failure before acknowledgment through [DoctrineInboxMessageTransaction](../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php). Review [retention policy](0025-replay-and-deduplication-retention.md).
 - **Review Date:** Review when consumer identity, retention, subscriber grouping, or external effects change.

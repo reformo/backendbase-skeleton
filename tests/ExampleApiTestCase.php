@@ -17,7 +17,6 @@ use RuntimeException;
 use Slim\App;
 use Slim\Factory\AppFactory;
 
-use function dirname;
 use function fopen;
 
 class ExampleApiTestCase extends PHPUnit_TestCase
@@ -52,11 +51,11 @@ class ExampleApiTestCase extends PHPUnit_TestCase
 
         $app = AppFactory::create();
         // Register middleware
-        $middleware = require dirname(__DIR__) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php';
+        $middleware = require 'src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php';
         $middleware($app);
 
 // Register routes
-        $routes = require dirname(__DIR__) . '/src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
+        $routes = require 'src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
         $routes($app);
 
         return $app;

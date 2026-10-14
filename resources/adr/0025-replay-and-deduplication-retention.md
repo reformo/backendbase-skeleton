@@ -7,11 +7,11 @@
 
 ## Context and Problem Statement
 
-Cleanup can remove completed message records. A duplicate arriving after inbox deletion can execute again. Replay authority and supported replay age are not fully defined.
+Cleanup can remove completed message records. A duplicate arriving after inbox deletion can execute again. Ordinary replay requires recorded operator and provider evidence.
 
 The [cleaner](../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationMessageLogCleaner.php) enforces at least 30 retention days. [Queue guidance](../platform/13-queue-runtime.md) provides no automatic replay command.
 
-The target policy uses a bounded replay window with matching inbox retention. Exact replay age, its reference timestamp, and retention durations remain pending. The cleanup minimum does not establish the replay window. Replay tooling and age enforcement remain to be implemented.
+The target policy uses a bounded replay window with matching inbox retention. The replay window is seven days from the immutable original UTC occurrence time. The exact seven-day cutoff is eligible. Completed records remain for at least 30 days. Pending and unresolved recovery records remain protected. The preview-first replay command preserves original message and consumer identity.
 
 - **Constraints:** Align broker retention, recovery delay, inbox retention, and replay age. Retain completion evidence through all permitted repeat deliveries and their processing delays. Preserve pending and unresolved records and the completion evidence needed for their recovery. Ordinary replay must preserve the original consumer identity and message ID. Reject replay outside the supported window. Broker requeue or redrive must not reset replay eligibility.
 
@@ -40,6 +40,8 @@ The target policy uses a bounded replay window with matching inbox retention. Ex
 - **Negative / Trade-offs:** Older recovery requires a separate reviewed procedure. Identity changes bypass existing inbox records. Dead-letter waiting and delayed publication can outlast a nominal window unless retention and replay controls cover them. External effects remain subject to [manual outcome resolution](0026-external-effect-idempotency-and-unknown-outcomes.md).
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Measure required recovery age and delivery delays. Define the replay-age reference timestamp and maximum window. Select record and broker retention with a delivery and recovery margin. Align cleanup with pending and unresolved recovery needs. Implement age checks and identity preservation before enabling replay. Define operator authority, preview, execution records, and recovery procedures. Use a separate processing scope for projection rebuilds.
 - **Verification:** Test duplicate protection inside the window and rejection of expired replays before handler execution. Test exact cleanup cutoffs and replay processing near the window boundary. Preserve pending and unresolved records and required completion evidence. Test unsupported versions, original message and consumer identity, and external-effect recovery restrictions. Verify broker redrive does not reset replay eligibility.

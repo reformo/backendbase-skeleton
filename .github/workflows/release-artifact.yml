@@ -25,6 +25,35 @@ jobs:
     timeout-minutes: 25
     environment: release
 
+    env:
+      BACKENDBASE_SERVICE_TESTS: '1'
+      BACKENDBASE_TEST_MYSQL_PORT: '3306'
+      BACKENDBASE_TEST_MYSQL_PASSWORD: backendbase_adr_ci
+      BACKENDBASE_TEST_REDIS_PORT: '6379'
+      BACKENDBASE_TEST_REDIS_PASSWORD: ''
+    services:
+      mysql:
+        image: mysql:8.4.11@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
+        env:
+          MYSQL_ROOT_PASSWORD: backendbase_adr_ci
+          MYSQL_ROOT_HOST: '%'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=backendbase_adr_ci --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:8.10.2@sha256:2c2dff791878316e3b083188be0d578423b24813cdda5de0e80ea4f7b3e6bfd6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - name: Check out reviewed revision
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -36,8 +65,8 @@ jobs:
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.5'
-          extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets
-          coverage: none
+          extensions: bcmath, dom, fileinfo, json, libxml, mbstring, pdo_mysql, pdo_sqlite, redis, simplexml, sockets, sodium
+          coverage: xdebug
           tools: composer:2.10.3
 
       - name: Validate dependencies
@@ -58,6 +87,8 @@ jobs:
           composer run reports:check
           composer run generate-example-api-spec
           composer run validate-example-api-spec
+          composer run generate-identity-api-specs
+          composer run validate-identity-api-specs
           vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 
       - name: Build immutable artifact

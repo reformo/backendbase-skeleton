@@ -9,7 +9,7 @@
 
 Business text comparison and uniqueness need an explicit database standard. Identifier representation must remain independent of linguistic comparison.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#database-text-standard) selects MySQL 8.4, InnoDB, utf8mb4, and utf8mb4_tr_0900_ai_ci. Existing target schemas and deployment versions remain to be verified.
+The [decision report](references/2026-10-13-identity-access-decisions.md#database-text-standard) selects MySQL 8.4, InnoDB, utf8mb4, and utf8mb4_tr_0900_ai_ci. New identity and recovery tables declare these defaults. Connections require utf8mb4. Identity key fields use ASCII binary overrides. Existing deployment schemas still require inventory before authorized rollout.
 
 - **Constraints:** Set database and business-table defaults explicitly. Validate connection charset separately. Keep domain normalization authoritative for technical and business keys.
 
@@ -38,6 +38,8 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#databas
 - **Negative / Trade-offs:** Case, accent, Unicode, and NO PAD trailing-space behavior affect uniqueness. Existing data must pass duplicate analysis before conversion.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Inventory current collations. Define domain key rules. Review duplicate and index impact. Apply explicit target defaults only through approved migrations.
 - **Verification:** Verify server support, connection charset, and actual table definitions on MySQL 8.4. Test I/İ/ı/i, accents, normalization, trailing spaces, and generated-field overrides.

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Http;
 
 use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
@@ -76,6 +79,9 @@ final class DomainErrorProblemDetailsMapper
     private static function fallbackDetails(DomainException $exception): array
     {
         return match (true) {
+            $exception instanceof AuthenticationDenied => [401, 'Authentication denied', 'identity/unauthenticated', 'about:blank'],
+            $exception instanceof AuthenticationUnavailable => [503, 'Authentication unavailable', 'identity/unavailable', 'about:blank'],
+            $exception instanceof IdentityConflict => [409, 'Identity conflict', 'identity/conflict', 'about:blank'],
             $exception instanceof InvalidEmailAddress => [
                 400,
                 'Invalid Email Address',

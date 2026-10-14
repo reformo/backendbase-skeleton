@@ -12,6 +12,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 
 final readonly class EntryWriteRepository implements EntryWriteRepositoryContract
 {
@@ -34,7 +35,7 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
 
     public function getActive(string $entryId): Entry
     {
-        $record = $this->getActiveRecord(['uuid' => $entryId]);
+        $record = $this->getActiveRecord(['id' => Uuid::fromString($entryId)]);
 
         return $record->toDomain();
     }
@@ -59,7 +60,7 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
     public function save(Entry $entry): void
     {
         $entryId = $entry->id();
-        $record  = $this->getActiveRecord(['uuid' => $entryId]);
+        $record  = $this->getActiveRecord(['id' => Uuid::fromString($entryId)]);
         $record->synchronize($entry);
         $this->entityManager->flush();
     }

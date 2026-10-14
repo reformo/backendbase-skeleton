@@ -25,7 +25,7 @@ final class DoctrineOutboxMessageStoreTest extends TestCase
         $this->connection->executeStatement(
             'CREATE TABLE integration_event_outbox ('
             . 'id VARCHAR(36) NOT NULL PRIMARY KEY, event_name VARCHAR(190) NOT NULL, '
-            . 'event_version VARCHAR(32) NOT NULL, payload TEXT NOT NULL, occurred_at TEXT NOT NULL, '
+            . 'destination VARCHAR(100) DEFAULT NULL, event_version VARCHAR(32) NOT NULL, payload TEXT NOT NULL, occurred_at TEXT NOT NULL, '
             . 'created_at TEXT NOT NULL, available_at TEXT NOT NULL, published_at TEXT DEFAULT NULL, '
             . 'claim_token VARCHAR(36) DEFAULT NULL, claim_until TEXT DEFAULT NULL, '
             . 'attempts INTEGER DEFAULT 0 NOT NULL, last_error VARCHAR(255) DEFAULT NULL)',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
+use Backendbase\Infrastructure\Adapters\Diagnostics\SafeExceptionContext;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Operation\OutboxPublicationResult;
@@ -27,6 +28,10 @@ final readonly class OutboxMessagePublisher implements OutboxPublisher
     public function publish(ClaimedOutboxMessage $message): OutboxPublicationResult
     {
         try {
+            if ($message->destination() === null || $message->occurredAt() === null) {
+                throw new UnexpectedValueException('Adopt the original outbox destination and occurrence time before publication.');
+            }
+
             $properties = json_decode($message->payload(), true, 512, JSON_THROW_ON_ERROR);
             if (! is_array($properties)) {
                 throw new UnexpectedValueException('The outbox payload must be a JSON object.');
@@ -37,18 +42,17 @@ final readonly class OutboxMessagePublisher implements OutboxPublisher
                 $properties,
                 $message->id(),
                 $message->eventVersion(),
+                destination: $message->destination(),
+                occurredAt: $message->occurredAt(),
             ));
 
             return OutboxPublicationResult::succeeded();
         } catch (Throwable $exception) {
             $this->logger->error('Outbox message publication failed.', [
-                'exception' => $exception::class,
                 'message_id' => $message->id(),
+                ...SafeExceptionContext::from($exception),
                 'event_name' => $message->eventName(),
                 'event_version' => $message->eventVersion(),
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'trace' => $exception->getTraceAsString(),
             ]);
 
             return OutboxPublicationResult::failed();

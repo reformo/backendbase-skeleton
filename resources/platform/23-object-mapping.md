@@ -1,22 +1,27 @@
 # Object Mapping
 
-`Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper` converts sanitized boundary arrays into typed objects through Valinor.
+`Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper` converts validated boundary arrays into typed objects through Valinor.
 
 ## Flow
 
-1. Sanitize the untrusted payload.
-2. Apply an optional normalization callback.
-3. Read public declared fields from the target class.
-4. Remove keys that do not match those fields.
-5. Map with permissive Valinor types.
-6. Translate `MappingError` into `InvalidUserInput`.
+1. Validate the payload shape and size at the inbound boundary.
+2. Apply a named normalization callback only for a documented contract exception.
+3. Map the complete payload with strict Valinor defaults.
+4. Reject unknown fields and incorrect scalar types.
+5. Translate `MappingError` into `InvalidUserInput`.
 
-The public error context contains the short target class name and errors indexed by field name. Do not expose Valinor internals to controllers or clients.
+The public error context contains the short target class name and errors indexed by field name.
+Error text does not contain submitted values or Valinor internals.
+The mapper preserves text when no normalization callback is supplied.
 
-Unknown input keys are silently removed. Permissive mapping can also hide scalar mistakes.
+Constructor parameters define the input contract. Domain value objects enforce their own business rules.
+JSON enum strings and UUID strings have explicit constructors. Numeric strings do not become integers implicitly.
 
-Use explicit boundary validation when unknown keys or exact scalar types matter. Keep target public fields equal to the intended input contract.
+Example API v1 retains its existing text sanitizer as a compatibility exception.
+Its POST and PATCH boundaries reject unknown top-level fields and require native integer body identifiers.
+Query parameters retain their declared string-to-integer conversion.
 
 Development uses a file-watching Valinor cache. Other modes use the filesystem cache directly.
+These caches contain mapping metadata.
 
-Basis: `resources/docs/16-shared-primitives-and-object-mapping.html`.
+Basis: [the shared primitives guide](../docs/16-shared-primitives-and-object-mapping.html).

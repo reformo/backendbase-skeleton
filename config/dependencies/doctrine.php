@@ -11,28 +11,37 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMessa
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineOutboxMonitor;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DoctrineQueueMessageFailureStore;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DQL\FirstFunction;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Inbox\DoctrineExternalEffectResolver;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Operations\MySqlDiagnostics;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Outbox\DoctrineOutboxReplay;
 use Backendbase\Infrastructure\Adapters\Queue\OutboxMessagePublisher;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Configuration\DatabaseSettings;
+use Backendbase\Infrastructure\Configuration\MessageDestination;
 use Backendbase\Infrastructure\Messaging\OutboxRelayService;
 use Backendbase\Infrastructure\Messaging\QueueMessageFailureService;
+use Backendbase\Shared\Health\DatabaseDiagnostics;
 use Backendbase\Shared\Helpers\PathFinder;
 use Backendbase\Shared\Integrations\IntegrationMessageLogCleaner;
 use Backendbase\Shared\Integrations\OutboxMonitor;
 use Backendbase\Shared\Integrations\OutboxPublisher;
 use Backendbase\Shared\Integrations\OutboxRelay;
+use Backendbase\Shared\Integrations\OutboxReplay;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
+use Backendbase\Shared\Persistence\ExternalEffectResolver;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
 use Backendbase\Shared\Persistence\OutboxMessageStore;
 use Backendbase\Shared\Persistence\QueueMessageFailureStore;
+use Backendbase\Shared\Time\Clock;
 use DI\ContainerBuilder;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,10 +63,17 @@ use function DI\autowire;
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
         IntegrationEventTransaction::class => autowire(DoctrineIntegrationEventTransaction::class),
-        IntegrationEventOutbox::class => autowire(DoctrineIntegrationEventOutbox::class),
+        IntegrationEventOutbox::class => static function (ContainerInterface $container): IntegrationEventOutbox {
+            $destination = $container->get(MessageDestination::class);
+
+            return new DoctrineIntegrationEventOutbox($container->get(Connection::class), $container->get(Clock::class), $destination->name());
+        },
         InboxMessageTransaction::class => autowire(DoctrineInboxMessageTransaction::class),
         ExternalEffectInbox::class => autowire(DoctrineExternalEffectInbox::class),
+        ExternalEffectResolver::class => autowire(DoctrineExternalEffectResolver::class),
         OutboxRelay::class => autowire(OutboxRelayService::class),
+        OutboxReplay::class => autowire(DoctrineOutboxReplay::class),
+        DatabaseDiagnostics::class => autowire(MySqlDiagnostics::class),
         OutboxMessageStore::class => autowire(DoctrineOutboxMessageStore::class),
         OutboxPublisher::class => autowire(OutboxMessagePublisher::class),
         IntegrationMessageLogCleaner::class => autowire(DoctrineIntegrationMessageLogCleaner::class),
@@ -97,8 +113,16 @@ return static function (ContainerBuilder $containerBuilder): void {
             $configuration->addCustomStringFunction('NOW', Now::class);
             $configuration->addCustomStringFunction('CAST', Cast::class);
 
-            $dsnParser                                              = new DsnParser(['mysql' => 'pdo_mysql']);
-            $connectionSettings                                     = $dsnParser->parse($databaseSettings->dsn());
+            $dsnParser          = new DsnParser(['mysql' => 'pdo_mysql']);
+            $connectionSettings = $dsnParser->parse($databaseSettings->dsn());
+            if (($connectionSettings['driver'] ?? null) === 'pdo_mysql') {
+                if (isset($connectionSettings['charset']) && $connectionSettings['charset'] !== 'utf8mb4') {
+                    throw new InvalidArgumentException('The MySQL connection must use utf8mb4.');
+                }
+
+                $connectionSettings['charset'] = 'utf8mb4';
+            }
+
             $connectionSettings['driverOptions'][PDO::ATTR_TIMEOUT] = $databaseSettings->connectionTimeoutSeconds();
 
             return DriverManager::getConnection($connectionSettings, $configuration);
@@ -108,6 +132,9 @@ return static function (ContainerBuilder $containerBuilder): void {
             assert($connection instanceof Connection);
             $configuration = $container->get(Configuration::class);
             assert($configuration instanceof Configuration);
+
+            $platform = $connection->getDatabasePlatform();
+            $platform->registerDoctrineTypeMapping('datetime', Types::DATETIME_IMMUTABLE);
 
             return new EntityManager($connection, $configuration);
         },

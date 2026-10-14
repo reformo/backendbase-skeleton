@@ -15,6 +15,7 @@ use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessagePro
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Shared\Domain\Messaging\EventMessage;
 use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\ReplayWindow;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
@@ -24,6 +25,7 @@ use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Tests\Support\Persistence\EntityManagerFactory;
 use Tests\Support\Time\FrozenClock;
 use UnexpectedValueException;
 
@@ -67,11 +69,12 @@ final class GreetingMessageFlowTest extends TestCase
         $processor = new ExternalIntegrationEventMessageProcessor(
             new ExternalIntegrationEventDispatcher($eventManager, $registry),
             new DoctrineInboxMessageTransaction(
-                $connection,
+                EntityManagerFactory::create($connection),
                 new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00+00:00')),
             ),
             $failurePolicy,
             new NullLogger(),
+            new ReplayWindow(new FrozenClock(new DateTimeImmutable('2026-09-24T10:00:00Z'))),
         );
         $payload   = new GreetingRequestedPayload('Ada Lovelace');
         self::assertSame(['fullname' => 'Ada Lovelace'], $payload->jsonSerialize());
@@ -82,6 +85,7 @@ final class GreetingMessageFlowTest extends TestCase
             'greeting-id',
             $event->eventVersion(),
             'backendbase-queue',
+            occurredAt: '2026-09-24 10:00:00.000000',
         );
 
         $this->expectOutputString('hello Ada Lovelace' . PHP_EOL);

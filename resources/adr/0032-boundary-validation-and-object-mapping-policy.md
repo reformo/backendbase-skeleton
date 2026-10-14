@@ -7,9 +7,9 @@
 
 ## Context and Problem Statement
 
-HTTP boundaries use explicit validation, while the shared object mapper sanitizes arrays, removes unknown keys, and permits some type conversion. Strictness is not uniform.
+HTTP boundaries reject invalid types, unknown fields, invalid formats, and oversized JSON bodies before domain operations. The shared mapper uses strict conversion without global sanitization.
 
-The target policy requires strict boundary validation before mapping. Exceptions must be explicit in the affected input contract. Caller inventory, compatibility review, and runtime adoption remain pending.
+The target policy requires strict boundary validation before mapping. Exceptions must be explicit in the affected input contract. Example v1 sanitization is an explicit compatibility exception. New identity inputs reject unknown keys and coercion. JSON bodies are bounded at 65536 raw bytes before parsing.
 
 The [mapping guidance](../platform/23-object-mapping.md) describes current [ObjectMapper](../../src/Backendbase/Infrastructure/Adapters/Mapping/ObjectMapper.php) behavior.
 

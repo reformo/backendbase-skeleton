@@ -9,7 +9,7 @@
 
 User and System Admin APIs require separate authentication trust boundaries within one backend. A valid token for one realm must fail in the other.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) replaces [ADR-0029](0029-security-responsibility-after-identity-and-access-removal.md). The target realm middleware and token flow remain to be implemented.
+The [decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) replaces [ADR-0029](0029-security-responsibility-after-identity-and-access-removal.md). UserApi and SystemAdminApi use trusted route-owned realm policies. Both realms require password and TOTP proof before issuance. Separate issuer, audience, and key sets prevent cross-realm acceptance.
 
 - **Constraints:** Select policy from trusted routes. Separate issuer, audience, signing key, and actor type. Keep UUID identifiers as strings on the wire.
 
@@ -38,6 +38,8 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#realm-a
 - **Negative / Trade-offs:** JWT validity alone is insufficient. [Redis session checks](0038-redis-token-allowlist-and-session-lifecycle.md) and application authorization remain required.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Declare realm policy on trusted routes. Validate tokens and Redis identity consistency. Pass verified account, actor, realm, and session identity to Application.
 - **Verification:** Reject USER tokens on ADMIN routes and ADMIN tokens on USER routes. Test wrong keys, algorithms, claims, expiry, session mismatches, and denied privileges.

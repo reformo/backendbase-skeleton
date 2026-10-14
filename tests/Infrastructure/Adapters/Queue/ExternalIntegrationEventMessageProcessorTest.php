@@ -10,15 +10,20 @@ use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventDispatcher
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventMessageProcessor;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Shared\Integrations\Messaging\Message;
+use Backendbase\Shared\Integrations\Messaging\ReplayWindow;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use Backendbase\Shared\Integrations\QueueMessageFailurePolicy;
 use Backendbase\Shared\Persistence\InboxMessageTransaction;
 use Backendbase\Shared\Services\EventManager\EventManager;
+use DateTimeImmutable;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Tests\Support\Time\FrozenClock;
 
 final class ExternalIntegrationEventMessageProcessorTest extends TestCase
 {
@@ -57,6 +62,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             $this->executingInboxTransaction(),
             $failurePolicy,
             new Logger('queue-test'),
+            new ReplayWindow(new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'))),
         );
 
         $processed = $processor->process($this->messageData());
@@ -88,6 +94,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             $this->executingInboxTransaction(),
             $failurePolicy,
             $logger,
+            new ReplayWindow(new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'))),
         );
 
         $processed = $processor->process(new Message(
@@ -96,6 +103,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             'message-id',
             '1.0',
             'events',
+            occurredAt: '2026-10-14 09:00:00.000000',
         ));
 
         self::assertSame(QueueMessageHandlingOutcome::REJECT, $processed);
@@ -118,6 +126,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             $transaction,
             $failurePolicy,
             new Logger('queue-test'),
+            new ReplayWindow(new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'))),
         );
 
         $processed = $processor->process($this->messageData());
@@ -161,6 +170,33 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
         self::assertSame(QueueMessageHandlingOutcome::RETRY, $processor->process($this->messageData()));
     }
 
+    #[DataProvider('restartOutcomes')]
+    public function testClosedPersistenceSessionRequiresRestartWithTheRetryPolicyOutcome(QueueMessageHandlingOutcome $outcome): void
+    {
+        $failure     = new ConsumerRestartRequired(new RuntimeException('Database flush failed.'));
+        $transaction = $this->createStub(InboxMessageTransaction::class);
+        $transaction->method('processOnce')->willThrowException($failure);
+        $failurePolicy = $this->createMock(QueueMessageFailurePolicy::class);
+        $failurePolicy->expects(self::once())->method('transientFailure')
+            ->with('events', 'message-id', ConsumerRestartRequired::class)->willReturn($outcome);
+        $failurePolicy->expects(self::never())->method('succeeded');
+        $processor = $this->processor($transaction, $failurePolicy);
+        try {
+            $processor->process($this->messageData());
+            self::fail('A closed persistence session must stop the consumer.');
+        } catch (ConsumerRestartRequired $exception) {
+            self::assertSame($outcome, $exception->outcome());
+            self::assertSame($failure, $exception->getPrevious());
+        }
+    }
+
+    /** @return iterable<string, array{QueueMessageHandlingOutcome}> */
+    public static function restartOutcomes(): iterable
+    {
+        yield 'retry' => [QueueMessageHandlingOutcome::RETRY];
+        yield 'retry limit' => [QueueMessageHandlingOutcome::REJECT];
+    }
+
     private function processor(
         InboxMessageTransaction $transaction,
         QueueMessageFailurePolicy $failurePolicy,
@@ -173,6 +209,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             $transaction,
             $failurePolicy,
             new Logger('queue-test'),
+            new ReplayWindow(new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'))),
         );
     }
 
@@ -213,6 +250,7 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
             'message-id',
             '1.0',
             'events',
+            occurredAt: '2026-10-14 09:00:00.000000',
         );
     }
 }

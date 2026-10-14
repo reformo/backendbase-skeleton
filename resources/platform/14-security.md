@@ -1,33 +1,82 @@
-# API Keys and Access Control
+# Authentication and Access Control
 
-ExampleApi protects metadata and all Example reads and writes with an API key. Liveness and readiness remain public.
+ExampleApi protects metadata and Example reads and writes with an API key.
+UserApi and SystemAdminApi use separate JWT authentication realms.
+Liveness and readiness remain public in each API.
 
-## HTTP policy
+## Consumer boundaries
 
-- `ValidateApiKey` validates `Backendbase-Api-Key` against `EXAMPLE_API_KEY`.
-- API context middleware supplies `apiName`, `apiKeyHeaderName`, and `useIdentifierAsApiKey` before validation.
-- Missing or invalid API keys return status 401 before controller dispatch.
-- Example write commands and handlers do not require bearer identity or named privileges.
-- Protect new consumer endpoints with the existing API-key middleware by default.
-- Declare anonymous policy explicitly in routing and OpenAPI.
-- Do not log API keys or return them in diagnostics.
+- `X-Source-Id: example` selects ExampleApi. Its API-key contract remains unchanged.
+- `X-Source-Id: user` selects UserApi and the trusted USER realm policy.
+- `X-Source-Id: system-admin` selects SystemAdminApi and the trusted ADMIN realm policy.
+- The bootstrap uses a fixed target map. A header cannot supply a filesystem path.
+- Route policy selects JWT trust before claims are read.
+- USER and ADMIN use distinct issuers, audiences, and signing keys.
+- Signing uses HS256 with configured 32-byte keys and explicit key identifiers.
+- Verification checks signature, algorithm, issuer, audience, dates, realm, actor type, and canonical identifiers.
 
-The IdentityAndAccess context, token services, account operations, and Greeting HTTP routes have been removed. The API has no built-in user authentication flow.
+Missing or invalid credentials return a safe 401 response.
+Missing authentication state or a Redis outage returns a safe 503 response.
+Identity uniqueness and state conflicts return a safe 409 response.
 
-## Internal access control
+## Authentication facts
 
-Shared `AccessControl` remains a framework-independent application contract. Internal `QueueGreeting` requires it and checks `example.add` before its integration-event transaction. Its caller must supply an implementation of this contract. Tests use interface doubles for allowed and denied paths.
+Global Accounts own email, password credentials, and TOTP factors.
+Each Account can have at most one User and one Admin, including removed actor rows.
+Actor login names are unique within each realm. Account email has its own active uniqueness rule.
+ASCII normalization lowercases accepted login names and email addresses. Unicode login names and email addresses are rejected.
 
-Keep required privilege decisions at the application-handler boundary. Do not make these decisions only in a delivery adapter. A shared `ResourceAccessForbidden` error still maps to status 403.
+Contact ownership, actor approval, and MFA establish separate facts.
+Registration sends a six-digit ownership proof through the notification port.
+Ownership proofs expire after five minutes and permit at most five attempts.
+Resend requires the password and invalidates previous ownership proofs.
 
-## Removed database artifacts
+Password verification creates a login challenge. It does not deliver a token.
+Both realms require TOTP before session issuance.
+TOTP uses six digits, SHA1, 30-second periods, and one step of clock tolerance.
+Accepted steps cannot be reused. Enrollment consumes a step, so another login requires a later valid step.
+Five failed MFA proofs block the Account for five minutes across different challenges.
 
-The IdentityAndAccess migration, privilege seeder, and seeder test have been removed. New databases do not create account or privilege tables.
+Admin enrollment requires stored invitation and approval evidence.
+An Admin cannot approve its own enrollment. Contact ownership remains a separate session gate.
+First-Admin setup and lost-factor recovery use local root operator commands with recorded evidence.
+First-Admin invitation and approval use separate steps and references. Recovery requires separate request and approval references.
+Recovery clears factors, increments the credential version, and removes contact ownership verification.
+The existing password is then required to request a new ownership proof and enroll a new TOTP factor.
+Operator commands never issue a token. See [operator procedures](operations/identity-operator.md).
+Active factors cannot be replaced through ordinary enrollment.
 
-Databases that executed the removed migration require a schema and migration-history adoption plan before deployment. See [the database guide](../docs/9-persistence-and-database.html#migrations). Apply database changes only with explicit authority for the target database.
+## Session state
 
-## Current limits
+Session issuance stores both `jti` and `sid` allowlist records before token delivery.
+Redis records use realm and Account prefixes and include matching identity and credential version data.
+Authentication requires both records and current MySQL Account and actor state.
+Token expiry and session expiry are bounded to the configured lifetime, between 60 and 3600 seconds.
+The default lifetime is 900 seconds. The API provides no refresh-token flow.
 
-The API-key middleware has public path prefixes outside the current route set. Shared OpenAPI headers are not all enforced at runtime. The CORS header list omits `Accept-Language`.
+Token revocation removes its `jti` record. Logout removes the active session and current token.
+Account closure disables the Account and increments its authentication version before Redis revocation.
+Current database state denies old tokens even if Redis revocation fails.
+MySQL and Redis do not share one transaction.
 
-Basis: `resources/docs/5-use-case-api.html`, `resources/docs/7-env-and-config.html`, `resources/docs/8-authentication-and-authorization.html`.
+## Internal policy
+
+Application handlers check current identity and actor authority before protected mutations.
+Reload persisted actor state under Account-first locks after a target reference lookup.
+A concurrently removed Admin cannot use its earlier managed state to restore itself.
+Admin actor history uses stored values and includes removed rows.
+Actor restoration requires an active Account and passes the same database uniqueness constraints.
+
+Shared `AccessControl` remains the internal privilege contract.
+Internal `QueueGreeting` requires `example.add`. Its caller supplies the access-control implementation.
+Greeting HTTP endpoints remain absent.
+
+## Secret handling
+
+Keys have no production defaults. Runtime configuration selects a managed provider and controlled injection.
+Factor secrets use authenticated Sodium encryption. Stored passwords use Argon2id.
+Signing-key and factor-key rotation support an active key and a distinct previous key identifier.
+Configuration and container definitions do not persist live credential values in caches.
+Logs exclude submitted values and exception arguments.
+
+Basis: [realm ADR](../adr/0037-user-and-system-admin-jwt-realms.md), [session ADR](../adr/0038-redis-token-allowlist-and-session-lifecycle.md), and [authentication challenge ADR](../adr/0046-authentication-challenges-and-mfa-gated-sessions.md).

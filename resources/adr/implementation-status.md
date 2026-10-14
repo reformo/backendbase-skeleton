@@ -1,0 +1,83 @@
+# ADR Implementation Status
+
+This register records implementation coverage for every Architecture Decision Record (ADR).
+Source policy and migration artifacts do not establish production activation.
+Starting source revision: `ddc9946`.
+
+| ADR | State | Implementation and evidence |
+| --- | --- | --- |
+| [ADR-0001](0001-modular-architecture-with-bounded-contexts.md) | Implemented; verification below | Context-owned services and the architecture suite verify modular ownership. |
+| [ADR-0002](0002-ports-and-adapters-with-inward-dependencies.md) | Implemented; verification below | Ports, adapters, composition checks, and vendor construction checks enforce inward dependencies. |
+| [ADR-0003](0003-shared-contracts-and-value-ownership.md) | Implemented; verification below | Shared contract and domain value ownership checks remain active. |
+| [ADR-0004](0004-synchronous-command-query-separation.md) | Implemented; verification below | Void command handlers publish request-local outcomes; query handlers return immutable projections. |
+| [ADR-0005](0005-php-and-lightweight-http-stack.md) | Implemented; verification below | PHP 8.5, Slim, PHP-DI, Composer platform checks, and application composition remain active. |
+| [ADR-0006](0006-context-owned-composition-and-handler-registries.md) | Implemented; verification below | IdentityAndAccess owns its bindings and handler registry; consumer routes own HTTP policy. |
+| [ADR-0007](0007-production-operating-model.md) | Implemented; verification below | Linux systemd units supervise consumers, relay batches, and retention cleanup. Host activation remains an operational step. |
+| [ADR-0008](0008-database-ownership-between-bounded-contexts.md) | Implemented; verification below | The table ownership inventory names context and infrastructure writers, including operator evidence. |
+| [ADR-0009](0009-separate-write-persistence-and-read-projections.md) | Implemented; verification below | Doctrine write records and DBAL read projections remain separate. Historical actor projections retain stored fields. |
+| [ADR-0010](0010-typed-runtime-configuration.md) | Implemented; verification below | Typed configuration validates identity keys, replay destinations, connection settings, and runtime bounds. |
+| [ADR-0011](0011-secret-storage-and-rotation.md) | Partial; provider input pending | Controlled runtime injection and credential rotation are implemented. Provider-specific retrieval, authentication, and renewal need provider selection. |
+| [ADR-0012](0012-immutable-releases-and-schema-compatible-rollback.md) | Implemented; verification below | Immutable release scripts remain active. The new manifest marks integer-key application rollback unsafe. |
+| [ADR-0013](0013-dependency-trust-and-supply-chain-evidence.md) | Implemented; verification below | The lockfile, isolated dependency install, SBOM, content digests, and current dependency audit are verified. |
+| [ADR-0014](0014-test-architecture-and-quality-gates.md) | Implemented; verification below | Quality and release jobs use coverage and isolated MySQL 8.4 and Redis 8 tests. Local quality results are recorded below. |
+| [ADR-0015](0015-mysql-migration-lifecycle-and-baseline-adoption.md) | Implemented; verification below | Released creation history is retained. New migration drafts define forward recovery and adoption gates. |
+| [ADR-0016](0016-injectable-application-time-in-utc.md) | Implemented; verification below | Injected clocks remain authoritative. The immutable Doctrine datetime type reads and writes UTC microseconds. |
+| [ADR-0017](0017-liveness-and-dependency-readiness.md) | Implemented; verification below | Identity APIs expose liveness and dependency readiness contracts. No business operation runs through a health probe. |
+| [ADR-0018](0018-production-observability.md) | Implemented signals; workload evidence pending | HTTP duration and outcome logs and MySQL index, buffer, and lock diagnostics use safe fields. Production collection, representative latency, reconciliation, schema drift, and revocation-delay evidence remain operational work. |
+| [ADR-0019](0019-domain-events-and-integration-events.md) | Implemented; verification below | Domain listeners and integration event subscribers remain separate. Wire event names and versions stay compatible. |
+| [ADR-0020](0020-atomic-business-changes-local-subscribers-and-outbox.md) | Implemented; verification below | Shared ORM transactions flush before database commit and clear failed units of work. |
+| [ADR-0021](0021-message-delivery-and-inbox-deduplication.md) | Implemented; verification below | Inbox claims and completion use original message and consumer identities. An ORM flush failure rolls back and stops the consumer when its persistence session closes. A fresh unit processes the next message. |
+| [ADR-0022](0022-published-event-compatibility-and-versioning.md) | Implemented; verification below | Published event payload schemas, names, and versions remain unchanged and covered by contract tests. |
+| [ADR-0023](0023-rabbitmq-and-sqs-transport-support.md) | Implemented; verification below | RabbitMQ and SQS preserve original occurrence metadata. SQS consumers reject destination mismatch. |
+| [ADR-0024](0024-relay-retry-and-terminal-failure-policy.md) | Implemented; verification below | Publication and consumer retry policies remain separate. Original committed publication intent remains recoverable. |
+| [ADR-0025](0025-replay-and-deduplication-retention.md) | Implemented; verification below | Replay uses the original UTC occurrence and a seven-day inclusive age bound. Cleanup enforces at least 30 days and protects pending recovery evidence. |
+| [ADR-0026](0026-external-effect-idempotency-and-unknown-outcomes.md) | Implemented; verification below | Manual external-effect resolution records provider evidence. Preview is default; only recorded nonacceptance permits another attempt. |
+| [ADR-0027](0027-domain-aggregates-and-persistence-records.md) | Implemented; verification below | Identity aggregates own state and invariants. Doctrine records translate persistence state without becoming business aggregates. |
+| [ADR-0028](0028-consumer-api-isolation-and-selection.md) | Implemented; verification below | Fixed source and API path maps isolate Example, USER, and ADMIN consumers. Browser preflight uses only whitelisted API paths. |
+| [ADR-0029](0029-security-responsibility-after-identity-and-access-removal.md) | Superseded | Superseded by ADR-0037. Example retains API-key protection; Greeting HTTP endpoints remain absent. |
+| [ADR-0030](0030-public-contract-authority-and-executable-examples.md) | Implemented; verification below | Each identity API has source and generated OpenAPI plus Bruno examples. Route, security, and example parity checks compare executable operations. |
+| [ADR-0031](0031-stable-public-error-contracts.md) | Implemented; verification below | Stable problem codes map invalid input, authentication failure, conflicts, denied authority, and unavailable dependencies. |
+| [ADR-0032](0032-boundary-validation-and-object-mapping-policy.md) | Implemented; verification below | Strict Valinor mapping and bounded JSON input reject unknown fields and coercion. Example v1 retains its documented normalization exception. |
+| [ADR-0033](0033-s3-compatible-object-storage-contract.md) | Implemented; verification below | S3 operations have finite timeouts, bounded retries, exact private POST fields, and preserved download MIME types. |
+| [ADR-0034](0034-notification-providers-and-partial-delivery-results.md) | Implemented; verification below | Ownership notification uses the delivery result and a stable inbox identity. Duplicate and uncertain acceptance tests prevent automatic resend. |
+| [ADR-0035](0035-local-translation-catalogs-and-controlled-synchronization.md) | Implemented; verification below | The English catalog contains English messages and matching placeholders. No remote translation synchronization was performed. |
+| [ADR-0036](0036-single-identity-and-access-context-and-global-accounts.md) | Implemented; verification below | Global Accounts own contact and credentials. Each Account has at most one User and one Admin, including historical actor rows. |
+| [ADR-0037](0037-user-and-system-admin-jwt-realms.md) | Implemented; verification below | USER and ADMIN JWTs use separate issuers, audiences, signing keys, and route-selected realm validation. |
+| [ADR-0038](0038-redis-token-allowlist-and-session-lifecycle.md) | Implemented; verification below | Redis 8 atomically records token and session allowlists. Expiry, revocation, Account blocking, and outage behavior are tested. |
+| [ADR-0039](0039-uuidv7-identifiers-and-binary-storage.md) | Implemented; verification below | Identity and Example use assigned natural binary UUIDs. Example conversion preserves existing public UUIDs; new aggregate IDs use UUIDv7. |
+| [ADR-0040](0040-assigned-uuid-identifiers-in-doctrine.md) | Implemented; verification below | Ramsey uuid_binary mappings use assigned identifiers. Real MySQL tests verify legacy and new UUID round trips. |
+| [ADR-0041](0041-mysql84-character-set-and-turkish-collation.md) | Implemented; verification below | New tables use MySQL 8.4, InnoDB, utf8mb4, and Turkish UCA 9.0 collation. Identity business keys use explicit ASCII binary rules. |
+| [ADR-0042](0042-logical-references-without-physical-foreign-keys.md) | Implemented; verification below | Identity relationships use scalar UUID references and writer checks. No new physical foreign keys or cascades are created. |
+| [ADR-0043](0043-optimistic-concurrency-and-selective-locking.md) | Implemented; verification below | Optimistic versions, Account-first locks, fresh retry units, and ORM flush boundaries are tested. Locked actor authorization reloads reject concurrent removal. Repeated Account locks preserve pending credential changes. |
+| [ADR-0044](0044-soft-deletion-active-uniqueness-and-historical-reporting.md) | Implemented; verification below | Active keys can be reused after deletion. Restoration conflicts roll back, and historical actor records remain visible to authorized queries. |
+| [ADR-0045](0045-staged-identifier-and-collation-migration.md) | Implemented; verification below | Example conversion uses a locked shadow copy and atomic rename. The original table is retained; interrupted phases require reconciliation. |
+| [ADR-0046](0046-authentication-challenges-and-mfa-gated-sessions.md) | Implemented; verification below | Both realms require password, separate ownership proof, and TOTP. Local root commands record bootstrap and recovery evidence without issuing sessions. |
+| [ADR-0047](0047-generated-uuid-projection-mapping.md) | Implemented; verification below | Supported read-only generated projections round-trip on MySQL 8.4 and produce no repeated ORM schema differences. |
+| [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Actor names and Account emails use lowercase ASCII normalization. Database constraints enforce realm-scoped active uniqueness and lifetime actor cardinality. |
+
+## Verification
+
+The local suite passes 762 tests with 2,969 assertions. Executable-line coverage is 5,749 of 5,749 lines (100%).
+PHPStan level 8, style, and cyclomatic complexity checks pass.
+A fresh MySQL database passes migration status, dry-run, application, ORM validation, and an empty mapping diff.
+OpenAPI validation, route and Bruno parity, dependency audit, package content checks, and deployment-script checks pass.
+One independent code review identified three required defects: stale actor authorization, closed ORM consumer sessions, and diagnostic payload exposure.
+All three defects are corrected. Regression tests cover concurrent Admin removal, actual ORM flush failure and recovery, transport restart outcomes, and private event data.
+The corrected code passes the listed checks. No second independent review was run.
+The suite includes domain, HTTP, architecture, messaging, native MySQL 8.4, and native Redis 8 checks.
+The MySQL tests create and remove only unique test databases. Redis tests use unique key namespaces.
+All service checks use dedicated temporary containers without project data volumes.
+
+## Remaining deployment decisions and operations
+
+- ADR-0011 needs the managed secret provider before its retrieval and renewal integration can be completed.
+- Collect representative p95/p99 latency, reconciliation, schema drift, and revocation-delay evidence before production acceptance under ADR-0018.
+- Install and activate systemd units only on an authorized Linux target after setting host paths and runtime injection.
+- Apply migration drafts only to a named, authorized target after adoption, backup, and recovery checks.
+- Reconcile original destinations and occurrence timestamps for legacy message rows before publication or replay.
+- Resolve target-specific collation collisions and logical references before Example cutover.
+- Keep the previous factor key until persistent ciphertext, pending proofs, and backup obligations are resolved.
+
+See [managed server operations](../platform/operations/managed-servers.md),
+[identity operator procedures](../platform/operations/identity-operator.md), and
+[Example conversion](../platform/operations/example-uuid-conversion.md).

@@ -1,0 +1,26 @@
+info:
+  name: 'Close Account'
+  type: http
+  seq: 20
+http:
+  method: DELETE
+  url: '{{baseUrl}}/identity/account'
+  headers:
+    -
+      name: X-Source-Id
+      value: user
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Authorization
+      value: 'Bearer {{accessToken}}'
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");

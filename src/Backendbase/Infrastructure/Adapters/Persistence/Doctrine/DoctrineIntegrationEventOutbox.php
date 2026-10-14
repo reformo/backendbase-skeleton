@@ -17,7 +17,7 @@ use const JSON_THROW_ON_ERROR;
 
 final readonly class DoctrineIntegrationEventOutbox implements IntegrationEventOutbox
 {
-    public function __construct(private Connection $connection, private Clock $clock)
+    public function __construct(private Connection $connection, private Clock $clock, private string $destination = 'backendbase-queue')
     {
     }
 
@@ -43,6 +43,7 @@ final readonly class DoctrineIntegrationEventOutbox implements IntegrationEventO
             'id' => $identifier->toString(),
             'event_name' => $event->eventName(),
             'event_version' => $event->eventVersion(),
+            'destination' => $this->destination,
             'payload' => json_encode($event->getEventArguments(), JSON_THROW_ON_ERROR),
             'occurred_at' => $occurredOn->format('Y-m-d H:i:s.u'),
             'created_at' => $createdAt,

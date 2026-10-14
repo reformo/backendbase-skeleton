@@ -35,10 +35,12 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#realm-a
 ## Consequences
 
 - **Positive:** Application orchestration uses challenge, token, and notification ports. User and Admin aggregates retain business lifecycle decisions.
-- **Negative / Trade-offs:** Admin invitation and approval, phishing-resistant MFA, and privileged recovery are report preferences. Their exact policy and mechanisms still need selection.
+- **Negative / Trade-offs:** Admin invitation and approval are required. Both USER and ADMIN use password and TOTP MFA. Contact ownership is separate. Challenges expire after five minutes and permit five attempts. Account-wide MFA failures block further attempts for five minutes after five failures. TOTP does not provide phishing resistance. Local root operator commands govern first-Admin setup and lost-factor recovery with separate evidence.
 
 ## Implementation & Validation
 
-- **Rollout Steps:** Define complete challenge contracts and state transitions. Separate verification from actor approval. Gate session issuance. Select enrollment and recovery policies before activation.
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
+
+- **Rollout Steps:** Use password, separate contact ownership proofs, and TOTP for both realms. Use local root operator commands for the first Admin invitation and approval. Record separate invitation and approval evidence. Lost-factor recovery records separate request and approval evidence, increments the credential version, clears factors, and requires contact ownership verification and new TOTP enrollment. Never issue sessions through operator commands.
 - **Verification:** Test incomplete and expired challenges, denied actor approval, incomplete MFA, recovery paths, and absence of full session issuance before required factors succeed.
 - **Review Date:** Review when authentication factors, enrollment, actor approval, or account recovery requirements change.

@@ -9,7 +9,7 @@
 
 Deployments link an external environment file into each release. Secrets are excluded from release archives, but storage access and rotation procedures remain environment-specific.
 
-The target policy uses a managed secret store as the authoritative source. Controlled injection supplies runtime values. Provider selection, injection integration, and rotation verification remain pending.
+The target policy uses a managed secret store as the authoritative source. Controlled injection supplies runtime values. The runtime injection contract uses a root-owned environment file outside releases. Persistent merged configuration and container credential caches are disabled. Managed provider selection and provider-specific retrieval and renewal remain pending.
 
 The [deployment workflow](../../deployment/README.md) provides the current file model. [Configuration guidance](../platform/15-configuration.md) requires controlled runtime values.
 
@@ -40,6 +40,8 @@ The [deployment workflow](../../deployment/README.md) provides the current file 
 - **Negative / Trade-offs:** Injection and recovery depend on the managed store. Rotation can require coordinated credential changes, configuration-cache refresh, and process restarts.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Inventory secret owners and consumers. Select a managed provider. Configure restricted deployment and runtime access. Inject required values outside release archives. Define rotation overlap, revocation, rollback, cache refresh, and process restart procedures.
 - **Verification:** Test injection permissions, rotation overlap, revocation, cache refresh, and application and worker refresh in an isolated environment. Test denied access and store outages. Verify artifacts and diagnostics contain no secret values.

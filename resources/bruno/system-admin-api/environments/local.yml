@@ -1,0 +1,44 @@
+name: local
+variables:
+  -
+    name: baseUrl
+    value: 'http://127.0.0.1:8080/system-admin-api'
+  -
+    name: email
+    value: ''
+  -
+    name: loginName
+    value: ''
+  -
+    name: password
+    value: ''
+  -
+    name: challengeId
+    value: ''
+  -
+    name: code
+    value: ''
+  -
+    name: accessToken
+    value: ''
+  -
+    name: targetAccountId
+    value: ''
+  -
+    name: targetActorId
+    value: ''
+  -
+    name: targetLoginName
+    value: ''
+  -
+    name: targetRealm
+    value: USER
+  -
+    name: actorAction
+    value: remove
+  -
+    name: invitationEvidence
+    value: ''
+  -
+    name: approvalEvidence
+    value: ''

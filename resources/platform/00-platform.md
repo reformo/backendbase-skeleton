@@ -9,15 +9,15 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 - Laminas Diactoros supplies PSR-7 messages.
 - Doctrine Object-Relational Mapper (ORM) handles writes.
 - Doctrine Database Abstraction Layer (DBAL) handles read projections.
-- MySQL 8 stores business and message data.
-- Redis 8 supplies shared JSON storage and a readiness check. Docker Compose runs Redis Insight as a separate service.
+- MySQL 8.4 stores business and message data.
+- Redis 8 supplies shared JSON storage, token allowlists, and a readiness check. Docker Compose runs Redis Insight as a separate service.
 - RabbitMQ or Amazon Simple Queue Service (SQS) transports messages.
 - OpenAPI defines HTTP contracts. Bruno runs executable API examples.
 - PHPUnit, PHPStan level 8, cyclomatic complexity, and PHPCS verify changes.
 
 ## Current reference surfaces
 
-- `ExampleApi` is the only consumer API.
+- `ExampleApi`, `UserApi`, and `SystemAdminApi` are separate consumer APIs.
 - `ExampleCatalog` is the complete business-module reference.
 - Run project commands from the repository root.
 
@@ -112,6 +112,13 @@ backendbase-core/
 ├── phpcs.xml.dist                     # Doctrine coding-standard configuration
 └── phpcs-complexity.xml.dist          # Cyclomatic-complexity limit
 ```
+
+## Project paths
+
+`public/index.php`, `bin/backendbase`, `bin/doctrine`, and `tests/bootstrap.php` set `projectRoot` and change the working directory before loading project files.
+Use root-relative paths for project configuration, catalogs, routes, and test fixtures after this step.
+Use file-relative paths to locate a bootstrap before this step or to keep module-owned fixtures movable.
+Standalone maintenance and translation tools resolve their own project root.
 
 ## Important entry points
 

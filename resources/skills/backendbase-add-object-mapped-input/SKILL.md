@@ -1,6 +1,6 @@
 ---
 name: backendbase-add-object-mapped-input
-description: Map a sanitized boundary array into a typed input object with the Backendbase ObjectMapper pattern. Use for request or message input; do not use for response serialization or general object conversion.
+description: Map a validated boundary array into a typed input object with the Backendbase ObjectMapper pattern. Use for request or message input; do not use for response serialization or general object conversion.
 ---
 
 # Add an object-mapped input
@@ -23,28 +23,28 @@ Do not create a new request schema or silently broaden accepted input without us
 
 ## Target-project adaptation
 
-Use the target DTO style, mapper library and version, sanitizer, exception hierarchy, cache path, environment modes, and test helpers. Never copy Backendbase target class names, payload values, cache paths, secrets, or permissive behavior without a contract decision.
+Use the target DTO style, mapper library and version, normalization policy, exception hierarchy, cache path, environment modes, and test helpers. Never copy Backendbase target class names, payload values, cache paths, secrets, or normalization exceptions without a contract decision.
 
 ## Workflow
 
 1. Define the exact external field set and target property types.
-2. Sanitize the boundary array before mapping.
+2. Validate payload shape, size, required fields, and allowed values before mapping.
 3. Apply a small normalization callback only for documented conversions.
-4. Decide whether unknown fields are rejected or intentionally removed.
-5. Decide whether scalar coercion is acceptable; validate explicitly when exact types matter.
+4. Reject unknown fields by default. Document each approved removal exception.
+5. Preserve exact scalar types. Add a named conversion only when the contract requires it.
 6. Map to an immutable typed input and translate mapping failures to the stable input exception.
 7. Wire cache behavior through the target container.
 8. Test valid mapping, normalization, missing values, invalid types, unknown fields, and public error context.
 
 ## Backendbase invariants
 
-- `PayloadSanitizer` runs before the optional normalization callback.
-- Only public declared target fields survive current field filtering.
+- Strict mapping does not apply a global sanitizer or field filter.
+- Constructor parameters define the target field contract.
 - Valinor failures become `InvalidUserInput` with short target name and field-indexed errors.
 - Valinor internals do not reach controllers or clients.
-- Unknown-key removal and permissive scalar conversion are explicit risks, not validation substitutes.
+- Unknown fields and incorrect scalar types fail by default.
 - Exact input contracts use boundary validation before mapping.
-- Target public fields equal the intended accepted contract.
+- Target constructor parameters equal the intended accepted contract.
 
 ## Verification
 

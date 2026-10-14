@@ -16,7 +16,8 @@ Name each context after its business capability. Omit `Context` and `BoundedCont
 
 Boot discovers `src/Backendbase/Domain/*/ServiceProvider.php` for ports and handler mappings. A normal context needs no Composer mapping change.
 
-Use `ExampleCatalog` as the reference. No `Content` context currently exists.
+`IdentityAndAccess` owns global Accounts, User and SystemAdmin actors, authentication challenges, TOTP factors, and realm sessions.
+Use `ExampleCatalog` as the business-module reference. No `Content` context currently exists.
 
 Keep module-owned tests inside the module. Keep architecture, shared, infrastructure, and API tests under root `tests`.
 

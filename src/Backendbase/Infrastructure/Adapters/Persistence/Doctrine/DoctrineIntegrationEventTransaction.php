@@ -7,12 +7,13 @@ namespace Backendbase\Infrastructure\Adapters\Persistence\Doctrine;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Backendbase\Shared\Services\EventManager\EventManager;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
+use Throwable;
 
 final readonly class DoctrineIntegrationEventTransaction implements IntegrationEventTransaction
 {
     public function __construct(
-        private Connection $connection,
+        private EntityManagerInterface $entityManager,
         private EventManager $eventManager,
     ) {
     }
@@ -20,11 +21,19 @@ final readonly class DoctrineIntegrationEventTransaction implements IntegrationE
     /** @param callable(): IntegrationEvent $transactionalWork */
     public function execute(callable $transactionalWork): void
     {
-        $eventManager = $this->eventManager;
-        $connection   = $this->connection;
-        $connection->transactional(static function () use ($transactionalWork, $eventManager): void {
-            $event = $transactionalWork();
-            $eventManager->dispatchEvent($event);
-        });
+        $eventManager  = $this->eventManager;
+        $entityManager = $this->entityManager;
+        $connection    = $entityManager->getConnection();
+        try {
+            $connection->transactional(static function () use ($transactionalWork, $eventManager, $entityManager): void {
+                $event = $transactionalWork();
+                $eventManager->dispatchEvent($event);
+                $entityManager->flush();
+            });
+        } catch (Throwable $exception) {
+            $entityManager->clear();
+
+            throw $exception;
+        }
     }
 }

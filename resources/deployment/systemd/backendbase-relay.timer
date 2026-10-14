@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule Backendbase outbox publication
+
+[Timer]
+OnBootSec=30s
+OnUnitInactiveSec=5s
+AccuracySec=1s
+Unit=backendbase-relay.service
+
+[Install]
+WantedBy=timers.target

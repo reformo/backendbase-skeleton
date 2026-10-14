@@ -1,0 +1,22 @@
+[Unit]
+Description=Backendbase transactional outbox relay
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=backendbase
+Group=backendbase
+WorkingDirectory=/opt/backendbase/current
+Environment=BACKENDBASE_ENV=production
+EnvironmentFile=/run/backendbase/runtime.env
+ExecStart=/usr/bin/php -d zend.exception_ignore_args=1 bin/backendbase outbox:relay --limit=100
+TimeoutStartSec=120
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/backendbase/current/var
+UMask=0077
+StandardOutput=journal
+StandardError=journal

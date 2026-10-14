@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Backendbase\Domain\IdentityAndAccess\Contracts\Input;
+
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
+use InvalidArgumentException;
+
+use function in_array;
+use function preg_match;
+
+final readonly class OperatorInput
+{
+    /** @var array{action: string, target: IdentityId, operator: string, invitation: string, approval: string, loginName: string} */
+    private array $values;
+
+    public function __construct(string $action, string $targetId, string $operator, string $invitation, string $approval, string $loginName = '')
+    {
+        if (! in_array($action, ['invite-first-admin', 'approve-first-admin', 'recover-totp', 'rewrap-totp'], true)) {
+            throw new InvalidArgumentException('Select a supported identity operator action.');
+        }
+
+        self::evidence($operator);
+        if ($action === 'invite-first-admin' || $action === 'recover-totp') {
+            self::evidence($invitation);
+        }
+
+        if ($action !== 'invite-first-admin') {
+            self::evidence($approval);
+        }
+
+        if ($action === 'recover-totp' && $invitation === $approval) {
+            throw new InvalidArgumentException('Recovery requires separate request and approval evidence.');
+        }
+
+        $loginName    = $action === 'invite-first-admin' ? new LoginName($loginName)->toString() : $loginName;
+        $this->values = ['action' => $action, 'target' => IdentityId::fromString($targetId), 'operator' => $operator, 'invitation' => $invitation, 'approval' => $approval, 'loginName' => $loginName];
+    }
+
+    /** @return array{action: string, targetId: string, operator: string, invitation: string, approval: string, loginName: string} */
+    public function values(): array
+    {
+        $target = $this->values['target'];
+
+        return ['action' => $this->values['action'], 'targetId' => $target->toString(), 'operator' => $this->values['operator'], 'invitation' => $this->values['invitation'], 'approval' => $this->values['approval'], 'loginName' => $this->values['loginName']];
+    }
+
+    private static function evidence(string $value): void
+    {
+        if (preg_match('/\A[\x21-\x7e][\x20-\x7e]{0,159}\z/D', $value) !== 1) {
+            throw new InvalidArgumentException('Supply a printable evidence reference with at most 160 characters.');
+        }
+    }
+}

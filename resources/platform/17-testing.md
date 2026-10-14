@@ -2,6 +2,12 @@
 
 Use the smallest check that proves the change. Expand checks as risk increases.
 
+## Test bootstrap
+
+`tests/bootstrap.php` sets `projectRoot` and changes the working directory before loading Composer.
+Use root-relative paths for project catalogs, configuration, routes, and migration fixtures.
+Module-owned tests can use file-relative paths for fixtures that move with their bounded context.
+
 ## Test ownership
 
 - Keep movable context tests under `src/Backendbase/Domain/*/Tests`.

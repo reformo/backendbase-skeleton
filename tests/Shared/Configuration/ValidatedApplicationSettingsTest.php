@@ -24,7 +24,7 @@ final class ValidatedApplicationSettingsTest extends TestCase
             ValidatedApplicationSettings::readiness(['timeoutSeconds' => 2]),
         );
         self::assertSame(
-            ['host' => '127.0.0.1', 'port' => 6379],
+            ['host' => '127.0.0.1', 'port' => 6379, 'tls' => false, 'username' => '', 'password' => ''],
             ValidatedApplicationSettings::redis(['host' => '127.0.0.1', 'port' => 6379]),
         );
     }

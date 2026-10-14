@@ -35,9 +35,11 @@ The [final decision report](references/2026-10-13-identity-access-decisions.md#m
 ## Consequences
 
 - **Positive:** Required signals cover p95/p99 latency, index and buffer use, lock waits, deadlocks, reconciliation, schema drift, revocation delay, and security rejection rates.
-- **Negative / Trade-offs:** This is an accepted minimum signal policy. Exporters, storage, retention, alert thresholds, incident ownership, and tracing adoption remain open. Implementation and fault-test evidence are pending.
+- **Negative / Trade-offs:** This is an accepted minimum signal policy. Exporters, storage, retention, alert thresholds, incident ownership, and tracing adoption remain open. HTTP measurements use route patterns, method, status, and elapsed milliseconds. MySQL diagnostics expose aggregate lock, buffer, charset, collation, and size metrics. Exception diagnostics exclude messages and call arguments.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Define safe signal fields and representative workloads. Add required measurements. Select collection, retention, and alert policies separately before production use.
 - **Verification:** Measure real MySQL and Redis behavior on prepared targets. Simulate lock contention, revocation delay, and Redis failure. Confirm useful diagnostics contain no sensitive credentials or payloads.

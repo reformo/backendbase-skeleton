@@ -23,7 +23,10 @@ readonly class EntryAddedExternalSubscriber implements ExternalIntegrationEventS
     #[Override]
     public function handle(EventMessage $message): void
     {
-        $this->logger->debug('EntryAddedExternalSubscriber', $message->toArray());
+        $this->logger->debug('EntryAddedExternalSubscriber', [
+            'eventName' => self::EVENT_TYPE,
+            'messageType' => $message::class,
+        ]);
         $this->logger->debug('External Done');
     }
 

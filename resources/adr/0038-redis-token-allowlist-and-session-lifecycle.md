@@ -9,7 +9,7 @@
 
 A correctly signed token can remain cryptographically valid after logout or account closure. Authentication therefore requires current token and session state.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) selects Redis 8 allowlists. The current repository does not implement this authentication lifecycle.
+The [decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) selects Redis 8 allowlists. Atomic Redis activation records token and session identities with expiry. Verification requires both entries and current database identity state. Token revocation, logout, and Account closure invalidate the corresponding authority.
 
 - **Constraints:** Fail closed on Redis errors. Distinguish access-token jti from session sid. Preserve trusted current account status across MySQL and Redis boundaries.
 
@@ -38,6 +38,8 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#realm-a
 - **Negative / Trade-offs:** Account closure needs a trusted status or version gate together with Redis revocation. Redis outages produce safe service-unavailable errors without bypass.
 
 ## Implementation & Validation
+
+See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
 
 - **Rollout Steps:** Define realm-prefixed access and session records. Store state before token delivery. Implement token, session, and account revocation coordination.
 - **Verification:** Use prepared Redis 8 tests for expiry, logout, revocation, identity mismatch, failed issuance, dependency outage, and account closure races.

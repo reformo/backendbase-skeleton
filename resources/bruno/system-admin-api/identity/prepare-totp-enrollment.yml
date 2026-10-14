@@ -1,0 +1,37 @@
+info:
+  name: 'Prepare TOTP enrollment'
+  type: http
+  seq: 12
+http:
+  method: POST
+  url: '{{baseUrl}}/auth/mfa/enrollment'
+  headers:
+    -
+      name: X-Source-Id
+      value: system-admin
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "loginName": "{{loginName}}",
+        "password": "{{password}}"
+      }
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body.statusCode).to.equal(res.status);
+        expect(body).to.have.property("data");
+        expect(body.data.challengeId).to.match(/^[0-9a-f-]{36}$/);
+        bru.setVar("challengeId", body.data.challengeId);
+        expect(body.data.otpauthUri).to.match(/^otpauth:\/\/totp\//);
+        expect(body.data.totpSecret).to.match(/^[A-Z2-7]+$/);

@@ -9,11 +9,13 @@ use Backendbase\Infrastructure\Configuration\Queue\RabbitMQTopologySettings;
 use Backendbase\Shared\Configuration\ValidatedQueueSettings;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Messaging\MessageSubscription;
+use Backendbase\Shared\Integrations\Operation\ConsumerRestartRequired;
 use Backendbase\Shared\Integrations\Operation\QueueMessageHandlingOutcome;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -45,6 +47,7 @@ class RabbitMQTest extends TestCase
                             'messageBody' => 'Collection_Item_Added',
                             'eventVersion' => '1.0',
                             'data' => ['id' => 'item-1'],
+                            'occurredAt' => null,
                         ],
                         json_decode($message->getBody(), true, 512, JSON_THROW_ON_ERROR),
                     );
@@ -300,6 +303,63 @@ class RabbitMQTest extends TestCase
         $queue->publish(new Message('Event', destination: 'events'));
 
         unset($queue);
+    }
+
+    #[DataProvider('restartOutcomes')]
+    public function testItSettlesTheFailedMessageAndStopsBeforeAnotherDelivery(QueueMessageHandlingOutcome $outcome): void
+    {
+        $channel    = $this->createMock(AMQPChannel::class);
+        $connection = $this->connection($channel);
+        $message    = new AMQPMessage('{}');
+        $message->setChannel($channel);
+        $message->setDeliveryInfo(1, false, '', 'events');
+        $channel->expects(self::once())->method('basic_consume')->willReturnCallback(static function (
+            string $_queue,
+            string $consumerTag,
+            bool $_noLocal,
+            bool $_noAck,
+            bool $_exclusive,
+            bool $_nowait,
+            callable $callback,
+        ) use ($message): string {
+            $callback($message);
+            $callback($message);
+
+            return $consumerTag;
+        });
+        $channel->expects(self::never())->method('basic_ack');
+        $channel->expects(self::never())->method('is_consuming');
+        if ($outcome === QueueMessageHandlingOutcome::REJECT) {
+            $channel->expects(self::once())->method('basic_reject')->with(1, false);
+            $channel->expects(self::never())->method('basic_nack');
+        }
+
+        if ($outcome === QueueMessageHandlingOutcome::RETRY) {
+            $channel->expects(self::once())->method('basic_nack')->with(1, false, true);
+            $channel->expects(self::never())->method('basic_reject');
+        }
+
+        $failure = new ConsumerRestartRequired(new RuntimeException('Database flush failed.'), $outcome);
+        $queue   = new RabbitMQ($connection, $this->settings());
+        $calls   = 0;
+        try {
+            $queue->consume(new MessageSubscription('events'), static function () use ($failure, &$calls): never {
+                ++$calls;
+
+                throw $failure;
+            });
+            self::fail('The consumer must propagate the restart signal.');
+        } catch (ConsumerRestartRequired $exception) {
+            self::assertSame($failure, $exception);
+            self::assertSame(1, $calls);
+        }
+    }
+
+    /** @return iterable<string, array{QueueMessageHandlingOutcome}> */
+    public static function restartOutcomes(): iterable
+    {
+        yield 'retry' => [QueueMessageHandlingOutcome::RETRY];
+        yield 'retry limit' => [QueueMessageHandlingOutcome::REJECT];
     }
 
     private function connection(AMQPChannel&MockObject $channel): AbstractConnection

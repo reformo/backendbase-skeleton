@@ -26,14 +26,15 @@ use Backendbase\Shared\Helpers\PathFinder;
 use Backendbase\Shared\Services\Settings as SettingsValue;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonExtract;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch;
+use Symfony\Component\Console\Input\ArgvInput;
 
 
 $projectRoot = dirname(__DIR__);
 chdir($projectRoot);
-require_once $projectRoot ."/vendor/autoload.php";
-include $projectRoot . '/config/doctrine-types.php';
+require_once 'vendor/autoload.php';
+include 'config/doctrine-types.php';
 $dotenv = Dotenv::createUnsafeImmutable($projectRoot);
-// K8s injects env via secret; .env is optional (local/dev).
+// Runtime injection supplies production secrets; .env is optional for local development.
 $dotenv->safeLoad();
 
 $configGenerator = new ConfigAggregator([
@@ -62,7 +63,17 @@ $configuration->addCustomStringFunction(JsonExtract::FUNCTION_NAME, JsonExtract:
 $configuration->addCustomStringFunction(JsonSearch::FUNCTION_NAME, JsonSearch::class);
 
 $dsnParser  = new DsnParser(['mysql' => 'pdo_mysql']);
-$connection = DriverManager::getConnection($dsnParser->parse($databaseSettings->dsn()), $configuration);
+$connectionSettings = $dsnParser->parse($databaseSettings->dsn());
+if (($connectionSettings['driver'] ?? null) === 'pdo_mysql') {
+    if (isset($connectionSettings['charset']) && $connectionSettings['charset'] !== 'utf8mb4') {
+        throw new InvalidArgumentException('The MySQL connection must use utf8mb4.');
+    }
+    $connectionSettings['charset'] = 'utf8mb4';
+}
+$connectionSettings['driverOptions'][PDO::ATTR_TIMEOUT] = $databaseSettings->connectionTimeoutSeconds();
+$connection = DriverManager::getConnection($connectionSettings, $configuration);
+$platform = $connection->getDatabasePlatform();
+$platform->registerDoctrineTypeMapping('datetime', Doctrine\DBAL\Types\Types::DATETIME_IMMUTABLE);
 
 $entityFiles = glob($projectRoot . '/src/Backendbase/Domain/*/Adapters/Persistence/Doctrine/Entity/*.php', GLOB_NOSORT);
 
@@ -79,13 +90,14 @@ foreach ($entityFiles as $entityFile) {
     }
 }
 
-$connection->getConfiguration()->setSchemaAssetsFilter(static function (string|AbstractAsset $assetName) use($serviceTables): bool {
+$includeMigrationMetadata = !str_starts_with((new ArgvInput())->getFirstArgument() ?? '', 'orm:');
+$connection->getConfiguration()->setSchemaAssetsFilter(static function (string|AbstractAsset $assetName) use($serviceTables, $includeMigrationMetadata): bool {
     if ($assetName instanceof AbstractAsset) {
         $assetName = $assetName->getName();
     }
     // Doctrine Migrations must be able to discover its own metadata table.
     // Otherwise, it assumes that the table is missing and tries to create it again.
-    return $assetName === 'doctrine_migration_versions'
+    return ($includeMigrationMetadata && $assetName === 'doctrine_migration_versions')
             || in_array($assetName, $serviceTables, true);
 });
 
@@ -101,6 +113,10 @@ foreach ($config->getConfiguration()->getMigrationDirectories() as $migrationDir
 }
 
 $dependencyFactory = DependencyFactory::fromEntityManager($config, new ExistingEntityManager($entityManager));
+$diffCommand = new Command\DiffCommand($dependencyFactory);
+$diffDefinition = $diffCommand->getDefinition();
+$diffFilter = $diffDefinition->getOption('filter-expression');
+$diffFilter->setDefault('/\A(?:'.implode('|', array_map(static fn (string $table): string => preg_quote($table, '/'), $serviceTables)).')\z/D');
 
 ConsoleRunner::run(
         new SingleManagerProvider($entityManager),
@@ -116,7 +132,7 @@ ConsoleRunner::run(
         new Command\StatusCommand($dependencyFactory),
         new Command\SyncMetadataCommand($dependencyFactory),
         new Command\VersionCommand($dependencyFactory),
-        new Command\DiffCommand($dependencyFactory),
+        $diffCommand,
         new Command\UpToDateCommand($dependencyFactory)
     ]
 );

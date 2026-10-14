@@ -13,7 +13,9 @@ final readonly class ClaimedOutboxMessage
      *     eventVersion: string,
      *     payload: string,
      *     attempts: int,
-     *     claimToken: string
+     *     claimToken: string,
+     *     occurredAt: string|null,
+     *     destination: string|null
      * }
      */
     private array $data;
@@ -25,6 +27,8 @@ final readonly class ClaimedOutboxMessage
         string $payload,
         int $attempts,
         string $claimToken,
+        string|null $occurredAt = null,
+        string|null $destination = null,
     ) {
         $this->data = [
             'id' => $id,
@@ -33,6 +37,8 @@ final readonly class ClaimedOutboxMessage
             'payload' => $payload,
             'attempts' => $attempts,
             'claimToken' => $claimToken,
+            'occurredAt' => $occurredAt,
+            'destination' => $destination,
         ];
     }
 
@@ -64,5 +70,15 @@ final readonly class ClaimedOutboxMessage
     public function claimToken(): string
     {
         return $this->data['claimToken'];
+    }
+
+    public function occurredAt(): string|null
+    {
+        return $this->data['occurredAt'];
+    }
+
+    public function destination(): string|null
+    {
+        return $this->data['destination'];
     }
 }

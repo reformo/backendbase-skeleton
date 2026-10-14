@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Aws\SesV2\SesV2Client;
 use Backendbase\Infrastructure\Adapters\Notification\EmailMessageFactory;
 use Backendbase\Infrastructure\Adapters\Notification\FirebasePushNotifier;
+use Backendbase\Infrastructure\Adapters\Notification\InboxNotificationDelivery;
 use Backendbase\Infrastructure\Adapters\Notification\NetgsmSmsNotifier;
 use Backendbase\Infrastructure\Adapters\Notification\SesEmailNotifier;
 use Backendbase\Infrastructure\Adapters\Notification\SmtpEmailNotifier;
@@ -13,6 +14,7 @@ use Backendbase\Infrastructure\Adapters\Notification\StackNotifier;
 use Backendbase\Infrastructure\Adapters\Notification\TwilioSmsNotifier;
 use Backendbase\Infrastructure\Configuration\NotificationSettings;
 use Backendbase\Shared\Integrations\Notify;
+use Backendbase\Shared\Integrations\ReliableNotificationDelivery;
 use DI\ContainerBuilder;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -26,8 +28,11 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
 
+use function DI\autowire;
+
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
+        ReliableNotificationDelivery::class => autowire(InboxNotificationDelivery::class),
         ClientInterface::class => static fn (): ClientInterface => new Client(),
         TwilioSmsNotifier::class => static function (ContainerInterface $container) {
             $settings = $container->get(NotificationSettings::class);

@@ -11,9 +11,13 @@ use Backendbase\Infrastructure\Adapters\Http\Bootstrap\RequestUriNormalizer;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\Handlers\ShutdownHandler;
 use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
+use Backendbase\Infrastructure\Adapters\Http\Input\RequestMetadata;
+use Backendbase\Infrastructure\Adapters\Http\Middleware\LimitJsonBody;
+use Backendbase\Infrastructure\Adapters\Http\Middleware\MeasureRequest;
 use Backendbase\Infrastructure\Adapters\Http\ResponseEmitter\ResponseEmitter;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Shared\Configuration\HttpHeaderSettings;
+use Backendbase\Shared\Exception\InvalidUserInput;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Translator;
 use DI\ContainerBuilder;
@@ -24,35 +28,46 @@ use Psr\Log\LoggerInterface;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
-$sourceId    = $_SERVER['HTTP_X_SOURCE_ID'] ?? null;
-$consumerApi = is_string($sourceId) ? ConsumerApiTarget::fromSourceId($sourceId) : null;
+$consumerApi = ConsumerApiTarget::fromRequest($_SERVER);
 if ($consumerApi === null) {
-    header('Content-Type: application/json');
+    http_response_code(400);
+    header('Content-Type: application/problem+json');
     die(json_encode([
         'type' => 'system/invalid-source-id',
+        'code' => 'system/invalid-source-id',
         'title' => 'Invalid source id.',
         'status' => 400,
         'detail' => 'Invalid source id. Source id missing',
     ], JSON_THROW_ON_ERROR));
 }
 
-$webroot            = $projectRoot . '/src/Backendbase/Infrastructure/Inbound/' . $consumerApi->name();
+$webroot = $projectRoot . '/src/Backendbase/Infrastructure/Inbound/' . $consumerApi->name();
+try {
+    RequestMetadata::validate($_SERVER);
+} catch (InvalidUserInput $exception) {
+    http_response_code(400);
+    header('Content-Type: application/problem+json');
+    die(json_encode([
+        'type' => 'system/invalid-request-metadata',
+        'code' => 'system/invalid-request-metadata',
+        'title' => 'Invalid request metadata.',
+        'status' => 400,
+        'detail' => $exception->getMessage(),
+    ], JSON_THROW_ON_ERROR));
+}
+
 $cacheDirectoryName = basename($consumerApi->slug());
 $cacheDir           = $projectRoot . '/var/cache/' . $cacheDirectoryName;
 $_SERVER            = RequestUriNormalizer::normalize($_SERVER);
 
-$configCachePath = $cacheDir . '/merged-conf.php';
-$environment     = Environment::PRODUCTION;
-if (! file_exists($configCachePath)) {
-    if (file_exists($projectRoot . '/.env')) {
-        Dotenv::createUnsafeImmutable($projectRoot)->safeLoad();
-    }
-
-    $backendbaseEnv = $_ENV['BACKENDBASE_ENV'] ?? getenv('BACKENDBASE_ENV');
-    $environment    = is_string($backendbaseEnv) && $backendbaseEnv !== ''
-        ? Environment::fromValue($backendbaseEnv)
-        : Environment::PRODUCTION;
+if (file_exists($projectRoot . '/.env')) {
+    Dotenv::createUnsafeImmutable($projectRoot)->safeLoad();
 }
+
+$backendbaseEnv = $_ENV['BACKENDBASE_ENV'] ?? getenv('BACKENDBASE_ENV');
+$environment    = is_string($backendbaseEnv) && $backendbaseEnv !== ''
+    ? Environment::fromValue($backendbaseEnv)
+    : Environment::PRODUCTION;
 
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 
@@ -65,22 +80,11 @@ if (! file_exists($cacheDir)) {
     }
 }
 
-if ($environment === Environment::PRODUCTION) {
-    if (PHP_SAPI === 'cli-server' || ! extension_loaded('apcu')) {
-        $containerBuilder->enableCompilation($cacheDir);
-    } else {
-        $containerBuilder->enableDefinitionCache();
-    }
-
-    $containerBuilder->writeProxiesToFile(true, $cacheDir);
-}
-
 $configGenerator = new ConfigAggregator(
     [
         new PhpFileProvider('config/autoload/*'),
         new PhpFileProvider('config/' . $consumerApi->slug() . '/*'),
     ],
-    $configCachePath,
 );
 
 // Set up settings
@@ -112,6 +116,7 @@ $callableResolver = $app->getCallableResolver();
 // Register middleware
 $middleware = require $webroot . '/middleware.php';
 $middleware($app);
+$app->add(MeasureRequest::class);
 
 
 // Register routes
@@ -145,6 +150,7 @@ $shutdownHandler = new ShutdownHandler($request, $errorHandler, $headerSettings,
 register_shutdown_function($shutdownHandler);
 
 $app->addBodyParsingMiddleware();
+$app->add(LimitJsonBody::class);
 
 // Add Routing Middleware
 $app->addRoutingMiddleware();

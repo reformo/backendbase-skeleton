@@ -75,10 +75,10 @@ get:
                     example: true
                   updatedAt:
                     type: string
-                    format: datetime
+                    format: date-time
                   createdAt:
                     type: string
-                    format: datetime
+                    format: date-time
 
     401:
       $ref: '../../common/components.yaml#/schemas/401'
@@ -121,17 +121,22 @@ patch:
         type: string
         format: <ulid> or string
   requestBody:
+    description: The encoded JSON object must not exceed 65536 bytes. Unknown fields are rejected. API v1 treats omitted or null update fields as unchanged.
     content:
       application/json:
         schema:
           type: object
+          additionalProperties: false
           properties:
             lookupValue:
               type: string
+              nullable: true
             details:
               type: object
+              nullable: true
             isActive:
               type: boolean
+              nullable: true
               example: true
             typeTargetId:
               type: integer
