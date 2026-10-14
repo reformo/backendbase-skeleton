@@ -81,6 +81,11 @@ API validation commands check source and merged OpenAPI schemas and endpoint tag
 `ApiResponseAssertions` compares executed responses with source and merged schemas for keys, shapes, types, enums, and media types.
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 
+Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.
+SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.
+Production Doctrine metadata and the MySQL platform verify generated lock queries.
+Native MySQL and Redis tests verify engine locking and Lua execution on prepared targets.
+
 `composer complexity` fails when one function or method has cyclomatic complexity greater than 12.
 
 `composer run cs-fix -- <path>` forwards arguments to `phpcbf`. The wrapper maps exit code `1` to success and preserves other exit codes.

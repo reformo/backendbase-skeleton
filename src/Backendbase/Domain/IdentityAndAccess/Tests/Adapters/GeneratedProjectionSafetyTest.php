@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
@@ -34,8 +35,9 @@ final class GeneratedProjectionSafetyTest extends TestCase
             return;
         }
 
-        $record = $unit->createEntity(IdentityUser::class, [...$common, 'accountId' => $id, 'loginName' => 'test.user', 'activeLoginName' => 'wrong.user', 'state' => ['approved' => true, 'invitation' => null, 'approval' => null]]);
-        self::assertInstanceOf(IdentityUser::class, $record);
+        $recordClass = $kind === 'admin' ? IdentityAdmin::class : IdentityUser::class;
+        $record      = $unit->createEntity($recordClass, [...$common, 'accountId' => $id, 'loginName' => 'test.user', 'activeLoginName' => 'wrong.user', 'state' => ['approved' => true, 'invitation' => null, 'approval' => null]]);
+        self::assertInstanceOf($recordClass, $record);
         $this->expectException(AuthenticationUnavailable::class);
         $record->toDomain();
     }
@@ -44,6 +46,7 @@ final class GeneratedProjectionSafetyTest extends TestCase
     public static function recordTypes(): iterable
     {
         yield 'Account email' => ['account'];
-        yield 'actor login name' => ['actor'];
+        yield 'User login name' => ['actor'];
+        yield 'Admin login name' => ['admin'];
     }
 }

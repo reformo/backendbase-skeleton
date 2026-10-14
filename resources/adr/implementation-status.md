@@ -58,14 +58,15 @@ Starting source revision: `ddc9946`.
 
 ## Verification
 
-Local verification on 15 October 2026 covers TOTP removal from starting revision `187af8d`.
+Local verification on 15 October 2026 covers the 26 previously uncovered lines from starting revision `a36e691`.
 
-- PHPUnit discovered 813 tests. 801 tests passed, and 12 service tests were skipped. All 10,682 assertions passed.
+- PHPUnit discovered 837 tests. 825 tests passed, and 12 service tests were skipped. All 10,769 assertions passed.
+- Executable-line coverage is 5,577 of 5,577 lines (100%). Method coverage is 1,334 of 1,334 methods (100%).
+- `composer test` passed its coverage gate and isolated deployment-script tests.
 - PHPStan level 8, coding style, and cyclomatic complexity checks passed.
-- Both identity API specifications and generated contracts passed validation. Route and Bruno parity checks passed.
-- Deployment-script tests passed with isolated fixtures. No database or deployment operation ran against shared services.
-- Executable-line coverage is 5,551 of 5,577 lines (99.53%). The 100% coverage gate fails.
-- The committed baseline has the same 26 uncovered lines. This change adds no uncovered lines.
+- New tests cover Redis session validation and revocation, connection reuse, retry limits, rollback, manager disposal, stale revisions, and projection validation.
+- Lock tests use production Doctrine metadata and the MySQL platform with connection doubles to verify generated SQL.
+- No production behavior changed. No database or deployment operation ran against shared services.
 - Live MySQL and Redis verification requires a prepared target. Those service tests were not run for this change.
 
 ### Earlier implementation verification

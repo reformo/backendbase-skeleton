@@ -20,6 +20,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add deterministic tests for Redis session validation and revocation, connection reuse, transaction retries and rollback, managed-record locks, stale revisions, generated projections, and recovery record locks.
+
 - Add required indexes for Example group reads, stable entry pagination, and cross-consumer message cleanup. Add index coverage, SQLite query-plan checks, and an opt-in MySQL migration check.
 - Require index review and missing-index additions for new or changed selective queries. Record the runtime SQL index inventory and pin the final consolidated installation migration.
 - Require declared OpenAPI tags on every operation. Add source and merged-document tag validation, regression tests, and endpoint grouping guidance.
