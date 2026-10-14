@@ -81,6 +81,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Update `aws/aws-sdk-php` to `3.401.2` and `symfony/polyfill-deepclone` to `v1.43.2`. Refresh the Composer lock file, software bill of materials, and package content digests.
+
 - Group all OpenAPI endpoint definitions in feature folders and reference each path from its API root. Preserve all 38 operation contracts. Update contract tests, project rules, platform guidance, and API skills for the source layout.
 
 - Replace generic success `data` wrappers with resource and result keys, including `user`, `admin`, `registration`, `challenge`, `enrollment`, and `session`. Preserve payload fields and HTTP/error contracts. Update OpenAPI sources, merged YAML, Bruno assertions, regression tests, and guidance. Require descriptive response keys in project and skill rules.

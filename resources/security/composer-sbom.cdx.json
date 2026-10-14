@@ -13,7 +13,7 @@
         "properties": [
             {
                 "name": "backendbase:composer-lock-content-hash",
-                "value": "53178dab56d16af7024bd73efbda6732"
+                "value": "9ad9bab62e809116032972b655689c7e"
             }
         ]
     },
@@ -128,12 +128,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/aws/aws-sdk-php@3.401.1",
+            "bom-ref": "pkg:composer/aws/aws-sdk-php@3.401.2",
             "group": "aws",
             "name": "aws-sdk-php",
-            "version": "3.401.1",
+            "version": "3.401.2",
             "scope": "required",
-            "purl": "pkg:composer/aws/aws-sdk-php@3.401.1",
+            "purl": "pkg:composer/aws/aws-sdk-php@3.401.2",
             "licenses": [
                 {
                     "license": {
@@ -148,17 +148,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4cdda6c2d836fa91a8177535530952c96a582f57"
+                    "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b1af9196bd0f94bcebdb6588a150dd85dc240758"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "4cdda6c2d836fa91a8177535530952c96a582f57"
+                    "value": "b1af9196bd0f94bcebdb6588a150dd85dc240758"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "4cdda6c2d836fa91a8177535530952c96a582f57"
+                    "value": "b1af9196bd0f94bcebdb6588a150dd85dc240758"
                 }
             ]
         },
@@ -4404,12 +4404,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/polyfill-deepclone@v1.43.1",
+            "bom-ref": "pkg:composer/symfony/polyfill-deepclone@v1.43.2",
             "group": "symfony",
             "name": "polyfill-deepclone",
-            "version": "v1.43.1",
+            "version": "v1.43.2",
             "scope": "required",
-            "purl": "pkg:composer/symfony/polyfill-deepclone@v1.43.1",
+            "purl": "pkg:composer/symfony/polyfill-deepclone@v1.43.2",
             "licenses": [
                 {
                     "license": {
@@ -4424,17 +4424,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/aaba44b6ee7299ae65717811c55b57ab9bc0fedd"
+                    "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/82274308b59f6e96f53a3fb37fc40877d843e5a5"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "aaba44b6ee7299ae65717811c55b57ab9bc0fedd"
+                    "value": "82274308b59f6e96f53a3fb37fc40877d843e5a5"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "aaba44b6ee7299ae65717811c55b57ab9bc0fedd"
+                    "value": "82274308b59f6e96f53a3fb37fc40877d843e5a5"
                 }
             ]
         },
@@ -5105,7 +5105,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/aws/aws-sdk-php@3.401.1",
+            "ref": "pkg:composer/aws/aws-sdk-php@3.401.2",
             "dependsOn": [
                 "pkg:composer/aws/aws-crt-php@v1.2.7",
                 "pkg:composer/guzzlehttp/guzzle@7.15.5",
@@ -5121,7 +5121,7 @@
             "dependsOn": [
                 "pkg:composer/adbario/php-dot-notation@3.5.0",
                 "pkg:composer/akrabat/ip-address-middleware@2.6.1",
-                "pkg:composer/aws/aws-sdk-php@3.401.1",
+                "pkg:composer/aws/aws-sdk-php@3.401.2",
                 "pkg:composer/beberlei/doctrineextensions@v1.5.0",
                 "pkg:composer/cuyz/valinor@2.6.0",
                 "pkg:composer/devizzent/cebe-php-openapi@1.1.5",
@@ -5913,7 +5913,7 @@
             ]
         },
         {
-            "ref": "pkg:composer/symfony/polyfill-deepclone@v1.43.1",
+            "ref": "pkg:composer/symfony/polyfill-deepclone@v1.43.2",
             "dependsOn": []
         },
         {
@@ -5993,7 +5993,7 @@
             "ref": "pkg:composer/symfony/var-exporter@v8.1.9",
             "dependsOn": [
                 "pkg:composer/symfony/deprecation-contracts@v3.7.1",
-                "pkg:composer/symfony/polyfill-deepclone@v1.43.1"
+                "pkg:composer/symfony/polyfill-deepclone@v1.43.2"
             ]
         },
         {

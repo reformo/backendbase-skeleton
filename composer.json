@@ -30,7 +30,7 @@
         "ext-sodium": "*",
         "adbario/php-dot-notation": "^3.5.0",
         "akrabat/ip-address-middleware": "^2.6.1",
-        "aws/aws-sdk-php": "^3.401.1",
+        "aws/aws-sdk-php": "^3.401.2",
         "beberlei/doctrineextensions": "^v1.5.0",
         "cuyz/valinor": "^2.6.0",
         "doctrine/dbal": "^4.5.0",

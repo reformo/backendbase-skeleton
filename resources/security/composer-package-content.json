@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "composerLockSha256": "0dbb1e55024253032bdcf77a32439ed6ec8c6ad3e36023fa6a7044c22fcd114a",
+    "composerLockSha256": "798fe26089176fbe3a01ee71f8b17c829d4f52f29358f2a8a06e28bb05a836e8",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -22,9 +22,9 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.401.1",
-            "sourceReference": "4cdda6c2d836fa91a8177535530952c96a582f57",
-            "sha256": "4be9562708f4b548abe1c4b2062b3d89c56287732fbbf3445c5c792ee043a3bc"
+            "version": "3.401.2",
+            "sourceReference": "b1af9196bd0f94bcebdb6588a150dd85dc240758",
+            "sha256": "586a7c24576e4571a55d79091773cd2ae947e94ec4c0e3626b3c40a4b415d8e4"
         },
         {
             "name": "beberlei/doctrineextensions",
@@ -736,9 +736,9 @@
         },
         {
             "name": "symfony/polyfill-deepclone",
-            "version": "v1.43.1",
-            "sourceReference": "aaba44b6ee7299ae65717811c55b57ab9bc0fedd",
-            "sha256": "a0bbcb8802c6abfd07fa73f16eb3652f11c8127392f3a6cacb1bcd07111e7047"
+            "version": "v1.43.2",
+            "sourceReference": "82274308b59f6e96f53a3fb37fc40877d843e5a5",
+            "sha256": "57ce9aba0066e92bb93d1b234522f4c684cd7c34d5910788eac8b1938c038eb9"
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
