@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\EntryRecord;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\ExampleTable;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\ExampleCatalog\Tests\Adapters\Persistence\Doctrine\DoctrineEntryRepositoryTestCase;
@@ -59,11 +59,11 @@ final class InboxOrmRecoveryTest extends DoctrineEntryRepositoryTestCase
         return new EntityManager($this->connection, $configuration);
     }
 
-    private static function entry(string $key): EntryRecord
+    private static function entry(string $key): ExampleTable
     {
         $id    = Uuid::uuid7();
         $entry = Entry::create($id->toString(), EntryType::SYSTEM, null, 'settings', true, $key, 'value', []);
 
-        return EntryRecord::fromDomain($entry);
+        return ExampleTable::fromDomain($entry);
     }
 }

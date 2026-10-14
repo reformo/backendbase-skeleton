@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Tests\Domain;
 
-use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\EntryRecord;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\ExampleTable;
 use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Memory\EntryStore;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
@@ -93,7 +93,7 @@ final class EntryTest extends TestCase
             '25',
             [],
         );
-        $record     = EntryRecord::fromDomain($entry);
+        $record     = ExampleTable::fromDomain($entry);
         self::assertSame($identifier->toString(), $record->id());
     }
 }

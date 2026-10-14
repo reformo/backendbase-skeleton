@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Services;
 
-use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\EntryRecord;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\ExampleTable;
 use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\EntryWriteRepository;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
@@ -63,8 +63,8 @@ final class ExampleUuidMigrationTest extends TestCase
             $entry = Entry::create($id->toString(), EntryType::SYSTEM, null, 'new', true, 'new-key', 'New value', []);
             $repository->add($entry);
             $manager->clear();
-            $record = $manager->find(EntryRecord::class, $id);
-            self::assertInstanceOf(EntryRecord::class, $record);
+            $record = $manager->find(ExampleTable::class, $id);
+            self::assertInstanceOf(ExampleTable::class, $record);
             self::assertSame($id->toString(), $record->id());
             self::assertSame($id->toString(), $record->toDomain()->id());
             self::assertSame([], new SchemaTool($manager)->getUpdateSchemaSql($metadataFactory->getAllMetadata()));

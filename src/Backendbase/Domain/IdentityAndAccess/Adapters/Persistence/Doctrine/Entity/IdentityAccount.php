@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_account', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\UniqueConstraint(name: 'identity_account_active_email_unq', columns: ['active_email'])]
-class AccountRecord extends IdentifiedRecord
+class IdentityAccount extends IdentifiedRecord
 {
     #[ORM\Column(name: 'normalized_email', type: Types::STRING, length: 254, options: ['charset' => 'ascii', 'collation' => 'ascii_bin'])]
     private string $email;

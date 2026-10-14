@@ -9,6 +9,8 @@ servers:
 paths:
   /auth/ownership/verify:
     post:
+      tags:
+        - Authentication
       operationId: systemadminVerifyContactOwnership
       summary: 'Verify contact ownership'
       parameters:
@@ -84,6 +86,8 @@ paths:
               $ref: '#/components/schemas/ProofInput'
   /auth/ownership/resend:
     post:
+      tags:
+        - Authentication
       operationId: systemadminResendContactOwnershipProof
       summary: 'Resend contact ownership proof'
       parameters:
@@ -159,6 +163,8 @@ paths:
               $ref: '#/components/schemas/LoginInput'
   /auth/mfa/enrollment:
     post:
+      tags:
+        - Authentication
       operationId: systemadminPrepareTotpEnrollment
       summary: 'Prepare TOTP enrollment'
       parameters:
@@ -234,6 +240,8 @@ paths:
               $ref: '#/components/schemas/LoginInput'
   /auth/mfa/enrollment/complete:
     post:
+      tags:
+        - Authentication
       operationId: systemadminCompleteTotpEnrollment
       summary: 'Complete TOTP enrollment'
       parameters:
@@ -309,6 +317,8 @@ paths:
               $ref: '#/components/schemas/ProofInput'
   /auth/login:
     post:
+      tags:
+        - Authentication
       operationId: systemadminBeginPasswordAuthentication
       summary: 'Begin password authentication'
       parameters:
@@ -384,6 +394,8 @@ paths:
               $ref: '#/components/schemas/LoginInput'
   /auth/login/complete:
     post:
+      tags:
+        - Authentication
       operationId: systemadminCompleteTotpAuthentication
       summary: 'Complete TOTP authentication'
       parameters:
@@ -459,6 +471,8 @@ paths:
               $ref: '#/components/schemas/ProofInput'
   /identity:
     get:
+      tags:
+        - Identity
       operationId: systemadminReadCurrentIdentity
       summary: 'Read current identity'
       parameters:
@@ -529,6 +543,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /identity/token:
     delete:
+      tags:
+        - Identity
       operationId: systemadminRevokeCurrentAccessToken
       summary: 'Revoke current access token'
       parameters:
@@ -599,6 +615,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /identity/session:
     delete:
+      tags:
+        - Identity
       operationId: systemadminEndCurrentSession
       summary: 'End current session'
       parameters:
@@ -669,6 +687,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /identity/account:
     delete:
+      tags:
+        - Identity
       operationId: systemadminCloseAccount
       summary: 'Close Account'
       parameters:
@@ -739,6 +759,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /administration/admins/invite:
     post:
+      tags:
+        - Administration
       operationId: systemadminInviteAdmin
       summary: 'Invite Admin'
       parameters:
@@ -822,6 +844,8 @@ paths:
               $ref: '#/components/schemas/AdminInvitationInput'
   /administration/admins/approve:
     post:
+      tags:
+        - Administration
       operationId: systemadminApproveAdmin
       summary: 'Approve Admin'
       parameters:
@@ -905,6 +929,8 @@ paths:
               $ref: '#/components/schemas/AdminApprovalInput'
   /administration/actors/change:
     post:
+      tags:
+        - Administration
       operationId: systemadminRemoveOrRestoreActor
       summary: 'Remove or restore actor'
       parameters:
@@ -988,6 +1014,8 @@ paths:
               $ref: '#/components/schemas/ActorChangeInput'
   '/administration/actors/{realm}/{actor-id}':
     get:
+      tags:
+        - Administration
       operationId: systemadminReadActorHistory
       summary: 'Read actor history'
       parameters:
@@ -1087,6 +1115,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /_status:
     get:
+      tags:
+        - System
       operationId: systemadminLiveness
       summary: 'Liveness check'
       parameters:
@@ -1114,6 +1144,8 @@ paths:
                 $ref: '#/components/schemas/Liveness'
   /_status/ready:
     get:
+      tags:
+        - System
       operationId: systemadminReadiness
       summary: 'Readiness check'
       parameters:
@@ -1483,3 +1515,12 @@ components:
             enum:
               - ready
               - unavailable
+tags:
+  - name: Authentication
+    description: Registration, contact ownership, enrollment, and login.
+  - name: Identity
+    description: Current identity, access tokens, sessions, and account closure.
+  - name: Administration
+    description: Admin enrollment and actor administration.
+  - name: System
+    description: API liveness and dependency readiness.

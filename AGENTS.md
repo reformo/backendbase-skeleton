@@ -127,6 +127,14 @@ Finish when the requested behavior works, required checks pass, and affected doc
 - Use `camelCase` for request query parameters and request-body fields.
 - Use `camelCase` for response object attributes.
 
+### OpenAPI tags
+
+- Group every OpenAPI operation with a non-empty `tags` list.
+- Declare every assigned tag in the root document's `tags` section.
+- Use consistent tag names for the same endpoint group across APIs.
+- Add a description to each root tag declaration.
+- Run the API validation command after generation. It checks source and merged documents for schema and tag rules.
+
 ## 7. Defensive Programming
 
 Defend at trust boundaries. Do not scatter redundant checks throughout trusted internal code.

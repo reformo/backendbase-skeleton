@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Services;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineIdentityTransaction;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -30,13 +30,13 @@ final class MySqlConcurrencyTest extends TestCase
         try {
             $account = self::account();
             $first   = $fixture->manager();
-            $first->persist(AccountRecord::create($account));
+            $first->persist(IdentityAccount::create($account));
             $first->flush();
             $second = $fixture->manager($fixture->anotherConnection());
-            $stale  = $second->find(AccountRecord::class, $account->id());
-            self::assertInstanceOf(AccountRecord::class, $stale);
-            $record = $first->find(AccountRecord::class, $account->id());
-            self::assertInstanceOf(AccountRecord::class, $record);
+            $stale  = $second->find(IdentityAccount::class, $account->id());
+            self::assertInstanceOf(IdentityAccount::class, $stale);
+            $record = $first->find(IdentityAccount::class, $account->id());
+            self::assertInstanceOf(IdentityAccount::class, $record);
             $account->verifyOwnership();
             $record->synchronize($account);
             $first->flush();
@@ -61,7 +61,7 @@ final class MySqlConcurrencyTest extends TestCase
         try {
             $account = self::account();
             $manager = $fixture->manager();
-            $manager->persist(AccountRecord::create($account));
+            $manager->persist(IdentityAccount::create($account));
             $manager->flush();
             $first->beginTransaction();
             $first->executeStatement('UPDATE identity_account SET version = version + 1');

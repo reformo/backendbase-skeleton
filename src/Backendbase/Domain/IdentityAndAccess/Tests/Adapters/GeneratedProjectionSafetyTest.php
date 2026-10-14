@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AccountRecord;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\UserRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use DateTimeImmutable;
@@ -26,16 +26,16 @@ final class GeneratedProjectionSafetyTest extends TestCase
         $id        = Uuid::uuid7();
         $common    = ['id' => $id, 'uuid' => $id->toString(), 'version' => 1, 'createdAt' => new DateTimeImmutable('2026-10-14T10:00:00Z'), 'deletedAt' => null];
         if ($kind === 'account') {
-            $record = $unit->createEntity(AccountRecord::class, [...$common, 'email' => 'user@example.com', 'activeEmail' => 'wrong@example.com', 'state' => ['owned' => true, 'enabled' => true, 'authVersion' => 1]]);
-            self::assertInstanceOf(AccountRecord::class, $record);
+            $record = $unit->createEntity(IdentityAccount::class, [...$common, 'email' => 'user@example.com', 'activeEmail' => 'wrong@example.com', 'state' => ['owned' => true, 'enabled' => true, 'authVersion' => 1]]);
+            self::assertInstanceOf(IdentityAccount::class, $record);
             $this->expectException(AuthenticationUnavailable::class);
             $record->toDomain();
 
             return;
         }
 
-        $record = $unit->createEntity(UserRecord::class, [...$common, 'accountId' => $id, 'loginName' => 'test.user', 'activeLoginName' => 'wrong.user', 'state' => ['approved' => true, 'invitation' => null, 'approval' => null]]);
-        self::assertInstanceOf(UserRecord::class, $record);
+        $record = $unit->createEntity(IdentityUser::class, [...$common, 'accountId' => $id, 'loginName' => 'test.user', 'activeLoginName' => 'wrong.user', 'state' => ['approved' => true, 'invitation' => null, 'approval' => null]]);
+        self::assertInstanceOf(IdentityUser::class, $record);
         $this->expectException(AuthenticationUnavailable::class);
         $record->toDomain();
     }

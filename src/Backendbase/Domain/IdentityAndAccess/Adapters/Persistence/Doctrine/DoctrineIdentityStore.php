@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Challenges\Challenge;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
@@ -63,7 +63,7 @@ final readonly class DoctrineIdentityStore implements IdentityStore
     {
         $currentRecords = $this->records;
 
-        $record = $currentRecords->activeBy(AccountRecord::class, ['activeEmail' => $email->toString()]);
+        $record = $currentRecords->activeBy(IdentityAccount::class, ['activeEmail' => $email->toString()]);
 
         return $record?->toDomain();
     }
@@ -123,9 +123,9 @@ final readonly class DoctrineIdentityStore implements IdentityStore
     public function saveAccount(Account $account): void
     {
         $records = $this->records;
-        $record  = $records->find(AccountRecord::class, $account->id(), true);
+        $record  = $records->find(IdentityAccount::class, $account->id(), true);
         if ($record === null) {
-            $records->persist(AccountRecord::create($account));
+            $records->persist(IdentityAccount::create($account));
 
             return;
         }

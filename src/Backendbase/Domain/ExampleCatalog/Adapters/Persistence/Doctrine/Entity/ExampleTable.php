@@ -30,7 +30,7 @@ use Ramsey\Uuid\UuidInterface;
     name: 'example_active_data_unq',
     columns: ['type', 'normalized_type_target_id', 'lookup_group', 'lookup_key', 'active_uniqueness_key'],
 )]
-class EntryRecord implements DoctrineEntity
+class ExampleTable implements DoctrineEntity
 {
     use DoctrineEntityMethods;
 

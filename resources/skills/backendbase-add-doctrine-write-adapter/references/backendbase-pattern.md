@@ -25,12 +25,12 @@ interface CatalogItemWriteRepository
 ```
 
 ```php
-final class CatalogItemRecord
+final class CatalogItem
 {
     private string $uuid;
     private string $name;
 
-    public static function fromDomain(CatalogItem $item): self
+    public static function fromDomain(DomainCatalogItem $item): self
     {
         $record = new self();
         $record->synchronize($item);
@@ -38,19 +38,21 @@ final class CatalogItemRecord
         return $record;
     }
 
-    public function synchronize(CatalogItem $item): void
+    public function synchronize(DomainCatalogItem $item): void
     {
         $state = $item->snapshot();
         $this->uuid = $state->uuid();
         $this->name = $state->name();
     }
 
-    public function toDomain(): CatalogItem
+    public function toDomain(): DomainCatalogItem
     {
-        return CatalogItem::reconstitute($this->uuid, $this->name);
+        return DomainCatalogItem::reconstitute($this->uuid, $this->name);
     }
 }
 ```
+
+The entity example maps `catalog_item` and uses `CatalogItem` as its class name. Import the target domain aggregate as `DomainCatalogItem` to avoid a name collision.
 
 The example assumes `snapshot()` returns a context-owned object with typed accessors. Add Doctrine attributes and fields only for the authorized target schema.
 
@@ -75,7 +77,9 @@ private CatalogItemType $type;
 
 ## Current source behavior and limitations
 
-- `EntryRecord` demonstrates UUID, enum, JSON, generated columns, timestamps, soft removal, indexes, and active-record uniqueness. These are Example-specific choices.
+In an unmodified Backendbase project, derive each mapped entity class name from its full table name in PascalCase. Preserve table prefixes and words. For example, `example_table` maps to `ExampleTable`, and `identity_account` maps to `IdentityAccount`. Adapt this convention to the target project.
+
+- `ExampleTable` demonstrates UUID, enum, JSON, generated columns, timestamps, soft removal, indexes, and active-record uniqueness. These are Example-specific choices.
 - `PathFinder::doctrineEntityPaths()` discovers direct context entity directories and one nested level.
 - The Doctrine CLI schema filter currently collects table names only from direct context entity directories. Prefer direct context placement unless that CLI logic changes too.
 - The Example repository test builds an isolated SQLite schema from production metadata. This proves ORM mapping and many repository behaviors, but it does not prove every MySQL generated-column, lock, or migration behavior.
@@ -105,7 +109,7 @@ For movable context tests in an unmodified Backendbase project, use the context 
 - `resources/platform/09-persistence.md`
 - `src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php`
 - `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php`
-- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/ExampleTable.php`
 - `src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php`
 - `src/Backendbase/Shared/Helpers/PathFinder.php`
 - `config/dependencies/doctrine.php`

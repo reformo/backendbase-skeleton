@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ChallengeRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityChallenge;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Challenges\Challenge;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
@@ -18,7 +18,7 @@ final readonly class IdentityChallengeRecords
     public function get(string $id, bool $write): Challenge
     {
         $records = $this->records;
-        $record  = $records->find(ChallengeRecord::class, $id, $write ? true : null);
+        $record  = $records->find(IdentityChallenge::class, $id, $write ? true : null);
         if ($record === null) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
@@ -46,9 +46,9 @@ final readonly class IdentityChallengeRecords
         }
 
         $records = $this->records;
-        $record  = $records->find(ChallengeRecord::class, $challenge->id(), true);
+        $record  = $records->find(IdentityChallenge::class, $challenge->id(), true);
         if ($record === null) {
-            $records->persist(ChallengeRecord::create($challenge));
+            $records->persist(IdentityChallenge::create($challenge));
 
             return;
         }

@@ -41,6 +41,8 @@ backendbase-core/
 │   ├── bruno                          # Bruno API end-to-end runner
 │   ├── check-coverage.php             # Executable-line coverage threshold
 │   ├── check-documentation-links.php  # Local documentation-link validation
+│   ├── check-openapi-tags.php         # OpenAPI endpoint-tag validation
+│   ├── openapi-tags.php               # Shared tag-validation functions
 │   ├── composer-supply-chain.php       # SBOM and package-content verification
 │   ├── update-quality-report.php      # Generated quality-report metrics
 │   ├── validate-agent-memory.sh       # Local agent-memory structure validation
@@ -136,6 +138,10 @@ Standalone maintenance and translation tools resolve their own project root.
 - Console command wiring: `config/commands.php`
 - ExampleApi OpenAPI source: `resources/api-docs/example-api`
 - Generated ExampleApi OpenAPI document: `public/example-api/docs/example-api-merged.yml`
+- UserApi OpenAPI source: `resources/api-docs/user-api/user-api-openapi.yml`
+- Generated UserApi OpenAPI document: `public/user-api/docs/user-api-merged.yml`
+- SystemAdminApi OpenAPI source: `resources/api-docs/system-admin-api/system-admin-api-openapi.yml`
+- Generated SystemAdminApi OpenAPI document: `public/system-admin-api/docs/system-admin-api-merged.yml`
 - ExampleApi Bruno collection: `resources/bruno/example-api`
 - Bruno HTML reports: `artifacts/bruno/{collection}/{environment}.html`
 - Reference bounded context: `src/Backendbase/Domain/ExampleCatalog`
@@ -145,6 +151,7 @@ Standalone maintenance and translation tools resolve their own project root.
 - Deployment workflow: `deployment/README.md`
 - Platform context routing: `resources/platform/README.md`
 - PHPUnit suite configuration: `phpunit.xml`
+- OpenAPI tag validation: `bin/check-openapi-tags.php`, `bin/openapi-tags.php`
 - PHPStan configuration: `phpstan.neon`
 - PHPCS configuration: `phpcs.xml.dist`
 - Cyclomatic-complexity configuration: `phpcs-complexity.xml.dist`
@@ -169,6 +176,10 @@ composer reports:check
 # Generate and validate the ExampleApi OpenAPI document.
 composer run generate-example-api-spec
 composer run validate-example-api-spec
+
+# Generate and validate the UserApi and SystemAdminApi OpenAPI documents.
+composer run generate-identity-api-specs
+composer run validate-identity-api-specs
 
 # Run a focused bounded-context suite.
 vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests

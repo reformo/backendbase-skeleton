@@ -9,6 +9,8 @@ servers:
 paths:
   /auth/register:
     post:
+      tags:
+        - Authentication
       operationId: userRegisterUser
       summary: 'Register User'
       parameters:
@@ -84,6 +86,8 @@ paths:
               $ref: '#/components/schemas/RegistrationInput'
   /auth/ownership/verify:
     post:
+      tags:
+        - Authentication
       operationId: userVerifyContactOwnership
       summary: 'Verify contact ownership'
       parameters:
@@ -159,6 +163,8 @@ paths:
               $ref: '#/components/schemas/ProofInput'
   /auth/ownership/resend:
     post:
+      tags:
+        - Authentication
       operationId: userResendContactOwnershipProof
       summary: 'Resend contact ownership proof'
       parameters:
@@ -234,6 +240,8 @@ paths:
               $ref: '#/components/schemas/LoginInput'
   /auth/mfa/enrollment:
     post:
+      tags:
+        - Authentication
       operationId: userPrepareTotpEnrollment
       summary: 'Prepare TOTP enrollment'
       parameters:
@@ -309,6 +317,8 @@ paths:
               $ref: '#/components/schemas/LoginInput'
   /auth/mfa/enrollment/complete:
     post:
+      tags:
+        - Authentication
       operationId: userCompleteTotpEnrollment
       summary: 'Complete TOTP enrollment'
       parameters:
@@ -384,6 +394,8 @@ paths:
               $ref: '#/components/schemas/ProofInput'
   /auth/login:
     post:
+      tags:
+        - Authentication
       operationId: userBeginPasswordAuthentication
       summary: 'Begin password authentication'
       parameters:
@@ -459,6 +471,8 @@ paths:
               $ref: '#/components/schemas/LoginInput'
   /auth/login/complete:
     post:
+      tags:
+        - Authentication
       operationId: userCompleteTotpAuthentication
       summary: 'Complete TOTP authentication'
       parameters:
@@ -534,6 +548,8 @@ paths:
               $ref: '#/components/schemas/ProofInput'
   /identity:
     get:
+      tags:
+        - Identity
       operationId: userReadCurrentIdentity
       summary: 'Read current identity'
       parameters:
@@ -604,6 +620,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /identity/token:
     delete:
+      tags:
+        - Identity
       operationId: userRevokeCurrentAccessToken
       summary: 'Revoke current access token'
       parameters:
@@ -674,6 +692,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /identity/session:
     delete:
+      tags:
+        - Identity
       operationId: userEndCurrentSession
       summary: 'End current session'
       parameters:
@@ -744,6 +764,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /identity/account:
     delete:
+      tags:
+        - Identity
       operationId: userCloseAccount
       summary: 'Close Account'
       parameters:
@@ -814,6 +836,8 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /_status:
     get:
+      tags:
+        - System
       operationId: userLiveness
       summary: 'Liveness check'
       parameters:
@@ -841,6 +865,8 @@ paths:
                 $ref: '#/components/schemas/Liveness'
   /_status/ready:
     get:
+      tags:
+        - System
       operationId: userReadiness
       summary: 'Readiness check'
       parameters:
@@ -1210,3 +1236,10 @@ components:
             enum:
               - ready
               - unavailable
+tags:
+  - name: Authentication
+    description: Registration, contact ownership, enrollment, and login.
+  - name: Identity
+    description: Current identity, access tokens, sessions, and account closure.
+  - name: System
+    description: API liveness and dependency readiness.

@@ -43,6 +43,9 @@ Use the target API namespace, routing framework, module interface, naming rules,
 
 ## Backendbase invariants
 
+- Group every OpenAPI operation with a non-empty `tags` list.
+- Declare every assigned tag in the owning root document with a description.
+- Reuse the target project's tag names for the same endpoint groups.
 - In an unmodified Backendbase API, `ModuleConfig` implements `ModuleRoute`.
 - In an unmodified Backendbase API, `ROUTE_KEY` and `routeKey()` identify the same prefix.
 - In an unmodified Backendbase API, `ModuleRoutes` registers every module explicitly.

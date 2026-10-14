@@ -6,6 +6,8 @@ The root document owns API metadata, servers, root operations, security schemes,
 
 ```yaml
 get:
+  tags:
+    - Items
   operationId: listItems
   parameters:
     - $ref: '../../common/components.yaml#/headers/Accept-Language'
@@ -19,7 +21,20 @@ get:
     - apiKey: []
 ```
 
+Declare `Items` with a description in the target root document. The tag name is illustrative; reuse the target endpoint group.
+
 This current Backendbase example requires an API key. Use `security: []` only for an explicitly public operation.
+
+## Tag grouping
+
+In an unmodified Backendbase project, every operation must have a non-empty `tags` list.
+Each assigned tag must appear in the root document's declarations.
+Use consistent groups across consumer APIs: `Authentication`, `Identity`, `Administration`, `System`, and `Example` where applicable.
+Add root descriptions and adapt names to differently named target modules.
+
+Backendbase API validation commands check source and merged schemas and run `bin/check-openapi-tags.php`.
+The checker resolves referenced path files and rejects missing, empty, undeclared, or malformed tag names and duplicate declarations.
+Other projects must use their own generation, schema validation, and tag validation tools.
 
 ## Draft and reconciliation lifecycle
 
@@ -116,6 +131,9 @@ These differences are semantic audit prompts. Do not reproduce them as target be
 - `public/example-api/docs/example-api-merged.yml`
 - `public/example-api/docs/index.php`
 - `composer.json`
+- `bin/check-openapi-tags.php`
+- `bin/openapi-tags.php`
+- `tests/Tools/OpenApiTagsTest.php`
 - `bin/deployment/build-release.sh`
 - `resources/docs/project.md`
 - `resources/docs/6-openapi-and-bruno.html`

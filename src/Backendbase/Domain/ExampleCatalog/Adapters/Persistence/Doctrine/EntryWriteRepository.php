@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\EntryRecord;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\ExampleTable;
 use Backendbase\Domain\ExampleCatalog\Contracts\EntryWriteRepository as EntryWriteRepositoryContract;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
@@ -23,7 +23,7 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
     public function add(Entry $entry): void
     {
         try {
-            $this->entityManager->persist(EntryRecord::fromDomain($entry));
+            $this->entityManager->persist(ExampleTable::fromDomain($entry));
             $this->entityManager->flush();
         } catch (UniqueConstraintViolationException $exception) {
             throw EntryAlreadyExists::create(
@@ -66,13 +66,13 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
     }
 
     /** @param array<string, mixed> $criteria */
-    private function getActiveRecord(array $criteria): EntryRecord
+    private function getActiveRecord(array $criteria): ExampleTable
     {
         $criteria['deletedAt'] = null;
         $entityManager         = $this->entityManager;
-        $repository            = $entityManager->getRepository(EntryRecord::class);
+        $repository            = $entityManager->getRepository(ExampleTable::class);
         $record                = $repository->findOneBy($criteria);
-        if (! $record instanceof EntryRecord) {
+        if (! $record instanceof ExampleTable) {
             throw ResourceNotFound::create('The example was not found.');
         }
 

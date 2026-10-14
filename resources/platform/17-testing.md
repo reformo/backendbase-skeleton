@@ -76,6 +76,9 @@ The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails 
 
 PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `public`, quality tools under `bin`, and `resources/database`.
 
+API validation commands check source and merged OpenAPI schemas and endpoint tags.
+`tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
+
 `composer complexity` fails when one function or method has cyclomatic complexity greater than 12.
 
 `composer run cs-fix -- <path>` forwards arguments to `phpcbf`. The wrapper maps exit code `1` to success and preserves other exit codes.
@@ -88,7 +91,7 @@ GitHub Actions provides quality gates, security checks, and release-artifact wor
 
 The Composer supply-chain workflow runs each week and for dependency changes. It copies reviewed Composer public keys into an isolated Composer home before it diagnoses Composer 2.10.3. It disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
 
-`bin/dev/housekeeping.sh` clears caches, fixes source style, generates OpenAPI, and runs `composer update`. It then runs `composer update --lock --no-install --no-plugins --no-scripts --no-interaction` before isolated validation and audit. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
+`bin/dev/housekeeping.sh` clears caches, fixes source style, generates ExampleApi, UserApi, and SystemAdminApi OpenAPI documents, and runs `composer update`. It then runs `composer update --lock --no-install --no-plugins --no-scripts --no-interaction` before isolated validation and audit. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
 
 `bin/validate-agent-memory.sh` checks the local `.agents/memory` directories, templates, required fields, and orchestration rules. Run it from the repository root when that local memory structure exists. It does not validate application behavior.
 

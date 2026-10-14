@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\EntryRecord;
+use Backendbase\Domain\ExampleCatalog\Adapters\Persistence\Doctrine\Entity\ExampleTable;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\BackendbaseAbstractMigration;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\DQL\FirstFunction;
 use Doctrine\DBAL\DriverManager;
@@ -46,8 +46,8 @@ final class DqlAndMigrationTest extends TestCase
             $configuration,
         );
         $entityManager = new EntityManager($connection, $configuration);
-        $dql           = 'SELECT example FROM ' . EntryRecord::class . ' example '
-            . 'WHERE example.id = FIRST(SELECT nested.id FROM ' . EntryRecord::class . ' nested)';
+        $dql           = 'SELECT example FROM ' . ExampleTable::class . ' example '
+            . 'WHERE example.id = FIRST(SELECT nested.id FROM ' . ExampleTable::class . ' nested)';
         $sql           = $entityManager->createQuery($dql)->getSQL();
         self::assertIsString($sql);
 

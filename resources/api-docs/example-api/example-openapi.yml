@@ -150,4 +150,6 @@ components:
       name: Backendbase-Api-Key
 tags:
   - name: System
+    description: API metadata, liveness, and dependency readiness.
   - name: Example
+    description: Example catalog groups and entries.

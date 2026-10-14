@@ -18,7 +18,7 @@ use Ramsey\Uuid\UuidInterface;
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_challenge', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\Index(name: 'identity_challenge_account_idx', columns: ['account_id', 'expires_at'])]
-class ChallengeRecord extends IdentifiedRecord
+class IdentityChallenge extends IdentifiedRecord
 {
     #[ORM\Column(name: 'account_id', type: UuidBinaryType::NAME)]
     private UuidInterface $accountId;

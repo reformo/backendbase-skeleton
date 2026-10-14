@@ -9,6 +9,8 @@ servers:
 paths:
   /auth/ownership/verify:
     post:
+      tags:
+        - Authentication
       summary: 'Verify contact ownership'
       operationId: systemadminVerifyContactOwnership
       parameters:
@@ -107,6 +109,8 @@ paths:
       security: []
   /auth/ownership/resend:
     post:
+      tags:
+        - Authentication
       summary: 'Resend contact ownership proof'
       operationId: systemadminResendContactOwnershipProof
       parameters:
@@ -205,6 +209,8 @@ paths:
       security: []
   /auth/mfa/enrollment:
     post:
+      tags:
+        - Authentication
       summary: 'Prepare TOTP enrollment'
       operationId: systemadminPrepareTotpEnrollment
       parameters:
@@ -303,6 +309,8 @@ paths:
       security: []
   /auth/mfa/enrollment/complete:
     post:
+      tags:
+        - Authentication
       summary: 'Complete TOTP enrollment'
       operationId: systemadminCompleteTotpEnrollment
       parameters:
@@ -401,6 +409,8 @@ paths:
       security: []
   /auth/login:
     post:
+      tags:
+        - Authentication
       summary: 'Begin password authentication'
       operationId: systemadminBeginPasswordAuthentication
       parameters:
@@ -499,6 +509,8 @@ paths:
       security: []
   /auth/login/complete:
     post:
+      tags:
+        - Authentication
       summary: 'Complete TOTP authentication'
       operationId: systemadminCompleteTotpAuthentication
       parameters:
@@ -597,6 +609,8 @@ paths:
       security: []
   /identity:
     get:
+      tags:
+        - Identity
       summary: 'Read current identity'
       operationId: systemadminReadCurrentIdentity
       parameters:
@@ -690,6 +704,8 @@ paths:
           bearerToken: []
   /identity/token:
     delete:
+      tags:
+        - Identity
       summary: 'Revoke current access token'
       operationId: systemadminRevokeCurrentAccessToken
       parameters:
@@ -783,6 +799,8 @@ paths:
           bearerToken: []
   /identity/session:
     delete:
+      tags:
+        - Identity
       summary: 'End current session'
       operationId: systemadminEndCurrentSession
       parameters:
@@ -876,6 +894,8 @@ paths:
           bearerToken: []
   /identity/account:
     delete:
+      tags:
+        - Identity
       summary: 'Close Account'
       operationId: systemadminCloseAccount
       parameters:
@@ -969,6 +989,8 @@ paths:
           bearerToken: []
   /administration/admins/invite:
     post:
+      tags:
+        - Administration
       summary: 'Invite Admin'
       operationId: systemadminInviteAdmin
       parameters:
@@ -1075,6 +1097,8 @@ paths:
           bearerToken: []
   /administration/admins/approve:
     post:
+      tags:
+        - Administration
       summary: 'Approve Admin'
       operationId: systemadminApproveAdmin
       parameters:
@@ -1181,6 +1205,8 @@ paths:
           bearerToken: []
   /administration/actors/change:
     post:
+      tags:
+        - Administration
       summary: 'Remove or restore actor'
       operationId: systemadminRemoveOrRestoreActor
       parameters:
@@ -1287,6 +1313,8 @@ paths:
           bearerToken: []
   '/administration/actors/{realm}/{actor-id}':
     get:
+      tags:
+        - Administration
       summary: 'Read actor history'
       operationId: systemadminReadActorHistory
       parameters:
@@ -1409,6 +1437,8 @@ paths:
           bearerToken: []
   /_status:
     get:
+      tags:
+        - System
       summary: 'Liveness check'
       operationId: systemadminLiveness
       parameters:
@@ -1459,6 +1489,8 @@ paths:
       security: []
   /_status/ready:
     get:
+      tags:
+        - System
       summary: 'Readiness check'
       operationId: systemadminReadiness
       parameters:
@@ -1851,3 +1883,16 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+tags:
+  -
+    name: Authentication
+    description: 'Registration, contact ownership, enrollment, and login.'
+  -
+    name: Identity
+    description: 'Current identity, access tokens, sessions, and account closure.'
+  -
+    name: Administration
+    description: 'Admin enrollment and actor administration.'
+  -
+    name: System
+    description: 'API liveness and dependency readiness.'

@@ -16,6 +16,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Require declared OpenAPI tags on every operation. Add source and merged-document tag validation, regression tests, and endpoint grouping guidance.
+- Add per-API OpenAPI generation and validation commands for UserApi and SystemAdminApi. Include both merged YAML documents in local housekeeping.
 - Add local root identity operator actions for audited first-Admin enrollment, lost-TOTP recovery, and persistent factor key rewrap.
 - Add staged Example binary UUID conversion that preserves public UUIDs and retains the legacy table for forward recovery.
 
@@ -68,6 +70,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed exception messages and call arguments from HTTP and queue diagnostics. Applied body and metadata validation before parsing and logger creation.
 
 ### Changed
+
+- Derive mapped Doctrine entity class names from full table names in PascalCase. Rename Example and Identity entities and update references and guidance.
 
 - Set the PHPUnit working directory to the project root. Use root-relative paths for project configuration and test fixtures. Reuse the console project root for Dotenv.
 - Disabled persistent merged-configuration and container credential caches. Added separate signing-key and encrypted-factor rotation settings. Managed secret-provider selection remains a deployment decision. Local root identity commands record separate authorization evidence for privileged recovery.

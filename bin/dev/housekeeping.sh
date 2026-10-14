@@ -7,6 +7,7 @@ cd "$projectRoot"
 bin/backendbase clear-cache
 composer run cs-fix src
 composer run generate-example-api-spec
+composer run generate-identity-api-specs
 composer update
 composer update --lock --no-install --no-plugins --no-scripts --no-interaction
 

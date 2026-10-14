@@ -30,23 +30,23 @@
         "ext-sodium": "*",
         "adbario/php-dot-notation": "^3.5.0",
         "akrabat/ip-address-middleware": "^2.6.1",
-        "aws/aws-sdk-php": "^3.396.0",
+        "aws/aws-sdk-php": "^3.401.1",
         "beberlei/doctrineextensions": "^v1.5.0",
         "cuyz/valinor": "^2.6.0",
-        "doctrine/dbal": "^4.4.4",
-        "doctrine/migrations": "^3.9.7",
-        "doctrine/orm": "^3.7.2",
-        "dunglas/doctrine-json-odm": "^v1.5.0",
+        "doctrine/dbal": "^4.5.0",
+        "doctrine/migrations": "^3.9.8",
+        "doctrine/orm": "^3.7.5",
+        "dunglas/doctrine-json-odm": "^v1.5.1",
         "friendsofphp/proxy-manager-lts": "^v1.0.19",
         "guzzlehttp/guzzle": "^7.15.5",
-        "kreait/firebase-php": "^8.5.0",
+        "kreait/firebase-php": "^8.6.0",
         "laminas/laminas-config-aggregator": "^1.20.0",
-        "laminas/laminas-diactoros": "^3.8.0",
+        "laminas/laminas-diactoros": "^3.9.0",
         "lcobucci/clock": "^3.6.0",
-        "lcobucci/jwt": "^5.6.0",
+        "lcobucci/jwt": "^5.6.1",
         "mkorkmaz/redislabs-rejson": "^2.3",
-        "monolog/monolog": "^3.12.0",
-        "php-amqplib/php-amqplib": "^3.7.4",
+        "monolog/monolog": "^3.12.1",
+        "php-amqplib/php-amqplib": "^v3.7.5",
         "php-di/php-di": "^7.1.1",
         "psr/container": "^2.0.2",
         "psr/http-message": "^2.0",
@@ -58,12 +58,12 @@
         "reformo/backendbase-utility": "^1.3.2",
         "scienta/doctrine-json-functions": "^6.5.0",
         "slim/slim": "^4.15.3",
-        "symfony/cache": "^v8.1.7",
-        "symfony/console": "^v8.1.7",
+        "symfony/cache": "^v8.1.9",
+        "symfony/console": "^v8.1.9",
         "symfony/mailer": "^v8.1.7",
         "symfony/mime": "^v8.1.7",
-        "symfony/serializer": "^v8.1.7",
-        "symfony/uid": "^v8.1.5",
+        "symfony/serializer": "^v8.1.9",
+        "symfony/uid": "^v8.1.9",
         "vlucas/phpdotenv": "^v5.7.0"
     },
     "require-dev": {
@@ -71,10 +71,10 @@
         "doctrine/coding-standard": "^13.0.1",
         "malukenho/mcbumpface": "^1.2.0",
         "nikic/php-parser": "^v5.9.0",
-        "phpstan/phpstan": "^2.2.15",
-        "phpunit/phpunit": "^13.3.4",
+        "phpstan/phpstan": "^2.3.1",
+        "phpunit/phpunit": "^13.4.2",
         "squizlabs/php_codesniffer": "^3.13.6",
-        "symfony/yaml": "^v8.1.6"
+        "symfony/yaml": "^v8.1.9"
     },
 
     "replace": {
@@ -144,15 +144,29 @@
         "reports:check": "php bin/update-quality-report.php --check",
         "generate-example-api-spec": "vendor/bin/php-openapi inline resources/api-docs/example-api/example-openapi.yml public/example-api/docs/example-api-merged.yml",
         "validate-example-api-spec": [
-            "vendor/bin/php-openapi validate --silent resources/api-docs/example-api/example-openapi.yml"
+            "vendor/bin/php-openapi validate --silent resources/api-docs/example-api/example-openapi.yml",
+            "vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml",
+            "php bin/check-openapi-tags.php resources/api-docs/example-api/example-openapi.yml public/example-api/docs/example-api-merged.yml"
+        ],
+        "generate-user-api-spec": "vendor/bin/php-openapi inline resources/api-docs/user-api/user-api-openapi.yml public/user-api/docs/user-api-merged.yml",
+        "validate-user-api-spec": [
+            "vendor/bin/php-openapi validate --silent resources/api-docs/user-api/user-api-openapi.yml",
+            "vendor/bin/php-openapi validate --silent public/user-api/docs/user-api-merged.yml",
+            "php bin/check-openapi-tags.php resources/api-docs/user-api/user-api-openapi.yml public/user-api/docs/user-api-merged.yml"
+        ],
+        "generate-system-admin-api-spec": "vendor/bin/php-openapi inline resources/api-docs/system-admin-api/system-admin-api-openapi.yml public/system-admin-api/docs/system-admin-api-merged.yml",
+        "validate-system-admin-api-spec": [
+            "vendor/bin/php-openapi validate --silent resources/api-docs/system-admin-api/system-admin-api-openapi.yml",
+            "vendor/bin/php-openapi validate --silent public/system-admin-api/docs/system-admin-api-merged.yml",
+            "php bin/check-openapi-tags.php resources/api-docs/system-admin-api/system-admin-api-openapi.yml public/system-admin-api/docs/system-admin-api-merged.yml"
         ],
         "generate-identity-api-specs": [
-            "vendor/bin/php-openapi inline resources/api-docs/user-api/user-api-openapi.yml public/user-api/docs/user-api-merged.yml",
-            "vendor/bin/php-openapi inline resources/api-docs/system-admin-api/system-admin-api-openapi.yml public/system-admin-api/docs/system-admin-api-merged.yml"
+            "@generate-user-api-spec",
+            "@generate-system-admin-api-spec"
         ],
         "validate-identity-api-specs": [
-            "vendor/bin/php-openapi validate --silent resources/api-docs/user-api/user-api-openapi.yml",
-            "vendor/bin/php-openapi validate --silent resources/api-docs/system-admin-api/system-admin-api-openapi.yml"
+            "@validate-user-api-spec",
+            "@validate-system-admin-api-spec"
         ]
     }
 }

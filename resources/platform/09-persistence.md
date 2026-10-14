@@ -6,6 +6,9 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 
 - Write handlers depend on a write repository port.
 - Doctrine ORM records map typed aggregate snapshots to columns.
+- Derive each mapped Doctrine entity class name from its full table name in PascalCase.
+- Preserve table prefixes and words: `example_table` maps to `ExampleTable`, and `identity_account` maps to `IdentityAccount`.
+- Keep abstract mapped superclass names based on their shared role.
 - Records reconstitute aggregates through domain factories.
 - Adapters load and save state without business decisions.
 - Use native string-backed enums with Doctrine `enumType` mapping.

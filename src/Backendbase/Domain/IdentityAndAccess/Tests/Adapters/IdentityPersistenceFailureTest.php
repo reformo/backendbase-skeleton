@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AccountRecord;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\UserRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
@@ -55,7 +55,7 @@ final class IdentityPersistenceFailureTest extends TestCase
     {
         $now         = new DateTimeImmutable('2026-10-14T10:00:00Z');
         $actor       = User::create(IdentityId::create(), IdentityId::create(), new LoginName('test.user'), $now);
-        $record      = UserRecord::create($actor);
+        $record      = IdentityUser::create($actor);
         $replacement = new User(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()]);
         try {
             $record->synchronize($replacement);
@@ -65,7 +65,7 @@ final class IdentityPersistenceFailureTest extends TestCase
         }
 
         $account       = Account::create(IdentityId::create(), new AccountEmail('test@example.com'), $now);
-        $accountRecord = AccountRecord::create($account);
+        $accountRecord = IdentityAccount::create($account);
         $this->expectException(IdentityConflict::class);
         $accountRecord->assertRevision(2);
     }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ActorRecord;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AdminRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentifiedRecord;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\UserRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Doctrine\DBAL\LockMode;
@@ -55,9 +55,9 @@ final readonly class IdentityRecordStore
         return $manager->find($class, $identifier, $lock);
     }
 
-    public function account(string $id, bool $write = false): AccountRecord
+    public function account(string $id, bool $write = false): IdentityAccount
     {
-        return $this->find(AccountRecord::class, $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
+        return $this->find(IdentityAccount::class, $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
     }
 
     public function actor(Realm $realm, string $id, bool $write = false): ActorRecord
@@ -115,9 +115,9 @@ final readonly class IdentityRecordStore
         $manager->persist($record);
     }
 
-    /** @return class-string<UserRecord>|class-string<AdminRecord> */
+    /** @return class-string<IdentityUser>|class-string<IdentityAdmin> */
     public static function actorClass(Realm $realm): string
     {
-        return $realm === Realm::USER ? UserRecord::class : AdminRecord::class;
+        return $realm === Realm::USER ? IdentityUser::class : IdentityAdmin::class;
     }
 }

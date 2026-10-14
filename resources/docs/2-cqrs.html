@@ -861,7 +861,7 @@ final readonly class GetEntryByCriteriaHandler implements QueryHandler
                         <tr><td>Input</td><td>Aggregate or aggregate ID.</td><td>Concrete query contract.</td></tr>
                         <tr><td>Output</td><td>Aggregate for behavior, or <code>void</code>.</td><td>Read model, page, scalar, list, or <code>null</code>.</td></tr>
                         <tr><td>Doctrine API</td><td>Object-Relational Mapper (ORM) entity manager.</td><td>DBAL connection and plain SQL.</td></tr>
-                        <tr><td>Mapping</td><td><code>EntryRecord</code> converts to and from the aggregate.</td><td><code>EntryReadModelMapper</code> validates rows and builds read models.</td></tr>
+                        <tr><td>Mapping</td><td><code>ExampleTable</code> converts to and from the aggregate.</td><td><code>EntryReadModelMapper</code> validates rows and builds read models.</td></tr>
                         <tr><td>Business behavior</td><td>Runs on <code>Entry</code>.</td><td>None. The adapter projects data.</td></tr>
                     </tbody>
                 </table>

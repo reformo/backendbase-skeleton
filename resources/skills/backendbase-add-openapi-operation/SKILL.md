@@ -25,7 +25,7 @@ If runtime implementation is outside scope, deliver the contract draft and repor
 
 ## Target-project adaptation
 
-Use the target API version, source layout, servers, media types, component names, security schemes, generation command, and compatibility policy. Do not copy Backendbase hosts, headers, example credentials, resource fields, or fixture values unless the target uses them.
+Use the target API version, source layout, servers, media types, component names, security schemes, generation command, tag groups, and compatibility policy. Do not copy Backendbase hosts, headers, example credentials, resource fields, or fixture values unless the target uses them.
 
 ## Workflow
 
@@ -38,10 +38,13 @@ Use the target API version, source layout, servers, media types, component names
 7. Verify each documented request header is enforced as intended at runtime. When CORS is configured, verify that it permits the header.
 8. Update the matching Bruno request and assertions when executable coverage exists.
 9. Regenerate the merged document with the project command.
-10. Validate source and generated documents, review the generated diff, then perform a semantic runtime audit.
+10. Validate source and generated documents, including operation tags and root declarations. Review the generated diff, then perform a semantic runtime audit.
 
 ## Backendbase invariants
 
+- Group every OpenAPI operation with a non-empty `tags` list.
+- Declare every assigned tag in the owning root document with a description.
+- Reuse the target project's tag names for the same endpoint groups.
 - Editable sources live under `resources/api-docs`.
 - Generated merged YAML is never hand-edited.
 - Each operation ID is unique.
@@ -59,8 +62,7 @@ Select checks for the changed behavior and target policy. Command lists are exam
 
 ```sh
 composer run generate-{api-slug}-spec
-vendor/bin/php-openapi validate resources/api-docs/{api-slug}/{root-spec}.yml
-vendor/bin/php-openapi validate public/{api-slug}/docs/{api-slug}-merged.yml
+composer run validate-{api-slug}-spec
 git diff -- public/{api-slug}/docs/{api-slug}-merged.yml
 ```
 

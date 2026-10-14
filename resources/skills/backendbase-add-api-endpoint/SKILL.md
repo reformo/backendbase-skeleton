@@ -56,6 +56,9 @@ The second approach returns resource state at read time, not an exact commit sna
 
 ## Backendbase invariants
 
+- Group every OpenAPI operation with a non-empty `tags` list.
+- Declare every assigned tag in the owning root document with a description.
+- Reuse the target project's tag names for the same endpoint groups.
 - In an unmodified Backendbase API, actions extend the HTTP adapter `Action` base. Other projects must use their established HTTP and error boundary.
 - Controllers do not access Doctrine, SQL, aggregate persistence, outbox, or queues.
 - Invalid input never reaches a command or query bus.

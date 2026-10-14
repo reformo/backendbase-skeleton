@@ -38,6 +38,9 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 
 ## Backendbase invariants
 
+- Group every OpenAPI operation with a non-empty `tags` list.
+- Declare every assigned tag in the owning root document with a description.
+- Reuse the target project's tag names for the same endpoint groups.
 - Consumer-specific HTTP entry code lives under `Infrastructure/Inbound`, outside bounded contexts.
 - Current API selection uses `X-Source-Id` through `ConsumerApiTarget`.
 - API class name, slug, selector, config, cache, OpenAPI, public docs, and Bruno names stay aligned.

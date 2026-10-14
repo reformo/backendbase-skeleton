@@ -684,6 +684,14 @@ bin/bruno                                       # Bruno command wrapper</pre>
             <p class="section-label">05 · OpenAPI source</p>
             <h2>The root document composes the contract</h2>
             <p><code>example-openapi.yml</code> owns the OpenAPI version, title, servers, root operations, security schemes, tags, and path references.</p>
+            <p>Every operation must define a non-empty <code>tags</code> list. Declare each assigned tag with a description in the root document. Use consistent names across APIs.</p>
+            <div class="table-wrap"><table><thead><tr><th>Endpoint group</th><th>Tag</th></tr></thead><tbody>
+                <tr><td><code>/auth/*</code></td><td>Authentication</td></tr>
+                <tr><td><code>/identity</code> and <code>/identity/*</code></td><td>Identity</td></tr>
+                <tr><td><code>/administration/*</code></td><td>Administration</td></tr>
+                <tr><td><code>/</code>, <code>/_status</code>, <code>/_status/ready</code></td><td>System</td></tr>
+                <tr><td><code>/example-types/*</code></td><td>Example</td></tr>
+            </tbody></table></div>
             <div class="two-col">
                 <article class="card">
                     <h3>Root document</h3>
@@ -758,10 +766,17 @@ bin/bruno                                       # Bruno command wrapper</pre>
             <div class="code-shell">
                 <button class="copy-button" type="button">Copy</button>
                 <pre><code>composer run generate-example-api-spec
-vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml</code></pre>
+composer run validate-example-api-spec</code></pre>
             </div>
             <div class="callout warning"><strong>Important:</strong> The generation script does not run validation. Run validation as a separate command.</div>
-            <p>Development housekeeping and the immutable release artifact builder also generate the specification.</p>
+            <p>Each <code>validate-{api-slug}-spec</code> Composer command checks both schemas and runs <code>bin/check-openapi-tags.php</code>. The tag check resolves referenced path files and rejects missing or empty operation tags, undeclared tags, duplicate declarations, and blank or padded names.</p>
+            <p>UserApi and SystemAdminApi have separate generation and validation commands.</p>
+            <div class="table-wrap"><table><thead><tr><th>API</th><th>Generate</th><th>Validate source and merged document</th><th>Generated document</th></tr></thead><tbody>
+                <tr><td>UserApi</td><td><code>composer run generate-user-api-spec</code></td><td><code>composer run validate-user-api-spec</code></td><td><a href="../../public/user-api/docs/user-api-merged.yml"><code>public/user-api/docs/user-api-merged.yml</code></a></td></tr>
+                <tr><td>SystemAdminApi</td><td><code>composer run generate-system-admin-api-spec</code></td><td><code>composer run validate-system-admin-api-spec</code></td><td><a href="../../public/system-admin-api/docs/system-admin-api-merged.yml"><code>public/system-admin-api/docs/system-admin-api-merged.yml</code></a></td></tr>
+            </tbody></table></div>
+            <p><code>composer run generate-identity-api-specs</code> generates both identity documents. <code>composer run validate-identity-api-specs</code> validates both source and merged documents, including tag grouping. Each API's <code>public/{api-slug}/docs/index.html</code> viewer loads its merged YAML.</p>
+            <p>Development housekeeping generates all three API documents. Quality and release workflows use the grouped identity commands.</p>
         </section>
 
         <section id="viewer">
@@ -895,6 +910,7 @@ runtime:
                     <tbody>
                         <tr><td>Generation</td><td><code>composer run generate-example-api-spec</code></td><td>External references can be resolved.</td><td>The contract is correct or valid.</td></tr>
                         <tr><td>Schema validation</td><td><code>php-openapi validate</code></td><td>The merged document follows OpenAPI 3.0 structure.</td><td>The API follows the document.</td></tr>
+                        <tr><td>Tag validation</td><td><code>check-openapi-tags.php</code></td><td>Every operation uses declared, non-empty tags, including referenced path files.</td><td>The endpoint group matches the business meaning.</td></tr>
                         <tr><td>Bruno</td><td><code>bin/bruno example-api local</code></td><td>A running API passes selected examples and assertions.</td><td>Full schema coverage or all failure paths.</td></tr>
                         <tr><td>PHPUnit</td><td><code>tests/Infrastructure/Inbound/ExampleApi</code></td><td>Application adapters and endpoint behavior pass their tests.</td><td>The published contract matches all behavior.</td></tr>
                         <tr><td>Review</td><td>OpenAPI, Bruno, route, and test difference</td><td>Names, payloads, status codes, and security stay aligned.</td><td>Future behavior.</td></tr>
@@ -946,8 +962,12 @@ runtime:
                 <pre><code># Generate the single-file OpenAPI document
 composer run generate-example-api-spec
 
-# Validate the generated OpenAPI 3.0 document
-vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
+# Validate source and merged schemas and endpoint tags
+composer run validate-example-api-spec
+
+# Generate and validate both identity API documents
+composer run generate-identity-api-specs
+composer run validate-identity-api-specs
 
 # Start the project API services
 composer run start-apis

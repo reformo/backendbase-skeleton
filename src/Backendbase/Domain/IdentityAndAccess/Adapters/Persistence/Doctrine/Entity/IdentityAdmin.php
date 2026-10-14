@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'identity_admin', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\UniqueConstraint(name: 'identity_admin_account_unq', columns: ['account_id'])]
 #[ORM\UniqueConstraint(name: 'identity_admin_active_login_unq', columns: ['active_login_name'])]
-class AdminRecord extends ActorRecord
+class IdentityAdmin extends ActorRecord
 {
     public static function create(SystemAdmin $actor): self
     {

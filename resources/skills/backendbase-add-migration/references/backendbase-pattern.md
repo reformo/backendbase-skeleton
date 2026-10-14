@@ -120,5 +120,5 @@ For new movable repository tests in an unmodified Backendbase project, use the c
 - `src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/BackendbaseAbstractMigration.php`
 - `tests/Infrastructure/Adapters/Persistence/Doctrine/DqlAndMigrationTest.php`
 - `resources/database/Migrations/Version20260823215059.php`
-- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php`
+- `src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/ExampleTable.php`
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php`

@@ -21,7 +21,7 @@
 <div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="2-cqrs.html">CQRS</a></div>
 </section>
 <section id="write"><p class="section-label">03 · Write persistence</p><h2>Save aggregate state through a write port</h2>
-<p><code>EntryWriteRepository</code> persists a new <code>EntryRecord</code>, loads active records by UUID, synchronizes a record from a typed <code>EntrySnapshot</code>, and flushes the entity manager.</p>
+<p><code>EntryWriteRepository</code> persists a new <code>ExampleTable</code>, loads active records by UUID, synchronizes a record from a typed <code>EntrySnapshot</code>, and flushes the entity manager.</p>
 <ul><li><code>add()</code> maps a new aggregate with <code>fromDomain()</code>.</li><li><code>getActive()</code> reconstitutes an aggregate with <code>toDomain()</code>.</li><li><code>save()</code> synchronizes the existing record and flushes.</li></ul>
 <div class="callout warning">The adapter maps state. It must not decide how an example changes or whether a business operation is allowed.</div>
 </section>
@@ -32,7 +32,8 @@
 <div class="callout"><strong>Trust boundary:</strong> <code>EntryReadModelMapper</code> rejects invalid persisted strings, integers, booleans, enums, dates, and JSON objects.</div>
 </section>
 <section id="mapping"><p class="section-label">05 · Record mapping</p><h2>Records translate aggregate snapshots into columns</h2>
-<p><code>EntryRecord</code> uses PHP attributes for its table, indexes, unique constraints, columns, generated columns, UUID, enum, JSON, timestamps, and soft removal state.</p>
+<p>Derive each mapped Doctrine entity class name from its full table name in PascalCase. Preserve table prefixes and words: <code>example_table</code> maps to <code>ExampleTable</code>, and <code>identity_account</code> maps to <code>IdentityAccount</code>. Abstract mapped superclass names describe their shared role.</p>
+<p><code>ExampleTable</code> uses PHP attributes for its table, indexes, unique constraints, columns, generated columns, UUID, enum, JSON, timestamps, and soft removal state.</p>
 <div class="table-wrap"><table><thead><tr><th>Mapping concern</th><th>Current pattern</th></tr></thead><tbody>
 <tr><td>Domain enum</td><td>Native string-backed enum with Doctrine <code>enumType</code>.</td></tr><tr><td>Aggregate state</td><td><code>snapshot()</code> returns a typed <code>EntrySnapshot</code>. <code>synchronize()</code> reads its methods.</td></tr>
 <tr><td>Reconstitution</td><td><code>toDomain()</code> calls a domain reconstitution factory.</td></tr><tr><td>Soft removal</td><td><code>deleted_at</code> remains part of persistence, while domain state uses <code>removedAt</code>.</td></tr>
@@ -95,7 +96,7 @@ bin/doctrine orm:clear-cache:result</code></pre>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Write adapter</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php</code></td></tr>
 <tr><td>Read adapter</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php</code></td></tr>
-<tr><td>Record</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/Entity/EntryRecord.php</code></td></tr>
+<tr><td>Record</td><td><code>ExampleCatalog/Adapters/Persistence/Doctrine/Entity/ExampleTable.php</code></td></tr>
 <tr><td>Row mapper</td><td><code>EntryReadModelMapper.php</code></td></tr><tr><td>CLI</td><td><code>bin/doctrine</code></td></tr>
 <tr><td>Migrations</td><td><code>resources/database/Migrations</code></td></tr><tr><td>Seeders</td><td><code>resources/database/Seeders</code></td></tr>
 </tbody></table></div></section>

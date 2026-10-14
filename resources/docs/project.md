@@ -206,7 +206,7 @@ For new query endpoints, use Doctrine DBAL and plain SQL for read-side projectio
 
 Create ORM repository test schemas with Doctrine `SchemaTool` and the production mapping metadata. Do not copy mapped tables into handwritten test DDL.
 
-When creating Doctrine mapping records, enum fields must use PHP native string-backed enum classes and Doctrine `enumType` column mapping. Type the record property with the enum class. Follow `EntryType` and `EntryRecord::$type`, which use `Types::ENUM` with `enumType: EntryType::class`.
+When creating Doctrine mapping records, enum fields must use PHP native string-backed enum classes and Doctrine `enumType` column mapping. Type the record property with the enum class. Follow `EntryType` and `ExampleTable::$type`, which use `Types::ENUM` with `enumType: EntryType::class`.
 
 Generate a migration only for an explicitly approved schema change. Run `bin/doctrine migrations:diff` from the repository root after repository tests pass and repository behavior is final. Generated migrations live under `resources/database/Migrations`. Review every generated SQL statement. Use plain `CREATE TABLE` so an unexpected existing table stops the migration. Use `IF NOT EXISTS` only with an explicit adoption plan and exact schema validation.
 
@@ -321,6 +321,9 @@ composer cs-check
 composer docs:check-links
 composer reports:check
 composer generate-example-api-spec
+composer generate-user-api-spec
+composer generate-system-admin-api-spec
+composer validate-identity-api-specs
 bin/doctrine migrations:status
 bin/backendbase
 ```

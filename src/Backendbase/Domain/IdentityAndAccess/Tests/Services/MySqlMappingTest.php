@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Services;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
@@ -29,11 +29,11 @@ final class MySqlMappingTest extends TestCase
             $manager = $fixture->manager();
             $id      = IdentityId::create();
             $account = Account::create($id, new AccountEmail('test@example.com'), new DateTimeImmutable('2026-10-14T10:00:00.123456Z'));
-            $manager->persist(AccountRecord::create($account));
+            $manager->persist(IdentityAccount::create($account));
             $manager->flush();
             $manager->clear();
-            $record = $manager->find(AccountRecord::class, $id->toString());
-            self::assertInstanceOf(AccountRecord::class, $record);
+            $record = $manager->find(IdentityAccount::class, $id->toString());
+            self::assertInstanceOf(IdentityAccount::class, $record);
             self::assertSame($id->toString(), $record->id());
             $loaded = $record->toDomain();
             self::assertSame('2026-10-14 10:00:00.123456', $loaded->snapshot()['createdAt']);
