@@ -31,6 +31,8 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#realm-a
 
 - **Chosen Option:** Option A.
 - **Rationale:** The approved lifecycle requires both an active jti record and an active sid record, with matching account, actor, session, and realm identities.
+- **Storage:** Use RedisJSON objects through the existing RedisJSON library. Keep activation and validation atomic through Lua. Set key TTL with `EXPIRE` after each `JSON.SET`, using the remaining JWT lifetime. Keep Account block markers as strings and preserve existing string-record reads until expiry.
+- **Expiry precision:** Apply `EXPIREAT` after `EXPIRE` in the same script to retain the JWT's exact expiration deadline.
 
 ## Consequences
 

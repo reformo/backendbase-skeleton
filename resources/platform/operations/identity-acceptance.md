@@ -24,6 +24,8 @@ Native tests cover these requirements:
 | Active-login reuse and restore conflict rollback | `MySqlSoftDeletionTest` |
 | Challenge creation versus User removal in both orderings | `MySqlRelationshipRaceTest` |
 | Native token/session activation, expiry, and revocation | `RedisSessionTest` |
+| RedisJSON fields, automatic key expiry, and existing string-record compatibility | `RedisJsonSessionTest` |
+| Activation conflicts and cleanup after JSON or expiry failures | `RedisJsonAtomicityTest` |
 | Missing, restored, and reconnected authentication state | `RedisRecoveryTest` |
 | Sentinel promotion, primary failure, stale replicas, and lost quorum | `RedisFailoverTest` |
 

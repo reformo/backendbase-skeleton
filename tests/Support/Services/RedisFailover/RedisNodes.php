@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Support\Services\RedisFailover;
 
-use Backendbase\Infrastructure\Adapters\Security\SessionRedis;
 use Backendbase\Infrastructure\Configuration\RedisSettings;
 use Backendbase\Shared\Services\Settings;
 use DI\ContainerBuilder;
@@ -51,7 +50,7 @@ final readonly class RedisNodes
         return $client;
     }
 
-    public function connection(string $service): SessionRedis
+    public function connection(string $service): RedisJsonInterface
     {
         $builder  = new ContainerBuilder();
         $provider = require 'config/dependencies/redis.php';
@@ -68,7 +67,7 @@ final readonly class RedisNodes
             throw new RuntimeException('The production Redis JSON connection failed its first command.');
         }
 
-        return $container->get(SessionRedis::class);
+        return $json;
     }
 
     public function primaryName(): string

@@ -83,6 +83,9 @@ API validation commands check source and merged OpenAPI schemas and endpoint tag
 
 Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.
 SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.
+Native RedisJSON tests verify token and session objects, key-level TTL, automatic removal, unchanged claims, and existing string-record reads.
+They also verify duplicate-token and duplicate-session rejection without partial records or lifetime renewal.
+Restricted Redis test users reject `JSON.SET` or `EXPIRE` to verify cleanup after a failed activation.
 Production Doctrine metadata and the MySQL platform verify generated lock queries.
 Native MySQL and Redis tests verify engine locking and Lua execution on prepared targets.
 
@@ -93,6 +96,7 @@ Native MySQL tests cover Turkish UCA comparison and NO PAD uniqueness, error 121
 The Redis recovery Account gate uses isolated SQLite persistence. It does not prove MySQL/Redis atomicity or production replica durability.
 `RedisFailoverTest` runs eight cases through a disposable primary, replica, and three Sentinels.
 It verifies planned promotion, primary failure, stale revocations, and quorum loss through the production Redis connection provider.
+The production RedisJSON library executes activation and validation scripts. Planned promotion preserves JSON object types and key expiry.
 Use `bash bin/tests/redis-failover.sh` to run the dedicated cases.
 Quality and release workflows run `bash bin/tests/redis-failover.sh composer test` with their separate MySQL and standalone Redis fixtures.
 Ordinary PHPUnit skips failover cases unless the isolated runner supplies its generated project name and test flag.

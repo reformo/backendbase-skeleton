@@ -9,11 +9,10 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDen
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
-use Backendbase\Infrastructure\Adapters\Security\SessionRedis;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Redis;
+use Redislabs\Module\RedisJson\RedisJsonInterface;
 
 use function json_encode;
 
@@ -32,29 +31,32 @@ final class RedisTokenRegistryTest extends TestCase
         unset($sessionClaims['jti']);
         $expiresAt  = new DateTimeImmutable('2026-10-15T10:15:00Z');
         $expiration = $expiresAt->getTimestamp();
-        $client     = $this->createMock(Redis::class);
+        $client     = $this->createMock(RedisJsonInterface::class);
         $evaluation = $client->expects(self::once());
-        $evaluation->method('eval');
-        $evaluation->with(self::isString(), [
+        $evaluation->method('raw');
+        $evaluation->with(
+            'EVAL',
+            self::isString(),
+            3,
             $prefix . 'jti:' . $identity['jti'],
             $prefix . 'sid:' . $identity['sid'],
             $prefix . 'blocked',
             json_encode($claims, JSON_THROW_ON_ERROR),
             json_encode($sessionClaims, JSON_THROW_ON_ERROR),
             $expiration,
-        ], 3);
+        );
         $evaluation->willReturn(1);
-        $registry = new RedisTokenRegistry(new SessionRedis(static fn (): Redis => $client));
+        $registry = new RedisTokenRegistry($client);
         $registry->activate($principal, $expiresAt);
     }
 
     public function testAnActivationRejectedByRedisCannotIssueASession(): void
     {
-        $client     = $this->createMock(Redis::class);
+        $client     = $this->createMock(RedisJsonInterface::class);
         $evaluation = $client->expects(self::once());
-        $evaluation->method('eval');
+        $evaluation->method('raw');
         $evaluation->willReturn(0);
-        $registry = new RedisTokenRegistry(new SessionRedis(static fn (): Redis => $client));
+        $registry = new RedisTokenRegistry($client);
         $this->expectException(AuthenticationDenied::class);
         $registry->activate(self::principal(Realm::USER), new DateTimeImmutable('2026-10-15T10:15:00Z'));
     }
@@ -75,11 +77,11 @@ final class RedisTokenRegistryTest extends TestCase
             'blocked Account' => [$token, $session, 1],
             default => 'invalid',
         };
-        $client     = $this->createMock(Redis::class);
+        $client     = $this->createMock(RedisJsonInterface::class);
         $evaluation = $client->expects(self::once());
-        $evaluation->method('eval');
+        $evaluation->method('raw');
         $evaluation->willReturn($values);
-        $registry = new RedisTokenRegistry(new SessionRedis(static fn (): Redis => $client));
+        $registry = new RedisTokenRegistry($client);
         if ($state !== 'active') {
             $this->expectException(AuthenticationDenied::class);
         }
@@ -92,16 +94,16 @@ final class RedisTokenRegistryTest extends TestCase
         $principal  = self::principal(Realm::USER);
         $identity   = $principal->identity();
         $prefix     = 'identity:{USER:' . $identity['accountId'] . '}:';
-        $client     = $this->createMock(Redis::class);
+        $client     = $this->createMock(RedisJsonInterface::class);
         $calls      = [];
         $evaluation = $client->expects(self::exactly(4));
-        $evaluation->method('eval');
-        $evaluation->willReturnCallback(static function (string $script, array $arguments, int $keyCount) use (&$calls): int {
+        $evaluation->method('raw');
+        $evaluation->willReturnCallback(static function (string $command, string $script, int $keyCount, string|int ...$arguments) use (&$calls): int {
             $calls[] = [$script, $arguments, $keyCount];
 
             return 1;
         });
-        $registry = new RedisTokenRegistry(new SessionRedis(static fn (): Redis => $client));
+        $registry = new RedisTokenRegistry($client);
         $registry->revokeToken($principal);
         $registry->revokeSession($principal);
         $registry->revokeAccount($identity['accountId']);

@@ -67,6 +67,10 @@ Both APIs expose `POST /auth/login` and return `session` with `accessToken`, `to
 
 Redis keys use `identity:{REALM:accountId}:jti:tokenId`, `identity:{REALM:accountId}:sid:sessionId`, and `identity:{REALM:accountId}:blocked`.
 The braces keep each Account's realm records in one Redis Cluster hash slot.
+Token and session allowlists are RedisJSON objects. The existing RedisJSON library executes atomic Lua creation and validation.
+Activation applies key-level `EXPIRE` after each `JSON.SET`, using the remaining JWT lifetime. Reads do not renew expiry.
+The same script applies `EXPIREAT` to retain the exact JWT expiration deadline.
+Existing string records remain readable until their original expiry. Account block markers remain strings.
 Matching Redis records and current MySQL Account and actor state are required on each authenticated request.
 See [session recovery](../../platform/operations/identity-session-recovery.md) for restore and failover restrictions.
 

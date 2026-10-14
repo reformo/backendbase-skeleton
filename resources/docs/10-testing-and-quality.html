@@ -41,6 +41,7 @@
 <div class="callout warning">Do not copy mapped tables into handwritten test DDL. Use Doctrine <code>SchemaTool</code> with the production record metadata.</div>
 <p>Native MySQL tests verify Turkish UCA and NO PAD uniqueness, deadlock rollback, active-login restore conflicts, and challenge creation during User removal. Concurrency tests use separate PHP processes and observed InnoDB lock waits.</p>
 <p>JWT tests preserve actor and Account claim meanings. Native Redis recovery tests cover missing and partial allowlists, reconnection, and current Account closure. Production replica failover and representative measurements require separate evidence. See <a href="../platform/operations/identity-acceptance.md">identity acceptance</a>.</p>
+<p>Native RedisJSON tests use the existing library to verify object fields, key TTL, automatic expiration, unchanged existing string records, conflict rejection, and cleanup when JSON creation or expiry is denied. Failover tests preserve JSON objects and key expiry through promotion.</p>
 <p><code>bash bin/tests/redis-failover.sh</code> runs eight Sentinel failover cases in a disposable primary, replica, and three-Sentinel topology. It verifies planned promotion, primary failure, lost revocations, and lost quorum in both realms. Quality and release workflows run the full suite through this runner. See <a href="../platform/operations/redis-failover-tests.md">isolated failover tests</a>.</p>
 <div class="related"><a href="9-persistence-and-database.html">Persistence and Database</a></div>
 </section>

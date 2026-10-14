@@ -94,6 +94,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Store JWT token and session allowlists as RedisJSON through the existing RedisJSON library. Apply key-level `EXPIRE` after each `JSON.SET` inside atomic Lua activation. Align the deadline with JWT expiry through `EXPIREAT`. Preserve JWT claims, key names, revocation, and reads of existing string records until expiry. Add native JSON, TTL, conflict, failure-cleanup, and failover regressions.
+
 - Set MySQL server defaults to `utf8mb4` and `utf8mb4_tr_0900_ai_ci` for fresh database initialization. Keep existing-database conversion explicit.
 
 - Update `aws/aws-sdk-php` to `3.401.2` and `symfony/polyfill-deepclone` to `v1.43.2`. Refresh the Composer lock file, software bill of materials, and package content digests.

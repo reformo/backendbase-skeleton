@@ -46,25 +46,9 @@ return static function (ContainerBuilder $containerBuilder): void {
             });
         },
         RedisClientInterface::class => static function (ContainerInterface $container): RedisClientInterface {
-            $redisSettings = $container->get(RedisSettings::class);
             try {
-                $redisClient = new Redis();
-                $host        = $redisSettings->connectionHost();
-                $port        = $redisSettings->port();
-                $timeout     = $redisSettings->readinessTimeoutSeconds();
-                $redisClient->connect(
-                    $host,
-                    $port,
-                    $timeout,
-                    context: $redisSettings->connectionContext(),
-                );
-                $redisClient->setOption(Redis::OPT_READ_TIMEOUT, $timeout);
-                $credentials = $redisSettings->credentials();
-                if ($credentials !== null) {
-                    if (! $redisClient->auth($credentials)) {
-                        throw new RuntimeException('Redis authentication failed.');
-                    }
-                }
+                $connection  = $container->get(SessionRedis::class);
+                $redisClient = $connection->client();
             } catch (Throwable) {
                 $healthStatus = new HealthCheckData();
                 $healthStatus->setStatus(503);

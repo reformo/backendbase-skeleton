@@ -64,4 +64,5 @@ Identity signing and ownership proof keys use active and previous key identifier
 Ownership proof keys retain the `encryptionKey` names. They no longer encrypt authentication factors. See [security policy](14-security.md).
 Redis settings support optional ACL credentials and verified TLS. Malformed connection values are rejected.
 Plain Redis endpoints use a null connection context. TLS endpoints use peer and peer-name verification.
-Both session and JSON client factories use that typed context. Rebuild clients after changing endpoint configuration.
+The RedisJSON library reuses the lazy native `SessionRedis` connection and its Redis 8 version check.
+Both session storage and readiness use that connection and its typed context. Rebuild clients after changing endpoint configuration.

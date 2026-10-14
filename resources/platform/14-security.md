@@ -56,6 +56,16 @@ Factor recovery and factor rewrapping actions are absent.
 Session issuance stores both `jti` and `sid` allowlist records before token delivery.
 Redis records use realm and Account prefixes and include matching identity and credential version data.
 Keys follow `identity:{REALM:accountId}:jti:tokenId`, `identity:{REALM:accountId}:sid:sessionId`, and `identity:{REALM:accountId}:blocked`.
+Token and session values are RedisJSON objects. The token object contains `accountId`, `sub`, `sid`, `jti`, `authVersion`, `realm`, and `actorType`.
+The session object omits `jti`. Redis does not store the signed JWT string.
+`RedisTokenRegistry` uses the existing `RedisJsonInterface` library to execute Lua scripts through `raw('EVAL', ...)`.
+One activation script checks conflicts and blocks, writes both objects with `JSON.SET`, and applies key-level `EXPIRE` after each write.
+The remaining JWT lifetime is calculated in whole seconds from the Redis server clock.
+The script then applies `EXPIREAT` to retain the JWT's exact expiration deadline. Reads do not renew expiry.
+The script removes both new records if creation or expiry fails. No client can observe an intermediate activation state.
+Verification reads JSON roots with `JSON.GET` and requires both records to match the token identity.
+Existing string records remain readable until normal expiry. They are not rewritten or given a new TTL.
+Account block markers remain ordinary string keys.
 Authentication requires both records and current MySQL Account and actor state.
 Token expiry and session expiry are bounded to the configured lifetime, between 60 and 3600 seconds.
 The default lifetime is 900 seconds. The API provides no refresh-token flow.

@@ -14,7 +14,6 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
-use Backendbase\Infrastructure\Adapters\Security\SessionRedis;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +29,7 @@ final class RedisRecoveryTest extends TestCase
         $fixture   = IsolatedRedis::create($identity['accountId']);
         try {
             $client   = $fixture->client();
-            $registry = new RedisTokenRegistry(new SessionRedis(static fn () => $client));
+            $registry = new RedisTokenRegistry($fixture->json());
             $registry->activate($principal, new DateTimeImmutable('+15 minutes'));
             [$token, $session] = $fixture->keys($principal);
             $snapshot          = $client->dump($token);
@@ -55,7 +54,7 @@ final class RedisRecoveryTest extends TestCase
         $fixture   = IsolatedRedis::create($enrolled['accountId']);
         try {
             $client    = $fixture->client();
-            $registry  = new RedisTokenRegistry(new SessionRedis(static fn () => $client));
+            $registry  = new RedisTokenRegistry($fixture->json());
             $container = $identity->container();
             $tokens    = new AuthenticationTokens($container->get(TokenCodec::class), $registry);
             $store     = $container->get(IdentityStore::class);

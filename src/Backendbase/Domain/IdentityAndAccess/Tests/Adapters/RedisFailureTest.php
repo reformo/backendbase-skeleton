@@ -9,20 +9,19 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUna
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
-use Backendbase\Infrastructure\Adapters\Security\SessionRedis;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Redis;
 use RedisException;
+use Redislabs\Module\RedisJson\RedisJsonInterface;
 
 final class RedisFailureTest extends TestCase
 {
     #[DataProvider('failureModes')]
     public function testUnavailableAuthenticationStateCannotIssueASession(bool $exception): void
     {
-        $client     = $this->createMock(Redis::class);
-        $evaluation = $client->expects(self::once())->method('eval');
+        $client     = $this->createMock(RedisJsonInterface::class);
+        $evaluation = $client->expects(self::once())->method('raw');
         if ($exception) {
             $evaluation->willThrowException(new RedisException('provider details'));
         }
@@ -31,7 +30,7 @@ final class RedisFailureTest extends TestCase
             $evaluation->willReturn(false);
         }
 
-        $registry  = new RedisTokenRegistry(new SessionRedis(static fn (): Redis => $client));
+        $registry  = new RedisTokenRegistry($client);
         $principal = new Principal(Realm::USER, ['accountId' => IdentityScenario::id(), 'actorId' => IdentityScenario::id(), 'jti' => IdentityScenario::id(), 'sid' => IdentityScenario::id(), 'authVersion' => 1]);
         $this->expectException(AuthenticationUnavailable::class);
         $this->expectExceptionMessage('Authentication state is temporarily unavailable.');

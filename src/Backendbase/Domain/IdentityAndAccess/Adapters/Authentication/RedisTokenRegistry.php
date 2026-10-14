@@ -8,8 +8,8 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
-use Backendbase\Infrastructure\Adapters\Security\SessionRedis;
 use DateTimeImmutable;
+use Redislabs\Module\RedisJson\RedisJsonInterface;
 use Throwable;
 
 use function is_array;
@@ -20,13 +20,33 @@ use const JSON_THROW_ON_ERROR;
 final readonly class RedisTokenRegistry implements TokenRegistry
 {
     private const string ACTIVATE = <<<'LUA'
+local ttl = tonumber(ARGV[3]) - tonumber(redis.call('TIME')[1])
+if ttl <= 0 then return 0 end
 if redis.call('EXISTS', KEYS[3]) == 1 or redis.call('EXISTS', KEYS[1]) == 1 or redis.call('EXISTS', KEYS[2]) == 1 then return 0 end
-redis.call('SET', KEYS[1], ARGV[1], 'EXAT', ARGV[3])
-redis.call('SET', KEYS[2], ARGV[2], 'EXAT', ARGV[3])
+local function write(command, ...)
+    local result = redis.pcall(command, ...)
+    if type(result) == 'table' and result.err then
+        redis.call('DEL', KEYS[1], KEYS[2])
+        error(result.err)
+    end
+end
+for index = 1, 2 do
+    write('JSON.SET', KEYS[index], '$', ARGV[index], 'NX')
+    write('EXPIRE', KEYS[index], ttl)
+    write('EXPIREAT', KEYS[index], ARGV[3])
+end
 return 1
 LUA;
 
-    public function __construct(private SessionRedis $connection)
+    private const string ASSERT_ACTIVE = <<<'LUA'
+local function record(key)
+    if redis.call('TYPE', key).ok == 'string' then return redis.call('GET', key) end
+    return redis.call('JSON.GET', key, '.')
+end
+return {record(KEYS[1]), record(KEYS[2]), redis.call('EXISTS', KEYS[3])}
+LUA;
+
+    public function __construct(private RedisJsonInterface $redisJson)
     {
     }
 
@@ -42,7 +62,7 @@ LUA;
 
     public function assertActive(Principal $principal): void
     {
-        $values                      = $this->evaluate("return {redis.call('GET', KEYS[1]), redis.call('GET', KEYS[2]), redis.call('EXISTS', KEYS[3])}", self::keys($principal), 3);
+        $values                      = $this->evaluate(self::ASSERT_ACTIVE, self::keys($principal), 3);
         [$tokenValue, $sessionValue] = self::records($principal);
         if (! is_array($values) || $values !== [$tokenValue, $sessionValue, 0]) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
@@ -93,10 +113,7 @@ LUA;
     private function evaluate(string $script, array $arguments, int $keyCount): mixed
     {
         try {
-            $connection = $this->connection;
-            $client     = $connection->client();
-
-            $result = $client->eval($script, $arguments, $keyCount);
+            $result = $this->redisJson->raw('EVAL', $script, $keyCount, ...$arguments);
             if ($result === false) {
                 throw AuthenticationUnavailable::create('Authentication state is temporarily unavailable.');
             }

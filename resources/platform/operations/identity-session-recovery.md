@@ -1,8 +1,22 @@
 # Identity Session Recovery
 
 JWT validation requires current Redis allowlist records and current MySQL Account and actor state.
+New token and session records are RedisJSON objects with key-level TTL. Account block markers remain strings.
 The runtime uses one configured Redis endpoint. Replica selection and failover belong to the selected Redis service.
 The local Docker service is a single Redis instance.
+
+## RedisJSON rollout and rollback
+
+The current registry reads both RedisJSON and existing string allowlists. Existing records keep their original expiry during rollout.
+New activation writes RedisJSON through the existing library and sets expiry with `EXPIRE` inside the same Lua script.
+The remaining JWT lifetime determines the initial TTL in whole seconds.
+The script then applies `EXPIREAT` to retain the exact JWT expiration deadline. Authentication reads do not renew it.
+Redis access policy must permit the JSON, expiry, read, deletion, type, and scripting commands used by the registry.
+An activation error removes its newly created pair before returning an authentication-unavailable error.
+
+Older application versions cannot read RedisJSON allowlists.
+Before a rollback, stop authentication traffic and invalidate affected token and session allowlists in both realms.
+Preserve Account block markers. Require fresh login after rollback. Execute this procedure only on a separately authorized deployment target.
 
 ## Recovery boundary
 

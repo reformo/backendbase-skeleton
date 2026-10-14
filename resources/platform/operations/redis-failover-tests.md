@@ -38,8 +38,11 @@ Redis replication is asynchronous. Acknowledged writes can be lost during failov
 
 ## Application boundary
 
-The tests resolve `SessionRedis` through the production Redis dependency provider.
-They also execute the first JSON-client command through its production lazy proxy.
+The tests resolve `RedisJsonInterface` through the production Redis dependency provider and its lazy proxy.
+The library uses the shared native `SessionRedis` connection. Replication barriers run through the same library connection as activation.
+Token and session allowlists use RedisJSON. Each activation applies `EXPIRE` after `JSON.SET` inside one Lua script.
+The same script applies `EXPIREAT` to retain the exact JWT expiration deadline without relative-time rounding.
+Planned promotion verifies JSON object types and replicated key expiry.
 They use real JWT signing, Redis Lua validation, and current Account and actor checks.
 Identity state uses the isolated SQLite fixture. These tests do not establish cross-service atomicity or MySQL failover.
 The topology uses plain Redis connections. TLS option tests preserve peer verification without establishing certificate-exchange behavior.

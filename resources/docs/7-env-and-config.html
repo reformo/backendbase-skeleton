@@ -713,6 +713,7 @@
                 </table>
             </div>
             <p>PHP-DI injects a lazy <code>RedisJsonInterface</code> proxy. The first Redis command initializes the client and connection. The readiness <code>PING</code> intentionally performs this initialization.</p>
+            <p>The RedisJSON library shares the native <code>SessionRedis</code> connection, Redis 8 version check, credentials, timeout, and TLS context. JWT token and session objects use the same library through atomic Lua scripts.</p>
         </section>
 
         <section id="object-store">

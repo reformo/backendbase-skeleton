@@ -8,6 +8,8 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Redis;
+use Redislabs\Module\RedisJson\RedisJson;
+use Redislabs\Module\RedisJson\RedisJsonInterface;
 
 use function filter_var;
 use function getenv;
@@ -33,6 +35,11 @@ final readonly class IsolatedRedis
     public function client(): Redis
     {
         return $this->client;
+    }
+
+    public function json(): RedisJsonInterface
+    {
+        return RedisJson::createWithPhpRedis($this->client);
     }
 
     /** @return array{string, string, string} */

@@ -58,6 +58,23 @@ Starting source revision: `ddc9946`.
 
 ## Verification
 
+### RedisJSON session storage on 15 October 2026
+
+Starting source revision: `4346d39`.
+
+- The full suite passes 878 tests and 11,414 assertions with no skipped cases.
+- Executable-line coverage is 5,576 of 5,576 lines (100%). Method coverage is 1,335 of 1,335 methods (100%).
+- `RedisTokenRegistry` uses the existing `RedisJsonInterface` library for atomic Lua activation and validation.
+- New token and session records are JSON objects. JWT claims, key names, Account block markers, and revocation meanings remain unchanged.
+- Each `JSON.SET` is followed by `EXPIRE`. The same script applies `EXPIREAT` to retain the JWT's exact expiration deadline.
+- Activation rejects expired deadlines and conflicts. Command failures remove the new pair before returning an authentication-unavailable error.
+- Existing string records remain readable until their original expiry. Reads do not rewrite records or renew TTL.
+- Native tests verify JSON fields, automatic key removal, conflicts, expiry failure cleanup, and string-record compatibility.
+- Eight Sentinel cases preserve JSON state, revocation checks, and expiry through promotion and verify stale-replica recovery boundaries.
+- PHPStan level 8, coding style, complexity, coverage, documentation links, and isolated deployment checks pass.
+- Production RedisJSON and readiness share the lazy native connection, Redis 8 version check, timeout, credentials, and TLS context.
+- Older application versions require controlled logout before rollback because they cannot read RedisJSON records. See [session recovery](../platform/operations/identity-session-recovery.md).
+
 ### Redis Sentinel failover on 15 October 2026
 
 Starting source revision: `de4e775`.

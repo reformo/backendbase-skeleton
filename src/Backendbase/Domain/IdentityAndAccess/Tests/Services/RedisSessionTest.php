@@ -9,10 +9,10 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDen
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
-use Backendbase\Infrastructure\Adapters\Security\SessionRedis;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Redis;
+use Redislabs\Module\RedisJson\RedisJson;
 
 use function filter_var;
 use function getenv;
@@ -138,7 +138,7 @@ final class RedisSessionTest extends TestCase
 
     private function registry(): RedisTokenRegistry
     {
-        return new RedisTokenRegistry(new SessionRedis(fn (): Redis => $this->client));
+        return new RedisTokenRegistry(RedisJson::createWithPhpRedis($this->client));
     }
 
     private function principal(Realm $realm = Realm::USER): Principal
