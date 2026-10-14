@@ -28,7 +28,7 @@ class Root extends Action
         $this->logger->info('Root endpoint called');
 
         return new JsonResponse([
-            'backendbase-api' => [
+            'apiMetadata' => [
                 'version' => '1.0.0',
                 'buildId' => '0.0.1', // Version::short(),
                 'cdnBaseUrl' => $cdnBaseUrl,

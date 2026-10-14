@@ -26,6 +26,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Tests\Support\Http\ApiResponseAssertions;
 
 use function json_decode;
 
@@ -63,14 +64,7 @@ final class ExampleReadControllersTest extends TestCase
     public function itReturnsAProjectedExamplePage(): void
     {
         $createdAt = new DateTimeImmutable('2026-08-25T10:00:00+00:00');
-        $item      = new EntryListItem(
-            'example-id',
-            'logo',
-            'logo.png',
-            ['heroImage' => 'hero.png', 'color' => 'blue'],
-            true,
-            $createdAt,
-        );
+        $item      = new EntryListItem('example-id', 'logo', 'logo.png', ['heroImage' => 'hero.png', 'color' => 'blue'], true, $createdAt);
         $queryBus  = $this->createMock(QueryBus::class);
         $queryBus->expects(self::once())
             ->method('handle')
@@ -134,7 +128,15 @@ final class ExampleReadControllersTest extends TestCase
 
     private function invoke(Action $action, ServerRequestInterface $request): ResponseInterface
     {
-        return $action($request, new Response(), []);
+        $response = $action($request, new Response(), []);
+        $pattern  = match (true) {
+            $action instanceof ExampleGroups => '/example-types/{type-slug}/groups',
+            $action instanceof Examples => '/example-types/{type-slug}/groups/{example-group}/examples',
+            default => '/example-types/{type-slug}/groups/{example-group}/examples/{example-key}',
+        };
+        ApiResponseAssertions::assertMatches('example-api', 'GET', $pattern, $response);
+
+        return $response;
     }
 
     /** @return array<string, mixed> */

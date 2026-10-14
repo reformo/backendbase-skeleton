@@ -43,9 +43,13 @@ get:
         application/json:
           schema:
             type: object
+            additionalProperties: false
+            required: [example]
             properties:
               example:
                 type: object
+                additionalProperties: false
+                required: [uuid, type, typeTargetId, exampleGroup, lookupKey, lookupValue, details, isActive, updatedAt, createdAt]
                 properties:
                   uuid:
                     type: string

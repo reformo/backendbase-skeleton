@@ -27,6 +27,35 @@ Slim exceptions use standard HTTP titles: 404 returns `Not Found`, and 405 retur
 Domain errors retain their mapped problem titles. Unexpected failures return `Internal Server Error` with status 500.
 Bruno checks the HTTP status, the documented response key, resource fields, and absence of top-level `data` and `statusCode`.
 
+## Example response keys
+
+| Operation | Response shape |
+| --- | --- |
+| `GET /` | `apiMetadata` with `version`, `buildId`, and `cdnBaseUrl` |
+| Example group list | `exampleGroups` with root `pageSize`, `page`, and `total` |
+| Example list | `examples` with root `pageSize`, `page`, and `total` |
+| Example detail | `example` |
+| Example create, update, and delete | HTTP 204 with an empty body |
+| Liveness | Root `status` |
+| Readiness | Root `status` and object `checks`; HTTP 200 or 503 |
+
+Example list items include `createdAt`. Detail timestamps use the OpenAPI `date-time` format.
+Empty Example `details` and readiness `checks` maps serialize as `{}`. Empty collections serialize as `[]`.
+Example metadata uses `apiMetadata` instead of the previous `backendbase-api` key.
+Clients that read the previous metadata key must update their lookup.
+
+## Automated response checks
+
+The specifications and Bruno collections contain 38 operations: ExampleApi has 9, UserApi has 13, and SystemAdminApi has 16.
+`ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
+It also checks success key names and Bruno status, key, and wrapper assertions.
+`ApiResponseAssertions` checks executed HTTP responses against resolved source and merged schemas.
+It checks media types, required fields, allowed fields, object and array shapes, primitive types, enums, and empty bodies.
+These shape checks do not validate every OpenAPI format or numeric limit.
+HTTP tests cover identity flows, Example reads and writes, health responses, and failure paths.
+Browser preflight and the Example catch-all are transport behavior outside the documented operation count.
+Run live Bruno tests only against an identified, prepared target.
+
 ## Identity response keys
 
 | Endpoint or result | Response key |

@@ -49,7 +49,7 @@ class ExampleDetails extends Action
             'exampleGroup' => $entry->group(),
             'lookupKey' => $entry->lookupKey(),
             'lookupValue' => $entry->lookupValue(),
-            'details' => $details,
+            'details' => (object) $details,
             'isActive' => $entry->isActive(),
             'updatedAt' => $entry->updatedAt()->format(DATE_ATOM),
             'createdAt' => $entry->createdAt()->format(DATE_ATOM),

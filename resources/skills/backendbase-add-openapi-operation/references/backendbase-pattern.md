@@ -120,7 +120,9 @@ These differences are semantic audit prompts. Do not reproduce them as target be
 
 - Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
 - Example creation requires `lookupValue`. PATCH treats explicit null as omitted, although its schema does not declare those fields nullable.
-- Example detail fields match the controller projection. Its timestamps use `DATE_ATOM`, while the specification labels them with the nonstandard `datetime` format.
+- In an unmodified Backendbase project, Example metadata uses `apiMetadata`, lists use plural keys with root pagination, and details use `example`.
+- Example timestamps use `DATE_ATOM` and the OpenAPI `date-time` format. List schemas include `createdAt`. Empty detail and readiness maps serialize as JSON objects.
+- Backendbase HTTP tests compare executed response shapes with resolved source and merged schemas. These checks cover keys, required fields, types, enums, and media types; they do not validate every format or range.
 - CORS allowed headers omit `Accept-Language`.
 - The common file contains a second API-key scheme name that differs from the root document. Use one authoritative scheme.
 - Current specification validation succeeds despite these semantic differences. Do not treat schema validation as runtime evidence.

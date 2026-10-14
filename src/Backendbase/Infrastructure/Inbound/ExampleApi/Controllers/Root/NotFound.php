@@ -21,12 +21,14 @@ class NotFound extends Action
 
         return new JsonResponse(
             [
+                'type' => 'about:blank',
                 'code' => 'http/not-found',
                 'title' => 'Not Found',
                 'status' => 404,
                 'detail' => 'Endpoint does not exists',
             ],
             404,
+            ['Content-Type' => 'application/problem+json'],
         );
     }
 }

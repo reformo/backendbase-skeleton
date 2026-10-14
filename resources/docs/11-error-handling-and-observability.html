@@ -28,6 +28,7 @@
 }</code></pre>
 <p>Problem Details retains its integer <code>status</code> field. It must equal the HTTP response status. Successful bodies use descriptive resource or result keys and omit <code>data</code> and <code>statusCode</code> wrappers. Problem Details fields remain at the root without a resource wrapper.</p>
 <p>Slim exceptions use the standard HTTP reason phrase as <code>title</code>. A missing route returns <code>Not Found</code> with status 404. Domain errors retain titles that describe their mapped problem type, such as <code>Resource Not Found</code>.</p>
+<p>The Example catch-all also returns the five-field core, with <code>type: about:blank</code> and <code>application/problem+json</code>.</p>
 <p><code>ActionError</code> serializes these fields and merges approved context. <code>DomainErrorProblemDetailsMapper</code> provides status, type, code, and title.</p>
 </section>
 <section id="action"><p class="section-label">04 · Domain errors</p><h2>The HTTP adapter maps known domain errors</h2>
@@ -74,6 +75,7 @@
 <tr><td>Queue failures</td><td>Delivery failure log, SQS transport log, and dead-letter queue</td><td>Handler, permanent, or exhausted delivery problems.</td></tr>
 <tr><td>Dependency failures</td><td>Typed adapter exceptions and logs</td><td>Redis, database, queue, AWS, or provider failure.</td></tr>
 </tbody></table></div>
+<p>Readiness returns HTTP 200 with <code>status: ready</code> or HTTP 503 with <code>status: unavailable</code>. Its <code>checks</code> map is a JSON object, including an empty <code>{}</code> map.</p>
 <div class="callout"><code>/_status/ready</code> returns only safe status values. Bounded connection checks use <code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code>.</div>
 </section>
 <section id="safety"><p class="section-label">10 · Diagnostic safety</p><h2>Logs can diagnose without exposing secrets</h2>

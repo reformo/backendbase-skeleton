@@ -24,7 +24,9 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
-        expect(body).to.have.property("backendbase-api");
-        expect(body["backendbase-api"]).to.have.property("version");
-        expect(body["backendbase-api"]).to.have.property("buildId");
-        expect(body["backendbase-api"]).to.have.property("cdnBaseUrl");
+        expect(body).not.to.have.property("data");
+        expect(body).not.to.have.property("statusCode");
+        expect(body).to.have.property("apiMetadata");
+        expect(body["apiMetadata"]).to.have.property("version");
+        expect(body["apiMetadata"]).to.have.property("buildId");
+        expect(body["apiMetadata"]).to.have.property("cdnBaseUrl");

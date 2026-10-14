@@ -75,7 +75,7 @@ final class ProductionContainerTest extends TestCase
 
             $report = $container->get(ReadinessChecks::class)->run()->jsonSerialize();
 
-            self::assertSame(['mysql', 'redis', 'queue', 'objectStore'], array_keys($report['checks']));
+            self::assertSame(['mysql', 'redis', 'queue', 'objectStore'], array_keys((array) $report['checks']));
         }
     }
 

@@ -26,6 +26,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 - Pass the complete named response body to `ActionPayload`. It serializes that body without adding a wrapper.
 - Choose response keys in the HTTP adapter, with singular names for resources and plural names for collections.
 - Keep existing direct projections, health bodies, and empty responses in their documented shapes.
+- Use `apiMetadata` for Example metadata. Serialize empty object maps as `{}` and empty collections as `[]`.
 - Problem Details errors retain their integer `status` field. It must equal the HTTP response status.
 - Slim exception titles use the standard HTTP reason phrase. Domain error titles describe the mapped problem type.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.

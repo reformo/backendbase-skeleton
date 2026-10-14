@@ -65,6 +65,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Audit all 38 API operations for response contract parity. Use `apiMetadata` for Example metadata, declare required Example response fields and list timestamps, preserve empty JSON objects, and return complete catch-all Problem Details. Align Bruno health assertions and add source, merged, Bruno, and runtime response checks.
+
 - Align Slim Problem Details titles with HTTP reason phrases, including `Not Found` for 404 and `Method Not Allowed` for 405. Preserve mapped domain titles and safe 500 responses. Extend HTTP and route regression tests and update error contract guidance.
 
 - Synchronize Problem Details `status` with the HTTP response status for Slim, domain, and unexpected exceptions. Fix missing-route bodies that reported 500 with HTTP 404. Add regressions for both identity APIs, Example not-found responses, and HTTP exception mappings.

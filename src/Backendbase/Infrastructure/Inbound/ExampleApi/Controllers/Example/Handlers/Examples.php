@@ -65,7 +65,7 @@ class Examples extends Action
                 'lookupKey' => $entry->lookupKey(),
                 'lookupValue' => $entry->lookupValue(),
                 'isActive' => $entry->isActive(),
-                'details' => $details,
+                'details' => (object) $details,
                 'createdAt' => $entry->createdAt()->format(DATE_ATOM),
             ];
         }

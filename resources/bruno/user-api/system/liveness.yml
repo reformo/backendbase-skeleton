@@ -15,4 +15,7 @@ runtime:
       type: tests
       code: |
         expect(res.status).to.equal(200);
-        expect(res.getBody().status).to.equal("alive");
+        const body = res.getBody();
+        expect(body).not.to.have.property("data");
+        expect(body).not.to.have.property("statusCode");
+        expect(body.status).to.equal("alive");

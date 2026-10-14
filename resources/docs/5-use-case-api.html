@@ -785,7 +785,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                 <table>
                     <thead><tr><th>Case</th><th>Response</th><th>Owner</th></tr></thead>
                     <tbody>
-                    <tr><td>API metadata</td><td><code>200</code> JSON with API name, version, build, and timestamp.</td><td><code>Root</code></td></tr>
+                    <tr><td>API metadata</td><td><code>200</code> JSON with <code>apiMetadata</code> containing <code>version</code>, <code>buildId</code>, and <code>cdnBaseUrl</code>.</td><td><code>Root</code></td></tr>
                     <tr><td>Liveness</td><td><code>200</code> JSON with <code>status: alive</code>.</td><td><code>Liveness</code></td></tr>
                     <tr><td>Readiness</td><td><code>200</code> or <code>503</code> JSON with dependency status values.</td><td><code>Readiness</code></td></tr>
                     <tr><td>Read success</td><td><code>200</code> JSON projection.</td><td>Read actions</td></tr>

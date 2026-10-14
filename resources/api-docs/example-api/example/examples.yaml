@@ -132,6 +132,8 @@ get:
         application/json:
           schema:
             type: object
+            additionalProperties: false
+            required: [pageSize, page, total, examples]
             properties:
               pageSize:
                 type: integer
@@ -143,6 +145,8 @@ get:
                 type: array
                 items:
                   type: object
+                  additionalProperties: false
+                  required: [uuid, type, typeTargetId, exampleGroup, lookupKey, lookupValue, isActive, details, createdAt]
                   properties:
                     uuid:
                       type: string
@@ -170,6 +174,9 @@ get:
                       example: true
                     details:
                       type: object
+                    createdAt:
+                      type: string
+                      format: date-time
 
     400:
       $ref: '../../common/components.yaml#/schemas/400'

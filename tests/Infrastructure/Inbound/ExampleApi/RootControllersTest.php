@@ -13,6 +13,7 @@ use Laminas\Diactoros\ServerRequestFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Tests\Support\Http\ApiResponseAssertions;
 
 use function json_decode;
 
@@ -33,7 +34,8 @@ final class RootControllersTest extends TestCase
         $payload  = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame('https://cdn.example.com/', $payload['backendbase-api']['cdnBaseUrl']);
+        ApiResponseAssertions::assertMatches('example-api', 'GET', '/', $response);
+        self::assertSame('https://cdn.example.com/', $payload['apiMetadata']['cdnBaseUrl']);
         self::assertArrayNotHasKey('health', $payload);
     }
 
@@ -49,6 +51,8 @@ final class RootControllersTest extends TestCase
         self::assertSame('http/not-found', $payload['code']);
         self::assertSame('Not Found', $payload['title']);
         self::assertSame(404, $payload['status']);
+        self::assertSame('about:blank', $payload['type']);
+        self::assertSame('application/problem+json', $notFound->getHeaderLine('Content-Type'));
 
         $options = $action($factory->createServerRequest('OPTIONS', '/missing'), new Response(), []);
         self::assertSame(204, $options->getStatusCode());

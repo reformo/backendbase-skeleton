@@ -25,7 +25,7 @@ final readonly class ReadinessReport implements JsonSerializable
         return true;
     }
 
-    /** @return array{status: 'ready'|'unavailable', checks: array<string, 'ready'|'unavailable'>} */
+    /** @return array{status: 'ready'|'unavailable', checks: object} */
     #[Override]
     public function jsonSerialize(): array
     {
@@ -36,7 +36,7 @@ final readonly class ReadinessReport implements JsonSerializable
 
         return [
             'status' => $this->isReady() ? 'ready' : 'unavailable',
-            'checks' => $checks,
+            'checks' => (object) $checks,
         ];
     }
 }

@@ -34,6 +34,8 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
+        expect(body).not.to.have.property("data");
+        expect(body).not.to.have.property("statusCode");
         expect(body.pageSize).to.equal(1000);
         expect(body.page).to.equal(1);
         expect(body).to.have.property("total");
@@ -45,4 +47,6 @@ runtime:
           expect(body.examples[0]).to.have.property("lookupKey");
           expect(body.examples[0]).to.have.property("lookupValue");
           expect(body.examples[0]).to.have.property("details");
+          expect(body.examples[0].details).to.be.an("object");
+          expect(body.examples[0]).to.have.property("createdAt");
         }

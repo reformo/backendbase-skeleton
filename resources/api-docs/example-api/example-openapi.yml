@@ -30,10 +30,13 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                additionalProperties: false
                 required:
-                  - "backendbase-api"
+                  - "apiMetadata"
                 properties:
-                  backendbase-api:
+                  apiMetadata:
+                    additionalProperties: false
                     required:
                       - "version"
                       - "buildId"
@@ -73,6 +76,7 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: false
                 required:
                   - status
                 properties:
@@ -116,6 +120,7 @@ components:
   schemas:
     Readiness:
       type: object
+      additionalProperties: false
       required:
         - status
         - checks

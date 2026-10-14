@@ -11,21 +11,27 @@ use Backendbase\Infrastructure\Adapters\Http\HttpErrorHandler;
 use Backendbase\Infrastructure\Adapters\Http\Middleware\LimitJsonBody;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Stream;
+use PHPUnit\Framework\Assert;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 use Slim\App;
 use Slim\Factory\AppFactory;
+use Slim\Interfaces\RouteInterface;
+use Tests\Support\Http\ApiResponseAssertions;
 
+use function in_array;
 use function json_encode;
+use function preg_match;
+use function preg_replace;
 
 use const JSON_THROW_ON_ERROR;
 
 final readonly class IdentityApiFixture
 {
     /** @param App<ContainerInterface> $app */
-    public function __construct(private App $app)
+    public function __construct(private App $app, private string $slug)
     {
     }
 
@@ -45,7 +51,7 @@ final readonly class IdentityApiFixture
         $middleware = $app->addErrorMiddleware(false, false, false);
         $middleware->setDefaultErrorHandler(new HttpErrorHandler($app->getCallableResolver(), $app->getResponseFactory(), new NullLogger(), new DomainErrorProblemDetailsMapper()));
 
-        return new self($app);
+        return new self($app, $realm === Realm::USER ? 'user-api' : 'system-admin-api');
     }
 
     /** @param array<string, mixed>|null $payload */
@@ -71,6 +77,39 @@ final readonly class IdentityApiFixture
     {
         $app = $this->app;
 
-        return $app->handle($request);
+        $response  = $app->handle($request);
+        $collector = $app->getRouteCollector();
+        $routes    = $collector->getRoutes();
+        $this->assertResponse($request, $response, $routes);
+
+        return $response;
+    }
+
+    /** @param array<RouteInterface> $routes */
+    private function assertResponse(ServerRequestInterface $request, ResponseInterface $response, array $routes): void
+    {
+        $uri    = $request->getUri();
+        $path   = $uri->getPath();
+        $method = $request->getMethod();
+        if ($method === 'OPTIONS') {
+            return;
+        }
+
+        foreach ($routes as $route) {
+            $this->assertRouteResponse($route, $method, $path, $response);
+        }
+    }
+
+    private function assertRouteResponse(RouteInterface $route, string $method, string $path, ResponseInterface $response): void
+    {
+        $pattern    = $route->getPattern();
+        $expression = preg_replace('/\{[^}]+\}/', '[^/]+', $pattern);
+        Assert::assertIsString($expression);
+        $methods = $route->getMethods();
+        if (! in_array($method, $methods, true) || preg_match('~^' . $expression . '$~D', $path) !== 1) {
+            return;
+        }
+
+        ApiResponseAssertions::assertMatches($this->slug, $method, $pattern, $response);
     }
 }

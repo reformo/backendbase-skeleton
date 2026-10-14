@@ -46,6 +46,7 @@
 <p><code>Filter</code> stores a query, target fields, and optional criteria. It does not validate SQL field names. A repository must use allowlisted columns and bound parameters.</p>
 <div class="callout"><code>Pagination</code> rejects non-positive page sizes and offsets greater than <code>PHP_INT_MAX</code> at construction. HTTP collection endpoints reject invalid offsets with status 400 before query dispatch.</div></section>
 <section id="collections"><p class="section-label">07 · Collections and health</p><h2>Shared transport values have explicit JSON forms</h2>
+<p><code>Shared/Health/ReadinessReport</code> serializes root <code>status</code> and object <code>checks</code>. Empty checks serialize as <code>{}</code>.</p>
 <ul><li><code>JsonSerializableArrayCollection</code> uses a native array and SPL interfaces. It serializes contained values for JSON output without Doctrine.</li><li><code>HealthCheckData</code> includes the Git build identifier, numeric status, and status text.</li><li><code>Pagination</code> serializes <code>pageSize</code>, <code>page</code>, and <code>total</code>.</li><li>Notification primitives define provider-independent email, push, and SMS data.</li></ul>
 <div class="related"><a href="11-error-handling-and-observability.html">Error Handling and Observability</a><a href="13-notifications.html">Notifications</a></div></section>
 <section id="mapping-flow"><p class="section-label">08 · Mapping flow</p><h2><code>ObjectMapper</code> turns boundary arrays into typed objects</h2>

@@ -28,7 +28,10 @@ runtime:
       code: |
         expect(res.status).to.equal(200);
         const body = res.getBody();
+        expect(body).not.to.have.property("data");
+        expect(body).not.to.have.property("statusCode");
         expect(body.example).to.have.property("uuid");
+        expect(body.example.details).to.be.an("object");
         expect(body.example).to.have.property("type");
         expect(body.example).to.have.property("exampleGroup");
         expect(body.example).to.have.property("lookupKey");

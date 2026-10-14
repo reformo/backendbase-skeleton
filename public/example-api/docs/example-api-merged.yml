@@ -72,9 +72,10 @@ paths:
             application/json:
               schema:
                 required:
-                  - backendbase-api
+                  - apiMetadata
+                type: object
                 properties:
-                  backendbase-api:
+                  apiMetadata:
                     required:
                       - version
                       - buildId
@@ -90,11 +91,19 @@ paths:
                       cdnBaseUrl:
                         type: string
                         example: ''
+                    additionalProperties: false
+                additionalProperties: false
         '401':
           description: Unauthorized
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -127,6 +136,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -220,6 +235,7 @@ paths:
                     enum:
                       - alive
                     type: string
+                additionalProperties: false
       security: []
   /_status/ready:
     get:
@@ -378,6 +394,11 @@ paths:
           content:
             application/json:
               schema:
+                required:
+                  - pageSize
+                  - page
+                  - total
+                  - exampleGroups
                 type: object
                 properties:
                   pageSize:
@@ -391,11 +412,18 @@ paths:
                     items:
                       type: string
                       format: kebab-case
+                additionalProperties: false
         '400':
           description: 'Bad Request'
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -428,6 +456,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -460,6 +494,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -492,6 +532,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -622,6 +668,11 @@ paths:
           content:
             application/json:
               schema:
+                required:
+                  - pageSize
+                  - page
+                  - total
+                  - examples
                 type: object
                 properties:
                   pageSize:
@@ -633,6 +684,16 @@ paths:
                   examples:
                     type: array
                     items:
+                      required:
+                        - uuid
+                        - type
+                        - typeTargetId
+                        - exampleGroup
+                        - lookupKey
+                        - lookupValue
+                        - isActive
+                        - details
+                        - createdAt
                       type: object
                       properties:
                         uuid:
@@ -665,11 +726,22 @@ paths:
                           example: true
                         details:
                           type: object
+                        createdAt:
+                          type: string
+                          format: date-time
+                      additionalProperties: false
+                additionalProperties: false
         '400':
           description: 'Bad Request'
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -702,6 +774,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -734,6 +812,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -766,6 +850,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -918,6 +1008,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -950,6 +1046,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -982,6 +1084,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1014,6 +1122,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1135,9 +1249,22 @@ paths:
           content:
             application/json:
               schema:
+                required:
+                  - example
                 type: object
                 properties:
                   example:
+                    required:
+                      - uuid
+                      - type
+                      - typeTargetId
+                      - exampleGroup
+                      - lookupKey
+                      - lookupValue
+                      - details
+                      - isActive
+                      - updatedAt
+                      - createdAt
                     type: object
                     properties:
                       uuid:
@@ -1176,11 +1303,19 @@ paths:
                       createdAt:
                         type: string
                         format: date-time
+                    additionalProperties: false
+                additionalProperties: false
         '401':
           description: Unauthorized
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1213,6 +1348,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1245,6 +1386,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1365,6 +1512,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1397,6 +1550,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1429,6 +1588,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1571,6 +1736,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1603,6 +1774,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1635,6 +1812,12 @@ paths:
           content:
             application/problem+json:
               schema:
+                required:
+                  - type
+                  - code
+                  - title
+                  - status
+                  - detail
                 type: object
                 properties:
                   type:
@@ -1706,6 +1889,7 @@ components:
                 - ready
                 - unavailable
               type: string
+      additionalProperties: false
   securitySchemes:
     apiKey:
       type: apiKey

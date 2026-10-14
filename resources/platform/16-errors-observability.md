@@ -13,6 +13,7 @@ Translate failures at architectural boundaries. Keep public error bodies stable 
 - Slim exceptions use the HTTP response reason phrase as `title`, such as `Not Found` for 404.
 - Derive transport titles from the configured response factory. Preserve domain-specific titles from the domain error mapper.
 - Unexpected failures retain `Internal Server Error` with status 500.
+- The Example catch-all returns the five-field Problem Details core with `type: about:blank` and `application/problem+json`.
 - Successful response envelopes omit `statusCode`. This rule does not remove error `status` fields.
 - `ShutdownHandler` logs fatal PHP errors and emits a structured 500 response.
 - Stage, CI, production, and unknown environments hide internal exception details.
@@ -32,6 +33,8 @@ When an SQS handler throws, `SqsTransport` records safe exception, queue, and me
 
 - `GET /_status` checks process liveness.
 - `GET /_status/ready` checks MySQL, Redis, the selected queue, and object storage.
+- Readiness returns HTTP 200 with `status: ready` or HTTP 503 with `status: unavailable`.
+- Readiness `checks` is a JSON object, including when no checks are registered.
 - `outbox:status` checks pending and retried publication state.
 - Delivery records, SQS transport logs, and dead-letter queues show consumer failures.
 

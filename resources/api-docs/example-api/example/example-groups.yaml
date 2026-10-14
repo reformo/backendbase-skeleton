@@ -48,6 +48,8 @@ get:
         application/json:
           schema:
             type: object
+            additionalProperties: false
+            required: [pageSize, page, total, exampleGroups]
             properties:
               pageSize:
                 type: integer

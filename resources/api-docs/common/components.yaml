@@ -96,6 +96,7 @@ schemas:
           $ref: '#/schemas/ApiProblem'
   ApiProblem:
     type: object
+    required: [type, code, title, status, detail]
     properties:
       type:
         type: string

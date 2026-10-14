@@ -12,6 +12,7 @@ Put a value in Shared only when its meaning is stable across bounded contexts. K
 - `Pagination` carries page state and serializes `pageSize`, `page`, and `total`.
 - `Pagination` rejects non-positive page sizes and offsets greater than `PHP_INT_MAX` at construction. Example HTTP endpoints require positive page numbers and return 400 for invalid offsets.
 - `Filter` carries query criteria but does not validate SQL field names.
+- `ReadinessReport` serializes root `status` and object `checks`. An empty check map remains `{}`.
 
 Repositories must allowlist filter columns and bind values. Never use client field names directly in SQL.
 
