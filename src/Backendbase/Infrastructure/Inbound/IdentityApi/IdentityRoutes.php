@@ -24,10 +24,7 @@ final class IdentityRoutes
         $anonymous = [
             '/auth/ownership/verify' => 'verify-ownership',
             '/auth/ownership/resend' => 'resend-ownership',
-            '/auth/mfa/enrollment' => 'prepare-mfa',
-            '/auth/mfa/enrollment/complete' => 'complete-mfa',
-            '/auth/login' => 'begin-login',
-            '/auth/login/complete' => 'complete-login',
+            '/auth/login' => 'login',
         ];
         if ($realm === Realm::USER) {
             $anonymous['/auth/register'] = 'register';

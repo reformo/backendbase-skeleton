@@ -9,6 +9,8 @@ This reference summarizes the final decisions and open choices in the source rep
 
 The report contains conceptual code, SQL, routes, and an action plan. It states that the author did not inspect the repository or execute migrations. Accepted ADRs record approved target decisions. They do not establish that those decisions are implemented.
 
+> Authentication policy update: [ADR-0049](../0049-password-authentication-without-totp.md) removes TOTP and supersedes the MFA requirements below.
+
 ## Accepted Decisions
 
 ### Context and Actor Scope

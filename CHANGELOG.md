@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Removed
 
+- Remove TOTP enrollment, second-step login, factor storage behavior, and factor recovery and rewrapping commands. Password login now returns a session after ownership, Account state, and actor approval checks. Update both identity APIs, Bruno requests, tests, and authentication policy.
+
 - Remove top-level `statusCode` from successful response envelopes. Preserve success values and Problem Details `status`. Update identity OpenAPI sources and merged YAML, Bruno assertions, regression tests, and HTTP contract guidance.
 
 - Removed the IdentityAndAccess migration, privilege seeder, and seeder test. Updated the release migration target to the latest remaining migration.

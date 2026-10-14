@@ -60,16 +60,14 @@ final class IdentitySettingsTest extends TestCase
         yield 'string' => ['900'];
     }
 
-    public function testEncryptionRotationAcceptsOldFactorsAndWritesTheActiveKey(): void
+    public function testProofKeyRotationAcceptsOldProofsAndWritesTheActiveKey(): void
     {
-        $old       = new SodiumAuthenticationSecrets(IdentityFixture::settings());
-        $encrypted = $old->encrypt('factor-secret');
-        $proof     = $old->proofHash('ownership-code');
-        $settings  = IdentityFixture::settings(['encryptionKeyId' => 'new-factor', 'encryptionKey' => base64_encode(str_repeat('f', 32)), 'previousEncryptionKeyId' => 'factor-key', 'previousEncryptionKey' => base64_encode(str_repeat('e', 32))]);
-        $rotated   = new SodiumAuthenticationSecrets($settings);
-        self::assertSame('factor-secret', $rotated->decrypt($encrypted));
+        $old      = new SodiumAuthenticationSecrets(IdentityFixture::settings());
+        $proof    = $old->proofHash('ownership-code');
+        $settings = IdentityFixture::settings(['encryptionKeyId' => 'new-factor', 'encryptionKey' => base64_encode(str_repeat('f', 32)), 'previousEncryptionKeyId' => 'factor-key', 'previousEncryptionKey' => base64_encode(str_repeat('e', 32))]);
+        $rotated  = new SodiumAuthenticationSecrets($settings);
         self::assertTrue($rotated->verifyProof('ownership-code', $proof));
-        self::assertStringStartsWith('new-factor:', $rotated->encrypt('factor-secret'));
+        self::assertStringStartsWith('new-factor:', $rotated->proofHash('ownership-code'));
         self::assertSame(900, $settings->tokenLifetimeSeconds());
         self::assertSame('identity@example.com', $settings->ownershipSender());
         self::assertSame(900, new IdentitySettings(new Settings([]))->tokenLifetimeSeconds());

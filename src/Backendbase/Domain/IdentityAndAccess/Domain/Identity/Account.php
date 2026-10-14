@@ -61,12 +61,6 @@ final class Account
         $this->state['authVersion']++;
     }
 
-    public function requireOwnershipVerification(): void
-    {
-        $this->revokeCredentials();
-        $this->state['owned'] = false;
-    }
-
     public function id(): string
     {
         $id = $this->id;

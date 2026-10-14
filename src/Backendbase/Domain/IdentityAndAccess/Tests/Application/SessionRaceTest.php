@@ -21,8 +21,8 @@ final class SessionRaceTest extends TestCase
     public function testAccountClosureDuringRedisActivationRevokesTheNewSession(): void
     {
         $fixture   = IdentityFixture::create();
-        $enrolled  = IdentityScenario::enrolled($fixture);
-        $principal = IdentityScenario::principal($fixture, $enrolled['secret']);
+        $enrolled  = IdentityScenario::verified($fixture);
+        $principal = IdentityScenario::principal($fixture);
         $container = $fixture->container();
         $store     = $container->get(IdentityStore::class);
         $registry  = $this->createMock(TokenRegistry::class);

@@ -9,7 +9,7 @@
 
 User and System Admin APIs require separate authentication trust boundaries within one backend. A valid token for one realm must fail in the other.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) replaces [ADR-0029](0029-security-responsibility-after-identity-and-access-removal.md). UserApi and SystemAdminApi use trusted route-owned realm policies. Both realms require password and TOTP proof before issuance. Separate issuer, audience, and key sets prevent cross-realm acceptance.
+The [decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) replaces [ADR-0029](0029-security-responsibility-after-identity-and-access-removal.md). UserApi and SystemAdminApi use trusted route-owned realm policies. Both realms use password authentication after ownership and actor approval checks. [ADR-0049](0049-password-authentication-without-totp.md) removes TOTP. Separate issuer, audience, and key sets prevent cross-realm acceptance.
 
 - **Constraints:** Select policy from trusted routes. Separate issuer, audience, signing key, and actor type. Keep UUID identifiers as strings on the wire.
 

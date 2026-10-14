@@ -51,11 +51,24 @@ Starting source revision: `ddc9946`.
 | [ADR-0043](0043-optimistic-concurrency-and-selective-locking.md) | Implemented; verification below | Optimistic versions, Account-first locks, fresh retry units, and ORM flush boundaries are tested. Locked actor authorization reloads reject concurrent removal. Repeated Account locks preserve pending credential changes. |
 | [ADR-0044](0044-soft-deletion-active-uniqueness-and-historical-reporting.md) | Implemented; verification below | Active keys can be reused after deletion. Restoration conflicts roll back, and historical actor records remain visible to authorized queries. |
 | [ADR-0045](0045-staged-identifier-and-collation-migration.md) | Implemented; verification below | Example conversion uses a locked shadow copy and atomic rename. The original table is retained; interrupted phases require reconciliation. |
-| [ADR-0046](0046-authentication-challenges-and-mfa-gated-sessions.md) | Implemented; verification below | Both realms require password, separate ownership proof, and TOTP. Local root commands record bootstrap and recovery evidence without issuing sessions. |
+| [ADR-0046](0046-authentication-challenges-and-mfa-gated-sessions.md) | Superseded by ADR-0049 | Ownership and actor approval remain separate. TOTP enrollment, login challenges, and factor recovery are removed. |
 | [ADR-0047](0047-generated-uuid-projection-mapping.md) | Implemented; verification below | Supported read-only generated projections round-trip on MySQL 8.4 and produce no repeated ORM schema differences. |
 | [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Actor names and Account emails use lowercase ASCII normalization. Database constraints enforce realm-scoped active uniqueness and lifetime actor cardinality. |
+| [ADR-0049](0049-password-authentication-without-totp.md) | Implemented | Password login issues realm sessions after ownership, Account state, and actor approval checks. |
 
 ## Verification
+
+Local verification on 15 October 2026 covers TOTP removal from starting revision `187af8d`.
+
+- PHPUnit discovered 813 tests. 801 tests passed, and 12 service tests were skipped. All 10,682 assertions passed.
+- PHPStan level 8, coding style, and cyclomatic complexity checks passed.
+- Both identity API specifications and generated contracts passed validation. Route and Bruno parity checks passed.
+- Deployment-script tests passed with isolated fixtures. No database or deployment operation ran against shared services.
+- Executable-line coverage is 5,551 of 5,577 lines (99.53%). The 100% coverage gate fails.
+- The committed baseline has the same 26 uncovered lines. This change adds no uncovered lines.
+- Live MySQL and Redis verification requires a prepared target. Those service tests were not run for this change.
+
+### Earlier implementation verification
 
 The local suite passes 762 tests with 2,969 assertions. Executable-line coverage is 5,749 of 5,749 lines (100%).
 PHPStan level 8, style, and cyclomatic complexity checks pass.
@@ -76,7 +89,7 @@ All service checks use dedicated temporary containers without project data volum
 - Apply migration drafts only to a named, authorized target after adoption, backup, and recovery checks.
 - Reconcile original destinations and occurrence timestamps for legacy message rows before publication or replay.
 - Resolve target-specific collation collisions and logical references before Example cutover.
-- Keep the previous factor key until persistent ciphertext, pending proofs, and backup obligations are resolved.
+- Keep the previous ownership proof key until pending ownership challenges expire.
 
 See [managed server operations](../platform/operations/managed-servers.md),
 [identity operator procedures](../platform/operations/identity-operator.md), and

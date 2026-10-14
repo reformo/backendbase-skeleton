@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Operator;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentityRecordStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Contracts\OperatorStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
@@ -12,29 +11,10 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\Uuid;
 
-use function str_ends_with;
-
 final readonly class DoctrineOperatorStore implements OperatorStore
 {
-    public function __construct(private IdentityRecordStore $records, private Connection $connection)
+    public function __construct(private Connection $connection)
     {
-    }
-
-    /** @return array{passwordHash: string, totpSecret: string|null, pendingTotpSecret: string|null, lastTotpStep: int, failedMfaAttempts: int, blockedUntil: string|null} */
-    public function read(string $accountId): array
-    {
-        $records = $this->records;
-        $record  = $records->account($accountId, true);
-
-        return $record->credentials();
-    }
-
-    /** @param array{passwordHash: string, totpSecret: string|null, pendingTotpSecret: string|null, lastTotpStep: int, failedMfaAttempts: int, blockedUntil: string|null} $credentials */
-    public function save(string $accountId, array $credentials): void
-    {
-        $records = $this->records;
-        $record  = $records->account($accountId, true);
-        $record->replaceCredentials($credentials);
     }
 
     public function assertFirstAdminAvailable(): void
@@ -64,7 +44,7 @@ final readonly class DoctrineOperatorStore implements OperatorStore
             'id' => $id->getBytes(),
             'target_id' => $target->getBytes(),
             'action_name' => $values['action'],
-            'bootstrap_key' => str_ends_with($values['action'], 'first-admin') ? $values['action'] : null,
+            'bootstrap_key' => $values['action'],
             'operator_name' => $values['operator'],
             'invitation_evidence' => $values['invitation'] === '' ? null : $values['invitation'],
             'approval_evidence' => $values['approval'] === '' ? null : $values['approval'],

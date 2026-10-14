@@ -27,7 +27,7 @@ Keep the recorded previous release available. Prefer forward repair after partia
 
 Current deployment scripts require server-specific backup and process-activation hooks. `deployment/release.json` supplies migration and rollback policy for the generated `release-manifest.json`. Linux systemd units provide worker supervision and relay and cleanup timers. See [managed server operations](operations/managed-servers.md).
 The managed secret provider remains a required selection before production activation.
-Use the local root identity commands with separate invitation and approval evidence for first-Admin setup and lost-TOTP recovery.
+Use the local root identity commands with separate invitation and approval evidence for first-Admin setup.
 See [identity operator procedures](operations/identity-operator.md).
 
 Basis: `resources/docs/12-deployment-and-operations.html`.

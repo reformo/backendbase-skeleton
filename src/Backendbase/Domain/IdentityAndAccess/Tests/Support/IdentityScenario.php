@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Support;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Totp;
 use Backendbase\Domain\IdentityAndAccess\Application\Workflows\EnrollmentWorkflow;
 use Backendbase\Domain\IdentityAndAccess\Application\Workflows\LoginWorkflow;
 use Backendbase\Domain\IdentityAndAccess\Application\Workflows\RegistrationWorkflow;
@@ -22,8 +21,6 @@ use Backendbase\Shared\Time\Clock;
 use DateInterval;
 use PHPUnit\Framework\Assert;
 use Tests\Support\Time\FrozenClock;
-
-use function intdiv;
 
 final class IdentityScenario
 {
@@ -43,8 +40,8 @@ final class IdentityScenario
         return $registration->register(self::id(), new RegistrationInput($email, $name, 'valid-password-123'));
     }
 
-    /** @return array{accountId: string, actorId: string, secret: string} */
-    public static function enrolled(IdentityFixture $fixture, string $name = 'ada.user', string $email = 'ada@example.com'): array
+    /** @return array{accountId: string, actorId: string} */
+    public static function verified(IdentityFixture $fixture, string $name = 'ada.user', string $email = 'ada@example.com'): array
     {
         $registered    = self::registered($fixture, $name, $email);
         $container     = $fixture->container();
@@ -52,18 +49,14 @@ final class IdentityScenario
         Assert::assertInstanceOf(CapturedOwnershipNotifier::class, $notifications);
         $enrollment = $container->get(EnrollmentWorkflow::class);
         $enrollment->verifyOwnership(Realm::USER, new ProofInput($registered['challengeId'], $notifications->code($registered['challengeId'])));
-        $prepared = $enrollment->prepare(self::id(), Realm::USER, new LoginInput($name, 'valid-password-123'));
-        $code     = self::code($fixture, $prepared['totpSecret']);
-        $enrollment->complete(Realm::USER, new ProofInput($prepared['challengeId'], $code));
-        self::advance($fixture, 'PT31S');
 
-        return ['accountId' => $registered['accountId'], 'actorId' => $registered['actorId'], 'secret' => $prepared['totpSecret']];
+        return ['accountId' => $registered['accountId'], 'actorId' => $registered['actorId']];
     }
 
-    /** @return array{accountId: string, actorId: string, userActorId: string, secret: string} */
+    /** @return array{accountId: string, actorId: string, userActorId: string} */
     public static function admin(IdentityFixture $fixture, string $name = 'ada.admin', string $email = 'admin@example.com'): array
     {
-        $enrolled  = self::enrolled($fixture, $name, $email);
+        $enrolled  = self::verified($fixture, $name, $email);
         $container = $fixture->container();
         $store     = $container->get(IdentityStore::class);
         $clock     = $container->get(Clock::class);
@@ -74,7 +67,7 @@ final class IdentityScenario
             $store->saveActor($admin);
         });
 
-        return ['accountId' => $enrolled['accountId'], 'actorId' => $adminId->toString(), 'userActorId' => $enrolled['actorId'], 'secret' => $enrolled['secret']];
+        return ['accountId' => $enrolled['accountId'], 'actorId' => $adminId->toString(), 'userActorId' => $enrolled['actorId']];
     }
 
     public static function advance(IdentityFixture $fixture, string $interval): void
@@ -85,21 +78,11 @@ final class IdentityScenario
         $clock->advance(new DateInterval($interval));
     }
 
-    public static function code(IdentityFixture $fixture, string $secret): string
-    {
-        $container = $fixture->container();
-        $clock     = $container->get(Clock::class);
-        $now       = $clock->now();
-
-        return Totp::code($secret, intdiv($now->getTimestamp(), 30));
-    }
-
-    public static function principal(IdentityFixture $fixture, string $secret, Realm $realm = Realm::USER, string $name = 'ada.user'): Principal
+    public static function principal(IdentityFixture $fixture, Realm $realm = Realm::USER, string $name = 'ada.user'): Principal
     {
         $container   = $fixture->container();
         $login       = $container->get(LoginWorkflow::class);
-        $begin       = $login->begin(self::id(), $realm, new LoginInput($name, 'valid-password-123'));
-        [$principal] = $login->complete($realm, new ProofInput($begin['challengeId'], self::code($fixture, $secret)));
+        [$principal] = $login->authenticate($realm, new LoginInput($name, 'valid-password-123'));
 
         return $principal;
     }

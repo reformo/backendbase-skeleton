@@ -17,7 +17,7 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#context
 
 ### Option A: One identity context with separate actor aggregates
 
-- **Pros:** Account, credentials, MFA, sessions, token issuance, and access policy have one owner. Actor business rules retain separate aggregate ownership.
+- **Pros:** Account, credentials, ownership challenges, sessions, token issuance, and access policy have one owner. Actor business rules retain separate aggregate ownership.
 - **Cons / Risks:** Realm policy and actor lifecycle need explicit coordination. Global identity does not make User and Admin interchangeable.
 - **Estimated Cost / Effort:** Medium
 

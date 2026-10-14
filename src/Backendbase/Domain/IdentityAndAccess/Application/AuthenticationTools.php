@@ -34,26 +34,19 @@ final readonly class AuthenticationTools
         $currentCredentials->initialize($accountId, $hash);
     }
 
-    public function assertPassword(string $accountId, Password $password, bool $requireMfa = false): void
+    public function assertPassword(string $accountId, Password $password): void
     {
         $currentCredentials = $this->credentials;
 
-        $currentCredentials->assertPassword($accountId, $password, $requireMfa);
+        $currentCredentials->assertPassword($accountId, $password);
     }
 
-    public function prepareTotp(string $accountId): string
-    {
-        $currentCredentials = $this->credentials;
-
-        return $currentCredentials->prepareTotp($accountId);
-    }
-
-    public function challenge(string $id, Account $account, Actor $actor, ChallengePurpose $purpose, string $proof = ''): Challenge
+    public function challenge(string $id, Account $account, Actor $actor, ChallengePurpose $purpose, string $proof): Challenge
     {
         $currentCredentials = $this->credentials;
         $currentChallenges  = $this->challenges;
 
-        $hash = $proof === '' ? '' : $currentCredentials->proofHash($proof);
+        $hash = $currentCredentials->proofHash($proof);
 
         return $currentChallenges->create($id, $account, $actor, $purpose, $hash);
     }
@@ -69,27 +62,9 @@ final readonly class AuthenticationTools
             return false;
         }
 
-        $step  = null;
-        $valid = false;
-        if ($purpose === ChallengePurpose::OWNERSHIP) {
-            $valid = $currentCredentials->verifyProof($input->code(), $state['proofHash']);
-        }
+        $valid = $currentCredentials->verifyProof($input->code(), $state['proofHash']);
 
-        if ($purpose !== ChallengePurpose::OWNERSHIP) {
-            $step  = $currentCredentials->factorStep($state['accountId'], $input->code(), $purpose === ChallengePurpose::TOTP_ENROLLMENT, $state['proofHash'], $now);
-            $valid = $step !== null;
-        }
-
-        $accepted = $challenge->verify($purpose, $realm, $valid, $now);
-        if ($accepted && $step !== null) {
-            $currentCredentials->consumeFactor($state['accountId'], $step, $purpose === ChallengePurpose::TOTP_ENROLLMENT);
-        }
-
-        if (! $accepted && $purpose !== ChallengePurpose::OWNERSHIP) {
-            $currentCredentials->recordFactorFailure($state['accountId'], $now);
-        }
-
-        return $accepted;
+        return $challenge->verify($purpose, $realm, $valid, $now);
     }
 
     public function sendOwnership(string $id, AccountEmail $email, string $code): void

@@ -22,7 +22,7 @@ final class AdminFlowTest extends TestCase
         $container = $fixture->container();
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
-        $principal = IdentityScenario::principal($fixture, $admin['secret'], Realm::ADMIN, 'ada.admin');
+        $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'ada.admin');
         $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
         self::assertSame(403, $api->request('POST', '/administration/admins/approve', ['actorId' => $admin['actorId'], 'evidence' => 'ticket:self-approval'], $token)->getStatusCode());
     }
@@ -30,13 +30,13 @@ final class AdminFlowTest extends TestCase
     #[Test]
     public function itSeparatesInvitationApprovalAndRealmAuthentication(): void
     {
-        $fixture   = IdentityFixture::create();
-        $admin     = IdentityScenario::admin($fixture);
-        $target    = IdentityScenario::enrolled($fixture, 'target.user', 'target@example.com');
+        $fixture = IdentityFixture::create();
+        IdentityScenario::admin($fixture);
+        $target    = IdentityScenario::verified($fixture, 'target.user', 'target@example.com');
         $container = $fixture->container();
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
-        $principal = IdentityScenario::principal($fixture, $admin['secret'], Realm::ADMIN, 'ada.admin');
+        $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'ada.admin');
         $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
         $api       = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $response  = $api->request('POST', '/administration/admins/invite', ['accountId' => $target['accountId'], 'loginName' => 'target.user', 'evidence' => 'ticket:invite-1'], $token);
@@ -51,9 +51,6 @@ final class AdminFlowTest extends TestCase
         self::assertSame(['completed' => true], UserFlowTest::resource($response, 'admin'));
         $response = $api->request('POST', '/auth/login', ['loginName' => 'target.user', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
-        $begin    = UserFlowTest::resource($response, 'challenge');
-        $response = $api->request('POST', '/auth/login/complete', ['challengeId' => UserFlowTest::text($begin, 'challengeId'), 'code' => IdentityScenario::code($fixture, $target['secret'])]);
-        self::assertSame(200, $response->getStatusCode());
         $session     = UserFlowTest::resource($response, 'session');
         $targetToken = UserFlowTest::text($session, 'accessToken');
         $response    = $api->request('GET', '/identity', token: $targetToken);
@@ -61,8 +58,7 @@ final class AdminFlowTest extends TestCase
         self::assertSame('ADMIN', UserFlowTest::resource($response, 'admin')['realm']);
         $userApi = IdentityApiFixture::create($fixture, Realm::USER);
         self::assertSame(401, $userApi->request('GET', '/identity', token: $targetToken)->getStatusCode());
-        IdentityScenario::advance($fixture, 'PT31S');
-        $userPrincipal = IdentityScenario::principal($fixture, $target['secret'], Realm::USER, 'target.user');
+        $userPrincipal = IdentityScenario::principal($fixture, Realm::USER, 'target.user');
         $userToken     = $issuer->issue($userPrincipal, $clock->sessionExpiresAt());
         self::assertSame(401, $api->request('GET', '/identity', token: $userToken)->getStatusCode());
         $response = $api->request('DELETE', '/identity/session', token: $targetToken);
@@ -74,13 +70,13 @@ final class AdminFlowTest extends TestCase
     #[Test]
     public function itPreservesActorHistoryAfterRemovalAndChecksRestoration(): void
     {
-        $fixture   = IdentityFixture::create();
-        $admin     = IdentityScenario::admin($fixture);
-        $target    = IdentityScenario::enrolled($fixture, 'target.user', 'target@example.com');
+        $fixture = IdentityFixture::create();
+        IdentityScenario::admin($fixture);
+        $target    = IdentityScenario::verified($fixture, 'target.user', 'target@example.com');
         $container = $fixture->container();
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
-        $principal = IdentityScenario::principal($fixture, $admin['secret'], Realm::ADMIN, 'ada.admin');
+        $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'ada.admin');
         $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
         $api       = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $response  = $api->request('POST', '/administration/actors/change', ['actorId' => $target['actorId'], 'realm' => 'USER', 'action' => 'remove'], $token);

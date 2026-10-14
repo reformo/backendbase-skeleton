@@ -56,5 +56,6 @@ Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep
 
 Basis: `resources/docs/7-env-and-config.html`.
 
-Identity signing and factor keys use active and previous key identifiers. See [security policy](14-security.md).
+Identity signing and ownership proof keys use active and previous key identifiers.
+Ownership proof keys retain the `encryptionKey` names. They no longer encrypt authentication factors. See [security policy](14-security.md).
 Redis settings support optional ACL credentials and verified TLS. Malformed connection values are rejected.

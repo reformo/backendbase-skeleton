@@ -10,7 +10,6 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Input\Administration\AdminInv
 use Backendbase\Domain\IdentityAndAccess\Contracts\Query\GetActorHistory;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Query\GetIdentityOperation;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\MfaAttemptBudget;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\SessionLifetime;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
@@ -34,8 +33,6 @@ final class IdentityPolicyTest extends TestCase
         $id = IdentityScenario::id();
         $this->expectException($exception);
         match ($operation) {
-            'mfa count' => new MfaAttemptBudget(-1, null),
-            'mfa date' => MfaAttemptBudget::reconstitute(5, 'invalid-date'),
             'lifetime' => new SessionLifetime(59),
             'invitation' => new AdminInvitationInput($id, 'admin.user', ''),
             'approval' => new AdminApprovalInput($id, ''),
@@ -47,8 +44,6 @@ final class IdentityPolicyTest extends TestCase
     /** @return iterable<string, array{string, class-string<Throwable>}> */
     public static function invalidPolicies(): iterable
     {
-        yield 'mfa count' => ['mfa count', AuthenticationDenied::class];
-        yield 'mfa date' => ['mfa date', AuthenticationDenied::class];
         yield 'lifetime' => ['lifetime', InvalidArgumentException::class];
         yield 'invitation' => ['invitation', InvalidUserInput::class];
         yield 'approval' => ['approval', InvalidUserInput::class];

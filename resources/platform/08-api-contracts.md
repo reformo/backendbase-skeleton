@@ -51,7 +51,7 @@ Clients that read the previous metadata key must update their lookup.
 
 ## Automated response checks
 
-The specifications and Bruno collections contain 38 operations: ExampleApi has 9, UserApi has 13, and SystemAdminApi has 16.
+The specifications and Bruno collections contain 32 operations: ExampleApi has 9, UserApi has 10, and SystemAdminApi has 13.
 `ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
 It also checks success key names and Bruno status, key, and wrapper assertions.
 `ApiResponseAssertions` checks executed HTTP responses against resolved source and merged schemas.
@@ -69,9 +69,8 @@ Run live Bruno tests only against an identified, prepared target.
 | SystemAdminApi current identity | `admin` |
 | User registration | `registration` |
 | Contact ownership verification | `ownershipVerification` |
-| Contact proof resend and password authentication start | `challenge` |
-| TOTP enrollment preparation and completion | `enrollment` |
-| Authentication completion and session termination | `session` |
+| Contact proof resend | `challenge` |
+| Password login and session termination | `session` |
 | Access token revocation | `token` |
 | Account closure | `account` |
 | Admin invitation | `invitation` |
@@ -129,7 +128,9 @@ Each API validation command runs schema validation and `bin/check-openapi-tags.p
 The tag check resolves referenced path files. It rejects missing or empty operation tags, undeclared tags, duplicate declarations, and blank or padded names.
 Add a new declared tag when a new endpoint group needs one.
 
-Identity requests use strict input mapping. Contact ownership and TOTP enrollment are separate steps.
+Identity requests use strict input mapping. Contact ownership and password authentication are separate steps.
+`POST /auth/login` returns `session` with `accessToken`, `tokenType`, and `expiresAt`.
+TOTP enrollment and `/auth/login/complete` endpoints are removed. Update clients to use the single login response.
 Bruno identity collections use blank credential and proof variables. Populate them only for an identified test target.
 
 Example collection endpoints accept positive `pageSize` and `page` values. Their calculated offset must fit a signed 64-bit integer. Invalid offsets return 400 before query dispatch. Group results include the complete distinct-group total and the requested page.

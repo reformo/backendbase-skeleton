@@ -18,21 +18,17 @@ final readonly class OperatorInput
 
     public function __construct(string $action, string $targetId, string $operator, string $invitation, string $approval, string $loginName = '')
     {
-        if (! in_array($action, ['invite-first-admin', 'approve-first-admin', 'recover-totp', 'rewrap-totp'], true)) {
+        if (! in_array($action, ['invite-first-admin', 'approve-first-admin'], true)) {
             throw new InvalidArgumentException('Select a supported identity operator action.');
         }
 
         self::evidence($operator);
-        if ($action === 'invite-first-admin' || $action === 'recover-totp') {
+        if ($action === 'invite-first-admin') {
             self::evidence($invitation);
         }
 
         if ($action !== 'invite-first-admin') {
             self::evidence($approval);
-        }
-
-        if ($action === 'recover-totp' && $invitation === $approval) {
-            throw new InvalidArgumentException('Recovery requires separate request and approval evidence.');
         }
 
         $loginName    = $action === 'invite-first-admin' ? new LoginName($loginName)->toString() : $loginName;

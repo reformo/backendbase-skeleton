@@ -1,8 +1,8 @@
 post:
   tags:
     - Authentication
-  operationId: userBeginPasswordAuthentication
-  summary: 'Begin password authentication'
+  operationId: userPasswordLogin
+  summary: 'Password login'
   parameters:
     -
       $ref: '../../common/components.yaml#/headers/Accept-Language'
@@ -34,10 +34,10 @@ post:
             type: object
             additionalProperties: false
             required:
-              - challenge
+              - session
             properties:
-              challenge:
-                $ref: '../user-api-openapi.yml#/components/schemas/Challenge'
+              session:
+                $ref: '../user-api-openapi.yml#/components/schemas/Session'
     400:
       description: 'Invalid request'
       content:

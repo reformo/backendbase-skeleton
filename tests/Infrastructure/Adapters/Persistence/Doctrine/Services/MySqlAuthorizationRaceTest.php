@@ -45,7 +45,7 @@ final class MySqlAuthorizationRaceTest extends TestCase
         try {
             $identity  = self::identity($fixture);
             $admin     = IdentityScenario::admin($identity);
-            $principal = IdentityScenario::principal($identity, $admin['secret'], Realm::ADMIN, 'ada.admin');
+            $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'ada.admin');
             $container = $identity->container();
             $realStore = $container->get(IdentityStore::class);
             $store     = $this->createMock(IdentityStore::class);

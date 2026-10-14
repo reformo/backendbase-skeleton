@@ -21,30 +21,25 @@ Identity uniqueness and state conflicts return a safe 409 response.
 
 ## Authentication facts
 
-Global Accounts own email, password credentials, and TOTP factors.
+Global Accounts own email and password credentials.
 Each Account can have at most one User and one Admin, including removed actor rows.
 Actor login names are unique within each realm. Account email has its own active uniqueness rule.
 ASCII normalization lowercases accepted login names and email addresses. Unicode login names and email addresses are rejected.
 
-Contact ownership, actor approval, and MFA establish separate facts.
+Contact ownership, actor approval, and password authentication establish separate facts.
 Registration sends a six-digit ownership proof through the notification port.
 Ownership proofs expire after five minutes and permit at most five attempts.
 Resend requires the password and invalidates previous ownership proofs.
 
-Password verification creates a login challenge. It does not deliver a token.
-Both realms require TOTP before session issuance.
-TOTP uses six digits, SHA1, 30-second periods, and one step of clock tolerance.
-Accepted steps cannot be reused. Enrollment consumes a step, so another login requires a later valid step.
-Five failed MFA proofs block the Account for five minutes across different challenges.
+Password verification issues a session only after ownership, Account state, and actor approval checks pass.
+Both realms authenticate through `POST /auth/login` and return the `session` result.
+Login does not create a challenge. TOTP enrollment and login-completion endpoints are absent.
 
 Admin enrollment requires stored invitation and approval evidence.
 An Admin cannot approve its own enrollment. Contact ownership remains a separate session gate.
-First-Admin setup and lost-factor recovery use local root operator commands with recorded evidence.
-First-Admin invitation and approval use separate steps and references. Recovery requires separate request and approval references.
-Recovery clears factors, increments the credential version, and removes contact ownership verification.
-The existing password is then required to request a new ownership proof and enroll a new TOTP factor.
+First-Admin setup uses local root operator commands with separate invitation and approval evidence.
 Operator commands never issue a token. See [operator procedures](operations/identity-operator.md).
-Active factors cannot be replaced through ordinary enrollment.
+Factor recovery and factor rewrapping actions are absent.
 
 ## Session state
 
@@ -74,9 +69,13 @@ Greeting HTTP endpoints remain absent.
 ## Secret handling
 
 Keys have no production defaults. Runtime configuration selects a managed provider and controlled injection.
-Factor secrets use authenticated Sodium encryption. Stored passwords use Argon2id.
-Signing-key and factor-key rotation support an active key and a distinct previous key identifier.
+Stored passwords use Argon2id. Ownership proofs use keyed SHA-256 hashes.
+Signing-key and ownership-proof-key rotation support an active key and a distinct previous key identifier.
+Ownership proof keys retain the `encryptionKey` configuration names for compatibility.
+Retain the previous proof key until its pending ownership challenges expire.
+New credential JSON contains only `passwordHash`. Existing credential JSON can retain unused factor fields.
+No database schema change or automatic data cleanup is required.
 Configuration and container definitions do not persist live credential values in caches.
 Logs exclude submitted values and exception arguments.
 
-Basis: [realm ADR](../adr/0037-user-and-system-admin-jwt-realms.md), [session ADR](../adr/0038-redis-token-allowlist-and-session-lifecycle.md), and [authentication challenge ADR](../adr/0046-authentication-challenges-and-mfa-gated-sessions.md).
+Basis: [realm ADR](../adr/0037-user-and-system-admin-jwt-realms.md), [session ADR](../adr/0038-redis-token-allowlist-and-session-lifecycle.md), and [password authentication ADR](../adr/0049-password-authentication-without-totp.md).

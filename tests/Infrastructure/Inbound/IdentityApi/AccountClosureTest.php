@@ -17,10 +17,10 @@ final class AccountClosureTest extends TestCase
     #[Test]
     public function itDeniesAnAlreadyIssuedTokenAfterAccountClosure(): void
     {
-        $fixture   = IdentityFixture::create();
-        $user      = IdentityScenario::enrolled($fixture);
+        $fixture = IdentityFixture::create();
+        IdentityScenario::verified($fixture);
         $container = $fixture->container();
-        $principal = IdentityScenario::principal($fixture, $user['secret']);
+        $principal = IdentityScenario::principal($fixture);
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
         $token     = $issuer->issue($principal, $clock->sessionExpiresAt());

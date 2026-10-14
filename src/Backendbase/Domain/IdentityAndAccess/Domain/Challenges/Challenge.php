@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Domain\Challenges;
 
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use DateTimeImmutable;
@@ -15,8 +16,13 @@ final class Challenge
     {
         IdentityId::fromString($state['accountId']);
         IdentityId::fromString($state['actorId']);
-        $this->state['realm']   = Realm::from($state['realm'])->value;
-        $this->state['purpose'] = ChallengePurpose::from($state['purpose'])->value;
+        $this->state['realm'] = Realm::from($state['realm'])->value;
+        $purpose              = ChallengePurpose::tryFrom($state['purpose']);
+        if ($purpose === null) {
+            throw AuthenticationDenied::create('Authentication is not permitted.');
+        }
+
+        $this->state['purpose'] = $purpose->value;
     }
 
     public function permitsAttempt(ChallengePurpose $purpose, Realm $realm, DateTimeImmutable $now): bool

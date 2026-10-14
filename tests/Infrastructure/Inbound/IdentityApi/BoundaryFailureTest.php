@@ -47,7 +47,9 @@ final class BoundaryFailureTest extends TestCase
         yield 'oversized body' => ['POST', '/auth/register', [...$valid, 'password' => str_repeat('a', 70000)], 400];
         yield 'missing content type' => ['POST', '/auth/register', null, 400];
         yield 'unknown login' => ['POST', '/auth/login', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 401];
-        yield 'unknown enrollment' => ['POST', '/auth/mfa/enrollment', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 401];
+        yield 'removed enrollment' => ['POST', '/auth/mfa/enrollment', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 404];
+        yield 'removed enrollment completion' => ['POST', '/auth/mfa/enrollment/complete', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 404];
+        yield 'removed login completion' => ['POST', '/auth/login/complete', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 404];
         yield 'unknown resend' => ['POST', '/auth/ownership/resend', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 401];
         yield 'unknown proof' => ['POST', '/auth/ownership/verify', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 401];
         yield 'malformed proof' => ['POST', '/auth/ownership/verify', ['challengeId' => IdentityScenario::id(), 'code' => '123'], 400];

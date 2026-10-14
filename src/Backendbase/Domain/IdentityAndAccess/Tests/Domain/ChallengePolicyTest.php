@@ -18,12 +18,12 @@ use PHPUnit\Framework\TestCase;
 
 final class ChallengePolicyTest extends TestCase
 {
-    public function testConsumedProofCannotBeRepeatedOrUsedForAnotherPurpose(): void
+    public function testConsumedProofCannotBeRepeatedOrUsedInAnotherRealm(): void
     {
         $id        = IdentityScenario::id();
         $now       = new DateTimeImmutable('2026-10-14T10:00:00Z');
         $challenge = new Challenge(IdentityId::create(), ['accountId' => $id, 'actorId' => $id, 'realm' => 'USER', 'purpose' => ChallengePurpose::OWNERSHIP->value, 'proofHash' => 'proof', 'expiresAt' => '2026-10-14 10:05:00.000000', 'attempts' => 0, 'consumed' => false, 'authVersion' => 1, 'revision' => 1]);
-        self::assertFalse($challenge->verify(ChallengePurpose::LOGIN, Realm::USER, true, $now));
+        self::assertFalse($challenge->verify(ChallengePurpose::OWNERSHIP, Realm::ADMIN, true, $now));
         self::assertTrue($challenge->verify(ChallengePurpose::OWNERSHIP, Realm::USER, true, $now));
         self::assertFalse($challenge->verify(ChallengePurpose::OWNERSHIP, Realm::USER, true, $now));
         self::assertSame(1, $challenge->snapshot()['attempts']);

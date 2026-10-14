@@ -21,21 +21,14 @@ use PHPUnit\Framework\TestCase;
 final class EnrollmentFailureTest extends TestCase
 {
     #[Test]
-    public function itRejectsSessionAndEnrollmentBeforeOwnershipProof(): void
+    public function itRejectsSessionBeforeOwnershipProof(): void
     {
         $fixture = IdentityFixture::create();
         IdentityScenario::registered($fixture);
-        $container  = $fixture->container();
-        $enrollment = $container->get(EnrollmentWorkflow::class);
-        $login      = $container->get(LoginWorkflow::class);
-        foreach ([$enrollment->prepare(...), $login->begin(...)] as $attempt) {
-            try {
-                $attempt(IdentityScenario::id(), Realm::USER, new LoginInput('ada.user', 'valid-password-123'));
-                self::fail('An unverified Account cannot authenticate.');
-            } catch (AuthenticationDenied) {
-                self::addToAssertionCount(1);
-            }
-        }
+        $container = $fixture->container();
+        $login     = $container->get(LoginWorkflow::class);
+        $this->expectException(AuthenticationDenied::class);
+        $login->authenticate(Realm::USER, new LoginInput('ada.user', 'valid-password-123'));
     }
 
     #[Test]

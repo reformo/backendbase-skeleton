@@ -7,7 +7,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Contracts;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use DateTimeImmutable;
 
-interface OperatorStore extends CredentialStore
+interface OperatorStore
 {
     public function assertFirstAdminAvailable(): void;
 

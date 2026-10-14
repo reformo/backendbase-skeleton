@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'Backendbase ADMIN API'
-  description: 'Realm-specific password and TOTP authentication. Contact ownership verification is a separate gate. Admin enrollment also requires invitation and approval.'
+  description: 'Realm-specific password authentication. Contact ownership verification is a separate gate. Admin enrollment also requires invitation and approval.'
   version: 1.0.0
 servers:
   -
@@ -197,202 +197,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security: []
-  /auth/mfa/enrollment:
-    post:
-      tags:
-        - Authentication
-      summary: 'Prepare TOTP enrollment'
-      operationId: systemadminPrepareTotpEnrollment
-      parameters:
-        -
-          name: Accept-Language
-          in: header
-          description: 'selected language'
-          required: false
-          schema:
-            type: string
-            default: tr-TR
-          example: tr-TR
-        -
-          name: The-Timezone-IANA
-          in: header
-          description: "Client's timezone"
-          required: false
-          schema:
-            type: string
-            format: 'Timezone IANA name'
-            default: Europe/Istanbul
-          example: Europe/Istanbul
-        -
-          name: X-Request-Id
-          in: header
-          description: 'Trace Id for request'
-          required: false
-          schema:
-            type: string
-            format: uuid
-            default: 019f0325-5940-7702-8488-3cfe56553586
-          example: 019f0325-5940-7702-8488-3cfe56553586
-        -
-          name: X-Source-Id
-          in: header
-          required: true
-          schema:
-            enum:
-              - system-admin
-            type: string
-      requestBody:
-        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginInput'
-        required: true
-      responses:
-        '200':
-          description: 'Completed operation'
-          headers:
-            Cache-Control:
-              schema:
-                enum:
-                  - no-store
-                type: string
-          content:
-            application/json:
-              schema:
-                required:
-                  - enrollment
-                type: object
-                properties:
-                  enrollment:
-                    $ref: '#/components/schemas/Enrollment'
-                additionalProperties: false
-        '400':
-          description: 'Invalid request'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: 'Authentication denied'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '409':
-          description: 'Identity conflict'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '503':
-          description: 'Authentication dependency unavailable'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      security: []
-  /auth/mfa/enrollment/complete:
-    post:
-      tags:
-        - Authentication
-      summary: 'Complete TOTP enrollment'
-      operationId: systemadminCompleteTotpEnrollment
-      parameters:
-        -
-          name: Accept-Language
-          in: header
-          description: 'selected language'
-          required: false
-          schema:
-            type: string
-            default: tr-TR
-          example: tr-TR
-        -
-          name: The-Timezone-IANA
-          in: header
-          description: "Client's timezone"
-          required: false
-          schema:
-            type: string
-            format: 'Timezone IANA name'
-            default: Europe/Istanbul
-          example: Europe/Istanbul
-        -
-          name: X-Request-Id
-          in: header
-          description: 'Trace Id for request'
-          required: false
-          schema:
-            type: string
-            format: uuid
-            default: 019f0325-5940-7702-8488-3cfe56553586
-          example: 019f0325-5940-7702-8488-3cfe56553586
-        -
-          name: X-Source-Id
-          in: header
-          required: true
-          schema:
-            enum:
-              - system-admin
-            type: string
-      requestBody:
-        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProofInput'
-        required: true
-      responses:
-        '200':
-          description: 'Completed operation'
-          headers:
-            Cache-Control:
-              schema:
-                enum:
-                  - no-store
-                type: string
-          content:
-            application/json:
-              schema:
-                required:
-                  - enrollment
-                type: object
-                properties:
-                  enrollment:
-                    $ref: '#/components/schemas/Completed'
-                additionalProperties: false
-        '400':
-          description: 'Invalid request'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: 'Authentication denied'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '409':
-          description: 'Identity conflict'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '503':
-          description: 'Authentication dependency unavailable'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      security: []
   /auth/login:
     post:
       tags:
         - Authentication
-      summary: 'Begin password authentication'
-      operationId: systemadminBeginPasswordAuthentication
+      summary: 'Password login'
+      operationId: systemadminPasswordLogin
       parameters:
         -
           name: Accept-Language
@@ -437,101 +247,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginInput'
-        required: true
-      responses:
-        '200':
-          description: 'Completed operation'
-          headers:
-            Cache-Control:
-              schema:
-                enum:
-                  - no-store
-                type: string
-          content:
-            application/json:
-              schema:
-                required:
-                  - challenge
-                type: object
-                properties:
-                  challenge:
-                    $ref: '#/components/schemas/Challenge'
-                additionalProperties: false
-        '400':
-          description: 'Invalid request'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          description: 'Authentication denied'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '409':
-          description: 'Identity conflict'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '503':
-          description: 'Authentication dependency unavailable'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      security: []
-  /auth/login/complete:
-    post:
-      tags:
-        - Authentication
-      summary: 'Complete TOTP authentication'
-      operationId: systemadminCompleteTotpAuthentication
-      parameters:
-        -
-          name: Accept-Language
-          in: header
-          description: 'selected language'
-          required: false
-          schema:
-            type: string
-            default: tr-TR
-          example: tr-TR
-        -
-          name: The-Timezone-IANA
-          in: header
-          description: "Client's timezone"
-          required: false
-          schema:
-            type: string
-            format: 'Timezone IANA name'
-            default: Europe/Istanbul
-          example: Europe/Istanbul
-        -
-          name: X-Request-Id
-          in: header
-          description: 'Trace Id for request'
-          required: false
-          schema:
-            type: string
-            format: uuid
-            default: 019f0325-5940-7702-8488-3cfe56553586
-          example: 019f0325-5940-7702-8488-3cfe56553586
-        -
-          name: X-Source-Id
-          in: header
-          required: true
-          schema:
-            enum:
-              - system-admin
-            type: string
-      requestBody:
-        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProofInput'
         required: true
       responses:
         '200':
@@ -1575,28 +1290,6 @@ components:
             - 300
           type: integer
       additionalProperties: false
-    Enrollment:
-      required:
-        - challengeId
-        - totpSecret
-        - otpauthUri
-        - expiresIn
-      type: object
-      properties:
-        challengeId:
-          pattern: '^[0-9a-f-]{36}$'
-          type: string
-          format: uuid
-        totpSecret:
-          pattern: '^[A-Z2-7]{32}$'
-          type: string
-        otpauthUri:
-          type: string
-        expiresIn:
-          enum:
-            - 300
-          type: integer
-      additionalProperties: false
     Completed:
       required:
         - completed
@@ -1816,7 +1509,7 @@ components:
 tags:
   -
     name: Authentication
-    description: 'Registration, contact ownership, enrollment, and login.'
+    description: 'Registration, contact ownership, and password login.'
   -
     name: Identity
     description: 'Current identity, access tokens, sessions, and account closure.'

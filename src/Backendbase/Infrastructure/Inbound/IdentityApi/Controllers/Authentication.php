@@ -44,9 +44,8 @@ final class Authentication extends Action
         return match ($action) {
             'register' => 'registration',
             'verify-ownership' => 'ownershipVerification',
-            'resend-ownership', 'begin-login' => 'challenge',
-            'prepare-mfa', 'complete-mfa' => 'enrollment',
-            'complete-login', 'logout' => 'session',
+            'resend-ownership' => 'challenge',
+            'login', 'logout' => 'session',
             'revoke-token' => 'token',
             'close-account' => 'account',
             default => throw new RuntimeException('The authentication response key is not configured.'),

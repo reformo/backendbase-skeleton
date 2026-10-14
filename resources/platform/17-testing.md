@@ -77,7 +77,7 @@ The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails 
 PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `public`, quality tools under `bin`, and `resources/database`.
 
 API validation commands check source and merged OpenAPI schemas and endpoint tags.
-`ApiDefinitionParityTest` checks all 38 documented operations, source/merged equality, and Bruno response assertions.
+`ApiDefinitionParityTest` checks all 32 documented operations, source/merged equality, and Bruno response assertions.
 `ApiResponseAssertions` compares executed responses with source and merged schemas for keys, shapes, types, enums, and media types.
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 

@@ -1,6 +1,6 @@
 # ADR-0046: Authentication Challenges and MFA-Gated Sessions
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-0049
 - **Date:** 2026-08-31
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.

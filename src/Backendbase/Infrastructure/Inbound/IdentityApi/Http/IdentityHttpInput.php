@@ -63,8 +63,8 @@ final readonly class IdentityHttpInput
     {
         [$class, $fields] = match ($action) {
             'register' => [Input\RegistrationInput::class, ['email', 'loginName', 'password']],
-            'begin-login', 'prepare-mfa', 'resend-ownership' => [Input\LoginInput::class, ['loginName', 'password']],
-            'verify-ownership', 'complete-mfa', 'complete-login' => [Input\ProofInput::class, ['challengeId', 'code']],
+            'login', 'resend-ownership' => [Input\LoginInput::class, ['loginName', 'password']],
+            'verify-ownership' => [Input\ProofInput::class, ['challengeId', 'code']],
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
         $payload = RequestObjectInput::fromRequest($request, $fields);
@@ -76,8 +76,7 @@ final readonly class IdentityHttpInput
     private function loginCommand(string $id, string $action, Input\RealmLogin $input): IdentityCommand
     {
         return match ($action) {
-            'begin-login' => new Authentication\BeginLogin($id, $input),
-            'prepare-mfa' => new Authentication\PrepareTotpEnrollment($id, $input),
+            'login' => new Authentication\Login($id, $input),
             'resend-ownership' => new Authentication\ResendOwnership($id, $input),
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
@@ -87,8 +86,6 @@ final readonly class IdentityHttpInput
     {
         return match ($action) {
             'verify-ownership' => new Authentication\VerifyOwnership($id, $input),
-            'complete-mfa' => new Authentication\CompleteTotpEnrollment($id, $input),
-            'complete-login' => new Authentication\CompleteLogin($id, $input),
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
     }

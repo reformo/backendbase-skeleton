@@ -51,7 +51,7 @@ class IdentityAccount
 
     /** @var array<string, mixed> */
     #[ORM\Column(type: Types::JSON)]
-    private array $credentials = ['passwordHash' => '', 'totpSecret' => null, 'pendingTotpSecret' => null, 'lastTotpStep' => -1, 'failedMfaAttempts' => 0, 'blockedUntil' => null];
+    private array $credentials = ['passwordHash' => ''];
 
     public static function create(Account $account): self
     {
@@ -93,20 +93,15 @@ class IdentityAccount
         ]);
     }
 
-    /** @return array{passwordHash: string, totpSecret: string|null, pendingTotpSecret: string|null, lastTotpStep: int, failedMfaAttempts: int, blockedUntil: string|null} */
+    /** @return array{passwordHash: string} */
     public function credentials(): array
     {
         return [
             'passwordHash' => StateField::string($this->credentials, 'passwordHash'),
-            'totpSecret' => StateField::nullableString($this->credentials, 'totpSecret'),
-            'pendingTotpSecret' => StateField::nullableString($this->credentials, 'pendingTotpSecret'),
-            'lastTotpStep' => StateField::integer($this->credentials, 'lastTotpStep'),
-            'failedMfaAttempts' => StateField::integer($this->credentials, 'failedMfaAttempts'),
-            'blockedUntil' => StateField::nullableString($this->credentials, 'blockedUntil'),
         ];
     }
 
-    /** @param array{passwordHash: string, totpSecret: string|null, pendingTotpSecret: string|null, lastTotpStep: int, failedMfaAttempts: int, blockedUntil: string|null} $credentials */
+    /** @param array{passwordHash: string} $credentials */
     public function replaceCredentials(array $credentials): void
     {
         $this->credentials = $credentials;

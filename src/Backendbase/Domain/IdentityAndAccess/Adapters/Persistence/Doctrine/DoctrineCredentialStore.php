@@ -12,7 +12,7 @@ final readonly class DoctrineCredentialStore implements CredentialStore
     {
     }
 
-    /** @return array{passwordHash: string, totpSecret: string|null, pendingTotpSecret: string|null, lastTotpStep: int, failedMfaAttempts: int, blockedUntil: string|null} */
+    /** @return array{passwordHash: string} */
     public function read(string $accountId): array
     {
         $currentRecords = $this->records;
@@ -24,7 +24,7 @@ final readonly class DoctrineCredentialStore implements CredentialStore
         return $record->credentials();
     }
 
-    /** @param array{passwordHash: string, totpSecret: string|null, pendingTotpSecret: string|null, lastTotpStep: int, failedMfaAttempts: int, blockedUntil: string|null} $credentials */
+    /** @param array{passwordHash: string} $credentials */
     public function save(string $accountId, array $credentials): void
     {
         $currentRecords = $this->records;

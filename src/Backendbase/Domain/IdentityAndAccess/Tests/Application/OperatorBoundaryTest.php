@@ -8,7 +8,6 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Console\IdentityOperator;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Console\LocalOperatorAuthority;
 use Backendbase\Domain\IdentityAndAccess\Application\IdentityOperation;
 use Backendbase\Domain\IdentityAndAccess\Application\Operations\OperatorWorkflow;
-use Backendbase\Domain\IdentityAndAccess\Contracts\AuthenticationSecrets;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
@@ -50,21 +49,22 @@ final class OperatorBoundaryTest extends TestCase
     {
         return [
             ['unsupported', 'operator', 'invite', 'approve'],
-            ['recover-totp', ' ', 'invite', 'approve'],
-            ['recover-totp', 'operator', '', 'approve'],
-            ['recover-totp', 'operator', 'invite', ''],
-            ['recover-totp', 'operator', 'same', 'same'],
+            ['invite-first-admin', ' ', 'invite', ''],
+            ['invite-first-admin', 'operator', '', ''],
+            ['approve-first-admin', 'operator', '', ''],
+            ['recover-totp', 'operator', 'request', 'approve'],
+            ['rewrap-totp', 'operator', '', 'approve'],
         ];
     }
 
     public function testOperatorPreviewAndInvalidCliOptionsDoNotWriteRecords(): void
     {
         $fixture   = IdentityFixture::create();
-        $enrolled  = IdentityScenario::enrolled($fixture);
+        $enrolled  = IdentityScenario::verified($fixture);
         $container = $fixture->container();
         $command   = new IdentityOperator($container->get(IdentityOperation::class));
         $tester    = new CommandTester($command);
-        self::assertSame(Command::SUCCESS, $tester->execute(['--action' => 'recover-totp', '--target-id' => $enrolled['accountId'], '--operator' => 'operator', '--invitation' => 'request:123', '--approval' => 'approval:456']));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--action' => 'invite-first-admin', '--target-id' => $enrolled['accountId'], '--operator' => 'operator', '--invitation' => 'ticket:123', '--login-name' => 'first.admin']));
         self::assertStringContainsString('No identity record changed', $tester->getDisplay());
         self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
         self::assertSame(Command::INVALID, $tester->execute([]));
@@ -81,21 +81,20 @@ final class OperatorBoundaryTest extends TestCase
         $container = $fixture->container();
         $workflow  = $container->get(OperatorWorkflow::class);
         $this->expectException(IdentityConflict::class);
-        $workflow->run(new OperatorInput('approve-first-admin', $admin['actorId'], 'operator', '', 'ticket:approve'), $container->get(AuthenticationSecrets::class), new DateTimeImmutable(), true);
+        $workflow->run(new OperatorInput('approve-first-admin', $admin['actorId'], 'operator', '', 'ticket:approve'), new DateTimeImmutable(), true);
     }
 
     public function testFirstAdminApprovalCannotRunTwice(): void
     {
         $fixture   = IdentityFixture::create();
-        $enrolled  = IdentityScenario::enrolled($fixture);
+        $enrolled  = IdentityScenario::verified($fixture);
         $container = $fixture->container();
         $workflow  = $container->get(OperatorWorkflow::class);
-        $secrets   = $container->get(AuthenticationSecrets::class);
         $now       = new DateTimeImmutable();
-        $actor     = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'ticket:invite', '', 'first.admin'), $secrets, $now, true);
+        $actor     = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'ticket:invite', '', 'first.admin'), $now, true);
         $approval  = new OperatorInput('approve-first-admin', $actor, 'operator', '', 'ticket:approve');
-        $workflow->run($approval, $secrets, $now, true);
+        $workflow->run($approval, $now, true);
         $this->expectException(IdentityConflict::class);
-        $workflow->run($approval, $secrets, $now, true);
+        $workflow->run($approval, $now, true);
     }
 }

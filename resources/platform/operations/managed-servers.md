@@ -59,12 +59,12 @@ Keep the previous key under a distinct key identifier for the permitted verifica
 Restart PHP-FPM and long-running workers after injection changes.
 Verify new issuance and old-key verification before retiring the previous key.
 Retire previous signing keys only after their tokens have expired or been revoked.
-Rewrap persisted TOTP factors with the active encryption key before retiring a previous factor key.
-Retain old factor keys until all required ciphertext and backup recovery obligations are resolved.
+Ownership proof hashes use the existing `encryptionKey` configuration names.
+Retain the previous proof key until pending ownership challenges expire.
 Pending proof hashes also require their original verification key until expiry or invalidation.
 
-Do not record environment values, passwords, factor secrets, tokens, or provider responses in logs.
+Do not record environment values, passwords, tokens, or provider responses in logs.
 
-Use [identity operator procedures](identity-operator.md) for first-Admin setup, recovery, and factor key rotation.
+Use [identity operator procedures](identity-operator.md) for first-Admin setup.
 Use [migration adoption](migration-consolidation.md) before deploying consolidated migrations to an existing database.
 Use [Example conversion planning](example-uuid-conversion.md) when an existing database retains integer Example keys.

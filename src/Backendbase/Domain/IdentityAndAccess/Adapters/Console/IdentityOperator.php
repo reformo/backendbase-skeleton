@@ -32,7 +32,7 @@ final class IdentityOperator extends Command
     #[Override]
     protected function configure(): void
     {
-        $this->setDescription('Preview local first-Admin setup, TOTP recovery, or persisted factor key rotation.');
+        $this->setDescription('Preview local first-Admin invitation or approval.');
         foreach (['action', 'target-id', 'operator', 'invitation', 'approval', 'login-name'] as $name) {
             $this->addOption($name, null, InputOption::VALUE_REQUIRED);
         }

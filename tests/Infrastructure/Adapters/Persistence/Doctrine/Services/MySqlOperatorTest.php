@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Services;
 
 use Backendbase\Domain\IdentityAndAccess\Application\Operations\OperatorWorkflow;
-use Backendbase\Domain\IdentityAndAccess\Contracts\AuthenticationSecrets;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Contracts\OwnershipNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
@@ -32,7 +31,7 @@ use function getenv;
 
 final class MySqlOperatorTest extends TestCase
 {
-    public function testBootstrapAndRecoveryAuditAreAtomicOnMySql84(): void
+    public function testBootstrapAuditIsAtomicOnMySql84(): void
     {
         if (getenv('BACKENDBASE_SERVICE_TESTS') !== '1') {
             self::markTestSkipped('An explicitly prepared MySQL 8.4 target is required.');
@@ -59,17 +58,14 @@ final class MySqlOperatorTest extends TestCase
                 TokenRegistry::class => new MemoryTokenRegistry($clock),
             ]);
             $identity  = new IdentityFixture($connection, $container);
-            $enrolled  = IdentityScenario::enrolled($identity);
+            $enrolled  = IdentityScenario::verified($identity);
             $workflow  = $container->get(OperatorWorkflow::class);
-            $secrets   = $container->get(AuthenticationSecrets::class);
-            $adminId   = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'invite:123', '', 'first.admin'), $secrets, $clock->now(), true);
-            $workflow->run(new OperatorInput('approve-first-admin', $adminId, 'operator', '', 'approve:456'), $secrets, $clock->now(), true);
-            $principal = IdentityScenario::principal($identity, $enrolled['secret'], Realm::ADMIN, 'first.admin');
+            $adminId   = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'invite:123', '', 'first.admin'), $clock->now(), true);
+            $workflow->run(new OperatorInput('approve-first-admin', $adminId, 'operator', '', 'approve:456'), $clock->now(), true);
+            $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'first.admin');
             self::assertSame($adminId, $principal->identity()['actorId']);
-            $workflow->run(new OperatorInput('recover-totp', $enrolled['accountId'], 'operator', 'request:123', 'approve:789'), $secrets, $clock->now(), true);
-            self::assertSame(3, $connection->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
+            self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
             self::assertSame($adminId, $connection->fetchOne("SELECT BIN_TO_UUID(target_id, 0) FROM identity_operator_action WHERE action_name = 'approve-first-admin'"));
-            self::assertSame('false', $connection->fetchOne("SELECT JSON_EXTRACT(state, '$.owned') FROM identity_account"));
         } finally {
             $fixture->destroy();
         }

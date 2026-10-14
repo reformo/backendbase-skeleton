@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Application;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Totp;
 use Backendbase\Domain\IdentityAndAccess\Application\AuthenticationGate;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Command\Authentication;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Command\Lifecycle\Logout;
@@ -18,18 +17,13 @@ use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedOwnershipNotifier
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\CQRS\QueryBus;
-use Backendbase\Shared\Time\Clock;
-use DateInterval;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Time\FrozenClock;
-
-use function intdiv;
 
 final class AuthenticationFlowTest extends TestCase
 {
     #[Test]
-    public function itRequiresOwnershipAndTotpBeforeARevocableUserSession(): void
+    public function itUsesPasswordAuthenticationForARevocableVerifiedUserSession(): void
     {
         $fixture        = IdentityFixture::create();
         $container      = $fixture->container();
@@ -50,26 +44,9 @@ final class AuthenticationFlowTest extends TestCase
         $proof    = new Input\RealmProof(Realm::USER, new Input\ProofInput($registrationId, $ownership->code($registrationId)));
         $verifyId = IdentityId::create();
         $commands->handle(new Authentication\VerifyOwnership($verifyId->toString(), $proof));
-        $enrollmentId = IdentityId::create();
-        $login        = new Input\RealmLogin(Realm::USER, new Input\LoginInput('ADA.USER', 'valid-password-123'));
-        $commands->handle(new Authentication\PrepareTotpEnrollment($enrollmentId->toString(), $login));
-        $result     = $queries->handle(new GetIdentityOperation($enrollmentId->toString()));
-        $enrollment = $result->data();
-        self::assertIsString($enrollment['totpSecret']);
-        $secret = $enrollment['totpSecret'];
-        $clock  = $container->get(Clock::class);
-        self::assertInstanceOf(FrozenClock::class, $clock);
-        $now        = $clock->now();
-        $code       = Totp::code($secret, intdiv($now->getTimestamp(), 30));
-        $completeId = IdentityId::create();
-        $commands->handle(new Authentication\CompleteTotpEnrollment($completeId->toString(), new Input\RealmProof(Realm::USER, new Input\ProofInput($enrollmentId->toString(), $code))));
-        $clock->advance(new DateInterval('PT31S'));
-        $beginId = IdentityId::create();
-        $commands->handle(new Authentication\BeginLogin($beginId->toString(), $login));
         $loginId = IdentityId::create();
-        $now     = $clock->now();
-        $code    = Totp::code($secret, intdiv($now->getTimestamp(), 30));
-        $commands->handle(new Authentication\CompleteLogin($loginId->toString(), new Input\RealmProof(Realm::USER, new Input\ProofInput($beginId->toString(), $code))));
+        $login   = new Input\RealmLogin(Realm::USER, new Input\LoginInput('ADA.USER', 'valid-password-123'));
+        $commands->handle(new Authentication\Login($loginId->toString(), $login));
         $result  = $queries->handle(new GetIdentityOperation($loginId->toString()));
         $session = $result->data();
         self::assertIsString($session['accessToken']);

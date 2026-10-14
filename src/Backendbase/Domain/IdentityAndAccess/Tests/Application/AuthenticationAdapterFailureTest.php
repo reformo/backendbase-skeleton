@@ -31,22 +31,15 @@ use PHPUnit\Framework\TestCase;
 
 final class AuthenticationAdapterFailureTest extends TestCase
 {
-    public function testInvalidPasswordAndReusedFactorStepsAreRejectedAtTheCredentialBoundary(): void
+    public function testInvalidPasswordIsRejectedAtTheCredentialBoundary(): void
     {
         $fixture     = IdentityFixture::create();
         $registered  = IdentityScenario::registered($fixture);
         $container   = $fixture->container();
         $store       = $container->get(IdentityStore::class);
         $credentials = $container->get(Credentials::class);
-        try {
-            $store->transaction(static fn () => $credentials->assertPassword($registered['accountId'], new Password('wrong-password-123')));
-            self::fail('The credential boundary must reject an incorrect password.');
-        } catch (AuthenticationDenied $exception) {
-            self::assertSame('Authentication is not permitted.', $exception->getMessage());
-        }
-
         $this->expectException(AuthenticationDenied::class);
-        $store->transaction(static fn () => $credentials->consumeFactor($registered['accountId'], -1, false));
+        $store->transaction(static fn () => $credentials->assertPassword($registered['accountId'], new Password('wrong-password-123')));
     }
 
     public function testAnUnrecognizedActorTypeCannotEnterTheProductionRepository(): void
