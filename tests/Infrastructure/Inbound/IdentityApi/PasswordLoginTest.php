@@ -20,7 +20,7 @@ use const JSON_THROW_ON_ERROR;
 final class PasswordLoginTest extends TestCase
 {
     #[DataProvider('deniedAccounts')]
-    public function testPasswordLoginPreservesAccountAndActorGates(string $state): void
+    public function testPasswordLoginPreservesAccountAndActorGates(string $state, string $identifier): void
     {
         $fixture   = IdentityFixture::create();
         $user      = $state === 'unverified' ? IdentityScenario::registered($fixture) : IdentityScenario::verified($fixture);
@@ -41,22 +41,27 @@ final class PasswordLoginTest extends TestCase
             $actor->remove(new DateTimeImmutable('2026-10-15T10:00:00Z'));
             $store->saveActor($actor);
         });
+        if ($state === 'unverified') {
+            $connection = $fixture->connection();
+            $connection->executeStatement("UPDATE identity_account SET state = json_set(state, '$.owned', json('false'))");
+        }
+
         $api      = IdentityApiFixture::create($fixture, Realm::USER);
         $password = $state === 'wrong-password' ? 'wrong-password-123' : 'valid-password-123';
-        $response = $api->request('POST', '/auth/login', ['loginName' => 'ada.user', 'password' => $password]);
+        $response = $api->request('POST', '/auth/login', ['identifier' => $identifier, 'password' => $password]);
         self::assertSame(401, $response->getStatusCode());
         self::assertStringNotContainsString('accessToken', (string) $response->getBody());
         $connection = $fixture->connection();
-        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_challenge'));
+        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_info'));
     }
 
-    /** @return iterable<string, array{string}> */
+    /** @return iterable<string, array{string, string}> */
     public static function deniedAccounts(): iterable
     {
-        yield 'ownership required' => ['unverified'];
-        yield 'password required' => ['wrong-password'];
-        yield 'Account active' => ['closed'];
-        yield 'actor active' => ['removed'];
+        foreach (['unverified', 'wrong-password', 'closed', 'removed'] as $state) {
+            yield $state . ' email' => [$state, 'ada@example.com'];
+            yield $state . ' mobile' => [$state, '+905551234567'];
+        }
     }
 
     public function testExistingCredentialsRemainReadableAndPasswordLoginDoesNotCreateChallenges(): void
@@ -72,28 +77,9 @@ final class PasswordLoginTest extends TestCase
         $legacy = [...$credentials, 'totpSecret' => 'retired-key:ciphertext', 'pendingTotpSecret' => null, 'lastTotpStep' => 1, 'failedMfaAttempts' => 5, 'blockedUntil' => '2099-01-01 00:00:00.000000'];
         $connection->executeStatement('UPDATE identity_account SET credentials = ? WHERE uuid = ?', [json_encode($legacy, JSON_THROW_ON_ERROR), $user['accountId']]);
         $api      = IdentityApiFixture::create($fixture, Realm::USER);
-        $response = $api->request('POST', '/auth/login', ['loginName' => 'ada.user', 'password' => 'valid-password-123']);
+        $response = $api->request('POST', '/auth/login', ['identifier' => 'ada@example.com', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
         self::assertNotEmpty(UserFlowTest::resource($response, 'session')['accessToken']);
-        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_challenge'));
-    }
-
-    #[DataProvider('retiredChallenges')]
-    public function testRetiredChallengesCannotVerifyOwnership(string $purpose): void
-    {
-        $fixture    = IdentityFixture::create();
-        $registered = IdentityScenario::registered($fixture);
-        $connection = $fixture->connection();
-        $connection->executeStatement('UPDATE identity_challenge SET purpose = ? WHERE uuid = ?', [$purpose, $registered['challengeId']]);
-        $api      = IdentityApiFixture::create($fixture, Realm::USER);
-        $response = $api->request('POST', '/auth/ownership/verify', ['challengeId' => $registered['challengeId'], 'code' => '123456']);
-        self::assertSame(401, $response->getStatusCode());
-    }
-
-    /** @return iterable<string, array{string}> */
-    public static function retiredChallenges(): iterable
-    {
-        yield 'login challenge' => ['login'];
-        yield 'factor enrollment' => ['totp-enrollment'];
+        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_info'));
     }
 }

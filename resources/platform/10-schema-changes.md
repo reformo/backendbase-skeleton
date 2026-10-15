@@ -18,7 +18,9 @@ Do not run a migration that contains an unrequested change. Report the differenc
 
 Do not apply a migration to an unspecified, shared, stage, or production database without explicit authority for that database.
 
-Seed only approved reference data. Make seeders idempotent. Do not add environment-specific or test data to production seeders.
+Release seeders contain only approved reference data. Make seeders idempotent. Do not add environment-specific or test data to production seeders.
+The explicitly approved initial Admin uses a separate manual bootstrap. It never runs from a migration or release.
+See [Admin bootstrap](operations/identity-operator.md#approved-initial-admin-seeder).
 
 Review migration rollback and production compatibility before release.
 
@@ -37,7 +39,7 @@ The migration history supports fresh installations only. Three migrations create
 | --- | --- |
 | `Version20260823000000` | Outbox, inbox, delivery failures, replay and resolution evidence, destinations, and cleanup indexes |
 | `Version20260823215059` | Example binary UUID keys, virtual public UUIDs, versions, microsecond timestamps, active uniqueness, and query indexes |
-| `Version20261014020000` | Account, User, Admin, challenge, and operator evidence tables |
+| `Version20261014020000` | Account with required email and mobile active keys and nullable first/last names; User, Admin, contact verification, and operator evidence tables |
 
 The release manifest pins `Version20261014020000`. Application rollback to the previous integer-key version remains unsafe.
 Messaging and identity rollbacks reject evidence removal. Example rollback drops its table only through an explicitly authorized operation.

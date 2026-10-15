@@ -77,7 +77,7 @@ The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails 
 PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `public`, quality tools under `bin`, and `resources/database`.
 
 API validation commands check source and merged OpenAPI schemas and endpoint tags.
-`ApiDefinitionParityTest` checks all 32 documented operations, source/merged equality, and Bruno response assertions.
+`ApiDefinitionParityTest` checks all 37 documented operations, source/merged equality, and Bruno response assertions.
 `ApiResponseAssertions` compares executed responses with source and merged schemas for keys, shapes, types, enums, and media types.
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 
@@ -90,8 +90,9 @@ Production Doctrine metadata and the MySQL platform verify generated lock querie
 Native MySQL and Redis tests verify engine locking and Lua execution on prepared targets.
 
 `JwtContractTest` checks emitted claim names and the separate actor and Account meanings.
-Native MySQL tests cover Turkish UCA comparison and NO PAD uniqueness, error 1213 rollback, and active-login restoration conflicts.
-`MySqlRelationshipRaceTest` checks challenge creation against User removal with separate PHP processes and observed lock waits.
+Native MySQL tests cover Turkish UCA comparison and NO PAD uniqueness, error 1213 rollback, and active-mobile uniqueness and reuse after Account closure.
+`RedisVerificationLimiterTest` executes the contact cooldown, contact/IP send budgets, and confirmation reservation scripts on a prepared Redis target.
+`MySqlContactVerificationTest` checks single proof consumption and deadlines after observed contact lock waits with separate PHP processes.
 `RedisRecoveryTest` uses fixture-owned `DUMP` and `RESTORE` records to check loss, partial recovery, reconnection, and current Account closure.
 The Redis recovery Account gate uses isolated SQLite persistence. It does not prove MySQL/Redis atomicity or production replica durability.
 `RedisFailoverTest` runs eight cases through a disposable primary, replica, and three Sentinels.

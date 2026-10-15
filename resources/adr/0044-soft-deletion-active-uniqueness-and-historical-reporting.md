@@ -35,7 +35,7 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#referen
 ## Consequences
 
 - **Positive:** Normal reads exclude deleted rows. Historical reads include them. Active-key generated columns can support atomic uniqueness where a business rule requires it.
-- **Negative / Trade-offs:** Account email and actor login uniqueness remain separate domain rules. [ADR-0048](0048-business-key-normalization-and-uniqueness.md) selects realm-scoped actor login names. ASCII lowercase normalization, active-name reuse after actor deletion, and conflict rejection during restoration are implemented. Historical queries use stored actor fields without joining live Account attributes.
+- **Negative / Trade-offs:** Account email and mobile each have global active uniqueness under [ADR-0048](0048-business-key-normalization-and-uniqueness.md). Account closure releases these keys; actor removal does not. Historical queries include removed actors and join their retained Account for email and mobile. Actor restoration still requires an active Account.
 
 ## Implementation & Validation
 

@@ -23,7 +23,6 @@ http:
     data: |-
       {
         "accountId": "{{targetAccountId}}",
-        "loginName": "{{targetLoginName}}",
         "evidence": "{{invitationEvidence}}"
       }
 runtime:

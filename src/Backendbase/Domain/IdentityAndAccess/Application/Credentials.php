@@ -39,18 +39,4 @@ final readonly class Credentials
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
     }
-
-    public function proofHash(string $proof): string
-    {
-        $currentSecrets = $this->secrets;
-
-        return $currentSecrets->proofHash($proof);
-    }
-
-    public function verifyProof(string $proof, string $expected): bool
-    {
-        $currentSecrets = $this->secrets;
-
-        return $currentSecrets->verifyProof($proof, $expected);
-    }
 }

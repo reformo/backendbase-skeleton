@@ -13,8 +13,8 @@ final class User extends Actor
         return Realm::USER;
     }
 
-    public static function create(IdentityId $id, IdentityId $accountId, LoginName $loginName, DateTimeImmutable $now): self
+    public static function create(IdentityId $id, IdentityId $accountId, DateTimeImmutable $now): self
     {
-        return new self($id, ['accountId' => $accountId->toString(), 'loginName' => $loginName->toString(), 'approved' => true, 'invitation' => null, 'approval' => 'registration', 'deletedAt' => null, 'revision' => 1, 'createdAt' => $now->format('Y-m-d H:i:s.u')]);
+        return new self($id, ['accountId' => $accountId->toString(), 'approved' => true, 'invitation' => null, 'approval' => 'registration', 'deletedAt' => null, 'revision' => 1, 'createdAt' => $now->format('Y-m-d H:i:s.u')]);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Backendbase\Domain\IdentityAndAccess\Adapters\Console\IdentityOperator;
 use Backendbase\Infrastructure\Adapters\Console\GoodHousekeeping\ClearCache;
 use Backendbase\Infrastructure\Adapters\Console\Operations\InspectDatabase;
+use Backendbase\Infrastructure\Adapters\Console\Operations\SeedAdmin;
 use Backendbase\Infrastructure\Adapters\Console\Queue;
 use DI\ContainerBuilder;
 
@@ -14,6 +15,7 @@ return static function (ContainerBuilder $containerBuilder) {
     $commands = [
         IdentityOperator::class => autowire(IdentityOperator::class),
         InspectDatabase::class => autowire(InspectDatabase::class),
+        SeedAdmin::class => autowire(SeedAdmin::class),
         Queue\ContainerAwareQueueConsumer::class => autowire(Queue\ContainerAwareQueueConsumer::class),
         Queue\CleanupIntegrationMessages::class => autowire(Queue\CleanupIntegrationMessages::class),
         Queue\RelayOutboxMessages::class => autowire(Queue\RelayOutboxMessages::class),

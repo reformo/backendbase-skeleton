@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Contracts\Input;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
 use InvalidArgumentException;
 
 use function in_array;
@@ -13,10 +12,10 @@ use function preg_match;
 
 final readonly class OperatorInput
 {
-    /** @var array{action: string, target: IdentityId, operator: string, invitation: string, approval: string, loginName: string} */
+    /** @var array{action: string, target: IdentityId, operator: string, invitation: string, approval: string} */
     private array $values;
 
-    public function __construct(string $action, string $targetId, string $operator, string $invitation, string $approval, string $loginName = '')
+    public function __construct(string $action, string $targetId, string $operator, string $invitation, string $approval)
     {
         if (! in_array($action, ['invite-first-admin', 'approve-first-admin'], true)) {
             throw new InvalidArgumentException('Select a supported identity operator action.');
@@ -31,16 +30,15 @@ final readonly class OperatorInput
             self::evidence($approval);
         }
 
-        $loginName    = $action === 'invite-first-admin' ? new LoginName($loginName)->toString() : $loginName;
-        $this->values = ['action' => $action, 'target' => IdentityId::fromString($targetId), 'operator' => $operator, 'invitation' => $invitation, 'approval' => $approval, 'loginName' => $loginName];
+        $this->values = ['action' => $action, 'target' => IdentityId::fromString($targetId), 'operator' => $operator, 'invitation' => $invitation, 'approval' => $approval];
     }
 
-    /** @return array{action: string, targetId: string, operator: string, invitation: string, approval: string, loginName: string} */
+    /** @return array{action: string, targetId: string, operator: string, invitation: string, approval: string} */
     public function values(): array
     {
         $target = $this->values['target'];
 
-        return ['action' => $this->values['action'], 'targetId' => $target->toString(), 'operator' => $this->values['operator'], 'invitation' => $this->values['invitation'], 'approval' => $this->values['approval'], 'loginName' => $this->values['loginName']];
+        return ['action' => $this->values['action'], 'targetId' => $target->toString(), 'operator' => $this->values['operator'], 'invitation' => $this->values['invitation'], 'approval' => $this->values['approval']];
     }
 
     private static function evidence(string $value): void

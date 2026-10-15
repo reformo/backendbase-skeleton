@@ -6,13 +6,17 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityChallenge;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Ramsey\Uuid\Uuid;
+
+use function array_unique;
+use function sort;
+
+use const SORT_STRING;
 
 final readonly class IdentityRecordStore
 {
@@ -33,9 +37,9 @@ final readonly class IdentityRecordStore
      *
      * @return TRecord|null
      *
-     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser
+     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityUser
      */
-    public function find(string $class, string $id, bool|null $write = false): IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser|null
+    public function find(string $class, string $id, bool|null $write = false): IdentityAccount|IdentityAdmin|IdentityUser|null
     {
         $session    = $this->session;
         $manager    = $session->manager();
@@ -54,6 +58,15 @@ final readonly class IdentityRecordStore
         return $manager->find($class, $identifier, $lock);
     }
 
+    public function protectActorMutation(string $observerAccountId, string $targetAccountId): void
+    {
+        $ids = array_unique([$observerAccountId, $targetAccountId]);
+        sort($ids, SORT_STRING);
+        foreach ($ids as $id) {
+            $this->account($id, $id === $targetAccountId);
+        }
+    }
+
     public function account(string $id, bool $write = false): IdentityAccount
     {
         return $this->find(IdentityAccount::class, $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
@@ -70,9 +83,9 @@ final readonly class IdentityRecordStore
      *
      * @return TRecord|null
      *
-     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser
+     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityUser
      */
-    public function activeBy(string $class, array $criteria, bool $lock = true): IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser|null
+    public function activeBy(string $class, array $criteria, bool $lock = true): IdentityAccount|IdentityAdmin|IdentityUser|null
     {
         $criteria['deletedAt'] = null;
         $session               = $this->session;
@@ -86,7 +99,7 @@ final readonly class IdentityRecordStore
         return $lock ? $this->find($class, $record->id()) : $record;
     }
 
-    public function refreshUnderLock(IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser $record, bool $write): void
+    public function refreshUnderLock(IdentityAccount|IdentityAdmin|IdentityUser $record, bool $write): void
     {
         $session    = $this->session;
         $manager    = $session->manager();
@@ -95,7 +108,7 @@ final readonly class IdentityRecordStore
         $manager->refresh($record, $lock);
     }
 
-    public function refreshPersistedUnderLock(IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser $record, bool $write): void
+    public function refreshPersistedUnderLock(IdentityAccount|IdentityAdmin|IdentityUser $record, bool $write): void
     {
         $session = $this->session;
         $manager = $session->manager();
@@ -107,7 +120,7 @@ final readonly class IdentityRecordStore
         $this->refreshUnderLock($record, $write);
     }
 
-    public function persist(IdentityAccount|IdentityAdmin|IdentityChallenge|IdentityUser $record): void
+    public function persist(IdentityAccount|IdentityAdmin|IdentityUser $record): void
     {
         $session = $this->session;
         $manager = $session->manager();

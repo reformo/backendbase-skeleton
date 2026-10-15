@@ -16,9 +16,9 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDen
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
@@ -49,7 +49,7 @@ final class AuthenticationAdapterFailureTest extends TestCase
         $container  = $fixture->container();
         $store      = $container->get(IdentityStore::class);
         $id         = IdentityId::create();
-        $admin      = SystemAdmin::invite($id, IdentityId::fromString($registered['accountId']), new LoginName('test.admin'), 'invitation:123', new DateTimeImmutable());
+        $admin      = SystemAdmin::invite($id, IdentityId::fromString($registered['accountId']), 'invitation:123', new DateTimeImmutable());
         $actor      = new class ($id, $admin->snapshot()) extends Actor {
             public function realm(): Realm
             {
@@ -64,11 +64,11 @@ final class AuthenticationAdapterFailureTest extends TestCase
     {
         $now       = new DateTimeImmutable('2026-10-14T10:00:00Z');
         $accountId = IdentityId::create();
-        $account   = Account::create($accountId, new AccountEmail('admin@example.com'), $now);
+        $account   = Account::create($accountId, new AccountEmail('admin@example.com'), new AccountMobile('+905551234567'), $now);
         $account->verifyOwnership();
-        $admin = SystemAdmin::invite(IdentityId::create(), $accountId, new LoginName('valid.admin'), 'invitation:123', $now);
+        $admin = SystemAdmin::invite(IdentityId::create(), $accountId, 'invitation:123', $now);
         $admin->approve('approval:123');
-        $target = User::create(IdentityId::create(), $accountId, new LoginName('target.user'), $now);
+        $target = User::create(IdentityId::create(), $accountId, $now);
         $store  = $this->createStub(IdentityStore::class);
         $store->method('transaction')->willReturnCallback(static fn (callable $work): mixed => $work());
         $store->method('actorReference')->willReturn($target);

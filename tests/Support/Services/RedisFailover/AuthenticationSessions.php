@@ -27,7 +27,7 @@ final class AuthenticationSessions
     {
         $identity = IdentityFixture::create();
         IdentityScenario::admin($identity);
-        $principal = IdentityScenario::principal($identity, $realm, 'ada.admin');
+        $principal = IdentityScenario::principal($identity, $realm, 'admin@example.com');
         $values    = $principal->identity();
         $sessions  = new self($identity, []);
         $tokens    = $sessions->tokens($registry);
@@ -89,7 +89,7 @@ final class AuthenticationSessions
         $identity  = $this->identity;
         $principal = $this->principal();
         $realm     = $principal->realm();
-        $current   = IdentityScenario::principal($identity, $realm, 'ada.admin');
+        $current   = IdentityScenario::principal($identity, $realm, 'admin@example.com');
         $tokens    = $this->tokens($registry);
         $token     = $tokens->issue($current, new DateTimeImmutable('+15 minutes'));
         $gate      = $this->gate($registry);

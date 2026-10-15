@@ -8,6 +8,8 @@ use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactVerificationExpired;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationLimited;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Backendbase\Shared\Domain\Exception\DomainException;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
@@ -25,6 +27,8 @@ final class DomainErrorProblemDetailsMapper
     public function map(DomainException $exception): ActionError
     {
         [$status, $title, $code, $type] = match (true) {
+            $exception instanceof VerificationLimited => [429, 'Verification limit reached', 'identity/verification-limited', 'about:blank'],
+            $exception instanceof ContactVerificationExpired => [410, 'Verification expired', 'identity/verification-expired', 'about:blank'],
             $exception instanceof EntryAlreadyExists => [
                 409,
                 'Example Already Exists',

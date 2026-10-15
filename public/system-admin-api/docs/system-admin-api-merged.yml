@@ -7,12 +7,267 @@ servers:
   -
     url: 'http://127.0.0.1:8080/system-admin-api'
 paths:
-  /auth/ownership/verify:
+  '/identity/contact-verifications/{contact-info-id}/resend':
     post:
       tags:
-        - Authentication
-      summary: 'Verify contact ownership'
-      operationId: systemadminVerifyContactOwnership
+        - Identity
+      summary: 'Resend contact verification'
+      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      operationId: systemadminAuthenticatedContactResend
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+        -
+          name: contact-info-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactResend'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  '/identity/contact-verifications/{contact-info-id}/confirm':
+    post:
+      tags:
+        - Identity
+      summary: 'Confirm contact verification'
+      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      operationId: systemadminAuthenticatedContactConfirm
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+        -
+          name: contact-info-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactConfirmation'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  /identity/contact-verifications:
+    post:
+      tags:
+        - Identity
+      summary: 'Request contact verification'
+      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      operationId: systemadminAuthenticatedContactRequest
       parameters:
         -
           name: Accept-Language
@@ -52,15 +307,14 @@ paths:
               - system-admin
             type: string
       requestBody:
-        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProofInput'
+              $ref: '#/components/schemas/AuthenticatedContactRequest'
         required: true
       responses:
         '200':
-          description: 'Completed operation'
+          description: 'Contact verification state'
           headers:
             Cache-Control:
               schema:
@@ -71,43 +325,319 @@ paths:
             application/json:
               schema:
                 required:
-                  - ownershipVerification
+                  - contactInfo
                 type: object
                 properties:
-                  ownershipVerification:
-                    $ref: '#/components/schemas/Completed'
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
                 additionalProperties: false
         '400':
-          description: 'Invalid request'
+          description: 'Invalid input'
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '401':
-          description: 'Authentication denied'
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '409':
-          description: 'Identity conflict'
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '503':
-          description: 'Authentication dependency unavailable'
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  '/auth/contact-verifications/{contact-info-id}/resend':
+    post:
+      tags:
+        - Authentication
+      summary: 'Resend contact verification'
+      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      operationId: systemadminContactResend
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+        -
+          name: contact-info-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactResend'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
       security: []
-  /auth/ownership/resend:
+  '/auth/contact-verifications/{contact-info-id}/confirm':
     post:
       tags:
         - Authentication
-      summary: 'Resend contact ownership proof'
-      operationId: systemadminResendContactOwnershipProof
+      summary: 'Confirm contact verification'
+      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      operationId: systemadminContactConfirm
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - system-admin
+            type: string
+        -
+          name: contact-info-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactConfirmation'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+  /auth/contact-verifications:
+    post:
+      tags:
+        - Authentication
+      summary: 'Request contact verification'
+      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      operationId: systemadminContactRequest
       parameters:
         -
           name: Accept-Language
@@ -147,15 +677,14 @@ paths:
               - system-admin
             type: string
       requestBody:
-        description: 'Strict JSON object. Unknown fields and type coercion are rejected. The raw body limit is 65536 bytes before parsing.'
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginInput'
+              $ref: '#/components/schemas/AdminContactRequest'
         required: true
       responses:
         '200':
-          description: 'Completed operation'
+          description: 'Contact verification state'
           headers:
             Cache-Control:
               schema:
@@ -166,32 +695,55 @@ paths:
             application/json:
               schema:
                 required:
-                  - challenge
+                  - contactInfo
                 type: object
                 properties:
-                  challenge:
-                    $ref: '#/components/schemas/Challenge'
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
                 additionalProperties: false
         '400':
-          description: 'Invalid request'
+          description: 'Invalid input'
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '401':
-          description: 'Authentication denied'
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '409':
-          description: 'Identity conflict'
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '503':
-          description: 'Authentication dependency unavailable'
+          description: 'Verification dependency unavailable'
           content:
             application/problem+json:
               schema:
@@ -1195,21 +1747,44 @@ components:
     RegistrationInput:
       required:
         - email
-        - loginName
+        - mobile
         - password
+        - emailContactInfoId
+        - mobileContactInfoId
+        - verificationContextToken
       type: object
       properties:
+        firstName:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Optional Account first name. Reject surrounding spaces and control characters.'
+          nullable: true
+        lastName:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Optional Account last name. Reject surrounding spaces and control characters.'
+          nullable: true
+        emailContactInfoId:
+          type: string
+          format: uuid
+        mobileContactInfoId:
+          type: string
+          format: uuid
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
         email:
           maxLength: 254
           type: string
           description: 'ASCII email address normalized to lowercase.'
           format: email
-        loginName:
-          maxLength: 64
+        mobile:
+          maxLength: 16
           minLength: 3
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
+          pattern: '^\+[1-9][0-9]{1,14}$'
           type: string
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+          description: 'Required E.164 mobile number. Unique among active Accounts.'
         password:
           maxLength: 128
           minLength: 12
@@ -1219,16 +1794,23 @@ components:
       additionalProperties: false
     LoginInput:
       required:
-        - loginName
+        - identifier
         - password
       type: object
       properties:
-        loginName:
-          maxLength: 64
-          minLength: 3
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
-          type: string
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+        identifier:
+          oneOf:
+            -
+              maxLength: 254
+              pattern: '^[\x21-\x7e]+@[\x21-\x7e]+$'
+              type: string
+              format: email
+            -
+              maxLength: 16
+              minLength: 3
+              pattern: '^\+[1-9][0-9]{1,14}$'
+              type: string
+          description: 'Account email or E.164 mobile number.'
         password:
           maxLength: 128
           minLength: 12
@@ -1236,41 +1818,10 @@ components:
           description: 'UTF-8, at most 512 bytes, without null bytes.'
           format: password
       additionalProperties: false
-    ProofInput:
-      required:
-        - challengeId
-        - code
-      type: object
-      properties:
-        challengeId:
-          pattern: '^[0-9a-f-]{36}$'
-          type: string
-          format: uuid
-        code:
-          pattern: '^[0-9]{6}$'
-          type: string
-      additionalProperties: false
-    Challenge:
-      required:
-        - challengeId
-        - expiresIn
-      type: object
-      properties:
-        challengeId:
-          pattern: '^[0-9a-f-]{36}$'
-          type: string
-          format: uuid
-        expiresIn:
-          enum:
-            - 300
-          type: integer
-      additionalProperties: false
     Registration:
       required:
         - accountId
         - actorId
-        - challengeId
-        - expiresIn
       type: object
       properties:
         accountId:
@@ -1281,14 +1832,130 @@ components:
           pattern: '^[0-9a-f-]{36}$'
           type: string
           format: uuid
-        challengeId:
-          pattern: '^[0-9a-f-]{36}$'
+      additionalProperties: false
+    VerificationContextToken:
+      maxLength: 43
+      minLength: 43
+      pattern: '^[A-Za-z0-9_-]{43}$'
+      type: string
+      description: 'Client-generated 32-byte random secret encoded as canonical unpadded base64url. Keep this token for both contacts.'
+      writeOnly: true
+    ContactRequest:
+      required:
+        - contactType
+        - contactValue
+        - verificationContextToken
+      type: object
+      properties:
+        contactType:
+          enum:
+            - email
+            - mobile
+          type: string
+        contactValue:
+          maxLength: 254
+          type: string
+          description: 'ASCII email or E.164 mobile, according to contactType.'
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+      additionalProperties: false
+    AdminContactRequest:
+      required:
+        - identifier
+        - password
+        - contactType
+        - verificationContextToken
+      type: object
+      properties:
+        identifier:
+          maxLength: 254
+          type: string
+        password:
+          maxLength: 128
+          minLength: 12
+          type: string
+          format: password
+        contactType:
+          enum:
+            - email
+            - mobile
+          type: string
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+      additionalProperties: false
+    AuthenticatedContactRequest:
+      required:
+        - contactType
+        - verificationContextToken
+      type: object
+      properties:
+        contactType:
+          enum:
+            - email
+            - mobile
+          type: string
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+      additionalProperties: false
+    ContactConfirmation:
+      required:
+        - verificationContextToken
+        - code
+      type: object
+      properties:
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+        code:
+          pattern: '^[0-9]{6}$'
+          type: string
+      additionalProperties: false
+    ContactResend:
+      required:
+        - verificationContextToken
+      type: object
+      properties:
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+      additionalProperties: false
+    ContactInfo:
+      required:
+        - contactInfoId
+        - contactType
+        - codeExpiresAt
+        - resendAfter
+        - verifiedAt
+        - registrationValidUntil
+        - deliveryState
+      type: object
+      properties:
+        contactInfoId:
           type: string
           format: uuid
-        expiresIn:
+        contactType:
           enum:
-            - 300
-          type: integer
+            - email
+            - mobile
+          type: string
+        codeExpiresAt:
+          type: string
+          format: date-time
+        resendAfter:
+          type: string
+          format: date-time
+        verifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+        registrationValidUntil:
+          type: string
+          format: date-time
+          nullable: true
+        deliveryState:
+          enum:
+            - pending
+            - accepted
+            - unknown
+          type: string
       additionalProperties: false
     Completed:
       required:
@@ -1322,8 +1989,35 @@ components:
         - accountId
         - actorId
         - realm
+        - email
+        - mobile
+        - firstName
+        - lastName
       type: object
       properties:
+        firstName:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Optional Account first name. Reject surrounding spaces and control characters.'
+          nullable: true
+        lastName:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Optional Account last name. Reject surrounding spaces and control characters.'
+          nullable: true
+        email:
+          maxLength: 254
+          type: string
+          description: 'ASCII email address normalized to lowercase.'
+          format: email
+        mobile:
+          maxLength: 16
+          minLength: 3
+          pattern: '^\+[1-9][0-9]{1,14}$'
+          type: string
+          description: 'Required E.164 mobile number. Unique among active Accounts.'
         accountId:
           pattern: '^[0-9a-f-]{36}$'
           type: string
@@ -1341,7 +2035,6 @@ components:
     AdminInvitationInput:
       required:
         - accountId
-        - loginName
         - evidence
       type: object
       properties:
@@ -1349,12 +2042,6 @@ components:
           pattern: '^[0-9a-f-]{36}$'
           type: string
           format: uuid
-        loginName:
-          maxLength: 64
-          minLength: 3
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
-          type: string
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
         evidence:
           maxLength: 160
           minLength: 1
@@ -1418,12 +2105,27 @@ components:
         - actorId
         - accountId
         - realm
-        - loginName
+        - email
+        - mobile
+        - firstName
+        - lastName
         - approved
         - createdAt
         - deletedAt
       type: object
       properties:
+        firstName:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Optional Account first name. Reject surrounding spaces and control characters.'
+          nullable: true
+        lastName:
+          maxLength: 160
+          minLength: 1
+          type: string
+          description: 'Optional Account last name. Reject surrounding spaces and control characters.'
+          nullable: true
         actorId:
           pattern: '^[0-9a-f-]{36}$'
           type: string
@@ -1437,12 +2139,17 @@ components:
             - USER
             - ADMIN
           type: string
-        loginName:
-          maxLength: 64
-          minLength: 3
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
+        email:
+          maxLength: 254
           type: string
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+          description: 'ASCII email address normalized to lowercase.'
+          format: email
+        mobile:
+          maxLength: 16
+          minLength: 3
+          pattern: '^\+[1-9][0-9]{1,14}$'
+          type: string
+          description: 'Required E.164 mobile number. Unique among active Accounts.'
         approved:
           type: boolean
         createdAt:

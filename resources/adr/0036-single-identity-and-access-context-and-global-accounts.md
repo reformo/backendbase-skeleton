@@ -9,7 +9,7 @@
 
 The target architecture contains User and System Admin actors linked to global Account identity. Authentication flows must preserve common identity rules and separate actor business lifecycles.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#context-and-actor-scope) selects one IdentityAndAccess context. The context now owns Account, User, SystemAdmin, authentication challenge, credential, token, and session behavior.
+The [decision report](references/2026-10-13-identity-access-decisions.md#context-and-actor-scope) selects one IdentityAndAccess context. The context now owns Account, User, SystemAdmin, contact verification, credential, token, and session behavior.
 
 - **Constraints:** Keep existing directories and framework conventions. Limit actor scope to User and System Admin. Keep domain rules outside controllers, SQL, Redis, and JWT adapters.
 
@@ -17,7 +17,7 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#context
 
 ### Option A: One identity context with separate actor aggregates
 
-- **Pros:** Account, credentials, ownership challenges, sessions, token issuance, and access policy have one owner. Actor business rules retain separate aggregate ownership.
+- **Pros:** Account, credentials, contact verification evidence, sessions, token issuance, and access policy have one owner. Actor business rules retain separate aggregate ownership.
 - **Cons / Risks:** Realm policy and actor lifecycle need explicit coordination. Global identity does not make User and Admin interchangeable.
 - **Estimated Cost / Effort:** Medium
 
@@ -35,7 +35,7 @@ The [decision report](references/2026-10-13-identity-access-decisions.md#context
 ## Consequences
 
 - **Positive:** Account identity is global. User and Admin aggregates retain their own identifiers, lifecycle rules, and scalar Account references.
-- **Negative / Trade-offs:** One Account can own at most one User and one SystemAdmin, including removed actor records. Account email is a global active key. Actor login names are active realm keys under ADR-0048. The report defines no tenant model or additional actor types.
+- **Negative / Trade-offs:** One Account can own at most one User and one SystemAdmin, including removed actor records. Account email and required mobile are global active keys under ADR-0048. Both actor types authenticate with Account contacts and password. The report defines no tenant model or additional actor types.
 
 ## Implementation & Validation
 

@@ -4,25 +4,21 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Application\Workflows;
 
-use Backendbase\Domain\IdentityAndAccess\Application\AuthenticationTools;
+use Backendbase\Domain\IdentityAndAccess\Application\Registration\RegistrationPreparation;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\RegistrationInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
-use Backendbase\Domain\IdentityAndAccess\Domain\Challenges\ChallengePurpose;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User;
 
-use function random_int;
-use function sprintf;
-
 final readonly class RegistrationWorkflow
 {
-    public function __construct(private IdentityStore $store, private AuthenticationTools $tools)
+    public function __construct(private IdentityStore $store, private RegistrationPreparation $tools)
     {
     }
 
-    /** @return array{accountId: string, actorId: string, challengeId: string, expiresIn: int} */
+    /** @return array{accountId: string, actorId: string} */
     public function register(string $operationId, RegistrationInput $input): array
     {
         $currentTools = $this->tools;
@@ -30,27 +26,32 @@ final readonly class RegistrationWorkflow
 
         $accountId = IdentityId::create();
         $actorId   = IdentityId::create();
-        $code      = sprintf('%06d', random_int(0, 999999));
         $hash      = $currentTools->hashPassword($input->password());
-        $currentStore->transaction(function () use ($input, $accountId, $actorId, $code, $hash, $operationId): void {
+        $currentStore->transaction(function () use ($input, $accountId, $actorId, $hash): void {
             $currentStore = $this->store;
             $currentTools = $this->tools;
 
-            if ($currentStore->accountByEmail($input->email()) !== null) {
+            $email  = $input->email();
+            $mobile = $input->mobile();
+            if ($currentStore->accountByEmail($email) !== null) {
                 throw IdentityConflict::create('An active Account already uses this email.');
             }
 
-            $now     = $currentTools->now();
-            $account = Account::create($accountId, $input->email(), $now);
-            $actor   = User::create($actorId, $accountId, $input->loginName(), $now);
+            if ($currentStore->accountByMobile($mobile) !== null) {
+                throw IdentityConflict::create('An active Account already uses this mobile.');
+            }
+
+            [$contacts, $now] = $currentTools->verify($input);
+            $names            = $input->names();
+            $account          = Account::create($accountId, $email, $mobile, $now, $names);
+            $account->verifyOwnership();
+            $actor = User::create($actorId, $accountId, $now);
             $currentStore->saveAccount($account);
             $currentStore->saveActor($actor);
             $currentTools->initializeCredentials($account->id(), $hash);
-            $challenge = $currentTools->challenge($operationId, $account, $actor, ChallengePurpose::OWNERSHIP, $code);
-            $currentStore->saveChallenge($challenge);
+            $currentTools->consume($contacts, $account->id(), $actor->id(), $now);
         });
-        $currentTools->sendOwnership($operationId, $input->email(), $code);
 
-        return ['accountId' => $accountId->toString(), 'actorId' => $actorId->toString(), 'challengeId' => $operationId, 'expiresIn' => 300];
+        return ['accountId' => $accountId->toString(), 'actorId' => $actorId->toString()];
     }
 }

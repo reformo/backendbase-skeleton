@@ -60,7 +60,7 @@ Restart PHP-FPM and long-running workers after injection changes.
 Verify new issuance and old-key verification before retiring the previous key.
 Retire previous signing keys only after their tokens have expired or been revoked.
 Ownership proof hashes use the existing `encryptionKey` configuration names.
-Retain the previous proof key until pending ownership challenges expire.
+Retain required contact proof keys through pending code deadlines and confirmed evidence recovery windows of 12 hours.
 Pending proof hashes also require their original verification key until expiry or invalidation.
 
 Do not record environment values, passwords, tokens, or provider responses in logs.

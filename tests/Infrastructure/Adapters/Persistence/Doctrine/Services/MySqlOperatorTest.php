@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Services;
 
 use Backendbase\Domain\IdentityAndAccess\Application\Operations\OperatorWorkflow;
+use Backendbase\Domain\IdentityAndAccess\Contracts\ContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
-use Backendbase\Domain\IdentityAndAccess\Contracts\OwnershipNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
+use Backendbase\Domain\IdentityAndAccess\Contracts\VerificationLimiter;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedOwnershipNotifier;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryTokenRegistry;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryVerificationLimiter;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Migrations\Version20261014020000;
 use Backendbase\Shared\Time\Clock;
@@ -54,15 +56,16 @@ final class MySqlOperatorTest extends TestCase
                 LoggerInterface::class => new NullLogger(),
                 Clock::class => $clock,
                 IdentitySettings::class => IdentityFixture::settings(),
-                OwnershipNotifier::class => new CapturedOwnershipNotifier(),
+                ContactNotifier::class => new CapturedContactNotifier(),
+                VerificationLimiter::class => new MemoryVerificationLimiter($clock),
                 TokenRegistry::class => new MemoryTokenRegistry($clock),
             ]);
             $identity  = new IdentityFixture($connection, $container);
             $enrolled  = IdentityScenario::verified($identity);
             $workflow  = $container->get(OperatorWorkflow::class);
-            $adminId   = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'invite:123', '', 'first.admin'), $clock->now(), true);
+            $adminId   = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'invite:123', ''), $clock->now(), true);
             $workflow->run(new OperatorInput('approve-first-admin', $adminId, 'operator', '', 'approve:456'), $clock->now(), true);
-            $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'first.admin');
+            $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'ada@example.com');
             self::assertSame($adminId, $principal->identity()['actorId']);
             self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
             self::assertSame($adminId, $connection->fetchOne("SELECT BIN_TO_UUID(target_id, 0) FROM identity_operator_action WHERE action_name = 'approve-first-admin'"));

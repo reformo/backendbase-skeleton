@@ -7,10 +7,18 @@ servers:
   -
     url: 'http://127.0.0.1:8080/system-admin-api'
 paths:
-  /auth/ownership/verify:
-    $ref: "./authentication/ownership-verify.yaml"
-  /auth/ownership/resend:
-    $ref: "./authentication/ownership-resend.yaml"
+  '/identity/contact-verifications/{contact-info-id}/resend':
+    $ref: './identity/contact-resend.yaml'
+  '/identity/contact-verifications/{contact-info-id}/confirm':
+    $ref: './identity/contact-confirmation.yaml'
+  '/identity/contact-verifications':
+    $ref: './identity/contact-verification.yaml'
+  '/auth/contact-verifications/{contact-info-id}/resend':
+    $ref: './authentication/contact-resend.yaml'
+  '/auth/contact-verifications/{contact-info-id}/confirm':
+    $ref: './authentication/contact-confirmation.yaml'
+  '/auth/contact-verifications':
+    $ref: './authentication/contact-verification.yaml'
   /auth/login:
     $ref: "./authentication/login.yaml"
   /identity:
@@ -46,20 +54,43 @@ components:
       additionalProperties: false
       required:
         - email
-        - loginName
+        - mobile
         - password
+        - emailContactInfoId
+        - mobileContactInfoId
+        - verificationContextToken
       properties:
+        firstName:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 160
+          description: 'Optional Account first name. Reject surrounding spaces and control characters.'
+        lastName:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 160
+          description: 'Optional Account last name. Reject surrounding spaces and control characters.'
+        emailContactInfoId:
+          type: string
+          format: uuid
+        mobileContactInfoId:
+          type: string
+          format: uuid
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
         email:
           type: string
           format: email
           maxLength: 254
           description: 'ASCII email address normalized to lowercase.'
-        loginName:
+        mobile:
           type: string
           minLength: 3
-          maxLength: 64
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+          maxLength: 16
+          pattern: '^\+[1-9][0-9]{1,14}$'
+          description: 'Required E.164 mobile number. Unique among active Accounts.'
         password:
           type: string
           format: password
@@ -70,58 +101,32 @@ components:
       type: object
       additionalProperties: false
       required:
-        - loginName
+        - identifier
         - password
       properties:
-        loginName:
-          type: string
-          minLength: 3
-          maxLength: 64
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+        identifier:
+          description: 'Account email or E.164 mobile number.'
+          oneOf:
+            - type: string
+              format: email
+              maxLength: 254
+              pattern: '^[\x21-\x7e]+@[\x21-\x7e]+$'
+            - type: string
+              minLength: 3
+              maxLength: 16
+              pattern: '^\+[1-9][0-9]{1,14}$'
         password:
           type: string
           format: password
           minLength: 12
           maxLength: 128
           description: 'UTF-8, at most 512 bytes, without null bytes.'
-    ProofInput:
-      type: object
-      additionalProperties: false
-      required:
-        - challengeId
-        - code
-      properties:
-        challengeId:
-          type: string
-          format: uuid
-          pattern: '^[0-9a-f-]{36}$'
-        code:
-          type: string
-          pattern: '^[0-9]{6}$'
-    Challenge:
-      type: object
-      additionalProperties: false
-      required:
-        - challengeId
-        - expiresIn
-      properties:
-        challengeId:
-          type: string
-          format: uuid
-          pattern: '^[0-9a-f-]{36}$'
-        expiresIn:
-          type: integer
-          enum:
-            - 300
     Registration:
       type: object
       additionalProperties: false
       required:
         - accountId
         - actorId
-        - challengeId
-        - expiresIn
       properties:
         accountId:
           type: string
@@ -131,14 +136,100 @@ components:
           type: string
           format: uuid
           pattern: '^[0-9a-f-]{36}$'
-        challengeId:
+    VerificationContextToken:
+      type: string
+      minLength: 43
+      maxLength: 43
+      pattern: '^[A-Za-z0-9_-]{43}$'
+      writeOnly: true
+      description: 'Client-generated 32-byte random secret encoded as canonical unpadded base64url. Keep this token for both contacts.'
+    ContactRequest:
+      type: object
+      additionalProperties: false
+      required: [contactType, contactValue, verificationContextToken]
+      properties:
+        contactType:
+          type: string
+          enum: [email, mobile]
+        contactValue:
+          type: string
+          maxLength: 254
+          description: 'ASCII email or E.164 mobile, according to contactType.'
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+    AdminContactRequest:
+      type: object
+      additionalProperties: false
+      required: [identifier, password, contactType, verificationContextToken]
+      properties:
+        identifier:
+          type: string
+          maxLength: 254
+        password:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+        contactType:
+          type: string
+          enum: [email, mobile]
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+    AuthenticatedContactRequest:
+      type: object
+      additionalProperties: false
+      required: [contactType, verificationContextToken]
+      properties:
+        contactType:
+          type: string
+          enum: [email, mobile]
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+    ContactConfirmation:
+      type: object
+      additionalProperties: false
+      required: [verificationContextToken, code]
+      properties:
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+        code:
+          type: string
+          pattern: '^[0-9]{6}$'
+    ContactResend:
+      type: object
+      additionalProperties: false
+      required: [verificationContextToken]
+      properties:
+        verificationContextToken:
+          $ref: '#/components/schemas/VerificationContextToken'
+    ContactInfo:
+      type: object
+      additionalProperties: false
+      required: [contactInfoId, contactType, codeExpiresAt, resendAfter, verifiedAt, registrationValidUntil, deliveryState]
+      properties:
+        contactInfoId:
           type: string
           format: uuid
-          pattern: '^[0-9a-f-]{36}$'
-        expiresIn:
-          type: integer
-          enum:
-            - 300
+        contactType:
+          type: string
+          enum: [email, mobile]
+        codeExpiresAt:
+          type: string
+          format: date-time
+        resendAfter:
+          type: string
+          format: date-time
+        verifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+        registrationValidUntil:
+          type: string
+          format: date-time
+          nullable: true
+        deliveryState:
+          type: string
+          enum: [pending, accepted, unknown]
     Completed:
       type: object
       additionalProperties: false
@@ -173,7 +264,34 @@ components:
         - accountId
         - actorId
         - realm
+        - email
+        - mobile
+        - firstName
+        - lastName
       properties:
+        firstName:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 160
+          description: 'Optional Account first name. Reject surrounding spaces and control characters.'
+        lastName:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 160
+          description: 'Optional Account last name. Reject surrounding spaces and control characters.'
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: 'ASCII email address normalized to lowercase.'
+        mobile:
+          type: string
+          minLength: 3
+          maxLength: 16
+          pattern: '^\+[1-9][0-9]{1,14}$'
+          description: 'Required E.164 mobile number. Unique among active Accounts.'
         accountId:
           type: string
           format: uuid
@@ -192,19 +310,12 @@ components:
       additionalProperties: false
       required:
         - accountId
-        - loginName
         - evidence
       properties:
         accountId:
           type: string
           format: uuid
           pattern: '^[0-9a-f-]{36}$'
-        loginName:
-          type: string
-          minLength: 3
-          maxLength: 64
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
         evidence:
           type: string
           minLength: 1
@@ -269,11 +380,26 @@ components:
         - actorId
         - accountId
         - realm
-        - loginName
+        - email
+        - mobile
+        - firstName
+        - lastName
         - approved
         - createdAt
         - deletedAt
       properties:
+        firstName:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 160
+          description: 'Optional Account first name. Reject surrounding spaces and control characters.'
+        lastName:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 160
+          description: 'Optional Account last name. Reject surrounding spaces and control characters.'
         actorId:
           type: string
           format: uuid
@@ -287,12 +413,17 @@ components:
           enum:
             - USER
             - ADMIN
-        loginName:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: 'ASCII email address normalized to lowercase.'
+        mobile:
           type: string
           minLength: 3
-          maxLength: 64
-          pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$'
-          description: 'ASCII names are normalized to lowercase. Uniqueness is local to the realm.'
+          maxLength: 16
+          pattern: '^\+[1-9][0-9]{1,14}$'
+          description: 'Required E.164 mobile number. Unique among active Accounts.'
         approved:
           type: boolean
         createdAt:

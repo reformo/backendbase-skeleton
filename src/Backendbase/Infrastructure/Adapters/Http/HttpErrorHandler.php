@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Http;
 
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationLimited;
 use Backendbase\Infrastructure\Adapters\Diagnostics\SafeExceptionContext;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ActionError;
 use Backendbase\Shared\Domain\Exception\DomainException;
@@ -109,6 +110,11 @@ final class HttpErrorHandler extends SlimErrorHandler
                 $payload,
                 $this->translator,
             );
+        }
+
+        if ($exception instanceof VerificationLimited) {
+            $context                          = $exception->context();
+            $additionalHeaders['Retry-After'] = (string) ($context['retryAfter'] ?? 60);
         }
 
         return new JsonResponse($payload, $statusCode, $additionalHeaders);

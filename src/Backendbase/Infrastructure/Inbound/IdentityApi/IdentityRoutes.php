@@ -21,11 +21,7 @@ final class IdentityRoutes
     {
         $app->get('/_status', Controllers\Liveness::class);
         $app->get('/_status/ready', Controllers\Readiness::class);
-        $anonymous = [
-            '/auth/ownership/verify' => 'verify-ownership',
-            '/auth/ownership/resend' => 'resend-ownership',
-            '/auth/login' => 'login',
-        ];
+        $anonymous = ['/auth/login' => 'login'];
         if ($realm === Realm::USER) {
             $anonymous['/auth/register'] = 'register';
         }
@@ -48,6 +44,7 @@ final class IdentityRoutes
             $route->add(new RoutePolicy($realm, $action));
         }
 
+        IdentityContactRoutes::register($app, $realm);
         self::preflight($app);
     }
 

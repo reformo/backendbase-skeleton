@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginIdentifier;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User;
+use Ramsey\Uuid\Uuid;
 
 final readonly class IdentityActorRecords
 {
@@ -51,10 +54,26 @@ final readonly class IdentityActorRecords
         return $record->toDomain();
     }
 
-    public function actorByLogin(Realm $realm, LoginName $name): Actor|null
+    public function actorByIdentifier(Realm $realm, LoginIdentifier $identifier): Actor|null
+    {
+        $contact = $identifier->contact();
+        $field   = $contact instanceof AccountEmail ? 'activeEmail' : 'activeMobile';
+        $records = $this->records;
+        $value   = $contact->toString();
+        $record  = $records->activeBy(IdentityAccount::class, [$field => $value], false);
+        if ($record === null) {
+            return null;
+        }
+
+        $accountId = $record->id();
+
+        return $this->actorByAccount($realm, $accountId);
+    }
+
+    private function actorByAccount(Realm $realm, string $accountId): Actor|null
     {
         $records = $this->records;
-        $record  = $records->activeBy(IdentityRecordStore::actorClass($realm), ['activeLoginName' => $name->toString()], false);
+        $record  = $records->activeBy(IdentityRecordStore::actorClass($realm), ['accountId' => Uuid::fromString($accountId)], false);
         if ($record === null) {
             return null;
         }
@@ -95,6 +114,7 @@ final readonly class IdentityActorRecords
         $currentRecords = $this->records;
 
         $record = $currentRecords->account($id, true);
+        $currentRecords->refreshUnderLock($record, true);
 
         return $record->toDomain();
     }

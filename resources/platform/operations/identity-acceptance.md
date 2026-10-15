@@ -10,7 +10,7 @@ Run the ordinary suite with service tests disabled when no prepared services exi
 Enable `BACKENDBASE_SERVICE_TESTS=1` only for dedicated MySQL 8.4 and Redis 8 targets.
 Set their test ports and test credentials explicitly.
 MySQL fixtures create and remove only uniquely named `backendbase_adr_*` databases.
-Redis fixtures create and remove only their generated Account namespaces.
+Redis session fixtures use generated Account namespaces. Verification fixtures use unique contact and client keys and remove those keys.
 
 Native tests cover these requirements:
 
@@ -21,8 +21,9 @@ Native tests cover these requirements:
 | Turkish comparison, Unicode composition, and NO PAD uniqueness | `MySqlCollationTest` |
 | Optimistic conflict and lock-timeout retry | `MySqlConcurrencyTest` |
 | Error 1213 rollback with a fresh retry unit | `MySqlDeadlockTest` |
-| Active-login reuse and restore conflict rollback | `MySqlSoftDeletionTest` |
-| Challenge creation versus User removal in both orderings | `MySqlRelationshipRaceTest` |
+| Active-mobile uniqueness, duplicate rollback, and reuse after Account closure | `MySqlSoftDeletionTest` |
+| Single contact proof consumption and deadlines after observed lock waits | `MySqlContactVerificationTest` |
+| Contact cooldown, contact/IP budgets, and successful confirmation release | `RedisVerificationLimiterTest` |
 | Native token/session activation, expiry, and revocation | `RedisSessionTest` |
 | RedisJSON fields, automatic key expiry, and existing string-record compatibility | `RedisJsonSessionTest` |
 | Activation conflicts and cleanup after JSON or expiry failures | `RedisJsonAtomicityTest` |
@@ -31,7 +32,7 @@ Native tests cover these requirements:
 
 Concurrency workers use separate PHP processes and database connections.
 Tests wait for an observed InnoDB lock wait before allowing the competing transaction to proceed.
-No fabricated permission model is needed for the relationship test. It uses the existing ownership challenge reference.
+Contact registration tests use the actual context and evidence locks. SQLite does not prove those lock waits.
 
 ## Schema and logical-reference reconciliation
 
@@ -51,14 +52,15 @@ SELECT COUNT(*) AS orphanAdmins
 FROM identity_admin d LEFT JOIN identity_account a ON a.id = d.account_id
 WHERE a.id IS NULL;
 
-SELECT COUNT(*) AS invalidChallenges
-FROM identity_challenge c
+SELECT COUNT(*) AS invalidContacts
+FROM contact_info c
 LEFT JOIN identity_account a ON a.id = c.account_id
 LEFT JOIN identity_user u ON c.realm = 'USER' AND u.id = c.actor_id
 LEFT JOIN identity_admin d ON c.realm = 'ADMIN' AND d.id = c.actor_id
-WHERE a.id IS NULL
-   OR (c.realm = 'USER' AND (u.id IS NULL OR u.account_id <> c.account_id))
-   OR (c.realm = 'ADMIN' AND (d.id IS NULL OR d.account_id <> c.account_id))
+WHERE (c.account_id IS NOT NULL AND a.id IS NULL)
+   OR (c.actor_id IS NOT NULL AND c.realm = 'USER' AND (u.id IS NULL OR u.account_id <> c.account_id))
+   OR (c.actor_id IS NOT NULL AND c.realm = 'ADMIN' AND (d.id IS NULL OR d.account_id <> c.account_id))
+   OR (c.realm = 'ADMIN' AND (c.account_id IS NULL OR c.actor_id IS NULL))
    OR c.realm NOT IN ('USER', 'ADMIN');
 ```
 

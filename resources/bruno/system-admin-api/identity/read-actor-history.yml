@@ -25,3 +25,8 @@ runtime:
         expect(body).not.to.have.property("statusCode");
         expect(body).to.have.property("actor");
         expect(body).not.to.have.property("data");
+        expect(body.actor.email).to.be.a("string");
+        expect(body.actor.mobile).to.match(/^\+[1-9][0-9]{1,14}$/);
+        expect(body.actor).not.to.have.property("loginName");
+        expect(body.actor).to.have.property("firstName");
+        expect(body.actor).to.have.property("lastName");

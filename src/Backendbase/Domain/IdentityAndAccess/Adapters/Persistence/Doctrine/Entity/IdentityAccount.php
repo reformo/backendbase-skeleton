@@ -20,6 +20,7 @@ use Ramsey\Uuid\UuidInterface;
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_account', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\UniqueConstraint(name: 'identity_account_active_email_unq', columns: ['active_email'])]
+#[ORM\UniqueConstraint(name: 'identity_account_active_mobile_unq', columns: ['active_mobile'])]
 class IdentityAccount
 {
     #[ORM\Id]
@@ -36,6 +37,15 @@ class IdentityAccount
     #[ORM\Column(name: 'normalized_email', type: Types::STRING, length: 254, options: ['charset' => 'ascii', 'collation' => 'ascii_bin'])]
     private string $email;
 
+    #[ORM\Column(name: 'normalized_mobile', type: Types::STRING, length: 16, options: ['charset' => 'ascii', 'collation' => 'ascii_bin'])]
+    private string $mobile;
+
+    #[ORM\Column(name: 'first_name', type: Types::STRING, length: 160, nullable: true)]
+    private string|null $firstName = null;
+
+    #[ORM\Column(name: 'last_name', type: Types::STRING, length: 160, nullable: true)]
+    private string|null $lastName = null;
+
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 
@@ -44,6 +54,9 @@ class IdentityAccount
 
     #[ORM\Column(name: 'active_email', type: Types::STRING, length: 254, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'VARCHAR(254) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_email ELSE NULL END) VIRTUAL')]
     private string|null $activeEmail = null;
+
+    #[ORM\Column(name: 'active_mobile', type: Types::STRING, length: 16, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_mobile ELSE NULL END) VIRTUAL')]
+    private string|null $activeMobile = null;
 
     /** @var array<string, mixed> */
     #[ORM\Column(type: Types::JSON)]
@@ -66,11 +79,15 @@ class IdentityAccount
     {
         $state = $account->snapshot();
         $this->assertRevision($state['revision']);
-        $this->email       = $state['email'];
-        $this->createdAt   = new DateTimeImmutable($state['createdAt'], new DateTimeZone('UTC'));
-        $this->deletedAt   = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
-        $this->activeEmail = $state['deletedAt'] === null ? $state['email'] : null;
-        $this->state       = ['owned' => $state['owned'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']];
+        $this->email        = $state['email'];
+        $this->mobile       = $state['mobile'];
+        $this->firstName    = $state['firstName'] ?? null;
+        $this->lastName     = $state['lastName'] ?? null;
+        $this->createdAt    = new DateTimeImmutable($state['createdAt'], new DateTimeZone('UTC'));
+        $this->deletedAt    = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
+        $this->activeEmail  = $state['deletedAt'] === null ? $state['email'] : null;
+        $this->activeMobile = $state['deletedAt'] === null ? $state['mobile'] : null;
+        $this->state        = ['owned' => $state['owned'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']];
     }
 
     public function toDomain(): Account
@@ -78,12 +95,15 @@ class IdentityAccount
         $currentDeletedAt = $this->deletedAt;
         $currentCreatedAt = $this->createdAt;
 
-        if ($this->activeEmail !== ($this->deletedAt === null ? $this->email : null)) {
+        if ($this->activeEmail !== ($this->deletedAt === null ? $this->email : null) || $this->activeMobile !== ($this->deletedAt === null ? $this->mobile : null)) {
             throw AuthenticationUnavailable::create('The persisted identity projection is invalid.');
         }
 
         return Account::reconstitute(IdentityId::fromString($this->id()), [
             'email' => $this->email,
+            'mobile' => $this->mobile,
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName,
             'owned' => StateField::boolean($this->state, 'owned'),
             'enabled' => StateField::boolean($this->state, 'enabled'),
             'authVersion' => StateField::integer($this->state, 'authVersion'),

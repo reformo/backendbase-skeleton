@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Removed
 
+- Replace User and System Admin usernames with Account email or mobile login. Require globally unique active E.164 mobile numbers at registration. Update initial identity migration, API contracts, operator commands, contact responses, tests, and identity guidance.
+
 - Remove TOTP enrollment, second-step login, factor storage behavior, and factor recovery and rewrapping commands. Password login now returns a session after ownership, Account state, and actor approval checks. Update both identity APIs, Bruno requests, tests, and authentication policy.
 
 - Remove top-level `statusCode` from successful response envelopes. Preserve success values and Problem Details `status`. Update identity OpenAPI sources and merged YAML, Bruno assertions, regression tests, and HTTP contract guidance.
@@ -19,6 +21,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed orphan JWT configuration and DAST account provisioning. DAST uses API-key-protected Example writes. Internal QueueGreeting authorization and queue delivery remain available.
 
 ### Added
+
+- Add nullable Account first and last names, API profile fields, and a manual initial Admin seeder for Mehmet Korkmaz. Require a password file and local root authority. Preserve credentials on repeated runs and keep seeding separate from migrations.
+
+- Require email and mobile verification within 12 hours before User registration. Store hashed codes and scoped evidence in `contact_info`. Add optional Admin verification, bounded email/SMS delivery, quotas, atomic proof consumption, and updated API contracts and migration drafts.
 
 - Add a disposable Redis primary, replica, and three-Sentinel test environment. Verify planned promotion, primary failure, lost revocations, and lost Sentinel quorum in both authentication realms. Run the failover tests in quality and release gates.
 

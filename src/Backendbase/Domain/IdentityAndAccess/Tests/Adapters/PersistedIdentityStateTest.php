@@ -44,7 +44,7 @@ final class PersistedIdentityStateTest extends TestCase
     public function testMalformedHistoryRowsCannotBecomePublicReadModels(array $changes): void
     {
         $id         = Uuid::uuid7();
-        $row        = ['uuid' => $id->toString(), 'account_id' => $id->getBytes(), 'normalized_login_name' => 'test.user', 'created_at' => '2026-10-14 10:00:00.000000', 'deleted_at' => null, 'state' => '{"approved":true}'];
+        $row        = ['uuid' => $id->toString(), 'account_id' => $id->getBytes(), 'normalized_email' => 'test@example.com', 'normalized_mobile' => '+905551234567', 'first_name' => null, 'last_name' => null, 'created_at' => '2026-10-14 10:00:00.000000', 'deleted_at' => null, 'state' => '{"approved":true}'];
         $connection = $this->createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([...$row, ...$changes]);
         $repository = new DoctrineIdentityReadRepository($connection);

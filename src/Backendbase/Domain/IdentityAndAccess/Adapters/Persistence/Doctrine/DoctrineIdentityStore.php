@@ -6,17 +6,12 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
-use Backendbase\Domain\IdentityAndAccess\Domain\Challenges\Challenge;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginIdentifier;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-
-use function array_unique;
-use function sort;
-
-use const SORT_STRING;
 
 final readonly class DoctrineIdentityStore implements IdentityStore
 {
@@ -50,13 +45,8 @@ final readonly class DoctrineIdentityStore implements IdentityStore
 
     public function protectActorMutation(string $observerAccountId, string $targetAccountId): void
     {
-        $currentRecords = $this->records;
-
-        $ids = array_unique([$observerAccountId, $targetAccountId]);
-        sort($ids, SORT_STRING);
-        foreach ($ids as $id) {
-            $currentRecords->account($id, $id === $targetAccountId);
-        }
+        $records = $this->records;
+        $records->protectActorMutation($observerAccountId, $targetAccountId);
     }
 
     public function accountByEmail(AccountEmail $email): Account|null
@@ -64,6 +54,15 @@ final readonly class DoctrineIdentityStore implements IdentityStore
         $currentRecords = $this->records;
 
         $record = $currentRecords->activeBy(IdentityAccount::class, ['activeEmail' => $email->toString()]);
+
+        return $record?->toDomain();
+    }
+
+    public function accountByMobile(AccountMobile $mobile): Account|null
+    {
+        $records = $this->records;
+        $value   = $mobile->toString();
+        $record  = $records->activeBy(IdentityAccount::class, ['activeMobile' => $value]);
 
         return $record?->toDomain();
     }
@@ -95,29 +94,12 @@ final readonly class DoctrineIdentityStore implements IdentityStore
         return $actors->actorForUpdate($realm, $id);
     }
 
-    public function actorByLogin(Realm $realm, LoginName $name): Actor|null
+    public function actorByIdentifier(Realm $realm, LoginIdentifier $identifier): Actor|null
     {
-        $currentRecords = $this->records;
+        $records = $this->records;
+        $actors  = $records->actors();
 
-        $actors = $currentRecords->actors();
-
-        return $actors->actorByLogin($realm, $name);
-    }
-
-    public function challenge(string $id): Challenge
-    {
-        $records    = $this->records;
-        $challenges = new IdentityChallengeRecords($records);
-
-        return $challenges->get($id, false);
-    }
-
-    public function challengeForUpdate(string $id): Challenge
-    {
-        $records    = $this->records;
-        $challenges = new IdentityChallengeRecords($records);
-
-        return $challenges->get($id, true);
+        return $actors->actorByIdentifier($realm, $identifier);
     }
 
     public function saveAccount(Account $account): void
@@ -139,12 +121,5 @@ final readonly class DoctrineIdentityStore implements IdentityStore
 
         $actors = $currentRecords->actors();
         $actors->saveActor($actor);
-    }
-
-    public function saveChallenge(Challenge $challenge): void
-    {
-        $records    = $this->records;
-        $challenges = new IdentityChallengeRecords($records);
-        $challenges->save($challenge);
     }
 }

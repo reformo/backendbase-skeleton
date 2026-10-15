@@ -19,9 +19,14 @@ http:
     type: json
     data: |-
       {
+        "firstName": "{{firstName}}",
+        "lastName": "{{lastName}}",
         "email": "{{email}}",
-        "loginName": "{{loginName}}",
-        "password": "{{password}}"
+        "mobile": "{{mobile}}",
+        "password": "{{password}}",
+        "emailContactInfoId": "{{emailContactInfoId}}",
+        "mobileContactInfoId": "{{mobileContactInfoId}}",
+        "verificationContextToken": "{{verificationContextToken}}"
       }
 runtime:
   scripts:
@@ -33,5 +38,5 @@ runtime:
         expect(body).not.to.have.property("statusCode");
         expect(body).to.have.property("registration");
         expect(body).not.to.have.property("data");
-        expect(body.registration.challengeId).to.match(/^[0-9a-f-]{36}$/);
-        bru.setVar("challengeId", body.registration.challengeId);
+        expect(body.registration.accountId).to.match(/^[0-9a-f-]{36}$/);
+        bru.setVar("accountId", body.registration.accountId);

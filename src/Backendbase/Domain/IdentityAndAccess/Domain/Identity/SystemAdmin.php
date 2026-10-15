@@ -22,11 +22,11 @@ final class SystemAdmin extends Actor
         return Realm::ADMIN;
     }
 
-    public static function invite(IdentityId $id, IdentityId $accountId, LoginName $loginName, string $invitationEvidence, DateTimeImmutable $now): self
+    public static function invite(IdentityId $id, IdentityId $accountId, string $invitationEvidence, DateTimeImmutable $now): self
     {
         self::evidence($invitationEvidence);
 
-        return new self($id, ['accountId' => $accountId->toString(), 'loginName' => $loginName->toString(), 'approved' => false, 'invitation' => $invitationEvidence, 'approval' => null, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $now->format('Y-m-d H:i:s.u')]);
+        return new self($id, ['accountId' => $accountId->toString(), 'approved' => false, 'invitation' => $invitationEvidence, 'approval' => null, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $now->format('Y-m-d H:i:s.u')]);
     }
 
     public function approve(string $approvalEvidence): void

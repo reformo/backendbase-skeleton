@@ -51,7 +51,7 @@ Clients that read the previous metadata key must update their lookup.
 
 ## Automated response checks
 
-The specifications and Bruno collections contain 32 operations: ExampleApi has 9, UserApi has 10, and SystemAdminApi has 13.
+The specifications and Bruno collections contain 37 operations: ExampleApi has 9, UserApi has 11, and SystemAdminApi has 17.
 `ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
 It also checks success key names and Bruno status, key, and wrapper assertions.
 `ApiResponseAssertions` checks executed HTTP responses against resolved source and merged schemas.
@@ -68,8 +68,7 @@ Run live Bruno tests only against an identified, prepared target.
 | UserApi current identity | `user` |
 | SystemAdminApi current identity | `admin` |
 | User registration | `registration` |
-| Contact ownership verification | `ownershipVerification` |
-| Contact proof resend | `challenge` |
+| Contact request, confirmation, and resend | `contactInfo` |
 | Password login and session termination | `session` |
 | Access token revocation | `token` |
 | Account closure | `account` |
@@ -129,6 +128,12 @@ The tag check resolves referenced path files. It rejects missing or empty operat
 Add a new declared tag when a new endpoint group needs one.
 
 Identity requests use strict input mapping. Contact ownership and password authentication are separate steps.
+Registration requires `email`, `mobile`, `password`, `emailContactInfoId`, `mobileContactInfoId`, and `verificationContextToken`.
+Verify both contacts less than 12 hours before registration. Mobile uses E.164 format and is globally unique among active Accounts.
+Login accepts `identifier` containing email or mobile, plus `password`. Username fields are rejected.
+Contact request, confirmation, and resend use `contactInfo`. The former `/auth/ownership/*` paths are removed.
+See [contact verification](operations/contact-verification.md) for public and authenticated Admin contracts.
+Admin invitations require `accountId` and `evidence`. Current identity and actor history responses include Account `email` and `mobile`.
 `POST /auth/login` returns `session` with `accessToken`, `tokenType`, and `expiresAt`.
 TOTP enrollment and `/auth/login/complete` endpoints are removed. Update clients to use the single login response.
 Bruno identity collections use blank credential and proof variables. Populate them only for an identified test target.
@@ -139,4 +144,8 @@ Basis: `resources/docs/6-openapi-and-bruno.html`.
 
 Identity API source specifications and Bruno collections cover the same operations as trusted realm routes.
 Optional trace, timezone, and language headers use the common contract. Problem responses include a stable code.
-Bruno scripts check response envelopes and retain challenge and token values only as runtime variables.
+Bruno scripts check response envelopes and retain contact IDs and authentication tokens only as runtime variables.
+
+Account registration accepts optional nullable `firstName` and `lastName` fields.
+Each supplied name has 1 to 160 UTF-8 characters without surrounding spaces or control characters.
+Current identity and actor history include `firstName` and `lastName`, with null for omitted names.

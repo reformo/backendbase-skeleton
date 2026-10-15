@@ -54,17 +54,15 @@ final readonly class IdentityHttpInput
         return match (true) {
             $input instanceof Input\RegistrationInput && $action === 'register' && $realm === Realm::USER => new Authentication\RegisterUser($id, $input),
             $input instanceof Input\LoginInput => $this->loginCommand($id, $action, new Input\RealmLogin($realm, $input)),
-            $input instanceof Input\ProofInput => $this->proofCommand($id, $action, new Input\RealmProof($realm, $input)),
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
     }
 
-    private function payload(string $action, ServerRequestInterface $request): Input\RegistrationInput|Input\LoginInput|Input\ProofInput
+    private function payload(string $action, ServerRequestInterface $request): Input\RegistrationInput|Input\LoginInput
     {
         [$class, $fields] = match ($action) {
-            'register' => [Input\RegistrationInput::class, ['email', 'loginName', 'password']],
-            'login', 'resend-ownership' => [Input\LoginInput::class, ['loginName', 'password']],
-            'verify-ownership' => [Input\ProofInput::class, ['challengeId', 'code']],
+            'register' => [Input\RegistrationInput::class, ['email', 'mobile', 'password', 'emailContactInfoId', 'mobileContactInfoId', 'verificationContextToken', 'firstName', 'lastName']],
+            'login' => [Input\LoginInput::class, ['identifier', 'password']],
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
         $payload = RequestObjectInput::fromRequest($request, $fields);
@@ -77,15 +75,6 @@ final readonly class IdentityHttpInput
     {
         return match ($action) {
             'login' => new Authentication\Login($id, $input),
-            'resend-ownership' => new Authentication\ResendOwnership($id, $input),
-            default => throw InvalidUserInput::create('The authentication operation is invalid.'),
-        };
-    }
-
-    private function proofCommand(string $id, string $action, Input\RealmProof $input): IdentityCommand
-    {
-        return match ($action) {
-            'verify-ownership' => new Authentication\VerifyOwnership($id, $input),
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
     }

@@ -5,22 +5,32 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Domain\Identity;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
+use Backendbase\Domain\IdentityAndAccess\Domain\Profiles\AccountNames;
 use DateTimeImmutable;
 
 final class Account
 {
-    /** @param array{email: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
+    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
     private function __construct(private readonly IdentityId $id, private array $state)
     {
         new AccountEmail($state['email']);
+        new AccountMobile($state['mobile']);
+        new AccountNames($state['firstName'] ?? null, $state['lastName'] ?? null);
     }
 
-    public static function create(IdentityId $id, AccountEmail $email, DateTimeImmutable $now): self
+    public static function create(IdentityId $id, AccountEmail $email, AccountMobile $mobile, DateTimeImmutable $now, AccountNames|null $names = null): self
     {
-        return new self($id, ['email' => $email->toString(), 'owned' => false, 'enabled' => true, 'authVersion' => 1, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $now->format('Y-m-d H:i:s.u')]);
+        $emailValue  = $email->toString();
+        $mobileValue = $mobile->toString();
+        $createdAt   = $now->format('Y-m-d H:i:s.u');
+
+        $profile    = $names ?? new AccountNames();
+        $nameValues = $profile->snapshot();
+
+        return new self($id, [...$nameValues, 'email' => $emailValue, 'mobile' => $mobileValue, 'owned' => false, 'enabled' => true, 'authVersion' => 1, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $createdAt]);
     }
 
-    /** @param array{email: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
+    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
     public static function reconstitute(IdentityId $id, array $state): self
     {
         return new self($id, $state);
@@ -55,12 +65,6 @@ final class Account
         $this->state['authVersion']++;
     }
 
-    public function revokeCredentials(): void
-    {
-        $this->assertActive();
-        $this->state['authVersion']++;
-    }
-
     public function id(): string
     {
         $id = $this->id;
@@ -68,7 +72,7 @@ final class Account
         return $id->toString();
     }
 
-    /** @return array{email: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} */
+    /** @return array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} */
     public function snapshot(): array
     {
         return $this->state;

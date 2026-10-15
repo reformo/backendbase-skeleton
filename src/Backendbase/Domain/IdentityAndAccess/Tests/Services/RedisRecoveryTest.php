@@ -50,7 +50,7 @@ final class RedisRecoveryTest extends TestCase
     {
         $identity  = IdentityFixture::create();
         $enrolled  = IdentityScenario::admin($identity);
-        $principal = IdentityScenario::principal($identity, $realm, 'ada.admin');
+        $principal = IdentityScenario::principal($identity, $realm, 'admin@example.com');
         $fixture   = IsolatedRedis::create($enrolled['accountId']);
         try {
             $client    = $fixture->client();

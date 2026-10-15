@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Contracts\Input;
 
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginIdentifier;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 
 final readonly class LoginInput
 {
-    private LoginName $name;
+    private LoginIdentifier $identifier;
     private Password $secret;
 
-    public function __construct(string $loginName, string $password)
+    public function __construct(string $identifier, string $password)
     {
-        $this->name   = new LoginName($loginName);
-        $this->secret = new Password($password);
+        $this->identifier = new LoginIdentifier($identifier);
+        $this->secret     = new Password($password);
     }
 
-    public function loginName(): LoginName
+    public function identifier(): LoginIdentifier
     {
-        return $this->name;
+        return $this->identifier;
     }
 
     public function password(): Password

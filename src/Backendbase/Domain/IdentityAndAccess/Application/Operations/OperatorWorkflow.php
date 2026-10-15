@@ -9,7 +9,6 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Contracts\OperatorStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
 use DateTimeImmutable;
@@ -49,7 +48,7 @@ final readonly class OperatorWorkflow
         $state   = $account->snapshot();
         $account->assertSessionAllowed($state['authVersion']);
         $id    = IdentityId::create();
-        $actor = SystemAdmin::invite($id, IdentityId::fromString($account->id()), new LoginName($values['loginName']), $values['invitation'], $now);
+        $actor = SystemAdmin::invite($id, IdentityId::fromString($account->id()), $values['invitation'], $now);
         if ($apply) {
             $store->saveActor($actor);
         }

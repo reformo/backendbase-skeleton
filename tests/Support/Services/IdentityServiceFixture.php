@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Support\Services;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\OwnershipNotifier;
+use Backendbase\Domain\IdentityAndAccess\Contracts\ContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
-use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedOwnershipNotifier;
+use Backendbase\Domain\IdentityAndAccess\Contracts\VerificationLimiter;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryTokenRegistry;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryVerificationLimiter;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
@@ -33,7 +35,8 @@ final class IdentityServiceFixture
             LoggerInterface::class => new NullLogger(),
             Clock::class => $clock,
             IdentitySettings::class => IdentityFixture::settings(),
-            OwnershipNotifier::class => new CapturedOwnershipNotifier(),
+            ContactNotifier::class => new CapturedContactNotifier(),
+            VerificationLimiter::class => new MemoryVerificationLimiter($clock),
             TokenRegistry::class => new MemoryTokenRegistry($clock),
         ]);
 

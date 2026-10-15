@@ -33,7 +33,7 @@ final readonly class DoctrineIdentityReadRepository implements IdentityReadRepos
         $table      = $realm === Realm::USER ? 'identity_user' : 'identity_admin';
         $uuid       = Uuid::fromString($actorId);
         $connection = $this->connection;
-        $row        = $connection->fetchAssociative('SELECT uuid, account_id, normalized_login_name, created_at, deleted_at, state FROM ' . $table . ' WHERE id = :id', ['id' => $uuid->getBytes()], ['id' => ParameterType::BINARY]);
+        $row        = $connection->fetchAssociative('SELECT actor.uuid, actor.account_id, account.normalized_email, account.normalized_mobile, account.first_name, account.last_name, actor.created_at, actor.deleted_at, actor.state FROM ' . $table . ' actor JOIN identity_account account ON account.id = actor.account_id WHERE actor.id = :id', ['id' => $uuid->getBytes()], ['id' => ParameterType::BINARY]);
         if ($row === false) {
             return null;
         }
@@ -55,7 +55,10 @@ final readonly class DoctrineIdentityReadRepository implements IdentityReadRepos
             'actorId' => $id->toString(),
             'accountId' => $accountUuid->toString(),
             'realm' => $realm->value,
-            'loginName' => StateField::string($row, 'normalized_login_name'),
+            'email' => StateField::string($row, 'normalized_email'),
+            'mobile' => StateField::string($row, 'normalized_mobile'),
+            'firstName' => StateField::nullableString($row, 'first_name'),
+            'lastName' => StateField::nullableString($row, 'last_name'),
             'approved' => StateField::boolean($state, 'approved'),
             'createdAt' => self::date(StateField::string($row, 'created_at')),
             'deletedAt' => $row['deleted_at'] === null ? null : self::date(StateField::string($row, 'deleted_at')),

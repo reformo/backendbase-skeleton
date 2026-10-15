@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Contracts;
 
-use Backendbase\Domain\IdentityAndAccess\Domain\Challenges\Challenge;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginIdentifier;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 
 interface IdentityStore
@@ -30,21 +30,17 @@ interface IdentityStore
 
     public function accountByEmail(AccountEmail $email): Account|null;
 
+    public function accountByMobile(AccountMobile $mobile): Account|null;
+
     public function actor(Realm $realm, string $id): Actor;
 
     public function actorReference(Realm $realm, string $id): Actor;
 
     public function actorForUpdate(Realm $realm, string $id): Actor;
 
-    public function actorByLogin(Realm $realm, LoginName $name): Actor|null;
-
-    public function challenge(string $id): Challenge;
-
-    public function challengeForUpdate(string $id): Challenge;
+    public function actorByIdentifier(Realm $realm, LoginIdentifier $identifier): Actor|null;
 
     public function saveAccount(Account $account): void;
 
     public function saveActor(Actor $actor): void;
-
-    public function saveChallenge(Challenge $challenge): void;
 }

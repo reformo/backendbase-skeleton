@@ -39,20 +39,30 @@ final class BoundaryFailureTest extends TestCase
     /** @return iterable<string, array{string, string, array<string, mixed>|null, int}> */
     public static function invalidRequests(): iterable
     {
-        $valid = ['email' => 'test@example.com', 'loginName' => 'test.user', 'password' => 'valid-password-123'];
+        $valid = ['email' => 'test@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123'];
 
+        yield 'mobile missing' => ['POST', '/auth/register', ['email' => 'test@example.com', 'password' => 'valid-password-123'], 400];
+        yield 'mobile null' => ['POST', '/auth/register', [...$valid, 'mobile' => null], 400];
+        yield 'mobile numeric' => ['POST', '/auth/register', [...$valid, 'mobile' => 905551234567], 400];
+        yield 'mobile empty' => ['POST', '/auth/register', [...$valid, 'mobile' => ''], 400];
+        yield 'mobile domestic' => ['POST', '/auth/register', [...$valid, 'mobile' => '05551234567'], 400];
+        yield 'mobile oversized' => ['POST', '/auth/register', [...$valid, 'mobile' => '+1234567890123456'], 400];
+        yield 'legacy registration field' => ['POST', '/auth/register', [...$valid, 'loginName' => 'test.user'], 400];
+        yield 'legacy login field' => ['POST', '/auth/login', ['loginName' => 'test.user', 'password' => 'valid-password-123'], 400];
+        yield 'username identifier' => ['POST', '/auth/login', ['identifier' => 'test.user', 'password' => 'valid-password-123'], 400];
+        yield 'unknown mobile' => ['POST', '/auth/login', ['identifier' => '+905551234568', 'password' => 'valid-password-123'], 401];
         yield 'unknown field' => ['POST', '/auth/register', [...$valid, 'admin' => true], 400];
         yield 'missing field' => ['POST', '/auth/register', ['email' => 'test@example.com'], 400];
         yield 'wrong type' => ['POST', '/auth/register', [...$valid, 'password' => 123456789012], 400];
         yield 'oversized body' => ['POST', '/auth/register', [...$valid, 'password' => str_repeat('a', 70000)], 400];
         yield 'missing content type' => ['POST', '/auth/register', null, 400];
-        yield 'unknown login' => ['POST', '/auth/login', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 401];
-        yield 'removed enrollment' => ['POST', '/auth/mfa/enrollment', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 404];
+        yield 'unknown login' => ['POST', '/auth/login', ['identifier' => 'unknown@example.com', 'password' => 'valid-password-123'], 401];
+        yield 'removed enrollment' => ['POST', '/auth/mfa/enrollment', ['identifier' => 'unknown@example.com', 'password' => 'valid-password-123'], 404];
         yield 'removed enrollment completion' => ['POST', '/auth/mfa/enrollment/complete', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 404];
         yield 'removed login completion' => ['POST', '/auth/login/complete', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 404];
-        yield 'unknown resend' => ['POST', '/auth/ownership/resend', ['loginName' => 'unknown', 'password' => 'valid-password-123'], 401];
-        yield 'unknown proof' => ['POST', '/auth/ownership/verify', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 401];
-        yield 'malformed proof' => ['POST', '/auth/ownership/verify', ['challengeId' => IdentityScenario::id(), 'code' => '123'], 400];
+        yield 'unknown resend' => ['POST', '/auth/ownership/resend', ['identifier' => 'unknown@example.com', 'password' => 'valid-password-123'], 404];
+        yield 'unknown proof' => ['POST', '/auth/ownership/verify', ['challengeId' => IdentityScenario::id(), 'code' => '123456'], 404];
+        yield 'malformed proof' => ['POST', '/auth/ownership/verify', ['challengeId' => IdentityScenario::id(), 'code' => '123'], 404];
         yield 'missing bearer' => ['GET', '/identity', null, 401];
         yield 'invalid bearer' => ['GET', '/identity', null, 401];
         yield 'removed greeting' => ['POST', '/greetings', [], 404];
@@ -96,17 +106,5 @@ final class BoundaryFailureTest extends TestCase
         $request = new ServerRequest(uri: '/auth/register', method: 'POST');
         self::assertSame(400, $api->handle($request->withHeader('Content-Type', 'text/plain'))->getStatusCode());
         self::assertSame(400, $api->handle($request->withHeader('Content-Type', 'application/json'))->getStatusCode());
-    }
-
-    public function testOwnershipResendReturnsANewChallengeThroughTheRegisteredHandler(): void
-    {
-        $fixture = IdentityFixture::create();
-        $api     = IdentityApiFixture::create($fixture, Realm::USER);
-        self::assertSame(201, $api->request('POST', '/auth/register', ['email' => 'test@example.com', 'loginName' => 'test.user', 'password' => 'valid-password-123'])->getStatusCode());
-        $resend = $api->request('POST', '/auth/ownership/resend', ['loginName' => 'test.user', 'password' => 'valid-password-123']);
-        self::assertSame(200, $resend->getStatusCode());
-        $data = UserFlowTest::resource($resend, 'challenge');
-        self::assertSame(300, $data['expiresIn']);
-        self::assertNotEmpty($data['challengeId']);
     }
 }

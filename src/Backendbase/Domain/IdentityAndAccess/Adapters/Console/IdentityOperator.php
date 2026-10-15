@@ -33,7 +33,7 @@ final class IdentityOperator extends Command
     protected function configure(): void
     {
         $this->setDescription('Preview local first-Admin invitation or approval.');
-        foreach (['action', 'target-id', 'operator', 'invitation', 'approval', 'login-name'] as $name) {
+        foreach (['action', 'target-id', 'operator', 'invitation', 'approval'] as $name) {
             $this->addOption($name, null, InputOption::VALUE_REQUIRED);
         }
 
@@ -49,7 +49,7 @@ final class IdentityOperator extends Command
                 LocalOperatorAuthority::assertRoot(PHP_SAPI, function_exists('posix_geteuid') ? posix_geteuid() : null);
             }
 
-            $request     = new OperatorInput(self::option($input, 'action'), self::option($input, 'target-id'), self::option($input, 'operator'), self::option($input, 'invitation'), self::option($input, 'approval'), self::option($input, 'login-name'));
+            $request     = new OperatorInput(self::option($input, 'action'), self::option($input, 'target-id'), self::option($input, 'operator'), self::option($input, 'invitation'), self::option($input, 'approval'));
             $operationId = IdentityId::create();
             $identifier  = $operationId->toString();
             $command     = new ApplyOperatorAction($identifier, $request, $apply);

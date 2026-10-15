@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Support\Services;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use RuntimeException;
 
@@ -31,12 +28,13 @@ final class IdentityConcurrencyWork
             return;
         }
 
-        if ($operation !== 'remove-user') {
-            throw new RuntimeException('Unknown MySQL test operation.');
+        if ($operation === 'register-contact' || $operation === 'register-contact-expired') {
+            ContactConcurrencyWork::run($connection, $operation, $identities);
+
+            return;
         }
 
-        self::command('begin');
-        self::removeUser($connection, $identities);
+        throw new RuntimeException('Unknown MySQL test operation.');
     }
 
     /** @param list<string> $identities */
@@ -52,23 +50,6 @@ final class IdentityConcurrencyWork
         self::command('continue');
         $connection->executeStatement('UPDATE identity_account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$target]);
         $connection->commit();
-        fwrite(STDOUT, "committed\n");
-    }
-
-    /** @param list<string> $identities */
-    private static function removeUser(Connection $connection, array $identities): void
-    {
-        $fixture   = IdentityServiceFixture::create($connection);
-        $container = $fixture->container();
-        $store     = $container->get(IdentityStore::class);
-        $store->transaction(static function () use ($store, $identities): void {
-            $store->accountForUpdate($identities[0]);
-            $actor = $store->actorForUpdate(Realm::USER, $identities[1]);
-            $actor->remove(new DateTimeImmutable('2026-10-14T10:01:00Z'));
-            $store->saveActor($actor);
-            fwrite(STDOUT, "locked\n");
-            self::command('commit');
-        });
         fwrite(STDOUT, "committed\n");
     }
 

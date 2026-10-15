@@ -1,0 +1,86 @@
+post:
+  tags: [Authentication]
+  operationId: systemadminContactRequest
+  summary: 'Request contact verification'
+  description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+  security: []
+  parameters:
+    - $ref: '../../common/components.yaml#/headers/Accept-Language'
+    - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    - $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    - name: X-Source-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        enum: [system-admin]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../system-admin-api-openapi.yml#/components/schemas/AdminContactRequest'
+  responses:
+    200:
+      description: 'Contact verification state'
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            enum: [no-store]
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [contactInfo]
+            properties:
+              contactInfo:
+                $ref: '../system-admin-api-openapi.yml#/components/schemas/ContactInfo'
+    400:
+      description: 'Invalid input'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    401:
+      description: 'Verification denied'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    403:
+      description: 'Access denied'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    409:
+      description: 'Verification conflict'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    410:
+      description: 'Verification expired'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    429:
+      description: 'Verification limit reached'
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    503:
+      description: 'Verification dependency unavailable'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
@@ -21,7 +20,6 @@ use Ramsey\Uuid\UuidInterface;
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_user', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
 #[ORM\UniqueConstraint(name: 'identity_user_account_unq', columns: ['account_id'])]
-#[ORM\UniqueConstraint(name: 'identity_user_active_login_unq', columns: ['active_login_name'])]
 class IdentityUser
 {
     #[ORM\Id]
@@ -38,17 +36,11 @@ class IdentityUser
     #[ORM\Column(name: 'account_id', type: UuidBinaryType::NAME)]
     private UuidInterface $accountId;
 
-    #[ORM\Column(name: 'normalized_login_name', type: Types::STRING, length: 64, options: ['charset' => 'ascii', 'collation' => 'ascii_bin'])]
-    private string $loginName;
-
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 
     #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private DateTimeImmutable|null $deletedAt = null;
-
-    #[ORM\Column(name: 'active_login_name', type: Types::STRING, length: 64, nullable: true, insertable: false, updatable: false, generated: 'ALWAYS', options: ['charset' => 'ascii', 'collation' => 'ascii_bin'], columnDefinition: 'VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_login_name ELSE NULL END) VIRTUAL')]
-    private string|null $activeLoginName = null;
 
     /** @var array<string, mixed> */
     #[ORM\Column(type: Types::JSON)]
@@ -73,12 +65,10 @@ class IdentityUser
             throw IdentityConflict::create('The actor Account reference cannot change.');
         }
 
-        $this->accountId       = Uuid::fromString($state['accountId']);
-        $this->loginName       = $state['loginName'];
-        $this->createdAt       = new DateTimeImmutable($state['createdAt'], new DateTimeZone('UTC'));
-        $this->deletedAt       = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
-        $this->activeLoginName = $state['deletedAt'] === null ? $state['loginName'] : null;
-        $this->state           = ['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']];
+        $this->accountId = Uuid::fromString($state['accountId']);
+        $this->createdAt = new DateTimeImmutable($state['createdAt'], new DateTimeZone('UTC'));
+        $this->deletedAt = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
+        $this->state     = ['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']];
     }
 
     public function toDomain(): User
@@ -100,21 +90,16 @@ class IdentityUser
         }
     }
 
-    /** @return array{accountId: string, loginName: string, approved: bool, invitation: string|null, approval: string|null, deletedAt: string|null, revision: int, createdAt: string} */
+    /** @return array{accountId: string, approved: bool, invitation: string|null, approval: string|null, deletedAt: string|null, revision: int, createdAt: string} */
     private function snapshot(): array
     {
         $currentDeletedAt = $this->deletedAt;
         $currentCreatedAt = $this->createdAt;
 
-        if ($this->activeLoginName !== ($this->deletedAt === null ? $this->loginName : null)) {
-            throw AuthenticationUnavailable::create('The persisted identity projection is invalid.');
-        }
-
         $accountId = $this->accountId;
 
         return [
             'accountId' => $accountId->toString(),
-            'loginName' => $this->loginName,
             'approved' => StateField::boolean($this->state, 'approved'),
             'invitation' => StateField::nullableString($this->state, 'invitation'),
             'approval' => StateField::nullableString($this->state, 'approval'),

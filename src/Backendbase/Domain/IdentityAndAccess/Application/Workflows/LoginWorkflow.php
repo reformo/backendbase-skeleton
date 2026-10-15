@@ -29,8 +29,8 @@ final readonly class LoginWorkflow
             $currentStore = $this->store;
             $currentTools = $this->tools;
 
-            $loginName = $input->loginName();
-            $actor     = $currentStore->actorByLogin($realm, $loginName);
+            $identifier = $input->identifier();
+            $actor      = $currentStore->actorByIdentifier($realm, $identifier);
             if ($actor === null) {
                 throw AuthenticationDenied::create('Authentication is not permitted.');
             }

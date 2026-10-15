@@ -7,13 +7,13 @@ variables:
     name: email
     value: ''
   -
-    name: loginName
+    name: mobile
+    value: ''
+  -
+    name: identifier
     value: ''
   -
     name: password
-    value: ''
-  -
-    name: challengeId
     value: ''
   -
     name: code
@@ -28,9 +28,6 @@ variables:
     name: targetActorId
     value: ''
   -
-    name: targetLoginName
-    value: ''
-  -
     name: targetRealm
     value: USER
   -
@@ -42,3 +39,27 @@ variables:
   -
     name: approvalEvidence
     value: ''
+  -
+    name: contactType
+    value: ''
+  -
+    name: contactValue
+    value: ''
+  -
+    name: contactInfoId
+    value: ''
+  -
+    name: emailContactInfoId
+    value: ''
+  -
+    name: mobileContactInfoId
+    value: ''
+  -
+    name: verificationContextToken
+    value: ''
+  -
+    name: firstName
+    value: 'Mehmet'
+  -
+    name: lastName
+    value: 'Korkmaz'

@@ -37,8 +37,10 @@ Test-only SQL and vendor-generated migration metadata queries are not applicatio
 | `ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository` | Active record by binary ID or lookup identity | Primary key or existing `example_search_idx`; no new point-lookup index. |
 | `EntryReadRepository::getEntryGroupsByType` | Fixed type, target, and `deleted_at`; distinct groups ordered by group | The installation includes `example_groups_idx`. Earlier indexes place other unconstrained columns before the removal filter. |
 | `EntryReadRepository::getEntriesByGroup` | Fixed type, target, group, and `deleted_at`; order by `created_at, id` | The installation includes `example_group_entries_idx`. Earlier indexes do not supply this ordered prefix. |
-| `IdentityRecordStore`, `DoctrineIdentityStore`, `IdentityActorRecords`, `IdentityChallengeRecords`, `DoctrineCredentialStore` | Binary IDs, active email, or active login | Identity primary keys and existing active-email or realm-login unique indexes. Each lookup selects at most one identity. |
-| `DoctrineIdentityReadRepository::actorHistory` | Actor binary ID | User or Admin primary key. Virtual display UUIDs do not need a lookup index. |
+| `IdentityRecordStore`, `DoctrineIdentityStore`, `IdentityActorRecords`, `DoctrineCredentialStore` | Binary IDs, active email, active mobile, or actor Account reference | Identity primary keys, active-email and active-mobile unique indexes, and lifetime actor Account unique indexes. Each lookup selects at most one identity. |
+| `AdminSeeder` | Initial Account by active email or mobile; Admin by Account ID; whole-Admin count | Existing active-contact and Admin Account unique indexes. The bootstrap count intentionally scans the Admin table. |
+| `DoctrineContactStore` | Binary proof ID or exact context hash, realm, purpose, and contact type | Contact primary key and `contact_info_context_slot_unq`. Bound-owner checks use existing Account and actor primary keys. |
+| `DoctrineIdentityReadRepository::actorHistory` | Actor binary ID with an Account join | User or Admin primary key and Account primary key. Virtual display UUIDs do not need a lookup index. |
 | `DoctrineOperatorStore` | Bootstrap key plus target; initial Admin count; audit inserts | Existing bootstrap unique index limits the target check to one row. The initial count is a deliberate aggregate. Inserts use existing primary and unique keys. |
 | `DoctrineInboxMessageTransaction`, `ExternalEffectClaims`, `DoctrineExternalEffectResolver` | Consumer and message identity, with claim or state checks | Existing inbox composite primary key. Extra state or claim filters apply to that one identity. |
 | `DoctrineQueueMessageFailureStore` | Consumer and message identity | Existing delivery-failure composite primary key. |
@@ -91,9 +93,18 @@ Compare production metadata and generated schema SQL when moving field declarati
 
 Example group queries return `EntryGroupPage`. Both adapters count all matching distinct groups before pagination. Doctrine applies the requested limit and offset in SQL. It does not truncate the result set at 1,000 groups.
 
+Identity Accounts store nullable `first_name` and `last_name` columns as UTF-8 text with a 160-character limit.
+Names have no uniqueness or lookup index. Identity and history reads select them through the Account primary key.
+
 Identity and Example records use assigned binary UUID identifiers, read-only virtual UUID projections, and optimistic versions.
 New aggregate identifiers use UUIDv7. Fresh Example installation uses binary UUIDs directly.
 An existing database needs a separate reviewed conversion and migration-history adoption plan.
+`DoctrineContactStore` locks verification evidence by its binary primary key.
+Its context-slot lookup uses the unique `(context_hash, realm, purpose, contact_type)` index.
+Registration locks both proof identifiers in sorted order before it reads UTC time.
+Bound evidence also checks current Account and actor state under Account-first locks.
+No contact lookup requires a separate Account index.
+
 Identity mutations use selective Account-first locks.
 Reload persisted actor authorization under those locks after an unlocked reference lookup.
 Preserve pending Account credential changes and skip database refresh for newly inserted Actors.

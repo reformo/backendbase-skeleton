@@ -36,7 +36,7 @@ final readonly class AdministrationHttpInput
         }
 
         [$class, $fields] = match ($action) {
-            'invite-admin' => [Input\AdminInvitationInput::class, ['accountId', 'loginName', 'evidence']],
+            'invite-admin' => [Input\AdminInvitationInput::class, ['accountId', 'evidence']],
             'approve-admin' => [Input\AdminApprovalInput::class, ['actorId', 'evidence']],
             'change-actor' => [Input\ActorChangeInput::class, ['actorId', 'realm', 'action']],
             default => throw InvalidUserInput::create('The administration operation is invalid.'),

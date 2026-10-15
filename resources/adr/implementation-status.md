@@ -53,8 +53,9 @@ Starting source revision: `ddc9946`.
 | [ADR-0045](0045-staged-identifier-and-collation-migration.md) | Fresh installation implemented; existing-target conversion pending | Consolidated migrations create final tables. The former conversion migration is removed. Existing databases need a target-specific forward conversion, recovery rehearsal, and migration-record adoption plan. |
 | [ADR-0046](0046-authentication-challenges-and-mfa-gated-sessions.md) | Superseded by ADR-0049 | Ownership and actor approval remain separate. TOTP enrollment, login challenges, and factor recovery are removed. |
 | [ADR-0047](0047-generated-uuid-projection-mapping.md) | Implemented; verification below | Supported read-only generated projections round-trip on MySQL 8.4 and produce no repeated ORM schema differences. |
-| [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Actor names and Account emails use lowercase ASCII normalization. Database constraints enforce realm-scoped active uniqueness and lifetime actor cardinality. |
+| [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Required Account email and E.164 mobile replace actor usernames. Email uses lowercase ASCII normalization. Database constraints enforce global active contact uniqueness and lifetime actor cardinality. |
 | [ADR-0049](0049-password-authentication-without-totp.md) | Implemented | Password login issues realm sessions after ownership, Account state, and actor approval checks. |
+| [ADR-0050](0050-contact-verification-before-user-registration.md) | Implemented; local verification below | Both User contacts require fresh evidence. Admin verification remains optional and preserves authorization. |
 
 ## Verification
 
@@ -143,8 +144,33 @@ All service checks use dedicated temporary containers without project data volum
 - Apply migration drafts only to a named, authorized target after adoption, backup, and recovery checks.
 - Reconcile original destinations and occurrence timestamps for legacy message rows before publication or replay.
 - Resolve target-specific collation collisions and logical references before Example cutover.
-- Keep the previous ownership proof key until pending ownership challenges expire.
+- Keep each required code proof key through pending code deadlines and confirmed evidence recovery windows of 12 hours.
 
 See [managed server operations](../platform/operations/managed-servers.md),
 [identity operator procedures](../platform/operations/identity-operator.md), and
 [Example conversion](../platform/operations/example-uuid-conversion.md).
+
+
+### Contact verification on 15 October 2026
+
+Starting source revision: `89093951dadd450051a438d4a193056f438f9eef`.
+
+- User registration requires matching email and mobile evidence verified less than 12 hours earlier.
+- Optional Admin verification preserves ownership, credential versions, approval, and existing sessions.
+- The local suite passes 962 tests and 21,110 assertions. It skips 50 service-backed cases without prepared targets.
+- Executable-line coverage is 5,924 of 5,924 lines (100%).
+- PHPStan level 8, coding standards, complexity, OpenAPI validation, documentation links, and isolated deployment tests pass.
+- Prepared-target MySQL concurrency, native Redis scripts, and representative MySQL `EXPLAIN` plans remain unverified.
+- The initial migration matches production metadata without a database connection. No migration was applied.
+
+
+### Account names and manual Admin seeding on 15 October 2026
+
+- Accounts persist nullable first and last names. Registration and both identity APIs expose the optional profile fields.
+- The approved manual seed creates Mehmet Korkmaz with the specified email and mobile.
+- The root-only command reads a password file. Repeated seeds preserve credentials and authorization state.
+- Tests prove email/mobile Admin login, unique bootstrap evidence, repeat-run behavior, and complete rollback after an audit failure.
+- The local suite reports 977 tests and 21,988 assertions, with 50 service-backed cases skipped.
+- Executable-line coverage is 5,969 of 5,969 lines (100%). PHPStan level 8, style, complexity, API validation, and deployment fixtures pass.
+- Migration SQL matches production metadata without a database connection. No migration was applied.
+- The configured local MySQL target could not be reached. The live Admin seed remains unapplied.

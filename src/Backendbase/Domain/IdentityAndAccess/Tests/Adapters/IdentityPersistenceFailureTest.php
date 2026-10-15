@@ -13,8 +13,8 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDen
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\LoginName;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User;
@@ -34,7 +34,7 @@ final class IdentityPersistenceFailureTest extends TestCase
         $fixture = IdentityFixture::create();
         IdentityScenario::registered($fixture);
         $this->expectException(IdentityConflict::class);
-        IdentityScenario::registered($fixture, 'another.user');
+        IdentityScenario::registered($fixture, '+905551234568');
     }
 
     public function testActorWritersRejectOrphanParentsAndMissingReferences(): void
@@ -49,7 +49,7 @@ final class IdentityPersistenceFailureTest extends TestCase
             self::assertSame('Authentication is not permitted.', $exception->getMessage());
         }
 
-        $actor = User::create(IdentityId::create(), IdentityId::create(), new LoginName('orphan.user'), new DateTimeImmutable());
+        $actor = User::create(IdentityId::create(), IdentityId::create(), new DateTimeImmutable());
         $this->expectException(AuthenticationDenied::class);
         $store->transaction(static fn () => $store->saveActor($actor));
     }
@@ -59,8 +59,8 @@ final class IdentityPersistenceFailureTest extends TestCase
     {
         $now         = new DateTimeImmutable('2026-10-14T10:00:00Z');
         $actor       = $realm === Realm::USER
-            ? User::create(IdentityId::create(), IdentityId::create(), new LoginName('test.user'), $now)
-            : SystemAdmin::invite(IdentityId::create(), IdentityId::create(), new LoginName('test.admin'), 'invitation', $now);
+            ? User::create(IdentityId::create(), IdentityId::create(), $now)
+            : SystemAdmin::invite(IdentityId::create(), IdentityId::create(), 'invitation', $now);
         $record      = $actor instanceof User ? IdentityUser::create($actor) : IdentityAdmin::create($actor);
         $replacement = $actor instanceof User
             ? new User(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()])
@@ -72,7 +72,7 @@ final class IdentityPersistenceFailureTest extends TestCase
             self::assertSame('The actor Account reference cannot change.', $exception->getMessage());
         }
 
-        $account       = Account::create(IdentityId::create(), new AccountEmail('test@example.com'), $now);
+        $account       = Account::create(IdentityId::create(), new AccountEmail('test@example.com'), new AccountMobile('+905551234567'), $now);
         $accountRecord = IdentityAccount::create($account);
         $this->expectException(IdentityConflict::class);
         $accountRecord->assertRevision(2);

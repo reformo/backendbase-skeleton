@@ -7,17 +7,19 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Services;
 use Backendbase\Domain\IdentityAndAccess\Application\AuthenticationGate;
 use Backendbase\Domain\IdentityAndAccess\Application\AuthenticationTokens;
 use Backendbase\Domain\IdentityAndAccess\Application\Workflows\AdministrationWorkflow;
+use Backendbase\Domain\IdentityAndAccess\Contracts\ContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\Administration\ActorChangeInput;
-use Backendbase\Domain\IdentityAndAccess\Contracts\OwnershipNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
+use Backendbase\Domain\IdentityAndAccess\Contracts\VerificationLimiter;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedOwnershipNotifier;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryTokenRegistry;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\MemoryVerificationLimiter;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
@@ -45,7 +47,7 @@ final class MySqlAuthorizationRaceTest extends TestCase
         try {
             $identity  = self::identity($fixture);
             $admin     = IdentityScenario::admin($identity);
-            $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'ada.admin');
+            $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'admin@example.com');
             $container = $identity->container();
             $realStore = $container->get(IdentityStore::class);
             $store     = $this->createMock(IdentityStore::class);
@@ -72,7 +74,7 @@ final class MySqlAuthorizationRaceTest extends TestCase
             } catch (AuthenticationDenied) {
                 $connection = $fixture->connection();
                 self::assertSame('2026-10-14 10:02:00.000000', $connection->fetchOne('SELECT deleted_at FROM identity_admin WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
-                self::assertNull($connection->fetchOne('SELECT active_login_name FROM identity_admin WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
+                self::assertNotNull($connection->fetchOne('SELECT deleted_at FROM identity_admin WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
             }
         } finally {
             $other->close();
@@ -91,7 +93,8 @@ final class MySqlAuthorizationRaceTest extends TestCase
             LoggerInterface::class => new NullLogger(),
             Clock::class => $clock,
             IdentitySettings::class => IdentityFixture::settings(),
-            OwnershipNotifier::class => new CapturedOwnershipNotifier(),
+            ContactNotifier::class => new CapturedContactNotifier(),
+            VerificationLimiter::class => new MemoryVerificationLimiter($clock),
             TokenRegistry::class => new MemoryTokenRegistry($clock),
         ]);
 

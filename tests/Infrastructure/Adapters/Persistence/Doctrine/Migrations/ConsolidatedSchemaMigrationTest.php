@@ -52,7 +52,7 @@ final class ConsolidatedSchemaMigrationTest extends TestCase
     {
         yield 'messaging' => [Version20260823000000::class, ['integration_event_outbox', 'integration_event_inbox', 'integration_event_delivery_failure', 'external_effect_resolution', 'integration_event_replay']];
         yield 'example' => [Version20260823215059::class, ['example_table']];
-        yield 'identity' => [Version20261014020000::class, ['identity_admin', 'identity_user', 'identity_challenge', 'identity_account', 'identity_operator_action']];
+        yield 'identity' => [Version20261014020000::class, ['identity_admin', 'identity_user', 'contact_info', 'identity_account', 'identity_operator_action']];
     }
 
     public function testReleasePinsTheLastOfTheThreeInstallations(): void

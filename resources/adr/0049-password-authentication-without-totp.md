@@ -40,11 +40,11 @@ Retain local first-Admin invitation and approval with separate evidence.
 
 ## Consequences
 
-- **Positive:** Login no longer creates a challenge. Ownership challenges retain expiry, attempt limits, resend invalidation, and proof hashing.
+- **Positive:** Login no longer creates a challenge. Contact verification retains expiry, attempt limits, resend invalidation, and proof hashing under [ADR-0050](0050-contact-verification-before-user-registration.md).
 - **Negative / Trade-offs:** Clients must read the session from the password login response. Previous enrollment and completion calls return 404.
 
 New credential JSON contains only `passwordHash`. Existing credential JSON can retain unused factor fields.
-Existing login and enrollment challenges cannot verify ownership. No schema migration or automatic database cleanup runs.
+The former login and enrollment challenges cannot verify contact ownership. ADR-0050 replaces the email-only ownership schema for fresh installations. No automatic migration application or database cleanup runs.
 Ownership proof hashing retains the `encryptionKey` configuration names and active/previous key support.
 Stored operator evidence remains intact.
 

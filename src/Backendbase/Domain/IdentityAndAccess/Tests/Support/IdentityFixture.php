@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Support;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\OwnershipNotifier;
+use Backendbase\Domain\IdentityAndAccess\Contracts\ContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
+use Backendbase\Domain\IdentityAndAccess\Contracts\VerificationLimiter;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Shared\Health\ReadinessChecks;
 use Backendbase\Shared\Services\Settings;
@@ -34,7 +35,8 @@ final readonly class IdentityFixture
     {
     }
 
-    public static function create(): self
+    /** @param array<string, object> $overrides */
+    public static function create(array $overrides = []): self
     {
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $native     = $connection->getNativeConnection();
@@ -58,8 +60,10 @@ final readonly class IdentityFixture
             Configuration::class => $configuration,
             Clock::class => $clock,
             IdentitySettings::class => self::settings(),
-            OwnershipNotifier::class => new CapturedOwnershipNotifier(),
+            ContactNotifier::class => new CapturedContactNotifier(),
+            VerificationLimiter::class => new MemoryVerificationLimiter($clock),
             TokenRegistry::class => new MemoryTokenRegistry($clock),
+            ...$overrides,
         ]);
 
         return new self($connection, $container);
@@ -93,12 +97,12 @@ final readonly class IdentityFixture
     private static function schema(Connection $connection): void
     {
         $base = 'id BLOB NOT NULL PRIMARY KEY, uuid TEXT GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL, version INTEGER NOT NULL DEFAULT 1, ';
-        $connection->executeStatement('CREATE TABLE identity_account (' . $base . 'normalized_email TEXT NOT NULL, created_at TEXT NOT NULL, deleted_at TEXT NULL, active_email TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_email ELSE NULL END) VIRTUAL UNIQUE, state TEXT NOT NULL, credentials TEXT NOT NULL)');
+        $connection->executeStatement('CREATE TABLE identity_account (' . $base . 'normalized_email TEXT NOT NULL, normalized_mobile TEXT NOT NULL, first_name TEXT NULL, last_name TEXT NULL, created_at TEXT NOT NULL, deleted_at TEXT NULL, active_email TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_email ELSE NULL END) VIRTUAL UNIQUE, active_mobile TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_mobile ELSE NULL END) VIRTUAL UNIQUE, state TEXT NOT NULL, credentials TEXT NOT NULL)');
         foreach (['identity_user', 'identity_admin'] as $table) {
-            $connection->executeStatement('CREATE TABLE ' . $table . ' (' . $base . 'account_id BLOB NOT NULL UNIQUE, normalized_login_name TEXT NOT NULL, created_at TEXT NOT NULL, deleted_at TEXT NULL, active_login_name TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_login_name ELSE NULL END) VIRTUAL UNIQUE, state TEXT NOT NULL)');
+            $connection->executeStatement('CREATE TABLE ' . $table . ' (' . $base . 'account_id BLOB NOT NULL UNIQUE, created_at TEXT NOT NULL, deleted_at TEXT NULL, state TEXT NOT NULL)');
         }
 
-        $connection->executeStatement('CREATE TABLE identity_challenge (' . $base . 'account_id BLOB NOT NULL, actor_id BLOB NOT NULL, realm TEXT NOT NULL, purpose TEXT NOT NULL, expires_at TEXT NOT NULL, state TEXT NOT NULL)');
+        $connection->executeStatement('CREATE TABLE contact_info (' . $base . 'context_hash TEXT NOT NULL, realm TEXT NOT NULL, purpose TEXT NOT NULL, contact_type TEXT NOT NULL, normalized_value TEXT NOT NULL, account_id BLOB NULL, actor_id BLOB NULL, verified_at TEXT NULL, state TEXT NOT NULL, UNIQUE(context_hash, realm, purpose, contact_type))');
         $connection->executeStatement('CREATE TABLE identity_operator_action (id BLOB PRIMARY KEY, uuid TEXT GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL, target_id BLOB NOT NULL, action_name TEXT NOT NULL, bootstrap_key TEXT UNIQUE, operator_name TEXT NOT NULL, invitation_evidence TEXT, approval_evidence TEXT, recorded_at TEXT NOT NULL)');
     }
 }

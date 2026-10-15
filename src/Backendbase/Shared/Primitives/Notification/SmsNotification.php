@@ -19,7 +19,7 @@ final readonly class SmsNotification implements Notification
     public function __construct(string $phoneNumber, private string $message)
     {
         $phoneNumber = trim($phoneNumber);
-        if (preg_match('/^\+[1-9][0-9]{7,14}$/', $phoneNumber) !== 1) {
+        if (preg_match('/\A\+[1-9][0-9]{1,14}\z/D', $phoneNumber) !== 1) {
             throw new InvalidArgumentException('The SMS phone number must use the E.164 format.');
         }
 

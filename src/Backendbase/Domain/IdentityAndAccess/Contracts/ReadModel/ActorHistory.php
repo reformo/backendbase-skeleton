@@ -8,12 +8,12 @@ use JsonSerializable;
 
 final readonly class ActorHistory implements JsonSerializable
 {
-    /** @param array{actorId: string, accountId: string, realm: string, loginName: string, approved: bool, createdAt: string, deletedAt: string|null} $data */
+    /** @param array{actorId: string, accountId: string, realm: string, email: string, mobile: string, firstName: string|null, lastName: string|null, approved: bool, createdAt: string, deletedAt: string|null} $data */
     public function __construct(private array $data)
     {
     }
 
-    /** @return array{actorId: string, accountId: string, realm: string, loginName: string, approved: bool, createdAt: string, deletedAt: string|null} */
+    /** @return array{actorId: string, accountId: string, realm: string, email: string, mobile: string, firstName: string|null, lastName: string|null, approved: bool, createdAt: string, deletedAt: string|null} */
     public function jsonSerialize(): array
     {
         return $this->data;

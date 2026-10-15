@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Inbound\IdentityApi;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\OwnershipNotifier;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use Backendbase\Domain\IdentityAndAccess\Tests\Support\CapturedOwnershipNotifier;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -24,18 +23,11 @@ final class UserFlowTest extends TestCase
     {
         $identity = IdentityFixture::create();
         $api      = IdentityApiFixture::create($identity, Realm::USER);
-        $response = $api->request('POST', '/auth/register', ['email' => 'ADA@EXAMPLE.COM', 'loginName' => 'Ada.User', 'password' => 'valid-password-123']);
+        $response = $api->request('POST', '/auth/register', ContactScenario::verified($identity, 'ADA@EXAMPLE.COM'));
         self::assertSame(201, $response->getStatusCode());
         $registration = self::resource($response, 'registration');
         self::assertArrayNotHasKey('accessToken', $registration);
-        $challenge     = self::text($registration, 'challengeId');
-        $container     = $identity->container();
-        $notifications = $container->get(OwnershipNotifier::class);
-        self::assertInstanceOf(CapturedOwnershipNotifier::class, $notifications);
-        $response = $api->request('POST', '/auth/ownership/verify', ['challengeId' => $challenge, 'code' => $notifications->code($challenge)]);
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['completed' => true], self::resource($response, 'ownershipVerification'));
-        $response = $api->request('POST', '/auth/login', ['loginName' => 'ada.user', 'password' => 'valid-password-123']);
+        $response = $api->request('POST', '/auth/login', ['identifier' => 'ada@example.com', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
         $session  = self::resource($response, 'session');

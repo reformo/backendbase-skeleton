@@ -2,47 +2,62 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-31
+- **Updated:** 2026-10-15
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
 
 ## Context and Problem Statement
 
-The target Turkish collation affects key equality. Global Account email and actor login names are distinct concepts; the report's sample login index is conditional.
+User and System Admin actors authenticate with the shared Account email or mobile and password. Actors do not have usernames.
+Email and mobile are required at registration. The database is empty, so the initial identity migration defines the new schema directly.
 
-The [decision report](references/2026-10-13-identity-access-decisions.md#open-choices-and-verification-gaps) leaves exact normalization, uniqueness scope, and active-key rules open.
+The [decision report](references/2026-10-13-identity-access-decisions.md#open-choices-and-verification-gaps) requires explicit normalization, uniqueness, and active-key rules.
 
-This record selects realm-scoped actor login names with explicit normalization. Login names contain 3 to 64 ASCII letters, digits, dots, underscores, or hyphens and start with an alphanumeric character. Domain normalization converts them to lowercase. Account emails use valid lowercase ASCII addresses. Active actor names can be reused after deletion. Conflicting restoration is rejected. Account email uniqueness is global among active Accounts.
-
-- **Constraints:** Define normalization in Domain. Scope actor login lookup and uniqueness to the trusted USER or ADMIN realm. Use the same normalized value for lookup, persistence, and uniqueness checks. Keep Account identity global and Account email rules separate. Define deleted-row participation explicitly. Test actual key equality before migration.
+- **Constraints:** Define contact validation in Domain. Use matching lookup, persistence, and uniqueness values. Select actors through the trusted USER or ADMIN realm.
 
 ## Considered Options
 
-### Option A: Globally unique actor login names with explicit normalization
+### Option A: Required Account email and mobile identifiers
 
-- **Pros:** One actor login lookup can be unambiguous across realms.
-- **Cons / Risks:** Unrelated actor realms share one name space. Active-key reuse and restoration need agreed global rules.
+- **Pros:** Both actor types share one contact identity and password. Active contact uniqueness makes each lookup unambiguous.
+- **Cons / Risks:** Contact reuse follows Account closure. Mobile format validation does not establish mobile ownership.
 - **Estimated Cost / Effort:** Medium
 
-### Option B: Realm-scoped actor login names with explicit normalization
+### Option B: Separate actor usernames
 
-- **Pros:** USER and ADMIN can manage actor names independently while referencing global Accounts.
-- **Cons / Risks:** Lookup and uniqueness require the realm. Account email rules remain a separate decision.
+- **Pros:** Each realm can assign a separate actor name.
+- **Cons / Risks:** Usernames introduce an identifier that the product does not use.
 - **Estimated Cost / Effort:** Medium
 
 ## Decision Made
 
-- **Chosen Option:** Option B: Realm-scoped actor login names with explicit normalization.
-- **Rationale:** USER and ADMIN manage actor login names independently while referencing global Accounts. Login lookup and uniqueness use the pair (realm, normalized login name). The same normalized name may exist in different realms. Domain-defined normalization and matching database constraints must enforce equivalent names within each realm.
+- **Chosen Option:** Option A. This replaces the earlier realm-scoped actor username decision.
+- **Rationale:** Required email and mobile belong to the global Account. User and Admin refer to that Account through scalar identifiers.
+
+Email uses valid lowercase ASCII addresses with at most 254 characters.
+Mobile uses E.164 format: `+` followed by 2 to 15 ASCII digits, with a nonzero first digit.
+Reject whitespace, separators, extensions, unsupported Unicode, and invalid bounds. Do not infer country codes or silently repair input.
+
+Registration accepts email, mobile, password, both verified contact IDs, and their shared context token. Login accepts `identifier` and `password`.
+Resolve the active Account by email or mobile, then resolve its actor in the trusted realm.
+Preserve ownership, approval, Account lifecycle, actor lifecycle, and password checks.
+Both email and mobile require verification before User registration under [ADR-0050](0050-contact-verification-before-user-registration.md). Mobile codes use the existing SMS providers.
 
 ## Consequences
 
-- **Positive:** Actor login uniqueness has an explicit realm boundary. Lookup and database constraints follow the same normalization contract. Names in one realm do not reserve names in another.
-- **Negative / Trade-offs:** Every actor login lookup and uniqueness check requires a trusted realm. I/İ/ı/i, accents, Unicode normalization, and trailing spaces can change equality. Non-ASCII login names and emails, leading or trailing whitespace, and invalid bounds are rejected. Closed Account emails and removed actor names can be reused under the active-key rules.
+- **Positive:** Both actor types share required contacts. Generated active-email and active-mobile columns enforce global uniqueness atomically.
+- **Negative / Trade-offs:** Removing an actor does not release Account contacts. Closing an Account releases both active keys while retaining stored contact values.
+
+Current identity and actor history responses expose `email` and `mobile`. Historical actor reads join the retained Account through its primary key.
+JWT claims retain their existing identity fields and contain no contact values.
+Lifetime uniqueness still permits at most one User and one Admin per Account, including removed actors.
 
 ## Implementation & Validation
 
-See the [implementation register](implementation-status.md) for current code, verification, and deployment selections.
+See the [implementation register](implementation-status.md) for the wider identity implementation and dated verification evidence.
 
-- **Rollout Steps:** Inventory required actor login keys. Define case, Unicode, whitespace, and comparison rules in Domain. Define deleted-row participation, reuse, and restoration behavior. Analyze existing duplicates within each realm. Apply the same normalization to lookup and persistence. Add realm-scoped uniqueness constraints under the approved lifecycle rules. Define Account email rules separately before changing them.
-- **Verification:** Test normalized lookup and equivalent and distinct keys on the target collation. Reject conflicting normalized names within one realm. Permit the same normalized name across USER and ADMIN. Test Turkish I/İ/ı/i, accents, Unicode forms, trailing spaces, concurrent duplicates, approved reuse, and restoration conflicts. Verify lookup never searches another realm implicitly.
-- **Review Date:** Review before creating key constraints or changing login and email normalization.
+- **Rollout Steps:** Update required Account contacts, both identifier lookup paths, actor models, API contracts, operator commands, and initial migration metadata together.
+- **Verification:** Test both identifiers in both realms, email normalization, required mobile input, invalid formats, duplicate rollback, actor restrictions, and Account closure reuse.
+- **Database Verification:** Review generated MySQL schema and index metadata. Run native uniqueness checks and representative `EXPLAIN` plans on an identified, prepared MySQL target.
+- **Compatibility:** Existing installations require a separate migration and adoption plan. Do not apply the revised initial migration to an existing schema.
+- **Review Date:** Review when contact ownership, contact updates, or Account reuse rules change.

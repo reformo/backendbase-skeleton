@@ -17,7 +17,9 @@ final class ServiceProvider implements \Backendbase\Shared\ServiceProvider
             Contracts\AuthenticationSecrets::class => Adapters\Authentication\SodiumAuthenticationSecrets::class,
             Contracts\TokenCodec::class => Adapters\Authentication\RealmTokenCodec::class,
             Contracts\TokenRegistry::class => Adapters\Authentication\RedisTokenRegistry::class,
-            Contracts\OwnershipNotifier::class => Adapters\Notification\OwnershipMailer::class,
+            Contracts\ContactStore::class => Adapters\Persistence\Contacts\DoctrineContactStore::class,
+            Contracts\ContactNotifier::class => Adapters\Notification\ContactNotification::class,
+            Contracts\VerificationLimiter::class => Adapters\Authentication\RedisVerificationLimiter::class,
             Contracts\IdentityOperationResults::class => Adapters\ReadModel\RequestIdentityResults::class,
         ];
     }
@@ -26,10 +28,9 @@ final class ServiceProvider implements \Backendbase\Shared\ServiceProvider
     public static function getHandlers(): array
     {
         return [
+            Contracts\Command\Contacts\VerifyContact::class => Application\CommandHandlers\Contacts\VerifyContactHandler::class,
             Contracts\Command\Operations\ApplyOperatorAction::class => Application\CommandHandlers\Operations\ApplyOperatorActionHandler::class,
             Contracts\Command\Authentication\RegisterUser::class => Application\CommandHandlers\Registration\RegisterUserHandler::class,
-            Contracts\Command\Authentication\VerifyOwnership::class => Application\CommandHandlers\Enrollment\VerifyOwnershipHandler::class,
-            Contracts\Command\Authentication\ResendOwnership::class => Application\CommandHandlers\Enrollment\ResendOwnershipHandler::class,
             Contracts\Command\Authentication\Login::class => Application\CommandHandlers\Login\LoginHandler::class,
             Contracts\Command\Lifecycle\RevokeAccessToken::class => Application\CommandHandlers\Lifecycle\RevokeAccessTokenHandler::class,
             Contracts\Command\Lifecycle\Logout::class => Application\CommandHandlers\Lifecycle\LogoutHandler::class,
@@ -37,6 +38,7 @@ final class ServiceProvider implements \Backendbase\Shared\ServiceProvider
             Contracts\Command\Administration\InviteAdmin::class => Application\CommandHandlers\Administration\InviteAdminHandler::class,
             Contracts\Command\Administration\ApproveAdmin::class => Application\CommandHandlers\Administration\ApproveAdminHandler::class,
             Contracts\Command\Administration\ChangeActor::class => Application\CommandHandlers\Administration\ChangeActorHandler::class,
+            Contracts\Query\GetCurrentIdentity::class => Application\QueryHandlers\GetCurrentIdentityHandler::class,
             Contracts\Query\GetActorHistory::class => Application\QueryHandlers\GetActorHistoryHandler::class,
             Contracts\Query\GetIdentityOperation::class => Application\QueryHandlers\GetIdentityOperationHandler::class,
         ];

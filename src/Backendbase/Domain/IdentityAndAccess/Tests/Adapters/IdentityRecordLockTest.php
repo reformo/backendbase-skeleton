@@ -9,6 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentityR
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\UnitOfWork\EntityManagerFactory;
 use DateTimeImmutable;
@@ -29,7 +30,7 @@ final class IdentityRecordLockTest extends TestCase
         require 'config/doctrine-types.php';
         $accountId  = IdentityId::create();
         $identifier = $accountId->toString();
-        $record     = IdentityAccount::create(Account::create($accountId, new AccountEmail('locks@example.com'), new DateTimeImmutable('2026-10-15T10:00:00Z')));
+        $record     = IdentityAccount::create(Account::create($accountId, new AccountEmail('locks@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-15T10:00:00Z')));
         $uuid       = Uuid::fromString($identifier);
         $connection = $this->createMock(Connection::class);
         $platform   = $connection->method('getDatabasePlatform');

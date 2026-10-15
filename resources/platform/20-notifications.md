@@ -20,6 +20,10 @@ Shared notification models define provider-independent email, push, and SMS requ
 - Email providers require a sender, recipient, subject, and rendered HTML body. Template metadata is not rendered.
 - `NotificationBatchFailed` reports completed deliveries and the failed item index. Do not retry a partial batch without checking external outcomes.
 
+Identity contact verification sends email and SMS synchronously after its database transaction commits.
+Each contact code generation has one delivery identity. Unknown outcomes require an explicit new generation.
+See [contact verification](operations/contact-verification.md).
+
 No notification queue consumer is registered. Add one only after the message supplies every required field and the container registers a compatible provider.
 
 Queued notification delivery must use `ExternalEffectInbox`. Treat an unknown provider outcome as permanent until an operator proves whether delivery occurred.

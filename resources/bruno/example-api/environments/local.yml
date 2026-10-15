@@ -22,3 +22,9 @@ variables:
     value: ""
   - name: exampleLookupValue
     value: "10"
+  -
+    name: firstName
+    value: 'Mehmet'
+  -
+    name: lastName
+    value: 'Korkmaz'

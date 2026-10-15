@@ -9,6 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Id
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\UnitOfWork\EntityManagerFactory;
 use DateTimeImmutable;
@@ -104,6 +105,6 @@ final class MySqlConcurrencyTest extends TestCase
 
     private static function account(): Account
     {
-        return Account::create(IdentityId::create(), new AccountEmail('race@example.com'), new DateTimeImmutable('2026-10-14T10:00:00Z'));
+        return Account::create(IdentityId::create(), new AccountEmail('race@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-14T10:00:00Z'));
     }
 }

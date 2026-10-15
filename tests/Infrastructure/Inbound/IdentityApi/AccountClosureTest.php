@@ -29,6 +29,6 @@ final class AccountClosureTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame(['completed' => true], UserFlowTest::resource($response, 'account'));
         self::assertSame(401, $api->request('GET', '/identity', token: $token)->getStatusCode());
-        self::assertSame(401, $api->request('POST', '/auth/login', ['loginName' => 'ada.user', 'password' => 'valid-password-123'])->getStatusCode());
+        self::assertSame(401, $api->request('POST', '/auth/login', ['identifier' => 'ada@example.com', 'password' => 'valid-password-123'])->getStatusCode());
     }
 }

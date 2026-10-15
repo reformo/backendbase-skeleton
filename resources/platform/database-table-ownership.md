@@ -5,7 +5,7 @@ The owning adapter is the only writer. Other contexts use contracts and integrat
 
 | Owner | Tables | Identity and references |
 | --- | --- | --- |
-| IdentityAndAccess | `identity_account`, `identity_user`, `identity_admin`, `identity_challenge`, `identity_operator_action` | Assigned UUIDv7 `BINARY(16)` identifiers; scalar binary Account and actor references |
+| IdentityAndAccess | `identity_account`, `identity_user`, `identity_admin`, `contact_info`, `identity_operator_action` | Assigned UUIDv7 `BINARY(16)` identifiers; scalar binary Account and actor references |
 | ExampleCatalog | `example_table` | Assigned binary UUID primary key; read-only virtual public UUID; opaque integer target selector retained |
 | Infrastructure messaging | `integration_event_outbox`, `integration_event_inbox`, `integration_event_delivery_failure` | Existing technical message and claim UUID strings |
 | Infrastructure recovery | `integration_event_replay`, `external_effect_resolution` | Binary UUIDv7 audit identifiers; original technical message and consumer identity |
@@ -15,7 +15,7 @@ The owning adapter is the only writer. Other contexts use contracts and integrat
 
 IdentityAndAccess has no previous implementation at the starting source revision.
 New records allocate UUIDv7 before persistence. They need no integer-to-UUID backfill.
-Account references and challenge actor references use the same natural 16-byte representation.
+Account references and optional contact actor references use the same natural 16-byte representation.
 The virtual `uuid` display column uses `BIN_TO_UUID(id, 0)` and has no lookup index.
 JWT, HTTP, and Redis use canonical UUID strings. They do not expose binary values.
 
@@ -33,15 +33,20 @@ Any retained tables from an earlier conversion remain recovery artifacts. No run
 
 ## Writer checks
 
-Identity writers validate Account existence, active state, actor ownership, and challenge realm before persistence.
+Identity writers validate Account existence, active state, actor ownership, and contact realm before persistence.
 Actor Account references cannot change. No identity migration creates a physical foreign key or cascade.
 Database uniqueness protects one User and one Admin per Account, including removed actor rows.
-Active login uniqueness belongs to each actor table. Account email uniqueness belongs to the Account table.
+Email and required mobile belong to the Account table. Each contact has a generated active-key unique index.
+User and Admin tables contain no username columns or login-name indexes.
 
 Account locks precede actor locks. Authentication counters use an exclusive Account lock.
 Actor mutations protect observer and target Accounts in canonical UUID order.
-Challenges receive their exclusive lock after Account and actor protection.
-Historical projections use stored fields without write locks or joins to live Account attributes.
+Account-bound contacts receive their exclusive lock after Account and actor protection.
+The Account owns nullable first and last names. The manual initial Admin seeder writes its Account, Admin, and operator evidence in one transaction. It creates no User or contact evidence.
+
+Pre-registration contacts have no identity owner. Registration locks both contacts before reading the authorization time.
+Historical projections include removed actors and join their retained Account for email and mobile.
+The Account primary key supports this join. Historical reads do not acquire write locks.
 
 ## Adoption gates
 

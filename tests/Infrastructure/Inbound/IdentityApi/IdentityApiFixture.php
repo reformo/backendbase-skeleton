@@ -57,7 +57,7 @@ final readonly class IdentityApiFixture
     /** @param array<string, mixed>|null $payload */
     public function request(string $method, string $path, array|null $payload = null, string|null $token = null): ResponseInterface
     {
-        $request = new ServerRequestFactory()->createServerRequest($method, $path);
+        $request = new ServerRequestFactory()->createServerRequest($method, $path, ['REMOTE_ADDR' => '127.0.0.1']);
         if ($payload !== null) {
             $stream = new Stream('php://temp', 'r+');
             $stream->write(json_encode($payload, JSON_THROW_ON_ERROR));

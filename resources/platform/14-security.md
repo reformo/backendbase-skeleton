@@ -31,15 +31,26 @@ Identity uniqueness and state conflicts return a safe 409 response.
 
 ## Authentication facts
 
-Global Accounts own email and password credentials.
+Global Accounts own required email, required mobile, password credentials, and optional first and last names.
+Registration accepts nullable `firstName` and `lastName`. Names contain 1 to 160 UTF-8 characters when supplied.
+Reject empty names, surrounding spaces, and control characters. Preserve accepted text without normalization.
+Current identity and actor history return both names, including null values. Names do not appear in tokens.
 Each Account can have at most one User and one Admin, including removed actor rows.
-Actor login names are unique within each realm. Account email has its own active uniqueness rule.
-ASCII normalization lowercases accepted login names and email addresses. Unicode login names and email addresses are rejected.
+Account email and mobile are each globally unique among active Accounts. Actors have no username.
+ASCII normalization lowercases accepted email addresses. Mobile numbers use E.164 format: a plus sign and 2 to 15 digits.
+Reject whitespace, domestic formatting, extensions, non-ASCII email, and non-ASCII digits. Do not infer a country code.
+Registration requires email, mobile, password, both verified contact IDs, and a shared context token. Login requires `identifier` and `password`.
+The identifier accepts email or mobile. Resolve the Account before selecting its actor in the trusted realm.
+Admin invitations use an existing Account and evidence. They do not introduce separate login identifiers.
+Current identity and actor history responses expose Account email and mobile. Tokens do not contain contact fields.
+Account closure releases both active contact keys. Actor removal preserves the Account contact reservations.
 
 Contact ownership, actor approval, and password authentication establish separate facts.
-Registration sends a six-digit ownership proof through the notification port.
-Ownership proofs expire after five minutes and permit at most five attempts.
-Resend requires the password and invalidates previous ownership proofs.
+Verify both email and mobile through the contact endpoints before User registration.
+Both proofs must be less than 12 hours old when registration holds both evidence locks.
+Codes expire after five minutes. Failed attempts, resend limits, and delivery identities are contact-specific.
+Optional Admin verification preserves ownership, credential versions, and existing sessions.
+See [contact verification](operations/contact-verification.md) for request fields, state transitions, quotas, and error contracts.
 
 Password verification issues a session only after ownership, Account state, and actor approval checks pass.
 Both realms authenticate through `POST /auth/login` and return the `session` result.
@@ -48,7 +59,9 @@ Login does not create a challenge. TOTP enrollment and login-completion endpoint
 Admin enrollment requires stored invitation and approval evidence.
 An Admin cannot approve its own enrollment. Contact ownership remains a separate session gate.
 First-Admin setup uses local root operator commands with separate invitation and approval evidence.
-Operator commands never issue a token. See [operator procedures](operations/identity-operator.md).
+The manually approved initial Admin seeder attests ownership and records separate bootstrap invitation and approval evidence.
+It remains separate from ordinary User registration. It creates no contact verification record.
+Operator commands and the seeder never issue a token. See [operator procedures](operations/identity-operator.md).
 Factor recovery and factor rewrapping actions are absent.
 
 ## Session state
@@ -98,7 +111,8 @@ Keys have no production defaults. Runtime configuration selects a managed provid
 Stored passwords use Argon2id. Ownership proofs use keyed SHA-256 hashes.
 Signing-key and ownership-proof-key rotation support an active key and a distinct previous key identifier.
 Ownership proof keys retain the `encryptionKey` configuration names for compatibility.
-Retain the previous proof key until its pending ownership challenges expire.
+Retain each required proof key until pending codes and confirmed evidence recovery windows expire.
+A confirmed record requires its code key through `verifiedAt + 12 hours`. Do not discard that key during another rotation.
 New credential JSON contains only `passwordHash`. Existing credential JSON can retain unused factor fields.
 No database schema change or automatic data cleanup is required.
 Configuration and container definitions do not persist live credential values in caches.

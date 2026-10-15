@@ -108,8 +108,8 @@ Source sections: `charset`, `schema`, and `open`.
 - Configure the DBAL connection charset as `utf8mb4`.
 - Keep binary identifiers independent of text collation.
 - Override the readable UUID projection with `ascii` and `ascii_bin`.
-- Normalize identity login names and Account emails to lowercase ASCII in Domain. Reject unsupported Unicode identity keys.
-- Use explicit `ascii_bin` identity key columns. Active logins are unique within each realm; active Account email is global.
+- Normalize Account emails to lowercase ASCII in Domain. Require E.164 mobile numbers. Actors have no username.
+- Use explicit `ascii_bin` identity key columns. Active Account email and mobile are each globally unique. Login selects the actor within the trusted realm.
 - Permit at most one User and one Admin per Account, including removed actor rows.
 - Test Turkish I variants, accents, Unicode normalization, and trailing-space behavior against business uniqueness rules.
 - Analyze existing duplicates, index changes, locks, and generated-column overrides before collation conversion.

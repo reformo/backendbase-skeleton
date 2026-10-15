@@ -56,6 +56,12 @@ post:
         application/problem+json:
           schema:
             $ref: '../user-api-openapi.yml#/components/schemas/Problem'
+    410:
+      description: 'Contact verification expired'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../user-api-openapi.yml#/components/schemas/Problem'
     503:
       description: 'Authentication dependency unavailable'
       content:

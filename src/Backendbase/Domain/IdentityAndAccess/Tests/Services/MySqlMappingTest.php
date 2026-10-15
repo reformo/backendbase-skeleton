@@ -7,6 +7,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Tests\Services;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Operations\MySqlDiagnostics;
 use DateTimeImmutable;
@@ -28,7 +29,7 @@ final class MySqlMappingTest extends TestCase
         try {
             $manager = $fixture->manager();
             $id      = IdentityId::create();
-            $account = Account::create($id, new AccountEmail('test@example.com'), new DateTimeImmutable('2026-10-14T10:00:00.123456Z'));
+            $account = Account::create($id, new AccountEmail('test@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-14T10:00:00.123456Z'));
             $manager->persist(IdentityAccount::create($account));
             $manager->flush();
             $manager->clear();

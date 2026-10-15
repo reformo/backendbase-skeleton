@@ -38,7 +38,7 @@ final readonly class AdministrationWorkflow
             $state   = $account->snapshot();
             $account->assertSessionAllowed($state['authVersion']);
             $identity = $principal->identity();
-            $actor    = SystemAdmin::invite($id, IdentityId::fromString($account->id()), $input->loginName(), 'invite:' . $identity['actorId'] . ':' . $input->evidence(), $now);
+            $actor    = SystemAdmin::invite($id, IdentityId::fromString($account->id()), 'invite:' . $identity['actorId'] . ':' . $input->evidence(), $now);
             $currentStore->saveActor($actor);
         });
 

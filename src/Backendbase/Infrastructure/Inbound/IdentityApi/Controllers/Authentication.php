@@ -43,8 +43,6 @@ final class Authentication extends Action
     {
         return match ($action) {
             'register' => 'registration',
-            'verify-ownership' => 'ownershipVerification',
-            'resend-ownership' => 'challenge',
             'login', 'logout' => 'session',
             'revoke-token' => 'token',
             'close-account' => 'account',

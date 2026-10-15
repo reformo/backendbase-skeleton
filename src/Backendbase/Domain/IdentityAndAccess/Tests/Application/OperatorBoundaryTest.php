@@ -41,7 +41,7 @@ final class OperatorBoundaryTest extends TestCase
     public function testInvalidEvidenceAndActionsAreRejected(string $action, string $operator, string $invitation, string $approval): void
     {
         $this->expectException(InvalidArgumentException::class);
-        new OperatorInput($action, IdentityScenario::id(), $operator, $invitation, $approval, 'valid.admin');
+        new OperatorInput($action, IdentityScenario::id(), $operator, $invitation, $approval);
     }
 
     /** @return list<array{string, string, string, string}> */
@@ -64,7 +64,7 @@ final class OperatorBoundaryTest extends TestCase
         $container = $fixture->container();
         $command   = new IdentityOperator($container->get(IdentityOperation::class));
         $tester    = new CommandTester($command);
-        self::assertSame(Command::SUCCESS, $tester->execute(['--action' => 'invite-first-admin', '--target-id' => $enrolled['accountId'], '--operator' => 'operator', '--invitation' => 'ticket:123', '--login-name' => 'first.admin']));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--action' => 'invite-first-admin', '--target-id' => $enrolled['accountId'], '--operator' => 'operator', '--invitation' => 'ticket:123']));
         self::assertStringContainsString('No identity record changed', $tester->getDisplay());
         self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
         self::assertSame(Command::INVALID, $tester->execute([]));
@@ -91,7 +91,7 @@ final class OperatorBoundaryTest extends TestCase
         $container = $fixture->container();
         $workflow  = $container->get(OperatorWorkflow::class);
         $now       = new DateTimeImmutable();
-        $actor     = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'ticket:invite', '', 'first.admin'), $now, true);
+        $actor     = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'ticket:invite', ''), $now, true);
         $approval  = new OperatorInput('approve-first-admin', $actor, 'operator', '', 'ticket:approve');
         $workflow->run($approval, $now, true);
         $this->expectException(IdentityConflict::class);
