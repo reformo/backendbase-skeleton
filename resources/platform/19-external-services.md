@@ -26,6 +26,19 @@ Nginx serves the configured MiniStack bucket at `http://127.0.0.1:8081/`. Set lo
 
 StackPort connects to MiniStack through `http://ministack:4566` and exposes a local resource browser at `http://127.0.0.1:8082`.
 
+Run `composer message-viewer` on the host to inspect local SNS SMS messages and captured SES emails at `http://127.0.0.1:8083`.
+The viewer uses the project PHP runtime and Composer dependencies. Docker access is required for SMS logs.
+Use `php -S 127.0.0.1:8084 bin/dev/message-viewer.php` to change its loopback port.
+It reads the latest 2,000 log lines from `backendbase-ministack` and returns at most 200 SMS records.
+It reads captured emails from `/_ministack/ses/messages` on loopback, using `BACKENDBASE_DEV_AWS_PORT` from `.env` or port 4566.
+It shows up to 200 emails across captured accounts, newest first. Select an email to expand its headers and preview.
+The viewer refreshes every five seconds. Provider reads have five-second timeouts and an 8 MiB size limit.
+MiniStack logs up to 80 characters per SMS. The viewer displays the first line and does not retain messages independently.
+Container recreation and log rotation can remove messages. The viewer does not send notifications or expose other container logs.
+Some raw emails lack stored recipients. The viewer marks them as unavailable without guessing an address.
+Email previews use stored HTML or plain text. An HTML allowlist and an isolated browser frame block active content and external requests.
+Attachments are unavailable through the capture endpoint. The viewer does not capture SMTP, Twilio, or Netgsm deliveries.
+
 S3 operations use at most three attempts for transient failures. Multipart retries preserve the upload and part identity.
 Access denial and other permanent failures stop immediately. Failed multipart transfers are not restarted indefinitely.
 Download signing preserves the object content type. Signed POST policies require the exact key and content type.

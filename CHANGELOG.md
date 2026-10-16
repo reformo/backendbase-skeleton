@@ -22,6 +22,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add a PHP message viewer for local MiniStack SMS logs and captured SES emails. Include automatic refresh, filtering, and isolated HTML or plain text previews. Add parser, process, HTTP, and preview regressions.
+
 - Add live checks for all 28 identity API operations and authenticated ZAP scans for both realms. Use disposable fixtures, a local contact sink, and sanitized reports. Pin Semgrep scanner content and the full rule snapshot.
 - Add guarded maintenance installation for an empty MySQL database. Preserve normal rollback compatibility checks. Test existing-schema rejection and backup, migration, activation, and readiness failures.
 

@@ -41,6 +41,23 @@ The default stack starts MiniStack at `http://127.0.0.1:4566` for S3, SQS, SNS, 
 
 StackPort 0.4.3 connects to MiniStack inside Docker and shows its local AWS resources. Change `BACKENDBASE_DEV_STACKPORT_PORT` to use another host port.
 
+Start the local message viewer with the project PHP runtime, Composer dependencies, and Docker available on the host:
+
+```sh
+composer message-viewer
+```
+
+Open [Message viewer](http://127.0.0.1:8083). Select **SMS** or **Emails**. Select an email to expand its headers and HTML preview.
+Plain text emails also have previews. The page refreshes every five seconds and supports filtering.
+The viewer reads SMS logs from `backendbase-ministack` and captured SES emails from the local MiniStack inspection endpoint.
+It uses `BACKENDBASE_DEV_AWS_PORT` from `.env`, with port 4566 as the default. Reads have a five-second timeout and an 8 MiB limit.
+Each view shows at most 200 messages, newest first. SMS capture reads the latest 2,000 log lines.
+MiniStack logs up to 80 characters per SMS. The viewer shows the first line only. Container recreation or log rotation can remove older messages.
+Some raw emails have no recipient in MiniStack's stored record. The viewer marks that field as unavailable.
+Email previews block scripts, forms, links, and remote images. Attachments are not available through the capture endpoint.
+The viewer binds to loopback, sends no notifications, and writes no message files. It does not capture Twilio, Netgsm, or SMTP delivery.
+Stop the viewer with Ctrl+C. Use `php -S 127.0.0.1:8084 bin/dev/message-viewer.php` when port 8083 is unavailable.
+
 Nginx serves objects from the configured MiniStack bucket at `http://127.0.0.1:8081/`. It allows GET and HEAD requests and caches successful responses for 60 seconds. This URL is available from the local host.
 
 Use the local settings in `.env.example` when you create `.env`. It includes distinct User and Admin signing keys and a contact verification proof key. These public examples are valid only for local development. Replace them with independent secrets before deployment. Optional provider credentials, Redis authentication, and previous keys remain commented until configured. The AWS keys are test values:

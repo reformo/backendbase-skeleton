@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Message viewer · Backendbase</title>
+    <link rel="stylesheet" href="/viewer.css">
+    <script src="/viewer.js" defer></script>
+</head>
+<body>
+    <main>
+        <header>
+            <div>
+                <h1>Message viewer</h1>
+                <p>Messages captured by local MiniStack.</p>
+            </div>
+            <button id="refresh" type="button">Refresh</button>
+        </header>
+        <div class="message-types" role="group" aria-label="Message type">
+            <button id="show-sms" type="button" aria-pressed="true">SMS</button>
+            <button id="show-emails" type="button" aria-pressed="false">Emails</button>
+        </div>
+        <div class="toolbar">
+            <label for="search">Filter messages
+                <input id="search" type="search" placeholder="Phone number or message" autocomplete="off">
+            </label>
+            <p id="status" role="status">Loading messages…</p>
+        </div>
+        <p id="error" role="alert" hidden></p>
+        <section aria-labelledby="list-title">
+            <div class="list-heading"><h2 id="list-title">SMS messages</h2><span id="count">0</span></div>
+            <p id="empty" hidden>No SMS messages in the current log window. Send a mobile verification request through the local API.</p>
+            <ol id="messages"></ol>
+        </section>
+        <footer>
+            <p>Refreshes every 5 seconds. Newest messages appear first. Times use your browser’s time zone.</p>
+            <p id="capture-limit">MiniStack logs up to 80 characters. This viewer shows the first line of each SMS, from the latest 2,000 log lines, up to 200 messages. Logs can disappear when the container is recreated.</p>
+        </footer>
+        <noscript>Enable JavaScript to load and refresh messages.</noscript>
+    </main>
+</body>
+</html>

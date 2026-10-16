@@ -128,6 +128,7 @@ bin/bruno example-api local
 <tr><td>Cyclomatic complexity</td><td><code>phpcs-complexity.xml.dist</code></td></tr>
 <tr><td>Coding standard</td><td><code>phpcs.xml.dist</code></td></tr><tr><td>Qodana</td><td><code>qodana.yaml</code></td></tr>
 <tr><td>OpenAPI tag validation</td><td><code>bin/check-openapi-tags.php</code>, <code>bin/openapi-tags.php</code>, and <code>tests/Tools/OpenApiTagsTest.php</code></td></tr>
+<tr><td>Local message viewer</td><td><code>bin/dev/message-viewer</code> and <code>tests/Tools/MessageViewer*Test.php</code>. Run <code>vendor/bin/phpunit tests/Tools --filter MessageViewer</code> for isolated SMS, email, HTTP, and preview checks.</td></tr>
 <tr><td>Documentation-link validation</td><td><code>bin/check-documentation-links.php</code></td></tr>
 <tr><td>Quality-report metrics</td><td><code>bin/update-quality-report.php</code></td></tr>
 <tr><td>Composer supply-chain verification</td><td><code>bin/composer-supply-chain.php</code> and <code>resources/security</code></td></tr>

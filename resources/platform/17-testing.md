@@ -116,6 +116,11 @@ See [identity acceptance](operations/identity-acceptance.md) for remaining deplo
 
 `composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
 
+Run `vendor/bin/phpunit tests/Tools --filter MessageViewer` for the local SMS and email viewer.
+These tests cover parsing, bounded process reads, provider failures, HTTP responses, local-only access, and safe email previews.
+They use isolated PHP child processes and HTTP client doubles. They send no notifications.
+Verify browser rendering, filtering, refresh, and email previews against existing MiniStack captures after UI changes.
+
 For agent instruction changes, include root and context files explicitly because the default targets omit them:
 
 ```sh

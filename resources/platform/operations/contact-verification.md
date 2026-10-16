@@ -73,6 +73,12 @@ Each contact and code generation has a separate stable delivery UUID.
 The identity transaction commits before synchronous notification delivery through `ReliableNotificationDelivery`.
 Email and SMS use the configured existing providers. Provider acceptance does not prove final delivery.
 
+Inspect local SNS and SES verification messages with `composer message-viewer` at `http://127.0.0.1:8083`.
+Select SMS or Emails. Expand an email to view its headers and preview.
+The PHP viewer reads MiniStack captures and refreshes every five seconds. It does not create or resend a verification request.
+It shows the first SMS line, up to MiniStack's 80-character log limit. Some raw emails have no stored recipient.
+See [local service limits](../19-external-services.md).
+
 Local setup requires `BACKENDBASE_IDENTITY_OWNERSHIP_SENDER` and a valid `BACKENDBASE_IDENTITY_ENCRYPTION_KEY` with its key identifier.
 The example environment supplies a sender and a public 32-byte proof key for local development.
 Its default SES endpoint targets MiniStack. Replace the example keys and configure a real provider before deployment.

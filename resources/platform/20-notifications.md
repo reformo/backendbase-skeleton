@@ -24,6 +24,13 @@ Identity contact verification sends email and SMS synchronously after its databa
 Each contact code generation has one delivery identity. Unknown outcomes require an explicit new generation.
 See [contact verification](operations/contact-verification.md).
 
+For local SNS and SES delivery, run `composer message-viewer` and open `http://127.0.0.1:8083`.
+Select SMS or Emails. Expand an email to preview its stored HTML or plain text and inspect its headers.
+This PHP development tool reads existing MiniStack captures. It does not change notification providers or send notifications.
+MiniStack records up to 80 characters per SMS. The viewer shows the first line, recipient, and time with automatic refresh and filtering.
+Some raw emails have no stored recipient. Previews block scripts, links, forms, and remote images. Attachments are unavailable.
+See [local service limits](19-external-services.md).
+
 No notification queue consumer is registered. Add one only after the message supplies every required field and the container registers a compatible provider.
 
 Queued notification delivery must use `ExternalEffectInbox`. Treat an unknown provider outcome as permanent until an operator proves whether delivery occurred.
