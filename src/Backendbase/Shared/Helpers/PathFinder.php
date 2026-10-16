@@ -11,6 +11,7 @@ use function glob;
 use function str_replace;
 
 use const GLOB_NOSORT;
+use const GLOB_ONLYDIR;
 
 class PathFinder
 {
@@ -18,7 +19,7 @@ class PathFinder
     public static function doctrineEntityPaths(): array
     {
         $projectDir            = getcwd();
-        $entityPaths           = [$projectDir . '/src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Entity'];
+        $entityPaths           = glob($projectDir . '/src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Entity', GLOB_ONLYDIR) ?: [];
         $entityPathsModules    = glob($projectDir . '/src/Backendbase/Domain/*/Adapters/Persistence/Doctrine/Entity', GLOB_NOSORT);
         $entityPathsSubModules = glob($projectDir . '/src/Backendbase/Domain/*/*/Adapters/Persistence/Doctrine/Entity', GLOB_NOSORT);
 

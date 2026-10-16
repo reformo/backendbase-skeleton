@@ -47,6 +47,7 @@
 </section>
 <section id="discovery"><p class="section-label">06 · Discovery and types</p><h2>PathFinder discovers mapped entity directories</h2>
 <p>The runtime and Doctrine CLI use <code>PathFinder::doctrineEntityPaths()</code>. The CLI schema filter includes service tables and the Doctrine migration metadata table.</p>
+<p>Discovery includes the shared entity directory only when it exists. Fresh checkouts can omit this empty directory. Context and nested module discovery remain available.</p>
 <p><code>config/doctrine-types.php</code> registers UUID, binary UUID, and JSON document types. The main container also registers custom MySQL DQL functions.</p>
 <div class="callout warning">Run Doctrine commands from the project root. Entity and configuration discovery use relative paths.</div>
 </section>

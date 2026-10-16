@@ -4,6 +4,7 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 
 ## Write side
 
+- `PathFinder::doctrineEntityPaths()` includes the shared entity directory only when it exists. Context and nested module discovery remain available.
 - Write handlers depend on a write repository port.
 - Doctrine ORM records map typed aggregate snapshots to columns.
 - Derive each mapped Doctrine entity class name from its full table name in PascalCase.

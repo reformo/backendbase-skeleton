@@ -80,6 +80,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Exclude the absent shared Doctrine entity directory from discovery in fresh checkouts. Add an isolated regression for absent and present directories. Refresh quality report metrics from the full isolated service test run.
+
 - Use a TLS stream context only for configured Redis TLS endpoints. Plain Redis connections no longer attempt a TLS handshake.
 
 - Exclude the DBAL-owned operator evidence table from the native recovery test's ORM schema comparison.
