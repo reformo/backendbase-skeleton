@@ -211,7 +211,7 @@ Use `git diff --exit-code` for generated-file parity only on a clean checkout or
 The current workflows have distinct roles:
 
 - `.github/workflows/quality-gates.yml` runs Composer validation and audit, tests, PHPStan, cyclomatic complexity, PHPCS, source OpenAPI validation, generation, and generated-file parity.
-- `.github/workflows/security-checks.yml` runs Semgrep and a service-backed OpenAPI dynamic application security test.
+- In an unmodified Backendbase project, `.github/workflows/security-checks.yml` uses a digest-pinned Semgrep image and committed rule snapshot. It retains ExampleApi scans and verifies both identity APIs through live HTTP scenarios and separate authenticated read scans. Inspect the target workflow and its exclusions before adapting this verification scope.
 - `.github/workflows/release-artifact.yml` repeats release gates and builds an immutable artifact for an exact reviewed revision.
 
 Select commands by changed behavior and target policy. Do not run this entire list for every review. Reuse successful checks while relevant inputs and the environment remain unchanged. Document-only changes need document checks.

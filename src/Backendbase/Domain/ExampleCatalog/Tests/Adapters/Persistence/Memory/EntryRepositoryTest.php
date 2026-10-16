@@ -14,6 +14,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
 use Backendbase\Domain\ExampleCatalog\Tests\Adapters\Persistence\EntryRepositoryContract;
 use Backendbase\Shared\Exception\ResourceNotFound;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -53,6 +54,7 @@ final class EntryRepositoryTest extends TestCase
             'page-size',
             '25',
             [],
+            new DateTimeImmutable('2026-10-16T10:00:00.123456Z'),
         );
         $this->writeRepository->add($entry);
 
@@ -73,9 +75,10 @@ final class EntryRepositoryTest extends TestCase
             'page-size',
             '25',
             [],
+            new DateTimeImmutable('2026-10-16T10:00:00.123456Z'),
         );
         $this->writeRepository->add($entry);
-        $entry->remove();
+        $entry->remove(new DateTimeImmutable('2026-10-16T12:00:00.345678Z'));
         $this->writeRepository->save($entry);
 
         $this->expectException(ResourceNotFound::class);

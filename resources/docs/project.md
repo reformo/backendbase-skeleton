@@ -11,7 +11,7 @@ This repository is a PHP 8.5 Slim API project for Backendbase backend services. 
 - Dependency injection: PHP-DI
 - HTTP messages/responses: Laminas Diactoros
 - Persistence: Doctrine ORM and Doctrine DBAL
-- Database: MySQL 8
+- Database: MySQL 8.4
 - Tests: PHPUnit
 - Static analysis and style: PHPStan, cyclomatic complexity, and PHPCS
 - API docs: OpenAPI YAML under `resources/api-docs`
@@ -123,6 +123,8 @@ Use the root `tests/` directory for tests that belong to the platform rather tha
 
 Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `ExampleCatalog` as the current reference implementation. No `Content` context exists in the current source. Contracts represent command/query inputs and ports. Application handlers orchestrate use cases. Domain objects and services should hold business rules and invariants.
 
+`IdentityAndAccess` owns global Accounts, User and SystemAdmin actors, contact verification, credentials, session checks, and operator evidence.
+
 ### Enforced Dependency Boundaries
 
 Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-parser`. They enforce these rules:
@@ -141,7 +143,7 @@ Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-
 
 `Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts do not import their handlers.
 
-`Shared/Time/Clock` supplies UTC instants where time controls messaging availability, retries, claims, age checks, and retention. `config/dependencies/time.php` binds the system adapter. Pure calculations receive an explicit instant. The date helper retains UTC defaults and explicit time-zone support for date construction and audit timestamps. The Monolog factory sets its own UTC time zone independently.
+`Shared/Time/Clock` supplies UTC instants where time controls messaging availability, retries, claims, age checks, and retention. `config/dependencies/time.php` binds the system adapter. Pure calculations receive an explicit instant. Example audit writes read the injected clock and pass explicit instants to Entry. The date helper retains UTC defaults and explicit time-zone support for other date construction. The Monolog factory sets its own UTC time zone independently.
 
 ### Ports And Adapters
 
@@ -149,15 +151,17 @@ Repository ports live in bounded-context `Contracts`. Write ports load and save 
 
 ### Consumer API Use Cases
 
-The current repository contains one HTTP API: `ExampleApi`. Its HTTP adapter lives under `src/Backendbase/Infrastructure/Inbound/ExampleApi`. Its public, configuration, OpenAPI, and Bruno roots use the `example-api` slug.
+The current repository contains `ExampleApi`, `UserApi`, and `SystemAdminApi` under `src/Backendbase/Infrastructure/Inbound`. Their slugs are `example-api`, `user-api`, and `system-admin-api`.
+
+`X-Source-Id` selects `example`, `user`, or `system-admin` through a fixed target map. The identity APIs use separate trusted authentication realms.
 
 `Infrastructure/Inbound` holds consumer-specific entry code. Each consumer API keeps its routes, middleware, and controllers together. Operational console commands live under `Infrastructure/Adapters/Console`. Reusable HTTP support stays under `Infrastructure/Adapters/Http`.
 
-Use `ExampleApi` as the reference implementation for controllers, routes, middleware, OpenAPI, and Bruno end-to-end patterns. Use `resources/skills/backendbase-add-use-case-api/SKILL.md` when the user requests another API. Do not assume that `UserApi`, `ExpertApi`, `AdminApi`, or `B2BApi` exists.
+Use `ExampleApi` as the reference for general HTTP adapter patterns. Use the existing identity APIs for realm-specific behavior. Use `resources/skills/backendbase-add-use-case-api/SKILL.md` when the user requests another API. Inspect current directories before assuming another API exists.
 
 Before implementing a feature, inspect the current `Infrastructure/Inbound` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
 
-Protect new consumer API endpoints with the existing API-key middleware by default. Define anonymous access explicitly. Example reads and writes require an API key. Internal `QueueGreeting` retains its Shared `AccessControl` check.
+Apply the target API's existing security policy. Example reads and writes require an API key. Identity routes use their trusted USER or ADMIN policy. Define anonymous access explicitly. Internal `QueueGreeting` retains its Shared `AccessControl` check. See [the identity security policy](../platform/14-security.md).
 
 Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. Add all four shared header references to each new OpenAPI operation's `parameters` section. Follow `resources/api-docs/example-api/example/examples.yaml`.
 
@@ -176,7 +180,7 @@ Keep orchestrator input and result contracts in `Contracts`. Preserve context is
 
 `ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
 
-When adding or changing an endpoint, invoke one application operation in each existing affected API. Direct command or query dispatch is the default. For a write response needing a resource representation, the action can instead call the application orchestrator described above. Current create endpoints use pre-generated identifiers. The current repository has only `ExampleApi`.
+When adding or changing an endpoint, invoke one application operation in each existing affected API. Direct command or query dispatch is the default. For a write response needing a resource representation, the action can instead call the application orchestrator described above. Example create endpoints use pre-generated identifiers. Identity actions use the context-owned `IdentityOperation` orchestrator for command results.
 
 ## Feature Flow
 
@@ -236,6 +240,9 @@ The queue message processor converts a producer event name to an external subscr
 - ExampleApi configuration: `config/example-api`
 - ExampleApi OpenAPI source: `resources/api-docs/example-api`
 - ExampleApi Bruno collection: `resources/bruno/example-api`
+- Identity API adapters: `src/Backendbase/Infrastructure/Inbound/UserApi` and `src/Backendbase/Infrastructure/Inbound/SystemAdminApi`
+- Identity OpenAPI sources: `resources/api-docs/user-api` and `resources/api-docs/system-admin-api`
+- Identity Bruno collections: `resources/bruno/user-api` and `resources/bruno/system-admin-api`
 - Bruno HTML reports: `artifacts/bruno/{collection}/{environment}.html`
 - Reference bounded context: `src/Backendbase/Domain/ExampleCatalog`
 - Doctrine migrations: `resources/database/Migrations`
@@ -336,13 +343,26 @@ Use targeted PHPUnit paths first when changing a bounded context:
 vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 ```
 
+## Current Assessment
+
+The [engineering assessment](code-quality-and-maintainability-report.html) and [architecture assessment](ports-and-adapters-critique.html) record the completed working tree based on `df29f9c` on 16 October 2026. Code quality is reassessed from 8/10 to 9.2/10. The report gives ten area scores, twenty criterion scores, deductions, and the calculation.
+
+- Preserve context-owned ports, registry mappings, transaction completion, failure-path tests, and API contract parity.
+- All adapters have explicit ownership. Unknown categories and forbidden dependency fixtures fail architecture checks.
+- Account and Actor now own login and session identity decisions. The selected forwarding layers are simplified. Other workflow snapshots remain a local design cost.
+- Live HTTP checks cover all 28 identity operations. Both realms have authenticated scans of protected reads and metadata. Semgrep inputs are pinned.
+- Dependency integrity passed for all 141 packages in a fresh isolated install. Local AWS pruning and PHPCS configuration explain the working-installation differences.
+- The current release policy retains unsafe application rollback. Guarded fresh installation supports an empty database during maintenance. Normal update guards remain active.
+
+The final suite passed 998 tests and 22,653 assertions with no skips and 100% executable-line coverage. Static, API, dependency, security, and deployment checks passed. Production acceptance remains open.
+
 ## Agent Working Notes
 
 - Use the real namespace and path `src/Backendbase/Infrastructure`.
 - Treat `src/Backendbase/Domain/ExampleCatalog` as the bounded-context reference.
 - Name new contexts after the target business capability. Omit `Context` and `BoundedContext` suffixes. `ExampleCatalog` is a demonstration name, and its domain entity is `Entry`.
 - Treat `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example` as the HTTP module reference.
-- The current repository contains only `ExampleApi`. Scaffold another API before adding adapters for it.
+- The current repository contains `ExampleApi`, `UserApi`, and `SystemAdminApi`. Inspect all affected APIs before changing a public contract.
 - Update `resources/api-docs/example-api` and `resources/bruno/example-api` when a public ExampleApi route changes.
 - Update the `Unreleased` section of `CHANGELOG.md` in every commit.
 - Use targeted tests under `tests/Infrastructure/Inbound/ExampleApi` for HTTP adapter behavior.

@@ -22,6 +22,9 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add live checks for all 28 identity API operations and authenticated ZAP scans for both realms. Use disposable fixtures, a local contact sink, and sanitized reports. Pin Semgrep scanner content and the full rule snapshot.
+- Add guarded maintenance installation for an empty MySQL database. Preserve normal rollback compatibility checks. Test existing-schema rejection and backup, migration, activation, and readiness failures.
+
 - Add nullable Account first and last names, API profile fields, and a manual initial Admin seeder for Mehmet Korkmaz. Require a password file and local root authority. Preserve credentials on repeated runs and keep seeding separate from migrations.
 
 - Require email and mobile verification within 12 hours before User registration. Store hashed codes and scoped evidence in `contact_info`. Add optional Admin verification, bounded email/SMS delivery, quotas, atomic proof consumption, and updated API contracts and migration drafts.
@@ -80,6 +83,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Complete adapter direction classification. Reject unknown categories and forbidden cross-direction dependencies. Protect shared diagnostics from domain and infrastructure dependencies.
+
 - Exclude the absent shared Doctrine entity directory from discovery in fresh checkouts. Add an isolated regression for absent and present directories. Refresh quality report metrics from the full isolated service test run.
 
 - Use a TLS stream context only for configured Redis TLS endpoints. Plain Redis connections no longer attempt a TLS handshake.
@@ -101,6 +106,22 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed exception messages and call arguments from HTTP and queue diagnostics. Applied body and metadata validation before parsing and logger creation.
 
 ### Changed
+
+- Replace the Semgrep dummy Slack webhook with an equivalent regex exclusion. Record upstream and adjusted snapshot digests.
+
+- Simplify identity forwarding layers and preserve transaction, expiry, delivery, and response behavior. Make Example audit instants explicit through the injected clock. Add exact timestamp assertions and a detailed assessment scorecard with category weights, criterion points, and deductions.
+
+- Complete the six required quality improvements and reassess code quality at 9/10. Record 998 passing service tests without skips, current coverage, live identity checks, pinned scans, and guarded fresh-install evidence. Preserve optional design costs and target-specific production acceptance as open items.
+
+- Simplify SQS wait-time normalization while preserving queue behavior. Restore the class-file size limit.
+
+- Move login principal creation and current-session identity checks onto Account and Actor behavior. Preserve JWT claims, persistence mappings, and HTTP contracts. Add domain regressions for realm, membership, ownership, approval, closure, and removal.
+
+- Resolve the dependency-integrity assessment with a clean isolated installation of all 141 locked packages. Attribute local differences to configured AWS pruning and PHPCS configuration. Clarify verification before trusted install transformations.
+
+- Add a prioritized plan toward 9/10 code quality. Define dependencies, completion evidence, required fixes, optional design improvements, and separate production acceptance requirements.
+
+- Refresh the engineering and architecture assessments at `df29f9c`. Record current strengths, adapter direction-test gaps, identity snapshot coupling, dynamic security scope, the local dependency-content failure, and the rollback-unsafe release gate. Separate local execution from recorded service coverage. Align project, testing, authentication, and operations guides with the three current APIs.
 
 - Store JWT token and session allowlists as RedisJSON through the existing RedisJSON library. Apply key-level `EXPIRE` after each `JSON.SET` inside atomic Lua activation. Align the deadline with JWT expiry through `EXPIREAT`. Preserve JWT claims, key names, revocation, and reads of existing string records until expiry. Add native JSON, TTL, conflict, failure-cleanup, and failover regressions.
 

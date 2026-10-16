@@ -6,13 +6,15 @@ scriptDirectory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=bin/deployment/lib.sh
 source "$scriptDirectory/lib.sh"
 
-if [[ "$#" -ne 3 ]]; then
-    deployFail 'Usage: deploy-release.sh <release-archive> <checksum-file> <environment-file-name>'
+if [[ "$#" -lt 3 || "$#" -gt 4 ]]; then
+    deployFail 'Usage: deploy-release.sh <release-archive> <checksum-file> <environment-file-name> [--fresh-install]'
 fi
 
 archivePath="$1"
 checksumPath="$2"
 environmentFileName="$3"
+installationMode="${4:-update}"
+[[ "$installationMode" == 'update' || "$installationMode" == '--fresh-install' ]] || deployFail 'The installation mode is invalid.'
 deployRoot="${BACKENDBASE_DEPLOY_ROOT:-/opt/backendbase}"
 currentLink="${BACKENDBASE_CURRENT_LINK:-$deployRoot/webroot/api}"
 readinessUrl="${BACKENDBASE_READINESS_URL:-http://127.0.0.1/example-api/_status/ready}"
@@ -52,6 +54,13 @@ mkdir -p "$deployRoot" "$releasesDirectory" "$stateDirectory" "$(dirname "$curre
 deployAcquireLock "$deployRoot/.deployment-lock"
 deployRequireManagedLink "$currentLink"
 deployRequireManagedLink "$deployRoot/previous"
+if [[ "$installationMode" == '--fresh-install' ]]; then
+    [[ ! -L "$currentLink" && ! -L "$deployRoot/previous" && ! -e "$stateDirectory/active-release.json" ]] \
+        || deployFail 'Fresh installation requires no active or previous deployment.'
+    [[ "$requireBackupHook" == 'true' && "$requireActivationHook" == 'true' ]] \
+        || deployFail 'Fresh installation requires backup and activation hooks.'
+    [[ -x "$hooksDirectory/prepare-maintenance" ]] || deployFail 'Fresh installation requires the prepare-maintenance hook.'
+fi
 
 environmentPath="$sharedDirectory/$environmentFileName"
 [[ -f "$environmentPath" ]] || deployFail "The shared environment file is unavailable: $environmentPath"
@@ -92,7 +101,10 @@ rollbackSafe="$(deployManifestValue "$manifestPath" applicationRollbackSafe)"
 [[ "$composerPackageContentSha256" =~ ^[0-9a-f]{64}$ ]] \
     || deployFail 'The Composer package-content checksum is invalid.'
 [[ "$migrationTarget" =~ ^Backendbase\\Migrations\\Version[0-9]{14}$ ]] || deployFail 'The migration target is invalid.'
-[[ "$rollbackSafe" == 'true' ]] || deployFail 'This release requires a maintenance deployment because application rollback is not schema-safe.'
+[[ "$rollbackSafe" == 'true' || "$rollbackSafe" == 'false' ]] || deployFail 'The rollback policy is invalid.'
+if [[ "$installationMode" == 'update' && "$rollbackSafe" != 'true' ]]; then
+    deployFail 'This release requires a maintenance deployment because application rollback is not schema-safe.'
+fi
 [[ -f "$stagingPath/resources/security/composer-sbom.cdx.json" ]] || deployFail 'The Composer SBOM is unavailable.'
 [[ -f "$stagingPath/resources/security/composer-package-content.json" ]] \
     || deployFail 'The Composer package-content manifest is unavailable.'
@@ -127,6 +139,14 @@ recoveryDirectory="$stateDirectory/recovery/$(date -u '+%Y%m%dT%H%M%SZ')-$revisi
 mkdir -p "$recoveryDirectory"
 cp "$manifestPath" "$recoveryDirectory/release-manifest.json"
 printf '%s\n' "$previousRelease" > "$recoveryDirectory/previous-release"
+
+if [[ "$installationMode" == '--fresh-install' ]]; then
+    deployRunHook "$hooksDirectory/prepare-maintenance" true "$releasePath" "$recoveryDirectory"
+    (
+        cd "$releasePath"
+        php bin/deployment/assert-empty-database.php
+    ) > "$recoveryDirectory/empty-database-check.txt"
+fi
 
 (
     cd "$releasePath"
@@ -176,7 +196,7 @@ if [[ "$activationSucceeded" == 'true' ]] && deployCheckReadiness "$readinessUrl
         "releasePath" => $argv[2],
         "previousRelease" => $argv[3],
         "migrationTarget" => $argv[4],
-        "applicationRollbackSafe" => true,
+        "applicationRollbackSafe" => $argv[6] === "true",
         "schemaOwnerRevision" => $argv[1],
     ];
     $temporaryPath = $argv[5] . ".new";
@@ -187,7 +207,7 @@ if [[ "$activationSucceeded" == 'true' ]] && deployCheckReadiness "$readinessUrl
     if (!rename($temporaryPath, $argv[5])) {
         exit(1);
     }
-    ' "$revision" "$releasePath" "$previousRelease" "$migrationTarget" "$stateDirectory/active-release.json"
+    ' "$revision" "$releasePath" "$previousRelease" "$migrationTarget" "$stateDirectory/active-release.json" "$rollbackSafe"
     touch "$recoveryDirectory/DEPLOYED"
     deployLog "Activated release $revision"
     exit 0
@@ -200,6 +220,7 @@ if [[ -n "$previousRelease" ]]; then
     deployCheckReadiness "$readinessUrl" || deployFail 'The new and previous releases both failed readiness checks.'
 else
     unlink "$currentLink"
+    deployFail 'Fresh installation activation failed. No release is active. The migrated schema remains in place.'
 fi
 
 deployFail "Activation failed. The application was returned to $previousRelease. The expanded schema remains in place."

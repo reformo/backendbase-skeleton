@@ -27,6 +27,19 @@ abstract class Actor
         }
     }
 
+    public function assertSessionIdentity(Realm $realm, string $accountId): void
+    {
+        $this->assertSessionAllowed();
+        if ($this->realm() !== $realm || $this->state['accountId'] !== $accountId) {
+            throw AuthenticationDenied::create('Authentication is not permitted.');
+        }
+    }
+
+    public function accountReference(): IdentityId
+    {
+        return IdentityId::fromString($this->state['accountId']);
+    }
+
     public function assertContactVerificationAllowed(): void
     {
         if ($this->state['deletedAt'] !== null) {

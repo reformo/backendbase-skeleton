@@ -706,11 +706,11 @@
             <div class="process" aria-label="Bounded context write flow">
                 <div class="step"><span class="step-number">01</span><strong>HTTP action</strong><br><span class="muted">Validate input and create a command.</span></div>
                 <div class="step"><span class="step-number">02</span><strong>Command bus</strong><br><span class="muted">Resolve the handler from the configured source.</span></div>
-                <div class="step"><span class="step-number">03</span><strong>Handler</strong><br><span class="muted">Load or create the aggregate.</span></div>
+                <div class="step"><span class="step-number">03</span><strong>Handler</strong><br><span class="muted">Invoke the context write operation.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Aggregate</strong><br><span class="muted">Apply the business operation.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Write port</strong><br><span class="muted">Map and persist through Doctrine.</span></div>
             </div>
-            <p><code>AddEntryHandler</code>, <code>ChangeEntryHandler</code>, and <code>RemoveEntryHandler</code> return an event through <code>IntegrationEventTransaction</code>. It runs local subscribers before commit and writes the outbox when <code>DELIVER_VIA_QUEUE</code> is true. All participating database writes share that transaction.</p>
+            <p><code>AddEntryHandler</code>, <code>ChangeEntryHandler</code>, and <code>RemoveEntryHandler</code> invoke <code>EntryWrites</code> through <code>EntryEventTransaction</code>. EntryWrites loads or creates the aggregate and supplies explicit UTC clock instants. EntryEventTransaction publishes the creation domain event inside <code>IntegrationEventTransaction</code>. It runs local subscribers before commit and writes the outbox when <code>DELIVER_VIA_QUEUE</code> is true. All participating database writes share that transaction.</p>
             <div class="callout danger">
                 <strong>Do not bypass the context</strong>
                 An HTTP action must not update a Doctrine record directly. A persistence adapter must not decide how an aggregate changes.

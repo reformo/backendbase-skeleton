@@ -62,7 +62,7 @@ final class InboxOrmRecoveryTest extends DoctrineEntryRepositoryTestCase
     private static function entry(string $key): ExampleTable
     {
         $id    = Uuid::uuid7();
-        $entry = Entry::create($id->toString(), EntryType::SYSTEM, null, 'settings', true, $key, 'value', []);
+        $entry = Entry::create($id->toString(), EntryType::SYSTEM, null, 'settings', true, $key, 'value', [], new DateTimeImmutable('2026-10-16T10:00:00.123456Z'));
 
         return ExampleTable::fromDomain($entry);
     }

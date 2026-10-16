@@ -6,6 +6,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Application\Contacts;
 
 use Backendbase\Domain\IdentityAndAccess\Contracts\ContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\ContactStore;
+use Backendbase\Domain\IdentityAndAccess\Contracts\Input\Contacts\ContactAttempt;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationCode;
@@ -15,6 +16,14 @@ final readonly class ContactDelivery
 {
     public function __construct(private ContactStore $store, private ContactNotifier $notifier)
     {
+    }
+
+    public function execute(ContactAttempt $input, ContactService $service): ContactInfo
+    {
+        $store            = $this->store;
+        [$contact, $code] = $service->execute($input, $store);
+
+        return $this->send($contact, $code);
     }
 
     public function send(ContactInfo $contact, VerificationCode|null $code): ContactInfo

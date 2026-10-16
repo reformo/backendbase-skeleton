@@ -53,6 +53,11 @@ Optional Admin verification preserves ownership, credential versions, and existi
 See [contact verification](operations/contact-verification.md) for request fields, state transitions, quotas, and error contracts.
 
 Password verification issues a session only after ownership, Account state, and actor approval checks pass.
+Account.startSession owns current-version principal creation. Actor.assertSessionIdentity checks approval, removal, realm, and Account membership.
+AuthenticationGate and LoginWorkflow do not inspect aggregate snapshots for these decisions.
+LoginWorkflow and ContactAuthorizer call Credentials directly. LoginAuthentication selects expiry after the login transaction.
+RegistrationCompletion creates identities and consumes proofs within the workflow transaction. Password hashing remains outside that transaction.
+ContactDelivery executes verification before notification delivery. ContactCompletion records the operation result after delivery succeeds.
 Both realms authenticate through `POST /auth/login` and return the `session` result.
 Login does not create a challenge. TOTP enrollment and login-completion endpoints are absent.
 

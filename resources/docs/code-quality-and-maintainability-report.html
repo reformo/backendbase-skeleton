@@ -253,6 +253,9 @@
             .score-table td:nth-child(1)::before { content: "Area"; }
             .score-table td:nth-child(2)::before { content: "Score"; }
             .score-table td:nth-child(3)::before { content: "Assessment"; }
+            .cleanup-table td:nth-child(1)::before { content: "Flow"; }
+            .cleanup-table td:nth-child(2)::before { content: "Before"; }
+            .cleanup-table td:nth-child(3)::before { content: "After"; }
             .evidence-table td:nth-child(1)::before { content: "Check"; }
             .evidence-table td:nth-child(2)::before { content: "Result"; }
             .evidence-table td:nth-child(3)::before { content: "Evidence"; }
@@ -355,315 +358,336 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="hero">
     <div class="hero-inner">
-        <p class="eyebrow">Backendbase Core · Assessment · 24 September 2026</p>
+        <p class="eyebrow">Backendbase Core · Assessment · 16 October 2026</p>
         <h1>Engineering Quality, Strengths, and Risks</h1>
-        <p class="lede">A current source and local-check assessment. Dependency freshness and service-backed checks retain their recorded verification dates.</p>
+        <p class="lede">Implemented improvements and verification of the working tree based on <code>df29f9c</code>. Code quality is reassessed at <strong>9.2/10</strong>.</p>
         <div class="chips" aria-label="Report summary">
-            <span class="chip">Code quality: 9.4/10</span>
-            <span class="chip">Account provisioning is external</span>
-            <span class="chip"><span data-quality-metric="tests">978</span> tests</span>
-            <span class="chip"><span data-quality-metric="line-coverage-percent">100.00%</span> line coverage</span>
-            <span class="chip">PHPStan level 8</span>
-            <span class="chip">Complexity ≤ 12</span>
-            <span class="chip">142 locked packages</span>
-            <span class="chip">Audit snapshot: 29 August 2026</span>
+            <span class="chip">Strong local quality controls</span>
+            <span class="chip">998 tests passed</span>
+            <span class="chip">No service tests skipped</span>
+            <span class="chip">PHPStan level 8 passed</span>
+            <span class="chip">Complexity ≤ 12 passed</span>
+            <span class="chip">3 consumer APIs</span>
+            <span class="chip">141 locked packages</span>
         </div>
     </div>
 </header>
-
 <div class="layout">
     <nav aria-label="Page contents">
         <strong>Contents</strong>
         <a href="#verdict">1. Verdict</a>
-        <a href="#scorecard">2. Scorecard</a>
+        <a href="#scorecard">2. Assessment</a>
         <a href="#evidence">3. Verification evidence</a>
-        <a href="#strengths">4. Strengths and outcomes</a>
-        <a href="#risks">5. Risks and weaknesses</a>
-        <a href="#recommendations">6. Recommended order</a>
+        <a href="#strengths">4. Strengths</a>
+        <a href="#risks">5. Weaknesses and risks</a>
+        <a href="#recommendations">6. Plan toward 9/10</a>
         <a href="#scope">7. Scope and method</a>
     </nav>
-
     <main id="main-content">
-        <div class="callout"><strong>Historical assessment:</strong> Identity and account findings retain their dated scope. Removed source links use revision <code>07f73de</code>. The current API uses API-key protection; see <a href="8-authentication-and-authorization.html">the current security guide</a>.</div>
+        <div class="callout"><strong>Assessment scope:</strong> The initial assessment rated revision df29f9c at 8/10. This follow-up records the implemented changes and fresh verification on 16 October 2026.</div>
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
-            <h2>Code quality is strong. Account provisioning and MySQL lock behavior need attention.</h2>
-            <div class="callout good">
-                <strong>Editorial code quality and maintainability score: 9.4 out of 10.</strong>
-                The local test suite, PHPStan level 8, complexity check, and coding standard pass across their configured scopes.
-                Continuous integration (CI) defines coverage, documentation, report, dependency, security, and API contract checks.
-            </div>
-            <div class="callout warning">
-                <strong>Production-readiness constraint:</strong>
-                <code>POST /auth</code> verifies database-backed Argon2id credentials. The release seeds no account credential, so provision the first account through an approved operation.
-            </div>
-            <p>Architecture rules, failure paths, API contracts, health behavior, and deployment behavior have automated verification. The architecture subset passed 20 tests and 86 assertions.</p>
-            <p>The account lifecycle keeps its dependency direction. Protected HTTP controllers call commands and a query. Their handlers depend on account repository, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapters.</p>
-            <p>Context registries now map every command and query to a handler. Framework support is in Infrastructure. Shared contracts remain framework-free. Transactional integration events run local subscribers before optional outbox insertion.</p>
-            <p>Typed settings, strict numeric parsing, observable queue failures, and a lazy Redis connection reduce boundary risk. A scheduled audit, CycloneDX software bill of materials (SBOM), and package-content digests support dependency review.</p>
-            <p>The score excludes product readiness. Provision the first account with account-management privileges through an approved operation before non-local use. Verify account-lock timing on MySQL before relying on concurrent account changes.</p>
-            <p>The architecture does not need a broad rewrite. Apply focused fixes with regression tests.</p>
+            <h2>Required improvements are complete; production acceptance remains open</h2>
+            <div class="callout good"><strong>Strong foundation:</strong> Project-owned ports, context-owned composition, explicit transactions, typed boundaries, and failure-path tests reduce change risk.</div>
+            <p>The repository contains <code>ExampleCatalog</code> and <code>IdentityAndAccess</code>. <code>ExampleApi</code>, <code>UserApi</code>, and <code>SystemAdminApi</code> expose 37 documented operations.</p>
+            <p>ExampleApi uses an API key. UserApi and SystemAdminApi use separate JSON Web Token (JWT) realms, password login, contact ownership, and Redis allowlists.</p>
+            <p>All 998 tests passed with native MySQL, Redis, and Sentinel services. PHPStan level 8, complexity, coding standards, API validation, and deployment checks passed.</p>
+            <div class="callout good"><strong>Verified improvements:</strong> All adapters have explicit ownership. Live checks cover all 28 identity operations. Fresh dependency verification matches all 141 package digests.</div>
+            <p>Account and Actor own login and session identity decisions. The selected forwarding layers are simplified. Other identity workflows still use snapshots.</p>
+            <p>No broad rewrite is justified by this assessment. Address each finding through a focused change and an observable completion check.</p>
+            <p>Earlier account-provisioning and missing-MySQL-test findings are superseded. The repository now supplies audited operator actions and native concurrency regressions.</p>
+            <p>The current release retains <code>applicationRollbackSafe: false</code>. Guarded fresh installation now supports an empty database during maintenance. Existing database conversion requires a separate adoption plan.</p>
+            <p>Production acceptance still requires target-specific performance, revocation durability, secret injection, monitoring, and recovery evidence.</p>
         </section>
-
         <section id="scorecard">
-            <p class="section-label">02 · Scorecard</p>
-            <h2>Quality is strong across the configured repository scope</h2>
-            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Quality scorecard">
+            <p class="section-label">02 · Assessment</p>
+            <h2>Score breakdown: 9.2/10</h2>
+            <div class="callout good"><strong>Calculated score:</strong> 91.5/100 points = 9.15/10, rounded to <strong>9.2/10</strong>.</div>
+            <p>Ten areas have equal 10% weights. Each area contains two criteria worth five points each. The table states each award and deduction.</p>
+            <p>This rubric begins with the completed cleanup. Earlier 8/10 and 9/10 ratings were overall judgments without this detailed calculation.</p>
+            <p>Scoring anchors per criterion: 5 means complete evidence within the stated scope; 4.5 means a narrow limit; 4 means a material remaining design or verification gap.</p>
+            <p>Lower scores require documented defects or missing controls. Scores are engineering judgments, not measured defect rates or security guarantees.</p>
+            <p>Production acceptance remains a separate gate. This score assesses source quality, local verification, and delivery tooling.</p>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Detailed quality scores and deductions">
                 <table class="report-table score-table">
-                    <thead>
-                    <tr><th scope="col">Area</th><th scope="col">Score</th><th scope="col">Assessment</th></tr>
-                    </thead>
+                    <caption>Ten equally weighted quality areas, each scored from two five-point criteria</caption>
+                    <thead><tr><th scope="col">Area and weight</th><th scope="col">Score</th><th scope="col">Criterion scores, evidence, and deductions</th></tr></thead>
                     <tbody>
-                    <tr><td>Architecture</td><td><strong>9.3/10</strong></td><td>Dependency tests enforce context, adapter, registry, and Shared boundaries. The account lifecycle uses context-owned repository, token, and authorization-state ports.</td></tr>
-                    <tr><td>Testing</td><td><strong>9.9/10</strong></td><td>Tests cover behavior and failure paths, with an enforced 100% executable-line threshold. MySQL account-lock contention remains unverified.</td></tr>
-                    <tr><td>Type safety and style</td><td><strong>9.8/10</strong></td><td>PHPStan level 8, complexity, and PHPCS pass. Strict environment parsers feed typed configuration objects.</td></tr>
-                    <tr><td>Readability</td><td><strong>9.0/10</strong></td><td>Production classes are small, adapter settings dependencies are explicit, and functions stay within complexity 12.</td></tr>
-                    <tr><td>Operations and documentation</td><td><strong>9.7/10</strong></td><td>Actions and Composer are pinned. Supply-chain, complexity, link, report, release, and changelog controls are executable.</td></tr>
-                    <tr><td>Composer supply-chain controls</td><td><strong>9.0/10</strong></td><td>Exact tooling, policy checks, weekly audits, isolated installs, an SBOM, and package digests reduce the remaining risk to reviewed trust decisions.</td></tr>
-                    <tr><td>Dependency and upgrade cost</td><td><strong>8.6/10</strong></td><td>The current source has 37 direct runtime packages and 105 locked runtime packages. Current upstream freshness and advisory status need a new review.</td></tr>
+                    <tr data-score="9.5"><td>Dependency direction<br><span class="small">Weight: 10%</span></td><td><strong>9.5/10</strong></td><td><p><strong>Core isolation: 5/5.</strong> Domain, Application, Shared, context, and composition checks pass.</p><p><strong>Adapter ownership: 4.5/5.</strong> Every adapter is classified. Unknown categories fail. Parsed-symbol rules do not prove every dynamic PHP dependency.</p><p class="small"><a href="../../tests/Architecture/Adapters/AdapterClassificationTest.php">Evidence and scope</a></p></td></tr>
+                    <tr data-score="8.5"><td>Domain encapsulation<br><span class="small">Weight: 10%</span></td><td><strong>8.5/10</strong></td><td><p><strong>Authentication invariants: 4.5/5.</strong> Account and Actor own login eligibility and membership. Other identity workflows still inspect snapshot state.</p><p><strong>State transfer: 4/5.</strong> Example uses EntrySnapshot. Identity persistence and some application paths retain array shapes.</p><p class="small"><a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Identity/Account.php">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9"><td>Readability and change cost<br><span class="small">Weight: 10%</span></td><td><strong>9/10</strong></td><td><p><strong>Flow clarity: 4.5/5.</strong> Password checks call Credentials directly. Registration and contact completion own real coordination. One password-hash forwarding method remains.</p><p><strong>Local structure: 4.5/5.</strong> The removed contact binding layer reduces the affected identity class count by one. Wider command and support structure still needs review.</p><p class="small"><a href="#cleanup-evidence">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9.5"><td>Time determinism<br><span class="small">Weight: 10%</span></td><td><strong>9.5/10</strong></td><td><p><strong>Aggregate audit times: 5/5.</strong> Entry create, change, and remove receive explicit instants. Exact timestamp tests include microseconds and unchanged audit fields.</p><p><strong>Clock integration: 4.5/5.</strong> EntryWrites reads the injected clock inside the transaction and after update lookups. Event occurrence time still uses the shared event trait.</p><p class="small"><a href="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryWrites.php">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9.5"><td>Behavior verification<br><span class="small">Weight: 10%</span></td><td><strong>9.5/10</strong></td><td><p><strong>Regression and failure paths: 5/5.</strong> The full suite executes without skips and meets the 100% configured executable-line gate.</p><p><strong>Service breadth: 4.5/5.</strong> Native MySQL, Redis, and Sentinel cases pass. Live provider behavior and representative performance remain outside this evidence.</p><p class="small"><a href="#evidence">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9"><td>Types and coding controls<br><span class="small">Weight: 10%</span></td><td><strong>9/10</strong></td><td><p><strong>Static gates: 5/5.</strong> PHPStan level 8, complexity at most 12, and the Doctrine coding standard pass.</p><p><strong>Object design rules: 4/5.</strong> Changed coordination classes have at most two properties. Existing command data objects and state arrays do not satisfy every object-design preference.</p><p class="small"><a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9.5"><td>Public API contracts<br><span class="small">Weight: 10%</span></td><td><strong>9.5/10</strong></td><td><p><strong>Contract consistency: 5/5.</strong> Source and merged definitions, runtime assertions, and maintained Bruno assertions cover all 37 operations.</p><p><strong>Consumer execution: 4.5/5.</strong> Both identity APIs have live HTTP checks. A complete live Bruno consumer run was not repeated for this cleanup.</p><p class="small"><a href="../../tests/Infrastructure/Inbound/ApiDefinitionParityTest.php">Evidence and scope</a></p></td></tr>
+                    <tr data-score="8.5"><td>Security verification<br><span class="small">Weight: 10%</span></td><td><strong>8.5/10</strong></td><td><p><strong>Authentication and revocation: 4.5/5.</strong> Tests cover realm separation, expiry, approval, closure, revocation, and native failover. Deployment durability remains target-specific.</p><p><strong>Scan coverage: 4/5.</strong> Pinned Semgrep and authenticated read scans pass. Mutation routes have deterministic scenarios, not exhaustive payload fuzzing.</p><p class="small"><a href="../platform/operations/identity-security-checks.md">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9.5"><td>Dependency integrity<br><span class="small">Weight: 10%</span></td><td><strong>9.5/10</strong></td><td><p><strong>Package contents: 5/5.</strong> All 141 pristine locked packages match committed digests and the software bill of materials.</p><p><strong>Repeatability and maintenance: 4.5/5.</strong> Scanner inputs are pinned and the locked advisory audit passed. The result is dated and requires ongoing dependency review.</p><p class="small"><a href="../../resources/security/composer-package-content.json">Evidence and scope</a></p></td></tr>
+                    <tr data-score="9"><td>Release tooling and documentation<br><span class="small">Weight: 10%</span></td><td><strong>9/10</strong></td><td><p><strong>Deployment controls: 4.5/5.</strong> Guarded fresh installation and recovery tests pass. Existing database conversion remains a separately designed operation.</p><p><strong>Evidence and guidance: 4.5/5.</strong> Related guides, score arithmetic, links, and generated metrics are checked. Rendered document layout was not verified.</p><p class="small"><a href="../platform/operations/fresh-installation.md">Evidence and scope</a></p></td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="summary-grid dependency-profile" aria-label="Dependency maintenance profile">
                 <div class="stat"><strong>37</strong><span>Direct runtime packages</span></div>
-                <div class="stat"><strong>105</strong><span>Locked runtime packages</span></div>
+                <div class="stat"><strong>104</strong><span>Locked runtime packages</span></div>
                 <div class="stat"><strong>37</strong><span>Locked development packages</span></div>
-                <div class="stat"><strong>142</strong><span>Total locked packages</span></div>
+                <div class="stat"><strong>141</strong><span>Total locked packages</span></div>
             </div>
+            <p class="small">Counts come from the unchanged composer.json and composer.lock. The locked advisory audit found no reported vulnerabilities on 16 October 2026. Dependency versions were not upgraded.</p>
         </section>
-
         <section id="evidence">
             <p class="section-label">03 · Verification evidence</p>
-            <h2>Recorded checks and current local metrics</h2>
-            <p>Metrics were refreshed on 16 October 2026 from starting revision <code>d807872</code>. The full suite includes RedisJSON field, key-expiry, activation-cleanup, and compatibility regressions, plus eight Sentinel failover cases and entity discovery without the shared directory. It passed against disposable MySQL 8.4.11, Redis 8.10.2, and Sentinel containers. Executable-line and method coverage remain 100%.</p>
-            <p>The current run includes PHPUnit, coverage, PHPStan level 8, complexity, coding standards, and isolated deployment tests. The earlier source review used revision <code>2bd6922</code>. Source and dependency counts use this workspace. Other rows describe source configuration or earlier recorded checks. Security and dependency audits were not repeated for this change.</p>
-            <div class="summary-grid">
-                <div class="stat"><strong><span data-quality-metric="tests">978</span></strong><span>Discovered PHPUnit tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">22,599</span></strong><span>Passing assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">5,969</span>/<span data-quality-metric="total-lines">5,969</span></strong><span>Covered executable lines</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,420</span>/<span data-quality-metric="total-methods">1,420</span></strong><span>Covered methods</span></div>
-            </div>
-            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Verification evidence">
+            <h2>Use fresh execution evidence for the completed changes</h2>
+            <p>Verification used PHP 8.5.6, PHPUnit 13.4.2, and Composer 2.10.3. Disposable MySQL 8.4.11, Redis 8.10.2, and Sentinel targets were identified before execution.</p>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Current verification evidence">
                 <table class="report-table evidence-table">
-                    <thead>
-                    <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence</th></tr>
-                    </thead>
+                    <thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence</th></tr></thead>
                     <tbody>
-                    <tr class="table-group"><th colspan="3" scope="rowgroup">Automated quality gates</th></tr>
-                    <tr><td>PHPUnit</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="tests">978</span> tests passed with no skips in the isolated service run. All <span data-quality-metric="assertions">22,599</span> assertions passed.</td></tr>
-                    <tr><td>Executable-line coverage</td><td><span class="badge"><span data-quality-metric="line-coverage-percent">100.00%</span></span></td><td>Covered <span data-quality-metric="covered-lines">5,969</span> of <span data-quality-metric="total-lines">5,969</span> executable source lines. The 100% coverage gate passes. All 26 previously uncovered lines are covered.</td></tr>
-                    <tr><td>Method coverage</td><td><span class="badge"><span data-quality-metric="method-coverage-percent">100.00%</span></span></td><td>Covered <span data-quality-metric="covered-methods">1,420</span> of <span data-quality-metric="total-methods">1,420</span> methods.</td></tr>
-                    <tr><td>Coverage threshold</td><td><span class="badge">Pass</span></td><td><code>composer test</code> rejects any result below 100% executable-line coverage.</td></tr>
-                    <tr><td>Configured PHPStan scope</td><td><span class="badge">Pass</span></td><td>Level 8 analysis covers application, tests, configuration, public entry points, tools, migrations, and seeders.</td></tr>
-                    <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td><code>composer complexity</code> rejects each function or method above 12 across the configured PHP scope.</td></tr>
-                    <tr><td>Configured PHPCS scope</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">794</span> checked files passed the Doctrine coding standard.</td></tr>
-                    <tr><td>Expanded PHPStan scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpstan.neon</code> and pass at level 8.</td></tr>
-                    <tr><td>Expanded PHPCS scope</td><td><span class="badge">0 errors</span></td><td>The expanded paths are now part of <code>phpcs.xml.dist</code> and pass.</td></tr>
-                    <tr class="table-group"><th colspan="3" scope="rowgroup">Runtime boundaries</th></tr>
-                    <tr><td>Architecture boundaries</td><td><span class="badge">Pass</span></td><td>20 tests and 86 assertions cover dependency direction, messaging coordination, Shared framework isolation, context boundaries, and all command and query registry mappings.</td></tr>
-                    <tr><td>Account lifecycle</td><td><span class="badge">Pass</span></td><td><code>POST /auth</code> authenticates active accounts. Protected <code>GET /accounts</code>, <code>POST /accounts</code>, and <code>PATCH</code> or <code>DELETE /accounts/{account-uuid}</code> operations use typed commands, a query, access control, and repository ports.</td></tr>
-                    <tr><td>Authorization-state revocation</td><td><span class="badge">Local pass</span></td><td>Authentication and account changes share an account-row transaction. SQLite tests cover lock ordering, two-connection exclusion, refreshed grants, and rollback. MySQL lock scheduling remains unverified.</td></tr>
-                    <tr><td>Transactional integration events</td><td><span class="badge">Pass</span></td><td>Tests cover local subscribers, optional outbox insertion, rejection outside a transaction, and rollback of combined writes.</td></tr>
-                    <tr><td>HTTP authorization and path contracts</td><td><span class="badge">Pass</span></td><td>Bearer and API-key failures return stable 401 responses. Runtime routes, OpenAPI, and Bruno use <code>{account-uuid}</code> and other <code>kebab-case</code> path parameters.</td></tr>
-                    <tr><td>Typed runtime settings</td><td><span class="badge">Pass</span></td><td>Application, database, queue, AWS, Redis, logging, HTTP, and JWT consumers resolve validated settings objects.</td></tr>
-                    <tr><td>Lazy Redis connection</td><td><span class="badge">Pass</span></td><td>PHP-DI injects a RedisJSON proxy and resolves the native client only for the first Redis command. Readiness deliberately initializes it with <code>PING</code>.</td></tr>
-                    <tr><td>Numeric environment parsing</td><td><span class="badge">Pass</span></td><td>Redis, RabbitMQ, SQS, and readiness numeric values reject malformed input before the settings merge.</td></tr>
-                    <tr><td>Local AWS services</td><td><span class="badge">Pass</span></td><td>The default MiniStack service provides local S3, SQS, SNS, SES, and CloudFront APIs. A composition test checks its version, port, and service list.</td></tr>
-                    <tr class="table-group"><th colspan="3" scope="rowgroup">Delivery and dependency controls</th></tr>
-                    <tr><td>CI action integrity</td><td><span class="badge">Source review</span></td><td>Every GitHub Action reference uses an immutable commit SHA with a readable version comment.</td></tr>
-                    <tr><td>Composer toolchain</td><td><span class="badge">Configured</span></td><td>CI pins Composer 2.10.3, installs reviewed public keys into an isolated Composer home, enables its security policy, and schedules Composer self-diagnosis.</td></tr>
-                    <tr><td>Isolated dependency review</td><td><span class="badge">Configured</span></td><td>The workflow installs with plugins and scripts disabled before any trusted build step.</td></tr>
-                    <tr><td>Weekly dependency audit</td><td><span class="badge">Configured</span></td><td>The scheduled workflow audits the locked production and development dependency graph each Monday.</td></tr>
-                    <tr><td>Supply-chain evidence</td><td><span class="badge medium">Local check incomplete</span></td><td>The committed SBOM matches the lock metadata. The current <code>vendor</code> tree differs from the content manifest for AWS SDK and PHPCS. A fresh isolated install could not finish because DNS resolution failed.</td></tr>
-                    <tr><td>Release dependency integrity</td><td><span class="badge">Local pass</span></td><td>The release manifest records checksums for <code>composer.lock</code>, the SBOM, and the package-content manifest. Deployment tests verify release activation and rollback behavior.</td></tr>
-                    <tr><td>Documentation links</td><td><span class="badge">Pass</span></td><td><code>composer docs:check-links</code> validates local HTML and Markdown targets plus HTML fragments.</td></tr>
-                    <tr><td>Generated report metrics</td><td><span class="badge">Pass</span></td><td><code>composer reports:check</code> compares marked report values with JUnit, Clover, and repository inventory data.</td></tr>
-                    <tr><td>SQS failure diagnostics</td><td><span class="badge">Pass</span></td><td>Swallowed handler exceptions record safe queue and message context before the message remains available for retry.</td></tr>
-                    <tr><td>Changelog policy</td><td><span class="badge">Source review</span></td><td><code>CHANGELOG.md</code> exists, and contributor and agent guidance require each commit to update its <code>Unreleased</code> section.</td></tr>
-                    <tr><td>Composer validation</td><td><span class="badge">Pass</span></td><td><code>composer.json</code> passed strict validation.</td></tr>
-                    <tr><td>Dependency pruning</td><td><span class="badge">Source review</span></td><td>The 29 August assessment recorded 35 direct and 97 locked runtime packages after pruning. Current notification dependencies bring those counts to 37 and 105. OpenAPI build tools remain development dependencies.</td></tr>
-                    <tr><td>Dependency freshness</td><td><span class="badge">Historical</span></td><td>The 29 August assessment recorded 34 current direct packages. Current upstream versions were not checked in this review.</td></tr>
-                    <tr><td>Dependency audit</td><td><span class="badge">Historical</span></td><td>The 29 August audit found no known advisories or abandoned packages for its then-current lock file. The current lock file needs a new audit.</td></tr>
-                    <tr><td>OpenAPI</td><td><span class="badge">Pass</span></td><td>Source and merged API specifications passed validation.</td></tr>
-                    <tr><td>Deployment tests</td><td><span class="badge">Pass</span></td><td>Deployment, failure recovery, and rollback scenarios passed.</td></tr>
+                    <tr class="table-group"><th colspan="3" scope="rowgroup">Executed for the completed working tree · 16 October 2026 · based on df29f9c</th></tr>
+                    <tr><td>Full service suite and coverage</td><td><span class="badge">Pass</span></td><td>998 tests; 22,653 assertions; no failures, errors, or skips. All 5,978 executable lines and 1,423 methods were covered.</td></tr>
+                    <tr><td>Architecture tests</td><td><span class="badge">Pass</span></td><td>27 tests and 130 assertions passed. Complete adapter ownership and forbidden-direction fixtures cover the previously omitted categories.</td></tr>
+                    <tr><td>PHPStan</td><td><span class="badge">Pass</span></td><td>Level 8 found no errors across phpstan.neon's configured paths.</td></tr>
+                    <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td>composer complexity passed the maximum of 12 per function or method.</td></tr>
+                    <tr><td>Doctrine coding standard</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">802</span> configured PHP files passed composer cs-check.</td></tr>
+                    <tr><td>API validation</td><td><span class="badge">Pass</span></td><td>Source and merged schemas and tags passed for all three APIs. In-process parity tests passed for all 37 operations.</td></tr>
+                    <tr><td>Deployment scripts</td><td><span class="badge">Pass</span></td><td>Temporary fixtures verified normal activation and rollback, guarded fresh installation, and backup, migration, activation, readiness, and existing-state failures. Native MySQL cases rejected tables, views, routines, and events.</td></tr>
+                    <tr><td>Composer metadata</td><td><span class="badge">Pass</span></td><td>Strict Composer validation passed without plugins or scripts.</td></tr>
+                    <tr><td>Dependency-content verification</td><td><span class="badge">Pass</span></td><td>A fresh uncached installation matched all 141 package digests and the SBOM before plugins and scripts. Local AWS pruning and PHPCS configuration explain every working-installation difference.</td></tr>
+                    <tr><td>Generated report parity</td><td><span class="badge">Pass</span></td><td>composer reports:check matched the full-service artifacts/junit.xml and root clover.xml. These artifacts describe the completed working tree.</td></tr>
+                    <tr><td>Document validation</td><td><span class="badge">Pass</span></td><td>Local links passed for 68 documents. HTML nesting and unique identifiers passed for all ten changed HTML files. Rendered layout was not checked.</td></tr>
+                    <tr class="table-group"><th colspan="3" scope="rowgroup">Additional evidence and acceptance limits</th></tr>
+                    <tr><td>Inventory</td><td><span class="badge">Inspected</span></td><td>459 production PHP files, 127 Shared PHP files, 228 *Test.php files, 15 architecture test files, two contexts, and three migration files.</td></tr>
+                    <tr><td>Continuous integration</td><td><span class="badge">Configured</span></td><td>Quality and release workflows prepare native MySQL and Redis targets and run the suite through the disposable Sentinel runner. No remote workflow result was retrieved.</td></tr>
+                    <tr><td>Security verification</td><td><span class="badge">Pass locally</span></td><td>The pinned Semgrep scan found no issues. Live checks covered 28 identity operations across 60 requests. Both authenticated ZAP scans passed. Existing ExampleApi workflow checks were preserved but not rerun locally.</td></tr>
+                    <tr><td>Native services</td><td><span class="badge">Pass</span></td><td>All expected MySQL, Redis, and Sentinel tests executed. Service containers used disposable storage. No shared application target was used.</td></tr>
+                    <tr><td>Live providers and performance</td><td><span class="badge">Not assessed</span></td><td>No provider calls, live Bruno run, production traffic, representative EXPLAIN plans, or deployment measurements were performed.</td></tr>
+                    <tr><td>Dependency follow-up · 16 October 2026</td><td><span class="badge strong">Passed</span></td><td>A fresh, uncached install disabled plugins, scripts, and autoload generation. All 141 package digests and the SBOM matched. Composer validation passed. The locked advisory audit found no reported vulnerabilities.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="small">The normal Composer quality commands enforce the expanded repository scope. Contributor and agent guidance define the changelog maintenance rule.</p>
+            <h3>Current full-service coverage</h3>
+            <p>This 16 October run verified the implemented working tree based on <code>df29f9c</code>. It replaced the earlier generated coverage artifacts.</p>
+            <p>JUnit and Clover report no skipped tests and complete configured line and method coverage. Coverage does not establish exhaustive behavior or production readiness.</p>
+            <div class="summary-grid" aria-label="Current full-service metrics">
+                <div class="stat"><strong><span data-quality-metric="tests">998</span></strong><span>Verified tests</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">22,653</span></strong><span>Verified assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">5,978</span>/<span data-quality-metric="total-lines">5,978</span></strong><span>Covered executable lines · <span data-quality-metric="line-coverage-percent">100.00%</span></span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,423</span>/<span data-quality-metric="total-methods">1,423</span></strong><span>Covered methods · <span data-quality-metric="method-coverage-percent">100.00%</span></span></div>
+            </div>
         </section>
-
         <section id="strengths">
-            <p class="section-label">04 · Strengths and outcomes</p>
-            <h2>The project connects design rules to operational outcomes</h2>
+            <p class="section-label">04 · Strengths</p>
+            <h2>Preserve controls that have observable effects</h2>
             <div class="grid-3">
-                <div class="card">
-                    <h3>Architecture boundaries</h3>
-                    <p>Architecture tests enforce domain purity, adapter direction, context isolation, Shared framework isolation, and identity port ownership. Context service providers own adapter and handler mappings.</p>
-                </div>
-                <div class="card">
-                    <h3>Failure-path testing</h3>
-                    <p>Tests cover invalid input, rollback, retry exhaustion, duplicate messages, malformed data, and deployment recovery.</p>
-                </div>
-                <div class="card">
-                    <h3>Static guardrails</h3>
-                    <p>PHPStan level 8, the Doctrine coding standard, and a complexity limit of 12 cover production, tests, tools, and database delivery code.</p>
-                </div>
-                <div class="card">
-                    <h3>Strong automated gates</h3>
-                    <p>Continuous integration runs tests with a 100% line gate, static analysis, complexity, coding standards, isolated dependency verification, security checks, and OpenAPI validation.</p>
-                </div>
-                <div class="card">
-                    <h3>Typed configuration boundaries</h3>
-                    <p>Focused objects validate runtime values. Adapters receive immutable settings. Redis opens its socket only when the first command runs.</p>
-                </div>
-                <div class="card">
-                    <h3>Reliable integration design</h3>
-                    <p>Inbox, outbox, retry, external-effect, and dead-letter behavior is explicit. Local integration-event subscribers and optional outbox insertion share one transaction.</p>
-                </div>
-                <div class="card">
-                    <h3>Health and local infrastructure</h3>
-                    <p>Liveness stays cheap. Readiness uses bounded checks. The default MiniStack service provides S3, SQS, SNS, SES, and CloudFront APIs.</p>
-                </div>
-                <div class="card">
-                    <h3>API contract coverage</h3>
-                    <p>OpenAPI sources, generated output, controller tests, Bruno requests, and an authenticated ZAP workflow cover authentication, account management, and example operations.</p>
-                </div>
-                <div class="card">
-                    <h3>Defensive delivery controls</h3>
-                    <p>Release scripts verify manifests and checksums. CI defines weekly audits and an isolated check of the SBOM and 142 package-content digests.</p>
-                </div>
-            </div>
-            <div class="grid-3 outcome-grid" aria-label="Engineering outcomes">
-                <div class="callout good"><strong>Change risk is visible early.</strong><br>Architecture, type, behavior, and contract drift become repeatable failures.</div>
-                <div class="callout good"><strong>Message delivery favors consistency.</strong><br>Outbox, inbox, retry, and external-effect claims have explicit failure behavior.</div>
-                <div class="callout good"><strong>Operations have stop conditions.</strong><br>Readiness, backup hooks, manifests, activation checks, and rollback checks define failure gates.</div>
+                <article class="card"><h3>Project-owned boundaries</h3><p>Domain and application code use ports. Context service providers bind adapters and handlers. Parsed-symbol tests protect dependency direction.</p><p><a href="../../tests/Architecture/RegistryHandlerBoundaryTest.php">Registry checks</a> also verify production-container resolution.</p></article>
+                <article class="card"><h3>Explicit transaction completion</h3><p>Integration-event transactions dispatch local subscribers and flush before commit. Failure clears managed state. Identity retries use a fresh persistence session.</p><p>See <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php">integration transactions</a> and <a href="../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineIdentityTransaction.php">identity transactions</a>.</p></article>
+                <article class="card"><h3>Failure-path tests</h3><p>Tests cover rollback, retry exhaustion, stale revisions, malformed persisted state, duplicate delivery, activation cleanup, and unavailable dependencies.</p><p>See <a href="../../src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/IdentityTransactionTest.php">transaction tests</a> and <a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/InboxOrmRecoveryTest.php">inbox recovery tests</a>.</p></article>
+                <article class="card"><h3>Authentication state checks</h3><p>Separate realm trust, contact ownership, actor approval, current database state, and token/session allowlists gate authentication. Native failover regressions exist.</p><p>See <a href="8-authentication-and-authorization.html">authentication contracts</a> and <a href="../platform/operations/redis-failover-tests.md">failover procedures</a>.</p></article>
+                <article class="card"><h3>Contract parity</h3><p>Source specifications, generated specifications, Bruno requests, and runtime response assertions cover all 37 operations. Success and Problem Details shapes are explicit.</p><p>See <a href="../../tests/Infrastructure/Inbound/ApiDefinitionParityTest.php">definition parity</a> and <a href="../../tests/Support/Http/ApiResponseAssertions.php">response assertions</a>.</p></article>
+                <article class="card"><h3>Typed boundaries and time</h3><p>Validated settings and value objects reject invalid boundary values. Messaging and identity deadlines use an injected UTC clock or an explicit instant.</p><p>See <a href="7-env-and-config.html">configuration</a> and <a href="../../src/Backendbase/Shared/Time/Clock.php">the clock port</a>.</p></article>
+                <article class="card"><h3>Repository verification</h3><p>Example memory and Doctrine adapters share behavior contracts. Identity tests use production mapping metadata and dedicated native concurrency fixtures.</p><p>See <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/EntryRepositoryContract.php">the repository contract</a> and <a href="../platform/operations/identity-acceptance.md">native verification scope</a>.</p></article>
+                <article class="card"><h3>Controlled recovery</h3><p>Preview-first recovery, replay age limits, retained operator evidence, release checksums, and explicit rollback policy constrain recovery operations.</p><p>See <a href="12-deployment-and-operations.html">operations</a> and <a href="../../deployment/release.json">the current release policy</a>.</p></article>
             </div>
         </section>
-
         <section id="risks">
-            <p class="section-label">05 · Risks and weaknesses</p>
-            <h2>Operational and maintenance risks need active ownership</h2>
-            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Engineering risks and weaknesses">
+            <p class="section-label">05 · Weaknesses and risks</p>
+            <h2>Distinguish test gaps, design costs, and acceptance requirements</h2>
+            <p>Resolved findings retain their identifiers and completion evidence. Open items describe remaining design costs or target acceptance requirements. These findings do not establish an exploitable vulnerability.</p>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Engineering weaknesses and risks">
                 <table class="report-table risk-table">
-                    <thead>
-                    <tr><th scope="col">Priority</th><th scope="col">Risk</th><th scope="col">Effect</th><th scope="col">Evidence</th></tr>
-                    </thead>
+                    <thead><tr><th scope="col">Priority</th><th scope="col">Risk</th><th scope="col">Effect</th><th scope="col">Evidence</th></tr></thead>
                     <tbody>
-                    <tr>
-                        <td><span class="badge medium">Medium</span></td>
-                        <td>Account provisioning is external</td>
-                        <td><span class="cell-content">The release seeds no account. An approved operational process must provision credentials before authentication can succeed.</span></td>
-                        <td><span class="cell-content"><a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/resources/database/Migrations/Version20260829010000.php">migration</a> and the <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Application/AuthenticateAccount.php">authentication service</a>.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge medium">Medium</span></td>
-                        <td>MySQL account-lock timing is unverified</td>
-                        <td><span class="cell-content">The two-connection lock tests use SQLite. MySQL-specific scheduling and isolation behavior need a targeted concurrency check.</span></td>
-                        <td><span class="cell-content"><a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Persistence/Doctrine/AccountLockFixture.php">SQLite lock fixture</a> and <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/DoctrineAccountLock.php">lock adapter</a>.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge medium">Medium</span></td>
-                        <td>Mutable security scanner image</td>
-                        <td><span class="cell-content">The Semgrep container uses a version tag without an image digest. GitHub Action references already use immutable commit SHAs.</span></td>
-                        <td><span class="cell-content"><a href="../../.github/workflows/security-checks.yml">security-checks.yml</a>.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge medium">Medium</span></td>
-                        <td>No local Firebase integration profile</td>
-                        <td><span class="cell-content">MiniStack provides local S3, SQS, SNS, SES, and CloudFront APIs. Firebase still requires an external service or a separate emulator.</span></td>
-                        <td><span class="cell-content"><a href="../../docker-compose.yaml">docker-compose.yaml</a> and <a href="../../src/Backendbase/Infrastructure/Adapters/Notification/FirebasePushNotifier.php">FirebasePushNotifier.php</a>.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge medium">Medium</span></td>
-                        <td>Deployment safety depends on external hooks</td>
-                        <td><span class="cell-content">The flow requires backup and activation hooks. The repository cannot verify each server's backup, PHP reload, or worker restart implementation.</span></td>
-                        <td><span class="cell-content"><a href="../../deployment/README.md">deployment guide</a> and <a href="../../bin/deployment/deploy-release.sh">deploy-release.sh</a>.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge">Low</span></td>
-                        <td>Optional integration dependency surface</td>
-                        <td><span class="cell-content">Projects maintain database, queue, cache, notification, cloud, and API packages even when they do not enable every capability.</span></td>
-                        <td><span class="cell-content">37 direct and 105 locked runtime packages remain. Their current upstream release and advisory status was not checked during this documentation review.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge">Low</span></td>
-                        <td>Dependency review still requires human judgment</td>
-                        <td><span class="cell-content">A content digest detects a package change but cannot determine whether the changed code is safe.</span></td>
-                        <td><span class="cell-content">Reviewers must explain lock, SBOM, and content-digest changes before approval.</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge">Low</span></td>
-                        <td>Audit timestamps retain static time access</td>
-                        <td><span class="cell-content">Messaging decisions use an injected UTC clock. Aggregate and event audit timestamps still use the date helper, so tests cannot freeze those timestamps through the clock port.</span></td>
-                        <td><span class="cell-content"><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Entry</a>, <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php">Account</a>, and <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php">OutboxRelayService</a>.</span></td>
-                    </tr>
+                    <tr><td><span class="badge strong">Resolved · R1</span></td><td>Complete adapter ownership</td><td><span class="cell-content">Context Console, Notification, and ReadModel adapters now have direction checks. Eleven infrastructure adapters were also classified. Unknown categories fail.</span></td><td><span class="cell-content"><a href="../../tests/Architecture/Adapters/AdapterClassificationTest.php">Classification regressions</a> cover membership and forbidden directions. Shared diagnostics have explicit technical ownership and a separate dependency rule.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R2</span></td><td>Live identity verification added</td><td><span class="cell-content">All 28 identity operations have deterministic HTTP coverage. Both realms have authenticated scans of protected identity reads and metadata. Mutation fuzzing is outside this scope.</span></td><td><span class="cell-content"><a href="../../tests/Security/identity_http.py">Live lifecycle suite</a>, <a href="../../tests/Security/identity_zap.py">authenticated scans</a>, and <a href="../platform/operations/identity-security-checks.md">scope and evidence</a>.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R3</span></td><td>Login and session decisions moved to domain behavior</td><td><span class="cell-content">AuthenticationGate and LoginWorkflow no longer inspect aggregate snapshots for membership, eligibility, or session construction. Other identity workflows retain snapshot use.</span></td><td><span class="cell-content"><a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Identity/Account.php">Account.startSession</a> and <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Identity/Actor.php">Actor.assertSessionIdentity</a> preserve persistence and API contracts.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R4</span></td><td>Dependency baseline verified</td><td><span class="cell-content">A fresh isolated installation matches committed evidence. Exactly 3,074 local AWS files were removed by configured service pruning. PHPCS adds only CodeSniffer.conf.</span></td><td><span class="cell-content">The unchanged lock and all 141 package digests passed the checker before plugins and scripts. No downloaded package file differed otherwise. Verify pristine package contents before trusted build transformations.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R5</span></td><td>Guarded fresh installation supported</td><td><span class="cell-content">The explicit fresh-install mode requires no active deployment, mandatory maintenance and recovery hooks, and an empty MySQL schema. Normal updates still reject rollback-unsafe releases.</span></td><td><span class="cell-content"><a href="../platform/operations/fresh-installation.md">Procedure and recovery</a>, <a href="../../tests/Deployment/deployment-scripts.sh">deployment fixtures</a>, and <a href="../../tests/Tools/Deployment/EmptyDatabaseTest.php">native schema guard tests</a>. Existing database conversion remains separate.</span></td></tr>
+                    <tr><td><span class="badge medium">Medium · R6</span></td><td>Deployment acceptance needs target evidence</td><td><span class="cell-content">MySQL and Redis do not share a transaction. Fixture tests cannot establish production revocation durability, hook behavior, latency, or recovery time.</span></td><td><span class="cell-content"><a href="../platform/operations/identity-acceptance.md">Acceptance procedure</a>, <a href="../platform/operations/identity-session-recovery.md">session recovery</a>, and <a href="../../deployment/README.md">server hooks</a>. The provider-specific recovery topology and representative workload remain acceptance inputs.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R7</span></td><td>Static scanner inputs pinned</td><td><span class="cell-content">Semgrep uses a container digest and all 1,074 retrieved default rules. The manifest records upstream and adjusted digests. One local adjustment replaces the dummy Slack webhook with an equivalent regex exclusion.</span></td><td><span class="cell-content"><a href="../../resources/security/semgrep/manifest.json">Rule manifest</a> and <a href="../../.github/workflows/security-checks.yml">security workflow</a>. Both rule versions produced identical findings across 12 fixtures. The adjusted source scan found no issues.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R8</span></td><td>Forwarding cleanup completed</td><td><span class="cell-content">AuthenticationTools, RegistrationPreparation, ContactExecutionServices, and ContactExecution were replaced by cohesive coordination. Eight pure forwarding methods were removed; one password-hash bridge remains.</span></td><td><span class="cell-content"><a href="#cleanup-evidence">Before and after call paths</a> record the scope. Identity coordination uses one fewer class. SqsQueue remains within 150 lines.</span></td></tr>
+                    <tr><td><span class="badge strong">Resolved · R9</span></td><td>Example audit instants are explicit</td><td><span class="cell-content">Entry create, change, and remove receive DateTimeImmutable values. EntryWrites obtains UTC time from the injected clock. Reconstitution preserves stored audit values.</span></td><td><span class="cell-content"><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Entry</a>, <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryWrites.php">EntryWrites</a>, and exact timestamp regressions cover creation, mutation, removal, and repository round trips.</span></td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
         <section id="recommendations">
-            <p class="section-label">06 · Recommended order</p>
-            <h2>Reduce product risk before maintenance cost</h2>
-            <div class="grid-3 priority-roadmap">
-                <article class="card">
-                    <span class="phase-label">Now</span>
-                    <h3>Protect trust boundaries</h3>
-                    <ul>
-                        <li>Define an approved process to provision the first account-management identity.</li>
-                        <li>Verify account-lock contention on the production MySQL version.</li>
-                        <li>Pin the Semgrep image by digest.</li>
-                    </ul>
-                </article>
-                <article class="card">
-                    <span class="phase-label">Next</span>
-                    <h3>Strengthen repeatability</h3>
-                    <ul>
-                        <li>Version and rehearse deployment hook examples.</li>
-                        <li>Run an isolated supply-chain check when package downloads are available.</li>
-                        <li>Review current advisories and upgrade options against the locked packages.</li>
-                    </ul>
-                </article>
-                <article class="card">
-                    <span class="phase-label">Then</span>
-                    <h3>Reduce adoption cost</h3>
-                    <ul>
-                        <li>Measure production install size and advisory work.</li>
-                        <li>Add local Firebase only when tests justify its maintenance cost.</li>
-                        <li>Pass time into business behavior when time-sensitive code changes.</li>
-                        <li>Add signed release provenance when the platform supports verification.</li>
-                    </ul>
-                </article>
-            </div>
-            <div class="callout warning">
-                <strong>Keep changes focused.</strong>
-                The architecture does not need a broad rewrite. Make each improvement through a focused change with a regression test.
-            </div>
-        </section>
+            <p class="section-label">06 · Prioritized improvement plan</p>
+            <h2>Code quality reassessed at 9.2/10 after the selected cleanup</h2>
+            <p>The initial rating was <strong>8/10</strong> at <code>df29f9c</code>. Required improvements reached 9/10. The completed cleanup scores <strong>9.2/10</strong> under the detailed rubric above.</p>
+            <p>The score summarizes the inspected design and evidence. It is not a measured percentage or a production acceptance result.</p>
+            <p>Item status is recorded below as verification completes. Priorities describe execution order, not vulnerability severity. Keep each change independently reviewable.</p>
 
+            <h3 id="quality-plan-1">1. Complete · Restore a trustworthy dependency baseline · R4</h3>
+            <p><strong>Completed 16 October 2026:</strong> Clean installation, all 141 digests, SBOM, Composer validation, and the locked advisory audit passed.</p>
+            <p>The local difference exactly matches trusted install transformations. Retain the configured working installation and unchanged evidence; replacing it would undo those transformations.</p>
+            <p><strong>Scope:</strong> composer.lock, the package-content checker, committed supply-chain evidence, and an isolated vendor installation.</p>
+            <ul>
+                <li>Install the current lock in a new directory with plugins and scripts disabled.</li>
+                <li>Compare the software bill of materials (SBOM) and package digests with committed evidence.</li>
+                <li>Determine why AWS SDK and PHPCS differ in the existing vendor tree.</li>
+                <li>If only local content differs, replace the affected installation from the verified lock.</li>
+                <li>If committed evidence is stale, review the content difference before regenerating evidence from the isolated installation.</li>
+            </ul>
+            <p><strong>Complete when:</strong> The unchanged lock has a verified installation and matching evidence. Record the mismatch cause and checker output.</p>
+            <p>Do not update dependency versions or regenerate evidence from the mismatched tree as a shortcut.</p>
+
+            <h3 id="quality-plan-2">2. Complete · Complete adapter direction checks · R1</h3>
+            <p><strong>Completed 16 October 2026:</strong> All adapters have explicit ownership. Architecture checks passed 27 tests and 130 assertions. PHPStan level 8, complexity, and PHPCS passed.</p>
+            <p>The inventory also classified 11 infrastructure port adapters. Shared diagnostics have a separate rule that forbids domain and infrastructure dependencies.</p>
+            <p><strong>Scope:</strong> AdapterDependencies, inbound and outbound boundary tests, and focused architecture fixtures.</p>
+            <ul>
+                <li>Classify the five omitted adapters from their responsibilities and dependencies.</li>
+                <li>Require every adapter class to have one direction or explicit, justified ownership outside those directions.</li>
+                <li>Reject unknown adapter categories instead of silently excluding them.</li>
+                <li>Add negative fixtures for forbidden dependencies involving Console, Notification, and ReadModel adapters.</li>
+            </ul>
+            <p><strong>Complete when:</strong> All current adapters are accounted for. Unknown categories and forbidden dependency fixtures fail. Valid fixtures and the architecture suite pass.</p>
+            <p>Resolve any newly exposed dependency defect within its owning boundary. Do not add an exception only to make the test pass.</p>
+
+            <h3 id="quality-plan-3">3. Complete · Put identity decisions on domain objects · R3</h3>
+            <p><strong>Verified 16 October 2026:</strong> Account and Actor own login and current-session decisions. Focused regressions and the final 998-test service suite passed without skips.</p>
+            <p>PHPStan level 8, complexity, and PHPCS passed. Native repository, concurrency, and session checks passed. Persistence shapes and public contracts did not change.</p>
+            <p><strong>Scope:</strong> AuthenticationGate, LoginWorkflow, Actor, Account, and affected persistence transfer code.</p>
+            <ul>
+                <li>Move actor membership and session eligibility decisions into domain behavior.</li>
+                <li>Build authentication results without application decisions based on aggregate snapshot keys.</li>
+                <li>Use typed transfer objects where the changed persistence boundary still needs a snapshot.</li>
+                <li>Preserve JWT claims, response contracts, transaction boundaries, and current authorization outcomes.</li>
+            </ul>
+            <p><strong>Complete when:</strong> The affected application paths no longer inspect aggregate snapshots for business decisions.</p>
+            <p>Regression tests must cover account mismatch, wrong realm, unapproved or removed actors, closed Accounts, stale authVersion, invalid passwords, and valid login.</p>
+            <p>Verify affected repository round trips and production container bindings. Avoid replacing snapshot keys with trivial getters that leave decisions outside the domain.</p>
+
+            <h3 id="quality-plan-4">4. Complete · Verify both identity APIs over HTTP · R2 and R7</h3>
+            <p><strong>Completed 16 October 2026:</strong> All 28 operations have live HTTP results. Both authenticated ZAP scans passed. The pinned Semgrep scan found no issues.</p>
+            <p>The <a href="../platform/operations/identity-security-checks.md">security procedure</a> records scan exclusions, disposable targets, evidence retention, and rule updates. Native tests also verify contact quota enforcement.</p>
+            <p><strong>Scope:</strong> security-checks.yml, disposable identity fixtures, scan configuration, and maintained API assertions.</p>
+            <ul>
+                <li>Pin the reviewed Semgrep image by digest.</li>
+                <li>Version the reviewed rules and record their controlled update procedure.</li>
+                <li>Generate and validate all three API specifications in the security workflow.</li>
+                <li>Provision disposable User and Admin identities with separate sessions and a local notification sink.</li>
+                <li>Add authenticated scan contexts for both identity realms.</li>
+                <li>Verify unauthenticated denial, realm isolation, approval, closure, expiry, revocation, input limits, and contact verification budgets.</li>
+                <li>Use dedicated fixtures for destructive operations and session-invalidating checks.</li>
+            </ul>
+            <p><strong>Complete when:</strong> The workflow records coverage for all 28 identity operations and preserves the existing Example checks.</p>
+            <p>Record successful authorized requests as evidence that scans reached protected behavior. A series of denied requests cannot prove authenticated scan coverage.</p>
+            <p>Record each operation's scan or deterministic live check. Explain exclusions, including readiness. Fail the workflow when a new operation has no coverage.</p>
+            <p>Retain sanitized reports, scanner and rule identities, and the tested revision. Resolve validated findings before closing this item.</p>
+
+            <h3 id="quality-plan-5">5. Complete · Define and rehearse the supported maintenance release · R5</h3>
+            <p><strong>Completed 16 October 2026:</strong> The <a href="../platform/operations/fresh-installation.md">guarded fresh-install procedure</a> supports the current rollback-unsafe release on an empty database.</p>
+            <p>Isolated deployment fixtures passed success and recovery scenarios. Native MySQL guards and the exact preflight, dry-run, migration, and final-state sequence passed on disposable databases. Server-specific hooks remain in R6.</p>
+            <p><strong>Scope:</strong> deployment guidance, release policy, recovery procedures, and isolated deployment tests.</p>
+            <ul>
+                <li>Document a maintenance procedure for the current rollback-unsafe release.</li>
+                <li>Specify artifact verification, stopped writes and workers, backup evidence, migration, activation, readiness, and recovery decisions.</li>
+                <li>Keep fresh installation separate from conversion of an existing database.</li>
+                <li>Reject an unsupported existing schema until a separate conversion and migration-history adoption plan exists.</li>
+                <li>Rehearse the supported procedure on disposable infrastructure with backup, migration, activation, and readiness failures.</li>
+            </ul>
+            <p><strong>Complete when:</strong> A reviewed procedure successfully installs the supported release and demonstrates its failure recovery without bypassing compatibility checks.</p>
+            <p>Keep applicationRollbackSafe false until compatibility evidence supports changing it. Add only the tooling required by the reviewed procedure.</p>
+            <p>Applying this procedure to a shared target remains a separate authorized operation.</p>
+
+            <h3 id="quality-plan-6">6. Complete · Restore the known class-size invariant · R8</h3>
+            <p><strong>Completed 16 October 2026:</strong> Simplified wait-time normalization reduced SqsQueue.php to 148 lines. All 12 queue tests and the full service suite passed.</p>
+            <p><strong>Scope:</strong> SqsQueue.php and its existing queue regressions.</p>
+            <p>The original 152-line class now meets the 150-line limit through simpler normalization. Avoid padding removal or forwarding wrappers as the solution.</p>
+            <p><strong>Complete when:</strong> The class meets the limit. Queue processing, failure diagnostics, retry behavior, and dependency boundaries retain their tested behavior.</p>
+
+            <h3 id="quality-plan-7">7. Complete · Simplify forwarding and make audit time explicit · R8 and R9</h3>
+            <p>Completed 16 October 2026. Login and contact authorization use Credentials directly. Registration and contact completion now own their coordinated work. Entry audit times are explicit.</p>
+            <ul>
+                <li>Remove a forwarding collaborator only when it reduces navigation or duplication without weakening ownership and class constraints.</li>
+                <li>Record the affected call path before and after the change.</li>
+                <li>Pass explicit instants into Example Entry creation, change, and removal when this time seam is addressed.</li>
+                <li>Verify exact audit timestamps with a fixed clock or supplied instant.</li>
+            </ul>
+            <p><strong>Complete when:</strong> Each selected change has a concrete simplification or deterministic-time benefit and preserves its behavioral tests.</p>
+
+            <h3 id="cleanup-evidence">Cleanup evidence and preserved behavior</h3>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Cleanup call path comparison">
+                <table class="report-table cleanup-table">
+                    <thead><tr><th scope="col">Flow</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+                    <tbody>
+                    <tr><td>Password checks</td><td>LoginWorkflow or ContactAuthorizer → AuthenticationTools → Credentials</td><td>LoginWorkflow or ContactAuthorizer → Credentials. LoginAuthentication calculates expiry after the credential transaction completes.</td></tr>
+                    <tr><td>Registration hashing</td><td>RegistrationWorkflow → RegistrationPreparation → AuthenticationTools → Credentials</td><td>RegistrationWorkflow → RegistrationCompletion → Credentials. Hashing remains before the transaction.</td></tr>
+                    <tr><td>Registration completion</td><td>The workflow calls separate verify, initialize, and consume forwarding methods.</td><td>RegistrationCompletion verifies proofs, creates identities, saves credentials, and consumes proofs inside the workflow transaction.</td></tr>
+                    <tr><td>Contact verification</td><td>VerifyContactHandler → ContactExecutionServices → ContactExecution → ContactService; ContactExecution also calls ContactDelivery.</td><td>VerifyContactHandler → ContactCompletion → ContactDelivery → ContactService. Delivery follows committed verification work. Completion records the response result.</td></tr>
+                    <tr><td>Example writes</td><td>The aggregate reads static time. Handlers repeat transaction and persistence coordination.</td><td>EntryWrites supplies clock values to the aggregate. EntryEventTransaction keeps writes, domain publication, integration subscribers, and outbox handling within one transaction.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The three reviewed forwarding classes contained nine pass-through methods. Their replacements retain one password-hash bridge and perform the other coordination directly.</p>
+            <p>Identity coordination removes one class. Example adds two application collaborators shared by its three write handlers. Each changed production class has at most two instance properties.</p>
+            <p>Exact-time tests advance the clock during transaction entry or repository lookup. Domain and adapter checks preserve microseconds, creation time, and matching removal/update times.</p>
+            <p>JWT claims, contact delivery failure behavior, response contracts, database schema, and event payloads remain unchanged.</p>
+
+            <h3 id="quality-plan-8">8. Production acceptance · Obtain target-specific evidence · R6</h3>
+            <p>This item is required before production acceptance. It remains separate from the source-quality score.</p>
+            <ul>
+                <li>Identify the authorized staging clone, service topology, dataset, operator, and tested revision.</li>
+                <li>Agree latency, failure, revocation, and recovery thresholds before measuring results.</li>
+                <li>Capture representative EXPLAIN plans, p95/p99 latency, throughput, lock waits, and deadlocks.</li>
+                <li>Rehearse the selected Redis failover and revoked-session recovery procedure.</li>
+                <li>Verify real backup, secret injection, activation, worker, monitoring, and alert procedures.</li>
+            </ul>
+            <p><strong>Complete when:</strong> Evidence meets the recorded thresholds and the target owner accepts remaining limits.</p>
+            <p>Use the existing <a href="../platform/operations/identity-acceptance.md">identity acceptance procedure</a>. Retain R6 as open until this evidence exists.</p>
+
+            <h3 id="quality-plan-dependencies">Execution dependencies</h3>
+            <p>Complete item 1 before trusting new execution evidence. Complete item 2 before changing identity boundaries in item 3.</p>
+            <p>Item 4 can be prepared after item 1. Its final run must include the completed identity changes.</p>
+            <p>Item 5 can be prepared independently. Its rehearsal needs verified dependencies and identified disposable services.</p>
+            <p>Complete item 6 before the final review. Item 8 follows the maintenance rehearsal and requires target selection.</p>
+
+            <h3 id="quality-plan-completion">Evidence required for a 9/10 reassessment</h3>
+            <ul>
+                <li>Close items 1–6 with source references, regression results, and evidence for the final revision.</li>
+                <li>Run focused behavior tests, PHPStan level 8, complexity ≤ 12, and PHPCS for each applicable PHP change.</li>
+                <li>Run the full suite with prepared MySQL, Redis, and Sentinel services for the completed change set.</li>
+                <li>Require every expected service case to execute. Keep the existing 100% executable-line coverage gate.</li>
+                <li>Pass API validation, contract parity, live identity checks, and the affected deployment rehearsals.</li>
+                <li>Review changed code for concrete defects and test gaps. Resolve every required finding.</li>
+                <li>Update affected platform guidance, skills, documentation, generated metrics, and Unreleased changelog entries.</li>
+                <li>Pass documentation-link and report-parity checks after refreshing evidence.</li>
+            </ul>
+            <p>Reassess the score after these checks. Successful commands alone do not establish good design or close an uncovered failure path.</p>
+            <p>Item 7 is complete within its recorded scope. Remaining snapshot and object-design costs appear in the score deductions. Production acceptance in item 8 remains open.</p>
+        </section>
         <section id="scope">
             <p class="section-label">07 · Scope and method</p>
-            <h2>This score describes the inspected workspace</h2>
-            <p>The assessment reviewed production source, tests, architecture rules, quality configuration, continuous integration, documentation, product boundaries, local infrastructure, deployment controls, and current dependencies.</p>
-            <p>The 24 September 2026 local review ran these checks:</p>
-            <pre><code>composer test
+            <h2>Claims apply to the inspected revision and stated checks</h2>
+            <p>The initial assessment started from clean revision <code>df29f9c1c3748444dc4f5b2345d35a38cbe82189</code>. Implementation preserved the existing assessment edits and added the documented improvements.</p>
+            <p>The review sampled Example and Identity behavior, authentication, contact verification, transactions, messaging, architecture selectors, API assertions, configuration, deployment, and dependency evidence.</p>
+            <p>It inspected representative flows and test scopes. It did not inspect every production statement or perform a security audit.</p>
+            <p>The current execution used these commands:</p>
+            <pre><code># Prepared disposable MySQL and Redis targets; Sentinel runner owns its cluster.
+BACKENDBASE_ENV=test BACKENDBASE_DB_DSN=pdo-sqlite:///:memory: \
+bash bin/tests/redis-failover.sh composer test
 composer phpstan -- --no-progress
 composer complexity
 composer cs-check
 composer validate --strict --no-check-publish --no-plugins --no-scripts
-composer docs:check-links
-composer reports:check
-composer run validate-example-api-spec
-vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml</code></pre>
-            <p><code>composer test</code> included the deployment script tests.</p>
-            <p><code>php bin/composer-supply-chain.php check</code> failed against the current local <code>vendor</code> tree for AWS SDK and PHPCS content. A fresh isolated install could not finish because the package host did not resolve. The committed evidence was not regenerated.</p>
-            <p>The 29 August assessment recorded dependency freshness, an advisory audit, and a live Bruno run against an isolated MySQL database. The current collection has 15 requests. This review did not repeat those checks or the container-based dynamic security scan.</p>
-            <p>This canonical report combines code-quality evidence with project strengths, risks, and priorities. It keeps one verification ledger and one prioritized risk list.</p>
-            <p>The numerical scores are editorial judgments. They are not calculated from the test and coverage counts. This review excludes live traffic, production incidents, provider calls, and production performance.</p>
+composer audit --locked --no-interaction --no-plugins --no-scripts
+composer generate-example-api-spec
+composer validate-example-api-spec
+composer generate-identity-api-specs
+composer validate-identity-api-specs
+python3 tests/Security/identity_http.py --scan
+# Run inside the digest-pinned Semgrep container:
+semgrep scan --config resources/security/semgrep/default.yml --error --metrics=off \
+  --no-git-ignore src config public bin resources/database
+# Use the fresh, untransformed installation directory:
+php bin/composer-supply-chain.php check /prepared/clean-install/vendor
+composer reports:update
+composer reports:check</code></pre>
+            <p>The final service run regenerated artifacts/junit.xml and root clover.xml. Verification covers the improvements based on df29f9c. No deployment to a shared target was performed.</p>
+            <p>Documentation-link validation applies to the completed document changes. See <a href="10-testing-and-quality.html">the testing guide</a> and <a href="ports-and-adapters-critique.html">the architecture assessment</a> for related limits.</p>
         </section>
     </main>
 </div>
-
-<footer>Backendbase Core · Engineering quality, strengths, and risks · 24 September 2026</footer>
+<footer>Backendbase Core · Engineering quality, strengths, and risks · 16 October 2026 · Working tree based on df29f9c</footer>
 </body>
 </html>

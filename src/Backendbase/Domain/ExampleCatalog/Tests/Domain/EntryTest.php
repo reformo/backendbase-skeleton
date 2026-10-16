@@ -18,7 +18,8 @@ final class EntryTest extends TestCase
     #[Test]
     public function itCreatesAValidEntry(): void
     {
-        $entry = Entry::create(
+        $createdAt = new DateTimeImmutable('2026-10-16T10:00:00.123456Z');
+        $entry     = Entry::create(
             'example-id',
             EntryType::SYSTEM,
             null,
@@ -27,15 +28,17 @@ final class EntryTest extends TestCase
             'page-size',
             '25',
             ['unit' => 'items'],
+            $createdAt,
         );
-        $state = $entry->snapshot();
+        $state     = $entry->snapshot();
 
         self::assertSame('example-id', $entry->id());
         self::assertSame(EntryType::SYSTEM, $state->type());
         self::assertSame('25', $state->lookupValue());
         self::assertSame(['unit' => 'items'], $state->details());
         self::assertTrue($state->isActive());
-        self::assertSame($state->createdAt(), $state->updatedAt());
+        self::assertSame($createdAt, $state->createdAt());
+        self::assertSame($createdAt, $state->updatedAt());
         self::assertFalse($entry->isRemoved());
     }
 
@@ -57,19 +60,24 @@ final class EntryTest extends TestCase
             null,
         );
 
-        $entry->change(false, null, ['unit' => 'rows']);
+        $changedAt = new DateTimeImmutable('2026-02-01T10:00:00.234567Z');
+        $entry->change(false, null, ['unit' => 'rows'], $changedAt);
         $changedState = $entry->snapshot();
 
         self::assertFalse($changedState->isActive());
         self::assertSame('25', $changedState->lookupValue());
         self::assertSame(['unit' => 'rows'], $changedState->details());
-        self::assertGreaterThan($initialDate, $changedState->updatedAt());
+        self::assertSame($initialDate, $changedState->createdAt());
+        self::assertSame($changedAt, $changedState->updatedAt());
+        self::assertNull($changedState->removedAt());
 
-        $entry->remove();
+        $removedAt = new DateTimeImmutable('2026-03-01T11:00:00.345678Z');
+        $entry->remove($removedAt);
         $removedState = $entry->snapshot();
 
         self::assertTrue($entry->isRemoved());
-        self::assertNotNull($removedState->removedAt());
+        self::assertSame($initialDate, $removedState->createdAt());
+        self::assertSame($removedAt, $removedState->removedAt());
         self::assertSame($removedState->removedAt(), $removedState->updatedAt());
     }
 
@@ -92,6 +100,7 @@ final class EntryTest extends TestCase
             'page-size',
             '25',
             [],
+            new DateTimeImmutable('2026-10-16T10:00:00.123456Z'),
         );
         $record     = ExampleTable::fromDomain($entry);
         self::assertSame($identifier->toString(), $record->id());

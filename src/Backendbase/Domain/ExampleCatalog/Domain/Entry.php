@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Domain;
 
-use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
 use DateTimeImmutable;
 
 /** @phpstan-import-type EntryState from EntrySnapshot */
@@ -25,9 +24,8 @@ final class Entry
         string $key,
         string $value,
         array $details,
+        DateTimeImmutable $now,
     ): self {
-        $now = DateTimeImmutableFactory::create();
-
         return new self([
             'uuid' => $entryId,
             'type' => $type,
@@ -73,7 +71,7 @@ final class Entry
     }
 
     /** @param array<string, mixed>|null $details */
-    public function change(bool|null $isActive, string|null $value, array|null $details): void
+    public function change(bool|null $isActive, string|null $value, array|null $details, DateTimeImmutable $now): void
     {
         if ($isActive !== null) {
             $this->state['isActive'] = $isActive;
@@ -87,12 +85,11 @@ final class Entry
             $this->state['details'] = $details;
         }
 
-        $this->state['updatedAt'] = DateTimeImmutableFactory::create();
+        $this->state['updatedAt'] = $now;
     }
 
-    public function remove(): void
+    public function remove(DateTimeImmutable $now): void
     {
-        $now                      = DateTimeImmutableFactory::create();
         $this->state['removedAt'] = $now;
         $this->state['updatedAt'] = $now;
     }

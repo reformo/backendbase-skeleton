@@ -26,6 +26,8 @@ use Backendbase\Shared\Domain\DomainEventPublisher;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Backendbase\Shared\Primitives\Pagination;
+use Backendbase\Shared\Time\Clock;
+use DateTimeImmutable;
 use DI\Container;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -34,6 +36,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use Tests\Support\Time\FrozenClock;
 
 use function count;
 
@@ -49,7 +52,8 @@ class EntryServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->container = new Container();
-        $store           = new EntryStore();
+        $this->container->set(Clock::class, new FrozenClock(new DateTimeImmutable('2026-10-16T10:00:00.123456Z')));
+        $store = new EntryStore();
         $this->container->set(EntryReadRepository::class, new MemoryEntryReadRepository($store));
         $this->container->set(EntryWriteRepository::class, new MemoryEntryWriteRepository($store));
 

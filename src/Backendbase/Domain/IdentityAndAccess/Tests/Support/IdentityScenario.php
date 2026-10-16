@@ -68,10 +68,9 @@ final class IdentityScenario
 
     public static function principal(IdentityFixture $fixture, Realm $realm = Realm::USER, string $identifier = 'ada@example.com'): Principal
     {
-        $container   = $fixture->container();
-        $login       = $container->get(LoginWorkflow::class);
-        [$principal] = $login->authenticate($realm, new LoginInput($identifier, 'valid-password-123'));
+        $container = $fixture->container();
+        $login     = $container->get(LoginWorkflow::class);
 
-        return $principal;
+        return $login->authenticate($realm, new LoginInput($identifier, 'valid-password-123'));
     }
 }

@@ -23,6 +23,10 @@
 - Read current time through `Shared/Time/Clock` when time controls behavior. Pass an explicit instant into pure policy calculations.
 - The clock returns UTC. The date helper defaults to UTC and also supports explicitly supplied time zones.
 - Inbound adapters must not depend on outbound adapter implementations. Outbound adapters must not depend on inbound adapter implementations.
+- Classify every adapter explicitly. Context Console adapters are inbound. Context Notification and ReadModel adapters are outbound.
+- Infrastructure CQRS, domain-event, event-manager, security, clock, and object-storage adapters implement outbound ports.
+- SafeExceptionContext is shared technical support. It must not depend on domain or infrastructure classes.
+- Architecture tests reject unknown adapter categories.
 - Every command and query must map to a resolvable handler in its context registry. Contracts must not import handlers.
 - Domain-listener attributes must have one positional target in the same context. The target must implement the correct interface and resolve from the production container.
 

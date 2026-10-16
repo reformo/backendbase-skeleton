@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
-    <title>Backendbase API Keys and Access Control Guide</title>
+    <title>Backendbase Authentication and Access Control Guide</title>
     <link rel="stylesheet" href="documentation.css">
     <link rel="stylesheet" href="documentation-light.css">
 </head>
@@ -12,9 +12,9 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="hero"><div class="hero-inner">
     <p class="eyebrow">Backendbase Core · Security boundary</p>
-    <h1>API Keys and Access Control</h1>
-    <p class="lede">API-key protection for HTTP operations and typed access control for the internal greeting command.</p>
-    <div class="chips"><span class="chip">API keys</span><span class="chip">Middleware</span><span class="chip">Shared contracts</span></div>
+    <h1>Authentication and Access Control</h1>
+    <p class="lede">Example API keys, separate User and System Admin authentication realms, session gates, and internal access control.</p>
+    <div class="chips"><span class="chip">API keys</span><span class="chip">JWT realms</span><span class="chip">Session state</span><span class="chip">Shared contracts</span></div>
 </div></header>
 <div class="layout">
 <nav aria-label="Page contents"><strong>Contents</strong>
@@ -22,11 +22,13 @@
     <a href="#acl">4. Internal access control</a><a href="#api-key">5. API keys</a><a href="#routes">6. Route policy</a>
     <a href="#configuration">7. Configuration</a><a href="#failures">8. Failure behavior</a><a href="#gaps">9. Current limits</a>
     <a href="#tests">10. Tests</a><a href="#sources">11. Source map</a>
+    <a href="#identity-realms">12. Identity realms</a>
 </nav>
 <main id="main-content">
-<section id="overview"><p class="section-label">01 · Overview</p><h2>HTTP operations use API-key protection</h2>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Each consumer API has an explicit security policy</h2>
     <p>ExampleApi requires the configured API key for metadata and every Example read or write. Liveness and readiness remain public.</p>
     <p>IdentityAndAccess owns global Accounts and realm-specific User and SystemAdmin actors. UserApi and SystemAdminApi expose separate authentication flows. Greeting HTTP endpoints remain absent.</p>
+    <p>Both identity APIs use trusted realm policies and JSON Web Tokens (JWTs). See <a href="#identity-realms">identity realms</a> for session and database gates.</p>
 </section>
 <section id="map"><p class="section-label">02 · Component map</p><h2>HTTP protection and internal access control have separate owners</h2>
     <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
@@ -55,7 +57,7 @@
     <p>Configured public path prefixes bypass validation. OPTIONS returns an empty 200 response.</p>
 </section>
 <section id="routes"><p class="section-label">06 · Route policy</p><h2>Protect new endpoints by default</h2>
-    <p>Use the existing API-key middleware for new consumer operations. Declare anonymous policy explicitly in routing and OpenAPI.</p>
+    <p>Apply the target API's existing security policy. Example operations use the API key. Identity operations use trusted USER or ADMIN policies. Declare anonymous policy explicitly in routing and OpenAPI.</p>
     <p>Metadata and all six Example routes require an API key. Liveness and readiness use <code>security: []</code>.</p>
     <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
@@ -70,7 +72,10 @@
 </section>
 <section id="gaps"><p class="section-label">09 · Current limits</p><h2>Known limits</h2>
     <ul><li>The API-key public-path list includes prefixes outside the current ExampleApi route set.</li>
-        <li>The shared OpenAPI headers are not all enforced at runtime.</li><li>CORS omits <code>Accept-Language</code>.</li></ul>
+        <li>Runtime validation accepts missing trace and timezone headers. Supplied values must pass format validation.</li>
+        <li>The security workflow preserves ExampleApi checks and verifies all 28 identity operations over HTTP. Separate authenticated scans cover protected identity reads and metadata. See <a href="../platform/operations/identity-security-checks.md">the exact scope</a>.</li>
+        <li>Production revocation durability, managed secret injection, and recovery require target-specific acceptance evidence.</li></ul>
+    <p>All three API header configurations allow <code>Accept-Language</code>. See the <a href="code-quality-and-maintainability-report.html#risks">current assessment</a> and <a href="../platform/operations/identity-acceptance.md">identity acceptance procedure</a>.</p>
     <p>Databases that executed the removed account migration can still contain account and privilege tables. Review their schema and migration history before deployment.</p>
 </section>
 <section id="tests"><p class="section-label">10 · Tests</p><h2>Verify actual routes and internal command policy</h2>

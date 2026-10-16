@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Domain\Identity;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Profiles\AccountNames;
 use DateTimeImmutable;
 
@@ -55,6 +56,26 @@ final class Account
         if (! $this->state['owned'] || $this->state['authVersion'] !== $expectedVersion) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
+    }
+
+    public function startSession(Realm $realm, Actor $actor): Principal
+    {
+        $this->assertSessionAllowed($this->state['authVersion']);
+        $accountId = $this->id();
+        $actor->assertSessionIdentity($realm, $accountId);
+        $actorId           = $actor->id();
+        $sessionId         = IdentityId::create();
+        $tokenId           = IdentityId::create();
+        $sessionIdentifier = $sessionId->toString();
+        $tokenIdentifier   = $tokenId->toString();
+
+        return new Principal($realm, [
+            'accountId' => $accountId,
+            'actorId' => $actorId,
+            'sid' => $sessionIdentifier,
+            'jti' => $tokenIdentifier,
+            'authVersion' => $this->state['authVersion'],
+        ]);
     }
 
     public function close(DateTimeImmutable $now): void

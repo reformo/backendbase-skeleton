@@ -4,30 +4,25 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Application\Workflows;
 
-use Backendbase\Domain\IdentityAndAccess\Application\AuthenticationTools;
+use Backendbase\Domain\IdentityAndAccess\Application\Credentials;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\LoginInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use DateTimeImmutable;
 
 final readonly class LoginWorkflow
 {
-    public function __construct(private IdentityStore $store, private AuthenticationTools $tools)
+    public function __construct(private IdentityStore $store, private Credentials $credentials)
     {
     }
 
-    /** @return array{Principal, DateTimeImmutable} */
-    public function authenticate(Realm $realm, LoginInput $input): array
+    public function authenticate(Realm $realm, LoginInput $input): Principal
     {
         $currentStore = $this->store;
-        $currentTools = $this->tools;
 
-        $principal = $currentStore->transaction(function () use ($realm, $input): Principal {
+        return $currentStore->transaction(function () use ($realm, $input): Principal {
             $currentStore = $this->store;
-            $currentTools = $this->tools;
 
             $identifier = $input->identifier();
             $actor      = $currentStore->actorByIdentifier($realm, $identifier);
@@ -36,22 +31,15 @@ final readonly class LoginWorkflow
             }
 
             $actor->assertSessionAllowed();
-            $state        = $actor->snapshot();
-            $account      = $currentStore->account($state['accountId']);
-            $accountState = $account->snapshot();
-            $account->assertSessionAllowed($accountState['authVersion']);
-            $accountId = $account->id();
-            $password  = $input->password();
-            $currentTools->assertPassword($accountId, $password);
-            $actorId           = $actor->id();
-            $sessionId         = IdentityId::create();
-            $tokenId           = IdentityId::create();
-            $sessionIdentifier = $sessionId->toString();
-            $tokenIdentifier   = $tokenId->toString();
+            $reference   = $actor->accountReference();
+            $accountId   = $reference->toString();
+            $account     = $currentStore->account($accountId);
+            $principal   = $account->startSession($realm, $actor);
+            $password    = $input->password();
+            $credentials = $this->credentials;
+            $credentials->assertPassword($accountId, $password);
 
-            return new Principal($realm, ['accountId' => $accountId, 'actorId' => $actorId, 'sid' => $sessionIdentifier, 'jti' => $tokenIdentifier, 'authVersion' => $accountState['authVersion']]);
+            return $principal;
         });
-
-        return [$principal, $currentTools->sessionExpiresAt()];
     }
 }

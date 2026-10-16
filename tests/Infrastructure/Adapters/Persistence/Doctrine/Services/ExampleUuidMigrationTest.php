@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\UnitOfWork\EntityManagerFactory;
 use Backendbase\Migrations\Version20260823215059;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\Query\Query;
@@ -57,7 +58,7 @@ final class ExampleUuidMigrationTest extends TestCase
             $repository = new EntryWriteRepository($manager);
             self::assertSame($existingId->toString(), $repository->getActive($existingId->toString())->id());
             $id    = Uuid::uuid7();
-            $entry = Entry::create($id->toString(), EntryType::SYSTEM, null, 'new', true, 'new-key', 'New value', []);
+            $entry = Entry::create($id->toString(), EntryType::SYSTEM, null, 'new', true, 'new-key', 'New value', [], new DateTimeImmutable('2026-10-16T10:00:00.123456Z'));
             $repository->add($entry);
             $manager->clear();
             $record = $manager->find(ExampleTable::class, $id);

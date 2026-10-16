@@ -83,7 +83,7 @@ createArtifact() {
     local composerSbomSha256
     local archiveSha256
 
-    mkdir -p "$fixturePath/bin" "$fixturePath/vendor" "$fixturePath/resources/security" "$artifactDirectory"
+    mkdir -p "$fixturePath/bin/deployment" "$fixturePath/vendor" "$fixturePath/resources/security" "$artifactDirectory"
     printf '{}\n' > "$fixturePath/composer.lock"
     printf '{}\n' > "$fixturePath/resources/security/composer-sbom.cdx.json"
     printf '{}\n' > "$fixturePath/resources/security/composer-package-content.json"
@@ -119,6 +119,14 @@ EOF
 exit 0
 EOF
     chmod +x "$fixturePath/bin/doctrine" "$fixturePath/bin/backendbase"
+    cat > "$fixturePath/bin/deployment/assert-empty-database.php" <<'EOF'
+<?php
+exit(getenv('TEST_NONEMPTY_DATABASE') === 'true' ? 1 : 0);
+EOF
+
+    if [[ "${TEST_ROLLBACK_UNSAFE:-false}" == 'true' ]]; then
+        php -r '$path=$argv[1]; $data=json_decode(file_get_contents($path),true); $data["applicationRollbackSafe"]=false; file_put_contents($path,json_encode($data));' "$fixturePath/release-manifest.json"
+    fi
 
     tar -czf "$archivePath" -C "$fixturePath" .
     archiveSha256="$(php -r 'echo hash_file("sha256", $argv[1]);' "$archivePath")"
@@ -136,7 +144,7 @@ runDeployment() {
     BACKENDBASE_DEPLOY_ROOT="$rootPath" \
     BACKENDBASE_CURRENT_LINK="$rootPath/webroot/api" \
     BACKENDBASE_READINESS_URL='http://readiness.test' \
-    "$deployScript" "$archivePath" "$archivePath.sha256" '.env.production'
+    "$deployScript" "$archivePath" "$archivePath.sha256" '.env.production' "${TEST_INSTALLATION_MODE:-update}"
 }
 
 createCommands
@@ -180,3 +188,56 @@ fi
 assertCurrentRelease "$activationFailureRoot" "$activationFailureRoot/releases/$oldRevision"
 
 printf 'Deployment and rollback tests passed.\n'
+
+createFreshRoot() {
+    local rootPath="$1"
+    createRoot "$rootPath" "$oldRevision"
+    unlink "$rootPath/webroot/api"
+    cat > "$rootPath/shared/hooks/prepare-maintenance" <<'EOF'
+#!/usr/bin/env bash
+printf 'maintenance\n' >> "${TEST_HOOK_LOG:?}"
+EOF
+    chmod +x "$rootPath/shared/hooks/prepare-maintenance"
+}
+
+freshArchive="$(TEST_ROLLBACK_UNSAFE=true createArtifact "$temporaryDirectory/fresh-artifact" '3333333333333333333333333333333333333333')"
+unsafeRoot="$temporaryDirectory/unsafe-root"
+createRoot "$unsafeRoot" "$oldRevision"
+if runDeployment "$unsafeRoot" "$freshArchive"; then
+    failTest 'Normal deployment accepted a rollback-unsafe release.'
+fi
+assertCurrentRelease "$unsafeRoot" "$unsafeRoot/releases/$oldRevision"
+
+freshRoot="$temporaryDirectory/fresh-root"
+createFreshRoot "$freshRoot"
+TEST_INSTALLATION_MODE=--fresh-install runDeployment "$freshRoot" "$freshArchive"
+assertCurrentRelease "$freshRoot" "$freshRoot/releases/3333333333333333333333333333333333333333"
+php -r '$state=json_decode(file_get_contents($argv[1]),true); exit($state["applicationRollbackSafe"]===false ? 0 : 1);' "$freshRoot/state/active-release.json" \
+    || failTest 'Fresh installation lost the rollback-unsafe policy.'
+grep --quiet '^maintenance$' "$freshRoot/hook.log" || failTest 'The maintenance hook did not run.'
+
+for failure in nonempty backup migration activation readiness existing; do
+    failureRoot="$temporaryDirectory/fresh-$failure-root"
+    createFreshRoot "$failureRoot"
+    if [[ "$failure" == 'backup' ]]; then
+        printf '#!/usr/bin/env bash\nexit 1\n' > "$failureRoot/shared/hooks/pre-migrate"
+    fi
+    if [[ "$failure" == 'activation' ]]; then
+        printf '#!/usr/bin/env bash\nexit 1\n' > "$failureRoot/shared/hooks/activate-release"
+    fi
+    if [[ "$failure" == 'existing' ]]; then
+        ln -s "$failureRoot/releases/$oldRevision" "$failureRoot/webroot/api"
+    fi
+    if TEST_INSTALLATION_MODE=--fresh-install \
+        TEST_NONEMPTY_DATABASE="$([[ "$failure" == 'nonempty' ]] && echo true || echo false)" \
+        TEST_MIGRATION_FAILURE="$([[ "$failure" == 'migration' ]] && echo true || echo false)" \
+        TEST_CURL_FAILURE_COUNT="$([[ "$failure" == 'readiness' ]] && echo 1 || echo 0)" \
+        runDeployment "$failureRoot" "$freshArchive"; then
+        failTest "Fresh installation accepted $failure failure."
+    fi
+    if [[ "$failure" != 'existing' ]]; then
+        [[ ! -L "$failureRoot/webroot/api" ]] || failTest "The failed $failure installation remained active."
+    fi
+done
+
+printf 'Fresh installation and maintenance failure tests passed.\n'

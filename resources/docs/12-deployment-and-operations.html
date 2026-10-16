@@ -32,6 +32,8 @@
 <tr><td>Activation</td><td colspan="2">Atomic link switch, process hook, and readiness gate</td></tr>
 <tr><td>Rollback</td><td colspan="2">Only the recorded previous release; schema remains expanded</td></tr>
 </tbody></table></div>
+<div class="callout warning"><strong>Current release gate:</strong> <a href="../../deployment/release.json">release.json</a> sets <code>applicationRollbackSafe</code> to <code>false</code>. <a href="../../bin/deployment/deploy-release.sh">deploy-release.sh</a> rejects that value for normal updates. Explicit <code>--fresh-install</code> mode supports an empty MySQL database with mandatory maintenance and recovery hooks.</div>
+<p>Follow the <a href="../platform/operations/fresh-installation.md">fresh-installation and recovery procedure</a>. Existing databases require a separate adoption plan. Preserve the normal update compatibility guard.</p>
 </section>
 <section id="database"><p class="section-label">05 · Database</p><h2>Migration review is a release gate</h2>
 <ul><li>Back up or confirm recoverable database state before a risky migration.</li><li>Verify the migration metadata table.</li><li>Run only reviewed migrations.</li>
@@ -54,6 +56,7 @@
 <tr><td>Integration consumer</td><td><code>queue:consume [name]</code></td><td>Separate long-running supervised worker</td></tr>
 <tr><td>Message cleanup</td><td><code>integration-messages:cleanup</code></td><td>Daily retention schedule</td></tr>
 </tbody></table></div>
+<p><a href="../deployment/systemd/backendbase-consumer@.service">Consumer service</a>, <a href="../deployment/systemd/backendbase-relay.service">relay service</a>, and <a href="../deployment/systemd/backendbase-cleanup.timer">cleanup timer</a> templates exist under <code>resources/deployment/systemd</code>. Adapt and rehearse them on the authorized target.</p>
 <div class="related"><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>
 <section id="health"><p class="section-label">08 · Health checks</p><h2>Verify the request path and background state</h2>
@@ -70,8 +73,9 @@
 <div class="callout danger">Do not print or archive environment files in deployment output.</div>
 </section>
 <section id="risks"><p class="section-label">11 · Current risks</p><h2>Known operational limits</h2>
-<ul><li>The repository does not define the server-specific backup and process activation hooks.</li><li>The first conversion from a working tree to the release-link layout requires a maintenance window.</li>
-<li>MySQL DDL needs backup recovery or a reviewed forward repair after partial execution.</li><li>No worker supervisor, scheduler definition, container deployment manifest, or alert configuration exists in the repository.</li></ul>
+<ul><li>The current rollback-unsafe release supports guarded fresh installation only. Existing database conversion remains a separate reviewed operation.</li><li>The repository does not define the server-specific backup and process activation hooks.</li><li>The first conversion from a working tree to the release-link layout requires a maintenance window.</li>
+<li>MySQL DDL needs backup recovery or a reviewed forward repair after partial execution.</li><li>Systemd templates exist. Production process setup, monitoring collection, dashboards, and alerts require target configuration.</li></ul>
+<p>The <a href="code-quality-and-maintainability-report.html">16 October assessment</a> separates isolated deployment tests from production acceptance. Use <a href="../platform/operations/identity-acceptance.md">identity acceptance</a> for service, latency, revocation, and recovery measurements.</p>
 </section>
 <section id="checklist"><p class="section-label">12 · Checklist</p><h2>Release completion criteria</h2>
 <ul><li>The deployed revision is known.</li><li>Dependencies install without development packages.</li><li>OpenAPI generates and validates.</li><li>Reviewed migrations complete.</li>

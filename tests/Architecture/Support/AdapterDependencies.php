@@ -12,22 +12,46 @@ use function str_starts_with;
 
 final class AdapterDependencies
 {
-    /** @return array<string, list<string>> */
-    public static function inbound(): array
+    /**
+     * @param array<string, list<string>>|null $source
+     *
+     * @return array<string, list<string>>
+     */
+    public static function inbound(array|null $source = null): array
     {
         return ArchitectureDependencies::select(
-            ArchitectureDependencies::source(),
+            $source ?? ArchitectureDependencies::source(),
             static fn (string $file): bool => self::isInbound($file),
         );
     }
 
-    /** @return array<string, list<string>> */
-    public static function outbound(): array
+    /**
+     * @param array<string, list<string>>|null $source
+     *
+     * @return array<string, list<string>>
+     */
+    public static function outbound(array|null $source = null): array
     {
         return ArchitectureDependencies::select(
-            ArchitectureDependencies::source(),
+            $source ?? ArchitectureDependencies::source(),
             static fn (string $file): bool => self::isOutbound($file),
         );
+    }
+
+    /**
+     * @param array<string, list<string>> $source
+     *
+     * @return list<string>
+     */
+    public static function unclassified(array $source): array
+    {
+        return array_keys(ArchitectureDependencies::select(
+            $source,
+            static fn (string $file): bool => preg_match('#^src/Backendbase/(Domain/[^/]+|Infrastructure)/Adapters/#', $file) === 1
+                && ! self::isInbound($file)
+                && ! self::isOutbound($file)
+                && $file !== 'src/Backendbase/Infrastructure/Adapters/Diagnostics/SafeExceptionContext.php',
+        ));
     }
 
     /**
@@ -51,7 +75,7 @@ final class AdapterDependencies
             || str_starts_with($file, 'src/Backendbase/Infrastructure/Adapters/Console/')
             || str_starts_with($file, 'src/Backendbase/Infrastructure/Adapters/Http/')
             || str_starts_with($file, 'src/Backendbase/Infrastructure/Adapters/Mapping/')
-            || preg_match('#^src/Backendbase/Domain/[^/]+/Adapters/Http/#', $file) === 1
+            || preg_match('#^src/Backendbase/Domain/[^/]+/Adapters/(Http|Console)/#', $file) === 1
             || str_ends_with($file, '/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php')
             || str_ends_with($file, '/Adapters/Queue/ExternalIntegrationEventDispatcher.php');
     }
@@ -62,7 +86,8 @@ final class AdapterDependencies
             return false;
         }
 
-        return preg_match('#^src/Backendbase/Domain/[^/]+/Adapters/(Authentication|Persistence)/#', $file) === 1
-            || preg_match('#^src/Backendbase/Infrastructure/Adapters/(Aws|Notification|Persistence|Queue)/#', $file) === 1;
+        return preg_match('#^src/Backendbase/Domain/[^/]+/Adapters/(Authentication|Persistence|Notification|ReadModel)/#', $file) === 1
+            || $file === 'src/Backendbase/Infrastructure/Adapters/S3Bucket.php'
+            || preg_match('#^src/Backendbase/Infrastructure/Adapters/(Aws|CQRS|DomainEvents|EventManager|Notification|Persistence|Queue|Security|Time)/#', $file) === 1;
     }
 }

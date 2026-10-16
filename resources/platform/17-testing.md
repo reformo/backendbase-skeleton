@@ -112,6 +112,10 @@ See [identity acceptance](operations/identity-acceptance.md) for remaining deplo
 `composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the canonical engineering quality report. `composer reports:check` fails when committed metrics are stale.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.
+The security workflow runs all identity operations over HTTP and separate authenticated ZAP scans for both realms.
+It uses the production entry point and native adapters with a local contact-notification sink.
+See [identity security checks](operations/identity-security-checks.md) for prepared targets, scope, exclusions, and pinned scan inputs.
+Deployment fixtures cover explicit fresh installation. Native MySQL tests reject existing tables, views, routines, and events.
 
 The Composer supply-chain workflow runs each week and for dependency changes. It copies reviewed Composer public keys into an isolated Composer home before it diagnoses Composer 2.10.3. It disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
 
@@ -120,5 +124,7 @@ The Composer supply-chain workflow runs each week and for dependency changes. It
 `bin/validate-agent-memory.sh` checks the local `.agents/memory` directories, templates, required fields, and orchestration rules. Run it from the repository root when that local memory structure exists. It does not validate application behavior.
 
 Generate supply-chain evidence only from a new isolated install with `--no-plugins --no-scripts`. Review every lock, SBOM, and digest change before approval. A digest detects changed content. It does not establish that new content is safe.
+Verify pristine packages before trusted install transformations. AWS service pruning and PHPCS configuration change the working vendor tree.
+A later check against that transformed tree cannot substitute for the isolated-install check.
 
 Basis: `resources/docs/10-testing-and-quality.html`.

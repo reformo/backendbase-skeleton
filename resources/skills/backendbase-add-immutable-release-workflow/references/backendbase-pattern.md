@@ -28,6 +28,19 @@ Do not copy the Backendbase deploy root, symbolic-link paths, API names, readine
 | Recovery evidence | state recovery directory | Preserve plans, output, state, and markers. |
 | Application rollback | `rollback-release.sh` | Return only to the recorded compatible release. |
 
+## Conditional fresh-install example
+
+For an unmodified Backendbase project, `deploy-release.sh --fresh-install` supports the current rollback-unsafe release on an empty MySQL database.
+The option follows the three required archive, checksum, and environment arguments.
+The procedure requires no active deployment and mandatory maintenance, backup, and activation hooks.
+The database guard rejects existing tables, views, routines, and events before migration metadata is created.
+Normal updates still require a rollback-safe manifest.
+Existing databases require a separate conversion and migration-history adoption plan.
+
+Adapt this pattern only after identifying the target database, migration behavior, maintenance controls, and recovery authority.
+Do not copy Backendbase command paths, arguments, or hook names into a differently structured target.
+The example does not authorize a shared-target deployment.
+
 ## Release manifest
 
 Use a small machine-readable manifest with these roles:

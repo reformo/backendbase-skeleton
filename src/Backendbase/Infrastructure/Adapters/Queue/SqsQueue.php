@@ -139,14 +139,10 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
 
     private function normalizeSqsWaitTimeSeconds(float|int $waitTimeSeconds): int
     {
-        if ($waitTimeSeconds <= 0) {
-            return 0;
-        }
-
         if ($waitTimeSeconds >= 20) {
             return 20;
         }
 
-        return (int) floor($waitTimeSeconds);
+        return $waitTimeSeconds > 0 ? (int) floor($waitTimeSeconds) : 0;
     }
 }

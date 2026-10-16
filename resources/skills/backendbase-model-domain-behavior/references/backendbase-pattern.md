@@ -59,7 +59,8 @@ The class and state object are illustrative. Preserve the target project's estab
 - It stores internal state in a PHPStan-shaped array and returns a typed `EntrySnapshot` for adapters. It does not extend `Backendbase\Shared\Domain\Aggregate`.
 - The shared `Aggregate` event-recording API is exercised by test helpers, not by the production Example aggregate.
 - No automatic dispatcher drains `Aggregate::getRecordedEvents()` in the current production flow.
-- Example timestamps and soft removal describe that sample model, not every future domain.
+- In an unmodified Backendbase project, Entry create, change, and remove require explicit DateTimeImmutable instants. EntryWrites reads the injected UTC clock during the write transaction. Reconstitution retains persisted times.
+- Adapt the clock, timestamp names, and write coordinator to the target. Example timestamps and soft removal describe that sample model, not every future domain.
 
 ## Verification map
 

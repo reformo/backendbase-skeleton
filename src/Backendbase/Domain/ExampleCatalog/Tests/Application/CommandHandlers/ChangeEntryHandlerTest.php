@@ -5,21 +5,29 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleCatalog\Tests\Application\CommandHandlers;
 
 use Backendbase\Domain\ExampleCatalog\Application\CommandHandlers\ChangeEntryHandler;
+use Backendbase\Domain\ExampleCatalog\Application\EntryEventTransaction;
+use Backendbase\Domain\ExampleCatalog\Application\EntryWrites;
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
 use Backendbase\Domain\ExampleCatalog\Contracts\EntryWriteRepository;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryChanged;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Shared\Domain\DomainEventPublisher;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
+use DateInterval;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Time\FrozenClock;
 
 final class ChangeEntryHandlerTest extends TestCase
 {
     #[Test]
     public function itResolvesTheWriteTargetInsideTheIntegrationTransaction(): void
     {
+        $now        = new DateTimeImmutable('2026-10-16T11:00:00.654321Z');
+        $clock      = new FrozenClock(new DateTimeImmutable('2026-10-16T10:00:00.654321Z'));
         $calls      = [];
         $identity   = new EntryIdentity(EntryType::SYSTEM, null, 'settings', 'page-size');
         $entry      = Entry::create(
@@ -31,22 +39,25 @@ final class ChangeEntryHandlerTest extends TestCase
             'page-size',
             '25',
             [],
+            new DateTimeImmutable('2026-10-16T10:00:00.123456Z'),
         );
         $repository = $this->createMock(EntryWriteRepository::class);
         $repository->expects(self::once())
             ->method('getActiveByIdentity')
             ->with($identity)
-            ->willReturnCallback(static function (EntryIdentity $_identity) use (&$calls, $entry): Entry {
+            ->willReturnCallback(static function (EntryIdentity $_identity) use (&$calls, $entry, $clock): Entry {
                 $calls[] = 'lookup';
+                $clock->advance(new DateInterval('PT1H'));
 
                 return $entry;
             });
         $repository->expects(self::once())
             ->method('save')
             ->with($entry)
-            ->willReturnCallback(static function (Entry $changedEntry) use (&$calls): void {
+            ->willReturnCallback(static function (Entry $changedEntry) use (&$calls, $now): void {
                 $state = $changedEntry->snapshot();
                 self::assertSame('50', $state->lookupValue());
+                self::assertEquals($now, $state->updatedAt());
                 $calls[] = 'save';
             });
         $transaction = $this->createMock(IntegrationEventTransaction::class);
@@ -62,7 +73,7 @@ final class ChangeEntryHandlerTest extends TestCase
         $command = new ChangeEntry($identity);
         $command->setValue('50');
 
-        $handler = new ChangeEntryHandler($repository, $transaction);
+        $handler = new ChangeEntryHandler(new EntryWrites($repository, $clock), new EntryEventTransaction($transaction, $this->createStub(DomainEventPublisher::class)));
         $handler->handle($command);
 
         self::assertSame(['transaction-start', 'lookup', 'save', 'transaction-end'], $calls);

@@ -489,58 +489,48 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="hero">
     <div class="hero-inner">
-        <p class="eyebrow">Backendbase Core · Architecture assessment · September 24, 2026</p>
+        <p class="eyebrow">Backendbase Core · Architecture assessment · 16 October 2026</p>
         <h1>Ports and Adapters Architecture Critique</h1>
-        <p class="lede">A balanced strengths and weaknesses report based on the documented dependency direction, port ownership, adapter boundaries, framework isolation, and executable architecture rules.</p>
+        <p class="lede">A source assessment of dependency direction, contract ownership, domain encapsulation, adapter classification, and change cost in the completed working tree based on <code>df29f9c</code>.</p>
         <div class="chips" aria-label="Report summary">
-            <span class="chip">Source review: 24 September 2026</span>
-            <span class="chip">Strong dependency direction</span>
             <span class="chip">8 strengths</span>
-            <span class="chip">1 weakness</span>
-            <span class="chip">19/19 architecture tests passed</span>
+            <span class="chip">4 scoped findings resolved</span>
+            <span class="chip">27 architecture tests passed</span>
+            <span class="chip">All adapters have explicit ownership</span>
             <span class="chip">PHPStan level 8 passed</span>
             <span class="chip">Complexity ≤ 12 passed</span>
         </div>
     </div>
 </header>
-
 <div class="layout">
     <nav aria-label="Table of contents">
         <strong>Contents</strong>
-        <a href="#verdict">1. Executive verdict</a>
+        <a href="#verdict">1. Verdict</a>
         <a href="#dependency-map">2. Dependency map</a>
-        <a href="#scorecard">3. Assessment scorecard</a>
+        <a href="#scorecard">3. Assessment</a>
         <a href="#weaknesses">4. Weaknesses</a>
         <a href="#strengths">5. Strengths</a>
         <a href="#roadmap">6. Recommended order</a>
         <a href="#verification">7. Verification and scope</a>
     </nav>
-
     <main id="main-content">
-        <div class="callout"><strong>Historical assessment:</strong> Identity and account findings retain their dated scope. Removed source links use revision <code>07f73de</code>. The current API uses API-key protection; see <a href="8-authentication-and-authorization.html">the current security guide</a>.</div>
+        <div class="callout"><strong>Current source assessment:</strong> This review replaces the 24 September account findings. The <a href="code-quality-and-maintainability-report.html">engineering report</a> separates current execution, recorded coverage, and operational acceptance.</div>
         <section id="verdict">
-            <p class="section-label">01 · Executive verdict</p>
-            <h2>The architecture is strong, pragmatic, and not strictly hexagonal</h2>
-            <div class="callout warning">
-                <strong>Most accurate description:</strong> The project combines modular Domain-Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and strong Ports and Adapters controls. It accepts several internal coupling tradeoffs.
-            </div>
-            <div class="callout good">
-                <strong>Primary strength:</strong> Business code depends on project-owned ports. Framework and vendor code remain in adapters or composition roots. Architecture tests enforce these rules.
-            </div>
-            <p>The strongest boundaries are persistence, messaging, identity ports, framework-free business logic, independent command and query contracts, and framework-free <code>Shared</code> contracts. Messaging decisions use an injected UTC clock. Audit timestamps retain the static date helper.</p>
-            <p><code>Infrastructure/Inbound</code> now groups consumer-specific API entry code. Operational console commands live under <code>Infrastructure/Adapters/Console</code>. Reusable HTTP support remains under <code>Infrastructure/Adapters/Http</code>.</p>
-            <p>The account lifecycle preserves the dependency direction. HTTP controllers call account commands and a query. Their handlers depend on account read, write, authentication, token, and authorization-state ports. Doctrine, Redis, and JSON Web Token (JWT) code remain adapter details.</p>
-            <p>The Identity and Access context owns its adapter bindings. Authentication and account changes use the same account-row transaction. Revision and retirement revoke authorization before persistence changes while holding that lock. Bearer middleware remains an inbound HTTP adapter.</p>
-            <p>Registry mappings keep command and query contracts independent of their handlers. Shared contracts do not import frameworks. The lazy Redis proxy and MiniStack configuration remain in composition and adapter code.</p>
-            <p>The remaining weakness does not require a large rewrite. Apply a small change when the affected area next changes.</p>
+            <p class="section-label">01 · Verdict</p>
+            <h2>Direction coverage and authentication encapsulation are improved</h2>
+            <div class="callout good"><strong>Preserve the design:</strong> Domain and application code depend on project-owned contracts. Context service providers select adapters and handlers. Shared contracts remain framework-free.</div>
+            <p>The repository combines Domain-Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and Ports and Adapters. Its two contexts are ExampleCatalog and IdentityAndAccess.</p>
+            <p>Three consumer APIs use these contexts. ExampleApi uses API-key protection. UserApi and SystemAdminApi use separate JWT realms and current database/session checks.</p>
+            <p>Current architecture tests passed 27 tests and 130 assertions. All adapters have explicit ownership. Unknown categories and forbidden dependencies fail regression fixtures.</p>
+            <p>Account and Actor own login and session decisions. The selected forwarding layers are simplified. Example audit operations now receive explicit clock instants. Other workflow snapshots remain a design cost.</p>
+            <p>The expanded checks found no forbidden direction dependency. Shared diagnostics have explicit technical ownership and a separate dependency rule.</p>
             <div class="metrics" aria-label="Summary metrics">
                 <div class="stat"><strong>8</strong><span>Strengths to preserve</span></div>
-                <div class="stat"><strong>1</strong><span>Weakness to manage</span></div>
-                <div class="stat"><strong>19/19</strong><span>Architecture tests passed</span></div>
-                <div class="stat"><strong>0</strong><span>High-priority boundary defects</span></div>
+                <div class="stat"><strong>4</strong><span>Scoped findings resolved</span></div>
+                <div class="stat"><strong>27</strong><span>Architecture tests passed</span></div>
+                <div class="stat"><strong>0</strong><span>Unclassified adapters</span></div>
             </div>
         </section>
-
         <section id="dependency-map">
             <p class="section-label">02 · Dependency map</p>
             <h2>The main dependency direction is correct</h2>
@@ -559,150 +549,132 @@
                     </div>
                     <div class="leak-grid" aria-label="Observed strengths and weaknesses">
                         <div class="leak resolved"><strong>Strength: dependency inversion</strong><br>Application services use repository, messaging, token, authorization-state, and transaction ports.</div>
-                        <div class="leak resolved"><strong>Strength: adapter parity</strong><br>Example and account memory and Doctrine repositories share behavioral contract suites.</div>
+                        <div class="leak resolved"><strong>Strength: adapter parity</strong><br>Example memory and Doctrine repositories share behavioral contract suites. Identity tests use production mapping metadata.</div>
                         <div class="leak resolved"><strong>Strength: executable rules</strong><br>Architecture tests protect core, adapter, context, and composition boundaries.</div>
                         <div class="leak resolved"><strong>Strength: independent contracts</strong><br>Commands and queries use context registry mappings without handler attributes.</div>
                         <div class="leak resolved"><strong>Strength: typed aggregate snapshot</strong><br>The Doctrine mapper reads typed <code>EntrySnapshot</code> methods.</div>
                         <div class="leak resolved"><strong>Strength: clear Shared ownership</strong><br>Shared contracts stay framework-free. Framework support belongs to Infrastructure.</div>
                     </div>
                 </div>
-                <figcaption>The flow shows the effective dependency rule. The <a href="ports-and-adapters-map.html">interactive architecture map</a> records revision <code>512267f</code>, including registry dispatch, Shared isolation, inbound adapters, and Infrastructure messaging coordination.</figcaption>
+                <figcaption>The flow shows the dependency rule. The <a href="ports-and-adapters-map.html">interactive architecture map</a> retains its 28 September snapshot at <code>512267f</code>. Use current contracts and service providers for the expanded identity flows.</figcaption>
             </figure>
         </section>
 
         <section id="scorecard">
-            <p class="section-label">03 · Assessment scorecard</p>
-            <h2>Seven areas are strong and one needs active ownership</h2>
-            <div class="table-wrap responsive-table-wrap" tabindex="0" aria-label="Ports and Adapters scorecard">
+            <p class="section-label">03 · Assessment</p>
+            <h2>Separate dependency direction from domain encapsulation</h2>
+            <div class="table-wrap responsive-table-wrap" tabindex="0" aria-label="Architecture assessment">
                 <table class="responsive-table scorecard-table">
-                    <caption class="sr-only">Ports and Adapters assessment scorecard</caption>
-                    <thead>
-                    <tr><th scope="col">Area</th><th scope="col">Status</th><th scope="col">Assessment</th></tr>
-                    </thead>
+                    <caption class="sr-only">Ports and Adapters assessment</caption>
+                    <thead><tr><th scope="col">Area</th><th scope="col">Status</th><th scope="col">Assessment</th></tr></thead>
                     <tbody>
-                    <tr><td>Dependency inversion</td><td><span class="badge strong">Strong</span></td><td>Application handlers and authentication services use project-owned repository, transaction, messaging, token, and authorization-state ports.</td></tr>
-                    <tr><td>Domain/framework isolation</td><td><span class="badge strong">Strong</span></td><td>The domain core does not import HTTP, Doctrine, container, queue, or application implementation code.</td></tr>
-                    <tr><td>Adapter replaceability</td><td><span class="badge strong">Strong</span></td><td>Doctrine and memory adapters implement the same Example and Account repository ports and pass shared behavior suites.</td></tr>
-                    <tr><td>Architecture enforcement</td><td><span class="badge strong">Strong</span></td><td>Tests cover core direction, context isolation, both adapter directions, identity port isolation, attributes, Shared rules, and connection construction.</td></tr>
-                    <tr><td>Inbound contract independence</td><td><span class="badge strong">Strong</span></td><td>Commands and queries have no handler imports or attributes. Context registries provide every current handler mapping.</td></tr>
-                    <tr><td>Aggregate persistence boundary</td><td><span class="badge strong">Strong</span></td><td>The aggregate has no Doctrine attributes. Its <code>snapshot()</code> method returns a typed <code>EntrySnapshot</code>.</td></tr>
-                    <tr><td>Shared ownership boundary</td><td><span class="badge strong">Strong</span></td><td><code>Shared</code> contains framework-free contracts and values. Framework support is under <code>Infrastructure</code>, and one test checks all Shared imports.</td></tr>
-                    <tr><td>External time boundary</td><td><span class="badge partial">Partial</span></td><td>Messaging decisions use a UTC clock port. Aggregate and event audit timestamps still use the static date helper.</td></tr>
+                    <tr><td>Dependency inversion</td><td><span class="badge strong">Strong</span></td><td>Application services depend on repository, transaction, authentication, verification, and notification ports.</td></tr>
+                    <tr><td>Framework isolation</td><td><span class="badge strong">Strong</span></td><td>Business and Shared layers pass parsed-symbol dependency rules. Vendor construction remains a composition concern.</td></tr>
+                    <tr><td>Contract ownership</td><td><span class="badge strong">Strong</span></td><td>Context registries map commands and queries without handler attributes in contracts. The production container resolves every mapping.</td></tr>
+                    <tr><td>Persistence verification</td><td><span class="badge strong">Strong</span></td><td>Example adapters share behavioral contracts. Identity tests check production Doctrine metadata, failure paths, locks, revisions, and projections.</td></tr>
+                    <tr><td>Direction enforcement</td><td><span class="badge strong">Complete ownership</span></td><td>Console is inbound. Notification and ReadModel are outbound. Infrastructure port adapters and shared technical diagnostics have explicit ownership.</td></tr>
+                    <tr><td>Domain encapsulation</td><td><span class="badge partial">Partial</span></td><td>Authentication paths use Account and Actor behavior. Other identity workflows retain snapshot use. ExampleCatalog returns a typed EntrySnapshot.</td></tr>
+                    <tr><td>Application navigation</td><td><span class="badge strong">Reviewed paths simplified</span></td><td>Credential paths have fewer forwarding steps. Registration and contact completion own coordinated behavior. One password-hash bridge remains.</td></tr>
+                    <tr><td>Time inputs</td><td><span class="badge strong">Audit instants explicit</span></td><td>Example Entry mutations receive explicit instants from EntryWrites. Messaging and identity deadlines retain their clock boundaries. Event occurrence time remains a separate limitation.</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
         <section id="weaknesses">
             <p class="section-label">04 · Weaknesses</p>
-            <h2>The remaining cost is a structural tradeoff</h2>
-            <div class="callout warning">
-                <strong>Interpretation:</strong> This finding does not invalidate the architecture. It identifies coupling that can increase change cost or weaken the clarity of a port boundary.
-            </div>
+            <h2>Track completed fixes and remaining design costs</h2>
             <div class="findings">
                 <article class="finding">
-                    <div><span class="badge">Low · 01</span></div>
-                    <div>
-                        <h3>Audit timestamps retain static time access</h3>
-                        <p>The Example and Account aggregates and integration events use the date helper for audit timestamps. It defaults to UTC and supports explicit time zones.</p>
-                        <p>Messaging availability, retries, claims, age checks, and retention now use <code>Shared/Time/Clock</code>. Tests can supply exact instants. Remaining static audit timestamps cannot be frozen through this port. The logger independently enforces UTC in its factory.</p>
-                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Shared/Helpers/DateTimeImmutable.php"><code>Shared/Helpers/DateTimeImmutable.php</code></a>, <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php"><code>Entry.php</code></a>, <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Domain/Account.php"><code>Account.php</code></a>, and <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>.</p>
+                    <div><span class="badge strong">Resolved · A1</span></div>
+                    <div><h3>All adapters have explicit direction or technical ownership</h3>
+                        <p>AdapterDependencies now includes context Console as inbound and Notification and ReadModel as outbound. Eleven additional infrastructure port adapters are classified.</p>
+                        <p>IdentityOperator, LocalOperatorAuthority, ContactNotification, DoctrineIdentityReadRepository, and RequestIdentityResults now participate in direction checks.</p>
+                        <p>Classification tests require every adapter to have one direction or explicit technical ownership. Shared diagnostics cannot depend on Domain or Infrastructure.</p>
+                        <p class="evidence">Evidence: <a href="../../tests/Architecture/Support/AdapterDependencies.php">AdapterDependencies.php</a>, <a href="../../tests/Architecture/InboundAdapterDependencyBoundaryTest.php">inbound direction test</a>, and <a href="../../tests/Architecture/OutboundAdapterDependencyBoundaryTest.php">outbound direction test</a>. <a href="../../tests/Architecture/Adapters/AdapterClassificationTest.php">Classification fixtures</a> reject unknown categories and forbidden dependencies.</p>
                     </div>
-                    <div class="action"><strong>Recommended action</strong>Use the UTC clock or an explicit timestamp when new aggregate behavior depends on time. Keep explicit time-zone support for date construction.</div>
+                    <div class="action"><strong>Completed</strong>Membership and forbidden-direction fixtures passed. The complete architecture suite passed 27 tests and 130 assertions.</div>
                 </article>
-
+                <article class="finding">
+                    <div><span class="badge strong">Resolved · A2</span></div>
+                    <div><h3>Authentication decisions moved onto domain objects</h3>
+                        <p>LoginWorkflow now requests a Principal from Account.startSession. AuthenticationGate delegates actor membership and realm checks to Actor.assertSessionIdentity.</p>
+                        <p>The changed paths no longer inspect aggregate snapshot keys. Account and Actor enforce eligibility, membership, and realm rules. Persistence shapes remain unchanged.</p>
+                        <p>Other identity workflows still use array snapshots. Further changes should preserve persistence transfer while placing business decisions on domain behavior.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/Workflows/LoginWorkflow.php">LoginWorkflow.php</a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/AuthenticationGate.php">AuthenticationGate.php</a>, and <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Identity/Actor.php">Actor.php</a>. <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/EntrySnapshot.php">EntrySnapshot.php</a> supplies an existing typed-transfer example.</p>
+                    </div>
+                    <div class="action"><strong>Completed</strong>Membership, realm, approval, closure, version, password, login, repository, and container checks passed. Native service cases ran without skips.</div>
+                </article>
+                <article class="finding">
+                    <div><span class="badge strong">Resolved · A3</span></div>
+                    <div><h3>The selected forwarding paths are simplified</h3>
+                        <p>LoginWorkflow and ContactAuthorizer now call Credentials directly. RegistrationCompletion creates identities and consumes proofs inside the workflow transaction. ContactCompletion records results after ContactDelivery finishes verification and delivery.</p>
+                        <p>The reviewed facades contained nine pass-through methods. Their replacements retain one password-hash bridge. The contact path uses one fewer coordination class. Developer navigation time was not measured.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/Workflows/LoginWorkflow.php">LoginWorkflow</a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Application/Registration/RegistrationCompletion.php">RegistrationCompletion</a>, and <a href="code-quality-and-maintainability-report.html#cleanup-evidence">before and after call paths</a>.</p>
+                    </div>
+                    <div class="action"><strong>Completed</strong>Transaction, expiry, credential, contact-delivery, and HTTP contract regressions pass. Changed production classes retain at most two instance properties.</div>
+                </article>
+                <article class="finding">
+                    <div><span class="badge strong">Resolved · A4</span></div>
+                    <div><h3>Example audit operations receive explicit instants</h3>
+                        <p>Entry creation, change, and removal receive DateTimeImmutable arguments. EntryWrites reads the injected clock during transactional work and after update lookups.</p>
+                        <p>Fixed-time regressions check exact microseconds, unchanged creation time, and equal removal/update times. Reconstitution and repository round trips preserve the supplied instants.</p>
+                        <p class="evidence">Evidence: <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Entry.php</a>, <a href="../../src/Backendbase/Domain/IdentityAndAccess/Domain/Identity/Account.php">Account.php</a>, and <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php">OutboxRelayService.php</a>.</p>
+                    </div>
+                    <div class="action"><strong>Completed</strong>Domain, handler, repository, lifecycle, architecture, and service checks pass. The shared event trait still obtains occurrence time separately.</div>
+                </article>
             </div>
         </section>
-
         <section id="strengths">
             <p class="section-label">05 · Strengths</p>
-            <h2>Preserve the boundaries that already reduce change risk</h2>
+            <h2>Preserve effective boundaries</h2>
             <div class="grid-3">
-                <article class="card">
-                    <h3>Inward dependency direction</h3>
-                    <p>Application and domain code do not depend on Infrastructure or adapter implementations.</p>
-                </article>
-                <article class="card">
-                    <h3>Context-owned ports</h3>
-                    <p>Example and account repository, authentication, token, and authorization-state contracts belong to their contexts. Application services do not depend on Doctrine, Redis, or JWT adapters.</p>
-                </article>
-                <article class="card">
-                    <h3>Framework-free domain</h3>
-                    <p>The aggregates have no HTTP, container, queue, or Object-Relational Mapping (ORM) imports.</p>
-                </article>
-                <article class="card">
-                    <h3>Behavioral adapter parity</h3>
-                    <p>Doctrine and memory repositories pass shared Example and Account contract suites for results, ordering, uniqueness, removal, and replacement.</p>
-                </article>
-                <article class="card">
-                    <h3>Infrastructure messaging coordination</h3>
-                    <p><code>Infrastructure/Messaging</code> owns technical relay, retry, and failure decisions through Shared ports. A dedicated architecture test prevents concrete adapter, framework, and business-context dependencies. The integration transaction runs local subscribers and appends queued events before commit. Persistence adapters apply supplied state changes.</p>
-                </article>
-                <article class="card">
-                    <h3>Executable architecture rules</h3>
-                    <p>Focused tests detect core, context, adapter, metadata, Shared, and vendor-connection boundary drift. Lazy connections remain a composition concern.</p>
-                </article>
-                <article class="card">
-                    <h3>Clear Shared ownership</h3>
-                    <p>Framework support lives in Infrastructure. The Shared framework test checks every Shared source file without directory exceptions.</p>
-                </article>
-                <article class="card">
-                    <h3>Independent CQRS contracts</h3>
-                    <p>Commands and queries carry use-case data without importing handlers. Registry mappings own handler selection.</p>
-                </article>
+                <article class="card"><h3>Inward dependencies</h3><p>Domain and application code pass framework and concrete-adapter dependency checks. Shared code passes its independent framework and layer checks.</p></article>
+                <article class="card"><h3>Context-owned contracts</h3><p>Repository, credential, token, contact, verification, and operator ports belong to IdentityAndAccess. ExampleCatalog owns its repository and event contracts.</p></article>
+                <article class="card"><h3>Independent CQRS contracts</h3><p>Command and query contracts carry use-case input. Context service providers own handler selection. Registry tests check production resolution.</p></article>
+                <article class="card"><h3>Separate persistence records</h3><p>Domain aggregates have no Doctrine mapping. Each Doctrine entity declares its mapped fields directly. Mapping tests protect this rule.</p></article>
+                <article class="card"><h3>Behavioral repository checks</h3><p>Example memory and Doctrine adapters share a contract suite. Identity fixtures use production metadata and targeted persistence regressions.</p></article>
+                <article class="card"><h3>Technical messaging ownership</h3><p>Infrastructure/Messaging coordinates relay, retry, claims, and failures through Shared ports. Its dedicated dependency rule excludes concrete adapters and business contexts.</p></article>
+                <article class="card"><h3>Explicit transaction completion</h3><p>Integration transactions flush before commit. Failed units clear managed state. Identity retry opens a fresh persistence session with bounded attempts.</p></article>
+                <article class="card"><h3>Explicit time decisions</h3><p>Injected UTC clocks and explicit instants make Example audit changes and messaging and identity deadlines deterministic. Shared event occurrence time remains a separate limitation.</p></article>
             </div>
-            <p class="evidence">Example evidence: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php"><code>AddEntryHandler.php</code></a>, <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Application/CommandHandlers/RegisterAccountHandler.php"><code>RegisterAccountHandler.php</code></a>, <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Contracts/AccountWriteRepository.php"><code>AccountWriteRepository.php</code></a>, <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Memory/MemoryAccountRepository.php"><code>MemoryAccountRepository.php</code></a>, <a href="https://github.com/reformo/backendbase-skeleton/blob/07f73de587486a3019886167f0687fc9a0de0c8f/src/Backendbase/Domain/IdentityAndAccess/Tests/Adapters/Persistence/AccountRepositoryContract.php"><code>AccountRepositoryContract.php</code></a>, <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRelayService.php"><code>OutboxRelayService.php</code></a>, and <a href="../../tests/Architecture/AdapterDirectionTest.php"><code>AdapterDirectionTest.php</code></a>.</p>
+            <p class="evidence">Sources: <a href="../../src/Backendbase/Domain/IdentityAndAccess/ServiceProvider.php">IdentityAndAccess ServiceProvider</a>, <a href="../../tests/Architecture/RegistryHandlerBoundaryTest.php">registry tests</a>, <a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/Mapping/EntityFieldOwnershipTest.php">entity field ownership</a>, and <a href="../../tests/Architecture/MessagingDependencyBoundaryTest.php">messaging boundary</a>.</p>
         </section>
-
         <section id="roadmap">
             <p class="section-label">06 · Recommended order</p>
-            <h2>Reduce coupling without adding more architecture</h2>
+            <h2>Make each improvement independently verifiable</h2>
             <ol class="steps">
-                <li><strong>First — preserve Shared ownership.</strong> Keep framework support in Infrastructure and new Shared types framework-free.</li>
-                <li><strong>Next — preserve contract independence.</strong> Map new commands and queries in their owning context service providers.</li>
-                <li><strong>Preserve explicit time inputs.</strong> Messaging policies now use the UTC clock. Supply an instant when new aggregate behavior depends on time.</li>
+                <li>Completed: adapter classification and direction-test fixtures.</li>
+                <li>Completed: login and session decisions now use domain methods.</li>
+                <li>Completed: selected credential, registration, and contact forwarding paths are simplified.</li>
+                <li>Completed: Example audit mutations receive explicit clock instants.</li>
             </ol>
-            <div class="callout warning">
-                <strong>Do not perform a broad rewrite.</strong> The current dependency direction is effective. Make each improvement through a focused change with a regression test.
-            </div>
+            <p>Keep context-owned composition, contract independence, Shared isolation, transaction behavior, and current API contracts intact throughout these changes.</p>
+            <p>Follow the <a href="code-quality-and-maintainability-report.html#recommendations">prioritized plan toward 9/10</a> for execution dependencies and completion evidence. The required fixes and selected cleanup are complete. The <a href="code-quality-and-maintainability-report.html#scorecard">9.2/10 scorecard</a> records remaining deductions.</p>
         </section>
-
         <section id="verification">
             <p class="section-label">07 · Verification and scope</p>
-            <h2>Current checks support the assessment</h2>
+            <h2>Current execution and source inspection support different claims</h2>
             <div class="table-wrap responsive-table-wrap" tabindex="0" aria-label="Architecture verification results">
                 <table class="responsive-table verification-table">
-                    <caption class="sr-only">Verification commands and results</caption>
-                    <thead>
-                    <tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Description</th></tr>
-                    </thead>
+                    <caption class="sr-only">Verification results for the working tree based on df29f9c on 16 October 2026</caption>
+                    <thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Description</th></tr></thead>
                     <tbody>
-                    <tr><td>Architecture subset of <code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>19 tests and 84 assertions passed. This includes Application, all Shared files, complete CQRS registry mappings, listener targets, both adapter directions, Identity ports, context isolation, and vendor connection construction.</td></tr>
-                    <tr><td><code>composer test</code></td><td><span class="badge strong">Passed</span></td><td>553 tests and 2,016 assertions passed. The suite covered 4,516 of 4,516 executable lines.</td></tr>
-                    <tr><td><code>composer phpstan -- --no-progress</code></td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8 found no errors across the configured application, test, tool, and database-delivery scope.</td></tr>
-                    <tr><td><code>composer complexity</code> and <code>composer cs-check</code></td><td><span class="badge strong">Passed</span></td><td>All 562 configured PHP files stayed at cyclomatic complexity 12 or less and passed the Doctrine coding standard.</td></tr>
-                    <tr><td>Dependency and source scan</td><td><span class="badge strong">Completed</span></td><td>Revision <code>2bd6922</code> contains 334 production PHP files, 119 Shared PHP files, and 14 architecture test classes.</td></tr>
-                    <tr><td>Interactive architecture map</td><td><span class="badge">Source snapshot</span></td><td>The linked map records source revision <code>512267f</code> from 28 September. Its source links reflect registry dispatch, Shared isolation, inbound adapters, and Infrastructure messaging coordination. This map update does not renew the test evidence above.</td></tr>
-                    <tr><td>Recent delivery controls</td><td><span class="badge strong">No direction change</span></td><td>The Composer supply-chain checker, evidence files, and release-manifest verification remain in tooling and deployment boundaries.</td></tr>
-                    <tr><td>Recent production composition</td><td><span class="badge strong">Boundary preserved</span></td><td>The Identity and Access service provider owns its Doctrine, Redis authorization-state, and JWT bindings. Global dependency files keep platform and vendor connection concerns.</td></tr>
-                    <tr><td>Recent account lifecycle</td><td><span class="badge strong">Boundary preserved</span></td><td>Protected account controllers use commands and a query. Handlers use read, write, authentication, and authorization-state ports. Doctrine, Redis, and JWT remain adapters.</td></tr>
+                    <tr><td>Architecture tests in the local suite</td><td><span class="badge strong">Passed</span></td><td>27 tests and 130 assertions. Tests cover the configured dependency, registry, listener, Shared, context, messaging, and construction rules.</td></tr>
+                    <tr><td>Adapter ownership</td><td><span class="badge strong">Passed</span></td><td>No unclassified adapters. Unknown categories, overlapping direction sets, and forbidden dependency fixtures are checked.</td></tr>
+                    <tr><td>Full service suite</td><td><span class="badge strong">Passed</span></td><td>998 tests; 22,653 assertions; no skips. All 5,978 executable lines were covered. Disposable MySQL, Redis, and Sentinel services were used.</td></tr>
+                    <tr><td>PHPStan level 8</td><td><span class="badge strong">Passed</span></td><td>No errors across configured production, test, configuration, entry-point, tool, and database paths.</td></tr>
+                    <tr><td>Complexity and coding standard</td><td><span class="badge strong">Passed</span></td><td>802 configured PHP files passed. Cyclomatic complexity remains ≤ 12. These commands do not establish compliance with every object-design rule.</td></tr>
+                    <tr><td>Source inventory</td><td><span class="badge strong">Inspected</span></td><td>459 production PHP files, 127 Shared PHP files, 228 *Test.php files, and 15 architecture test files. Module test directories are excluded from production counts.</td></tr>
+                    <tr><td>Interactive map</td><td><span class="badge">Earlier snapshot</span></td><td>The map retains revision 512267f from 28 September. This assessment does not refresh its nodes or claim current identity coverage.</td></tr>
+                    <tr><td>Runtime and deployment acceptance</td><td><span class="badge">Separate evidence</span></td><td>Native service and local HTTP checks passed. Live providers, production traffic, performance, and server-specific hooks remain unverified. See the engineering report's verification ledger.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <div class="grid-2">
-                <aside class="callout">
-                    <strong>Test interpretation</strong>
-                    <p>Passing tests prove the encoded rules. They do not prove that every architectural tradeoff is desirable.</p>
-                </aside>
-                <aside class="callout">
-                    <strong>Scope limit</strong>
-                    <p>The review did not include live traffic, production incident records, runtime performance, external service calls, or penetration testing.</p>
-                </aside>
-            </div>
+            <p>The source baseline was <code>df29f9c1c3748444dc4f5b2345d35a38cbe82189</code>. Verification includes the implemented domain, architecture, deployment, and security changes.</p>
+            <p>See <a href="code-quality-and-maintainability-report.html#scope">the command list and assessment scope</a> for execution details. Static checks cannot establish runtime durability or provider behavior.</p>
         </section>
     </main>
 </div>
-
-<footer>Backendbase Core · Ports and Adapters Architecture Critique · September 24, 2026</footer>
+<footer>Backendbase Core · Ports and Adapters Architecture Critique · 16 October 2026 · Working tree based on df29f9c</footer>
 </body>
 </html>

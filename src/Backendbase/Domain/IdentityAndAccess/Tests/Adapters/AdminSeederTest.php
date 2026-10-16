@@ -37,10 +37,10 @@ final class AdminSeederTest extends TestCase
         self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM contact_info'));
         self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
         self::assertSame(['normalized_email' => AdminSeeder::EMAIL, 'normalized_mobile' => AdminSeeder::MOBILE, 'first_name' => 'Mehmet', 'last_name' => 'Korkmaz'], $connection->fetchAssociative('SELECT normalized_email, normalized_mobile, first_name, last_name FROM identity_account'));
-        $login       = $container->get(LoginWorkflow::class);
-        [$principal] = $login->authenticate(Realm::ADMIN, new LoginInput(AdminSeeder::EMAIL, 'initial-password-123'));
+        $login     = $container->get(LoginWorkflow::class);
+        $principal = $login->authenticate(Realm::ADMIN, new LoginInput(AdminSeeder::EMAIL, 'initial-password-123'));
         self::assertSame($first['actorId'], $principal->identity()['actorId']);
-        [$mobile] = $login->authenticate(Realm::ADMIN, new LoginInput(AdminSeeder::MOBILE, 'initial-password-123'));
+        $mobile = $login->authenticate(Realm::ADMIN, new LoginInput(AdminSeeder::MOBILE, 'initial-password-123'));
         self::assertSame($first['actorId'], $mobile->identity()['actorId']);
     }
 

@@ -1,0 +1,14 @@
+{
+  "source": "https://semgrep.dev/c/p/default",
+  "retrievedAt": "2026-10-16",
+  "sha256": "b8c20ed4facf9296bdfbd9b26076a7aabcc9dd560a95f164d5c31d3bc44f75b6",
+  "rules": 1074,
+  "scanner": "semgrep/semgrep:1.172.0@sha256:65dcd4408adda7c183a6b4550cb1e9b19f7f627a6fbb7e0559bd466bedc44d7b",
+  "upstreamSha256": "845e46f7b5a30f5d283f8c0d9911decb1ad9cc46c40bdf41a875b76466ad1ccd",
+  "localAdjustments": [
+    {
+      "ruleId": "generic.secrets.security.detected-slack-webhook.detected-slack-webhook",
+      "change": "Replace the literal dummy webhook exclusion with an equivalent pattern-not-regex expression to avoid push-protection false positives."
+    }
+  ]
+}

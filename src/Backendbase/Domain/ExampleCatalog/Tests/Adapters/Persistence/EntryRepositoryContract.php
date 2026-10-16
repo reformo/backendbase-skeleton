@@ -16,6 +16,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\ExampleCatalog\Domain\Exception\EntryAlreadyExists;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Primitives\Pagination;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\Uuid;
 
@@ -79,7 +80,7 @@ trait EntryRepositoryContract
         $identity = new EntryIdentity(EntryType::SYSTEM, null, 'settings', 'first');
         $entry    = $this->writeRepository()->getActiveByIdentity($identity);
         self::assertSame($entryId, $entry->id());
-        $entry->change(false, 'changed', ['changed' => true]);
+        $entry->change(false, 'changed', ['changed' => true], new DateTimeImmutable('2026-10-16T11:00:00.234567Z'));
         $this->writeRepository()->save($entry);
 
         $details = $this->readRepository()->getEntryByCriteria(
@@ -89,9 +90,11 @@ trait EntryRepositoryContract
         self::assertSame('changed', $details->lookupValue());
         self::assertFalse($details->isActive());
         self::assertSame(['changed' => true], $details->details());
+        self::assertEquals(new DateTimeImmutable('2026-10-16T10:00:00.123456Z'), $details->createdAt());
+        self::assertEquals(new DateTimeImmutable('2026-10-16T11:00:00.234567Z'), $details->updatedAt());
 
         $entry = $this->writeRepository()->getActive($entryId);
-        $entry->remove();
+        $entry->remove(new DateTimeImmutable('2026-10-16T12:00:00.345678Z'));
         $this->writeRepository()->save($entry);
         self::assertNull($this->readRepository()->getEntryIdByCriteria(
             new GetEntryIdByCriteria(EntryType::SYSTEM, null, 'settings', 'first'),
@@ -117,7 +120,7 @@ trait EntryRepositoryContract
         $secondEntryId = Uuid::uuid7()->toString();
         $this->addEntry($firstEntryId, 'settings', 'first', 'one');
         $entry = $this->writeRepository()->getActive($firstEntryId);
-        $entry->remove();
+        $entry->remove(new DateTimeImmutable('2026-10-16T12:00:00.345678Z'));
         $this->writeRepository()->save($entry);
 
         $this->addEntry($secondEntryId, 'settings', 'first', 'replacement');
@@ -144,6 +147,7 @@ trait EntryRepositoryContract
             $key,
             $value,
             ['image' => 'example.png'],
+            new DateTimeImmutable('2026-10-16T10:00:00.123456Z'),
         ));
     }
 }

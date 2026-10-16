@@ -27,9 +27,12 @@ use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Exception\ResourceNotFound;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
 use Backendbase\Shared\Primitives\Pagination;
+use Backendbase\Shared\Time\Clock;
+use DateTimeImmutable;
 use DI\Container;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Tests\Support\Time\FrozenClock;
 
 final class EntryLifecycleTest extends TestCase
 {
@@ -164,7 +167,8 @@ final class EntryLifecycleTest extends TestCase
     private function container(): Container
     {
         $container = new Container();
-        $store     = new EntryStore();
+        $container->set(Clock::class, new FrozenClock(new DateTimeImmutable('2026-10-16T10:00:00.123456Z')));
+        $store = new EntryStore();
         $container->set(EntryReadRepositoryContract::class, new EntryReadRepository($store));
         $container->set(EntryWriteRepositoryContract::class, new EntryWriteRepository($store));
         $container->set(DomainEventPublisher::class, $this->createStub(DomainEventPublisher::class));

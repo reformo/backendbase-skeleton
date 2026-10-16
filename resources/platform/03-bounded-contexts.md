@@ -19,6 +19,10 @@ Boot discovers `src/Backendbase/Domain/*/ServiceProvider.php` for ports and hand
 `IdentityAndAccess` owns global Accounts, User and SystemAdmin actors, contact verification evidence, password credentials, and realm sessions.
 Use `ExampleCatalog` as the business-module reference. No `Content` context currently exists.
 
+ExampleCatalog Entry creation, change, and removal require explicit DateTimeImmutable instants.
+EntryWrites reads the injected UTC clock during transactional work. Reconstitution preserves stored times.
+EntryEventTransaction coordinates mutation and domain publication through IntegrationEventTransaction.
+
 Keep module-owned tests inside the module. Keep architecture, shared, infrastructure, and API tests under root `tests`.
 
 Communicate across context boundaries with stable contracts. Prefer versioned integration events for asynchronous communication.

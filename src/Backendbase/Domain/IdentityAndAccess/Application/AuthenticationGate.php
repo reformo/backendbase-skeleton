@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Application;
 
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 
@@ -39,11 +38,8 @@ final readonly class AuthenticationGate
         $identity = $principal->identity();
         $account  = $currentStore->account($identity['accountId']);
         $account->assertSessionAllowed($identity['authVersion']);
-        $actor = $currentStore->actor($principal->realm(), $identity['actorId']);
-        $state = $actor->snapshot();
-        $actor->assertSessionAllowed();
-        if ($state['accountId'] !== $identity['accountId']) {
-            throw AuthenticationDenied::create('Authentication is not permitted.');
-        }
+        $realm = $principal->realm();
+        $actor = $currentStore->actor($realm, $identity['actorId']);
+        $actor->assertSessionIdentity($realm, $identity['accountId']);
     }
 }

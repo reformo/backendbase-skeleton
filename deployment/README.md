@@ -62,6 +62,10 @@ Reload PHP and restart queue workers from the active release. Return success onl
 
 ## Deploy
 
+The current rollback-unsafe release requires the [empty-database maintenance procedure](../resources/platform/operations/fresh-installation.md).
+`deploy-release.sh ... --fresh-install` supports only a new deployment with an empty MySQL database and mandatory maintenance hooks.
+Normal updates retain the rollback compatibility guard. Existing databases require a separately reviewed conversion plan.
+
 Copy both workflow files to a server-controlled incoming directory. Then run one command:
 
 ```bash

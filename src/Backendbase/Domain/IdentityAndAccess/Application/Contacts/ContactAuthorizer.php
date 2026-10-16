@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Application\Contacts;
 
-use Backendbase\Domain\IdentityAndAccess\Application\AuthenticationTools;
+use Backendbase\Domain\IdentityAndAccess\Application\Credentials;
 use Backendbase\Domain\IdentityAndAccess\Contracts\ContactStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\Contacts\ContactAttempt;
@@ -16,7 +16,7 @@ use Backendbase\Shared\Exception\InvalidUserInput;
 
 final readonly class ContactAuthorizer
 {
-    public function __construct(private IdentityStore $identities, private AuthenticationTools $tools)
+    public function __construct(private IdentityStore $identities, private Credentials $credentials)
     {
     }
 
@@ -79,9 +79,9 @@ final readonly class ContactAuthorizer
         $account      = $store->account($state['accountId']);
         $accountState = $account->snapshot();
         $account->assertSessionAllowed($accountState['authVersion']);
-        $tools    = $this->tools;
-        $password = $login->password();
-        $tools->assertPassword($state['accountId'], $password);
+        $credentials = $this->credentials;
+        $password    = $login->password();
+        $credentials->assertPassword($state['accountId'], $password);
 
         return $this->authorized($input, $state['accountId'], $actor->id());
     }
