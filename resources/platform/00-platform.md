@@ -19,6 +19,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 
 - `ExampleApi`, `UserApi`, and `SystemAdminApi` are separate consumer APIs.
 - `ExampleCatalog` is the complete business-module reference.
+- `IdentityAndAccess` owns Accounts, actors, contact verification, credentials, and realm sessions.
 - Run project commands from the repository root.
 
 ## Composition roots
@@ -45,6 +46,7 @@ backendbase-core/
 │   ├── openapi-tags.php               # Shared tag-validation functions
 │   ├── composer-supply-chain.php       # SBOM and package-content verification
 │   ├── update-quality-report.php      # Generated quality-report metrics
+│   ├── build-adr-index.mjs             # Embedded ADR documents and parity check
 │   ├── validate-agent-memory.sh       # Local agent-memory structure validation
 │   ├── deployment/                    # Release build, deployment, and rollback scripts
 │   ├── dev/                           # Local maintenance scripts
@@ -53,6 +55,8 @@ backendbase-core/
 │   ├── autoload/                      # Shared runtime configuration
 │   ├── dependencies/                  # Focused PHP-DI definition providers
 │   ├── example-api/                   # ExampleApi configuration
+│   ├── user-api/                      # UserApi configuration
+│   ├── system-admin-api/              # SystemAdminApi configuration
 │   ├── commands.php                   # Console command registration
 │   ├── dependencies.php               # Dependency-provider loader
 │   ├── doctrine-types.php             # Doctrine type registration
@@ -62,25 +66,31 @@ backendbase-core/
 │   └── release.json                   # Migration target and rollback policy
 ├── public/
 │   ├── index.php                      # Shared HTTP bootstrap and API selector
+│   ├── user-api/                      # UserApi front controller and generated docs
+│   ├── system-admin-api/              # SystemAdminApi front controller and generated docs
 │   └── example-api/
 │       ├── index.php                  # ExampleApi front controller
 │       └── docs/                      # Generated and served OpenAPI document
 ├── resources/
 │   ├── api-docs/
 │   │   ├── common/                    # Shared OpenAPI components
-│   │   └── example-api/               # ExampleApi OpenAPI sources
-│   ├── bruno/example-api/             # ExampleApi Bruno collection
+│   │   ├── example-api/               # ExampleApi OpenAPI sources
+│   │   ├── user-api/                  # UserApi OpenAPI sources
+│   │   └── system-admin-api/          # SystemAdminApi OpenAPI sources
+│   ├── bruno/                        # ExampleApi, UserApi, and SystemAdminApi collections
 │   ├── database/
 │   │   ├── Migrations/                # Doctrine migrations
 │   │   └── Seeders/                   # Database seeders
 │   ├── docker/cdn.conf.template       # Nginx file delivery and cache configuration
+│   ├── deployment/systemd/            # Worker services and maintenance timers
+│   ├── dev/message-viewer/            # Local SMS and email viewer
 │   ├── docs/                          # Detailed project guides and reports
 │   ├── i18n/                          # Local translation dictionaries
 │   ├── security/                      # Composer SBOM and reviewed package digests
 │   └── platform/                      # Modular agent context and task routing
 ├── src/Backendbase/
 │   ├── Domain/
-│   │   └── ExampleCatalog/     # Complete bounded-context reference
+│   │   ├── ExampleCatalog/            # Complete bounded-context reference
 │   │   │   ├── Adapters/Persistence/
 │   │   │   │   ├── Doctrine/          # Production read and write adapters
 │   │   │   │   └── Memory/            # In-memory test adapters
@@ -89,12 +99,15 @@ backendbase-core/
 │   │   │   ├── Domain/                # Aggregate, enum, and business rules
 │   │   │   ├── Tests/                 # Module-owned tests
 │   │   │   └── ServiceProvider.php    # Port bindings and subscriber metadata
+│   │   └── IdentityAndAccess/         # Identity behavior, adapters, contracts, and tests
 │   ├── Infrastructure/
 │   │   ├── Adapters/                  # Console, HTTP, mapping, database, queue, and external adapters
 │   │   ├── Health/                    # Dependency readiness checks
 │   │   ├── Messaging/                 # Relay, retry, and delivery-failure coordination
 │   │   └── Inbound/                   # Consumer-specific API entry code
-│   │       └── ExampleApi/            # ExampleApi middleware, routes, and controllers
+│   │       ├── ExampleApi/            # ExampleApi middleware, routes, and controllers
+│   │       ├── UserApi/               # User realm controllers and routes
+│   │       └── SystemAdminApi/        # Admin realm controllers and routes
 │   └── Shared/
 │       ├── CQRS/                      # Command and query buses
 │       ├── Domain/                    # Base domain and messaging types
@@ -129,7 +142,7 @@ Standalone maintenance and translation tools resolve their own project root.
 - ExampleApi middleware: `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - ExampleApi routes: `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
 - ExampleApi module registry: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php`
-- ExampleApi root, liveness, readiness, and authentication handlers: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Root`
+- ExampleApi metadata, liveness, readiness, and fallback handlers: `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Root`
 - Dependency readiness checks: `src/Backendbase/Infrastructure/Health`
 - ExampleApi configuration: `config/example-api`
 - Shared runtime configuration: `config/autoload`
@@ -171,6 +184,8 @@ composer phpstan
 composer complexity
 composer cs-check
 composer docs:check-links
+php bin/check-documentation-links.php resources
+node bin/build-adr-index.mjs --check
 composer reports:check
 
 # Generate and validate the ExampleApi OpenAPI document.

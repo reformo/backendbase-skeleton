@@ -86,7 +86,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - All Example reads and writes require an API key. New consumer endpoints use this protection by default.
 - Example write commands and handlers have no identity or privilege inputs. Internal greeting authorization remains in its handler.
 - Current route tests prove API-key rejection and successful writes without identity attributes. Adapt equivalent tests to the target policy.
-- Shared-header enforcement and CORS remain incomplete. Group pagination and security status codes now match their documented behavior. Detail timestamps still use the nonstandard OpenAPI format `datetime`.
+- Shared-header presence requirements remain stricter in OpenAPI than at runtime. All three API CORS configurations allow `Accept-Language`. Group pagination and security status codes match their documented behavior. Detail timestamps use the OpenAPI `date-time` format.
 - Do not infer public policy from the HTTP method alone.
 
 ## Exact source provenance

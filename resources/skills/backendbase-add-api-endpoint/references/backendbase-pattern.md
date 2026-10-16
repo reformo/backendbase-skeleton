@@ -138,9 +138,9 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `NewExample` reads bounded objects through `ExampleRequestBody`. Context values validate groups, keys, values, identifiers, and detail maps. Derive limits and object rules from the target contract.
 - Example detail values remain unchanged. Image-like names do not imply URL fields. Define any target image projection explicitly.
 - Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
-- The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
+- The four shared headers are declared required, but runtime permits omitted locale, timezone, and trace headers. All three API CORS configurations allow them.
 - Example HTTP commands do not require access control. Internal `QueueGreeting` carries typed access control and checks its privilege before its transaction.
-- `tests/ExampleApiTestCase.php` loads obsolete HTTP adapter paths. Use current focused tests or repair a full-stack helper only when the requested test needs it.
+- `tests/ExampleApiTestCase.php` loads the current ExampleApi middleware and routes under `Infrastructure/Inbound`. Use focused route and boundary tests for the affected behavior.
 
 ## Exact source provenance
 

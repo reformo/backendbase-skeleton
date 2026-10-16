@@ -363,8 +363,8 @@
         <p class="lede">Implemented improvements and verification of the working tree based on <code>df29f9c</code>. Code quality is reassessed at <strong>9.2/10</strong>.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">Strong local quality controls</span>
-            <span class="chip">998 tests passed</span>
-            <span class="chip">No service tests skipped</span>
+            <span class="chip">Assessment: 998 tests passed</span>
+            <span class="chip">Current local coverage: 100%</span>
             <span class="chip">PHPStan level 8 passed</span>
             <span class="chip">Complexity ≤ 12 passed</span>
             <span class="chip">3 consumer APIs</span>
@@ -385,6 +385,7 @@
     </nav>
     <main id="main-content">
         <div class="callout"><strong>Assessment scope:</strong> The initial assessment rated revision df29f9c at 8/10. This follow-up records the implemented changes and fresh verification on 16 October 2026.</div>
+        <div class="callout good"><strong>Latest isolated verification:</strong> The 16 October working tree based on <code>726e8de</code> passes all 1,160 tests with zero skips. All 55 previously skipped MySQL, Redis, and Sentinel cases pass. Executable-line and method coverage are 100%. The assessment score and earlier security evidence retain their dated scope.</div>
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
             <h2>Required improvements are complete; production acceptance remains open</h2>
@@ -432,13 +433,13 @@
                 <div class="stat"><strong>37</strong><span>Locked development packages</span></div>
                 <div class="stat"><strong>141</strong><span>Total locked packages</span></div>
             </div>
-            <p class="small">Counts come from the unchanged composer.json and composer.lock. The locked advisory audit found no reported vulnerabilities on 16 October 2026. Dependency versions were not upgraded.</p>
+            <p class="small">Package counts still match <code>composer.json</code> and <code>composer.lock</code> at revision <code>726e8de</code>. The earlier 16 October assessment found no reported locked advisories. Dependency updates after that assessment require their own verification evidence.</p>
         </section>
         <section id="evidence">
             <p class="section-label">03 · Verification evidence</p>
-            <h2>Use fresh execution evidence for the completed changes</h2>
-            <p>Verification used PHP 8.5.6, PHPUnit 13.4.2, and Composer 2.10.3. Disposable MySQL 8.4.11, Redis 8.10.2, and Sentinel targets were identified before execution.</p>
-            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Current verification evidence">
+            <h2>Distinguish dated assessment evidence from current local results</h2>
+            <p>The earlier assessment used PHP 8.5.6, PHPUnit 13.4.2, and Composer 2.10.3. Disposable MySQL 8.4.11, Redis 8.10.2, and Sentinel targets were identified before that execution.</p>
+            <div class="table-wrap report-table-wrap" tabindex="0" aria-label="Dated assessment evidence">
                 <table class="report-table evidence-table">
                     <thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Evidence</th></tr></thead>
                     <tbody>
@@ -447,7 +448,7 @@
                     <tr><td>Architecture tests</td><td><span class="badge">Pass</span></td><td>27 tests and 130 assertions passed. Complete adapter ownership and forbidden-direction fixtures cover the previously omitted categories.</td></tr>
                     <tr><td>PHPStan</td><td><span class="badge">Pass</span></td><td>Level 8 found no errors across phpstan.neon's configured paths.</td></tr>
                     <tr><td>Cyclomatic complexity</td><td><span class="badge">Pass</span></td><td>composer complexity passed the maximum of 12 per function or method.</td></tr>
-                    <tr><td>Doctrine coding standard</td><td><span class="badge">Pass</span></td><td>All <span data-quality-metric="phpcs-files">802</span> configured PHP files passed composer cs-check.</td></tr>
+                    <tr><td>Doctrine coding standard</td><td><span class="badge">Pass</span></td><td>All 802 configured PHP files at the assessment revision passed composer cs-check.</td></tr>
                     <tr><td>API validation</td><td><span class="badge">Pass</span></td><td>Source and merged schemas and tags passed for all three APIs. In-process parity tests passed for all 37 operations.</td></tr>
                     <tr><td>Deployment scripts</td><td><span class="badge">Pass</span></td><td>Temporary fixtures verified normal activation and rollback, guarded fresh installation, and backup, migration, activation, readiness, and existing-state failures. Native MySQL cases rejected tables, views, routines, and events.</td></tr>
                     <tr><td>Composer metadata</td><td><span class="badge">Pass</span></td><td>Strict Composer validation passed without plugins or scripts.</td></tr>
@@ -464,15 +465,20 @@
                     </tbody>
                 </table>
             </div>
-            <h3>Current full-service coverage</h3>
-            <p>This 16 October run verified the implemented working tree based on <code>df29f9c</code>. It replaced the earlier generated coverage artifacts.</p>
-            <p>JUnit and Clover report no skipped tests and complete configured line and method coverage. Coverage does not establish exhaustive behavior or production readiness.</p>
-            <div class="summary-grid" aria-label="Current full-service metrics">
-                <div class="stat"><strong><span data-quality-metric="tests">998</span></strong><span>Verified tests</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">22,653</span></strong><span>Verified assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">5,978</span>/<span data-quality-metric="total-lines">5,978</span></strong><span>Covered executable lines · <span data-quality-metric="line-coverage-percent">100.00%</span></span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,423</span>/<span data-quality-metric="total-methods">1,423</span></strong><span>Covered methods · <span data-quality-metric="method-coverage-percent">100.00%</span></span></div>
+            <h3>Latest isolated service verification</h3>
+            <p>The 16 October service run checked the working tree based on <code>726e8de</code> with PHP 8.5.6 and PHPUnit 13.4.3. Dedicated MySQL 8.4.11 and Redis 8.10.2 containers used random localhost ports and temporary storage. The failover runner created a separate primary, replica, and three Sentinels. All fixture containers and networks were removed after verification.</p>
+            <p>JUnit reports 1,160 tests, 30,476 assertions, and no failures, errors, or skips. All 6,306 executable lines and 1,497 methods are covered. The 100% coverage gate passes. Deployment, rollback, and fresh-installation fixtures pass within <code>composer test</code>.</p>
+            <p>All 55 previously skipped cases executed successfully: 24 MySQL, 23 standalone Redis, and eight Sentinel cases. Test identities were compared with the earlier skipped-case list. No code correction was required. See the <a href="../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">service versions, targets, and verification interval</a>.</p>
+            <p>HTTP regressions close the 27-line gap in seven identity handlers. They verify Admin contact resends, token revocation, Account closure across both realms, User logout, and anonymous health responses. Dependency doubles exercise ready and unavailable responses without external calls.</p>
+            <p>PHPStan level 8, complexity, and PHPCS pass for the same working tree. PHPStan uses <code>--debug</code> because the sandbox blocks its parallel worker socket. The following metrics come from the fresh service-run artifacts. Earlier security evidence retains its dated scope. Production acceptance remains open.</p>
+            <div class="summary-grid" aria-label="Latest local test metrics">
+                <div class="stat"><strong><span data-quality-metric="tests">1,160</span></strong><span>Tests passed · zero skipped cases</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">30,476</span></strong><span>Verified assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">6,306</span>/<span data-quality-metric="total-lines">6,306</span></strong><span>Covered executable lines · <span data-quality-metric="line-coverage-percent">100.00%</span></span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,497</span>/<span data-quality-metric="total-methods">1,497</span></strong><span>Covered methods · <span data-quality-metric="method-coverage-percent">100.00%</span></span></div>
             </div>
+            <p>The current quality-tool inventory contains <span data-quality-metric="phpcs-files">860</span> PHP files. PHPCS checks all 860 files successfully.</p>
+            <p>Local links pass for all 213 resource documents. ADR copies and generated metrics match their sources. All 37 API operations pass schema and tag checks. The architecture map passes nine structural checks with 18 verified source references. Changed HTML files pass nesting and unique-ID checks. Rendered layout remains unverified.</p>
         </section>
         <section id="strengths">
             <p class="section-label">04 · Strengths</p>

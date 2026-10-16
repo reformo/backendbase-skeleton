@@ -64,7 +64,7 @@ Check status, problem body, and non-dispatch on failure. Compare runtime with Op
 
 - The API-key public-path list includes prefixes outside the current ExampleApi route set.
 - The shared OpenAPI headers are not all enforced at runtime.
-- CORS omits `Accept-Language`.
+- All three API CORS configurations allow `Accept-Language`.
 
 These limits are audit prompts. Do not copy them as target policy.
 

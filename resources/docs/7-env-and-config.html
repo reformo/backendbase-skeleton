@@ -467,7 +467,7 @@
             <figure class="diagram">
                 <svg viewBox="0 0 1120 560" role="img" aria-label="Backendbase environment and configuration flow">
                     <title>Backendbase environment and configuration flow</title>
-                    <desc>Existing process values and an optional dot env file feed the environment helper. Shared and API PHP configuration files form merged settings. Typed settings validate the values before PHP-DI injects them into runtime services. Public API configuration can be cached.</desc>
+                    <desc>Existing process values and an optional dot env file feed the environment helper. Shared and API PHP configuration files form merged settings on each request. Typed settings validate the values before PHP-DI injects them into runtime services.</desc>
                     <defs>
                         <marker id="cfg-arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#65bf91"/></marker>
                         <marker id="cfg-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#69a6e4"/></marker>
@@ -497,10 +497,6 @@
                     <text x="862" y="137" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Merged settings</text>
                     <text x="862" y="163" text-anchor="middle" fill="#f0dfba" font-size="12">ConfigAggregator</text>
 
-                    <rect x="772" y="268" width="180" height="82" rx="13" fill="#252d3e" stroke="#71829f"/>
-                    <text x="862" y="300" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Config cache</text>
-                    <text x="862" y="326" text-anchor="middle" fill="#d0d8e7" font-size="12">public API only</text>
-
                     <rect x="520" y="330" width="190" height="92" rx="13" fill="#20392c" stroke="#65bf91"/>
                     <text x="615" y="363" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Typed settings</text>
                     <text x="615" y="389" text-anchor="middle" fill="#cee9d9" font-size="12">validate · expose leaf values</text>
@@ -519,7 +515,6 @@
                     <line x1="462" y1="170" x2="518" y2="215" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
                     <line x1="710" y1="89" x2="770" y2="135" stroke="#65bf91" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
                     <line x1="710" y1="215" x2="770" y2="165" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
-                    <line x1="862" y1="196" x2="862" y2="266" stroke="#d0a655" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
                     <path d="M772 170 H736 V376 H712" fill="none" stroke="#65bf91" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
                     <line x1="520" y1="376" x2="464" y2="376" stroke="#69a6e4" stroke-width="2" marker-end="url(#cfg-arrow-blue)"/>
                     <line x1="272" y1="376" x2="216" y2="376" stroke="#d0a655" stroke-width="2" marker-end="url(#cfg-arrow-green)"/>
@@ -594,7 +589,7 @@
                     <tr><td><code>test</code></td><td>Shown</td><td>No persistent credential compilation</td><td>Filesystem</td></tr>
                     <tr><td><code>ci</code></td><td>Hidden</td><td>No persistent credential compilation</td><td>Filesystem</td></tr>
                     <tr><td><code>stage</code></td><td>Hidden</td><td>No persistent credential compilation</td><td>Filesystem</td></tr>
-                    <tr><td><code>production</code></td><td>Hidden</td><td>Compiled container, proxies, and route cache</td><td>Filesystem</td></tr>
+                    <tr><td><code>production</code></td><td>Hidden</td><td>No persistent credential compilation; route cache enabled</td><td>Filesystem</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -755,7 +750,7 @@
                 <table>
                     <thead><tr><th>Entry point</th><th>Dotenv behavior</th><th>Configuration providers</th><th>Cache</th></tr></thead>
                     <tbody>
-                    <tr><td>Public API</td><td>Loads optional <code>.env</code> only when merged config cache is absent.</td><td>Shared plus selected API</td><td>Merged config, container, proxies, routes in production</td></tr>
+                    <tr><td>Public API</td><td>Loads optional <code>.env</code> on every request.</td><td>Shared plus selected API; rebuilt on every request</td><td>Production route cache; separate Doctrine and object-mapping caches. No persisted merged settings or compiled container.</td></tr>
                     <tr><td><code>bin/backendbase</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared plus optional <code>config/console/*</code></td><td>No ConfigAggregator cache path</td></tr>
                     <tr><td><code>bin/doctrine</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared, ExampleApi, and optional console</td><td>Doctrine filesystem cache outside development</td></tr>
                     <tr><td>Base test helpers</td><td>Do not load Dotenv. Isolated tests provide their own environment values.</td><td>Shared plus the selected consumer API</td><td>Container is not compiled</td></tr>
@@ -837,10 +832,10 @@ docker compose ps</code></pre></div>
 
         <section id="cache">
             <h2>Cache and configuration changes</h2>
-            <p>The public API stores its merged configuration under <code>var/cache/{api-slug}/merged-conf.php</code>. When that file exists, bootstrap does not load <code>.env</code>.</p>
+            <p>The public API loads optional <code>.env</code> values and rebuilds merged settings and container definitions on every request. It does not read or write a merged-configuration cache. Route, Doctrine, and object-mapping metadata caches remain separate.</p>
             <div class="process" aria-label="Apply a configuration change">
                 <div class="step"><span class="step-number">01</span><strong>Change secret</strong><br><span class="muted">Update the deployment environment or local <code>.env</code>.</span></div>
-                <div class="step"><span class="step-number">02</span><strong>Clear cache</strong><br><span class="muted">Remove merged config, route, container, and Doctrine caches.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Clear affected caches</strong><br><span class="muted">Clear route, Doctrine, and object-mapping caches when their sources change.</span></div>
                 <div class="step"><span class="step-number">03</span><strong>Restart</strong><br><span class="muted">Restart long-running workers and API processes.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Resolve services</strong><br><span class="muted">Exercise database, Redis, and the active queue driver.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Verify</strong><br><span class="muted">Check health, logs, and one safe request.</span></div>
@@ -883,7 +878,7 @@ docker compose ps</code></pre></div>
                     <tr><td>The example file includes one unused name.</td><td><code>BACKENDBASE_LOGGER_HANDLER</code> has no current consumer in the inspected source.</td></tr>
                     <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
                     <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
-                    <tr><td>Public cached boot skips Dotenv.</td><td>A changed <code>.env</code> has no effect until cache is cleared.</td></tr>
+                    <tr><td>Public requests reload optional Dotenv values and merged settings.</td><td>Existing process values still take precedence. Restart long-running processes after changing their injected environment.</td></tr>
                     </tbody>
                 </table>
             </div>

@@ -88,7 +88,7 @@ Never delete pending, claimed, unprocessed, or nonterminal failure rows. Use bou
 4. Prevent duplicate relay schedules and overlapping cleanup jobs. Claims protect intentional parallel relays.
 5. Run the continuous relay and consumer as separate supervised processes.
 
-The Backendbase repository contains no scheduler, supervisor, dashboard, or alert definition. Generate platform-specific files only when the user selects the platform and approves the scope.
+Backendbase supplies consumer, relay, and cleanup systemd templates under `resources/deployment/systemd`, including relay and cleanup timers. Dashboard and alert integration remain target-specific. Adapt platform files to the selected target, and obtain authority before installation or activation.
 
 ## Recovery safety
 

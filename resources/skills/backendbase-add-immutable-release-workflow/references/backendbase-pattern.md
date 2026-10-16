@@ -188,7 +188,7 @@ Tests must never use a production deploy root or live database.
 - Deployment requires checksum validation, safe extraction, backup and activation hooks, migration dry run, cache clear, atomic link switch, and readiness.
 - Online deployment rejects a manifest whose application rollback policy is false.
 - Application rollback accepts only the recorded previous release and leaves schema unchanged.
-- Current scripts provide no server-specific backup hook, process manager, scheduler, or alert implementation.
+- Linux systemd templates provide worker supervision and relay and cleanup schedules. Server-specific backup and activation hooks, secret injection, and alert integration remain deployment work.
 
 ## Authorization boundary
 

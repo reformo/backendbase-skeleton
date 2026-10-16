@@ -945,8 +945,8 @@ bin/bruno example-api local</code></pre></div>
                 <table>
                     <thead><tr><th>Current behavior</th><th>Impact</th></tr></thead>
                     <tbody>
-                    <tr><td>The CORS allow-header list omits <code>Accept-Language</code>.</td><td>Browser preflight can reject requests that send this documented header.</td></tr>
-                    <tr><td>The shared selector writes a payload with status <code>400</code> but does not set the HTTP status before <code>die()</code>.</td><td>Clients must not assume that the transport status matches that early payload.</td></tr>
+                    <tr><td>All three API configurations allow <code>Accept-Language</code> in CORS.</td><td>Browser clients can send the documented locale header.</td></tr>
+                    <tr><td>The shared selector returns HTTP <code>400</code> with <code>application/problem+json</code> for an invalid source.</td><td>The transport status matches the Problem Details status before bootstrap stops.</td></tr>
                     <tr><td>Header references are not general runtime validators.</td><td>Several headers are required by OpenAPI but may be absent at runtime.</td></tr>
                     <tr><td>Request validation covers selected fields only.</td><td>New fields need explicit type, format, range, and required-value checks.</td></tr>
                     <tr><td>Group queries return <code>EntryGroupPage</code>.</td><td>The response includes the complete distinct-group total and the requested page.</td></tr>

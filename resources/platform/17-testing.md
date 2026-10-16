@@ -86,6 +86,9 @@ API validation commands check source and merged OpenAPI schemas and endpoint tag
 Identity `ModuleRoutingTest` checks module registration, handler namespaces, and route names against OpenAPI tags and operation IDs.
 It verifies missing-token and cross-realm rejection on all 15 protected routes through the actual group middleware.
 The identity HTTP suite covers public login, contact verification, authenticated flows, and anonymous preflight across both APIs.
+Admin contact resend tests verify cooldown, context rejection, notification delivery, and confirmation without granting approval or changing Account ownership.
+Account closure tests reject existing tokens and new login in both realms. Revocation tests cover User logout and Admin token revocation while preserving another Admin session.
+Identity health tests execute both API route maps. Liveness skips dependency checks. Readiness returns 200 or a safe 503 response through deterministic dependency doubles.
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 
 Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.
@@ -114,7 +117,9 @@ See [identity acceptance](operations/identity-acceptance.md) for remaining deplo
 
 `composer run cs-fix -- <path>` forwards arguments to `phpcbf`. The wrapper maps exit code `1` to success and preserves other exit codes.
 
-`composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
+`composer docs:check-links` validates root documentation, `resources/docs`, and `resources/platform`. It also validates HTML fragment identifiers. It does not make network requests.
+Use `php bin/check-documentation-links.php resources` to include ADRs, skill references, and other resource documents.
+After ADR Markdown changes, run `node bin/build-adr-index.mjs`, then `node bin/build-adr-index.mjs --check` to verify the embedded copies.
 
 Run `vendor/bin/phpunit tests/Tools --filter MessageViewer` for the local SMS and email viewer.
 These tests cover parsing, bounded process reads, provider failures, HTTP responses, local-only access, and safe email previews.
@@ -131,6 +136,7 @@ Check shared context routing and direct `AGENTS.md` references for both clients.
 When moving instructions, compare the original and destination rules after accounting for headings and relative links.
 
 `composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the canonical engineering quality report. `composer reports:check` fails when committed metrics are stale.
+Generate fresh test artifacts before updating metrics. Record skipped service cases and a failed coverage gate explicitly. Keep dated service verification separate from current local metrics.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.
 The security workflow runs all identity operations over HTTP and separate authenticated ZAP scans for both realms.

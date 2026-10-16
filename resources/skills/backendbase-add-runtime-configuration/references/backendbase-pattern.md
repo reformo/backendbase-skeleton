@@ -24,7 +24,7 @@ Do not copy `BACKENDBASE_*`, `EXAMPLE_API_*`, JWT keys, queue credentials, servi
 | Settings access | `Shared\\Settings` | Follow the target typed or array settings contract. |
 | Service construction | `config/dependencies/*.php` | Validate at the factory boundary. |
 | Local example | `.env.example` | Use neutral examples, never live values. |
-| Effective cache | merged config, container, route, Doctrine | Identify exact invalidation and restart needs. |
+| Effective cache | route, Doctrine, object-mapping metadata | Identify exact invalidation and restart needs. |
 
 ## Verified loading behavior
 
@@ -40,7 +40,7 @@ Object-storage configuration is an explicit exception. It normalizes an empty `O
 
 Backendbase uses `backendbaseIntegerEnvironmentValue()` and `backendbaseFloatEnvironmentValue()` for numeric configuration. These helpers reject malformed text before the settings merge. Their exceptions name the key without including its value.
 
-The public API merges shared providers before API-specific providers. Its cached bootstrap can skip Dotenv. Console and Doctrine entry points load Dotenv independently.
+The public API loads optional Dotenv values and merges shared providers before API-specific providers on every request. It does not persist merged settings or compiled container definitions. Console and Doctrine entry points load Dotenv independently.
 
 ## Workflow
 
@@ -93,9 +93,9 @@ if (! is_array($search) || ! is_float($search['timeoutSeconds'] ?? null)) {
 - Lazy container creation means a successful container build does not prove every service setting is valid.
 - A lazy proxy can defer its client factory beyond service resolution. Invoke one safe operation to test initialization.
 - `.env.example` is a local aid, not an authoritative secret catalog.
-- Configuration, route, container, and Doctrine caches can retain old values.
+- Route, Doctrine, and object-mapping metadata caches can retain old definitions. Public runtime settings and container definitions are rebuilt on each request.
 - Long-running workers keep old settings until restart.
-- The HTML guide contains an old claim that `clear-cache` returns `1`. Current code and tests return success code `0`.
+- `clear-cache` returns success code `0` after removing generated cache files. Its execution requires authority for the target environment.
 
 ## Authorization boundary
 

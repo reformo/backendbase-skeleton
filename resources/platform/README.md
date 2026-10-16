@@ -168,9 +168,11 @@ Read only the selected reference sections needed for the task. Reuse established
 
 ## Snapshot policy
 
-The platform files and numbered HTML guides describe the current source. Their latest consistency review was on 23 September 2026. Dated assessments retain their original verification scope; generated quality metrics use the latest local test artifacts.
+The platform files and numbered HTML guides describe the current source. The latest documentation consistency review was on 16 October 2026 against revision `726e8de`. It covered API counts and headers, bootstrap configuration, source references, skill examples, repository inventory, and generated documents.
 
-A focused review on 28 September 2026 checked commits from 25–28 September. It covered messaging placement, write-result guidance, maintenance commands, project-copy settings, and architecture-map source references.
+Dated assessments retain their original verification scope. Generated quality metrics use the latest local test artifacts. The [quality report](../docs/code-quality-and-maintainability-report.html#evidence) separates current local results from earlier service-backed evidence.
+
+Check all resource links with `php bin/check-documentation-links.php resources`. Check the embedded ADR copies with `node bin/build-adr-index.mjs --check`. Check generated metrics with `composer reports:check` after a fresh test run.
 
 Treat design rules as requirements. Recheck statements marked as current state before later implementation work.
 

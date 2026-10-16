@@ -38,7 +38,7 @@ Do not return an SDK response or accept an SDK request object. Put vendor-specif
 
 - No populated general vendor-service subtree exists; object storage and notifications are the live adapter examples.
 - S3 composition differs from the shared AWS client helper. It uses explicit credentials and path-style requests for a custom endpoint.
-- Some current adapters expose weak response validation or sensitive debug payloads. Do not copy those gaps.
+- S3 upload results use `@metadata.statusCode` and `ObjectURL`. Twilio and Netgsm validate HTTP status and required response identifiers. Derive response validation from the target provider's contract.
 
 ## Exact source provenance
 

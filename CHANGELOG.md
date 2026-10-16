@@ -85,6 +85,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Verify all 55 previously skipped service cases on isolated MySQL, Redis, and Sentinel fixtures. Refresh quality metrics and acceptance evidence for 1,160 passing tests, zero skips, and 100% executable-line and method coverage.
+
+- Close the 27-line coverage gap in seven identity HTTP handlers. Test Admin contact resends, token revocation, Account closure across both realms, User logout, and identity health responses. Refresh quality evidence and test inventory.
+
+- Synchronize HTML guides and Markdown references with current API contracts, bootstrap configuration, seeding, and worker templates. Refresh architecture source references, the ADR browser, and quality metrics. Separate dated service evidence from current local verification.
+
 - Validate Example detail encoding, decoding, and member names before aggregate or command mutation. Bound detail decoding to 64 levels so accepted values fit event envelopes.
 - Preserve nested JSON objects and lists through the outbox, SQS, RabbitMQ, and registered version-one consumer. Add complete serialization and atomic-validation regressions.
 - Reject invalid Example detail shapes, identifiers, and oversized fields before writes. Preserve text and nested JSON values through create, update, and read operations.

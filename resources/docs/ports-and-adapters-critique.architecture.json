@@ -2,12 +2,12 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "Backendbase Ports and Adapters Assessment",
+    "title": "Backendbase Ports and Adapters",
     "locale": "en",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/reformo/backendbase-skeleton",
-      "revision": "512267f78e31ac02deb4ee108a4ff7ec1670247d"
+      "revision": "726e8def449e9d4f0e8fbaa0b9ff3a81fc049b05"
     },
     "viewBox": [1280, 680],
     "views": [
@@ -55,7 +55,7 @@
       "sublabel": "Inbound adapters",
       "pos": [30, 260],
       "size": [150, 76],
-      "sources": [{"path": "src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php", "line": 23, "label": "HTTP adapter"}]
+      "sources": [{"path": "src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php", "line": 22, "label": "HTTP adapter"}]
     },
     {
       "id": "contracts",
@@ -65,7 +65,7 @@
       "tag": "registry dispatch",
       "pos": [270, 260],
       "size": [170, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php", "line": 12, "label": "Command contract"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php", "line": 15, "label": "Command contract"}]
     },
     {
       "id": "application",
@@ -74,7 +74,7 @@
       "sublabel": "Use-case handlers",
       "pos": [550, 260],
       "size": [180, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php", "line": 19, "label": "Command handler"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php", "line": 15, "label": "Command handler"}]
     },
     {
       "id": "domain",
@@ -84,7 +84,7 @@
       "tag": "typed snapshot",
       "pos": [850, 260],
       "size": [180, 76],
-      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php", "line": 11, "label": "Example aggregate"}]
+      "sources": [{"path": "src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php", "line": 16, "label": "Example aggregate"}]
     },
     {
       "id": "ports",
@@ -102,13 +102,13 @@
       "id": "contextAdapters",
       "type": "database",
       "label": "Context Adapters",
-      "sublabel": "Doctrine and memory",
+      "sublabel": "Doctrine · memory · Redis",
       "pos": [300, 600],
       "size": [190, 76],
       "sources": [
-        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php", "line": 16, "label": "Doctrine adapter"},
+        {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php", "line": 17, "label": "Doctrine adapter"},
         {"path": "src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php", "line": 12, "label": "Memory adapter"},
-        {"path": "src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/JwtAuthorizationStore.php", "line": 19, "label": "Authorization store"}
+        {"path": "src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/RedisTokenRegistry.php", "line": 20, "label": "Redis token registry"}
       ]
     },
     {
@@ -119,7 +119,7 @@
       "pos": [820, 540],
       "size": [190, 76],
       "sources": [
-        {"path": "src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php", "line": 26, "label": "Queue adapter"},
+        {"path": "src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php", "line": 27, "label": "Queue adapter"},
         {"path": "src/Backendbase/Infrastructure/Adapters/Http/Actions/Action.php", "line": 23, "label": "HTTP framework base"}
       ]
     },

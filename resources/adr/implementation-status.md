@@ -59,6 +59,25 @@ Starting source revision: `ddc9946`.
 
 ## Verification
 
+### Isolated service, coverage, and documentation verification on 16 October 2026
+
+Working tree based on source revision `726e8def449e9d4f0e8fbaa0b9ff3a81fc049b05`.
+
+- The full suite passes 1,160 tests and 30,476 assertions with no failures, errors, or skips.
+- All 55 previously skipped cases execute successfully: 24 MySQL, 23 standalone Redis, and eight Sentinel cases.
+- Dedicated MySQL 8.4.11 and Redis 8.10.2 containers use random localhost ports and temporary storage. The failover topology uses a separate network.
+- The run and cleanup completed from 19:44:58 to 19:48:38 UTC. All generated containers and networks were removed. No code correction was required.
+- See [isolated regression evidence](../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence) for fixture targets and verification scope.
+- Executable-line coverage is 6,306 of 6,306 lines (100%). Method coverage is 1,497 of 1,497 methods (100%).
+- HTTP tests close the 27-line gap in seven identity handlers. They cover Admin contact resends and token revocation, Account closure, User logout, and health responses.
+- Account closure rejects existing tokens and new login in both realms. Readiness tests cover success and safe dependency failure through local doubles.
+- `composer test` passes the coverage gate and isolated deployment-script fixtures.
+- PHPStan level 8, complexity, and PHPCS pass. PHPStan uses `--debug` because the sandbox blocks its parallel worker socket.
+- All 213 resource documents pass local link checks. The ADR index matches its Markdown sources, and generated quality metrics match the fresh local reports.
+- All three API specifications pass schema and tag validation. The suite checks source, merged, and Bruno parity for all 37 operations.
+- The architecture map has 18 current source references and passes all nine structural checks. Rendered layout remains unverified.
+- Generated quality metrics describe this service run. Earlier results below retain their stated revision and scope. Production acceptance remains open.
+
 ### RedisJSON session storage on 15 October 2026
 
 Starting source revision: `4346d39`.

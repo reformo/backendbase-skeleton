@@ -556,7 +556,7 @@
                         <div class="leak resolved"><strong>Strength: clear Shared ownership</strong><br>Shared contracts stay framework-free. Framework support belongs to Infrastructure.</div>
                     </div>
                 </div>
-                <figcaption>The flow shows the dependency rule. The <a href="ports-and-adapters-map.html">interactive architecture map</a> retains its 28 September snapshot at <code>512267f</code>. Use current contracts and service providers for the expanded identity flows.</figcaption>
+                <figcaption>The flow shows the dependency rule. The <a href="ports-and-adapters-map.html">interactive architecture map</a> uses 18 verified source references at <code>726e8de</code>, including the Redis token registry. The map shows layer responsibilities; the identity guides describe complete authentication flows.</figcaption>
             </figure>
         </section>
 
@@ -665,7 +665,7 @@
                     <tr><td>PHPStan level 8</td><td><span class="badge strong">Passed</span></td><td>No errors across configured production, test, configuration, entry-point, tool, and database paths.</td></tr>
                     <tr><td>Complexity and coding standard</td><td><span class="badge strong">Passed</span></td><td>802 configured PHP files passed. Cyclomatic complexity remains ≤ 12. These commands do not establish compliance with every object-design rule.</td></tr>
                     <tr><td>Source inventory</td><td><span class="badge strong">Inspected</span></td><td>459 production PHP files, 127 Shared PHP files, 228 *Test.php files, and 15 architecture test files. Module test directories are excluded from production counts.</td></tr>
-                    <tr><td>Interactive map</td><td><span class="badge">Earlier snapshot</span></td><td>The map retains revision 512267f from 28 September. This assessment does not refresh its nodes or claim current identity coverage.</td></tr>
+                    <tr><td>Interactive map</td><td><span class="badge">Refreshed</span></td><td>Source paths and line references were verified at revision 726e8de on 16 October. The current Redis token registry replaces the removed authorization-store reference.</td></tr>
                     <tr><td>Runtime and deployment acceptance</td><td><span class="badge">Separate evidence</span></td><td>Native service and local HTTP checks passed. Live providers, production traffic, performance, and server-specific hooks remain unverified. See the engineering report's verification ledger.</td></tr>
                     </tbody>
                 </table>

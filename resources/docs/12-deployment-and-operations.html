@@ -12,7 +12,7 @@
 <a href="#rollback">9. Recovery</a><a href="#secrets">10. Secrets</a><a href="#risks">11. Current risks</a><a href="#checklist">12. Checklist</a><a href="#sources">13. Source map</a>
 </nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>A release changes code, contracts, cache, and schema</h2>
-<p>Deployment is not only a source update. It must keep runtime configuration, generated OpenAPI, container cache, route cache, Doctrine cache, database migrations, and background consumers compatible.</p>
+<p>Deployment must keep runtime configuration, generated OpenAPI, container definitions, route cache, Doctrine cache, database migrations, and background consumers compatible.</p>
 <div class="callout danger"><strong>Production boundary:</strong> Execute deployment scripts only with explicit release authority and verified backups.</div>
 </section>
 <section id="preflight"><p class="section-label">02 · Preflight</p><h2>Prove the release before it reaches a server</h2>

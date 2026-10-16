@@ -45,7 +45,7 @@ Choose methods that express real behavior. Do not add generic getters, setters, 
 
 ## Current catalog and limitations
 
-- `EntityId` creates and parses UUIDv7 values. Its all-zero `null()` sentinel needs an external contract meaning.
+- `EntityId` generates UUIDv7 values and parses valid UUID strings, including existing identifiers from other UUID versions. Its all-zero `null()` sentinel needs an external contract meaning.
 - `Email` validates syntax but does not trim or lowercase.
 - `Name` checks a two-byte minimum but preserves whitespace.
 - `Coordinates` does not validate numeric form or geographic range.

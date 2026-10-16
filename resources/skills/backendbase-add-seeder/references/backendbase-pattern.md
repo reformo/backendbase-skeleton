@@ -71,7 +71,7 @@ Also assert the approved field values. A count alone does not prove correct data
 - Composer maps `Backendbase\Seeders\` to `resources/database/Seeders`.
 - `EntrySeeder` performs a parameterized existence check and inserts one lookup row.
 - It is intentionally not invoked by any migration.
-- It uses UUIDv4 and Example-specific values. Neither choice is a general platform rule.
+- It generates UUIDv7 identifiers, stores their binary bytes, and uses Example-specific lookup values. Adapt identifier storage and approved values to the target schema.
 - The repository test runs the seeder twice and asserts a single row.
 - Seeders do not replace test fixtures or runtime configuration.
 

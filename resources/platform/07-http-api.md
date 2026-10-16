@@ -5,6 +5,7 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 ## Runtime
 
 - All public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `ConsumerApiTarget`.
+- Invalid source selection returns HTTP `400` with `application/problem+json` and a matching Problem Details status before container creation.
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
 - API middleware, routes, controllers, configuration, OpenAPI, and Bruno use matching class and slug names.
 - `ModuleRoutes` must register each HTTP module explicitly.
@@ -56,6 +57,7 @@ Example types are `system` and `user`. Groups, keys, values, and target identifi
 `X-Source-Id` selects `example`, `user`, or `system-admin`. The header does not grant access.
 Realm endpoints use route-owned bearer authentication. Public authentication and health routes explicitly permit anonymous access.
 Optional locale, timezone, and trace headers use documented defaults.
+All three API CORS configurations permit `Accept-Language`, timezone, trace, and source headers.
 
 Basis: `resources/docs/5-use-case-api.html`.
 

@@ -76,7 +76,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `ValidateApiKey` is active in current source.
 - The public-path list includes paths that are not part of the Example API route set.
 - OPTIONS returns an empty `200`; the fallback action returns `204` for OPTIONS. Keep one intentional contract.
-- The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
+- The four shared OpenAPI headers are not all required at runtime. All three API CORS configurations allow `Accept-Language`.
 - Current Example reads and writes require an API key. Identity APIs use `RealmAuthentication` to supply a verified principal to protected routes.
 - OpenAPI validation can succeed while middleware status, headers, or bypass behavior differs. Run a semantic audit.
 

@@ -36,7 +36,7 @@ It can cache routes, Doctrine metadata, and mapping metadata. Clear these caches
 bin/backendbase clear-cache
 ```
 
-A cached public boot skips Dotenv. Restart long-running workers after configuration changes.
+The public bootstrap loads the optional `.env` file on every request. Restart long-running workers after configuration changes.
 
 There is no single configuration schema. Focused settings objects validate required nested values when PHP-DI resolves each lazy dependency.
 

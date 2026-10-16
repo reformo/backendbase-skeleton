@@ -34,6 +34,29 @@ Concurrency workers use separate PHP processes and database connections.
 Tests wait for an observed InnoDB lock wait before allowing the competing transaction to proceed.
 Contact registration tests use the actual context and evidence locks. SQLite does not prove those lock waits.
 
+## Latest isolated regression evidence
+
+The full suite passed on 16 October 2026 with all service tests enabled. No code correction was required.
+
+| Evidence | Recorded value |
+| --- | --- |
+| Source | Working tree based on `726e8def449e9d4f0e8fbaa0b9ff3a81fc049b05` |
+| Operator | Automated local fixture runner |
+| UTC interval | 19:44:58 to 19:48:38, including startup and cleanup |
+| Runtime | PHP 8.5.6, PHPUnit 13.4.3, PCOV 1.0.12 |
+| Services | MySQL 8.4.11; standalone Redis, failover nodes, and Sentinels use Redis 8.10.2 |
+| MySQL and Redis project | `backendbase-native-verification-1792179898-61576`; localhost ports 57898 and 57897 |
+| Failover project | `backendbase-redis-failover-1792179903-61618`; separate bridge network and random localhost ports |
+| Data and schema | Generated test records only. MySQL fixtures use production Doctrine metadata or committed migration fixtures in unique databases. |
+| Suite result | 1,160 tests, 30,476 assertions, zero failures, zero errors, zero skips |
+| Coverage | 6,306 of 6,306 executable lines; 1,497 of 1,497 methods |
+| Cleanup | All generated containers and networks removed. Service data used temporary storage. |
+
+The run executed all 55 previously skipped cases: 24 MySQL, 23 standalone Redis, and eight Sentinel cases.
+The recorded test identities match the earlier skipped-case list. Deployment, rollback, and fresh-installation fixtures also passed.
+The Sentinel tests retain their isolated SQLite identity store. Production acceptance and provider-specific durability measurements remain separate.
+See the [quality report](../../docs/code-quality-and-maintainability-report.html#evidence) for generated metrics and other checks on the same working tree.
+
 ## Schema and logical-reference reconciliation
 
 Run `bin/doctrine orm:validate-schema` against the approved clone.

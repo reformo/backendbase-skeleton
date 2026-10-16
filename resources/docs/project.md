@@ -380,7 +380,9 @@ The [engineering assessment](code-quality-and-maintainability-report.html) and [
 - Dependency integrity passed for all 141 packages in a fresh isolated install. Local AWS pruning and PHPCS configuration explain the working-installation differences.
 - The current release policy retains unsafe application rollback. Guarded fresh installation supports an empty database during maintenance. Normal update guards remain active.
 
-The final suite passed 998 tests and 22,653 assertions with no skips and 100% executable-line coverage. Static, API, dependency, security, and deployment checks passed. Production acceptance remains open.
+The assessment suite passed 998 tests and 22,653 assertions with no skips and 100% executable-line coverage. Its static, API, dependency, security, and deployment results retain that dated scope. Production acceptance remains open.
+
+The later isolated service run uses the working tree based on `726e8de`. It passes 1,160 tests and 30,476 assertions with no failures, errors, or skips. All 55 previously skipped cases pass on dedicated MySQL 8.4.11, Redis 8.10.2, and Sentinel fixtures. All 6,306 executable lines and 1,497 methods are covered. The coverage gate, isolated deployment fixtures, PHPStan level 8, complexity, and PHPCS pass. HTTP regressions close the earlier gap in seven identity handlers. See the [latest verification evidence](code-quality-and-maintainability-report.html#evidence).
 
 ## Agent Working Notes
 

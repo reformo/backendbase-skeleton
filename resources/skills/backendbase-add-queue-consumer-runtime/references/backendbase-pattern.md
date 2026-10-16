@@ -93,7 +93,7 @@ The command must return the same processor outcome to either adapter. Broker-spe
 - Cron alone does not reliably restart a failed long-running consumer.
 - Worker processes must restart after releases or effective configuration changes.
 
-The Backendbase repository does not contain a supervisor or scheduler definition. Generate one only after the user selects the target platform and authorizes that scope.
+Backendbase supplies consumer, relay, and cleanup systemd templates under `resources/deployment/systemd`, including relay and cleanup timers. Adapt paths, environment injection, queues, and schedules to the selected target. Install or activate units only with authority for that target.
 
 ## Invariants and risks
 

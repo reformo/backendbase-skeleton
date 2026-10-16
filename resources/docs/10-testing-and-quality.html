@@ -14,11 +14,11 @@
 <div class="callout"><strong>ADR implementation:</strong> Read the <a href="../adr/implementation-status.md">implementation register</a> and <a href="../platform/14-security.md">identity security policy</a> for current identity realms, binary UUID mapping, service tests, and recovery operations.</div>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
 <p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
-<div class="summary-grid"><div class="stat"><strong>228</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
-<p>The <a href="code-quality-and-maintainability-report.html">16 October assessment</a> records 998 passing tests with no skips and 100% executable-line coverage on prepared disposable services.</p>
+<div class="summary-grid"><div class="stat"><strong>240</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
+<p>The <a href="code-quality-and-maintainability-report.html#evidence">quality report</a> records the latest isolated service run separately from the earlier assessment. The working tree based on <code>726e8de</code> passes 1,160 tests and 30,476 assertions with no failures, errors, or skips. All 55 service cases execute on MySQL 8.4.11, Redis 8.10.2, and a separate Sentinel topology. All 6,306 executable lines and 1,497 methods are covered. The coverage gate, deployment fixtures, PHPStan level 8, complexity, and PHPCS pass.</p>
 </section>
 <section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
-<p>The test-file count uses <code>*Test.php</code> files under both suite roots, inspected at revision <code>df29f9c</code> on 16 October 2026.</p>
+<p>The test-file count uses <code>*Test.php</code> files under both suite roots, inspected in the working tree based on <code>726e8de</code> on 16 October 2026.</p>
 <div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
 <tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Aggregates, handlers, contracts, repositories, and provider tests</td></tr>
 <tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS contracts, primitives, persistence ports, services</td></tr>

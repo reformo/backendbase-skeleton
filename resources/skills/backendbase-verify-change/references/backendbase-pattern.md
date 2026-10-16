@@ -175,7 +175,7 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify the discovered target security policy; current Example operations use API-key protection only.
 - `public/index.php` selects an API through `X-Source-Id` and `ConsumerApiTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
 - Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
-- Example groups use a complete total and the requested page. Detail fields match the projection, but their OpenAPI timestamp format remains `datetime`.
+- Example groups use a complete total and the requested page. Detail fields match the projection, and timestamps use the OpenAPI `date-time` format.
 - The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.
 - Producer transactions dispatch local integration subscribers before commit. Verify both delivery flag values and rollback when a local subscriber fails.
 - SQS `REJECT` relies on external redrive configuration. RabbitMQ retry immediately requeues. Outbox publish retry has no terminal limit.
@@ -186,7 +186,7 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - Pagination rejects non-positive page sizes and overflowing offsets; HTTP boundaries also reject non-positive page numbers.
 - The repository provides safe HTTP measurements, MySQL diagnostic metrics, and Linux systemd units and timers.
 - Manual replay and external-outcome resolution require recorded operator evidence. No automatic dead-letter replay exists.
-- Shared OpenAPI parameters mark four request headers as required, but current runtime does not reject every missing header. The ExampleApi CORS allow-list also omits `Accept-Language`.
+- Shared OpenAPI parameters mark four request headers as required, but current runtime does not reject every missing header. All three API CORS configurations allow `Accept-Language`.
 
 ## Backendbase CI and verification commands
 

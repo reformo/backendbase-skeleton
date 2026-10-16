@@ -132,9 +132,9 @@ Test the required order and force listener failure. Verify that persisted state 
 - The selected mapping identifies a class but does not register it. The container must resolve the handler and its dependencies.
 - The bus provides no validation, authorization, logging, retry, transaction middleware, or asynchronous dispatch.
 - Current production handlers live in `Application/CommandHandlers`. Container config also contains older alternate glob patterns; do not select them when the target follows the current reference.
-- Current Example handlers return their integration events through `IntegrationEventTransaction`. The wrapper dispatches local subscribers before commit and selects additional outbox publication from `DELIVER_VIA_QUEUE`. Do not create a fake event only to obtain a transaction.
-- `AddEntryHandler` persists the aggregate and publishes its synchronous domain event inside the `IntegrationEventTransaction` callback. Its handler test asserts `transaction-start`, repository, domain event, then `transaction-end`.
-- `ChangeEntryHandler` and `RemoveEntryHandler` resolve `EntryIdentity` through the write repository inside the transaction callback. Each callback returns the integration event after it knows the aggregate identifier.
+- Current Example handlers call `EntryEventTransaction`, which delegates to `IntegrationEventTransaction`. `EntryWrites` returns the integration event from the transaction callback. Local subscribers run before commit, and `DELIVER_VIA_QUEUE` selects additional outbox publication. Do not create a fake event only to obtain a transaction.
+- `AddEntryHandler` supplies the write callback and synchronous domain event to `EntryEventTransaction`. `EntryWrites` persists the aggregate before the wrapper publishes that domain event. The handler test asserts `transaction-start`, repository, domain event, then `transaction-end`.
+- `ChangeEntryHandler` and `RemoveEntryHandler` delegate to `EntryWrites` inside the transaction callback. It resolves `EntryIdentity` through the write repository and returns an integration event with the aggregate identifier.
 - Patch-style nullable fields mean "not supplied" only when the public contract defines that meaning.
 
 ## Verification map

@@ -198,9 +198,9 @@ Backendbase discovers context service providers one directory below `src/Backend
 Do not copy these current source conditions into new work:
 
 - The sample version 1 producer and registered carrier use a nested `command` shape. Preserve exact producer-to-carrier mapping through the real dispatcher.
-- Shared-header enforcement, CORS, and the OpenAPI `datetime` timestamp format still need alignment. Pagination and security failure status codes match their documented behavior.
-- The sample aggregate does not automatically drain recorded events. Its command handler publishes a domain event explicitly.
-- New Backendbase migrations should extend `BackendbaseAbstractMigration`. Older migrations use a different base.
+- Shared-header presence requirements remain stricter in OpenAPI than at runtime. CORS includes `Accept-Language`, timestamps use `date-time`, and pagination and security failure status codes match their documented behavior.
+- The sample aggregate does not automatically drain recorded events. Its command handler supplies a domain event to `EntryEventTransaction` for publication inside the transaction.
+- All current Backendbase migrations extend `BackendbaseAbstractMigration`. Use the target project's established migration base.
 - Direct Doctrine entity paths have broader tool support than nested entity paths in the current repository.
 - Notification providers are wired, but no notification queue contract or consumer is registered. Define complete message and provider contracts for queued delivery.
 - Object storage has bounded transient retries, exact signed POST key and type, and preserved download metadata.

@@ -7,7 +7,7 @@ namespace Tests\Infrastructure\Inbound\IdentityApi;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
-use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
@@ -18,8 +18,8 @@ use const JSON_THROW_ON_ERROR;
 
 final class UserFlowTest extends TestCase
 {
-    #[Test]
-    public function itCompletesThePublishedHttpFlowAndRejectsTheRevokedToken(): void
+    #[DataProvider('revocations')]
+    public function testPublishedHttpFlowRejectsTheTokenAfterRevocation(string $resource): void
     {
         $identity = IdentityFixture::create();
         $api      = IdentityApiFixture::create($identity, Realm::USER);
@@ -37,10 +37,16 @@ final class UserFlowTest extends TestCase
         $current = self::resource($response, 'user');
         self::assertSame($registration['accountId'], $current['accountId']);
         self::assertSame('USER', $current['realm']);
-        $response = $api->request('DELETE', '/identity/token', token: $token);
+        $response = $api->request('DELETE', '/identity/' . $resource, token: $token);
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['completed' => true], self::resource($response, 'token'));
+        self::assertSame(['completed' => true], self::resource($response, $resource));
         self::assertSame(401, $api->request('GET', '/identity', token: $token)->getStatusCode());
+    }
+
+    /** @return array<string, array{string}> */
+    public static function revocations(): array
+    {
+        return ['token revocation' => ['token'], 'session logout' => ['session']];
     }
 
     /** @return array<string, mixed> */

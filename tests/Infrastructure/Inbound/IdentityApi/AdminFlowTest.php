@@ -14,6 +14,24 @@ use PHPUnit\Framework\TestCase;
 
 final class AdminFlowTest extends TestCase
 {
+    public function testTokenRevocationPreservesAnotherAdminSession(): void
+    {
+        $fixture = IdentityFixture::create();
+        IdentityScenario::admin($fixture);
+        $api        = IdentityApiFixture::create($fixture, Realm::ADMIN);
+        $token      = AdminContactVerificationTest::token($fixture, Realm::ADMIN);
+        $otherToken = AdminContactVerificationTest::token($fixture, Realm::ADMIN);
+        $response   = $api->request('GET', '/identity', token: $token);
+        self::assertSame(200, $response->getStatusCode());
+        $response = $api->request('DELETE', '/identity/token', token: $token);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['completed' => true], UserFlowTest::resource($response, 'token'));
+        $response = $api->request('GET', '/identity', token: $token);
+        self::assertSame(401, $response->getStatusCode());
+        $response = $api->request('GET', '/identity', token: $otherToken);
+        self::assertSame(200, $response->getStatusCode());
+    }
+
     public function testAdminCannotApproveItsOwnEnrollment(): void
     {
         $fixture   = IdentityFixture::create();
