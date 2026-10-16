@@ -27,6 +27,29 @@ Use the root `AGENTS.md` for authorization and completion boundaries. Use `17-te
 
 Before delivery, confirm the changed surfaces follow their applicable rules. Report relevant evidence and exceptions without listing unrelated surfaces or unused skills.
 
+## Context instructions
+
+Read the owning context's instructions before changing its behavior or related files. Load only affected contexts.
+This rule also applies to API contracts, configuration, migrations, and tests outside the context directory.
+
+| Affected behavior | Context instructions | Related entry points |
+| --- | --- | --- |
+| Example entries and greeting events | [ExampleCatalog](../../src/Backendbase/Domain/ExampleCatalog/AGENTS.md) | ExampleApi entry handlers, Example API contracts, Example persistence, and lifecycle tests |
+| Accounts, actors, contact verification, authentication, and sessions | [IdentityAndAccess](../../src/Backendbase/Domain/IdentityAndAccess/AGENTS.md) | IdentityApi, UserApi, SystemAdminApi, identity configuration, identity persistence, and HTTP tests |
+
+Shared platform work needs context instructions only when it affects that context's behavior or contracts.
+Keep commands at the repository root. Explicitly read selected instructions when the client has not loaded them.
+Codex startup discovery follows the path from the repository root to its working directory.
+Claude Code uses the same root and context `AGENTS.md` files directly.
+Use a Claude Code version with native `AGENTS.md` support enabled. See [client requirements](../docs/project.md#claude-code-agent-workflow).
+Do not import every context into the root instructions.
+
+Update context instructions when ownership, invariants, contracts, or verification entry points change.
+Keep detailed guidance in platform documents and durable decisions in architecture decision records.
+
+Read [Agent Workflow](agent-workflow.md) only when the user requests that workflow.
+Ordinary tasks retain the single-agent default in the [root instructions](../../AGENTS.md#9-agent-workflow).
+
 ## Task routing
 
 | Affected concern | Consult when needed |

@@ -7,7 +7,7 @@ tools: [Read, Grep, Glob, WebFetch, WebSearch]
 permissionMode: plan
 ---
 
-Follow the project rules in AGENTS.md, imported by CLAUDE.md.
+Read the root AGENTS.md and the context instructions selected through resources/platform/README.md.
 The main agent controls the workflow. Perform only this assigned role.
 
 You are the code_reviewer. Review the implementation independently.

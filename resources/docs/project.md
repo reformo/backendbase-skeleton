@@ -264,7 +264,14 @@ Select additional skills only for required procedures or invariants not already 
 
 The root `AGENTS.md` defines authorization and completion. Existing explicit authority covers the same operation, target, and scope. Local code changes do not authorize database application, deployment, or remote synchronization.
 
+Use the [context routing table](../platform/README.md#context-instructions) before changing a context or its related API, configuration, database, or tests.
+Read only the affected context instructions. Run project commands from the repository root.
+Each context owns a short `AGENTS.md` shared by Codex and Claude Code.
+Update these instructions when context rules change. Keep detailed guidance and architecture decisions in their existing documents.
+
 ## Codex Agent Workflow
+
+Use this workflow only when the user explicitly requests it. The main agent works alone for ordinary tasks.
 
 Project model defaults live in [.codex/config.toml](../../.codex/config.toml).
 The main agent uses `gpt-6.1-sol` with `high` reasoning effort.
@@ -273,7 +280,7 @@ The `planner` and `implementer` request Fast mode with `xhigh` reasoning effort.
 The `test_analyst` requests Fast mode with `high` reasoning effort.
 The `plan_reviewer` and `code_reviewer` use standard speed with `max` reasoning effort.
 Five [custom agent definitions](../../.codex/agents) supply planning, test analysis, plan review, implementation, and code review.
-The [root agent workflow](../../AGENTS.md#9-agent-workflow) defines their order, review decisions, and correction rules.
+The [Agent Workflow procedure](../platform/agent-workflow.md) defines their order, review decisions, and correction rules.
 
 The main agent coordinates every stage.
 The `test_analyst` defines test scope before implementation and audits test sources and execution evidence afterward.
@@ -285,14 +292,25 @@ The `implementer` uses `workspace-write` mode. The other custom agents use `read
 Start a new Codex session after changing these files.
 Codex loads project configuration for trusted projects.
 Explicit session settings can override project model defaults.
+Startup instruction discovery follows the repository-root-to-working-directory path. Root-started tasks explicitly read affected context instructions through the shared routing table.
+See [Codex instruction discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 
 ## Claude Code Agent Workflow
 
 Project defaults live in [.claude/settings.json](../../.claude/settings.json).
 The main agent uses the `sonnet` alias with `high` effort.
 Five [Claude agent definitions](../../.claude/agents) preserve the Codex roles, prompts, and review decisions.
-The [CLAUDE.md](../../CLAUDE.md) file imports `AGENTS.md` through `@AGENTS.md`.
-Both clients use the [same workflow](../../AGENTS.md#9-agent-workflow).
+Claude Code reads the [root instructions](../../AGENTS.md) and selected context `AGENTS.md` files directly.
+Both clients use the [same workflow](../platform/agent-workflow.md) only when the user requests it.
+The root file links to the procedure without importing it at startup.
+Related API or database work also selects context instructions through the shared routing table.
+This repository does not use `CLAUDE.md` files.
+
+Direct loading requires Claude Code 2.1.277 or later with built-in `AGENTS.md` support enabled.
+Use 2.1.281 or later for sessions affected by earlier provider or telemetry restrictions.
+The default instruction mode loads `AGENTS.md` when no ancestor `CLAUDE.md` or `CLAUDE.local.md` takes precedence.
+If client settings prevent loading, enable a supported `AGENTS.md` instruction mode in the client. Do not create instruction copies.
+See [Claude AGENTS.md support](https://code.claude.com/docs/en/memory#agents-md).
 
 Sonnet supplies planning, test analysis, and implementation. Opus supplies plan and code review.
 The aliases resolve according to the installed client and provider.
@@ -308,7 +326,7 @@ The subagent format has no Fast mode field. See [Claude Fast mode](https://code.
 
 The project sets `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` to `5`.
 Native enforcement requires Claude Code 2.1.217 or later.
-Earlier clients rely on the five-agent limit in project instructions.
+The main agent also enforces the five-agent limit in project instructions.
 See [Claude subagent limits](https://code.claude.com/docs/en/sub-agents#concurrent-subagent-limit).
 
 Start a new Claude Code session after creating these files.

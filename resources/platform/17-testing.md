@@ -109,6 +109,15 @@ See [identity acceptance](operations/identity-acceptance.md) for remaining deplo
 
 `composer docs:check-links` validates local HTML and Markdown targets. It also validates HTML fragment identifiers. It does not make network requests.
 
+For agent instruction changes, include root and context files explicitly because the default targets omit them:
+
+```sh
+php bin/check-documentation-links.php AGENTS.md resources/platform resources/docs src/Backendbase/Domain .claude/agents
+```
+
+Check shared context routing and direct `AGENTS.md` references for both clients. Do not add client-specific instruction copies.
+When moving instructions, compare the original and destination rules after accounting for headings and relative links.
+
 `composer reports:update` reads JUnit and Clover XML. It updates marked metrics in the canonical engineering quality report. `composer reports:check` fails when committed metrics are stale.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.

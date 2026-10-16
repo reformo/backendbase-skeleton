@@ -107,6 +107,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Move the optional Agent Workflow into a separate platform document while preserving its rules. Add short ExampleCatalog and IdentityAndAccess instructions and shared context routing for both clients. Remove `CLAUDE.md` and use `AGENTS.md` directly in Claude Code.
+
 - Replace the Semgrep dummy Slack webhook with an equivalent regex exclusion. Record upstream and adjusted snapshot digests.
 
 - Simplify identity forwarding layers and preserve transaction, expiry, delivery, and response behavior. Make Example audit instants explicit through the injected clock. Add exact timestamp assertions and a detailed assessment scorecard with category weights, criterion points, and deductions.
