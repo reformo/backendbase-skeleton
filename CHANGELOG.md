@@ -121,6 +121,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 - Move UserApi and SystemAdminApi controllers into their own inbound directories. Group endpoint handlers by OpenAPI tag with ExampleApi-style ModuleConfig classes and module registries. Align route names with operation IDs. Move reusable identity HTTP helpers to Adapters/Http/Identity. Preserve public routes and authentication behavior.
 
+- Fill the environment example with valid local identity settings and commented optional provider, Redis authentication, and key rotation examples. Document the public development keys and required deployment replacements.
+
 - Move the optional Agent Workflow into a separate platform document while preserving its rules. Add short ExampleCatalog and IdentityAndAccess instructions and shared context routing for both clients. Remove `CLAUDE.md` and use `AGENTS.md` directly in Claude Code.
 
 - Replace the Semgrep dummy Slack webhook with an equivalent regex exclusion. Record upstream and adjusted snapshot digests.

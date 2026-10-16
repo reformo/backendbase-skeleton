@@ -73,6 +73,10 @@ Each contact and code generation has a separate stable delivery UUID.
 The identity transaction commits before synchronous notification delivery through `ReliableNotificationDelivery`.
 Email and SMS use the configured existing providers. Provider acceptance does not prove final delivery.
 
+Local setup requires `BACKENDBASE_IDENTITY_OWNERSHIP_SENDER` and a valid `BACKENDBASE_IDENTITY_ENCRYPTION_KEY` with its key identifier.
+The example environment supplies a sender and a public 32-byte proof key for local development.
+Its default SES endpoint targets MiniStack. Replace the example keys and configure a real provider before deployment.
+
 A provider exception leaves an unknown outcome. Process loss can leave pending delivery state.
 Do not automatically replay either state. A repeated create request only returns the existing state.
 An explicit resend creates a new generation after the cooldown and quota checks.

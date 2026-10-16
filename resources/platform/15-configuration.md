@@ -56,7 +56,7 @@ Runtime components do not call `Settings::get()`. Configuration boundary objects
 
 Numeric configuration uses strict integer and finite-float parsers. Error messages identify the invalid key without exposing its value.
 
-Treat `.env.example` as a local aid, not an authoritative variable catalog. Keep database, broker, AWS, API, object-store, and Tolgee secrets outside source and logs.
+Treat `.env.example` as a local aid, not an authoritative variable catalog. It supplies distinct local User and Admin signing keys, a contact verification proof key, and a sender address. The public example keys decode to 32 bytes and must be replaced before deployment. Optional provider credentials, Redis authentication, and previous keys use commented examples. Enable them only when matching services or key rotation are configured. Keep live database, broker, AWS, API, object-store, and Tolgee secrets outside source and logs.
 
 Basis: `resources/docs/7-env-and-config.html`.
 

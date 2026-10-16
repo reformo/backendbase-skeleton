@@ -458,7 +458,7 @@
             </div>
             <div class="callout danger">
                 <strong>Never treat <code>.env.example</code> as a secret store</strong>
-                It is tracked source. Use placeholders only. Store production secrets in the deployment platform or a secret manager.
+                It is tracked source. Its public local examples include distinct 32-byte signing and contact verification proof keys. Store production secrets in the deployment platform or a secret manager.
             </div>
         </section>
 
@@ -821,8 +821,8 @@ docker compose ps</code></pre></div>
                 </article>
             </div>
             <div class="callout danger">
-                <strong>The tracked example file contains concrete-looking secret samples</strong>
-                Treat them as exposed placeholders. Do not reuse them. Replace them with neutral placeholders and rotate any value that was used outside local development.
+                <strong>The tracked example keys are public local development values</strong>
+                Replace them with independent secrets before deployment. Optional provider credentials, Redis authentication, and previous keys remain commented until matching services or key rotation are configured.
             </div>
             <ul class="checklist">
                 <li>Do not commit <code>.env</code>.</li>

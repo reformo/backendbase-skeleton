@@ -43,7 +43,7 @@ StackPort 0.4.3 connects to MiniStack inside Docker and shows its local AWS reso
 
 Nginx serves objects from the configured MiniStack bucket at `http://127.0.0.1:8081/`. It allows GET and HEAD requests and caches successful responses for 60 seconds. This URL is available from the local host.
 
-Use the local settings in `.env.example` when you create `.env`. The AWS keys are test values:
+Use the local settings in `.env.example` when you create `.env`. It includes distinct User and Admin signing keys and a contact verification proof key. These public examples are valid only for local development. Replace them with independent secrets before deployment. Optional provider credentials, Redis authentication, and previous keys remain commented until configured. The AWS keys are test values:
 
 ```dotenv
 BACKENDBASE_QUEUE_DRIVER=sqs
