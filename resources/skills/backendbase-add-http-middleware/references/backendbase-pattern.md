@@ -10,6 +10,12 @@ The Example API registers IP resolution, API-key validation, and an inline API-c
 
 The current registration order is IP resolver, API-key validator, then API context. The effective execution order starts with API context, then API-key validation, then the earlier middleware. Treat this as Slim-specific last-in, first-out behavior. Discover the target framework's rule before copying the order.
 
+UserApi and SystemAdminApi define each Authentication, Identity, and Administration group's realm once through `RealmPolicy`.
+Protected groups add `RealmAuthentication`, then `RealmPolicy`. Group middleware runs before endpoint action and contact policies.
+`RoutePolicy` and `ContactRoutePolicy` do not change the group realm. Public Authentication groups apply only `RealmPolicy`.
+Use non-static Slim group callbacks because the callable resolver binds them to the dependency container.
+Adapt group structure, middleware names, and execution order to the target project.
+
 A generic PSR-15 shape is:
 
 ```php
@@ -42,6 +48,7 @@ Build a small dependency table before changing the stack:
 | Consumer | Required value | Producer | Required execution relation |
 | --- | --- | --- | --- |
 | API-key validator | API name, header name, and key mode | API-context middleware | Context executes first |
+| Backendbase realm authentication | `expectedRealm` | Group `RealmPolicy` | Realm policy executes before authentication |
 | Identity middleware, when provided by the target | Target credential headers | Client plus boundary policy | Validate before typed identity attributes |
 | Controller | Context required by the target policy | Established middleware | Middleware executes before action |
 
@@ -70,19 +77,22 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - The public-path list includes paths that are not part of the Example API route set.
 - OPTIONS returns an empty `200`; the fallback action returns `204` for OPTIONS. Keep one intentional contract.
 - The four shared OpenAPI headers are not all enforced at runtime, and CORS omits `Accept-Language`.
-- Current Example reads and writes require an API key. No built-in identity middleware supplies authorization attributes.
+- Current Example reads and writes require an API key. Identity APIs use `RealmAuthentication` to supply a verified principal to protected routes.
 - OpenAPI validation can succeed while middleware status, headers, or bypass behavior differs. Run a semantic audit.
 
 ## Exact source provenance
 
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmPolicy.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmAuthentication.php`
 - `config/example-api/http-headers.global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/common/components.yaml`
 - `resources/bruno/example-api/`
 - `tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php`
 - `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
+- `tests/Infrastructure/Inbound/IdentityApi/ModuleRoutingTest.php`
 - `resources/docs/project.md`
 - `resources/platform/07-http-api.md`
 - `resources/platform/08-api-contracts.md`

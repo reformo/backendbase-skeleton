@@ -28,7 +28,7 @@ Use the target framework, request types, namespace, command and query buses, res
 
 ## Workflow
 
-1. Draft the method, path, operation name, security, request contract, response contract, and errors in the authoritative OpenAPI source.
+1. Draft the method, path, tag, operation name, security, request contract, response contract, and errors in the authoritative OpenAPI source.
 2. Reuse a complete application path: a command, query, or write-result orchestrator described below. Add missing handlers, ports, adapters, registration, and tests before endpoint wiring.
 3. Do not create or change database structure unless the user explicitly requests that schema change.
 4. Add or reuse a small boundary validator for path, query, header, and body data.
@@ -65,6 +65,10 @@ The second approach returns resource state at read time, not an exact commit sna
 - Apply this layout to metadata and health endpoints. Resolve component references from each containing file.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.
+- In an unmodified Backendbase API, create one handler under the owning API's `Controllers/{TagName}/Handlers/`. Use the tag's PascalCase module name.
+- In this Backendbase layout, register the operation in the module's `ModuleConfig.php`. It implements `ModuleRoute` and declares the prefix through `ROUTE_KEY` and `routeKey()`.
+- In Backendbase `ModuleConfig`, use fluent route declarations and `group()` for shared middleware. Keep endpoint policies on routes. Verify middleware execution order.
+- Verify that this API's `Controllers/ModuleRoutes.php` registers the module and `routes.php` creates its group. Match the route name to the OpenAPI operation ID.
 - In an unmodified Backendbase API, actions extend the HTTP adapter `Action` base. Other projects must use their established HTTP and error boundary.
 - Controllers do not access Doctrine, SQL, aggregate persistence, outbox, or queues.
 - Invalid input never reaches a command or query bus.
@@ -91,6 +95,8 @@ composer cs-check
 ```
 
 For a collection response, test empty results, pagination bounds, defaults, and maximum size according to the contract. Run Bruno only when the API and its dependencies are prepared.
+
+Check that the real route resolves the handler inside the selected API and the module named by its OpenAPI tag.
 
 ## Completion report
 

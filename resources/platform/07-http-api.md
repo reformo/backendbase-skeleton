@@ -8,6 +8,22 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
 - API middleware, routes, controllers, configuration, OpenAPI, and Bruno use matching class and slug names.
 - `ModuleRoutes` must register each HTTP module explicitly.
+- UserApi and SystemAdminApi each own their controllers and route registration. Their route policies select a fixed authentication realm.
+- Group new endpoint controllers by OpenAPI tag inside their owning API. Use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`.
+- UserApi and SystemAdminApi modules are Authentication, Identity, System, and SystemAdminApi Administration.
+- Follow ExampleApi's module pattern: `ModuleConfig` implements `ModuleRoute`, declares `ROUTE_KEY`, and registers one handler per operation under `Handlers`.
+- `ModuleRoutes` maps prefixes to module classes. `routes.php` creates their route groups. Route names match OpenAPI operation IDs.
+- Use fluent route declarations in `ModuleConfig`, following ExampleApi. Chain the HTTP method, `setName()`, and endpoint-specific `add()` calls.
+- Place routes with common middleware in `group()`. Attach shared middleware once to that group.
+- Reusable identity input, dispatch, and policy helpers live under `Infrastructure/Adapters/Http/Identity`. Administration input belongs inside SystemAdminApi's Administration module.
+
+Authentication, Identity, and Administration modules define their realm once per group through `RealmPolicy`.
+Identity and Administration modules use an empty-prefix subgroup. The subgroup adds `RealmAuthentication`, then its fixed `RealmPolicy`.
+Slim runs the last added middleware first. The group policy supplies `expectedRealm` before authentication runs.
+`RoutePolicy` supplies only the endpoint action. `ContactRoutePolicy` supplies only contact settings. Neither policy sets or replaces the group realm.
+Endpoint action and contact policies run after group authentication. Public Authentication groups apply only `RealmPolicy` and do not require a bearer token.
+Anonymous authentication, health, and preflight routes remain outside protected groups.
+Use non-static group callbacks because Slim binds them to the dependency container.
 
 ## Controller rules
 

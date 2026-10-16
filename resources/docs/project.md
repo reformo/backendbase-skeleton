@@ -157,6 +157,11 @@ The current repository contains `ExampleApi`, `UserApi`, and `SystemAdminApi` un
 
 `Infrastructure/Inbound` holds consumer-specific entry code. Each consumer API keeps its routes, middleware, and controllers together. Operational console commands live under `Infrastructure/Adapters/Console`. Reusable HTTP support stays under `Infrastructure/Adapters/Http`.
 
+Controller modules follow OpenAPI tags through `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`. Each operation has one handler and a matching route name.
+Use fluent route declarations and `group()` for common middleware. Identity APIs define each group's realm once through `RealmPolicy`.
+Protected groups also apply `RealmAuthentication`. Route action and contact policies retain the group realm. Public Authentication groups apply no bearer authentication.
+See [HTTP API guidance](../platform/07-http-api.md) for module registration and middleware execution order.
+
 Use `ExampleApi` as the reference for general HTTP adapter patterns. Use the existing identity APIs for realm-specific behavior. Use `resources/skills/backendbase-add-use-case-api/SKILL.md` when the user requests another API. Inspect current directories before assuming another API exists.
 
 Before implementing a feature, inspect the current `Infrastructure/Inbound` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.

@@ -69,6 +69,7 @@ Clients that read the previous metadata key must update their lookup.
 The specifications and Bruno collections contain 37 operations: ExampleApi has 9, UserApi has 11, and SystemAdminApi has 17.
 `ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
 It also checks success key names and Bruno status, key, and wrapper assertions.
+Identity API `ModuleRoutingTest` checks module registration, route names, and handler namespaces against the OpenAPI tags and operation IDs.
 `ApiResponseAssertions` checks executed HTTP responses against resolved source and merged schemas.
 It checks media types, required fields, allowed fields, object and array shapes, primitive types, enums, and empty bodies.
 These shape checks do not validate every OpenAPI format or numeric limit.
@@ -135,6 +136,9 @@ Quality and release workflows use the grouped identity commands.
 
 Each API root owns metadata, servers, tags, components, and the path reference index.
 Endpoint files own operation definitions. Keep methods for one path together.
+UserApi and SystemAdminApi controller modules use the same names as their OpenAPI tags.
+Each module contains `ModuleConfig.php` and a `Handlers` directory with one handler per operation.
+Register each module in `Controllers/ModuleRoutes.php`. Keep browser preflight in `Controllers/Root` because it has no OpenAPI operation.
 For example, UserApi references `./authentication/login.yaml` from its root `paths` entry for `/auth/login`.
 That file references shared headers through `../../common/components.yaml` and root schemas through `../user-api-openapi.yml#/components/schemas/...`.
 

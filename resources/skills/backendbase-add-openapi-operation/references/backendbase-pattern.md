@@ -50,6 +50,11 @@ Each assigned tag must appear in the root document's declarations.
 Use consistent groups across consumer APIs: `Authentication`, `Identity`, `Administration`, `System`, and `Example` where applicable.
 Add root descriptions and adapt names to differently named target modules.
 
+New Backendbase controller modules follow the same tag groups using ExampleApi's `ModuleConfig.php` and `Handlers/` layout.
+Each handler belongs to its consumer API's `Controllers/{TagName}/Handlers/` directory. Use one handler per operation.
+The module registry and route names must match the tag grouping and operation IDs.
+Report a mismatched runtime module during contract review. Do not move controllers when only a contract edit is authorized.
+
 Backendbase API validation commands check source and merged schemas and run `bin/check-openapi-tags.php`.
 The checker resolves referenced path files and rejects missing, empty, undeclared, or malformed tag names and duplicate declarations.
 Other projects must use their own generation, schema validation, and tag validation tools.
@@ -124,7 +129,7 @@ security:
   - bearerAuth: []
 ```
 
-Use bearer examples only when the target provides bearer authentication. Backendbase currently provides API-key HTTP protection only.
+Use bearer examples only when the target provides bearer authentication. Backendbase ExampleApi uses API-key protection. UserApi and SystemAdminApi use bearer authentication for protected groups and explicitly permit anonymous authentication and health operations.
 
 ACL is an application authorization decision rather than an OpenAPI security scheme. Document its `403` outcome and keep the named privilege explicit in runtime code and tests.
 

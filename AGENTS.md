@@ -113,7 +113,7 @@ Finish when the requested behavior works, required checks pass, and affected doc
 2. Do not use `else` — handle guard and error cases with early returns.
 3. Wrap primitives that carry business rules in dedicated value objects instead of passing raw strings, integers, or floats.
 4. Use first-class collections — a collection class has the contained items as its only instance property and exposes collection behavior through methods.
-5. Use at most one object access operator (`->` or `?->`) per statement to avoid traversing object graphs (Law of Demeter).
+5. Use at most one object access operator (`->` or `?->`) per statement to avoid traversing object graphs (Law of Demeter). Fluent route and group declarations in `ModuleConfig` are an exception.
 6. Do not abbreviate class, method, property, or variable names; use complete, intention-revealing names.
 7. Keep classes small — no more than 150 lines per class file and no more than 10 class files per namespace directory.
 8. Use no more than two instance properties per class. Doctrine entity mapped fields are exempt because each entity must declare all of its fields directly.
@@ -152,6 +152,20 @@ Finish when the requested behavior works, required checks pass, and affected doc
 - Use consistent tag names for the same endpoint group across APIs.
 - Add a description to each root tag declaration.
 - Run the API validation command after generation. It checks source and merged documents for schema and tag rules.
+
+### API controller organization
+
+- Keep each consumer API's controllers inside its own `Infrastructure/Inbound/{ApiName}` directory.
+- Group new endpoint controllers by their OpenAPI tag. Use the tag's PascalCase name for the controller module.
+- Follow the [ExampleApi module structure](src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example): `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`.
+- Create one handler per documented operation inside the module's `Handlers` directory.
+- Implement `ModuleRoute` in each `ModuleConfig`. Keep `ROUTE_KEY` and `routeKey()` equal to the module's URL prefix.
+- Use fluent route declarations, following ExampleApi: chain the HTTP method, `setName()`, and route-specific `add()` calls.
+- Put routes with common middleware in `group()`. Attach that middleware once to the group. Keep endpoint-specific policies on their routes.
+- Verify group and route middleware order. A fixed realm policy must run before group authentication.
+- Register each module explicitly in `Controllers/ModuleRoutes.php`. Create its route group in the owning API's `routes.php`.
+- Match route names to OpenAPI operation IDs. Verify tag, module, handler, and route registration together in routing tests.
+- Keep reusable HTTP helpers under `Infrastructure/Adapters/Http`. Shared domain behavior does not justify shared consumer controllers.
 
 ### Doctrine entities
 

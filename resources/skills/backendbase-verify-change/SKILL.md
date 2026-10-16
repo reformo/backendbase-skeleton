@@ -34,6 +34,9 @@ Review data loss, authorization, secrets, external effects, and incompatible con
 
 Trace changed fields or state through participating boundaries, contracts, handlers, adapters, responses or events, and tests. Omit absent surfaces. Do not invent work for them.
 
+For new Backendbase HTTP endpoints, verify `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/` inside the owning API. Check one handler per operation, explicit module registration, and route names matching OpenAPI operation IDs. Use the target's established equivalents in other projects.
+Verify fluent Backendbase route declarations and shared middleware groups. Exercise group and endpoint middleware together, including rejected and allowed requests.
+
 Current source establishes behavior, but does not authorize a platform-rule exception. Report conflicts. Ask only when existing requirements and authority do not resolve the decision.
 
 ## Coordinate verification

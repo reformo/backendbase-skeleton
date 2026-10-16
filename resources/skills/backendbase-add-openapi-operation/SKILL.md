@@ -36,7 +36,7 @@ Resolve references from their containing file. Adjust shared and root component 
 
 1. Draft the intended method, path, inputs, security, success response, headers, and errors in the authoritative OpenAPI source.
 2. Treat that definition as a draft until a complete application path and runtime endpoint exist.
-3. Reconcile the draft against the route, middleware, sanitizer, validator, command or query construction, response mapper, and tests.
+3. Reconcile the draft against the tag's controller module, route, middleware, sanitizer, validator, command or query construction, response mapper, and tests.
 4. Reuse shared parameters and problem responses only when their contracts match.
 5. Define exact path, query, header, body, success, and failure shapes, including required state, nullability, defaults, formats, ranges, and limits.
 6. Express anonymous, API-key, bearer, ACL, AND, and OR semantics correctly.
@@ -53,6 +53,10 @@ Resolve references from their containing file. Adjust shared and root component 
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.
+- In an unmodified Backendbase API, new operation handlers belong in the owning API's `Controllers/{TagName}/Handlers/`, using the tag's PascalCase module name.
+- In this Backendbase layout, `ModuleConfig.php` implements `ModuleRoute` and registers the operation. The API's `ModuleRoutes` registry owns module registration. Route names match operation IDs.
+- Include group middleware when reconciling operation security. Backendbase modules use fluent route declarations and apply common middleware through `group()`.
+- Report controller/tag mismatches during contract reconciliation. A contract-only request does not authorize moving runtime controllers.
 - Editable sources live under `resources/api-docs`.
 - Generated merged YAML is never hand-edited.
 - Each operation ID is unique.

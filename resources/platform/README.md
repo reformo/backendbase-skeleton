@@ -35,7 +35,7 @@ This rule also applies to API contracts, configuration, migrations, and tests ou
 | Affected behavior | Context instructions | Related entry points |
 | --- | --- | --- |
 | Example entries and greeting events | [ExampleCatalog](../../src/Backendbase/Domain/ExampleCatalog/AGENTS.md) | ExampleApi entry handlers, Example API contracts, Example persistence, and lifecycle tests |
-| Accounts, actors, contact verification, authentication, and sessions | [IdentityAndAccess](../../src/Backendbase/Domain/IdentityAndAccess/AGENTS.md) | IdentityApi, UserApi, SystemAdminApi, identity configuration, identity persistence, and HTTP tests |
+| Accounts, actors, contact verification, authentication, and sessions | [IdentityAndAccess](../../src/Backendbase/Domain/IdentityAndAccess/AGENTS.md) | UserApi, SystemAdminApi, shared identity HTTP support, identity configuration, identity persistence, and HTTP tests |
 
 Shared platform work needs context instructions only when it affects that context's behavior or contracts.
 Keep commands at the repository root. Explicitly read selected instructions when the client has not loaded them.

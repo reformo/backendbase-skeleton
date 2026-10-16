@@ -9,7 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
-use Backendbase\Infrastructure\Inbound\IdentityApi\Http\ContactHttpInput;
+use Backendbase\Infrastructure\Adapters\Http\Identity\ContactHttpInput;
 use Laminas\Diactoros\ServerRequestFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

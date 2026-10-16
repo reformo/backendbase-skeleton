@@ -701,6 +701,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
             <p>Every root <code>paths</code> entry must use a relative <code>$ref</code>, including metadata and health endpoints. Resolve references from their containing file.</p>
             <p>Group files reference shared components through <code>../../common/components.yaml</code>. Reference root schemas through <code>../{root-spec}.yml#/components/schemas/{schema-name}</code>.</p>
             <p>Every operation must define a non-empty <code>tags</code> list. Declare each assigned tag with a description in the root document. Use consistent names across APIs.</p>
+            <p>UserApi and SystemAdminApi controller modules match these tags. Each module contains <code>ModuleConfig.php</code> and a <code>Handlers</code> directory. The module registry declares each prefix, and route names match OpenAPI operation IDs. Identity API <code>ModuleRoutingTest</code> checks this mapping.</p>
             <div class="table-wrap"><table><thead><tr><th>Endpoint group</th><th>Tag</th></tr></thead><tbody>
                 <tr><td><code>/auth/*</code></td><td>Authentication</td></tr>
                 <tr><td><code>/identity</code> and <code>/identity/*</code></td><td>Identity</td></tr>

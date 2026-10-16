@@ -19,7 +19,8 @@ This context is the complete business-module reference. Production contexts use 
 ## Change locations
 
 - Bind ports, handlers, and subscribers in [ServiceProvider.php](ServiceProvider.php).
-- Keep Example HTTP handlers in [ExampleApi](../../Infrastructure/Inbound/ExampleApi/Controllers/Example).
+- Keep operations with the `Example` OpenAPI tag in [ExampleApi's Example module](../../Infrastructure/Inbound/ExampleApi/Controllers/Example).
+- Add one controller per operation under `Handlers`. Register it in the module's `ModuleConfig.php`, following the [API controller organization rule](../../../../AGENTS.md#api-controller-organization).
 - Use [event contracts](../../../../resources/platform/05-integration-event-contracts.md) for producer and consumer changes.
 - Use [persistence guidance](../../../../resources/platform/09-persistence.md) for Doctrine and memory adapter changes.
 

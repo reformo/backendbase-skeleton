@@ -34,6 +34,9 @@
     <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
         <tr><td><code>ValidateApiKey</code></td><td>Validate an API-specific key before dispatch.</td></tr>
         <tr><td><code>ApiKeySettings</code></td><td>Validate configuration and compare the expected key.</td></tr>
+        <tr><td><code>RealmPolicy</code></td><td>Set the trusted realm once per Authentication, Identity, or Administration group.</td></tr>
+        <tr><td><code>RealmAuthentication</code></td><td>Validate a bearer token against the group realm and supply the verified principal.</td></tr>
+        <tr><td><code>RoutePolicy</code> and <code>ContactRoutePolicy</code></td><td>Set endpoint actions and contact settings without changing the group realm.</td></tr>
         <tr><td><code>AccessControl</code></td><td>Shared interface for an application privilege decision.</td></tr>
         <tr><td><code>QueueGreetingHandler</code></td><td>Check <code>example.add</code> before the internal greeting transaction.</td></tr>
     </tbody></table></div>
@@ -59,6 +62,8 @@
 <section id="routes"><p class="section-label">06 · Route policy</p><h2>Protect new endpoints by default</h2>
     <p>Apply the target API's existing security policy. Example operations use the API key. Identity operations use trusted USER or ADMIN policies. Declare anonymous policy explicitly in routing and OpenAPI.</p>
     <p>Metadata and all six Example routes require an API key. Liveness and readiness use <code>security: []</code>.</p>
+    <p>Identity and Administration groups add <code>RealmAuthentication</code>, then <code>RealmPolicy</code>. Slim executes the last added middleware first. The realm therefore exists before authentication runs. Endpoint action and contact policies execute after group authentication.</p>
+    <p>Public Authentication groups apply only <code>RealmPolicy</code>. Login and public contact verification do not require a bearer token. Health and preflight routes remain outside protected groups.</p>
     <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
 <section id="configuration"><p class="section-label">07 · Configuration</p><h2>Keep the key outside source control</h2>
@@ -80,20 +85,24 @@
 </section>
 <section id="tests"><p class="section-label">10 · Tests</p><h2>Verify actual routes and internal command policy</h2>
     <pre><code>vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi
+vendor/bin/phpunit tests/Infrastructure/Inbound/IdentityApi
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware
 vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/QueueGreetingHandlerTest.php</code></pre>
     <p>Route tests verify allowed writes, missing or invalid API keys, retained responses, and removed endpoints. Internal tests verify greeting authorization and duplicate delivery.</p>
+    <p>Identity <code>ModuleRoutingTest</code> checks tag-based modules and all 15 protected routes for missing-token and cross-realm rejection. The identity suite also covers public login, contact verification, authenticated flows, and anonymous preflight.</p>
 </section>
 <section id="sources"><p class="section-label">11 · Source map</p><h2>Primary sources</h2>
     <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
         <tr><td>API key</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php">ValidateApiKey.php</a></td></tr>
         <tr><td>API middleware</td><td><a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php">middleware.php</a></td></tr>
+        <tr><td>Group realm</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmPolicy.php">RealmPolicy.php</a></td></tr>
+        <tr><td>Bearer authentication</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmAuthentication.php">RealmAuthentication.php</a></td></tr>
         <tr><td>Access-control contract</td><td><a href="../../src/Backendbase/Shared/Authorization/AccessControl.php">AccessControl.php</a></td></tr>
         <tr><td>Internal greeting</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/QueueGreetingHandler.php">QueueGreetingHandler.php</a></td></tr>
     </tbody></table></div>
 </section>
 <section id="identity-realms"><h2>Identity realms and session gates</h2>
-<p>Set <code>X-Source-Id</code> to <code>user</code> or <code>system-admin</code>. The trusted route selects USER or ADMIN authentication policy. A client header does not grant authority.</p>
+<p>Set <code>X-Source-Id</code> to <code>user</code> or <code>system-admin</code>. The selected API's group sets USER or ADMIN through <code>RealmPolicy</code>. A client header does not grant authority.</p>
 <p>Verify both email and mobile before User registration. Both proofs must be less than 12 hours old. Registration consumes both proofs and creates one global Account and one User actor atomically. Admin contact verification remains optional after enrollment and login. See <a href="../platform/operations/contact-verification.md">contact verification</a> for the complete contract.</p>
 <p>Admin enrollment requires an existing verified Account, invitation evidence, and separate approval evidence. An Admin cannot approve its own invitation. Both realms use password authentication.</p>
 <p><code>POST /auth/login</code> returns a <code>session</code> result with a short-lived JSON Web Token (JWT) only after Redis records both token and session allowlist entries. Request validation checks signature, issuer, audience, realm, actor type, expiry, both Redis records, and current Account and actor state.</p>

@@ -18,7 +18,15 @@ This context owns global Accounts, User and SystemAdmin actors, contact evidence
 ## Change locations and decisions
 
 - Bind owned ports and handlers in [ServiceProvider.php](ServiceProvider.php).
-- Keep shared identity HTTP handlers in [IdentityApi](../../Infrastructure/Inbound/IdentityApi), with separate [UserApi](../../Infrastructure/Inbound/UserApi) and [SystemAdminApi](../../Infrastructure/Inbound/SystemAdminApi) entry points.
+- Keep controllers and route registration inside their owning [UserApi](../../Infrastructure/Inbound/UserApi) or [SystemAdminApi](../../Infrastructure/Inbound/SystemAdminApi) directory.
+- Match controller modules to OpenAPI tags: Authentication, Identity, System, and SystemAdminApi Administration. Apply the [API controller organization rule](../../../../AGENTS.md#api-controller-organization).
+- Use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`, following ExampleApi. Keep `ROUTE_KEY` and `routeKey()` equal to the module's URL prefix.
+- Register modules explicitly in `Controllers/ModuleRoutes.php`. Give each operation its own handler and use its OpenAPI operation ID as the route name.
+- Use fluent route declarations. Define the realm once per group through `RealmPolicy`. Do not repeat realms in `RoutePolicy` or `ContactRoutePolicy`.
+- Group protected routes with `RealmAuthentication` and `RealmPolicy`. Add `RealmPolicy` last so it runs before authentication.
+- Apply only `RealmPolicy` to public Authentication groups. Realm selection does not require bearer authentication.
+- Keep action and contact policies on individual routes. Keep anonymous authentication, health, and preflight routes outside protected groups.
+- Keep reusable identity HTTP input, dispatch, and policy support in [Adapters/Http/Identity](../../Infrastructure/Adapters/Http/Identity). Keep administration input inside SystemAdminApi's Administration module.
 - Read [authentication rules](../../../../resources/platform/14-security.md) for token, login, and session changes.
 - Read [contact verification](../../../../resources/platform/operations/contact-verification.md) for proof, quota, delivery, and recovery changes.
 - Use [ADR-0036](../../../../resources/adr/0036-single-identity-and-access-context-and-global-accounts.md), [ADR-0049](../../../../resources/adr/0049-password-authentication-without-totp.md), and [ADR-0050](../../../../resources/adr/0050-contact-verification-before-user-registration.md) for current scope and decisions.

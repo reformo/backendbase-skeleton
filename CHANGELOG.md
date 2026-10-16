@@ -113,6 +113,14 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Reconcile project, security, testing, and skill documentation with tag-based controller modules and group-owned realm policies. Remove stale API-key-only identity claims from skill guidance.
+
+- Use ExampleApi-style fluent route declarations in UserApi and SystemAdminApi modules. Define each group's realm once through RealmPolicy. Keep action and contact policies independent of realm selection. Apply shared realm authentication to protected route groups. Verify missing-token and cross-realm rejection for all protected routes.
+
+- Require OpenAPI tag-based controller modules in project instructions and API authoring and review skills. Use the ExampleApi ModuleConfig and Handlers layout for new endpoints.
+
+- Move UserApi and SystemAdminApi controllers into their own inbound directories. Group endpoint handlers by OpenAPI tag with ExampleApi-style ModuleConfig classes and module registries. Align route names with operation IDs. Move reusable identity HTTP helpers to Adapters/Http/Identity. Preserve public routes and authentication behavior.
+
 - Move the optional Agent Workflow into a separate platform document while preserving its rules. Add short ExampleCatalog and IdentityAndAccess instructions and shared context routing for both clients. Remove `CLAUDE.md` and use `AGENTS.md` directly in Claude Code.
 
 - Replace the Semgrep dummy Slack webhook with an equivalent regex exclusion. Record upstream and adjusted snapshot digests.

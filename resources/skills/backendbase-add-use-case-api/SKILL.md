@@ -29,7 +29,7 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 
 1. Define the API name, slug, selector input, public base path, and ownership.
 2. Add the selector mapping and prove both valid and invalid selection.
-3. Create API middleware, routes, module registry, root handlers, and configuration roots.
+3. Create API middleware, routes, an explicit module registry, controller modules grouped by OpenAPI tag, and configuration roots.
 4. Add only the public, authentication, and health operations requested by the user.
 5. Add editable OpenAPI sources, generated-document wiring, and generation commands.
 6. Add a Bruno collection only when executable API coverage is in scope.
@@ -44,6 +44,10 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.
+- In an unmodified Backendbase API, create `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/` inside the owning API. Use the tag's PascalCase module name.
+- In this Backendbase layout, `ModuleConfig` implements `ModuleRoute`; `ROUTE_KEY` and `routeKey()` identify its URL prefix. Create one handler per documented operation.
+- In Backendbase `ModuleConfig`, use fluent route declarations and `group()` for shared middleware. Keep endpoint policies on routes. Verify middleware execution order.
+- In this layout, create route groups from the explicit `ModuleRoutes` registry. Match route names to OpenAPI operation IDs. Keep consumer controllers separate even when domain behavior is shared.
 - Consumer-specific HTTP entry code lives under `Infrastructure/Inbound`, outside bounded contexts.
 - Current API selection uses `X-Source-Id` through `ConsumerApiTarget`.
 - API class name, slug, selector, config, cache, OpenAPI, public docs, and Bruno names stay aligned.
@@ -56,6 +60,8 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 ## Verification
 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
+
+Check that every documented operation resolves to a handler in its tag's module within the selected API. Verify module prefixes and operation names.
 
 Choose the commands that prove the affected bootstrap, routing, and contract behavior:
 

@@ -29,11 +29,11 @@ Use the target API namespace, routing framework, module interface, naming rules,
 ## Workflow
 
 1. Define a stable module prefix and list only the requested operations.
-2. Draft the matching OpenAPI paths, operation names, inputs, responses, and security policy.
+2. Select the module's OpenAPI tag. Draft matching paths, operation names, inputs, responses, and security policy.
 3. Confirm that every handler can call a complete command or query application path before adding controller wiring.
-4. Create the target module configuration using the project's route-module contract.
+4. Create the target module configuration and handler directory under the owning API, using the tag's module name and route-module contract.
 5. Register the module in the API's explicit module registry.
-6. Apply the target security policy with its established middleware. Current Backendbase operations use API-key protection. Add identity or privilege layers only when the target provides and requires them.
+6. Apply the target security policy with its established middleware. Current Backendbase Example operations use API-key protection. Add identity or privilege layers only when the target provides and requires them.
 7. Add or connect handlers without moving business logic into routing code.
 8. Reconcile route placeholders, operation names, security, responses, and shared headers with OpenAPI and any configured CORS policy.
 9. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
@@ -49,7 +49,10 @@ Use the target API namespace, routing framework, module interface, naming rules,
 - Group every OpenAPI operation with a non-empty `tags` list.
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.
+- In an unmodified Backendbase API, use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`. Convert the tag to its PascalCase module name.
+- Keep one handler per documented operation in that module. Do not combine handlers from different tags or consumer APIs.
 - In an unmodified Backendbase API, `ModuleConfig` implements `ModuleRoute`.
+- In Backendbase `ModuleConfig`, use fluent route declarations and `group()` for shared middleware. Keep endpoint policies on routes. Verify middleware execution order.
 - In an unmodified Backendbase API, `ROUTE_KEY` and `routeKey()` identify the same prefix.
 - In an unmodified Backendbase API, `ModuleRoutes` registers every module explicitly.
 - Route names are unique and match the corresponding OpenAPI operation IDs.
@@ -79,6 +82,8 @@ composer cs-check
 ```
 
 Update route-count assertions to the intended total. Do not weaken them only to make the test pass. Exercise the real route middleware because route counts and names do not prove protection.
+
+Verify the tag-to-module mapping through the actual registry and routes. Match each handler namespace, module prefix, and route name to its documented operation.
 
 ## Completion report
 

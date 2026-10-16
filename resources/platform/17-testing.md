@@ -83,6 +83,9 @@ PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `publi
 API validation commands check source and merged OpenAPI schemas and endpoint tags.
 `ApiDefinitionParityTest` checks all 37 documented operations, source/merged equality, and Bruno response assertions.
 `ApiResponseAssertions` compares executed responses with source and merged schemas for keys, shapes, types, enums, and media types.
+Identity `ModuleRoutingTest` checks module registration, handler namespaces, and route names against OpenAPI tags and operation IDs.
+It verifies missing-token and cross-realm rejection on all 15 protected routes through the actual group middleware.
+The identity HTTP suite covers public login, contact verification, authenticated flows, and anonymous preflight across both APIs.
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 
 Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.

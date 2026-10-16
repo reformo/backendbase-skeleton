@@ -479,7 +479,7 @@
             </div>
             <div class="callout info">
                 <strong>Current reference</strong>
-                The repository contains one consumer API: <code>ExampleApi</code>. Do not assume that another API exists before you scaffold it.
+                The repository contains <code>ExampleApi</code>, <code>UserApi</code>, and <code>SystemAdminApi</code>. Each API owns its controllers and route registration.
             </div>
         </section>
 
@@ -507,6 +507,21 @@ resources/api-docs/example-api/        # OpenAPI source
 resources/bruno/example-api/           # End-to-end requests
 tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <p>The PHP namespace uses <code>ExampleApi</code>. Public, configuration, specification, cache, and Bruno paths use the <code>example-api</code> slug.</p>
+            <p><code>UserApi/Controllers</code> and <code>SystemAdminApi/Controllers</code> follow the same module pattern. Their module names match the OpenAPI tags: <code>Authentication</code>, <code>Identity</code>, and <code>System</code>. <code>SystemAdminApi</code> also has <code>Administration</code>.</p>
+            <div class="code-wrap"><pre><code>Controllers/
+├── ModuleRoutes.php                  # Explicit module registry
+├── Root/Preflight.php                # Browser OPTIONS handler
+└── {OpenApiTag}/
+    ├── ModuleConfig.php              # ModuleRoute implementation and route prefix
+    ├── AdministrationHttpInput.php   # Administration module only
+    └── Handlers/                     # One action per documented operation</code></pre></div>
+            <p><code>routes.php</code> creates one group per registered module. Each route name matches its OpenAPI operation ID. Administration controllers and input belong to the <code>Administration</code> module.</p>
+            <p>Use fluent route declarations in <code>ModuleConfig</code>, following ExampleApi. Chain the HTTP method, <code>setName()</code>, and endpoint-specific <code>add()</code> calls. Use <code>group()</code> to apply common middleware once.</p>
+            <p>Authentication, Identity, and Administration modules define their realm once per group through <code>RealmPolicy</code>. <code>RoutePolicy</code> supplies only the endpoint action. <code>ContactRoutePolicy</code> supplies only contact settings. Neither policy sets or replaces the group realm.</p>
+            <p>Protected Identity and Administration routes share an empty-prefix subgroup. Add <code>RealmAuthentication</code>, then the fixed <code>RealmPolicy</code>. Slim executes the last added middleware first, so the realm policy runs before authentication. Keep action and contact policies on individual routes. Use non-static group callbacks because Slim binds them to the dependency container.</p>
+            <p>Public Authentication groups apply only <code>RealmPolicy</code> and do not require a bearer token.</p>
+            <p>Anonymous authentication, health, and preflight routes remain outside protected groups.</p>
+            <p>Both APIs use the same <code>IdentityAndAccess</code> application operations. Reusable HTTP input, dispatch, and policy helpers belong under <code>Infrastructure/Adapters/Http/Identity</code>.</p>
         </section>
 
         <section id="lifecycle">

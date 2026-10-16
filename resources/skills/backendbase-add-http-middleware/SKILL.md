@@ -17,7 +17,7 @@ Inspect only unknown facts needed by the affected behavior. Reuse applicable ins
 2. Discover the actual API surface, route registry, middleware file, OpenAPI root, CORS configuration, and Bruno collection. Do not assume a fixed API list.
 3. Inspect the affected middleware stack, framework ordering, request attributes, nearest middleware, and boundary tests.
 4. Trace every request attribute and header the middleware consumes or produces, including the earlier component that supplies each value.
-5. Resolve API-wide or route-level scope, public bypasses, OPTIONS behavior, failure status, response schema, and contract impact.
+5. Resolve API-wide, group, or route scope, public bypasses, OPTIONS behavior, failure status, response schema, and contract impact.
 6. Read only the sections of [references/backendbase-pattern.md](references/backendbase-pattern.md) needed to resolve this task.
 
 Do not add a middleware or public bypass without a requested transport policy.
@@ -44,6 +44,8 @@ Use the target PSR interfaces, framework stack semantics, container, attribute n
 - Middleware owns transport policy, not business decisions.
 - In an unmodified Backendbase API, API context attributes exist before `ValidateApiKey` reads them.
 - Slim executes added middleware last-in, first-out; registration and execution order need an integration test.
+- Define common middleware and its fixed settings once per group. Keep endpoint-specific settings on individual routes.
+- In Backendbase identity APIs, `RealmPolicy` supplies the group realm before `RealmAuthentication`. Route action and contact policies retain that realm.
 - Public bypasses correspond to actual routes and have an explicit reason.
 - Failure status and body match OpenAPI.
 - When CORS is configured, it permits every documented request header.

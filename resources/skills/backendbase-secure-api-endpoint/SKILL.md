@@ -1,6 +1,6 @@
 ---
 name: backendbase-secure-api-endpoint
-description: Protect an existing API operation with the target project's established API-key and access-control mechanisms. Do not create an identity provider or credential flow.
+description: Protect an existing API operation with the target project's established API-key, identity, and access-control mechanisms. Do not create an identity provider or credential flow.
 ---
 
 # Secure an API endpoint
@@ -43,9 +43,11 @@ Test expired or revoked credentials only when the selected mechanism provides th
 
 ## Backendbase reference policy
 
-- An unmodified Backendbase API uses API-key protection for metadata and all Example reads and writes.
+- Backendbase ExampleApi uses API-key protection for metadata and all Example reads and writes.
 - Liveness and readiness are public.
-- The current repository has no built-in bearer identity or account flow.
+- Backendbase UserApi and SystemAdminApi provide account flows and separate bearer authentication realms.
+- Define each group's realm once through `RealmPolicy`. Protected groups also apply `RealmAuthentication`; public Authentication groups apply only `RealmPolicy`.
+- Keep endpoint action and contact policies independent of realm selection. Verify group middleware order through actual requests.
 - Shared `AccessControl` remains available for application privilege decisions.
 - Internal `QueueGreeting` checks `example.add` before its transaction. It has no HTTP route.
 - Other projects must use their discovered security policy and equivalent application boundary.
@@ -57,7 +59,7 @@ Test expired or revoked credentials only when the selected mechanism provides th
 
 Select checks for the changed behavior and target policy. Adapt every command and path to the target runner. Reuse successful checks while their inputs remain unchanged.
 
-Backendbase route evidence uses `tests/Infrastructure/Inbound/ExampleApi` and `tests/Infrastructure/Adapters/Http/Middleware`. Internal greeting policy uses its context-owned handler tests. These are examples, not required target paths.
+Backendbase route evidence uses `tests/Infrastructure/Inbound/ExampleApi`, `tests/Infrastructure/Inbound/IdentityApi`, and `tests/Infrastructure/Adapters/Http/Middleware`. Internal greeting policy uses its context-owned handler tests. These are examples, not required target paths.
 
 Run focused boundary tests, source and generated OpenAPI validation, and the target's required analysis, complexity, and style checks. A middleware unit test alone does not prove route protection.
 

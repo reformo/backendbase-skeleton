@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Inbound\IdentityApi;
 
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use Backendbase\Infrastructure\Inbound\IdentityApi\IdentityRoutes;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Slim\Factory\AppFactory;
@@ -26,13 +25,20 @@ use const JSON_THROW_ON_ERROR;
 final class ApiContractTest extends TestCase
 {
     #[DataProvider('realms')]
-    public function testRoutesOpenApiAndBrunoHaveTheSamePublicOperations(Realm $realm, string $slug): void
+    public function testRoutesOpenApiAndBrunoHaveTheSamePublicOperations(string $apiName, string $slug): void
     {
-        $app = AppFactory::create();
-        IdentityRoutes::register($app, $realm);
+        $fixture   = IdentityFixture::create();
+        $container = $fixture->container();
+        $app       = AppFactory::create(container: $container);
+        $register  = require 'src/Backendbase/Infrastructure/Inbound/' . $apiName . '/routes.php';
+        $register($app);
         $collector = $app->getRouteCollector();
         $runtime   = [];
         foreach ($collector->getRoutes() as $route) {
+            $controller = $route->getCallable();
+            self::assertIsString($controller);
+            self::assertStringStartsWith('Backendbase\\Infrastructure\\Inbound\\' . $apiName . '\\Controllers\\', $controller);
+            self::assertIsCallable($container->get($controller));
             foreach ($route->getMethods() as $method) {
                 if ($method === 'OPTIONS') {
                     continue;
@@ -83,10 +89,10 @@ final class ApiContractTest extends TestCase
         self::assertSame($runtime, $examples);
     }
 
-    /** @return array<string, array{Realm, string}> */
+    /** @return array<string, array{string, string}> */
     public static function realms(): array
     {
-        return ['user' => [Realm::USER, 'user-api'], 'admin' => [Realm::ADMIN, 'system-admin-api']];
+        return ['user' => ['UserApi', 'user-api'], 'admin' => ['SystemAdminApi', 'system-admin-api']];
     }
 
     private static function normalize(string $path): string

@@ -13,6 +13,9 @@
 | Typed runtime and adapter settings | `src/Backendbase/Infrastructure/Configuration` |
 | Shared HTTP and configuration validation settings | `src/Backendbase/Shared/Configuration` |
 | Example API adapter | `src/Backendbase/Infrastructure/Inbound/ExampleApi` |
+| User API controllers and routes | `src/Backendbase/Infrastructure/Inbound/UserApi` |
+| System Admin API controllers and routes | `src/Backendbase/Infrastructure/Inbound/SystemAdminApi` |
+| Shared identity HTTP support | `src/Backendbase/Infrastructure/Adapters/Http/Identity` |
 | Shared configuration | `config/autoload` |
 | Example API configuration | `config/example-api` |
 | Dependency definitions | `config/dependencies.php`, `config/dependencies` |

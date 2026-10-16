@@ -41,6 +41,9 @@ When scope expands, inspect the new surface and reassess affected decisions. Do 
 - Name new contexts after the target business capability. Omit `Context` and `BoundedContext` suffixes and demonstration prefixes. Use domain terms for entities and operations.
 - Validate untrusted input at its boundary. Keep business rules in domain behavior and vendor or database operations behind project-owned ports.
 - Align fields, types, required state, defaults, errors, authorization, and versions across participating contracts. Update every affected existing delivery surface.
+- For new Backendbase HTTP endpoints, group controllers by OpenAPI tag inside each owning API. Use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`, with one handler per operation.
+- Keep module registration explicit and route names equal to OpenAPI operation IDs. Adapt equivalent module roles to other target projects.
+- In Backendbase `ModuleConfig`, use fluent route declarations and `group()` for shared middleware. Keep endpoint policies on routes. Verify middleware execution order.
 - For client-visible write results, use an identifier known before dispatch or an application orchestrator that reads after commit. Follow the result guidance in the feature pattern.
 - Verify actual container, bus, route, provider, or registry reachability when registration changes. Direct unit tests alone do not prove wiring.
 - Add integration events only when requested behavior requires them. Prove external producer-to-carrier mapping. Do not claim exactly-once delivery.

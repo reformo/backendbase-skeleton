@@ -52,7 +52,7 @@ Discover unknown target mappings for affected roles before creating files. Reuse
 
 Discover delivery surfaces from the target project instead of starting from a fixed product list. Check existing HTTP APIs, console commands, queue consumers, and public contract trees. Mark each surface as affected or not applicable.
 
-Use the nearest complete API as the implementation reference, not as the only target. Current Backendbase contains one HTTP API, `ExampleApi`; that fact does not imply that another project has the same API or only one API. When a requested target is absent, confirm whether to scaffold it before adding adapters or documentation.
+Use the nearest complete API as the implementation reference. Current Backendbase contains `ExampleApi`, `UserApi`, and `SystemAdminApi`. Discover the actual APIs in other projects. When a requested target is absent, confirm whether to scaffold it before adding adapters or documentation.
 
 ## Cross-layer implementation gates
 
@@ -182,7 +182,7 @@ Check every applicable registration point:
 - Context service provider.
 - Port-to-adapter definition.
 - Command or query handler discovery.
-- HTTP module and route table.
+- HTTP module and route table. For new Backendbase endpoints, match OpenAPI tags to `Controllers/{TagName}/ModuleConfig.php` and `Handlers/` in each owning API.
 - Middleware order.
 - Console command list.
 - Event subscriber registry and event version.

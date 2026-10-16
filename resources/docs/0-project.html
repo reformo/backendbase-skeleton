@@ -695,6 +695,7 @@
                 <article class="card">
                     <h3>UserApi and SystemAdminApi</h3>
                     <p>Expose separate identity realms. Trusted route policy selects the realm before token claims are read.</p>
+                    <p>Each API owns its controllers and route registration under <code>Infrastructure/Inbound</code>. Controller modules match OpenAPI tags and contain <code>ModuleConfig.php</code> and <code>Handlers</code>. Reusable identity HTTP helpers belong under <code>Infrastructure/Adapters/Http/Identity</code>.</p>
                 </article>
                 <article class="card">
                     <h3>Service providers</h3>

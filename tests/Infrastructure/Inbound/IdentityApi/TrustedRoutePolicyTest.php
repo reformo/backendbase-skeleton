@@ -9,9 +9,10 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
-use Backendbase\Infrastructure\Inbound\IdentityApi\Controllers;
-use Backendbase\Infrastructure\Inbound\IdentityApi\Http\AdministrationHttpInput;
-use Backendbase\Infrastructure\Inbound\IdentityApi\Http\IdentityHttpInput;
+use Backendbase\Infrastructure\Adapters\Http\Identity\IdentityHttpInput;
+use Backendbase\Infrastructure\Inbound\SystemAdminApi\Controllers as AdminControllers;
+use Backendbase\Infrastructure\Inbound\SystemAdminApi\Controllers\Administration\AdministrationHttpInput;
+use Backendbase\Infrastructure\Inbound\UserApi\Controllers as UserControllers;
 use Backendbase\Shared\Exception\InvalidUserInput;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
@@ -28,7 +29,7 @@ final class TrustedRoutePolicyTest extends TestCase
     {
         $fixture    = IdentityFixture::create();
         $container  = $fixture->container();
-        $controller = $container->get('Backendbase\\Infrastructure\\Inbound\\IdentityApi\\Controllers\\' . $controllerName);
+        $controller = $container->get($controllerName);
         $this->expectException($exception);
         $controller(new ServerRequest(), new Response(), []);
     }
@@ -36,17 +37,37 @@ final class TrustedRoutePolicyTest extends TestCase
     /** @return iterable<string, array{string, class-string<Throwable>}> */
     public static function missingPolicies(): iterable
     {
-        yield 'authentication policy' => ['Authentication', RuntimeException::class];
-        yield 'administration policy' => ['Administration', RuntimeException::class];
-        yield 'identity principal' => ['CurrentIdentity', AuthenticationDenied::class];
-        yield 'history principal' => ['ActorHistory', AuthenticationDenied::class];
+        yield 'user PasswordLogin policy' => [UserControllers\Authentication\Handlers\PasswordLogin::class, RuntimeException::class];
+        yield 'user RevokeAccessToken policy' => [UserControllers\Identity\Handlers\RevokeAccessToken::class, RuntimeException::class];
+        yield 'user EndSession policy' => [UserControllers\Identity\Handlers\EndSession::class, RuntimeException::class];
+        yield 'user CloseAccount policy' => [UserControllers\Identity\Handlers\CloseAccount::class, RuntimeException::class];
+        yield 'user RegisterUser policy' => [UserControllers\Authentication\Handlers\RegisterUser::class, RuntimeException::class];
+        yield 'user identity principal' => [UserControllers\Identity\Handlers\CurrentIdentity::class, AuthenticationDenied::class];
+        yield 'user Authentication RequestContactVerification policy' => [UserControllers\Authentication\Handlers\RequestContactVerification::class, AuthenticationDenied::class];
+        yield 'user Authentication ConfirmContactVerification policy' => [UserControllers\Authentication\Handlers\ConfirmContactVerification::class, AuthenticationDenied::class];
+        yield 'user Authentication ResendContactVerification policy' => [UserControllers\Authentication\Handlers\ResendContactVerification::class, AuthenticationDenied::class];
+        yield 'admin PasswordLogin policy' => [AdminControllers\Authentication\Handlers\PasswordLogin::class, RuntimeException::class];
+        yield 'admin RevokeAccessToken policy' => [AdminControllers\Identity\Handlers\RevokeAccessToken::class, RuntimeException::class];
+        yield 'admin EndSession policy' => [AdminControllers\Identity\Handlers\EndSession::class, RuntimeException::class];
+        yield 'admin CloseAccount policy' => [AdminControllers\Identity\Handlers\CloseAccount::class, RuntimeException::class];
+        yield 'admin identity principal' => [AdminControllers\Identity\Handlers\CurrentIdentity::class, AuthenticationDenied::class];
+        yield 'admin Authentication RequestContactVerification policy' => [AdminControllers\Authentication\Handlers\RequestContactVerification::class, AuthenticationDenied::class];
+        yield 'admin Authentication ConfirmContactVerification policy' => [AdminControllers\Authentication\Handlers\ConfirmContactVerification::class, AuthenticationDenied::class];
+        yield 'admin Authentication ResendContactVerification policy' => [AdminControllers\Authentication\Handlers\ResendContactVerification::class, AuthenticationDenied::class];
+        yield 'admin Identity RequestContactVerification policy' => [AdminControllers\Identity\Handlers\RequestContactVerification::class, AuthenticationDenied::class];
+        yield 'admin Identity ConfirmContactVerification policy' => [AdminControllers\Identity\Handlers\ConfirmContactVerification::class, AuthenticationDenied::class];
+        yield 'admin Identity ResendContactVerification policy' => [AdminControllers\Identity\Handlers\ResendContactVerification::class, AuthenticationDenied::class];
+        yield 'InviteAdmin policy' => [AdminControllers\Administration\Handlers\InviteAdmin::class, RuntimeException::class];
+        yield 'ApproveAdmin policy' => [AdminControllers\Administration\Handlers\ApproveAdmin::class, RuntimeException::class];
+        yield 'ChangeActor policy' => [AdminControllers\Administration\Handlers\ChangeActor::class, RuntimeException::class];
+        yield 'history principal' => [AdminControllers\Administration\Handlers\ActorHistory::class, AuthenticationDenied::class];
     }
 
     public function testAuthenticatedHistoryRequiresValidRouteSelectors(): void
     {
         $fixture    = IdentityFixture::create();
         $container  = $fixture->container();
-        $controller = $container->get(Controllers\ActorHistory::class);
+        $controller = $container->get(AdminControllers\Administration\Handlers\ActorHistory::class);
         $id         = IdentityScenario::id();
         $principal  = new Principal(Realm::ADMIN, ['accountId' => $id, 'actorId' => $id, 'sid' => $id, 'jti' => $id, 'authVersion' => 1]);
         $request    = new ServerRequest()->withAttribute('identityPrincipal', $principal);

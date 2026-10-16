@@ -18,7 +18,13 @@ discover affected API -> draft OpenAPI contract -> complete application path
 | Read | `Examples` sends a query and maps a page | Use the target read model and schema |
 | Update/delete lookup | Change and remove actions send `EntryIdentity` in one command | Resolve the aggregate and missing-state decision in the handler |
 | Routing | `ModuleConfig` names and protects routes | Match target operation ID and policy |
+| Controller placement | `Controllers/Example/Handlers/` matches the `Example` tag | Use the operation's tag module inside its owning API |
 | Tests | Input, read, write, security, and conditional not-found tests | Use focused target doubles |
+
+In an unmodified Backendbase target, place each new operation handler under `Controllers/{TagName}/Handlers/`.
+Use the tag's PascalCase module name. Register the operation in that module's `ModuleConfig.php`.
+Verify the module registry, URL prefix, handler namespace, and OpenAPI operation ID through the actual API route map.
+Use the target project's equivalent module roles in other projects.
 
 ## Boundary example
 

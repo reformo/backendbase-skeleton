@@ -10,7 +10,10 @@ Liveness and readiness remain public in each API.
 - `X-Source-Id: user` selects UserApi and the trusted USER realm policy.
 - `X-Source-Id: system-admin` selects SystemAdminApi and the trusted ADMIN realm policy.
 - The bootstrap uses a fixed target map. A header cannot supply a filesystem path.
-- Route policy selects JWT trust before claims are read.
+- Each Authentication, Identity, and Administration group defines its realm once through `RealmPolicy`.
+- Protected groups add `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
+- `RoutePolicy` supplies endpoint actions. `ContactRoutePolicy` supplies contact settings. Neither policy changes the group realm.
+- Public Authentication groups apply only `RealmPolicy`. Health and preflight routes do not require bearer authentication.
 - USER and ADMIN use distinct issuers, audiences, and signing keys.
 - Signing uses HS256 with configured 32-byte keys and explicit key identifiers.
 - Verification checks signature, algorithm, issuer, audience, dates, realm, actor type, and canonical identifiers.

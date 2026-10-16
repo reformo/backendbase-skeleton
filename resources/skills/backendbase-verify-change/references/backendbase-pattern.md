@@ -145,12 +145,15 @@ When application behavior is delivered over HTTP:
 
 1. Enumerate the target project's existing `Infrastructure/Inbound` or equivalent API roots.
 2. Identify every existing API affected by the behavior. If a requested API is absent, report the missing surface instead of inventing it.
-3. Compare method, path, placeholder names, route name, middleware order, controller validation, command or query, response, status, and errors.
+3. Compare method, path, placeholder names, OpenAPI tag, controller module, route name, middleware order, validation, application operation, response, status, and errors.
 4. Compare runtime security with OpenAPI security. New Backendbase consumer endpoints are protected by default unless the public exception is explicit.
 5. Check the four shared Backendbase header contracts: `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`.
 6. Check CORS and runtime validation when OpenAPI marks a header required. A specification reference alone does not prove enforcement.
 7. Regenerate and validate the specification. Review the generated diff.
 8. Update an existing Bruno request whenever its operation contract changed. Add new Bruno coverage only when the target policy or requested scope requires it.
+
+For new endpoints in an unmodified Backendbase target, check `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/` in the owning API.
+Verify one handler per operation, explicit module registration, and route names equal to operation IDs. Adapt equivalent module roles in other projects.
 
 Do not run Bruno against a state-changing or shared target without explicit authority and prepared data.
 

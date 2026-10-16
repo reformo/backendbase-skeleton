@@ -1,6 +1,6 @@
 # Backendbase endpoint security pattern
 
-## Current HTTP flow
+## ExampleApi HTTP flow
 
 ```text
 API selection -> route match -> API context -> API-key validation
@@ -15,9 +15,15 @@ Slim uses last-in, first-out middleware execution. The API context runs before t
 | API context | Middleware supplies API name, header name, and key mode | Typed or validated target request context |
 | HTTP policy | Example reads and writes require an API key | Requested target policy and available mechanisms |
 | Application access control | Internal `QueueGreeting` uses Shared `AccessControl` | Target privilege contract and caller implementation |
-| OpenAPI | Protected HTTP operations declare `apiKey` | Exact target security schemes |
+| OpenAPI | Protected Example operations declare `apiKey`; protected identity operations declare bearer authentication | Exact target security schemes |
 
-Backendbase has no built-in token issuer, bearer middleware, account flow, or ACL implementation. Do not assume another target has these mechanisms.
+Backendbase UserApi and SystemAdminApi use the IdentityAndAccess account, token, and session flows. Inspect available mechanisms in other target projects.
+
+Their Authentication, Identity, and Administration modules define each group's realm once through `RealmPolicy`.
+Protected groups add `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
+`RoutePolicy` and `ContactRoutePolicy` supply endpoint settings without changing the group realm.
+Public Authentication groups apply only `RealmPolicy`. Realm selection does not require a bearer token.
+Adapt middleware names, security policy, and execution order to the target framework.
 
 ## Policy matrix
 
@@ -48,6 +54,7 @@ Test applicable cases through the real route stack:
 - Allowed access under the selected policy.
 - Missing or invalid API key when a key is required.
 - Invalid or expired identity credentials when the target supports them.
+- A valid token from another realm when the target separates authentication realms.
 - A valid identity without the required privilege when the operation requires one.
 - Anonymous access when explicitly permitted.
 
@@ -66,6 +73,8 @@ These limits are audit prompts. Do not copy them as target policy.
 - `src/Backendbase/Shared/Authorization/AccessControl.php`
 - `src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/QueueGreetingHandler.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmPolicy.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmAuthentication.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
 - `config/example-api/http-headers.global.php`
@@ -74,5 +83,6 @@ These limits are audit prompts. Do not copy them as target policy.
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/QueueGreetingHandlerTest.php`
 - `tests/Infrastructure/Adapters/Http/Middleware/ValidateApiKeyTest.php`
 - `tests/Infrastructure/Inbound/ExampleApi/ExampleWriteRoutingTest.php`
+- `tests/Infrastructure/Inbound/IdentityApi/ModuleRoutingTest.php`
 - `resources/platform/14-security.md`
 - `resources/docs/8-authentication-and-authorization.html`

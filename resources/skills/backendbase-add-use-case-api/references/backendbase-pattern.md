@@ -31,10 +31,29 @@ A new API normally needs all of these roles:
 2. Middleware and route files.
 3. Explicit module registry.
 4. API-specific settings, CORS, and JWT settings when used.
-5. Root metadata, liveness, readiness, authentication, and fallback handlers only when required.
+5. Requested metadata, liveness, readiness, and authentication handlers grouped by OpenAPI tag. Keep transport fallback handlers separate.
 6. Editable OpenAPI source and a generated merged document.
 7. Generation and deployment integration.
 8. Focused adapter tests and optional Bruno collection.
+
+## Controller modules
+
+For an unmodified Backendbase target, use ExampleApi's module structure for new controllers:
+
+```text
+Infrastructure/Inbound/{TargetApi}/Controllers/
+├── ModuleRoutes.php
+└── {OpenApiTag}/
+    ├── ModuleConfig.php
+    └── Handlers/
+        └── {OperationHandler}.php
+```
+
+Use the tag's PascalCase name for the module and one handler per operation.
+`ModuleConfig` implements `ModuleRoute`. Its `ROUTE_KEY` and `routeKey()` return the same URL prefix.
+The owning API's `routes.php` creates groups from the explicit module registry. Route names match OpenAPI operation IDs.
+Keep controllers inside their consumer API even when multiple APIs use the same application operations.
+Adapt names and equivalent module roles in other projects. Do not copy Example domain names or public routes.
 
 ## Current source limitations
 
