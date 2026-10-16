@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "composerLockSha256": "798fe26089176fbe3a01ee71f8b17c829d4f52f29358f2a8a06e28bb05a836e8",
+    "composerLockSha256": "498cdc96cd9f42d8dedd6a6874dc2c9aeb341cf23692a4859e55ada1c1ca4ae3",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -460,9 +460,9 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "13.4.2",
-            "sourceReference": "7b9ba83328f01ce299ef82161720195bd827a4bb",
-            "sha256": "78d33692664039ee225be00465cb5f4b8c45673e8957ea0517b6c78a5c2bbad0"
+            "version": "13.4.3",
+            "sourceReference": "2180c47c4229e5da117ff248753370443c074f10",
+            "sha256": "2097a88bb763827ca87ce2cc3bd4fb58d98b464ca4be6157972d01a77a8b8ea0"
         },
         {
             "name": "psr/cache",

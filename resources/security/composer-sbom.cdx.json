@@ -13,7 +13,7 @@
         "properties": [
             {
                 "name": "backendbase:composer-lock-content-hash",
-                "value": "9ad9bab62e809116032972b655689c7e"
+                "value": "6b15fa6fd37fcc356fb4d3611cd88a89"
             }
         ]
     },
@@ -2748,12 +2748,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpunit/phpunit@13.4.2",
+            "bom-ref": "pkg:composer/phpunit/phpunit@13.4.3",
             "group": "phpunit",
             "name": "phpunit",
-            "version": "13.4.2",
+            "version": "13.4.3",
             "scope": "optional",
-            "purl": "pkg:composer/phpunit/phpunit@13.4.2",
+            "purl": "pkg:composer/phpunit/phpunit@13.4.3",
             "licenses": [
                 {
                     "license": {
@@ -2768,17 +2768,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7b9ba83328f01ce299ef82161720195bd827a4bb"
+                    "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2180c47c4229e5da117ff248753370443c074f10"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "7b9ba83328f01ce299ef82161720195bd827a4bb"
+                    "value": "2180c47c4229e5da117ff248753370443c074f10"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "7b9ba83328f01ce299ef82161720195bd827a4bb"
+                    "value": "2180c47c4229e5da117ff248753370443c074f10"
                 }
             ]
         },
@@ -5144,7 +5144,7 @@
                 "pkg:composer/php-amqplib/php-amqplib@v3.7.5",
                 "pkg:composer/php-di/php-di@7.1.1",
                 "pkg:composer/phpstan/phpstan@2.3.1",
-                "pkg:composer/phpunit/phpunit@13.4.2",
+                "pkg:composer/phpunit/phpunit@13.4.3",
                 "pkg:composer/psr/container@2.0.2",
                 "pkg:composer/psr/http-message@2.0",
                 "pkg:composer/psr/http-server-handler@1.0.2",
@@ -5632,7 +5632,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/phpunit/phpunit@13.4.2",
+            "ref": "pkg:composer/phpunit/phpunit@13.4.3",
             "dependsOn": [
                 "pkg:composer/myclabs/deep-copy@1.14.0",
                 "pkg:composer/phar-io/manifest@2.0.4",
