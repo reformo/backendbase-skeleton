@@ -21,6 +21,7 @@ use Override;
 use Ramsey\Uuid\Doctrine\UuidBinaryType;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use stdClass;
 
 #[Entity]
 #[Table(name: 'example_table', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
@@ -61,16 +62,15 @@ class ExampleTable implements DoctrineEntity
     private int $normalizedTypeTargetId = 0;
     #[Column(name: 'lookup_group', type: Types::STRING, length: 32)]
     private string $group;
-
     #[Column(name: 'lookup_key', type: Types::STRING, length: 160)]
     private string $lookupKey;
 
     #[Column(name: 'lookup_value', type: Types::STRING, length: 2048)]
     private string $lookupValue;
 
-    /** @var array<string, mixed> */
-    #[Column(type: Types::JSON)]
-    private array $details;
+    /** @var stdClass|array<string, mixed> */
+    #[Column(type: Types::JSON_OBJECT)]
+    private stdClass|array $details = [];
 
     #[Column(name: 'is_active', type: Types::INTEGER, length: 1, options: ['unsigned' => true, 'default' => 1])]
     private int $isActive;
@@ -123,7 +123,7 @@ class ExampleTable implements DoctrineEntity
         $this->group                  = $state->group();
         $this->lookupKey              = $state->lookupKey();
         $this->lookupValue            = $state->lookupValue();
-        $this->details                = $state->details();
+        $this->details                = (object) $state->details();
         $this->isActive               = (int) $state->isActive();
         $this->createdAt              = $state->createdAt();
         $this->updatedAt              = $state->updatedAt();
@@ -140,7 +140,7 @@ class ExampleTable implements DoctrineEntity
             $this->group,
             $this->lookupKey,
             $this->lookupValue,
-            $this->details,
+            (array) $this->details,
             (bool) $this->isActive,
             $this->createdAt,
             $this->updatedAt ?? $this->createdAt,

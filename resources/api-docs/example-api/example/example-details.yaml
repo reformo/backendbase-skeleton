@@ -14,19 +14,23 @@ get:
       required: true
       schema:
         type: string
-        enum: [ 'system', 'user', 'expert', 'admin' ]
+        enum: [ 'system', 'user' ]
     - in: path
       name: example-group
       description: Example group
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 32
     - in: path
       name: example-key
       description: Example key
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 160
         format: <ulid> or string
     - in: query
       name: typeTargetId
@@ -34,6 +38,8 @@ get:
       required: false
       schema:
         type: integer
+        minimum: 1
+        maximum: 9223372036854775807
         format: int64
         nullable: true
   responses:
@@ -56,24 +62,32 @@ get:
                     format: uuid
                   type:
                     type: string
-                    enum: [ 'system', 'user', 'expert', 'admin' ]
+                    enum: [ 'system', 'user' ]
                     format: kebab-case
                   exampleGroup:
                     type: string
+                    minLength: 1
+                    maxLength: 32
                     format: kebab-case
                   typeTargetId:
                     type: integer
-                    description: "null if type is 'system'"
+                    minimum: 1
+                    maximum: 9223372036854775807
+                    description: Optional positive target identifier. Null selects entries without a target.
                     format: int64
                     nullable: true
                   lookupKey:
                     type: string
+                    minLength: 1
+                    maxLength: 160
                     format: <ulid> or string
                     example: "01hkj62kff4ndb51nxy8sasy8w"
                   lookupValue:
                     type: string
+                    maxLength: 2048
                   details:
                     type: object
+                    description: JSON object with non-integer top-level member names. Values are preserved. No image URL fields are generated.
                   isActive:
                     type: boolean
                     example: true
@@ -84,6 +98,8 @@ get:
                     type: string
                     format: date-time
 
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
     401:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
@@ -110,19 +126,23 @@ patch:
       required: true
       schema:
         type: string
-        enum: [ 'system', 'user', 'expert', 'admin' ]
+        enum: [ 'system', 'user' ]
     - in: path
       name: example-group
       description: Example group
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 32
     - in: path
       name: example-key
       description: Example key
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 160
         format: <ulid> or string
   requestBody:
     description: The encoded JSON object must not exceed 65536 bytes. Unknown fields are rejected. API v1 treats omitted or null update fields as unchanged.
@@ -134,9 +154,11 @@ patch:
           properties:
             lookupValue:
               type: string
+              maxLength: 2048
               nullable: true
             details:
               type: object
+              description: JSON object with non-integer top-level member names. Values are preserved. No image URL fields are generated.
               nullable: true
             isActive:
               type: boolean
@@ -144,12 +166,16 @@ patch:
               example: true
             typeTargetId:
               type: integer
+              minimum: 1
+              maximum: 9223372036854775807
               format: int64
               nullable: true
 
   responses:
     204:
       $ref: '../../common/components.yaml#/schemas/204'
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
     401:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
@@ -176,24 +202,41 @@ delete:
       required: true
       schema:
         type: string
-        enum: [ 'system', 'user', 'expert', 'admin' ]
+        enum: [ 'system', 'user' ]
     - in: path
       name: example-group
       description: Example group
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 32
     - in: path
       name: example-key
       description: Example key
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 160
         format: <ulid> or string
+
+    - in: query
+      name: typeTargetId
+      description: Optional positive target identifier. Omitted or empty values select entries without a target.
+      required: false
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 9223372036854775807
+        nullable: true
 
   responses:
     204:
       $ref: '../../common/components.yaml#/schemas/204'
+    400:
+      $ref: '../../common/components.yaml#/schemas/400'
     401:
       $ref: '../../common/components.yaml#/schemas/401'
     403:

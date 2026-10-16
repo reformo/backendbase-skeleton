@@ -37,7 +37,7 @@ final class ContainerAwareBusTest extends TestCase
         $resolver = new RegistryHandlerResolver([AddEntry::class => CommandHandler::class]);
         $bus      = new ContainerAwareCommandBus($this->invalidContainer(), $resolver);
         $command  = new AddEntry(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',

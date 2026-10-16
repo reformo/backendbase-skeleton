@@ -30,7 +30,7 @@ final class RemoveEntryHandlerTest extends TestCase
         $clock      = new FrozenClock(new DateTimeImmutable('2026-10-16T10:00:00.654321Z'));
         $calls      = [];
         $identity   = new EntryIdentity(EntryType::SYSTEM, null, 'settings', 'page-size');
-        $entry      = Entry::create('example-id', EntryType::SYSTEM, null, 'settings', true, 'page-size', '25', [], new DateTimeImmutable('2026-10-16T10:00:00.123456Z'));
+        $entry      = Entry::create('018f0000-0000-7000-8000-000000000001', EntryType::SYSTEM, null, 'settings', true, 'page-size', '25', [], new DateTimeImmutable('2026-10-16T10:00:00.123456Z'));
         $repository = $this->createMock(EntryWriteRepository::class);
         $repository->expects(self::once())->method('getActiveByIdentity')->with($identity)
             ->willReturnCallback(static function (EntryIdentity $_identity) use (&$calls, $entry, $clock): Entry {
@@ -52,7 +52,7 @@ final class RemoveEntryHandlerTest extends TestCase
                 $calls[] = 'transaction-start';
                 $event   = $work();
                 self::assertInstanceOf(EntryRemoved::class, $event);
-                self::assertSame('example-id', $event->entryId());
+                self::assertSame('018f0000-0000-7000-8000-000000000001', $event->entryId());
                 $calls[] = 'transaction-end';
             });
         $handler = new RemoveEntryHandler(new EntryWrites($repository, $clock), new EntryEventTransaction($transaction, $this->createStub(DomainEventPublisher::class)));

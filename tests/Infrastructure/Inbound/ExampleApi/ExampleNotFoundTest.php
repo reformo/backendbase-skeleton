@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Factory\AppFactory;
+use Tests\Support\Http\JsonRequestBody;
 
 use function json_decode;
 
@@ -69,7 +70,7 @@ final class ExampleNotFoundTest extends TestCase
         ));
         $request = (new ServerRequestFactory())
             ->createServerRequest($method, '/examples/system/settings/key')
-            ->withParsedBody([]);
+            ->withBody(JsonRequestBody::create([]));
 
         return $app->handle($request);
     }

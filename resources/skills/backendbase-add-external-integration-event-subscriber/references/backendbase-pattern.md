@@ -165,6 +165,7 @@ For an external effect, also test provider idempotency-key propagation, duplicat
 - The subscriber registry requires an explicit constructor, even when it is empty. It creates each subscriber through reflection and resolves dependencies by container type, then by parameter name. A subscriber-class container binding does not control construction.
 - Backendbase version-one `EntryAdded` publishes a nested `command` object. Its registered carrier now preserves that released shape with typed outer and nested DTOs.
 - `ProducerConsumerContractTest` maps the real producer arguments through the registered carrier and real dispatcher.
+- `EntryJsonDeliveryTest` also covers persisted outbox data, SQS and RabbitMQ serialization, and nested JSON shapes through the registered carrier.
 - SQS reject behavior needs an infrastructure redrive policy.
 - `ExternalEffectInbox` blocks repeated calls after an unknown outcome, but current code does not reconcile that outcome automatically.
 
@@ -189,6 +190,7 @@ composer cs-check
 ```
 
 Run the target project's new subscriber and carrier tests first. The listed Backendbase paths show verified registration and dispatch roles. Keep an end-to-end test that maps the actual producer payload into the registered carrier.
+For JSON shape changes, include the target outbox and supported transport serialization in that test.
 
 ## Completion report
 

@@ -9,7 +9,6 @@ use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Primitives\Pagination;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -28,7 +27,7 @@ class ExampleGroups extends Action
     protected function action(): Response
     {
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
+        $params       = $this->request->getQueryParams();
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
         $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
         $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');

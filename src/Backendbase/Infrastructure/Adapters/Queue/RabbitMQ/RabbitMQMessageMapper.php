@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue\RabbitMQ;
 
+use ArrayObject;
+use Backendbase\Infrastructure\Adapters\Queue\Serialization\JsonPayload;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use JsonException;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -11,7 +13,6 @@ use Ramsey\Uuid\Uuid;
 
 use function is_array;
 use function is_string;
-use function json_decode;
 use function json_encode;
 
 use const JSON_THROW_ON_ERROR;
@@ -40,7 +41,7 @@ final class RabbitMQMessageMapper
     public static function inboundMessage(AMQPMessage $message, string $queue): Message
     {
         try {
-            $payload = json_decode($message->getBody(), true, 512, JSON_THROW_ON_ERROR);
+            $payload = JsonPayload::decode($message->getBody());
         } catch (JsonException) {
             $payload = ['messageBody' => $message->getBody(), 'data' => []];
         }
@@ -52,10 +53,11 @@ final class RabbitMQMessageMapper
         $messageBody = $payload['messageBody'] ?? $message->getBody();
         $version     = $payload['eventVersion'] ?? null;
         $messageId   = $message->has('message_id') ? $message->get('message_id') : null;
+        $data        = $payload['data'] ?? null;
 
         return new Message(
             is_string($messageBody) ? $messageBody : $message->getBody(),
-            is_array($payload['data'] ?? null) ? $payload['data'] : [],
+            is_array($data) || $data instanceof ArrayObject ? (array) $data : [],
             is_string($messageId) ? $messageId : null,
             is_string($version) ? $version : null,
             $queue,

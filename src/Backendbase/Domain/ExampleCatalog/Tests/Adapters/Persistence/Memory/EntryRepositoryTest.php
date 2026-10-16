@@ -46,7 +46,7 @@ final class EntryRepositoryTest extends TestCase
     public function itRejectsAddingTheSameEntryTwice(): void
     {
         $entry = Entry::create(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -67,7 +67,7 @@ final class EntryRepositoryTest extends TestCase
     public function itRejectsReadingARemovedEntryByIdentifier(): void
     {
         $entry = Entry::create(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -83,6 +83,6 @@ final class EntryRepositoryTest extends TestCase
 
         $this->expectException(ResourceNotFound::class);
 
-        $this->writeRepository->getActive('example-id');
+        $this->writeRepository->getActive('018f0000-0000-7000-8000-000000000001');
     }
 }

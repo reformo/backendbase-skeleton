@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Tests\Support\Http\ApiResponseAssertions;
+use Tests\Support\Http\JsonRequestBody;
 
 final class EmptyResponseContractTest extends TestCase
 {
@@ -30,7 +31,7 @@ final class EmptyResponseContractTest extends TestCase
         $request  = $request->withAttribute('example-group', 'settings');
         $request  = $request->withAttribute('example-key', 'feature');
         $payload  = $method === 'POST' ? ['lookupKey' => 'feature', 'lookupValue' => 'enabled'] : ['lookupValue' => 'enabled'];
-        $request  = $request->withParsedBody($payload);
+        $request  = $request->withBody(JsonRequestBody::create($payload));
         $response = $action($request, new Response(), []);
         self::assertSame(204, $response->getStatusCode());
         ApiResponseAssertions::assertMatches('example-api', $method, $path, $response);

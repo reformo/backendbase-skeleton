@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Tests\Support\Http\JsonRequestBody;
 
 final class ExampleWriteControllersTest extends TestCase
 {
@@ -42,11 +43,11 @@ final class ExampleWriteControllersTest extends TestCase
         $request = $this->request('POST', '/examples')
             ->withAttribute('type-slug', 'system')
             ->withAttribute('example-group', 'settings')
-            ->withParsedBody([
+            ->withBody(JsonRequestBody::create([
                 'lookupKey' => 'page-size',
                 'lookupValue' => '25 & items',
                 'details' => ['unit' => 'items'],
-            ]);
+            ]));
 
         $response = $this->invoke($action, $request);
 
@@ -72,7 +73,7 @@ final class ExampleWriteControllersTest extends TestCase
             $request = $this->request('POST', '/examples')
                 ->withAttribute('type-slug', 'system')
                 ->withAttribute('example-group', 'settings')
-                ->withParsedBody($payload);
+                ->withBody(JsonRequestBody::create($payload));
 
             $this->assertInvalidNewExampleInput($action, $request);
         }
@@ -103,11 +104,11 @@ final class ExampleWriteControllersTest extends TestCase
             ->withAttribute('type-slug', 'system')
             ->withAttribute('example-group', 'settings')
             ->withAttribute('example-key', 'page-size')
-            ->withParsedBody([
+            ->withBody(JsonRequestBody::create([
                 'lookupValue' => '50',
                 'isActive' => false,
                 'details' => ['unit' => 'rows'],
-            ]);
+            ]));
 
         self::assertSame(204, $this->invoke($action, $request)->getStatusCode());
     }

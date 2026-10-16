@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Domain;
 
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryId;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryTargetId;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryValue;
 use DateTimeImmutable;
 
 /** @phpstan-import-type EntryState from EntrySnapshot */
@@ -14,7 +20,7 @@ final class Entry
     {
     }
 
-    /** @param array<string, mixed> $details */
+    /** @param array<array-key, mixed> $details */
     public static function create(
         string $entryId,
         EntryType $type,
@@ -26,22 +32,10 @@ final class Entry
         array $details,
         DateTimeImmutable $now,
     ): self {
-        return new self([
-            'uuid' => $entryId,
-            'type' => $type,
-            'typeTargetId' => $typeTargetId,
-            'group' => $group,
-            'lookupKey' => $key,
-            'lookupValue' => $value,
-            'details' => $details,
-            'isActive' => $isActive,
-            'createdAt' => $now,
-            'updatedAt' => $now,
-            'removedAt' => null,
-        ]);
+        return self::reconstitute($entryId, $type, $typeTargetId, $group, $key, $value, $details, $isActive, $now, $now, null);
     }
 
-    /** @param array<string, mixed> $details */
+    /** @param array<array-key, mixed> $details */
     public static function reconstitute(
         string $entryId,
         EntryType $type,
@@ -56,13 +50,13 @@ final class Entry
         DateTimeImmutable|null $removedAt,
     ): self {
         return new self([
-            'uuid' => $entryId,
+            'uuid' => EntryId::fromString($entryId),
             'type' => $type,
-            'typeTargetId' => $typeTargetId,
-            'group' => $group,
-            'lookupKey' => $key,
-            'lookupValue' => $value,
-            'details' => $details,
+            'typeTargetId' => new EntryTargetId($typeTargetId),
+            'group' => new EntryGroup($group),
+            'lookupKey' => new EntryKey($key),
+            'lookupValue' => new EntryValue($value),
+            'details' => new EntryDetails($details),
             'isActive' => $isActive,
             'createdAt' => $createdAt,
             'updatedAt' => $updatedAt,
@@ -70,20 +64,18 @@ final class Entry
         ]);
     }
 
-    /** @param array<string, mixed>|null $details */
+    /** @param array<array-key, mixed>|null $details */
     public function change(bool|null $isActive, string|null $value, array|null $details, DateTimeImmutable $now): void
     {
+        $validatedValue   = $value === null ? $this->state['lookupValue'] : new EntryValue($value);
+        $validatedDetails = $details === null ? $this->state['details'] : new EntryDetails($details);
+
         if ($isActive !== null) {
             $this->state['isActive'] = $isActive;
         }
 
-        if ($value !== null) {
-            $this->state['lookupValue'] = $value;
-        }
-
-        if ($details !== null) {
-            $this->state['details'] = $details;
-        }
+        $this->state['lookupValue'] = $validatedValue;
+        $this->state['details']     = $validatedDetails;
 
         $this->state['updatedAt'] = $now;
     }
@@ -96,7 +88,9 @@ final class Entry
 
     public function id(): string
     {
-        return $this->state['uuid'];
+        $identifier = $this->state['uuid'];
+
+        return $identifier->id();
     }
 
     public function isRemoved(): bool
@@ -110,15 +104,22 @@ final class Entry
             return false;
         }
 
-        if ($this->state['typeTargetId'] !== $identity->typeTargetId()) {
+        $targetId    = $this->state['typeTargetId'];
+        $targetValue = $targetId->toInteger();
+        if ($targetValue !== $identity->typeTargetId()) {
             return false;
         }
 
-        if ($this->state['group'] !== $identity->group()) {
+        $group      = $this->state['group'];
+        $groupValue = $group->toString();
+        if ($groupValue !== $identity->group()) {
             return false;
         }
 
-        return $this->state['lookupKey'] === $identity->key();
+        $key      = $this->state['lookupKey'];
+        $keyValue = $key->toString();
+
+        return $keyValue === $identity->key();
     }
 
     public function snapshot(): EntrySnapshot

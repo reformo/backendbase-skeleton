@@ -7,9 +7,9 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Hand
 use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\Input\RequestObjectInput;
+use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestBody;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -17,7 +17,6 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Uid\Ulid;
 
-use function htmlspecialchars_decode;
 use function strtolower;
 
 class NewExample extends Action
@@ -33,13 +32,12 @@ class NewExample extends Action
     protected function action(): Response
     {
         $type         = (string) $this->request->getAttribute('type-slug');
-        $group        = (string) $this->request->getAttribute('example-group');
-        $payload      = RequestObjectInput::read(
-            $this->request->getParsedBody(),
+        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $payload      = ExampleRequestBody::read(
+            $this->request,
             ['typeTargetId', 'lookupKey', 'lookupValue', 'details', 'isActive'],
         );
         $typeTargetId = RequestObjectInput::positiveIntegerOrNull($payload['typeTargetId'] ?? null, 'typeTargetId');
-        $payload      = PayloadSanitizer::sanitize($payload);
         $entryId      = Uuid::uuid7()->toString();
         $lookupKey    = ExampleRequestInput::optionalString(
             $payload['lookupKey'] ?? null,
@@ -57,7 +55,7 @@ class NewExample extends Action
             $group,
             $isActive,
             $lookupKey,
-            htmlspecialchars_decode($lookupValue),
+            $lookupValue,
             $details,
         );
 

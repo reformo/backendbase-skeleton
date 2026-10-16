@@ -56,7 +56,7 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
         $container->method('get')->willReturn(new stdClass());
         $publisher = new ContainerAwareDomainEventPublisher($container);
         $command   = new AddEntry(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -67,6 +67,6 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
 
-        $publisher->publish(new EntryAdded('example-id', $command));
+        $publisher->publish(new EntryAdded('018f0000-0000-7000-8000-000000000001', $command));
     }
 }

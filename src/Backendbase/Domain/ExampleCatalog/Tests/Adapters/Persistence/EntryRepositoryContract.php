@@ -23,6 +23,7 @@ use Ramsey\Uuid\Uuid;
 trait EntryRepositoryContract
 {
     use EntryGroupPaginationContract;
+    use EntryOrderingContract;
 
     abstract protected function readRepository(): EntryReadRepository;
 

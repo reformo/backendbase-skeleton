@@ -115,6 +115,7 @@ Verify that logs and public errors exclude credentials, tokens, stack traces, me
 - Use `(consumer_name, message_id)` or an equivalent stable inbox key.
 - Keep published event versions readable while retained messages can still arrive.
 - Test actual producer data against the registered carrier or decoder.
+- Include persisted outbox data and supported transport serialization when JSON shapes change. Verify accepted nesting boundaries through the complete path.
 - Distinguish permanent invalid input from transient infrastructure failure.
 - Use an external-effect inbox when provider calls cannot join the database transaction.
 - Do not retry an operation automatically when the provider result is unknown and the operation is not safely idempotent.

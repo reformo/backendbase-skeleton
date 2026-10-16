@@ -15,13 +15,15 @@ get:
       required: true
       schema:
         type: string
-        enum: [ 'system', 'user', 'expert', 'admin' ]
+        enum: [ 'system', 'user' ]
     - in: query
       name: typeTargetId
       description: Type target id
       required: false
       schema:
         type: integer
+        minimum: 1
+        maximum: 9223372036854775807
         format: int64
         nullable: true
     - in: query

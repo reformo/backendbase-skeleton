@@ -14,11 +14,13 @@ use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryGroupPage;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryListItem;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryPage;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
+use Backendbase\Domain\ExampleCatalog\Domain\EntrySnapshot;
 
 use function array_keys;
 use function array_slice;
 use function count;
 use function sort;
+use function usort;
 
 final readonly class EntryReadRepository implements EntryReadRepositoryContract
 {
@@ -102,6 +104,7 @@ final readonly class EntryReadRepository implements EntryReadRepositoryContract
             $matchingEntries[] = $state;
         }
 
+        usort($matchingEntries, static fn (EntrySnapshot $first, EntrySnapshot $second): int => $first->compareCreationOrder($second));
         $total       = count($matchingEntries);
         $pageEntries = array_slice(
             $matchingEntries,

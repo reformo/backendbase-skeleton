@@ -33,6 +33,10 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 
 Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example reads and writes use API-key protection only.
 
+Example POST and PATCH read bounded raw JSON through `ExampleRequestBody`. The root and supplied non-null details must be objects.
+The API preserves accepted text and detail values. It does not escape HTML, transform credential-like detail names, or derive image URLs.
+Example types are `system` and `user`. Groups, keys, values, and target identifiers follow the context value constraints.
+
 `X-Source-Id` selects `example`, `user`, or `system-admin`. The header does not grant access.
 Realm endpoints use route-owned bearer authentication. Public authentication and health routes explicitly permit anonymous access.
 Optional locale, timezone, and trace headers use documented defaults.

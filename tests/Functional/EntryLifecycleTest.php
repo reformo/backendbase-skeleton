@@ -45,7 +45,7 @@ final class EntryLifecycleTest extends TestCase
         $queryBus   = new ContainerAwareQueryBus($container, $resolver);
 
         $commandBus->handle(new AddEntry(
-            'first-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -55,7 +55,7 @@ final class EntryLifecycleTest extends TestCase
             ['unit' => 'items'],
         ));
         $commandBus->handle(new AddEntry(
-            'second-id',
+            '018f0000-0000-7000-8000-000000000002',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -64,7 +64,7 @@ final class EntryLifecycleTest extends TestCase
             'second-value',
         ));
         $commandBus->handle(new AddEntry(
-            'user-id',
+            '018f0000-0000-7000-8000-000000000004',
             EntryType::USER,
             42,
             'preferences',
@@ -76,7 +76,7 @@ final class EntryLifecycleTest extends TestCase
         $groupPage = $queryBus->handle(new GetEntryGroupsByType(EntryType::SYSTEM, null));
         self::assertSame(['settings'], $groupPage->items());
         self::assertSame(
-            'first-id',
+            '018f0000-0000-7000-8000-000000000001',
             $queryBus->handle(new GetEntryIdByCriteria(
                 EntryType::SYSTEM,
                 null,
@@ -101,7 +101,7 @@ final class EntryLifecycleTest extends TestCase
             'first-key',
         ));
         self::assertNotNull($details);
-        self::assertSame('first-id', $details->uuid());
+        self::assertSame('018f0000-0000-7000-8000-000000000001', $details->uuid());
         self::assertSame(EntryType::SYSTEM, $details->type());
         self::assertNull($details->typeTargetId());
         self::assertSame('settings', $details->group());
@@ -118,7 +118,7 @@ final class EntryLifecycleTest extends TestCase
             new Pagination(1, 2),
         ));
         self::assertSame(2, $page->total());
-        self::assertSame('second-id', $page->items()[0]->uuid());
+        self::assertSame('018f0000-0000-7000-8000-000000000002', $page->items()[0]->uuid());
         self::assertSame('second-key', $page->items()[0]->lookupKey());
         self::assertSame('second-value', $page->items()[0]->lookupValue());
         self::assertSame([], $page->items()[0]->details());

@@ -83,6 +83,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Validate Example detail encoding, decoding, and member names before aggregate or command mutation. Bound detail decoding to 64 levels so accepted values fit event envelopes.
+- Preserve nested JSON objects and lists through the outbox, SQS, RabbitMQ, and registered version-one consumer. Add complete serialization and atomic-validation regressions.
+- Reject invalid Example detail shapes, identifiers, and oversized fields before writes. Preserve text and nested JSON values through create, update, and read operations.
+- Align Example OpenAPI types, field limits, DELETE target parameters, and 400/409 responses. Remove implicit image URL generation. Preserve released event names and payload fields.
+- Match memory entry pagination to Doctrine ordering by creation time and UUID. Add boundary, domain, persistence, and API contract regressions. Update reference documentation and endpoint guidance.
+
 - Complete adapter direction classification. Reject unknown categories and forbidden cross-direction dependencies. Protect shared diagnostics from domain and infrastructure dependencies.
 
 - Exclude the absent shared Doctrine entity directory from discovery in fresh checkouts. Add an isolated regression for absent and present directories. Refresh quality report metrics from the full isolated service test run.

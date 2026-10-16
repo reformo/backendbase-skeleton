@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryValue;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
 class ChangeEntry implements Command
 {
-    private bool|null $isActive = null;
-    private string|null $value  = null;
-    /** @var array<string, mixed>|null */
-    private array|null $details = null;
+    /** @var array{isActive: bool|null, value: EntryValue|null, details: EntryDetails|null} */
+    private array $changes = ['isActive' => null, 'value' => null, 'details' => null];
 
     public function __construct(
         private EntryIdentity $identity,
@@ -27,24 +27,26 @@ class ChangeEntry implements Command
 
     public function isActive(): bool|null
     {
-        return $this->isActive;
+        return $this->changes['isActive'];
     }
 
     public function setIsActive(bool|null $isActive): self
     {
-        $this->isActive = $isActive;
+        $this->changes['isActive'] = $isActive;
 
         return $this;
     }
 
     public function value(): string|null
     {
-        return $this->value;
+        $value = $this->changes['value'];
+
+        return $value?->toString();
     }
 
     public function setValue(string|null $value): self
     {
-        $this->value = $value;
+        $this->changes['value'] = $value === null ? null : new EntryValue($value);
 
         return $this;
     }
@@ -52,13 +54,15 @@ class ChangeEntry implements Command
     /** @return array<string, mixed>|null */
     public function details(): array|null
     {
-        return $this->details;
+        $details = $this->changes['details'];
+
+        return $details?->toArray();
     }
 
-    /** @param array<string, mixed>|null $details */
+    /** @param array<array-key, mixed>|null $details */
     public function setDetails(array|null $details): self
     {
-        $this->details = $details;
+        $this->changes['details'] = $details === null ? null : new EntryDetails($details);
 
         return $this;
     }
@@ -72,11 +76,12 @@ class ChangeEntry implements Command
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return [
-            'identity' => $this->identity->toArray(),
-            'isActive' => $this->isActive,
-            'value' => $this->value,
-            'details' => $this->details,
-        ];
+        $identity       = $this->identity;
+        $identityValues = $identity->toArray();
+        $isActive       = $this->isActive();
+        $value          = $this->value();
+        $details        = $this->details();
+
+        return ['identity' => $identityValues, 'isActive' => $isActive, 'value' => $value, 'details' => $details];
     }
 }

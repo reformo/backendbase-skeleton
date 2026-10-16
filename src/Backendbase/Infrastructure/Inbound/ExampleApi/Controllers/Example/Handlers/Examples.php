@@ -6,17 +6,13 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Hand
 
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntriesByGroup;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
-use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Primitives\Pagination;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
-
-use function str_contains;
 
 use const DATE_ATOM;
 
@@ -24,7 +20,6 @@ class Examples extends Action
 {
     public function __construct(
         private readonly QueryBus $queryBus,
-        private readonly ApplicationRuntimeSettings $settings,
         protected LoggerInterface $logger,
     ) {
         parent::__construct($logger);
@@ -33,10 +28,9 @@ class Examples extends Action
     #[Override]
     protected function action(): Response
     {
-        $cdnBaseUrl   = $this->settings->cdnBaseUrl();
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = (string) $this->request->getAttribute('example-group');
-        $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
+        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $params       = $this->request->getQueryParams();
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
         $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
         $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
@@ -46,16 +40,7 @@ class Examples extends Action
         $pageResult = $this->queryBus->handle(new GetEntriesByGroup($type, $typeTargetId, $group, $pagination));
         $data       = [];
         foreach ($pageResult->items() as $entry) {
-            $details = [];
-
-            foreach ($entry->details() as $key => $value) {
-                $details[$key] = $value;
-                if (! str_contains((string) $key, 'image') && ! str_contains((string) $key, 'Image')) {
-                    continue;
-                }
-
-                $details[$key . 'Url'] = $cdnBaseUrl . $value;
-            }
+            $details = $entry->details();
 
             $data[] = [
                 'uuid' => $entry->uuid(),

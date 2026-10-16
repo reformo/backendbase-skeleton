@@ -8,9 +8,9 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\Input\RequestObjectInput;
+use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestBody;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -29,14 +29,13 @@ class ChangeExampleDetails extends Action
     protected function action(): Response
     {
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = (string) $this->request->getAttribute('example-group');
-        $entryKey     = (string) $this->request->getAttribute('example-key');
-        $payload      = RequestObjectInput::read(
-            $this->request->getParsedBody(),
+        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $entryKey     = ExampleRequestInput::key($this->request->getAttribute('example-key'));
+        $payload      = ExampleRequestBody::read(
+            $this->request,
             ['typeTargetId', 'lookupValue', 'details', 'isActive'],
         );
         $typeTargetId = RequestObjectInput::positiveIntegerOrNull($payload['typeTargetId'] ?? null, 'typeTargetId');
-        $payload      = PayloadSanitizer::sanitize($payload);
         $lookupValue  = ExampleRequestInput::optionalStringOrNull($payload['lookupValue'] ?? null, 'lookupValue');
         $details      = ExampleRequestInput::optionalObjectOrNull($payload['details'] ?? null, 'details');
         $isActive     = ExampleRequestInput::optionalBooleanOrNull($payload['isActive'] ?? null, 'isActive');

@@ -9,7 +9,6 @@ use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\CommandBus;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -28,9 +27,9 @@ class RemoveExample extends Action
     protected function action(): Response
     {
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = (string) $this->request->getAttribute('example-group');
-        $entryKey     = (string) $this->request->getAttribute('example-key');
-        $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
+        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $entryKey     = ExampleRequestInput::key($this->request->getAttribute('example-key'));
+        $params       = $this->request->getQueryParams();
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
 
         $identity = new EntryIdentity($type, $typeTargetId, $group, $entryKey);

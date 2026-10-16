@@ -553,7 +553,7 @@
 
                     <rect class="node" x="32" y="203" width="170" height="82" rx="12"></rect>
                     <text class="node-title" x="117" y="233" text-anchor="middle">HTTP Action</text>
-                    <text class="node-note" x="117" y="255" text-anchor="middle">sanitize + validate</text>
+                    <text class="node-note" x="117" y="255" text-anchor="middle">parse + validate</text>
 
                     <rect class="node command" x="267" y="66" width="166" height="78" rx="12"></rect>
                     <text class="node-title" x="350" y="95" text-anchor="middle">Command</text>
@@ -875,7 +875,7 @@ final readonly class GetEntryByCriteriaHandler implements QueryHandler
 
             <ol class="steps">
                 <li><strong>Read route, query, or request-body values.</strong></li>
-                <li><strong>Sanitize the input with <code>PayloadSanitizer</code>.</strong></li>
+                <li><strong>Preserve accepted text and JSON values.</strong></li>
                 <li><strong>Validate types, formats, ranges, and enum values.</strong></li>
                 <li><strong>Create typed primitives such as <code>EntryType</code> and <code>Pagination</code>.</strong></li>
                 <li><strong>Construct the command, query, or typed application-orchestrator input.</strong></li>
@@ -889,9 +889,7 @@ final readonly class GetEntryByCriteriaHandler implements QueryHandler
     $this-&gt;request-&gt;getAttribute('type-slug'),
 );
 
-$params = PayloadSanitizer::sanitize(
-    $this-&gt;request-&gt;getQueryParams(),
-);
+$params = $this-&gt;request-&gt;getQueryParams();
 
 $typeTargetId = ExampleRequestInput::optionalTypeTargetId(
     $params['typeTargetId'] ?? null,

@@ -23,7 +23,7 @@ final class CommandAndQueryContractsTest extends TestCase
     public function itSerializesEntryCommands(): void
     {
         $add = new AddEntry(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::USER,
             42,
             'settings',

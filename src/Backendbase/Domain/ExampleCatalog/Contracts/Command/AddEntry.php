@@ -4,64 +4,93 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
+use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryId;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryValue;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
 class AddEntry implements Command
 {
-    /** @param array<string, mixed>|null $details */
+    private EntryIdentity $identity;
+    /** @var array{entryId: EntryId, isActive: bool, value: EntryValue, details: EntryDetails|null} */
+    private array $values;
+
+    /** @param array<array-key, mixed>|null $details */
     public function __construct(
-        private string $entryId,
-        private EntryType $type,
-        private int|null $typeTargetId,
-        private string $group,
-        private bool $isActive,
-        private string $key,
-        private string $value,
-        private array|null $details = [],
+        string $entryId,
+        EntryType $type,
+        int|null $typeTargetId,
+        string $group,
+        bool $isActive,
+        string $key,
+        string $value,
+        array|null $details = [],
     ) {
+        $this->identity = new EntryIdentity($type, $typeTargetId, $group, $key);
+        $this->values   = [
+            'entryId' => EntryId::fromString($entryId),
+            'isActive' => $isActive,
+            'value' => new EntryValue($value),
+            'details' => $details === null ? null : new EntryDetails($details),
+        ];
     }
 
     /** @return array<string, mixed> */
     public function details(): array
     {
-        return $this->details ?? [];
+        $details = $this->values['details'];
+
+        return $details?->toArray() ?? [];
     }
 
     public function entryId(): string
     {
-        return $this->entryId;
+        $identifier = $this->values['entryId'];
+
+        return $identifier->id();
     }
 
     public function type(): EntryType
     {
-        return $this->type;
+        $identity = $this->identity;
+
+        return $identity->type();
     }
 
     public function typeTargetId(): int|null
     {
-        return $this->typeTargetId;
+        $identity = $this->identity;
+
+        return $identity->typeTargetId();
     }
 
     public function group(): string
     {
-        return $this->group;
+        $identity = $this->identity;
+
+        return $identity->group();
     }
 
     public function isActive(): bool
     {
-        return $this->isActive;
+        return $this->values['isActive'];
     }
 
     public function key(): string
     {
-        return $this->key;
+        $identity = $this->identity;
+
+        return $identity->key();
     }
 
     public function value(): string
     {
-        return $this->value;
+        $value = $this->values['value'];
+
+        return $value->toString();
     }
 
     #[Override]
@@ -73,15 +102,25 @@ class AddEntry implements Command
     /** @return array<string, mixed> */
     public function toArray(): array
     {
+        $type         = $this->type();
+        $entryId      = $this->entryId();
+        $typeTargetId = $this->typeTargetId();
+        $group        = $this->group();
+        $isActive     = $this->isActive();
+        $key          = $this->key();
+        $value        = $this->value();
+        $details      = $this->values['details'];
+        $detailValues = $details?->toArray();
+
         return [
-            'exampleId' => $this->entryId,
-            'type' => $this->type->value,
-            'typeTargetId' => $this->typeTargetId,
-            'group' => $this->group,
-            'isActive' => $this->isActive,
-            'key' => $this->key,
-            'value' => $this->value,
-            'details' => $this->details,
+            'exampleId' => $entryId,
+            'type' => $type->value,
+            'typeTargetId' => $typeTargetId,
+            'group' => $group,
+            'isActive' => $isActive,
+            'key' => $key,
+            'value' => $value,
+            'details' => $detailValues,
         ];
     }
 }

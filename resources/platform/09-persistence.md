@@ -16,6 +16,10 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 - Adapters load and save state without business decisions.
 - Use native string-backed enums with Doctrine `enumType` mapping.
 
+Example details use Doctrine `JSON_OBJECT` hydration to preserve nested object and array shapes. The SQL column remains JSON.
+The DBAL mapper accepts legacy empty `[]` details as an empty object. Nonempty lists and integer top-level member names remain invalid.
+Both Example read adapters order entry pages by `created_at` and UUID before slicing. Their shared contract tests use reversed insertion order.
+
 ## Query indexes
 
 Review every runtime SQL statement, query-builder predicate, and Doctrine lookup against current migration and ORM indexes.

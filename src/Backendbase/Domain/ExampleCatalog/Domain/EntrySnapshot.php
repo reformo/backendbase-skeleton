@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Domain;
 
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryId;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryTargetId;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryValue;
 use DateTimeImmutable;
 
 /**
  * @phpstan-type EntryState array{
- *     uuid: string,
+ *     uuid: EntryId,
  *     type: EntryType,
- *     typeTargetId: int|null,
- *     group: string,
- *     lookupKey: string,
- *     lookupValue: string,
- *     details: array<string, mixed>,
+ *     typeTargetId: EntryTargetId,
+ *     group: EntryGroup,
+ *     lookupKey: EntryKey,
+ *     lookupValue: EntryValue,
+ *     details: EntryDetails,
  *     isActive: bool,
  *     createdAt: DateTimeImmutable,
  *     updatedAt: DateTimeImmutable,
@@ -26,15 +32,14 @@ final readonly class EntrySnapshot
     /** @var EntryState */
     private array $values;
 
-    /** @param array<string, mixed> $details */
     public function __construct(
-        string $uuid,
+        EntryId $uuid,
         EntryType $type,
-        int|null $typeTargetId,
-        string $group,
-        string $lookupKey,
-        string $lookupValue,
-        array $details,
+        EntryTargetId $typeTargetId,
+        EntryGroup $group,
+        EntryKey $lookupKey,
+        EntryValue $lookupValue,
+        EntryDetails $details,
         bool $isActive,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $updatedAt,
@@ -57,7 +62,9 @@ final readonly class EntrySnapshot
 
     public function uuid(): string
     {
-        return $this->values['uuid'];
+        $value = $this->values['uuid'];
+
+        return $value->id();
     }
 
     public function type(): EntryType
@@ -67,28 +74,38 @@ final readonly class EntrySnapshot
 
     public function typeTargetId(): int|null
     {
-        return $this->values['typeTargetId'];
+        $value = $this->values['typeTargetId'];
+
+        return $value->toInteger();
     }
 
     public function group(): string
     {
-        return $this->values['group'];
+        $value = $this->values['group'];
+
+        return $value->toString();
     }
 
     public function lookupKey(): string
     {
-        return $this->values['lookupKey'];
+        $value = $this->values['lookupKey'];
+
+        return $value->toString();
     }
 
     public function lookupValue(): string
     {
-        return $this->values['lookupValue'];
+        $value = $this->values['lookupValue'];
+
+        return $value->toString();
     }
 
     /** @return array<string, mixed> */
     public function details(): array
     {
-        return $this->values['details'];
+        $value = $this->values['details'];
+
+        return $value->toArray();
     }
 
     public function isActive(): bool
@@ -104,6 +121,16 @@ final readonly class EntrySnapshot
     public function updatedAt(): DateTimeImmutable
     {
         return $this->values['updatedAt'];
+    }
+
+    public function compareCreationOrder(self $other): int
+    {
+        $createdAt       = $this->createdAt();
+        $otherCreatedAt  = $other->createdAt();
+        $identifier      = $this->uuid();
+        $otherIdentifier = $other->uuid();
+
+        return [$createdAt, $identifier] <=> [$otherCreatedAt, $otherIdentifier];
     }
 
     public function removedAt(): DateTimeImmutable|null

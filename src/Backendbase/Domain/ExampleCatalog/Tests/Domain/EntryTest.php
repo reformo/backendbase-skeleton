@@ -20,7 +20,7 @@ final class EntryTest extends TestCase
     {
         $createdAt = new DateTimeImmutable('2026-10-16T10:00:00.123456Z');
         $entry     = Entry::create(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -32,7 +32,7 @@ final class EntryTest extends TestCase
         );
         $state     = $entry->snapshot();
 
-        self::assertSame('example-id', $entry->id());
+        self::assertSame('018f0000-0000-7000-8000-000000000001', $entry->id());
         self::assertSame(EntryType::SYSTEM, $state->type());
         self::assertSame('25', $state->lookupValue());
         self::assertSame(['unit' => 'items'], $state->details());
@@ -47,7 +47,7 @@ final class EntryTest extends TestCase
     {
         $initialDate = new DateTimeImmutable('2026-01-01 00:00:00');
         $entry       = Entry::reconstitute(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',

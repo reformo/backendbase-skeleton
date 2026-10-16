@@ -560,7 +560,7 @@
 
                     <rect x="24" y="178" width="150" height="92" rx="13" fill="#1d3048" stroke="#6ca5ed"/>
                     <text x="99" y="213" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">HTTP adapter</text>
-                    <text x="99" y="240" text-anchor="middle" fill="#c7d8ef" font-size="12">sanitize · dispatch</text>
+                    <text x="99" y="240" text-anchor="middle" fill="#c7d8ef" font-size="12">validate · dispatch</text>
 
                     <rect x="260" y="104" width="190" height="90" rx="13" fill="#203a38" stroke="#3fb99f"/>
                     <text x="355" y="139" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Contracts</text>
@@ -727,6 +727,8 @@
                 <div class="step"><span class="step-number">04</span><strong>DBAL adapter</strong><br><span class="muted">Run plain SQL for the use case.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Read model</strong><br><span class="muted">Return typed response data.</span></div>
             </div>
+            <p>Context values under <code>Domain/Value</code> validate UUIDs, positive nullable target identifiers, field lengths, and JSON details. Creation and reconstitution enforce the same constraints. Changes validate all supplied values before mutation.</p>
+            <p>Detail construction verifies encoding and decoding within 64 levels. This bound leaves room for event envelopes. Member names cannot start with NUL at any depth. Rejected details leave aggregate fields and previous command details unchanged.</p>
             <p>The example read adapter returns <code>EntryDetails</code>, <code>EntryPage</code>, <code>EntryGroupPage</code>, and identifiers. It filters removed records in SQL.</p>
         </section>
 
@@ -754,7 +756,7 @@
                     </ul>
                 </article>
             </div>
-            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>EntryStore</code> for isolated tests. The memory store enforces the same active lookup identity uniqueness as Doctrine.</p>
+            <p>Both paths use <code>example_table</code>, but they use separate ports and adapters. Memory adapters share <code>EntryStore</code> for isolated tests. The memory store enforces the same active lookup identity uniqueness as Doctrine. Both adapters order entry pages by creation time and UUID before pagination.</p>
             <div class="callout">
                 <strong>Doctrine discovery</strong>
                 <code>PathFinder::doctrineEntityPaths()</code> discovers <code>Domain/*/Adapters/Persistence/Doctrine/Entity</code> and one additional nested module depth.

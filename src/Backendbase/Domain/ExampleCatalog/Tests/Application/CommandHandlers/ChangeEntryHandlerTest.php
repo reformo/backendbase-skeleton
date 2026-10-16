@@ -31,7 +31,7 @@ final class ChangeEntryHandlerTest extends TestCase
         $calls      = [];
         $identity   = new EntryIdentity(EntryType::SYSTEM, null, 'settings', 'page-size');
         $entry      = Entry::create(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -67,7 +67,7 @@ final class ChangeEntryHandlerTest extends TestCase
                 $calls[] = 'transaction-start';
                 $event   = $transactionalWork();
                 self::assertInstanceOf(EntryChanged::class, $event);
-                self::assertSame('example-id', $event->entryId());
+                self::assertSame('018f0000-0000-7000-8000-000000000001', $event->entryId());
                 $calls[] = 'transaction-end';
             });
         $command = new ChangeEntry($identity);

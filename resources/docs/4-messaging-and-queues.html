@@ -757,6 +757,7 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
             </div>
 
             <h3>Transport difference</h3>
+            <p>The outbox publisher and both transport mappers use <code>JsonPayload</code> to preserve nested JSON objects and lists. Iterable <code>ArrayObject</code> values support carrier mapping without changing released event fields. Empty objects and objects with integer member names remain objects on the wire.</p>
             <div class="grid">
                 <article class="card">
                     <h3>RabbitMQ wire body</h3>

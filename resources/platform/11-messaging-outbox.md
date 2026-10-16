@@ -26,6 +26,10 @@ Consumers must therefore be idempotent. Do not treat broker delivery as exactly 
 
 The outbox stores event name, version, payload, occurrence time, attempts, errors, availability, publication time, and claim state.
 
+`Queue/Serialization/JsonPayload` preserves nested JSON object and list shapes when the outbox publisher and transport mappers decode payloads.
+The SQS and RabbitMQ adapters retain empty objects, empty lists, and objects with integer member names through publication and consumption.
+Transport serialization does not change released event names, versions, or payload fields.
+
 On a new database, `Version20260823000000` runs first and creates the outbox, inbox, and delivery-failure tables with all required indexes.
 
 Publication failures remain pending. `OutboxRetryPolicy` owns the 60-second claim and the 2-to-256-second retry delay. No terminal attempt limit exists.

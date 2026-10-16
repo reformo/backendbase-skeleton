@@ -8,11 +8,9 @@ use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryDetails;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryListItem;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ExampleDetails;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\Examples;
 use Backendbase\Shared\CQRS\QueryBus;
-use Backendbase\Shared\Services\Settings;
 use DateTimeImmutable;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -38,7 +36,7 @@ final class EmptyObjectResponseTest extends TestCase
         $queries->method('handle')->willReturn($result);
         $logger   = $this->createStub(LoggerInterface::class);
         $action   = $collection
-            ? new Examples($queries, new ApplicationRuntimeSettings(new Settings(['cdnBaseUrl' => 'https://cdn.example.com/'])), $logger)
+            ? new Examples($queries, $logger)
             : new ExampleDetails($queries, $logger);
         $request  = new ServerRequestFactory()->createServerRequest('GET', '/examples');
         $request  = $request->withAttribute('type-slug', 'system');

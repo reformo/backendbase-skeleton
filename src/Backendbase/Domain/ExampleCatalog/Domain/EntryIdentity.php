@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Domain;
 
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryTargetId;
+
 /**
  * @phpstan-type EntryIdentityState array{
  *     type: EntryType,
- *     typeTargetId: int|null,
- *     group: string,
- *     key: string
+ *     typeTargetId: EntryTargetId,
+ *     group: EntryGroup,
+ *     key: EntryKey
  * }
  */
 final readonly class EntryIdentity
@@ -21,9 +25,9 @@ final readonly class EntryIdentity
     {
         $this->state = [
             'type' => $type,
-            'typeTargetId' => $typeTargetId,
-            'group' => $group,
-            'key' => $key,
+            'typeTargetId' => new EntryTargetId($typeTargetId),
+            'group' => new EntryGroup($group),
+            'key' => new EntryKey($key),
         ];
     }
 
@@ -34,17 +38,23 @@ final readonly class EntryIdentity
 
     public function typeTargetId(): int|null
     {
-        return $this->state['typeTargetId'];
+        $value = $this->state['typeTargetId'];
+
+        return $value->toInteger();
     }
 
     public function group(): string
     {
-        return $this->state['group'];
+        $value = $this->state['group'];
+
+        return $value->toString();
     }
 
     public function key(): string
     {
-        return $this->state['key'];
+        $value = $this->state['key'];
+
+        return $value->toString();
     }
 
     /** @return array{type: string, typeTargetId: int|null, group: string, key: string} */

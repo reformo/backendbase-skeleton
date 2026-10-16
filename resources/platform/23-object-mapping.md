@@ -17,8 +17,10 @@ The mapper preserves text when no normalization callback is supplied.
 Constructor parameters define the input contract. Domain value objects enforce their own business rules.
 JSON enum strings and UUID strings have explicit constructors. Numeric strings do not become integers implicitly.
 
-Example API v1 retains its existing text sanitizer as a compatibility exception.
-Its POST and PATCH boundaries reject unknown top-level fields and require native integer body identifiers.
+Example API preserves accepted text without a global sanitizer.
+Its POST and PATCH boundaries read bounded JSON objects, reject unknown top-level fields, and require native integer body identifiers.
+Context-owned values enforce field limits and valid identifiers before dispatch.
+Details require an object with non-integer top-level member names. Nested objects and arrays retain their shapes.
 Query parameters retain their declared string-to-integer conversion.
 
 Development uses a file-watching Valinor cache. Other modes use the filesystem cache directly.

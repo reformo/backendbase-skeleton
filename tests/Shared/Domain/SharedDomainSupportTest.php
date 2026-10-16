@@ -22,7 +22,7 @@ final class SharedDomainSupportTest extends TestCase
         self::assertCount(0, $aggregate->getRecordedEvents());
 
         $command = new AddEntry(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -30,12 +30,12 @@ final class SharedDomainSupportTest extends TestCase
             'key',
             'value',
         );
-        $event   = new EntryAdded('example-id', $command);
+        $event   = new EntryAdded('018f0000-0000-7000-8000-000000000001', $command);
         $aggregate->recordEvent($event);
 
         self::assertCount(1, $aggregate->getRecordedEvents());
         self::assertSame($event, $aggregate->getRecordedEvents()->first());
-        self::assertSame('example-id', $event->entryId());
+        self::assertSame('018f0000-0000-7000-8000-000000000001', $event->entryId());
         self::assertSame($command, $event->payload());
     }
 
@@ -44,7 +44,7 @@ final class SharedDomainSupportTest extends TestCase
     {
         $aggregate = new TestAggregate();
         $command   = new AddEntry(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -53,7 +53,7 @@ final class SharedDomainSupportTest extends TestCase
             'value',
         );
 
-        $aggregate->recordEvent(new EntryAdded('example-id', $command));
+        $aggregate->recordEvent(new EntryAdded('018f0000-0000-7000-8000-000000000001', $command));
 
         self::assertCount(1, $aggregate->getRecordedEvents());
     }

@@ -43,6 +43,10 @@ Coordinate checks once for the complete task. The commands below are available c
 
 Start with the smallest relevant test. Expand to its owning directory, related integration tests, or the full suite when risk or project policy requires it. Broad changes require the full suite. Keep existing continuous-integration and release gates unchanged.
 
+For JSON payload changes, test the producer, persisted outbox, outgoing and incoming transport mappers, and registered consumer carrier together.
+Include empty objects, empty lists, nested objects with integer member names, and accepted depth boundaries.
+For detail validation changes, verify that rejected values leave all aggregate fields and previous command details unchanged.
+
 Choose a focused test file or its owning directory according to the change. Do not run both only because a skill lists both.
 
 One successful result can satisfy several skills. Reuse it while relevant code, configuration, tests, and the execution environment remain unchanged. Repeat checks after relevant edits, failures, environment changes, or new evidence.

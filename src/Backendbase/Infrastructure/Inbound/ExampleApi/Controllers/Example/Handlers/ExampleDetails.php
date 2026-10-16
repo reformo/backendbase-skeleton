@@ -10,7 +10,6 @@ use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\ExampleRequestInput;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\ResourceNotFound;
-use Backendbase\Utility\Arrays\PayloadSanitizer;
 use Laminas\Diactoros\Response\JsonResponse;
 use Override;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -31,9 +30,9 @@ class ExampleDetails extends Action
     protected function action(): Response
     {
         $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = (string) $this->request->getAttribute('example-group');
-        $entryKey     = (string) $this->request->getAttribute('example-key');
-        $params       = PayloadSanitizer::sanitize($this->request->getQueryParams());
+        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $entryKey     = ExampleRequestInput::key($this->request->getAttribute('example-key'));
+        $params       = $this->request->getQueryParams();
         $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
 
         $entry = $this->queryBus->handle(new GetEntryByCriteria($type, $typeTargetId, $group, $entryKey));

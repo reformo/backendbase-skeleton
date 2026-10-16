@@ -178,7 +178,10 @@ Keep orchestrator input and result contracts in `Contracts`. Preserve context is
 
 ### Example API
 
-`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, sanitize inputs, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
+`ExampleApi` controllers are adapter-layer classes under `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers`. Handlers extend `Backendbase\Infrastructure\Adapters\Http\Actions\Action`, read PSR-7 request data, validate inputs without changing accepted text, create one command or query for the operation, dispatch through the appropriate bus, and return `JsonResponse` or `EmptyResponse`. A write command carries the public resource identity. Its handler resolves authoritative state through a write port.
+
+Example writes read bounded JSON objects through `ExampleRequestBody`. Context values validate identifiers and field limits before persistence.
+The API returns stored details without inferred image URLs. See [Example contracts](../platform/08-api-contracts.md) for limits, JSON rules, and compatibility changes.
 
 When adding or changing an endpoint, invoke one application operation in each existing affected API. Direct command or query dispatch is the default. For a write response needing a resource representation, the action can instead call the application orchestrator described above. Example create endpoints use pre-generated identifiers. Identity actions use the context-owned `IdentityOperation` orchestrator for command results.
 

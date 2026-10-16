@@ -9,12 +9,12 @@ use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryListItem;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
 use DateTimeImmutable;
+use stdClass;
 use Throwable;
 use UnexpectedValueException;
 
 use function array_keys;
 use function ctype_digit;
-use function is_array;
 use function is_int;
 use function is_string;
 use function json_decode;
@@ -113,23 +113,23 @@ final class EntryReadModelMapper
         }
 
         try {
-            $details = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+            $details = json_decode($value, false, 512, JSON_THROW_ON_ERROR);
         } catch (Throwable $exception) {
             throw new UnexpectedValueException('The persisted details value is invalid.', 0, $exception);
         }
 
-        if (! is_array($details)) {
+        if (! $details instanceof stdClass && $details !== []) {
             throw new UnexpectedValueException('The persisted details value must be an object.');
         }
 
-        foreach (array_keys($details) as $key) {
+        foreach (array_keys((array) $details) as $key) {
             if (! is_string($key)) {
                 throw new UnexpectedValueException('The persisted details value must be an object.');
             }
         }
 
         /** @var array<string, mixed> $jsonObject */
-        $jsonObject = $details;
+        $jsonObject = (array) $details;
 
         return $jsonObject;
     }

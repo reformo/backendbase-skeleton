@@ -12,12 +12,10 @@ use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryListItem;
 use Backendbase\Domain\ExampleCatalog\Contracts\ReadModel\EntryPage;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
-use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ExampleDetails as ExampleDetailsAction;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ExampleGroups;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\Examples;
 use Backendbase\Shared\CQRS\QueryBus;
-use Backendbase\Shared\Services\Settings;
 use DateTimeImmutable;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -64,15 +62,14 @@ final class ExampleReadControllersTest extends TestCase
     public function itReturnsAProjectedExamplePage(): void
     {
         $createdAt = new DateTimeImmutable('2026-08-25T10:00:00+00:00');
-        $item      = new EntryListItem('example-id', 'logo', 'logo.png', ['heroImage' => 'hero.png', 'color' => 'blue'], true, $createdAt);
+        $item      = new EntryListItem('example-id', 'logo', 'logo.png', ['heroImage' => ['path' => 'hero.png'], 'imageCount' => 2, 'color' => 'blue'], true, $createdAt);
         $queryBus  = $this->createMock(QueryBus::class);
         $queryBus->expects(self::once())
             ->method('handle')
             ->with(self::isInstanceOf(GetEntriesByGroup::class))
             ->willReturn(new EntryPage([$item], 1));
-        $settings = new ApplicationRuntimeSettings(new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']));
-        $action   = new Examples($queryBus, $settings, $this->createStub(LoggerInterface::class));
-        $request  = $this->request('/example-types/system/groups/settings/examples')
+        $action  = new Examples($queryBus, $this->createStub(LoggerInterface::class));
+        $request = $this->request('/example-types/system/groups/settings/examples')
             ->withAttribute('type-slug', 'system')
             ->withAttribute('example-group', 'settings')
             ->withQueryParams(['pageSize' => 20, 'page' => 1]);
@@ -82,7 +79,7 @@ final class ExampleReadControllersTest extends TestCase
 
         self::assertSame(1, $payload['total']);
         self::assertSame('example-id', $entry['uuid']);
-        self::assertSame('https://cdn.example.com/hero.png', $entry['details']['heroImageUrl']);
+        self::assertSame(['heroImage' => ['path' => 'hero.png'], 'imageCount' => 2, 'color' => 'blue'], $entry['details']);
         self::assertArrayNotHasKey('colorUrl', $entry['details']);
         self::assertSame('2026-08-25T10:00:00+00:00', $entry['createdAt']);
     }

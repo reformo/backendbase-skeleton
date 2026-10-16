@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Factory\AppFactory;
+use Tests\Support\Http\JsonRequestBody;
 
 use function json_decode;
 
@@ -111,7 +112,7 @@ final class ExampleInputValidationTest extends TestCase
         ));
         $request = (new ServerRequestFactory())
             ->createServerRequest('PATCH', '/examples/system/settings/page-size')
-            ->withParsedBody($payload);
+            ->withBody(JsonRequestBody::create($payload));
 
         return $app->handle($request);
     }

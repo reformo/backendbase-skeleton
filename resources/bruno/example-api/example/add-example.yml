@@ -27,6 +27,8 @@ http:
         "lookupKey": "{{example-key}}",
         "lookupValue": "{{exampleLookupValue}}",
         "details": {
+          "label": "A & B <tag>",
+          "heroImage": {"path": "hero.png"},
           "title": {
             "en": "English title",
             "tr": "Turkish Title"

@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Tests\Support\Http\JsonRequestBody;
 
 final class ExampleWriteRoutingTest extends TestCase
 {
@@ -47,7 +48,7 @@ final class ExampleWriteRoutingTest extends TestCase
         self::assertInstanceOf(ChangeEntry::class, $command);
         $identity = $command->identity();
         self::assertSame('page-size', $identity->key());
-        self::assertSame('25 &amp; items', $command->value());
+        self::assertSame('25 & items', $command->value());
         self::assertSame(['unit' => 'items'], $command->details());
         self::assertFalse($command->isActive());
     }
@@ -75,7 +76,7 @@ final class ExampleWriteRoutingTest extends TestCase
         $path    = self::COLLECTION_PATH . ($method === 'POST' ? '' : '/page-size');
         $request = (new ServerRequestFactory())->createServerRequest($method, $path)
             ->withHeader('Backendbase-Api-Key', $apiKey)
-            ->withParsedBody(['lookupValue' => '25']);
+            ->withBody(JsonRequestBody::create(['lookupValue' => '25']));
 
         self::assertSame(401, $app->handle($request)->getStatusCode());
     }
@@ -110,7 +111,7 @@ final class ExampleWriteRoutingTest extends TestCase
 
         $request  = (new ServerRequestFactory())->createServerRequest($method, $path)
             ->withHeader('Backendbase-Api-Key', 'example-api-key')
-            ->withParsedBody($payload);
+            ->withBody(JsonRequestBody::create($payload));
         $response = $app->handle($request);
         self::assertSame(204, $response->getStatusCode());
         self::assertSame('', (string) $response->getBody());

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example;
 
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
 use Backendbase\Shared\Exception\InvalidUserInput;
+use stdClass;
 
 use function filter_var;
-use function is_array;
 use function is_bool;
 use function is_int;
 use function is_string;
@@ -25,6 +27,20 @@ final class ExampleRequestInput
         }
 
         return $type;
+    }
+
+    public static function group(mixed $value): string
+    {
+        $group = new EntryGroup(self::requiredString($value, 'example group'));
+
+        return $group->toString();
+    }
+
+    public static function key(mixed $value): string
+    {
+        $key = new EntryKey(self::requiredString($value, 'lookupKey'));
+
+        return $key->toString();
     }
 
     public static function optionalTypeTargetId(mixed $value): int|null
@@ -92,11 +108,14 @@ final class ExampleRequestInput
             return [];
         }
 
-        if (! is_array($value)) {
+        if (! $value instanceof stdClass) {
             throw InvalidUserInput::create('The ' . $name . ' value must be an object.');
         }
 
-        return $value;
+        /** @var array<string, mixed> $values */
+        $values = (array) $value;
+
+        return $values;
     }
 
     /** @return array<string, mixed>|null */

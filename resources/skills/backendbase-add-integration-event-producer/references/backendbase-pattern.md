@@ -152,6 +152,8 @@ composer cs-check
 ```
 
 Run the target project's new schema and handler tests first. The listed Backendbase paths show the verified test roles. Also map the actual producer payload into the consumer carrier when a consumer is added in the same change.
+For JSON shape changes, include the target outbox and each supported transport's outgoing and incoming serialization before carrier mapping.
+Test empty objects, lists, objects with integer member names, and accepted nesting boundaries.
 
 ## Completion report
 

@@ -15,13 +15,15 @@ post:
       required: true
       schema:
         type: string
-        enum: [ 'system', 'user', 'expert', 'admin' ]
+        enum: [ 'system', 'user' ]
     - in: path
       name: example-group
       description: Example group
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 32
   requestBody:
     required: true
     description: The encoded JSON object must not exceed 65536 bytes. Unknown fields and coerced scalar types are rejected.
@@ -35,20 +37,26 @@ post:
           properties:
             typeTargetId:
               type: integer
+              minimum: 1
+              maximum: 9223372036854775807
               format: int64
               nullable: true
-              description: "null if type is 'system'"
+              description: Optional positive target identifier. Null selects entries without a target.
               default: null
             lookupKey:
               type: string
+              minLength: 1
+              maxLength: 160
               nullable: true
               format: <ulid> or string
               description: unique key. use lowercase ulid values
               example: "01hkj62kff4ndb51nxy8sasy8w"
             lookupValue:
               type: string
+              maxLength: 2048
             details:
               type: object
+              description: JSON object with non-integer top-level member names. Values are preserved. No image URL fields are generated.
               nullable: true
               example:
                 title:
@@ -69,6 +77,8 @@ post:
       $ref: '../../common/components.yaml#/schemas/204'
     400:
       $ref: '../../common/components.yaml#/schemas/400'
+    409:
+      $ref: '../../common/components.yaml#/schemas/409'
     401:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
@@ -82,7 +92,7 @@ get:
   tags:
     - Example
   operationId: getExamplesByGroup
-  description: Get examples by group
+  description: Get examples by group, ordered by creation time and then UUID before pagination.
   parameters:
     - $ref: '../../common/components.yaml#/headers/Accept-Language'
     - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
@@ -95,18 +105,22 @@ get:
       required: true
       schema:
         type: string
-        enum: [ 'system', 'user', 'expert', 'admin' ]
+        enum: [ 'system', 'user' ]
     - in: path
       name: example-group
       description: Example group
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 32
     - in: query
       name: typeTargetId
-      description: Type target id. If type is system, this is null.
+      description: Optional positive target identifier. Omitted or empty query values select entries without a target.
       schema:
         type: integer
+        minimum: 1
+        maximum: 9223372036854775807
         format: int64
         nullable: true
     - in: query
@@ -153,27 +167,35 @@ get:
                       format: uuid
                     type:
                       type: string
-                      enum: [ 'system', 'user', 'expert', 'admin' ]
+                      enum: [ 'system', 'user' ]
                       format: kebab-case
                     exampleGroup:
                       type: string
+                      minLength: 1
+                      maxLength: 32
                       format: kebab-case
                     typeTargetId:
                       type: integer
+                      minimum: 1
+                      maximum: 9223372036854775807
                       format: int64
                       nullable: true
-                      description: "null if type is 'system'"
+                      description: Optional positive target identifier. Null selects entries without a target.
                     lookupKey:
                       type: string
+                      minLength: 1
+                      maxLength: 160
                       format: <ulid> or string
                       example: "01hkj62kff4ndb51nxy8sasy8w"
                     lookupValue:
                       type: string
+                      maxLength: 2048
                     isActive:
                       type: boolean
                       example: true
                     details:
                       type: object
+                      description: JSON object with non-integer top-level member names. Values are preserved. No image URL fields are generated.
                     createdAt:
                       type: string
                       format: date-time

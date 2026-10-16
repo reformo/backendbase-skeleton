@@ -23,6 +23,13 @@ ExampleCatalog Entry creation, change, and removal require explicit DateTimeImmu
 EntryWrites reads the injected UTC clock during transactional work. Reconstitution preserves stored times.
 EntryEventTransaction coordinates mutation and domain publication through IntegrationEventTransaction.
 
+ExampleCatalog values under `Domain/Value` validate UUIDs, nullable positive target identifiers, and UTF-8 text.
+Groups contain 1 to 32 characters. Keys contain 1 to 160 characters. Values contain 0 to 2048 characters.
+Commands, aggregate creation, and reconstitution use these values. Aggregate changes validate every supplied value before mutation.
+Details contain JSON with non-integer top-level member names. Nested objects and arrays retain their JSON shapes.
+Detail construction verifies encoding and decoding within 64 levels before state changes. This bound leaves room for event envelopes.
+Member names cannot start with NUL at any depth. Invalid details leave aggregate fields and previous command details unchanged.
+
 Keep module-owned tests inside the module. Keep architecture, shared, infrastructure, and API tests under root `tests`.
 
 Communicate across context boundaries with stable contracts. Prefer versioned integration events for asynchronous communication.

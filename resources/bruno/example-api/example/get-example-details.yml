@@ -37,3 +37,6 @@ runtime:
         expect(body.example).to.have.property("lookupKey");
         expect(body.example).to.have.property("lookupValue");
         expect(body.example).to.have.property("details");
+        expect(body.example.details.label).to.equal("A & B <tag>");
+        expect(body.example.details.heroImage).to.deep.equal({path: "hero.png"});
+        expect(body.example.details).not.to.have.property("heroImageUrl");

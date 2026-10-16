@@ -33,6 +33,7 @@ final class EntryReadModelMapperTest extends TestCase
             array_replace($valid, ['details' => '{']),
             array_replace($valid, ['details' => '1']),
             array_replace($valid, ['details' => '["value"]']),
+            array_replace($valid, ['details' => '{"0":"value"}']),
             array_replace($valid, ['updated_at' => 'not-a-date']),
         ];
 

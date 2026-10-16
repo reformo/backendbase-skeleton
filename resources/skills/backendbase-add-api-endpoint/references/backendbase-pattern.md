@@ -4,7 +4,7 @@
 
 ```text
 discover affected API -> draft OpenAPI contract -> complete application path
--> PSR-7 request -> optional sanitizer -> boundary validator
+-> PSR-7 request -> bounded parsing -> boundary validator
 -> command/query bus or application orchestrator
 -> confirmed identifier or declared read result -> response mapper -> PSR-7 response
 -> reconcile OpenAPI -> update maintained Bruno lifecycle -> semantic contract audit
@@ -23,14 +23,14 @@ discover affected API -> draft OpenAPI contract -> complete application path
 ## Boundary example
 
 ```php
-$payload = PayloadSanitizer::sanitize($request->getParsedBody());
+$payload = RequestBody::read($request, ['quantity']);
 $quantity = RequestInput::positiveInteger($payload['quantity'] ?? null, 'quantity');
 $commandBus->handle(new CreateItem($itemId, $quantity));
 ```
 
 Do not use this shape to skip required-field checks. Validate the complete request before constructing a command.
 
-`PayloadSanitizer` escapes or transforms values. It does not prove presence, type, format, range, size, or membership in an allowed set. Use a request-specific validator or explicit typed construction for those rules.
+Use the target request reader to enforce body size, root shape, and allowed fields. Validate presence, type, format, range, size, and allowed values. Preserve accepted text and nested JSON values. Apply normalization only when the target contract explicitly requires it. Do not apply HTML escaping or credential transformations to arbitrary JSON fields.
 
 ## Complete use-case requirement
 
@@ -129,8 +129,8 @@ Use a focused test matrix:
 
 These conditions are audit prompts. Do not reproduce them as target behavior.
 
-- `NewExample` validates `lookupValue` and optional body field types through `ExampleRequestInput`. It still casts route group data, and the sanitizer is not a complete validator.
-- `PayloadSanitizer` is not a complete validator and includes special transformations for some field names.
+- `NewExample` reads bounded objects through `ExampleRequestBody`. Context values validate groups, keys, values, identifiers, and detail maps. Derive limits and object rules from the target contract.
+- Example detail values remain unchanged. Image-like names do not imply URL fields. Define any target image projection explicitly.
 - Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
 - The four shared headers are declared required, but runtime enforcement and CORS are not fully aligned.
 - Example HTTP commands do not require access control. Internal `QueueGreeting` carries typed access control and checks its privilege before its transaction.

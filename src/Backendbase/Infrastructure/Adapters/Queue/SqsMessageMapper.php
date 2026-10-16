@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
+use ArrayObject;
+use Backendbase\Infrastructure\Adapters\Queue\Serialization\JsonPayload;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use JsonException;
 
 use function is_array;
 use function is_string;
-use function json_decode;
 use function json_encode;
 
 use const JSON_THROW_ON_ERROR;
@@ -57,7 +58,7 @@ final class SqsMessageMapper
     /** @return array<string, mixed> */
     private static function arrayOrEmpty(mixed $value): array
     {
-        return is_array($value) ? $value : [];
+        return is_array($value) || $value instanceof ArrayObject ? (array) $value : [];
     }
 
     private static function nullableString(mixed $value): string|null
@@ -69,7 +70,7 @@ final class SqsMessageMapper
     private static function payload(string $body): array
     {
         try {
-            $payload = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            $payload = JsonPayload::decode($body);
         } catch (JsonException) {
             return [];
         }

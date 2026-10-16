@@ -539,7 +539,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
 
                     <rect x="918" y="68" width="170" height="82" rx="13" fill="#1c304a" stroke="#6ca6ed"/>
                     <text x="1003" y="100" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Route action</text>
-                    <text x="1003" y="126" text-anchor="middle" fill="#cadcf2" font-size="12">sanitize · validate</text>
+                    <text x="1003" y="126" text-anchor="middle" fill="#cadcf2" font-size="12">parse · validate</text>
 
                     <rect x="792" y="232" width="190" height="82" rx="13" fill="#253724" stroke="#6fc494"/>
                     <text x="887" y="264" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Command / query bus</text>
@@ -674,9 +674,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
         $type = ExampleRequestInput::type(
             $this-&gt;request-&gt;getAttribute('type-slug'),
         );
-        $params = PayloadSanitizer::sanitize(
-            $this-&gt;request-&gt;getQueryParams(),
-        );
+        $params = $this-&gt;request-&gt;getQueryParams();
 
         $result = $this-&gt;queryBus-&gt;handle(new EntryQuery($type));
 
@@ -688,7 +686,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                     <h3>Controller responsibilities</h3>
                     <ul>
                         <li>Read path, query, header, and parsed-body data.</li>
-                        <li>Sanitize and validate untrusted input.</li>
+                        <li>Validate untrusted input without changing accepted values.</li>
                         <li>Invoke one application operation through a command, query, or write-result orchestrator.</li>
                         <li>Map a read model to the response schema.</li>
                         <li>Select the HTTP status and response headers.</li>
@@ -726,10 +724,12 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <p><code>ExampleRequestInput</code> validates the example type, integers, strings, objects, and booleans. Invalid data raises <code>InvalidUserInput</code> before bus dispatch.</p>
             <ul>
                 <li><code>typeSlug</code> must map to an <code>EntryType</code>.</li>
-                <li><code>typeTargetId</code> accepts null, an empty string, or a positive integer.</li>
+                <li><code>typeTargetId</code> body values are null or positive integers. Query values also permit integer strings; omitted or empty query values select null.</li>
                 <li><code>pageSize</code> and <code>page</code> default to <code>1000</code> and <code>1</code>.</li>
                 <li>PATCH treats omitted and null <code>lookupValue</code>, <code>details</code>, and <code>isActive</code> fields as unchanged. Other supplied values must be a string, object, and boolean.</li>
-                <li><code>PayloadSanitizer</code> processes query and parsed-body arrays before use.</li>
+                <li><code>ExampleRequestBody</code> reads bounded JSON objects. Supplied non-null details must be objects with non-integer top-level member names.</li>
+                <li>Groups allow 1–32 UTF-8 characters, keys allow 1–160, and values allow 0–2048. Accepted text remains unchanged.</li>
+                <li>Nested detail objects and arrays retain their shapes. List responses do not infer image URL fields.</li>
             </ul>
             <div class="callout">
                 <strong>Validate all new fields at the boundary</strong>

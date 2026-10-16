@@ -824,6 +824,8 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                 Their serialized shapes must match for a given event version. The greeting example registers its immutable <code>GreetingRequestedPayload</code> as both payload and <code>EventMessage</code> carrier.
             </p>
 
+            <p><code>EntryJsonDeliveryTest</code> passes producer data through persisted outbox rows, SQS and RabbitMQ serialization, and the registered version-one consumer. It verifies empty objects, lists, nested objects with integer member names, and the accepted detail-depth boundary.</p>
+
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Contract</th><th>Location</th><th>Purpose</th></tr></thead>

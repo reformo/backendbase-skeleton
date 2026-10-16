@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Adapters\Queue;
 
 use Backendbase\Infrastructure\Adapters\Diagnostics\SafeExceptionContext;
+use Backendbase\Infrastructure\Adapters\Queue\Serialization\JsonPayload;
 use Backendbase\Shared\Integrations\MessagePublisher;
 use Backendbase\Shared\Integrations\Messaging\Message;
 use Backendbase\Shared\Integrations\Operation\OutboxPublicationResult;
@@ -15,9 +16,6 @@ use Throwable;
 use UnexpectedValueException;
 
 use function is_array;
-use function json_decode;
-
-use const JSON_THROW_ON_ERROR;
 
 final readonly class OutboxMessagePublisher implements OutboxPublisher
 {
@@ -32,7 +30,7 @@ final readonly class OutboxMessagePublisher implements OutboxPublisher
                 throw new UnexpectedValueException('Adopt the original outbox destination and occurrence time before publication.');
             }
 
-            $properties = json_decode($message->payload(), true, 512, JSON_THROW_ON_ERROR);
+            $properties = JsonPayload::decode($message->payload());
             if (! is_array($properties)) {
                 throw new UnexpectedValueException('The outbox payload must be a JSON object.');
             }

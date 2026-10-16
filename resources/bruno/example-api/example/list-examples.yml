@@ -50,3 +50,8 @@ runtime:
           expect(body.examples[0].details).to.be.an("object");
           expect(body.examples[0]).to.have.property("createdAt");
         }
+        const created = body.examples.find(entry => entry.lookupKey === bru.getVar("example-key"));
+        expect(created).to.exist;
+        expect(created.details.label).to.equal("A & B <tag>");
+        expect(created.details.heroImage).to.deep.equal({path: "hero.png"});
+        expect(created.details).not.to.have.property("heroImageUrl");

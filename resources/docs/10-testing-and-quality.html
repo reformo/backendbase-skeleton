@@ -31,6 +31,7 @@
 <section id="layers"><p class="section-label">03 · Test layers</p><h2>Each layer proves a different contract</h2>
 <div class="diagram-wrap"><ol class="flow"><li><strong>Value object</strong><small>invariants and boundaries</small></li><li><strong>Aggregate</strong><small>business state changes</small></li><li><strong>Handler</strong><small>use-case orchestration</small></li><li><strong>Repository</strong><small>mapping and SQL</small></li><li><strong>API</strong><small>HTTP translation</small></li><li><strong>E2E</strong><small>running system evidence</small></li></ol></div>
 <p>Do not replace a narrow unit test with a slow end-to-end test. Do not claim runtime behavior from static analysis alone.</p>
+<p>JSON contract tests include producer output, persisted outbox rows, outgoing and incoming transport mappers, and the registered consumer carrier. <code>EntryJsonDeliveryTest</code> verifies this path with isolated SQLite and real SQS and RabbitMQ mappers. It does not require a live broker.</p>
 </section>
 <section id="fast"><p class="section-label">04 · Fast tests</p><h2>Keep domain and application feedback deterministic</h2>
 <ul><li>Test value-object invalid, boundary, and valid inputs.</li><li>Test aggregate invariants before repository behavior.</li><li>Use memory repositories for complete in-process lifecycles.</li>

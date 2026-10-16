@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Inbound\ExampleApi;
 
-use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\ExampleGroups;
 use Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example\Handlers\Examples;
 use Backendbase\Shared\CQRS\QueryBus;
 use Backendbase\Shared\Exception\InvalidUserInput;
-use Backendbase\Shared\Services\Settings;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,14 +32,13 @@ final class ExamplePaginationTest extends TestCase
     {
         $queryBus = $this->createMock(QueryBus::class);
         $queryBus->expects(self::never())->method('handle');
-        $settings = new ApplicationRuntimeSettings(new Settings(['cdnBaseUrl' => '']));
-        $action   = $groups
+        $action  = $groups
             ? new ExampleGroups($queryBus, new NullLogger())
-            : new Examples($queryBus, $settings, new NullLogger());
-        $request  = (new ServerRequestFactory())->createServerRequest('GET', '/example-types/system/groups');
-        $request  = $request->withAttribute('type-slug', 'system');
-        $request  = $request->withAttribute('example-group', 'settings');
-        $request  = $request->withQueryParams(['pageSize' => '1000', 'page' => (string) PHP_INT_MAX]);
+            : new Examples($queryBus, new NullLogger());
+        $request = (new ServerRequestFactory())->createServerRequest('GET', '/example-types/system/groups');
+        $request = $request->withAttribute('type-slug', 'system');
+        $request = $request->withAttribute('example-group', 'settings');
+        $request = $request->withQueryParams(['pageSize' => '1000', 'page' => (string) PHP_INT_MAX]);
 
         $this->expectException(InvalidUserInput::class);
 

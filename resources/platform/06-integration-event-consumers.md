@@ -28,5 +28,11 @@ The inbox identity is `(consumer_name, message_id)`. A processed duplicate ackno
 Missing metadata, unknown versions, missing subscribers, wrong interfaces, and mapping errors are permanent failures. Other subscriber or infrastructure exceptions are transient failures.
 
 Test the actual producer payload against its registered consumer carrier. Derive the carrier registration from the real context service provider. Map through the real registry and dispatcher.
+For JSON payload changes, include persisted outbox data and each supported transport's outgoing and incoming serialization.
+`EntryJsonDeliveryTest` covers SQS and RabbitMQ through the registered version-one carrier, including nested objects, lists, and the accepted detail-depth boundary.
+
+Queue adapters preserve nested JSON objects as iterable `ArrayObject` values before Valinor mapping.
+Valinor maps structural objects into declared carrier types. Objects inside `mixed` fields retain their JSON object shape.
+Keep this representation in the adapter boundary. Released event names, versions, payload fields, and carrier signatures remain unchanged.
 
 Basis: `resources/docs/3-integration-events.html`.

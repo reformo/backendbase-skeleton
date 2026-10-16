@@ -45,6 +45,21 @@ Bruno checks the HTTP status, the documented response key, resource fields, and 
 | Readiness | Root `status` and object `checks`; HTTP 200 or 503 |
 
 Example list items include `createdAt`. Detail timestamps use the OpenAPI `date-time` format.
+Entry pages use ascending creation time, then UUID, before pagination in Doctrine and memory adapters.
+
+Example types are `system` and `user`. Groups have 1 to 32 UTF-8 characters, keys have 1 to 160, and values have 0 to 2048.
+`typeTargetId` is null or a positive signed 64-bit integer. It selects data independently of the example type.
+POST and PATCH accept native JSON integers. Reads and DELETE accept integer query strings; omitted or empty query values select null.
+Invalid input returns 400. Duplicate active identities return 409 on creation.
+
+Example POST and PATCH require JSON objects within the 65536-byte request limit. A supplied non-null `details` value must be an object.
+Top-level detail names cannot use canonical integer strings such as `"0"` or `"-1"`. Names such as `"01"` remain supported.
+Member names cannot start with NUL at any depth. Request JSON decoding remains bounded to 64 levels.
+Nested arrays and objects are permitted, including empty values.
+Omitted or null creation details become an empty object. Omitted or null PATCH fields remain unchanged.
+Accepted strings and JSON details remain unchanged in create, update, and read responses. Image-like names do not produce additional URL fields.
+Clients that used inferred image URLs must construct them from their own explicit image contract.
+Previously stored escaped text remains unchanged; this change does not rewrite stored data.
 Empty Example `details` and readiness `checks` maps serialize as `{}`. Empty collections serialize as `[]`.
 Example metadata uses `apiMetadata` instead of the previous `backendbase-api` key.
 Clients that read the previous metadata key must update their lookup.

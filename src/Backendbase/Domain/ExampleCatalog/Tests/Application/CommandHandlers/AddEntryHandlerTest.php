@@ -30,7 +30,7 @@ final class AddEntryHandlerTest extends TestCase
         $clock      = new FrozenClock(new DateTimeImmutable('2026-10-16T10:00:00.654321Z'));
         $calls      = [];
         $command    = new AddEntry(
-            'example-id',
+            '018f0000-0000-7000-8000-000000000001',
             EntryType::SYSTEM,
             null,
             'settings',
@@ -41,7 +41,7 @@ final class AddEntryHandlerTest extends TestCase
         $repository = $this->createMock(EntryWriteRepository::class);
         $repository->expects(self::once())
             ->method('add')
-            ->with(self::callback(static fn (Entry $entry): bool => $entry->id() === 'example-id'))
+            ->with(self::callback(static fn (Entry $entry): bool => $entry->id() === '018f0000-0000-7000-8000-000000000001'))
             ->willReturnCallback(static function (Entry $entry) use (&$calls, $now): void {
                 $state = $entry->snapshot();
                 self::assertEquals($now, $state->createdAt());

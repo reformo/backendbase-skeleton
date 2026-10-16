@@ -25,6 +25,8 @@ http:
       {
         "lookupValue": "20",
         "details": {
+          "label": "A & B <tag>",
+          "heroImage": {"path": "hero.png"},
           "title": {
             "en": "Updated English title",
             "tr": "Updated Turkish Title"
