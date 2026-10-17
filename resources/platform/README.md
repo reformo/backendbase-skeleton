@@ -55,6 +55,7 @@ Ordinary tasks retain the single-agent default in the [root instructions](../../
 | Affected concern | Consult when needed |
 | --- | --- |
 | Locate a change | `01-repository-map.md` |
+| Name or rename code, files, tests, or agent artifacts | [naming-things](../skills/naming-things/SKILL.md) |
 | Plan backend tasks from a PRD | `24-feature-workflow.md`, [backendbase-plan-prd-tasks](../skills/backendbase-plan-prd-tasks/SKILL.md) |
 | Coordinate a feature | `02-architecture.md`, `24-feature-workflow.md` |
 | Domain feature | `03-bounded-contexts.md`, `04-cqrs.md`, `09-persistence.md`, `17-testing.md`, `24-feature-workflow.md` |
@@ -88,6 +89,7 @@ Read only the selected reference sections needed for the task. Reuse established
 | [`backendbase-verify-architecture`](../skills/backendbase-verify-architecture/SKILL.md) | Verify dependency direction and bounded-context isolation. |
 | [`backendbase-verify-change`](../skills/backendbase-verify-change/SKILL.md) | Review a cross-layer change when requested or when its risk requires it. |
 | [`cyclomatic-complexity`](../skills/cyclomatic-complexity/SKILL.md) | Measure and reduce control-flow complexity in a touched function. |
+| [`naming-things`](../skills/naming-things/SKILL.md) | Name or rename code, files, tests, and agent artifacts using project vocabulary and conventions. |
 
 ### Domain and CQRS
 

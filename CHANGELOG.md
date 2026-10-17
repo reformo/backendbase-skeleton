@@ -22,6 +22,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add the portable `naming-things` skill with naming references and discovery metadata. Integrate it into root instructions, platform routing, and project guidance.
+
 - Add ExampleApi contact verification, User registration, login, identity, token revocation, logout, and Account closure through the existing USER services. Require USER bearer authorization on every Example operation except `getExampleByCriteria`, while retaining API-key checks. Update contracts, Bruno requests, route regressions, security workflow, and guidance.
 
 - Add a PHP message viewer for local MiniStack SMS logs and captured SES emails. Include automatic refresh, filtering, and isolated HTML or plain text previews. Add parser, process, HTTP, and preview regressions.

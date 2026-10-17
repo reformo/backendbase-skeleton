@@ -266,6 +266,8 @@ The queue message processor converts a producer event name to an external subscr
 
 Reusable skills live under `resources/skills`. Use the [platform router](../platform/README.md) to select a skill for the affected behavior. Follow [the skill-authoring rules](../skills/AGENTS.md) when changing a skill.
 
+Use [naming-things](../skills/naming-things/SKILL.md) to name or rename code, files, tests, and agent artifacts. Preserve project vocabulary, naming conventions, behavior, and public contracts.
+
 Use `backendbase-implement-feature` for coordinated changes across layers. Use `backendbase-verify-change` for a requested cross-layer review or when the change risk needs that review.
 
 Select additional skills only for required procedures or invariants not already covered. Read only relevant reference sections. Reuse verified discovery and successful checks for unchanged inputs. Individual skills retain these rules when copied to another project. A prose-only correction needs no implementation skill.

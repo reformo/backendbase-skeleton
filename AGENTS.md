@@ -123,6 +123,8 @@ Finish when the requested behavior works, required checks pass, and affected doc
 
 ## 6. Coding Style
 
+Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renaming code, files, tests, and agent artifacts. Apply the project conventions below.
+
 - Follow the Doctrine Coding Standard, which extends PSR-12.
 - Unless otherwise specified, use `camelCase` for all names.
 - Use `PascalCase` for class and namespace names.

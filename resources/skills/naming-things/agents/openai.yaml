@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naming Things"
+  short_description: "Name code and AI surfaces for safe change"
+  default_prompt: "Use $naming-things to name or rename code and artifacts using the target project's vocabulary and conventions while preserving behavior."
+policy:
+  allow_implicit_invocation: true
