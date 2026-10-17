@@ -33,7 +33,7 @@ final readonly class DoctrineOutboxReplay implements OutboxReplay
         $connection = $this->connection;
         $connection->transactional(static function (Connection $connection) use ($messageId, $evidence, $apply, $timestamp, $window, $registry): void {
             $query = $connection->createQueryBuilder();
-            $query->select('event_name', 'event_version', 'destination', 'occurred_at', 'published_at', 'claim_until');
+            $query->select('event_name', 'event_version', 'destination', 'occurred_at', 'published_at', 'claim_expires_at');
             $query->from('integration_event_outbox');
             $query->where('id = :id');
             $query->setParameter('id', $messageId);
@@ -49,7 +49,7 @@ final readonly class DoctrineOutboxReplay implements OutboxReplay
 
             $window->assertEligible((string) $row['occurred_at']);
             $registry->messageClass((string) $row['event_name'] . '_Event', (string) $row['event_version']);
-            if ($row['claim_until'] !== null && $row['claim_until'] >= $timestamp) {
+            if ($row['claim_expires_at'] !== null && $row['claim_expires_at'] >= $timestamp) {
                 throw new RuntimeException('An active publication claim cannot be replayed.');
             }
 
@@ -74,7 +74,7 @@ final readonly class DoctrineOutboxReplay implements OutboxReplay
                 'published_at' => null,
                 'available_at' => $timestamp,
                 'claim_token' => null,
-                'claim_until' => null,
+                'claim_expires_at' => null,
             ], ['id' => $messageId]);
         });
     }

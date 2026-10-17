@@ -41,16 +41,16 @@ final class MySqlSoftDeletionTest extends TestCase
                 self::assertNotNull($exception->getPrevious());
             }
 
-            self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
+            self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM account'));
             $store->transaction(static function () use ($store, $first): void {
                 $account = $store->accountForUpdate($first['accountId']);
                 $account->close(new DateTimeImmutable('2026-10-14T10:01:00Z'));
                 $store->saveAccount($account);
             });
             $second = IdentityScenario::registered($identity);
-            self::assertNull($connection->fetchOne('SELECT active_mobile FROM identity_account WHERE id = UUID_TO_BIN(?, 0)', [$first['accountId']]));
-            self::assertSame($second['accountId'], $connection->fetchOne("SELECT uuid FROM identity_account WHERE active_mobile = '+905551234567'"));
-            self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
+            self::assertNull($connection->fetchOne('SELECT active_mobile FROM account WHERE id = UUID_TO_BIN(?, 0)', [$first['accountId']]));
+            self::assertSame($second['accountId'], $connection->fetchOne("SELECT uuid FROM account WHERE active_mobile = '+905551234567'"));
+            self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM account'));
             self::assertFalse($connection->isTransactionActive());
         } finally {
             $fixture->destroy();

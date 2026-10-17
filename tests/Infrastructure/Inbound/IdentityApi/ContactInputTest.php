@@ -26,7 +26,7 @@ final class ContactInputTest extends TestCase
         $payload         = ['contactType' => 'email', 'contactValue' => 'ada@example.com', 'verificationContextToken' => ContactScenario::token()];
         $payload[$field] = $invalid;
         self::assertSame(400, $api->request('POST', '/auth/contact-verifications', $payload)->getStatusCode());
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_info'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }
 
     public function testInvalidCodesAndMissingJsonCannotConfirmEvidence(): void

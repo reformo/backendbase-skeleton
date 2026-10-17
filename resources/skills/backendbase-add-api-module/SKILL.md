@@ -1,6 +1,6 @@
 ---
 name: backendbase-add-api-module
-description: Add a route-prefix module to an existing Backendbase-style Use Case API and register its operations. Use for a new HTTP module; do not use for one endpoint or a separate API surface.
+description: Add a route-prefix module to an existing Backendbase-style inbound API and register its operations. Use for a new HTTP module; do not use for one endpoint or a separate API surface.
 ---
 
 # Add an API module
@@ -50,7 +50,7 @@ Use the target API namespace, routing framework, module interface, naming rules,
 - Declare every assigned tag in the owning root document with a description.
 - Reuse the target project's tag names for the same endpoint groups.
 - In an unmodified Backendbase API, use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`. Convert the tag to its PascalCase module name.
-- Keep one handler per documented operation in that module. Do not combine handlers from different tags or consumer APIs.
+- Keep one handler per documented operation in that module. Do not combine handlers from different tags or inbound APIs.
 - In an unmodified Backendbase API, `ModuleConfig` implements `ModuleRoute`.
 - In Backendbase `ModuleConfig`, use fluent route declarations and `group()` for shared middleware. Keep endpoint policies on routes. Verify middleware execution order.
 - In an unmodified Backendbase API, `ROUTE_KEY` and `routeKey()` identify the same prefix.
@@ -60,7 +60,7 @@ Use the target API namespace, routing framework, module interface, naming rules,
 - Routing code selects transport policy only. It does not contain domain decisions.
 - Path placeholders and OpenAPI parameter names match exactly.
 - An API-key-only operation is protected. Only an intentional anonymous operation uses `security: []`.
-- Protect new Backendbase consumer operations with an API key unless their explicit policy permits anonymous access.
+- Protect new Backendbase inbound API operations with an API key unless their explicit policy permits anonymous access.
 - A route group that validates bearer identity does not replace an explicit ACL decision when a privilege is required.
 - Adding a module does not authorize a new database schema or speculative application behavior.
 

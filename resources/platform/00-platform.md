@@ -17,7 +17,7 @@ Backendbase Core is a modular PHP 8.5 backend foundation. It uses Domain-Driven 
 
 ## Current reference surfaces
 
-- `ExampleApi`, `UserApi`, and `SystemAdminApi` are separate consumer APIs.
+- `ExampleApi`, `UserApi`, and `SystemAdminApi` are separate inbound APIs.
 - `ExampleCatalog` is the complete business-module reference.
 - `IdentityAndAccess` owns Accounts, actors, contact verification, credentials, and realm sessions.
 - Run project commands from the repository root.
@@ -104,7 +104,7 @@ backendbase-core/
 │   │   ├── Adapters/                  # Console, HTTP, mapping, database, queue, and external adapters
 │   │   ├── Health/                    # Dependency readiness checks
 │   │   ├── Messaging/                 # Relay, retry, and delivery-failure coordination
-│   │   └── Inbound/                   # Consumer-specific API entry code
+│   │   └── Inbound/                   # Inbound API entry code
 │   │       ├── ExampleApi/            # ExampleApi middleware, routes, and controllers
 │   │       ├── UserApi/               # User realm controllers and routes
 │   │       └── SystemAdminApi/        # Admin realm controllers and routes

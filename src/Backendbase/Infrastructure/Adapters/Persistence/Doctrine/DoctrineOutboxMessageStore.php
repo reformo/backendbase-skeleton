@@ -20,13 +20,13 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
     {
     }
 
-    public function claimNext(DateTimeImmutable $availableAt, DateTimeImmutable $claimUntil): ClaimedOutboxMessage|null
+    public function claimNext(DateTimeImmutable $availableAt, DateTimeImmutable $claimExpiresAt): ClaimedOutboxMessage|null
     {
         return $this->connection->transactional(
             fn (Connection $connection): ClaimedOutboxMessage|null => $this->claim(
                 $connection,
                 $availableAt,
-                $claimUntil,
+                $claimExpiresAt,
             ),
         );
     }
@@ -38,7 +38,7 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
             [
                 'published_at' => $publishedAt->format('Y-m-d H:i:s.u'),
                 'claim_token' => null,
-                'claim_until' => null,
+                'claim_expires_at' => null,
             ],
             ['id' => $message->id(), 'claim_token' => $message->claimToken()],
         );
@@ -55,9 +55,9 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
             [
                 'attempts' => $attempts,
                 'available_at' => $availableAt->format('Y-m-d H:i:s.u'),
-                'last_error' => $failureType,
+                'last_failure_type' => $failureType,
                 'claim_token' => null,
-                'claim_until' => null,
+                'claim_expires_at' => null,
             ],
             ['id' => $message->id(), 'claim_token' => $message->claimToken()],
         );
@@ -66,14 +66,14 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
     private function claim(
         Connection $connection,
         DateTimeImmutable $availableAt,
-        DateTimeImmutable $claimUntil,
+        DateTimeImmutable $claimExpiresAt,
     ): ClaimedOutboxMessage|null {
         $query = $connection->createQueryBuilder()
             ->select('id', 'event_name', 'event_version', 'payload', 'attempts', 'occurred_at', 'destination')
             ->from(self::OUTBOX_TABLE)
             ->where('published_at IS NULL')
             ->andWhere('available_at <= :now')
-            ->andWhere('(claim_until IS NULL OR claim_until <= :now)')
+            ->andWhere('(claim_expires_at IS NULL OR claim_expires_at <= :now)')
             ->setParameter('now', $availableAt->format('Y-m-d H:i:s.u'))
             ->orderBy('created_at', 'ASC')
             ->addOrderBy('id', 'ASC')
@@ -92,7 +92,7 @@ final readonly class DoctrineOutboxMessageStore implements OutboxMessageStore
             self::OUTBOX_TABLE,
             [
                 'claim_token' => $claimToken,
-                'claim_until' => $claimUntil->format('Y-m-d H:i:s.u'),
+                'claim_expires_at' => $claimExpiresAt->format('Y-m-d H:i:s.u'),
             ],
             ['id' => $message['id']],
         );

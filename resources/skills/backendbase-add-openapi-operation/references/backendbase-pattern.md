@@ -47,11 +47,11 @@ This current Backendbase example requires an API key. Use `security: []` only fo
 
 In an unmodified Backendbase project, every operation must have a non-empty `tags` list.
 Each assigned tag must appear in the root document's declarations.
-Use consistent groups across consumer APIs: `Authentication`, `Identity`, `Administration`, `System`, and `Example` where applicable.
+Use consistent groups across inbound APIs: `Authentication`, `Identity`, `Administration`, `System`, and `Example` where applicable.
 Add root descriptions and adapt names to differently named target modules.
 
 New Backendbase controller modules follow the same tag groups using ExampleApi's `ModuleConfig.php` and `Handlers/` layout.
-Each handler belongs to its consumer API's `Controllers/{TagName}/Handlers/` directory. Use one handler per operation.
+Each handler belongs to its inbound API's `Controllers/{TagName}/Handlers/` directory. Use one handler per operation.
 The module registry and route names must match the tag grouping and operation IDs.
 Report a mismatched runtime module during contract review. Do not move controllers when only a contract edit is authorized.
 

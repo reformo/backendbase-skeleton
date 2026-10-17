@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Services;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineIdentityTransaction;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -45,14 +45,14 @@ final class MySqlDeadlockTest extends TestCase
             $errors  = [];
             $unit->run(static function () use ($connection, $worker, $workerId, $identities, $session, &$opened, &$errors): void {
                 $opened[] = $session->manager();
-                $connection->executeStatement('UPDATE identity_account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$identities[0]]);
+                $connection->executeStatement('UPDATE account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$identities[0]]);
                 if (count($opened) === 1) {
                     $worker->send('continue');
                     $worker->awaitLockWait($connection, $workerId);
                 }
 
                 try {
-                    $connection->fetchOne('SELECT id FROM identity_account WHERE id = UUID_TO_BIN(?, 0) FOR UPDATE', [$identities[1]]);
+                    $connection->fetchOne('SELECT id FROM account WHERE id = UUID_TO_BIN(?, 0) FOR UPDATE', [$identities[1]]);
                 } catch (DeadlockException $exception) {
                     $cause    = $exception->getPrevious();
                     $errors[] = $cause?->getCode();
@@ -67,8 +67,8 @@ final class MySqlDeadlockTest extends TestCase
             self::assertFalse($opened[0]->isOpen());
             self::assertFalse($opened[1]->isOpen());
             self::assertFalse($connection->isTransactionActive());
-            self::assertSame(3, $connection->fetchOne('SELECT version FROM identity_account WHERE id = UUID_TO_BIN(?, 0)', [$identities[0]]));
-            self::assertSame(2, $connection->fetchOne('SELECT version FROM identity_account WHERE id = UUID_TO_BIN(?, 0)', [$identities[1]]));
+            self::assertSame(3, $connection->fetchOne('SELECT version FROM account WHERE id = UUID_TO_BIN(?, 0)', [$identities[0]]));
+            self::assertSame(2, $connection->fetchOne('SELECT version FROM account WHERE id = UUID_TO_BIN(?, 0)', [$identities[1]]));
         } finally {
             $worker?->close();
             $fixture->destroy();
@@ -83,7 +83,7 @@ final class MySqlDeadlockTest extends TestCase
         for ($index = 0; $index < 9; $index++) {
             $account      = Account::create(IdentityId::create(), new AccountEmail('deadlock-' . $index . '@example.com'), new AccountMobile('+90555123456' . $index), new DateTimeImmutable('2026-10-14T10:00:00Z'));
             $identities[] = $account->id();
-            $manager->persist(IdentityAccount::create($account));
+            $manager->persist(AccountRecord::create($account));
         }
 
         $manager->flush();

@@ -6,7 +6,7 @@ $projectRoot = str_replace('/public', '', __DIR__);
 chdir($projectRoot);
 require 'vendor/autoload.php';
 
-use Backendbase\Infrastructure\Adapters\Http\Bootstrap\ConsumerApiTarget;
+use Backendbase\Infrastructure\Adapters\Http\Bootstrap\InboundApiTarget;
 use Backendbase\Infrastructure\Adapters\Http\Bootstrap\RequestUriNormalizer;
 use Backendbase\Infrastructure\Adapters\Http\DomainErrorProblemDetailsMapper;
 use Backendbase\Infrastructure\Adapters\Http\Handlers\ShutdownHandler;
@@ -28,8 +28,8 @@ use Psr\Log\LoggerInterface;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
-$consumerApi = ConsumerApiTarget::fromRequest($_SERVER);
-if ($consumerApi === null) {
+$inboundApi = InboundApiTarget::fromRequest($_SERVER);
+if ($inboundApi === null) {
     http_response_code(400);
     header('Content-Type: application/problem+json');
     die(json_encode([
@@ -41,7 +41,7 @@ if ($consumerApi === null) {
     ], JSON_THROW_ON_ERROR));
 }
 
-$webroot = $projectRoot . '/src/Backendbase/Infrastructure/Inbound/' . $consumerApi->name();
+$inboundApiDirectory = $projectRoot . '/src/Backendbase/Infrastructure/Inbound/' . $inboundApi->name();
 try {
     RequestMetadata::validate($_SERVER);
 } catch (InvalidUserInput $exception) {
@@ -56,8 +56,8 @@ try {
     ], JSON_THROW_ON_ERROR));
 }
 
-$cacheDirectoryName = basename($consumerApi->slug());
-$cacheDir           = $projectRoot . '/var/cache/' . $cacheDirectoryName;
+$cacheDirectoryName = basename($inboundApi->slug());
+$cacheDirectory     = $projectRoot . '/var/cache/' . $cacheDirectoryName;
 $_SERVER            = RequestUriNormalizer::normalize($_SERVER);
 
 if (file_exists($projectRoot . '/.env')) {
@@ -74,22 +74,22 @@ error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 // Instantiate PHP-DI ContainerBuilder
 $containerBuilder = new ContainerBuilder();
 
-if (! file_exists($cacheDir)) {
-    if (! mkdir($cacheDir, 0744, true) && ! is_dir($cacheDir)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $cacheDir));
+if (! file_exists($cacheDirectory)) {
+    if (! mkdir($cacheDirectory, 0744, true) && ! is_dir($cacheDirectory)) {
+        throw new RuntimeException(sprintf('Directory "%s" was not created', $cacheDirectory));
     }
 }
 
-$configGenerator = new ConfigAggregator(
+$configurationAggregator = new ConfigAggregator(
     [
         new PhpFileProvider('config/autoload/*'),
-        new PhpFileProvider('config/' . $consumerApi->slug() . '/*'),
+        new PhpFileProvider('config/' . $inboundApi->slug() . '/*'),
     ],
 );
 
 // Set up settings
 $settings = require 'config/settings.php';
-$settings($containerBuilder, $configGenerator->getMergedConfig());
+$settings($containerBuilder, $configurationAggregator->getMergedConfig());
 
 // Set up dependencies
 $dependencies = require 'config/dependencies.php';
@@ -114,13 +114,13 @@ $callableResolver = $app->getCallableResolver();
 
 
 // Register middleware
-$middleware = require $webroot . '/middleware.php';
+$middleware = require $inboundApiDirectory . '/middleware.php';
 $middleware($app);
 $app->add(MeasureRequest::class);
 
 
 // Register routes
-$routes = require $webroot . '/routes.php';
+$routes = require $inboundApiDirectory . '/routes.php';
 $routes($app);
 $basePath = $runtimeSettings->basePath();
 $app->setBasePath($basePath);

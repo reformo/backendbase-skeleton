@@ -107,10 +107,10 @@ final readonly class FirebasePushNotifier implements NotificationProvider
 
     private function imageUrl(string $image): string
     {
-        $absolute = str_starts_with($image, 'https://') || str_starts_with($image, 'http://');
-        $url      = $absolute ? $image : $this->cdnBaseUrl . $image;
-        $httpUrl  = str_starts_with($url, 'https://') || str_starts_with($url, 'http://');
-        if (! $httpUrl || filter_var($url, FILTER_VALIDATE_URL) === false) {
+        $isAbsoluteUrl = str_starts_with($image, 'https://') || str_starts_with($image, 'http://');
+        $url           = $isAbsoluteUrl ? $image : $this->cdnBaseUrl . $image;
+        $isHttpUrl     = str_starts_with($url, 'https://') || str_starts_with($url, 'http://');
+        if (! $isHttpUrl || filter_var($url, FILTER_VALIDATE_URL) === false) {
             throw new InvalidArgumentException('A push image requires an absolute URL or CDN base URL.');
         }
 

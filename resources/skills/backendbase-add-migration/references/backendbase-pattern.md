@@ -86,8 +86,8 @@ Edit source release configuration, not generated release artifacts. Adapt the ma
 
 - `migrations.json` sets `all_or_nothing` to false and global `transactional` to true.
 - `BackendbaseAbstractMigration` overrides `isTransactional()` to false because MySQL DDL can implicitly commit and break Doctrine savepoints.
-- The history supports fresh installations only. `Version20260823000000` creates final messaging and recovery tables. `Version20260823215059` creates the final binary Example schema. `Version20261014020000` creates final identity and operator tables.
-- The final release target is `Version20261014020000`. Rollback to the former integer-key application remains unsafe.
+- The three consolidated installation migrations support fresh installations only. `Version20260823000000` creates final messaging and recovery tables. `Version20260823215059` creates the final binary Example schema. `Version20261014020000` creates final identity and operator tables.
+- The release target is `Version20261017173407`. Two forward migrations apply naming changes after the three installations. The final forward migration drops `operator_action` while preserving Admin invitation and approval evidence in its existing state. Adapt any removal to the target project's explicit scope and recovery plan. Application-only rollback remains unsafe because older code needs the removed table.
 - Fresh installation has no Example copy, atomic rename, or retained legacy table. A populated integer-key database needs a separate reviewed conversion.
 - Existing databases that applied any former history require schema and version-record reconciliation before adoption. Do not rerun consolidated creation, delete records, or mark versions executed without verified equivalence and target authority.
 - See `resources/platform/operations/migration-consolidation.md` for the Backendbase consolidation map. Adapt its roles and adoption checks to the actual target.

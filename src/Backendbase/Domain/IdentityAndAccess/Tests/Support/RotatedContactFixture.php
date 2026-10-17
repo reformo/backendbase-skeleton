@@ -24,7 +24,7 @@ final class RotatedContactFixture
     {
         $previous   = $fixture->container();
         $connection = $fixture->connection();
-        $settings   = IdentityFixture::settings(['encryptionKeyId' => 'new-key', 'encryptionKey' => base64_encode(str_repeat('n', 32)), 'previousEncryptionKeyId' => 'factor-key', 'previousEncryptionKey' => base64_encode(str_repeat('e', 32))]);
+        $settings   = IdentityFixture::settings(['contactProofKeyId' => 'new-key', 'contactProofKey' => base64_encode(str_repeat('n', 32)), 'previousContactProofKeyId' => 'factor-key', 'previousContactProofKey' => base64_encode(str_repeat('e', 32))]);
         $container  = ProductionContainerFixture::build([
             Connection::class => $connection,
             Configuration::class => $previous->get(Configuration::class),

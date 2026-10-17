@@ -7,7 +7,7 @@ namespace Backendbase\Infrastructure\Adapters\Http\Bootstrap;
 use function is_string;
 use function str_starts_with;
 
-final readonly class ConsumerApiTarget
+final readonly class InboundApiTarget
 {
     private const array TARGETS = [
         'user' => ['name' => 'UserApi', 'slug' => 'user-api'],

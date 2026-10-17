@@ -33,18 +33,18 @@ final readonly class RegistrationEvidence
             throw AuthenticationDenied::create('Both contacts require verification.');
         }
 
-        $store    = $this->contacts;
-        $first    = $store->get($ids[0]);
-        $second   = $store->get($ids[1]);
-        $clock    = $this->clock;
-        $now      = $clock->now();
-        $email    = $input->email();
-        $mobile   = $input->mobile();
-        $expected = ['email' => $email->toString(), 'mobile' => $mobile->toString()];
-        $this->validate($first, $input, $now, $expected);
-        $this->validate($second, $input, $now, $expected);
+        $store         = $this->contacts;
+        $firstContact  = $store->get($ids[0]);
+        $secondContact = $store->get($ids[1]);
+        $clock         = $this->clock;
+        $now           = $clock->now();
+        $email         = $input->email();
+        $mobile        = $input->mobile();
+        $expected      = ['email' => $email->toString(), 'mobile' => $mobile->toString()];
+        $this->validate($firstContact, $input, $now, $expected);
+        $this->validate($secondContact, $input, $now, $expected);
 
-        return [[$first, $second], $now];
+        return [[$firstContact, $secondContact], $now];
     }
 
     /** @param list<ContactInfo> $contacts */

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -15,15 +15,15 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 
 final readonly class DoctrineIdentityStore implements IdentityStore
 {
-    public function __construct(private IdentityRecordStore $records, private DoctrineIdentityTransaction $unit)
+    public function __construct(private IdentityRecordStore $records, private DoctrineIdentityTransaction $transaction)
     {
     }
 
     public function transaction(callable $work): mixed
     {
-        $currentUnit = $this->unit;
+        $transaction = $this->transaction;
 
-        return $currentUnit->run($work);
+        return $transaction->run($work);
     }
 
     public function account(string $id): Account
@@ -53,7 +53,7 @@ final readonly class DoctrineIdentityStore implements IdentityStore
     {
         $currentRecords = $this->records;
 
-        $record = $currentRecords->activeBy(IdentityAccount::class, ['activeEmail' => $email->toString()]);
+        $record = $currentRecords->activeBy(AccountRecord::class, ['activeEmail' => $email->toString()]);
 
         return $record?->toDomain();
     }
@@ -62,7 +62,7 @@ final readonly class DoctrineIdentityStore implements IdentityStore
     {
         $records = $this->records;
         $value   = $mobile->toString();
-        $record  = $records->activeBy(IdentityAccount::class, ['activeMobile' => $value]);
+        $record  = $records->activeBy(AccountRecord::class, ['activeMobile' => $value]);
 
         return $record?->toDomain();
     }
@@ -105,9 +105,9 @@ final readonly class DoctrineIdentityStore implements IdentityStore
     public function saveAccount(Account $account): void
     {
         $records = $this->records;
-        $record  = $records->find(IdentityAccount::class, $account->id(), true);
+        $record  = $records->find(AccountRecord::class, $account->id(), true);
         if ($record === null) {
-            $records->persist(IdentityAccount::create($account));
+            $records->persist(AccountRecord::create($account));
 
             return;
         }

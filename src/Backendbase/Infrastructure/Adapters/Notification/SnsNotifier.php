@@ -32,17 +32,17 @@ final readonly class SnsNotifier implements NotificationProvider
     }
 
     #[Override]
-    public function notify(Notification $params): NotificationResult
+    public function notify(Notification $notification): NotificationResult
     {
-        if (! $params instanceof SmsNotification) {
+        if (! $notification instanceof SmsNotification) {
             throw new UnexpectedValueException('SNS requires an SMS notification.');
         }
 
         $client = $this->client;
         try {
             $result = $client->publish([
-                'PhoneNumber' => $params->phoneNumber(),
-                'Message' => $params->message(),
+                'PhoneNumber' => $notification->phoneNumber(),
+                'Message' => $notification->message(),
                 'MessageAttributes' => $this->messageAttributes(),
             ]);
         } catch (AwsException $exception) {
@@ -55,7 +55,7 @@ final readonly class SnsNotifier implements NotificationProvider
         }
 
         return NotificationResult::delivered(
-            $params->type(),
+            $notification->type(),
             $messageId,
         );
     }

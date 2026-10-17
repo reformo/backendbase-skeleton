@@ -6,7 +6,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Ent
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account as AccountAggregate;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\AccountState;
 use DateTimeImmutable;
@@ -18,10 +18,10 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'identity_account', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
-#[ORM\UniqueConstraint(name: 'identity_account_active_email_unq', columns: ['active_email'])]
-#[ORM\UniqueConstraint(name: 'identity_account_active_mobile_unq', columns: ['active_mobile'])]
-class IdentityAccount
+#[ORM\Table(name: 'account', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
+#[ORM\UniqueConstraint(name: 'account_active_email_unq', columns: ['active_email'])]
+#[ORM\UniqueConstraint(name: 'account_active_mobile_unq', columns: ['active_mobile'])]
+class Account
 {
     #[ORM\Id]
     #[ORM\Column(type: UuidBinaryType::NAME)]
@@ -65,7 +65,7 @@ class IdentityAccount
     #[ORM\Column(name: 'password_hash', type: Types::STRING, length: 255)]
     private string $passwordHash = '';
 
-    public static function create(Account $account): self
+    public static function create(AccountAggregate $account): self
     {
         $record       = new self();
         $id           = $account->id();
@@ -76,7 +76,7 @@ class IdentityAccount
         return $record;
     }
 
-    public function synchronize(Account $account): void
+    public function synchronize(AccountAggregate $account): void
     {
         $state = $account->snapshot();
         $this->assertRevision($state['revision']);
@@ -92,7 +92,7 @@ class IdentityAccount
         $this->replaceState($accountState);
     }
 
-    public function toDomain(): Account
+    public function toDomain(): AccountAggregate
     {
         $state            = $this->state();
         $currentDeletedAt = $this->deletedAt;
@@ -102,7 +102,7 @@ class IdentityAccount
             throw AuthenticationUnavailable::create('The persisted identity projection is invalid.');
         }
 
-        return Account::reconstitute(IdentityId::fromString($this->id()), [
+        return AccountAggregate::reconstitute(IdentityId::fromString($this->id()), [
             'email' => $this->email,
             'mobile' => $this->mobile,
             'firstName' => $this->firstName,

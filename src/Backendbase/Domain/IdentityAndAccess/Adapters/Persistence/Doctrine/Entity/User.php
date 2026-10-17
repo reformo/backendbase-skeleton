@@ -7,7 +7,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Ent
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User as UserAggregate;
 use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -18,9 +18,9 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'identity_user', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
-#[ORM\UniqueConstraint(name: 'identity_user_account_unq', columns: ['account_id'])]
-class IdentityUser
+#[ORM\Table(name: 'user', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
+#[ORM\UniqueConstraint(name: 'user_account_unq', columns: ['account_id'])]
+class User
 {
     #[ORM\Id]
     #[ORM\Column(type: UuidBinaryType::NAME)]
@@ -46,7 +46,7 @@ class IdentityUser
     #[ORM\Column(type: Types::JSON)]
     private array $state;
 
-    public static function create(User $actor): self
+    public static function create(UserAggregate $actor): self
     {
         $record = new self();
         $record->assignId($actor->id());
@@ -72,9 +72,9 @@ class IdentityUser
         $this->replaceState($actorState);
     }
 
-    public function toDomain(): User
+    public function toDomain(): UserAggregate
     {
-        return new User(IdentityId::fromString($this->id()), $this->snapshot());
+        return new UserAggregate(IdentityId::fromString($this->id()), $this->snapshot());
     }
 
     public function state(): ActorState

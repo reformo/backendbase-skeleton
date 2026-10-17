@@ -33,12 +33,12 @@ function searchableText(message) {
 function renderMessages() {
     const messages = states[activeType].messages;
     const query = search.value.trim().toLocaleLowerCase();
-    const visible = messages.filter(message => searchableText(message).toLocaleLowerCase().includes(query));
-    document.querySelector("#count").textContent = `${visible.length} of ${messages.length}`;
-    empty.hidden = visible.length > 0;
+    const visibleMessages = messages.filter(message => searchableText(message).toLocaleLowerCase().includes(query));
+    document.querySelector("#count").textContent = `${visibleMessages.length} of ${messages.length}`;
+    empty.hidden = visibleMessages.length > 0;
     empty.textContent = emptyMessage(query);
-    const openEmails = new Set([...messageList.querySelectorAll("details[open]")].map(item => item.dataset.id));
-    const rows = visible.map(message => activeType === "sms" ? smsRow(message) : emailRow(message, openEmails));
+    const expandedEmailIds = new Set([...messageList.querySelectorAll("details[open]")].map(item => item.dataset.id));
+    const rows = visibleMessages.map(message => activeType === "sms" ? smsRow(message) : emailRow(message, expandedEmailIds));
     messageList.replaceChildren(...rows);
 }
 
@@ -57,11 +57,11 @@ function smsRow(message) {
     return row;
 }
 
-function emailRow(message, openEmails) {
+function emailRow(message, expandedEmailIds) {
     const row = document.createElement("li");
     const details = document.createElement("details");
     details.dataset.id = message.id;
-    details.open = openEmails.has(message.id);
+    details.open = expandedEmailIds.has(message.id);
     const summary = document.createElement("summary");
     const heading = document.createElement("span");
     heading.className = "message-heading";

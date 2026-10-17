@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\ORM\EntityManager;
+use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Schema\MappedTableFilter;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\DBAL\Tools\DsnParser;
@@ -37,12 +37,12 @@ $dotenv = Dotenv::createUnsafeImmutable($projectRoot);
 // Runtime injection supplies production secrets; .env is optional for local development.
 $dotenv->safeLoad();
 
-$configGenerator = new ConfigAggregator([
+$configurationAggregator = new ConfigAggregator([
     new PhpFileProvider('config/autoload/*'),
     new PhpFileProvider('config/example-api/*'),
     new PhpFileProvider('config/console/*')
 ]);
-$settings            = new SettingsValue($configGenerator->getMergedConfig());
+$settings            = new SettingsValue($configurationAggregator->getMergedConfig());
 $databaseSettings    = new DatabaseSettings($settings);
 $runtimeSettings     = new ApplicationRuntimeSettings($settings);
 
@@ -91,20 +91,12 @@ foreach ($entityFiles as $entityFile) {
 }
 
 $includeMigrationMetadata = !str_starts_with((new ArgvInput())->getFirstArgument() ?? '', 'orm:');
-$connection->getConfiguration()->setSchemaAssetsFilter(static function (string|AbstractAsset $assetName) use($serviceTables, $includeMigrationMetadata): bool {
-    if ($assetName instanceof AbstractAsset) {
-        $assetName = $assetName->getName();
-    }
-    // Doctrine Migrations must be able to discover its own metadata table.
-    // Otherwise, it assumes that the table is missing and tries to create it again.
-    return ($includeMigrationMetadata && $assetName === 'doctrine_migration_versions')
-            || in_array($assetName, $serviceTables, true);
-});
+$connection->getConfiguration()->setSchemaAssetsFilter(new MappedTableFilter($serviceTables, $includeMigrationMetadata));
 
 $entityManager = new EntityManager($connection, $configuration);
 
-$config = new JsonFile($projectRoot . '/migrations.json');
-foreach ($config->getConfiguration()->getMigrationDirectories() as $migrationDirectory) {
+$migrationConfigurationLoader = new JsonFile($projectRoot . '/migrations.json');
+foreach ($migrationConfigurationLoader->getConfiguration()->getMigrationDirectories() as $migrationDirectory) {
     if (!file_exists($migrationDirectory)) {
         if (!mkdir($migrationDirectory, 0744, true) && !is_dir($migrationDirectory)) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', $migrationDirectory));
@@ -112,11 +104,11 @@ foreach ($config->getConfiguration()->getMigrationDirectories() as $migrationDir
     }
 }
 
-$dependencyFactory = DependencyFactory::fromEntityManager($config, new ExistingEntityManager($entityManager));
+$dependencyFactory = DependencyFactory::fromEntityManager($migrationConfigurationLoader, new ExistingEntityManager($entityManager));
 $diffCommand = new Command\DiffCommand($dependencyFactory);
 $diffDefinition = $diffCommand->getDefinition();
 $diffFilter = $diffDefinition->getOption('filter-expression');
-$diffFilter->setDefault('/\A(?:'.implode('|', array_map(static fn (string $table): string => preg_quote($table, '/'), $serviceTables)).')\z/D');
+$diffFilter->setDefault((new MappedTableFilter($serviceTables))->expression());
 
 ConsoleRunner::run(
         new SingleManagerProvider($entityManager),

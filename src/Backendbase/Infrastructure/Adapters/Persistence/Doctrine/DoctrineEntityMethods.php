@@ -17,11 +17,11 @@ trait DoctrineEntityMethods
      *
      * @return array<string, mixed>
      */
-    public function toArray(array|null $excludeColumns = [], bool|null $includeDeletedAt = false, bool|null $getId = false): array
+    public function toArray(array|null $excludeColumns = [], bool|null $includeDeletedAt = false, bool|null $includeId = false): array
     {
         $excludeColumns ??= [];
 
-        if ($getId !== true) {
+        if ($includeId !== true) {
             $excludeColumns[] = 'id';
         }
 

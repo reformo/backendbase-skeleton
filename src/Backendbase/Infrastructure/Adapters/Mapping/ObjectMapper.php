@@ -20,14 +20,14 @@ readonly class ObjectMapper
     }
 
     /**
-     * @param class-string<T>      $targetFQCN
+     * @param class-string<T>      $targetClass
      * @param array<string, mixed> $payload
      *
      * @return T
      *
      * @template T of object
      */
-    public function map(string $targetFQCN, array $payload, callable|null $normalizer = null): object
+    public function map(string $targetClass, array $payload, callable|null $normalizer = null): object
     {
         if ($normalizer !== null) {
             $payload = $normalizer($payload);
@@ -37,8 +37,8 @@ readonly class ObjectMapper
             $builder      = new MapperBuilder();
             $builder      = $builder->withCache($this->cache);
             $mapper       = $builder->mapper();
-            $mappedObject = $mapper->map($targetFQCN, Source::array($payload));
-            assert($mappedObject::class === $targetFQCN);
+            $mappedObject = $mapper->map($targetClass, Source::array($payload));
+            assert($mappedObject::class === $targetClass);
         } catch (MappingError $error) {
             $messages      = $error->messages();
             $errorMessages = [];
@@ -50,7 +50,7 @@ readonly class ObjectMapper
             throw InvalidUserInput::create(
                 'Invalid input(s) provided',
                 [
-                    'target' => (new ReflectionClass($targetFQCN))->getShortName(),
+                    'target' => (new ReflectionClass($targetClass))->getShortName(),
                     'errors' => $errorMessages,
                 ],
             );

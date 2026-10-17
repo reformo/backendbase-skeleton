@@ -14,7 +14,7 @@
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Share stable technical values, not context rules</h2>
 <p>The shared primitive directory contains small types used across bounded contexts. A primitive should validate its own invariant and provide one stable representation.</p>
 <div class="callout warning">Keep business-specific decisions inside their owning bounded context. Do not move a type to <code>Shared</code> only because two classes use it.</div>
-<div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="5-use-case-api.html">Use Case API</a></div></section>
+<div class="related"><a href="1-bounded-contexts.html">Bounded Contexts</a><a href="5-inbound-api.html">Inbound API</a></div></section>
 <section id="catalog"><p class="section-label">02 · Catalog</p><h2>The current catalog covers common transport and value needs</h2>
 <div class="table-wrap"><table><thead><tr><th>Group</th><th>Examples</th><th>Purpose</th></tr></thead><tbody>
 <tr><td>Identifiers</td><td><code>EntityId</code>, <code>EntityIntId</code>, <code>EntityObjectId</code>, <code>EntityPrivateId</code></td><td>Create, parse, compare, and serialize identifiers.</td></tr>
@@ -63,7 +63,7 @@
     'target' =&gt; 'CreateExampleInput',
     'errors' =&gt; ['email' =&gt; '...'],
 ]</code></pre>
-<div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="11-error-handling-and-observability.html">Error Handling</a></div></section>
+<div class="related"><a href="5-inbound-api.html">Inbound API</a><a href="11-error-handling-and-observability.html">Error Handling</a></div></section>
 <section id="boundaries"><p class="section-label">11 · Reuse boundaries</p><h2>Use shared types only for stable cross-context meaning</h2>
 <div class="grid-2"><article class="card"><h3>Good shared candidate</h3><p>A UUID wrapper, email syntax, date interval constant, or generic pagination value.</p></article><article class="card"><h3>Keep in the context</h3><p>A customer status, order rule, product limit, or role decision owned by one model.</p></article></div>
 <p>Context code can wrap a shared technical value when it needs additional domain meaning.</p></section>

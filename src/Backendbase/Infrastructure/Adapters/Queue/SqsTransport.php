@@ -32,16 +32,16 @@ final readonly class SqsTransport
     /** @return list<array<string, mixed>> */
     public function receive(
         string $queueUrl,
-        int $maxNumberOfMessages,
-        int $visibilityTimeout,
+        int $maximumMessageCount,
+        int $visibilityTimeoutSeconds,
         int $waitTimeSeconds,
     ): array {
         $result   = $this->client->receiveMessage([
             'AttributeNames' => ['All'],
-            'MaxNumberOfMessages' => $maxNumberOfMessages,
+            'MaxNumberOfMessages' => $maximumMessageCount,
             'MessageAttributeNames' => ['All'],
             'QueueUrl' => $queueUrl,
-            'VisibilityTimeout' => $visibilityTimeout,
+            'VisibilityTimeout' => $visibilityTimeoutSeconds,
             'WaitTimeSeconds' => $waitTimeSeconds,
         ]);
         $messages = $result['Messages'] ?? [];

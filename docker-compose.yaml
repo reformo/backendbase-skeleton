@@ -83,8 +83,8 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
       MINISTACK_REGION: ${AWS_REGION:-eu-central-1}
       MINISTACK_HOST: 127.0.0.1
-      AWS_SQS_QUEUE: ${AWS_SQS_QUEUE:-backendbase-queue}
-      BUCKET_NAME: ${BUCKET_NAME:-backendbase-v3}
+      AWS_SQS_QUEUE_NAME: ${AWS_SQS_QUEUE_NAME:-backendbase-queue}
+      OBJECT_STORE_BUCKET_NAME: ${OBJECT_STORE_BUCKET_NAME:-backendbase-v3}
       PERSIST_STATE: "1"
       S3_PERSIST: "1"
     volumes:
@@ -101,11 +101,11 @@ services:
               if [ "$$count" -ge 30 ]; then exit 1; fi
               sleep 1
             done
-            if ! aws --endpoint-url=http://127.0.0.1:4566 s3api head-bucket --bucket "$$BUCKET_NAME" >/dev/null 2>&1; then
-              aws --endpoint-url=http://127.0.0.1:4566 s3 mb "s3://$$BUCKET_NAME" --region "$$AWS_DEFAULT_REGION"
+            if ! aws --endpoint-url=http://127.0.0.1:4566 s3api head-bucket --bucket "$$OBJECT_STORE_BUCKET_NAME" >/dev/null 2>&1; then
+              aws --endpoint-url=http://127.0.0.1:4566 s3 mb "s3://$$OBJECT_STORE_BUCKET_NAME" --region "$$AWS_DEFAULT_REGION"
             fi
-            if ! aws --endpoint-url=http://127.0.0.1:4566 sqs get-queue-url --queue-name "$$AWS_SQS_QUEUE" >/dev/null 2>&1; then
-              aws --endpoint-url=http://127.0.0.1:4566 sqs create-queue --queue-name "$$AWS_SQS_QUEUE"
+            if ! aws --endpoint-url=http://127.0.0.1:4566 sqs get-queue-url --queue-name "$$AWS_SQS_QUEUE_NAME" >/dev/null 2>&1; then
+              aws --endpoint-url=http://127.0.0.1:4566 sqs create-queue --queue-name "$$AWS_SQS_QUEUE_NAME"
             fi
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4566/_ministack/health', timeout=2)"]
@@ -121,8 +121,8 @@ services:
     ports:
       - "127.0.0.1:${BACKENDBASE_DEV_CDN_PORT:-8081}:80"
     environment:
-      BUCKET_NAME: ${BUCKET_NAME:-backendbase-v3}
-      NGINX_ENVSUBST_FILTER: ^BUCKET_NAME$
+      OBJECT_STORE_BUCKET_NAME: ${OBJECT_STORE_BUCKET_NAME:-backendbase-v3}
+      NGINX_ENVSUBST_FILTER: ^OBJECT_STORE_BUCKET_NAME$
     volumes:
       - ./resources/docker/cdn.conf.template:/etc/nginx/templates/default.conf.template:ro
     depends_on:

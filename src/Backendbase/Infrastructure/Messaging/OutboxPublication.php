@@ -21,7 +21,7 @@ final readonly class OutboxPublication
 
         $messageStore = $this->messageStore;
 
-        return $messageStore->claimNext($claimedAt, OutboxRetryPolicy::claimUntil($claimedAt));
+        return $messageStore->claimNext($claimedAt, OutboxRetryPolicy::claimExpiresAt($claimedAt));
     }
 
     public function markPublished(ClaimedOutboxMessage $message): void

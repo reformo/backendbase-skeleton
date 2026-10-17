@@ -75,10 +75,10 @@ final class IdentityStateMappingTest extends TestCase
     /** @return iterable<string, array{string, string}> */
     public static function records(): iterable
     {
-        yield 'Account' => ['account', 'identity_account'];
-        yield 'User' => ['user', 'identity_user'];
-        yield 'Admin' => ['admin', 'identity_admin'];
-        yield 'Contact' => ['contact', 'contact_info'];
+        yield 'Account' => ['account', 'account'];
+        yield 'User' => ['user', 'user'];
+        yield 'Admin' => ['admin', 'admin'];
+        yield 'Contact' => ['contact', 'contact_verification'];
     }
 
     private static function changed(AccountState|ActorState|ContactState $state): AccountState|ActorState|ContactState

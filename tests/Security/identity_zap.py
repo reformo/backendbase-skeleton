@@ -16,13 +16,13 @@ def scan(client, root):
     directory.mkdir(mode=0o777)
     directory.chmod(0o777)
     shutil.copy2(root / ".zap/rules.tsv", directory / "rules.tsv")
-    port = urllib.parse.urlparse(client.base_url).port
+    port = urllib.parse.urlparse(client.baseUrl).port
     host = "host.docker.internal" if sys.platform == "darwin" else "127.0.0.1"
     target = f"http://{host}:{port}"
     evidence = root / "artifacts/zap-identity"
     evidence.mkdir(parents=True, exist_ok=True)
     for api in ["user", "system-admin"]:
-        token = client.login(api, client.operator_email)
+        token = client.login(api, client.operatorEmail)
         client.request(api, "GET", "/identity", 200, token=token)
         specification = subprocess.check_output([
             "php", "-r",

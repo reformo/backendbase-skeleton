@@ -85,7 +85,7 @@ backendbase-core/
 │   │   ├── Configuration/             # Typed runtime, AWS, queue, database, Redis, and logging settings
 │   │   ├── Health/                    # Bounded dependency readiness checks
 │   │   ├── Messaging/                 # Relay, retry, and delivery-failure coordination
-│   │   └── Inbound/                   # Consumer-specific API entry code
+│   │   └── Inbound/                   # Inbound API entry code
 │   │       └── ExampleApi/
 │   │           ├── Controllers/         # Root and Example HTTP modules
 │   │           ├── middleware.php
@@ -123,7 +123,9 @@ Use the root `tests/` directory for tests that belong to the platform rather tha
 
 Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `ExampleCatalog` as the current reference implementation. No `Content` context exists in the current source. Contracts represent command/query inputs and ports. Application handlers orchestrate use cases. Domain objects and services should hold business rules and invariants.
 
-`IdentityAndAccess` owns global Accounts, User and SystemAdmin actors, contact verification, credentials, session checks, and operator evidence.
+`IdentityAndAccess` owns global Accounts, User and SystemAdmin actors, contact verification, credentials, session checks, and first-Admin setup.
+Admin state retains invitation and approval evidence. Operator setup and manual seeding share a database-scoped MySQL advisory lock.
+The forward migration `Version20261017173407` removes the separate operator history table.
 
 ### Enforced Dependency Boundaries
 
@@ -149,20 +151,20 @@ Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-
 
 Repository ports live in bounded-context `Contracts`. Write ports load and save domain aggregates. Production adapters live under `Adapters/Persistence/Doctrine`. Doctrine records map aggregate state to database columns. Persistence adapters must not implement creation, change, removal, or other domain rules. In-memory test adapters live under `Adapters/Persistence/Memory`. Bind ports to production adapters in the bounded context `ServiceProvider`.
 
-### Consumer API Use Cases
+### Inbound APIs
 
 The current repository contains `ExampleApi`, `UserApi`, and `SystemAdminApi` under `src/Backendbase/Infrastructure/Inbound`. Their slugs are `example-api`, `user-api`, and `system-admin-api`.
 
 `X-Source-Id` selects `example`, `user`, or `system-admin` through a fixed target map. The identity APIs use separate trusted authentication realms.
 
-`Infrastructure/Inbound` holds consumer-specific entry code. Each consumer API keeps its routes, middleware, and controllers together. Operational console commands live under `Infrastructure/Adapters/Console`. Reusable HTTP support stays under `Infrastructure/Adapters/Http`.
+`Infrastructure/Inbound` holds inbound API entry code. Each inbound API keeps its routes, middleware, and controllers together. Operational console commands live under `Infrastructure/Adapters/Console`. Reusable HTTP support stays under `Infrastructure/Adapters/Http`.
 
 Controller modules follow OpenAPI tags through `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`. Each operation has one handler and a matching route name.
 Use fluent route declarations and `group()` for common middleware. Identity APIs define each group's realm once through `RealmPolicy`.
 Protected groups also apply `RealmAuthentication`. Route action and contact policies retain the group realm. Public Authentication groups apply no bearer authentication.
 See [HTTP API guidance](../platform/07-http-api.md) for module registration and middleware execution order.
 
-Use `ExampleApi` as the reference for general HTTP adapter patterns. Use the existing identity APIs for realm-specific behavior. Use `resources/skills/backendbase-add-use-case-api/SKILL.md` when the user requests another API. Inspect current directories before assuming another API exists.
+Use `ExampleApi` as the reference for general HTTP adapter patterns. Use the existing identity APIs for realm-specific behavior. Use `resources/skills/backendbase-add-inbound-api/SKILL.md` when the user requests another API. Inspect current directories before assuming another API exists.
 
 Before implementing a feature, inspect the current `Infrastructure/Inbound` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
 
@@ -210,7 +212,7 @@ OpenAPI endpoint definition
 -> Doctrine migration diff when entities changed, after any Memory tests pass and Doctrine repositories are finalized
 -> dry-run the reviewed migration against an identified, prepared database
 -> apply only with explicit authority for that database, then verify its schema
--> affected consumer API controllers and route registration after tests pass
+-> affected inbound API controllers and route registration after tests pass
 -> Bruno YAML E2E tests under resources/bruno when API E2E coverage is requested
 ```
 

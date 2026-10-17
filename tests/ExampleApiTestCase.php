@@ -32,12 +32,12 @@ class ExampleApiTestCase extends PHPUnit_TestCase
         $containerBuilder = new ContainerBuilder();
 
         // Container intentionally isn't compiled for tests.
-        $configGenerator = new ConfigAggregator(
+        $configurationAggregator = new ConfigAggregator(
             [new PhpFileProvider('config/autoload/*'), new PhpFileProvider('config/example-api/*')],
         );
 
         $settings = require 'config/settings.php';
-        $settings($containerBuilder, $configGenerator->getMergedConfig());
+        $settings($containerBuilder, $configurationAggregator->getMergedConfig());
 
         // Set up dependencies
         $dependencies = require 'config/dependencies.php';
@@ -64,14 +64,14 @@ class ExampleApiTestCase extends PHPUnit_TestCase
     /**
      * @param array<non-empty-string, array<string>|string> $headers
      * @param array<string, mixed>                          $cookies
-     * @param array<string, mixed>                          $serverParams
+     * @param array<string, mixed>                          $serverParameters
      */
     protected function createRequest(
         string $method,
         string $path,
         array $headers = ['HTTP_ACCEPT' => 'application/json'],
         array $cookies = [],
-        array $serverParams = [],
+        array $serverParameters = [],
     ): Request {
         $uri = new Uri('');
         $uri->withPath($path)
@@ -83,7 +83,7 @@ class ExampleApiTestCase extends PHPUnit_TestCase
         }
 
         return new SlimRequest(
-            serverParams: $serverParams,
+            serverParams: $serverParameters,
             uri: $uri,
             method: $method,
             body: $handle,

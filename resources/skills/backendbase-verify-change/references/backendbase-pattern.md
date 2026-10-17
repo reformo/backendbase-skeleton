@@ -146,7 +146,7 @@ When application behavior is delivered over HTTP:
 1. Enumerate the target project's existing `Infrastructure/Inbound` or equivalent API roots.
 2. Identify every existing API affected by the behavior. If a requested API is absent, report the missing surface instead of inventing it.
 3. Compare method, path, placeholder names, OpenAPI tag, controller module, route name, middleware order, validation, application operation, response, status, and errors.
-4. Compare runtime security with OpenAPI security. New Backendbase consumer endpoints are protected by default unless the public exception is explicit.
+4. Compare runtime security with OpenAPI security. New Backendbase inbound API endpoints are protected by default unless the public exception is explicit.
 5. Check the four shared Backendbase header contracts: `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`.
 6. Check CORS and runtime validation when OpenAPI marks a header required. A specification reference alone does not prove enforcement.
 7. Regenerate and validate the specification. Review the generated diff.
@@ -173,7 +173,7 @@ Backendbase stores these decisions as `migrationTarget` and `applicationRollback
 Use these as regression prompts. Do not preserve them as desired behavior:
 
 - `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify the discovered target security policy; current Example operations require an API key and, except `getExampleByCriteria`, a USER bearer token.
-- `public/index.php` selects an API through `X-Source-Id` and `ConsumerApiTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
+- `public/index.php` selects an API through `X-Source-Id` and `InboundApiTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
 - Current Example HTTP operations require an API key. All except `getExampleByCriteria` also require a USER bearer token. Missing or invalid credentials return `401`; unavailable authentication state returns `503`. Internal access-control denial uses the shared forbidden error.
 - Example groups use a complete total and the requested page. Detail fields match the projection, and timestamps use the OpenAPI `date-time` format.
 - The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.

@@ -12,7 +12,7 @@ final class OutboxRetryPolicy
 {
     private const int CLAIM_TTL_SECONDS = 60;
 
-    public static function claimUntil(DateTimeImmutable $claimedAt): DateTimeImmutable
+    public static function claimExpiresAt(DateTimeImmutable $claimedAt): DateTimeImmutable
     {
         return $claimedAt->modify('+' . self::CLAIM_TTL_SECONDS . ' seconds');
     }

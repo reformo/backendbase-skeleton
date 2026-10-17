@@ -367,7 +367,7 @@
             <span class="chip">Current local coverage: 100%</span>
             <span class="chip">PHPStan level 8 passed</span>
             <span class="chip">Complexity ≤ 12 passed</span>
-            <span class="chip">3 consumer APIs</span>
+            <span class="chip">3 inbound APIs</span>
             <span class="chip">141 locked packages</span>
         </div>
     </div>
@@ -397,7 +397,7 @@
             <div class="callout good"><strong>Verified improvements:</strong> All adapters have explicit ownership. Live checks cover all 28 identity operations. Fresh dependency verification matches all 141 package digests.</div>
             <p>Account and Actor own login and session identity decisions. The selected forwarding layers are simplified. Other identity workflows still use snapshots.</p>
             <p>No broad rewrite is justified by this assessment. Address each finding through a focused change and an observable completion check.</p>
-            <p>Earlier account-provisioning and missing-MySQL-test findings are superseded. The repository now supplies audited operator actions and native concurrency regressions.</p>
+            <p>Earlier account-provisioning and missing-MySQL-test findings are superseded. The repository supplies first-Admin setup with stored invitation and approval evidence and native concurrency regressions.</p>
             <p>The current release retains <code>applicationRollbackSafe: false</code>. Guarded fresh installation now supports an empty database during maintenance. Existing database conversion requires a separate adoption plan.</p>
             <p>Production acceptance still requires target-specific performance, revocation durability, secret injection, monitoring, and recovery evidence.</p>
         </section>

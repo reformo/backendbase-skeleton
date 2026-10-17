@@ -3,9 +3,13 @@
 Each bounded context owns its business tables. Infrastructure owns shared technical tables.
 The owning adapter is the only writer. Other contexts use contracts and integration events.
 
+Business table names do not include a bounded-context prefix. `example_table` is the sole exception.
+Keep table names unique across the shared database. Record ownership here instead of encoding it in a prefix.
+Infrastructure table names identify technical responsibilities and remain unchanged.
+
 | Owner | Tables | Identity and references |
 | --- | --- | --- |
-| IdentityAndAccess | `identity_account`, `identity_user`, `identity_admin`, `contact_info`, `identity_operator_action` | Assigned UUIDv7 `BINARY(16)` identifiers; scalar binary Account and actor references |
+| IdentityAndAccess | `account`, `user`, `admin`, `contact_verification` | Assigned UUIDv7 `BINARY(16)` identifiers; scalar binary Account and actor references |
 | ExampleCatalog | `example_table` | Assigned binary UUID primary key; read-only virtual public UUID; opaque integer target selector retained |
 | Infrastructure messaging | `integration_event_outbox`, `integration_event_inbox`, `integration_event_delivery_failure` | Existing technical message and claim UUID strings |
 | Infrastructure recovery | `integration_event_replay`, `external_effect_resolution` | Binary UUIDv7 audit identifiers; original technical message and consumer identity |
@@ -42,7 +46,9 @@ User and Admin tables contain no username columns or login-name indexes.
 Account locks precede actor locks. Authentication counters use an exclusive Account lock.
 Actor mutations protect observer and target Accounts in canonical UUID order.
 Account-bound contacts receive their exclusive lock after Account and actor protection.
-The Account owns nullable first and last names. The manual initial Admin seeder writes its Account, Admin, and operator evidence in one transaction. It creates no User or contact evidence.
+The Account owns nullable first and last names. The manual initial Admin seeder writes its Account and Admin in one transaction.
+Admin state retains invitation and approval evidence. A database-scoped lock serializes operator setup and manual seeding.
+The seeder creates no User or contact evidence.
 
 Pre-registration contacts have no identity owner. Registration locks both contacts before reading the authorization time.
 Historical projections include removed actors and join their retained Account for email and mobile.
@@ -50,7 +56,9 @@ The Account primary key supports this join. Historical reads do not acquire writ
 
 ## Adoption gates
 
-The consolidated migrations support fresh installations only.
+The three consolidated installation migrations support fresh installations only.
+`Version20261017000000` then removes the `identity_` table and index prefixes without changing stored rows.
+An existing database already at the exact consolidated schema can apply this forward migration after target review.
 See [migration adoption](operations/migration-consolidation.md) before using an existing database.
 Inventory actual target tables, references, existing identifiers, collations, and migration history before deployment.
 Compare known old IdentityAndAccess artifacts with this table list. Do not adopt unknown rows or sessions automatically.

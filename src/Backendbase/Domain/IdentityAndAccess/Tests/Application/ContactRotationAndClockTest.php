@@ -54,7 +54,7 @@ final class ContactRotationAndClockTest extends TestCase
         $registration = $container->get(RegistrationWorkflow::class);
         $result       = $registration->register(IdentityScenario::id(), new RegistrationInput('ada@example.com', '+905551234567', 'valid-password-123', $email->id(), $mobile->id(), $contextValue));
         self::assertNotEmpty($result['accountId']);
-        self::assertSame(2, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_info'));
+        self::assertSame(2, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }
 
     public function testExpiredEvidenceIsRejectedWhenTheClockAdvancesDuringLockAcquisition(): void
@@ -79,7 +79,7 @@ final class ContactRotationAndClockTest extends TestCase
             self::fail('Evidence must be checked after both locks.');
         } catch (ContactVerificationExpired) {
             self::assertSame(2, $reads);
-            self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+            self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
         }
     }
 

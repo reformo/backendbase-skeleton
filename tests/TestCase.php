@@ -26,7 +26,7 @@ class TestCase extends PHPUnit_TestCase
         $containerBuilder = new ContainerBuilder();
 
         // Container intentionally not compiled for tests.
-        $configGenerator = new ConfigAggregator(
+        $configurationAggregator = new ConfigAggregator(
             [
                 new PhpFileProvider('config/autoload/*'),
                 new PhpFileProvider('config/example-api/*'),
@@ -34,7 +34,7 @@ class TestCase extends PHPUnit_TestCase
         );
 
         $settings = require 'config/settings.php';
-        $settings($containerBuilder, $configGenerator->getMergedConfig());
+        $settings($containerBuilder, $configurationAggregator->getMergedConfig());
 
         // Set up dependencies
         $dependencies = require 'config/dependencies.php';

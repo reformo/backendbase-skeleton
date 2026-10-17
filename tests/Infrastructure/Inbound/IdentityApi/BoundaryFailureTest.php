@@ -32,7 +32,7 @@ final class BoundaryFailureTest extends TestCase
         self::assertArrayHasKey('status', $problem);
         self::assertSame($status, $problem['status']);
         $connection = $fixture->connection();
-        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
+        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM account'));
         self::assertStringNotContainsString('valid-password-123', (string) $response->getBody());
     }
 

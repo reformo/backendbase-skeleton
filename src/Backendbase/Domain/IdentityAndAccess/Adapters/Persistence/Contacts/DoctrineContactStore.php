@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Contacts;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineIdentityTransaction;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ContactInfo as Record;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ContactVerification as Record;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Contracts\ContactStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
@@ -36,8 +36,8 @@ final readonly class DoctrineContactStore implements ContactStore
         $manager   = $session->manager();
         $reference = $manager->find(Record::class, Uuid::fromString($id));
         if ($reference !== null) {
-            $owner = new ContactOwnership($session);
-            $owner->assertAllowed($reference->toDomain());
+            $ownershipPolicy = new ContactOwnership($session);
+            $ownershipPolicy->assertAllowed($reference->toDomain());
         }
 
         $record = $this->record($id);
@@ -63,13 +63,13 @@ final readonly class DoctrineContactStore implements ContactStore
 
     public function save(ContactInfo $contact): void
     {
-        $session = $this->session;
-        $owner   = new ContactOwnership($session);
-        $owner->assertAllowed($contact);
-        $manager = $session->manager();
-        $unit    = $manager->getUnitOfWork();
-        $id      = Uuid::fromString($contact->id());
-        $managed = $unit->tryGetById(['id' => $id], Record::class);
+        $session         = $this->session;
+        $ownershipPolicy = new ContactOwnership($session);
+        $ownershipPolicy->assertAllowed($contact);
+        $manager    = $session->manager();
+        $unitOfWork = $manager->getUnitOfWork();
+        $id         = Uuid::fromString($contact->id());
+        $managed    = $unitOfWork->tryGetById(['id' => $id], Record::class);
         if ($managed instanceof Record) {
             $managed->synchronize($contact);
 

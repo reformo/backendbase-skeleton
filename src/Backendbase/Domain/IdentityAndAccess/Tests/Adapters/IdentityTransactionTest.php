@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineIdentityTransaction;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\UnitOfWork\EntityManagerFactory;
@@ -78,7 +78,7 @@ final class IdentityTransactionTest extends TestCase
         $connection->executeStatement('CREATE TABLE transaction_probe (attempt INTEGER NOT NULL)');
         $session  = self::session();
         $unit     = new DoctrineIdentityTransaction($connection, $session);
-        $failure  = OptimisticLockException::lockFailed(IdentityAccount::class);
+        $failure  = OptimisticLockException::lockFailed(AccountRecord::class);
         $attempts = 0;
         try {
             $unit->run(static function () use ($connection, $failure, &$attempts): void {

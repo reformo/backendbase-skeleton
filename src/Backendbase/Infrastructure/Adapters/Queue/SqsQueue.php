@@ -57,17 +57,17 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
     /** @return list<array<string, mixed>> */
     private function receiveMessages(MessageSubscription $subscription, string $queueUrl): array
     {
-        $maxNumberOfMessages   = $subscription->maxNumberOfMessages();
-        $maxNumberOfMessages ??= $this->settings->maxNumberOfMessages();
-        $visibilityTimeout     = $subscription->visibilityTimeout();
-        $visibilityTimeout   ??= $this->settings->visibilityTimeoutSeconds();
-        $waitTimeSeconds       = $subscription->waitTimeSeconds();
-        $waitTimeSeconds     ??= $this->settings->waitTimeSeconds();
+        $maximumMessageCount        = $subscription->maximumMessageCount();
+        $maximumMessageCount      ??= $this->settings->maximumMessageCount();
+        $visibilityTimeoutSeconds   = $subscription->visibilityTimeoutSeconds();
+        $visibilityTimeoutSeconds ??= $this->settings->visibilityTimeoutSeconds();
+        $waitTimeSeconds            = $subscription->waitTimeSeconds();
+        $waitTimeSeconds          ??= $this->settings->waitTimeSeconds();
 
         return $this->transport->receive(
             $queueUrl,
-            min(10, max(1, $maxNumberOfMessages)),
-            min(43200, max(0, $visibilityTimeout)),
+            min(10, max(1, $maximumMessageCount)),
+            min(43200, max(0, $visibilityTimeoutSeconds)),
             $this->normalizeSqsWaitTimeSeconds($waitTimeSeconds),
         );
     }

@@ -60,8 +60,8 @@ final class MySqlAuthorizationRaceTest extends TestCase
             $store->method('actorReference')->willReturnCallback(static function (Realm $realm, string $id) use ($realStore, $other, $admin): Actor {
                 $reference = $realStore->actorReference($realm, $id);
                 $other->transactional(static function (Connection $connection) use ($admin): void {
-                    $connection->fetchOne('SELECT id FROM identity_account WHERE id = UUID_TO_BIN(?, 0) FOR UPDATE', [$admin['accountId']]);
-                    $connection->executeStatement('UPDATE identity_admin SET deleted_at = ?, version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', ['2026-10-14 10:02:00.000000', $admin['actorId']]);
+                    $connection->fetchOne('SELECT id FROM account WHERE id = UUID_TO_BIN(?, 0) FOR UPDATE', [$admin['accountId']]);
+                    $connection->executeStatement('UPDATE `admin` SET deleted_at = ?, version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', ['2026-10-14 10:02:00.000000', $admin['actorId']]);
                 });
 
                 return $reference;
@@ -73,8 +73,8 @@ final class MySqlAuthorizationRaceTest extends TestCase
                 self::fail('A concurrently removed Admin must lose mutation authority.');
             } catch (AuthenticationDenied) {
                 $connection = $fixture->connection();
-                self::assertSame('2026-10-14 10:02:00.000000', $connection->fetchOne('SELECT deleted_at FROM identity_admin WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
-                self::assertNotNull($connection->fetchOne('SELECT deleted_at FROM identity_admin WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
+                self::assertSame('2026-10-14 10:02:00.000000', $connection->fetchOne('SELECT deleted_at FROM `admin` WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
+                self::assertNotNull($connection->fetchOne('SELECT deleted_at FROM `admin` WHERE id = UUID_TO_BIN(?, 0)', [$admin['actorId']]));
             }
         } finally {
             $other->close();

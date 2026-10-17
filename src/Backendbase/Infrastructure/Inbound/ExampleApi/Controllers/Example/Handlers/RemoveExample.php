@@ -26,11 +26,11 @@ class RemoveExample extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
-        $entryKey     = ExampleRequestInput::key($this->request->getAttribute('example-key'));
-        $params       = $this->request->getQueryParams();
-        $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
+        $type            = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group           = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $entryKey        = ExampleRequestInput::key($this->request->getAttribute('example-key'));
+        $queryParameters = $this->request->getQueryParams();
+        $typeTargetId    = ExampleRequestInput::optionalTypeTargetId($queryParameters['typeTargetId'] ?? null);
 
         $identity = new EntryIdentity($type, $typeTargetId, $group, $entryKey);
         $this->commandBus->handle(new RemoveEntryCommand($identity));

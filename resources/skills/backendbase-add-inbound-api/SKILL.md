@@ -1,9 +1,9 @@
 ---
-name: backendbase-add-use-case-api
-description: Scaffold a distinct Backendbase-style consumer Use Case API with selection, configuration, routes, OpenAPI, Bruno, and tests. Use for a new API surface; do not use for a module or endpoint inside an existing API.
+name: backendbase-add-inbound-api
+description: Scaffold a distinct Backendbase-style inbound API with selection, configuration, routes, OpenAPI, Bruno, and tests. Use for a new API surface; do not use for a module or endpoint inside an existing API.
 ---
 
-# Add a Use Case API
+# Add an Inbound API
 
 ## Outcome
 
@@ -47,12 +47,12 @@ Use the target project's namespace, paths, headers, environment keys, hosts, cre
 - In an unmodified Backendbase API, create `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/` inside the owning API. Use the tag's PascalCase module name.
 - In this Backendbase layout, `ModuleConfig` implements `ModuleRoute`; `ROUTE_KEY` and `routeKey()` identify its URL prefix. Create one handler per documented operation.
 - In Backendbase `ModuleConfig`, use fluent route declarations and `group()` for shared middleware. Keep endpoint policies on routes. Verify middleware execution order.
-- In this layout, create route groups from the explicit `ModuleRoutes` registry. Match route names to OpenAPI operation IDs. Keep consumer controllers separate even when domain behavior is shared.
-- Consumer-specific HTTP entry code lives under `Infrastructure/Inbound`, outside bounded contexts.
-- Current API selection uses `X-Source-Id` through `ConsumerApiTarget`.
+- In this layout, create route groups from the explicit `ModuleRoutes` registry. Match route names to OpenAPI operation IDs. Keep inbound API controllers separate even when domain behavior is shared.
+- Inbound API entry code lives under `Infrastructure/Inbound`, outside bounded contexts.
+- Current API selection uses `X-Source-Id` through `InboundApiTarget`.
 - API class name, slug, selector, config, cache, OpenAPI, public docs, and Bruno names stay aligned.
 - `ModuleRoutes` registers every module explicitly.
-- New consumer routes are protected unless the requested public use case is explicit.
+- New inbound API routes are protected unless the requested public use case is explicit.
 - Controllers adapt HTTP to commands or queries. They do not access persistence or brokers.
 - Every OpenAPI operation references the four shared request headers.
 - Generated OpenAPI files are outputs. Do not hand-edit them.

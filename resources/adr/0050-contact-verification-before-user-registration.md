@@ -12,7 +12,7 @@ The evidence must be less than 12 hours old. Admin verification remains optional
 
 ## Decision Made
 
-IdentityAndAccess owns `contact_info`. Each record identifies a contact, purpose, realm, and secret context.
+IdentityAndAccess owns `contact_verification`. Each record identifies a contact, purpose, realm, and secret context.
 The client generates a random 256-bit context token. Storage uses a stable SHA-256 digest of that secret.
 Six-digit codes use keyed hashes. Code hashes bind their record, generation, contact, purpose, and realm.
 
@@ -39,7 +39,7 @@ The active/previous key configuration requires retaining the previous key before
 ## Consequences
 
 The former post-registration email ownership endpoints and `identity_challenge` implementation are removed.
-The initial identity migration supports fresh installations and creates `contact_info` directly.
+The initial identity migration supports fresh installations and creates `contact_verification` directly.
 Existing installations require a separate adoption migration. This decision does not authorize applying migrations.
 Account JSON containing the former `owned` key requires a separate data adoption step that preserves its boolean value as `ownershipVerified`.
 

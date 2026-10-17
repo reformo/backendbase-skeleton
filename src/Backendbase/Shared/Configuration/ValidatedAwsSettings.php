@@ -20,10 +20,10 @@ use function is_string;
  * }
  * @phpstan-type SqsSettings array{
  *     continuous?: bool,
- *     maxNumberOfMessages?: int,
+ *     maximumMessageCount?: int,
  *     queue?: string,
  *     queueUrl?: string,
- *     visibilityTimeout?: int,
+ *     visibilityTimeoutSeconds?: int,
  *     waitTimeSeconds?: int
  * }
  * @phpstan-type SnsSettings array{smsType?: string, senderId?: string}
@@ -79,10 +79,10 @@ final class ValidatedAwsSettings
         if (
             ! is_array($settings)
             || (array_key_exists('continuous', $settings) && ! is_bool($settings['continuous']))
-            || (array_key_exists('maxNumberOfMessages', $settings) && ! is_int($settings['maxNumberOfMessages']))
+            || (array_key_exists('maximumMessageCount', $settings) && ! is_int($settings['maximumMessageCount']))
             || (array_key_exists('queue', $settings) && ! is_string($settings['queue']))
             || (array_key_exists('queueUrl', $settings) && ! is_string($settings['queueUrl']))
-            || (array_key_exists('visibilityTimeout', $settings) && ! is_int($settings['visibilityTimeout']))
+            || (array_key_exists('visibilityTimeoutSeconds', $settings) && ! is_int($settings['visibilityTimeoutSeconds']))
             || (array_key_exists('waitTimeSeconds', $settings) && ! is_int($settings['waitTimeSeconds']))
         ) {
             throw new UnexpectedValueException('The AWS SQS settings are invalid.');
@@ -90,13 +90,13 @@ final class ValidatedAwsSettings
 
         return [
             ...(array_key_exists('continuous', $settings) ? ['continuous' => $settings['continuous']] : []),
-            ...(array_key_exists('maxNumberOfMessages', $settings)
-                ? ['maxNumberOfMessages' => $settings['maxNumberOfMessages']]
+            ...(array_key_exists('maximumMessageCount', $settings)
+                ? ['maximumMessageCount' => $settings['maximumMessageCount']]
                 : []),
             ...(array_key_exists('queue', $settings) ? ['queue' => $settings['queue']] : []),
             ...(array_key_exists('queueUrl', $settings) ? ['queueUrl' => $settings['queueUrl']] : []),
-            ...(array_key_exists('visibilityTimeout', $settings)
-                ? ['visibilityTimeout' => $settings['visibilityTimeout']]
+            ...(array_key_exists('visibilityTimeoutSeconds', $settings)
+                ? ['visibilityTimeoutSeconds' => $settings['visibilityTimeoutSeconds']]
                 : []),
             ...(array_key_exists('waitTimeSeconds', $settings)
                 ? ['waitTimeSeconds' => $settings['waitTimeSeconds']]

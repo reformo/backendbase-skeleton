@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backendbase: Add Inbound API"
+  short_description: "Scaffold a complete Backendbase inbound API"
+  default_prompt: "Use $backendbase-add-inbound-api to scaffold a new inbound API surface from the target project's patterns."

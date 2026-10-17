@@ -56,7 +56,7 @@ final class OutboxReplayTest extends TestCase
     {
         yield 'unpublished' => [['published_at' => null], RuntimeException::class];
         yield 'missing destination' => [['destination' => null], RuntimeException::class];
-        yield 'active claim' => [['claim_until' => '2026-10-14 10:00:00.000000'], RuntimeException::class];
+        yield 'active claim' => [['claim_expires_at' => '2026-10-14 10:00:00.000000'], RuntimeException::class];
         yield 'expired replay age' => [['occurred_at' => '2026-10-07 09:59:59.999999'], UnexpectedValueException::class];
         yield 'unsupported event version' => [['event_version' => '2.0'], UnexpectedValueException::class];
     }

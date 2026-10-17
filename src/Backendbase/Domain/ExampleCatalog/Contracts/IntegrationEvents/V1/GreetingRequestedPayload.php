@@ -9,19 +9,21 @@ use Override;
 
 final readonly class GreetingRequestedPayload implements EventMessage
 {
-    public function __construct(private string $fullname)
+    public const array INPUT_FIELD_ALIASES = ['fullname' => 'fullName'];
+
+    public function __construct(private string $fullName)
     {
     }
 
     public function fullName(): string
     {
-        return $this->fullname;
+        return $this->fullName;
     }
 
     /** @return array{fullname: string} */
     public function toArray(): array
     {
-        return ['fullname' => $this->fullname];
+        return ['fullname' => $this->fullName];
     }
 
     /** @return array{fullname: string} */

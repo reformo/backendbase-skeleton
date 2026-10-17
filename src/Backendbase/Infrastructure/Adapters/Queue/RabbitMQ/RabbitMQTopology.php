@@ -46,7 +46,7 @@ final class RabbitMQTopology
 
     public function prefetchCount(MessageSubscription $subscription): int
     {
-        $prefetchCount = $subscription->maxNumberOfMessages();
+        $prefetchCount = $subscription->maximumMessageCount();
 
         return $prefetchCount ?? $this->settings->prefetchCount();
     }

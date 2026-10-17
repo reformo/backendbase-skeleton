@@ -2,6 +2,7 @@
 
 Apply the [root rules](../../../../AGENTS.md) and relevant [platform guidance](../../../../resources/platform/README.md).
 This context owns global Accounts, User and SystemAdmin actors, contact evidence, credentials, tokens, and sessions.
+Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not add bounded-context prefixes.
 
 ## Context rules
 
@@ -16,10 +17,12 @@ This context owns global Accounts, User and SystemAdmin actors, contact evidence
 - Require both email and mobile proofs before User registration. Validate matching contacts, shared context, unused evidence, and freshness after both locks.
 - Consume both proofs atomically with Account, User, and credential creation. Use the 12-hour evidence window from ADR-0050.
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.
-- Store the Argon2id password hash directly in `identity_account.password_hash`. Keep the credential port scalar and preserve Account locks and state checks.
+- Store the Argon2id password hash directly in `account.password_hash`. Keep the credential port scalar and preserve Account locks and state checks.
 - Require both token and session allowlist records and current database identity state for authentication.
 - MySQL and Redis do not share a transaction. Preserve database rejection of closed Accounts when Redis revocation fails.
 - Admin enrollment requires separate invitation and approval evidence. Operator commands must not issue tokens.
+- Keep first-Admin evidence in Admin state. Serialize operator setup and manual seeding with the same database-scoped lock.
+- Permit operator approval only for the sole pending Admin. Retained removed Admin rows prevent another first-Admin invitation.
 
 ## Change locations and decisions
 

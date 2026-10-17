@@ -58,7 +58,7 @@ final class ContactDeadlineTest extends TestCase
             self::assertNotNull($confirmed->snapshot()['verifiedAt']);
         } catch (ContactVerificationExpired) {
             self::assertNotSame('PT4M59S', $advance);
-            self::assertNull($fixture->connection()->fetchOne('SELECT verified_at FROM contact_info'));
+            self::assertNull($fixture->connection()->fetchOne('SELECT verified_at FROM contact_verification'));
         }
     }
 

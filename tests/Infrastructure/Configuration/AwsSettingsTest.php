@@ -24,10 +24,10 @@ final class AwsSettingsTest extends TestCase
                 'endpoint' => '',
                 'sqs' => [
                     'continuous' => false,
-                    'maxNumberOfMessages' => 10,
+                    'maximumMessageCount' => 10,
                     'queue' => 'events',
                     'queueUrl' => 'https://example.com/events',
-                    'visibilityTimeout' => 30,
+                    'visibilityTimeoutSeconds' => 30,
                     'waitTimeSeconds' => 20,
                 ],
                 'sns' => ['smsType' => 'Transactional', 'senderId' => 'Backendbase'],
@@ -47,7 +47,7 @@ final class AwsSettingsTest extends TestCase
         self::assertSame('access-key', $settings->client()->credentials()->accessKey());
         self::assertSame('secret-key', $settings->client()->credentials()->secretKey());
         self::assertFalse($settings->sqs()->continuous());
-        self::assertSame(10, $settings->sqs()->maxNumberOfMessages());
+        self::assertSame(10, $settings->sqs()->maximumMessageCount());
         self::assertSame('events', $settings->sqs()->queueName());
         self::assertSame('https://example.com/events', $settings->sqs()->queueUrl());
         self::assertSame(30, $settings->sqs()->visibilityTimeoutSeconds());

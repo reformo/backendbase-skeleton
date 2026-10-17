@@ -18,19 +18,19 @@ class PathFinder
     /** @return array<int, string> */
     public static function doctrineEntityPaths(): array
     {
-        $projectDir            = getcwd();
-        $entityPaths           = glob($projectDir . '/src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Entity', GLOB_ONLYDIR) ?: [];
-        $entityPathsModules    = glob($projectDir . '/src/Backendbase/Domain/*/Adapters/Persistence/Doctrine/Entity', GLOB_NOSORT);
-        $entityPathsSubModules = glob($projectDir . '/src/Backendbase/Domain/*/*/Adapters/Persistence/Doctrine/Entity', GLOB_NOSORT);
+        $projectRoot              = getcwd();
+        $entityPaths              = glob($projectRoot . '/src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Entity', GLOB_ONLYDIR) ?: [];
+        $contextEntityPaths       = glob($projectRoot . '/src/Backendbase/Domain/*/Adapters/Persistence/Doctrine/Entity', GLOB_NOSORT);
+        $nestedContextEntityPaths = glob($projectRoot . '/src/Backendbase/Domain/*/*/Adapters/Persistence/Doctrine/Entity', GLOB_NOSORT);
 
-        if (! empty($entityPathsModules)) {
-            $entityPaths = array_merge($entityPaths, $entityPathsModules);
+        if (! empty($contextEntityPaths)) {
+            $entityPaths = array_merge($entityPaths, $contextEntityPaths);
         }
 
-        if (! empty($entityPathsSubModules)) {
-            $entityPaths = array_merge($entityPaths, $entityPathsSubModules);
+        if (! empty($nestedContextEntityPaths)) {
+            $entityPaths = array_merge($entityPaths, $nestedContextEntityPaths);
         }
 
-        return array_map(static fn ($path) => str_replace($projectDir . '/', '', $path), $entityPaths);
+        return array_map(static fn ($path) => str_replace($projectRoot . '/', '', $path), $entityPaths);
     }
 }

@@ -70,7 +70,7 @@ final class OutboxRelayServiceTest extends TestCase
 
         self::assertSame(
             '2000-01-01 00:01:00',
-            OutboxRetryPolicy::claimUntil($now)->format('Y-m-d H:i:s'),
+            OutboxRetryPolicy::claimExpiresAt($now)->format('Y-m-d H:i:s'),
         );
         self::assertSame(
             '2000-01-01 00:00:02',

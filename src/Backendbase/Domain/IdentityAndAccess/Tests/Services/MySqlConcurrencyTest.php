@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Services;
 
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\DoctrineIdentityTransaction;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -31,13 +31,13 @@ final class MySqlConcurrencyTest extends TestCase
         try {
             $account = self::account();
             $first   = $fixture->manager();
-            $first->persist(IdentityAccount::create($account));
+            $first->persist(AccountRecord::create($account));
             $first->flush();
             $second = $fixture->manager($fixture->anotherConnection());
-            $stale  = $second->find(IdentityAccount::class, $account->id());
-            self::assertInstanceOf(IdentityAccount::class, $stale);
-            $record = $first->find(IdentityAccount::class, $account->id());
-            self::assertInstanceOf(IdentityAccount::class, $record);
+            $stale  = $second->find(AccountRecord::class, $account->id());
+            self::assertInstanceOf(AccountRecord::class, $stale);
+            $record = $first->find(AccountRecord::class, $account->id());
+            self::assertInstanceOf(AccountRecord::class, $record);
             $account->verifyOwnership();
             $record->synchronize($account);
             $first->flush();
@@ -62,16 +62,16 @@ final class MySqlConcurrencyTest extends TestCase
         try {
             $account = self::account();
             $manager = $fixture->manager();
-            $manager->persist(IdentityAccount::create($account));
+            $manager->persist(AccountRecord::create($account));
             $manager->flush();
             $first->beginTransaction();
-            $first->executeStatement('UPDATE identity_account SET version = version + 1');
+            $first->executeStatement('UPDATE account SET version = version + 1');
             $second->executeStatement('SET SESSION innodb_lock_wait_timeout = 1');
             $unit = new DoctrineIdentityTransaction($second, $session);
             try {
                 $unit->run(static function () use ($second, $session, &$opened): void {
                     $opened[] = $session->manager();
-                    $second->executeStatement('UPDATE identity_account SET version = version + 1');
+                    $second->executeStatement('UPDATE account SET version = version + 1');
                 });
                 self::fail('The held row lock must exhaust the retry limit.');
             } catch (LockWaitTimeoutException) {
@@ -81,12 +81,12 @@ final class MySqlConcurrencyTest extends TestCase
             }
 
             $first->rollBack();
-            self::assertSame(1, $second->fetchOne('SELECT version FROM identity_account'));
+            self::assertSame(1, $second->fetchOne('SELECT version FROM account'));
             $unit->run(static function () use ($second, $session, &$opened): void {
                     $opened[] = $session->manager();
-                $second->executeStatement('UPDATE identity_account SET version = version + 1');
+                $second->executeStatement('UPDATE account SET version = version + 1');
             });
-            self::assertSame(2, $second->fetchOne('SELECT version FROM identity_account'));
+            self::assertSame(2, $second->fetchOne('SELECT version FROM account'));
             self::assertCount(4, $opened);
         } finally {
             $second->close();

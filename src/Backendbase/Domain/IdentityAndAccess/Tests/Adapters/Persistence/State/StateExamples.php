@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters\Persistence\State;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ContactInfo;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Admin as AdminRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ContactVerification;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\User as UserRecord;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo as Contact;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -52,17 +52,17 @@ final class StateExamples
         yield 'Contact' => [ContactState::class, self::CONTACT];
     }
 
-    public static function record(string $kind): IdentityAccount|IdentityUser|IdentityAdmin|ContactInfo
+    public static function record(string $kind): AccountRecord|UserRecord|AdminRecord|ContactVerification
     {
         $id        = IdentityId::create();
         $accountId = IdentityId::create();
         $now       = new DateTimeImmutable('2026-10-17T10:00:00Z');
 
         return match ($kind) {
-            'account' => IdentityAccount::create(Account::create($id, new AccountEmail('ada@example.com'), new AccountMobile('+905551234567'), $now)),
-            'user' => IdentityUser::create(User::create($id, $accountId, $now)),
-            'admin' => IdentityAdmin::create(SystemAdmin::invite($id, $accountId, 'invitation', $now)),
-            default => ContactInfo::create(new Contact($id, self::CONTACT)),
+            'account' => AccountRecord::create(Account::create($id, new AccountEmail('ada@example.com'), new AccountMobile('+905551234567'), $now)),
+            'user' => UserRecord::create(User::create($id, $accountId, $now)),
+            'admin' => AdminRecord::create(SystemAdmin::invite($id, $accountId, 'invitation', $now)),
+            default => ContactVerification::create(new Contact($id, self::CONTACT)),
         };
     }
 }

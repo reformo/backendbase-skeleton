@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Removed
 
+- Remove the `operator_action` table through a forward migration. Keep invitation and approval evidence in Admin state. Preserve first-Admin setup, repeat seeding, and concurrent setup protection without separate operator audit rows.
+
 - Replace User and System Admin usernames with Account email or mobile login. Require globally unique active E.164 mobile numbers at registration. Update initial identity migration, API contracts, operator commands, contact responses, tests, and identity guidance.
 
 - Remove TOTP enrollment, second-step login, factor storage behavior, and factor recovery and rewrapping commands. Password login now returns a session after ownership, Account state, and actor approval checks. Update both identity APIs, Bruno requests, tests, and authentication policy.
@@ -126,6 +128,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed exception messages and call arguments from HTTP and queue diagnostics. Applied body and metadata validation before parsing and logger creation.
 
 ### Changed
+
+- Apply the remaining naming review proposals across PHP, shell, Python, JavaScript, configuration, and persistence. Preserve released event and API keys, add proof-key environment aliases, and clarify contact verification and claim expiry through a forward migration. Add framework-independent event field aliases and protect quoted table names in migration filters. Update the naming report with verification and migration results.
+
+- Remove bounded-context prefixes from the Account, User, Admin, and operator evidence tables and their indexes. Align Doctrine entity names, SQL, tests, and guidance. Retain the `example_table` exception. Add a data-preserving forward migration and pin its release target.
+
+- Adopt inbound API terminology across the API selector, bootstrap variables, tests, architecture guidance, and skills. Rename the API guide and scaffolding skill. Preserve message consumer names and existing API contracts.
 
 - Make immutable context primitives the default for non-list database JSON columns. Document list handling, explicit Example details and outbox payload exceptions, and shared ORM, DBAL, seeder, and skill guidance.
 

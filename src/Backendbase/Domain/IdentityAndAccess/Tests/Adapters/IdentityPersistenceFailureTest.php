@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Admin as AdminRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\User as UserRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
@@ -61,7 +61,7 @@ final class IdentityPersistenceFailureTest extends TestCase
         $actor       = $realm === Realm::USER
             ? User::create(IdentityId::create(), IdentityId::create(), $now)
             : SystemAdmin::invite(IdentityId::create(), IdentityId::create(), 'invitation', $now);
-        $record      = $actor instanceof User ? IdentityUser::create($actor) : IdentityAdmin::create($actor);
+        $record      = $actor instanceof User ? UserRecord::create($actor) : AdminRecord::create($actor);
         $replacement = $actor instanceof User
             ? new User(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()])
             : new SystemAdmin(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()]);
@@ -73,7 +73,7 @@ final class IdentityPersistenceFailureTest extends TestCase
         }
 
         $account       = Account::create(IdentityId::create(), new AccountEmail('test@example.com'), new AccountMobile('+905551234567'), $now);
-        $accountRecord = IdentityAccount::create($account);
+        $accountRecord = AccountRecord::create($account);
         $this->expectException(IdentityConflict::class);
         $accountRecord->assertRevision(2);
     }

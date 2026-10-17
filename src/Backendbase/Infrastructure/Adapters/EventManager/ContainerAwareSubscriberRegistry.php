@@ -28,16 +28,16 @@ final class ContainerAwareSubscriberRegistry
     {
     }
 
-    /** @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN */
-    public function resolve(string $subscriberFQCN): object
+    /** @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass */
+    public function resolve(string $subscriberClass): object
     {
-        $arguments                   = [];
-        $handlerConstructorArguments = Resolver::getParameterHints($subscriberFQCN, '__construct');
-        foreach ($handlerConstructorArguments as $argumentName => $argumentType) {
+        $arguments                           = [];
+        $subscriberConstructorParameterTypes = Resolver::getParameterHints($subscriberClass, '__construct');
+        foreach ($subscriberConstructorParameterTypes as $argumentName => $argumentType) {
             $arguments[] = $this->argument($argumentName, $argumentType);
         }
 
-        return (new ReflectionClass($subscriberFQCN))->newInstanceArgs($arguments);
+        return (new ReflectionClass($subscriberClass))->newInstanceArgs($arguments);
     }
 
     /** @return array<string, class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber>> */
@@ -59,24 +59,24 @@ final class ContainerAwareSubscriberRegistry
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
-    public function add(string|array $events, string $subscriberFQCN): void
+    public function add(string|array $events, string $subscriberClass): void
     {
-        $hash = hash('sha256', $subscriberFQCN);
+        $hash = hash('sha256', $subscriberClass);
         foreach ((array) $events as $event) {
             $key                                    = str_contains($event, '*') ? 'wildcard' : 'exact';
-            $this->subscribers[$key][$event][$hash] = $subscriberFQCN;
+            $this->subscribers[$key][$event][$hash] = $subscriberClass;
         }
     }
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
-    public function remove(string|array $events, string $subscriberFQCN): void
+    public function remove(string|array $events, string $subscriberClass): void
     {
-        $hash = hash('sha256', $subscriberFQCN);
+        $hash = hash('sha256', $subscriberClass);
         foreach ((array) $events as $event) {
             unset($this->subscribers['exact'][$event][$hash], $this->subscribers['wildcard'][$event][$hash]);
         }

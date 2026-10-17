@@ -31,7 +31,7 @@ final class AccountNamesTest extends TestCase
         $resource  = UserFlowTest::resource($api->request('GET', '/identity', token: $token), 'user');
         self::assertSame('Mehmet', $resource['firstName']);
         self::assertSame('Korkmaz', $resource['lastName']);
-        self::assertSame(['first_name' => 'Mehmet', 'last_name' => 'Korkmaz'], $fixture->connection()->fetchAssociative('SELECT first_name, last_name FROM identity_account'));
+        self::assertSame(['first_name' => 'Mehmet', 'last_name' => 'Korkmaz'], $fixture->connection()->fetchAssociative('SELECT first_name, last_name FROM account'));
     }
 
     #[DataProvider('invalidNames')]
@@ -41,7 +41,7 @@ final class AccountNamesTest extends TestCase
         $api     = IdentityApiFixture::create($fixture, Realm::USER);
         $values  = ContactScenario::verified($fixture);
         self::assertSame(400, $api->request('POST', '/auth/register', [...$values, 'firstName' => $firstName])->getStatusCode());
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
     }
 
     /** @return iterable<string, array{string}> */

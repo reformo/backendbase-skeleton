@@ -520,7 +520,7 @@
             <h2>Direction coverage and authentication encapsulation are improved</h2>
             <div class="callout good"><strong>Preserve the design:</strong> Domain and application code depend on project-owned contracts. Context service providers select adapters and handlers. Shared contracts remain framework-free.</div>
             <p>The repository combines Domain-Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and Ports and Adapters. Its two contexts are ExampleCatalog and IdentityAndAccess.</p>
-            <p>Three consumer APIs use these contexts. ExampleApi uses API-key protection. UserApi and SystemAdminApi use separate JWT realms and current database/session checks.</p>
+            <p>Three inbound APIs use these contexts. ExampleApi uses API-key protection. UserApi and SystemAdminApi use separate JWT realms and current database/session checks.</p>
             <p>Current architecture tests passed 27 tests and 130 assertions. All adapters have explicit ownership. Unknown categories and forbidden dependencies fail regression fixtures.</p>
             <p>Account and Actor own login and session decisions. The selected forwarding layers are simplified. Example audit operations now receive explicit clock instants. Other workflow snapshots remain a design cost.</p>
             <p>The expanded checks found no forbidden direction dependency. Shared diagnostics have explicit technical ownership and a separate dependency rule.</p>

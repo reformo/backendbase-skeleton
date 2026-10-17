@@ -40,7 +40,7 @@ final class PasswordLoginTest extends TestCase
         });
         if ($state === 'unverified') {
             $connection = $fixture->connection();
-            $connection->executeStatement("UPDATE identity_account SET state = json_set(state, '$.ownershipVerified', json('false'))");
+            $connection->executeStatement("UPDATE account SET state = json_set(state, '$.ownershipVerified', json('false'))");
         }
 
         $api      = IdentityApiFixture::create($fixture, Realm::USER);
@@ -49,7 +49,7 @@ final class PasswordLoginTest extends TestCase
         self::assertSame(401, $response->getStatusCode());
         self::assertStringNotContainsString('accessToken', (string) $response->getBody());
         $connection = $fixture->connection();
-        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_info'));
+        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }
 
     /** @return iterable<string, array{string, string}> */
@@ -66,13 +66,13 @@ final class PasswordLoginTest extends TestCase
         $fixture = IdentityFixture::create();
         IdentityScenario::verified($fixture);
         $connection = $fixture->connection();
-        $stored     = $connection->fetchOne('SELECT password_hash FROM identity_account');
+        $stored     = $connection->fetchOne('SELECT password_hash FROM account');
         self::assertIsString($stored);
         self::assertTrue(password_verify('valid-password-123', $stored));
         $api      = IdentityApiFixture::create($fixture, Realm::USER);
         $response = $api->request('POST', '/auth/login', ['identifier' => 'ada@example.com', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());
         self::assertNotEmpty(UserFlowTest::resource($response, 'session')['accessToken']);
-        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_info'));
+        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }
 }

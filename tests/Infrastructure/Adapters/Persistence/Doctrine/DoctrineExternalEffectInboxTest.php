@@ -34,7 +34,7 @@ final class DoctrineExternalEffectInboxTest extends TestCase
             . 'event_name VARCHAR(190) NOT NULL, '
             . 'received_at TEXT NOT NULL, '
             . 'processed_at TEXT DEFAULT NULL, '
-            . 'claimed_until TEXT DEFAULT NULL, '
+            . 'claim_expires_at TEXT DEFAULT NULL, '
             . 'claim_token VARCHAR(36) DEFAULT NULL, '
             . 'PRIMARY KEY (consumer_name, message_id)'
             . ')',
@@ -49,7 +49,7 @@ final class DoctrineExternalEffectInboxTest extends TestCase
         $effect = function () use (&$calls): void {
             self::assertFalse($this->connection->isTransactionActive());
             self::assertSame('2026-09-24 10:05:00.000000', $this->connection->fetchOne(
-                "SELECT claimed_until FROM integration_event_inbox WHERE message_id = 'message-id'",
+                "SELECT claim_expires_at FROM integration_event_inbox WHERE message_id = 'message-id'",
             ));
             $this->clock->advance(new DateInterval('PT2S'));
             ++$calls;
@@ -189,7 +189,7 @@ final class DoctrineExternalEffectInboxTest extends TestCase
         );
     }
 
-    private function insertIncompleteAttempt(string $claimedUntil): void
+    private function insertIncompleteAttempt(string $claimExpiresAt): void
     {
         $this->connection->insert('integration_event_inbox', [
             'consumer_name' => 'email',
@@ -197,7 +197,7 @@ final class DoctrineExternalEffectInboxTest extends TestCase
             'event_name' => 'Notification_Email',
             'received_at' => '2000-01-01 00:00:00.000000',
             'processed_at' => null,
-            'claimed_until' => $claimedUntil,
+            'claim_expires_at' => $claimExpiresAt,
             'claim_token' => 'claim-token',
         ]);
     }

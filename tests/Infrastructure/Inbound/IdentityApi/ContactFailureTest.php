@@ -33,17 +33,17 @@ final class ContactFailureTest extends TestCase
         $response = $api->request('POST', '/auth/contact-verifications', $request);
         self::assertSame(503, $response->getStatusCode());
         $connection = $fixture->connection();
-        $id         = $connection->fetchOne('SELECT uuid FROM contact_info');
+        $id         = $connection->fetchOne('SELECT uuid FROM contact_verification');
         self::assertIsString($id);
-        self::assertNull($connection->fetchOne('SELECT verified_at FROM contact_info'));
+        self::assertNull($connection->fetchOne('SELECT verified_at FROM contact_verification'));
         $retry = $api->request('POST', '/auth/contact-verifications', $request);
         self::assertSame(200, $retry->getStatusCode());
         self::assertSame('unknown', UserFlowTest::resource($retry, 'contactInfo')['deliveryState']);
-        $oldGeneration = $connection->fetchOne("SELECT json_extract(state, '$.generationId') FROM contact_info");
+        $oldGeneration = $connection->fetchOne("SELECT json_extract(state, '$.generationId') FROM contact_verification");
         IdentityScenario::advance($fixture, 'PT60S');
         self::assertSame(503, $api->request('POST', '/auth/contact-verifications/' . $id . '/resend', ['verificationContextToken' => $request['verificationContextToken']])->getStatusCode());
-        self::assertNotSame($oldGeneration, $connection->fetchOne("SELECT json_extract(state, '$.generationId') FROM contact_info"));
-        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
+        self::assertNotSame($oldGeneration, $connection->fetchOne("SELECT json_extract(state, '$.generationId') FROM contact_verification"));
+        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM account'));
     }
 
     public function testUnavailableRequestControlsFailBeforeContactMutationOrDelivery(): void
@@ -55,7 +55,7 @@ final class ContactFailureTest extends TestCase
         $fixture = IdentityFixture::create([VerificationLimiter::class => $limiter, ContactNotifier::class => $notifier]);
         $api     = IdentityApiFixture::create($fixture, Realm::USER);
         self::assertSame(503, $api->request('POST', '/auth/contact-verifications', ['contactType' => 'mobile', 'contactValue' => '+905551234567', 'verificationContextToken' => ContactScenario::token()])->getStatusCode());
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_info'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }
 
     public function testFiveFailedConfirmationsPersistAndCannotBeResetByResend(): void
@@ -75,7 +75,7 @@ final class ContactFailureTest extends TestCase
         IdentityScenario::advance($fixture, 'PT60S');
         self::assertSame(429, $api->request('POST', '/auth/contact-verifications/' . $id . '/resend', ['verificationContextToken' => $token])->getStatusCode());
         self::assertSame(429, $api->request('POST', '/auth/contact-verifications/' . $id . '/confirm', ['verificationContextToken' => $token, 'code' => $valid])->getStatusCode());
-        self::assertSame(5, $fixture->connection()->fetchOne("SELECT json_extract(state, '$.failedAttempts') FROM contact_info"));
+        self::assertSame(5, $fixture->connection()->fetchOne("SELECT json_extract(state, '$.failedAttempts') FROM contact_verification"));
     }
 
     public function testPendingDeliveryIsNotAutomaticallyRepeatedAfterAnInterruptedRequest(): void

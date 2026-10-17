@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Operator;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Contracts\OperatorStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 
 final readonly class DoctrineOperatorStore implements OperatorStore
 {
@@ -17,10 +17,35 @@ final readonly class DoctrineOperatorStore implements OperatorStore
     {
     }
 
+    /**
+     * @param callable(): Result $work
+     *
+     * @return Result
+     *
+     * @template Result
+     */
+    public function exclusive(callable $work): mixed
+    {
+        $connection = $this->connection;
+        if (! $connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            return $work();
+        }
+
+        if ((int) $connection->fetchOne("SELECT GET_LOCK(SHA2(CONCAT(DATABASE(), ':first-admin'), 256), 5)") !== 1) {
+            throw IdentityConflict::create('First-Admin setup is busy. Try again after the current operation completes.');
+        }
+
+        try {
+            return $work();
+        } finally {
+            $this->release();
+        }
+    }
+
     public function assertFirstAdminAvailable(): void
     {
         $connection = $this->connection;
-        if ((int) $connection->fetchOne('SELECT COUNT(*) FROM identity_admin') !== 0) {
+        if ($connection->fetchOne('SELECT id FROM `admin` LIMIT 1') !== false) {
             throw IdentityConflict::create('First-Admin setup is available only before any Admin record exists.');
         }
     }
@@ -29,26 +54,17 @@ final readonly class DoctrineOperatorStore implements OperatorStore
     {
         $connection = $this->connection;
         $id         = Uuid::fromString($actorId);
-        if ((int) $connection->fetchOne("SELECT COUNT(*) FROM identity_operator_action WHERE bootstrap_key = 'invite-first-admin' AND target_id = ?", [$id->getBytes()]) !== 1) {
-            throw IdentityConflict::create('Only the recorded first-Admin invitation can use operator approval.');
+        $identifier = $id->getBytes();
+        if ($connection->fetchFirstColumn('SELECT id FROM `admin` ORDER BY id LIMIT 2') !== [$identifier]) {
+            throw IdentityConflict::create('Operator approval requires the only Admin record.');
         }
     }
 
-    public function record(OperatorInput $input, string $targetId, DateTimeImmutable $now): void
+    private function release(): void
     {
-        $values     = $input->values();
-        $id         = Uuid::uuid7();
-        $target     = Uuid::fromString($targetId);
         $connection = $this->connection;
-        $connection->insert('identity_operator_action', [
-            'id' => $id->getBytes(),
-            'target_id' => $target->getBytes(),
-            'action_name' => $values['action'],
-            'bootstrap_key' => $values['action'],
-            'operator_name' => $values['operator'],
-            'invitation_evidence' => $values['invitation'] === '' ? null : $values['invitation'],
-            'approval_evidence' => $values['approval'] === '' ? null : $values['approval'],
-            'recorded_at' => $now->format('Y-m-d H:i:s.u'),
-        ]);
+        if ((int) $connection->fetchOne("SELECT RELEASE_LOCK(SHA2(CONCAT(DATABASE(), ':first-admin'), 256))") !== 1) {
+            throw new RuntimeException('The first-Admin setup lock could not be released.');
+        }
     }
 }

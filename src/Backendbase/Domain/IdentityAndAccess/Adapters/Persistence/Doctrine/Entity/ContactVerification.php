@@ -17,9 +17,9 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'contact_info', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
-#[ORM\UniqueConstraint(name: 'contact_info_context_slot_unq', columns: ['context_hash', 'realm', 'purpose', 'contact_type'])]
-class ContactInfo
+#[ORM\Table(name: 'contact_verification', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
+#[ORM\UniqueConstraint(name: 'contact_verification_context_slot_unq', columns: ['context_hash', 'realm', 'purpose', 'contact_type'])]
+class ContactVerification
 {
     #[ORM\Id]
     #[ORM\Column(type: UuidBinaryType::NAME)]

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Admin as AdminRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\User as UserRecord;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -60,7 +60,7 @@ final readonly class IdentityActorRecords
         $field   = $contact instanceof AccountEmail ? 'activeEmail' : 'activeMobile';
         $records = $this->records;
         $value   = $contact->toString();
-        $record  = $records->activeBy(IdentityAccount::class, [$field => $value], false);
+        $record  = $records->activeBy(AccountRecord::class, [$field => $value], false);
         if ($record === null) {
             return null;
         }
@@ -100,7 +100,7 @@ final readonly class IdentityActorRecords
         $records = $this->records;
         $record  = $records->find(IdentityRecordStore::actorClass($actor->realm()), $actor->id(), true);
         if ($record === null) {
-            $record = $actor instanceof User ? IdentityUser::create($actor) : IdentityAdmin::create(self::admin($actor));
+            $record = $actor instanceof User ? UserRecord::create($actor) : AdminRecord::create(self::admin($actor));
             $records->persist($record);
 
             return;

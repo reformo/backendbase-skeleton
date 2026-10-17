@@ -31,10 +31,10 @@ final readonly class DoctrineIdentityReadRepository implements IdentityReadRepos
 
     public function actorHistory(Realm $realm, string $actorId): ActorHistory|null
     {
-        $table      = $realm === Realm::USER ? 'identity_user' : 'identity_admin';
+        $table      = $realm === Realm::USER ? '`user`' : '`admin`';
         $uuid       = Uuid::fromString($actorId);
         $connection = $this->connection;
-        $row        = $connection->fetchAssociative('SELECT actor.uuid, actor.account_id, account.normalized_email, account.normalized_mobile, account.first_name, account.last_name, actor.created_at, actor.deleted_at, actor.state FROM ' . $table . ' actor JOIN identity_account account ON account.id = actor.account_id WHERE actor.id = :id', ['id' => $uuid->getBytes()], ['id' => ParameterType::BINARY]);
+        $row        = $connection->fetchAssociative('SELECT actor.uuid, actor.account_id, account.normalized_email, account.normalized_mobile, account.first_name, account.last_name, actor.created_at, actor.deleted_at, actor.state FROM ' . $table . ' actor JOIN account account ON account.id = actor.account_id WHERE actor.id = :id', ['id' => $uuid->getBytes()], ['id' => ParameterType::BINARY]);
         if ($row === false) {
             return null;
         }

@@ -35,11 +35,11 @@ final class ContainerAwareSubscriberDispatcher
             'eventName' => $event->eventName(),
             'eventVersion' => $event->eventVersion(),
         ]);
-        foreach ($subscribers as $subscriberFQCN) {
-            $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
-            $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
+        foreach ($subscribers as $subscriberClass) {
+            $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberClass]);
+            $subscriber = $this->subscriberRegistry->resolve($subscriberClass);
             if (! $subscriber instanceof IntegrationEventSubscriber) {
-                throw new UnexpectedValueException($subscriberFQCN . ' is not an integration event subscriber.');
+                throw new UnexpectedValueException($subscriberClass . ' is not an integration event subscriber.');
             }
 
             $subscriber->handle($event);
@@ -57,11 +57,11 @@ final class ContainerAwareSubscriberDispatcher
             return;
         }
 
-        foreach ($subscribers as $subscriberFQCN) {
-            $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberFQCN]);
-            $subscriber = $this->subscriberRegistry->resolve($subscriberFQCN);
+        foreach ($subscribers as $subscriberClass) {
+            $this->logger->debug('ContainerAwareEventManager-3', ['subscriber' => $subscriberClass]);
+            $subscriber = $this->subscriberRegistry->resolve($subscriberClass);
             if (! $subscriber instanceof ExternalIntegrationEventSubscriber) {
-                throw new UnexpectedValueException($subscriberFQCN . ' is not an external integration event subscriber.');
+                throw new UnexpectedValueException($subscriberClass . ' is not an external integration event subscriber.');
             }
 
             $subscriber->handle($message);
@@ -91,19 +91,19 @@ final class ContainerAwareSubscriberDispatcher
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
-    public function addEventSubscriber(string|array $events, string $subscriberFQCN): void
+    public function addEventSubscriber(string|array $events, string $subscriberClass): void
     {
-        $this->subscriberRegistry->add($events, $subscriberFQCN);
+        $this->subscriberRegistry->add($events, $subscriberClass);
     }
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
-    public function removeEventSubscriber(string|array $events, string $subscriberFQCN): void
+    public function removeEventSubscriber(string|array $events, string $subscriberClass): void
     {
-        $this->subscriberRegistry->remove($events, $subscriberFQCN);
+        $this->subscriberRegistry->remove($events, $subscriberClass);
     }
 }

@@ -8,7 +8,7 @@ use DateTimeImmutable;
 
 interface OutboxMessageStore
 {
-    public function claimNext(DateTimeImmutable $availableAt, DateTimeImmutable $claimUntil): ClaimedOutboxMessage|null;
+    public function claimNext(DateTimeImmutable $availableAt, DateTimeImmutable $claimExpiresAt): ClaimedOutboxMessage|null;
 
     public function markPublished(ClaimedOutboxMessage $message, DateTimeImmutable $publishedAt): void;
 

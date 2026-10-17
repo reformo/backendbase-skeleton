@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Admin as AdminRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\User as UserRecord;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Doctrine\DBAL\LockMode;
@@ -37,9 +37,9 @@ final readonly class IdentityRecordStore
      *
      * @return TRecord|null
      *
-     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityUser
+     * @template TRecord of AccountRecord|AdminRecord|UserRecord
      */
-    public function find(string $class, string $id, bool|null $write = false): IdentityAccount|IdentityAdmin|IdentityUser|null
+    public function find(string $class, string $id, bool|null $write = false): AccountRecord|AdminRecord|UserRecord|null
     {
         $session    = $this->session;
         $manager    = $session->manager();
@@ -47,8 +47,8 @@ final readonly class IdentityRecordStore
         $lock       = $write === null || $connection->getDatabasePlatform() instanceof SQLitePlatform ? null : ($write ? LockMode::PESSIMISTIC_WRITE : LockMode::PESSIMISTIC_READ);
 
         $identifier = Uuid::fromString($id);
-        $unit       = $manager->getUnitOfWork();
-        $managed    = $unit->tryGetById(['id' => $identifier], $class);
+        $unitOfWork = $manager->getUnitOfWork();
+        $managed    = $unitOfWork->tryGetById(['id' => $identifier], $class);
         if ($managed instanceof $class && $lock !== null) {
             $manager->lock($managed, $lock);
 
@@ -67,12 +67,12 @@ final readonly class IdentityRecordStore
         }
     }
 
-    public function account(string $id, bool $write = false): IdentityAccount
+    public function account(string $id, bool $write = false): AccountRecord
     {
-        return $this->find(IdentityAccount::class, $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
+        return $this->find(AccountRecord::class, $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
     }
 
-    public function actor(Realm $realm, string $id, bool $write = false): IdentityAdmin|IdentityUser
+    public function actor(Realm $realm, string $id, bool $write = false): AdminRecord|UserRecord
     {
         return $this->find(self::actorClass($realm), $id, $write) ?? throw AuthenticationDenied::create('Authentication is not permitted.');
     }
@@ -83,9 +83,9 @@ final readonly class IdentityRecordStore
      *
      * @return TRecord|null
      *
-     * @template TRecord of IdentityAccount|IdentityAdmin|IdentityUser
+     * @template TRecord of AccountRecord|AdminRecord|UserRecord
      */
-    public function activeBy(string $class, array $criteria, bool $lock = true): IdentityAccount|IdentityAdmin|IdentityUser|null
+    public function activeBy(string $class, array $criteria, bool $lock = true): AccountRecord|AdminRecord|UserRecord|null
     {
         $criteria['deletedAt'] = null;
         $session               = $this->session;
@@ -99,7 +99,7 @@ final readonly class IdentityRecordStore
         return $lock ? $this->find($class, $record->id()) : $record;
     }
 
-    public function refreshUnderLock(IdentityAccount|IdentityAdmin|IdentityUser $record, bool $write): void
+    public function refreshUnderLock(AccountRecord|AdminRecord|UserRecord $record, bool $write): void
     {
         $session    = $this->session;
         $manager    = $session->manager();
@@ -108,28 +108,28 @@ final readonly class IdentityRecordStore
         $manager->refresh($record, $lock);
     }
 
-    public function refreshPersistedUnderLock(IdentityAccount|IdentityAdmin|IdentityUser $record, bool $write): void
+    public function refreshPersistedUnderLock(AccountRecord|AdminRecord|UserRecord $record, bool $write): void
     {
-        $session = $this->session;
-        $manager = $session->manager();
-        $unit    = $manager->getUnitOfWork();
-        if ($unit->isScheduledForInsert($record)) {
+        $session    = $this->session;
+        $manager    = $session->manager();
+        $unitOfWork = $manager->getUnitOfWork();
+        if ($unitOfWork->isScheduledForInsert($record)) {
             return;
         }
 
         $this->refreshUnderLock($record, $write);
     }
 
-    public function persist(IdentityAccount|IdentityAdmin|IdentityUser $record): void
+    public function persist(AccountRecord|AdminRecord|UserRecord $record): void
     {
         $session = $this->session;
         $manager = $session->manager();
         $manager->persist($record);
     }
 
-    /** @return class-string<IdentityUser>|class-string<IdentityAdmin> */
+    /** @return class-string<UserRecord>|class-string<AdminRecord> */
     public static function actorClass(Realm $realm): string
     {
-        return $realm === Realm::USER ? IdentityUser::class : IdentityAdmin::class;
+        return $realm === Realm::USER ? UserRecord::class : AdminRecord::class;
     }
 }

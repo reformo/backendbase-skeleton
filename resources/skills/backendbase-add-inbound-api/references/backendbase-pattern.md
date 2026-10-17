@@ -1,10 +1,10 @@
-# Backendbase Use Case API pattern
+# Backendbase Inbound API pattern
 
 ## Role-to-target map
 
 | Role | Backendbase reference | Adapt in the target |
 | --- | --- | --- |
-| API selector | `ConsumerApiTarget` maps a source ID to class name and slug | Selector key, mapping location, failure response |
+| API selector | `InboundApiTarget` maps a source ID to class name and slug | Selector key, mapping location, failure response |
 | Shared bootstrap | `public/index.php` loads config, container, middleware, and routes | Framework bootstrap and cache behavior |
 | API adapter | `Infrastructure/Inbound/ExampleApi` | Namespace, API name, modules, root operations |
 | API config | `config/example-api` | Environment keys, security, CORS, cache path |
@@ -52,12 +52,12 @@ Infrastructure/Inbound/{TargetApi}/Controllers/
 Use the tag's PascalCase name for the module and one handler per operation.
 `ModuleConfig` implements `ModuleRoute`. Its `ROUTE_KEY` and `routeKey()` return the same URL prefix.
 The owning API's `routes.php` creates groups from the explicit module registry. Route names match OpenAPI operation IDs.
-Keep controllers inside their consumer API even when multiple APIs use the same application operations.
+Keep controllers inside their inbound API even when multiple APIs use the same application operations.
 Adapt names and equivalent module roles in other projects. Do not copy Example domain names or public routes.
 
 ## Current source limitations
 
-- `public/example-api/index.php` assigns `$consumerApiSlug` and `$consumerApiName`, but current `public/index.php` does not read them. Ordinary requests still need a valid `X-Source-Id`. OPTIONS can select a fixed API from its recognized path. Do not copy those unused assignments as a headerless-selection mechanism.
+- `public/example-api/index.php` assigns `$inboundApiSlug` and `$inboundApiName`, but current `public/index.php` does not read them. Ordinary requests still need a valid `X-Source-Id`. OPTIONS can select a fixed API from its recognized path. Do not copy those unused assignments as a headerless-selection mechanism.
 - Current Example HTTP operations require an API key. All except `getExampleByCriteria` also require a USER bearer token. Missing or invalid credentials return `401`; unavailable authentication state returns `503`. Internal access-control denial uses the shared forbidden error.
 - The source selector returns HTTP `400` with `application/problem+json` and a matching Problem Details status for an invalid source.
 - The checked Bruno local environment contains an API-key placeholder. Do not copy it as a target credential.
@@ -66,7 +66,7 @@ Adapt names and equivalent module roles in other projects. Do not copy Example d
 
 - `public/index.php`
 - `public/example-api/index.php`
-- `src/Backendbase/Infrastructure/Adapters/Http/Bootstrap/ConsumerApiTarget.php`
+- `src/Backendbase/Infrastructure/Adapters/Http/Bootstrap/InboundApiTarget.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Bootstrap/RequestUriNormalizer.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
@@ -78,9 +78,9 @@ Adapt names and equivalent module roles in other projects. Do not copy Example d
 - `resources/bruno/example-api/opencollection.yml`
 - `composer.json`
 - `bin/deployment/build-release.sh`
-- `tests/Infrastructure/Adapters/Http/Bootstrap/ConsumerApiTargetTest.php`
+- `tests/Infrastructure/Adapters/Http/Bootstrap/InboundApiTargetTest.php`
 - `tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php`
-- `resources/docs/5-use-case-api.html`
+- `resources/docs/5-inbound-api.html`
 - `resources/platform/07-http-api.md`
 - `resources/platform/08-api-contracts.md`
 

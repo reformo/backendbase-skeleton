@@ -33,7 +33,7 @@ final readonly class DoctrineExternalEffectResolver implements ExternalEffectRes
         $connection = $this->connection;
         $connection->transactional(static function (Connection $connection) use ($consumerName, $messageId, $resolution, $evidence, $apply, $timestamp): void {
             $query = $connection->createQueryBuilder();
-            $query->select('event_name', 'processed_at', 'claimed_until');
+            $query->select('event_name', 'processed_at', 'claim_expires_at');
             $query->from('integration_event_inbox');
             $query->where('consumer_name = :consumer AND message_id = :message');
             $query->setParameters(['consumer' => $consumerName, 'message' => $messageId]);
@@ -61,7 +61,7 @@ final readonly class DoctrineExternalEffectResolver implements ExternalEffectRes
             if ($resolution === ExternalEffectResolution::ACCEPTED) {
                 $connection->update('integration_event_inbox', [
                     'processed_at' => $timestamp,
-                    'claimed_until' => null,
+                    'claim_expires_at' => null,
                     'claim_token' => null,
                 ], $identity);
 
@@ -79,7 +79,7 @@ final readonly class DoctrineExternalEffectResolver implements ExternalEffectRes
             throw new RuntimeException('An unresolved external-effect record is required.');
         }
 
-        if ($row['claimed_until'] !== null && $row['claimed_until'] >= $now) {
+        if ($row['claim_expires_at'] !== null && $row['claim_expires_at'] >= $now) {
             throw new RuntimeException('An active external-effect claim cannot be resolved.');
         }
     }

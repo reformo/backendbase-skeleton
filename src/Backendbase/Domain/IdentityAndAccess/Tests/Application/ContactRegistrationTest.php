@@ -33,10 +33,10 @@ final class ContactRegistrationTest extends TestCase
             'wrong context' => $values['verificationContextToken'] = ContactScenario::token(),
             'same row' => $values['mobileContactInfoId']           = $values['emailContactInfoId'],
             'unknown row' => $values['emailContactInfoId']         = IdentityScenario::id(),
-            'unverified' => $connection->executeStatement('UPDATE contact_info SET verified_at = NULL WHERE contact_type = ?', ['mobile']),
-            'future' => $connection->executeStatement("UPDATE contact_info SET verified_at = '2099-01-01 00:00:00.000000'"),
-            'wrong purpose' => $connection->executeStatement("UPDATE contact_info SET purpose = 'admin-contact-reverification'"),
-            'wrong realm' => $connection->executeStatement("UPDATE contact_info SET realm = 'ADMIN'"),
+            'unverified' => $connection->executeStatement('UPDATE contact_verification SET verified_at = NULL WHERE contact_type = ?', ['mobile']),
+            'future' => $connection->executeStatement("UPDATE contact_verification SET verified_at = '2099-01-01 00:00:00.000000'"),
+            'wrong purpose' => $connection->executeStatement("UPDATE contact_verification SET purpose = 'admin-contact-reverification'"),
+            'wrong realm' => $connection->executeStatement("UPDATE contact_verification SET realm = 'ADMIN'"),
             default => IdentityScenario::advance($fixture, $scenario),
         };
         $container = $fixture->container();
@@ -45,9 +45,9 @@ final class ContactRegistrationTest extends TestCase
             $workflow->register(IdentityScenario::id(), new RegistrationInput(...$values));
             self::fail('Registration must require both fresh matching contact proofs.');
         } catch (DomainException) {
-            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
-            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_user'));
-            self::assertStringNotContainsString('consumedAt":"20', (string) $connection->fetchOne('SELECT state FROM contact_info LIMIT 1'));
+            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM user'));
+            self::assertStringNotContainsString('consumedAt":"20', (string) $connection->fetchOne('SELECT state FROM contact_verification LIMIT 1'));
         }
     }
 
@@ -75,7 +75,7 @@ final class ContactRegistrationTest extends TestCase
             self::fail('Consumed verification cannot register another Account.');
         } catch (DomainException $exception) {
             self::assertNotInstanceOf(ContactVerificationExpired::class, $exception);
-            self::assertSame(1, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+            self::assertSame(1, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
         }
     }
 
@@ -107,7 +107,7 @@ final class ContactRegistrationTest extends TestCase
         $fixture    = IdentityFixture::create();
         $values     = ContactScenario::verified($fixture);
         $connection = $fixture->connection();
-        $connection->executeStatement("CREATE TRIGGER fail_registration BEFORE INSERT ON identity_user BEGIN SELECT RAISE(ABORT, 'Forced registration failure'); END");
+        $connection->executeStatement("CREATE TRIGGER fail_registration BEFORE INSERT ON user BEGIN SELECT RAISE(ABORT, 'Forced registration failure'); END");
         $container = $fixture->container();
         $workflow  = $container->get(RegistrationWorkflow::class);
         try {
@@ -117,10 +117,10 @@ final class ContactRegistrationTest extends TestCase
             self::assertStringContainsString('Forced registration failure', $exception->getMessage());
         }
 
-        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
-        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_user'));
-        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM contact_info WHERE account_id IS NOT NULL OR actor_id IS NOT NULL'));
-        self::assertSame(2, $connection->fetchOne("SELECT COUNT(*) FROM contact_info WHERE verified_at IS NOT NULL AND json_extract(state, '$.consumedAt') IS NULL"));
+        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM user'));
+        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification WHERE account_id IS NOT NULL OR actor_id IS NOT NULL'));
+        self::assertSame(2, $connection->fetchOne("SELECT COUNT(*) FROM contact_verification WHERE verified_at IS NOT NULL AND json_extract(state, '$.consumedAt') IS NULL"));
         $connection->executeStatement('DROP TRIGGER fail_registration');
         self::assertArrayHasKey('accountId', $workflow->register(IdentityScenario::id(), new RegistrationInput(...$values)));
     }

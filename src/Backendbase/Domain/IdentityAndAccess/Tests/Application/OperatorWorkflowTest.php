@@ -30,12 +30,17 @@ final class OperatorWorkflowTest extends TestCase
             $workflow->run($sameEvidence, $now, true);
             self::fail('Invitation and approval references must differ.');
         } catch (InvalidUserInput) {
-            self::assertSame(1, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
+            $state = $fixture->connection()->fetchOne('SELECT state FROM `admin`');
+            self::assertIsString($state);
+            self::assertJsonStringEqualsJsonString('{"approved":false,"invitation":"ticket:invite","approval":null}', $state);
         }
 
         $approval = new OperatorInput('approve-first-admin', $actorId, 'operator', '', 'ticket:approve');
         $workflow->run($approval, $now, false);
+        self::assertSame($state, $fixture->connection()->fetchOne('SELECT state FROM `admin`'));
         $workflow->run($approval, $now, true);
+        $approved = $fixture->connection()->fetchOne('SELECT state FROM `admin`');
+        self::assertJsonStringEqualsJsonString('{"approved":true,"invitation":"ticket:invite","approval":"ticket:approve"}', $approved);
         $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'ada@example.com');
         self::assertSame($actorId, $principal->identity()['actorId']);
         $this->expectException(IdentityConflict::class);

@@ -22,7 +22,7 @@ final class RequestContactVerification extends Action
     protected function action(): ResponseInterface
     {
         $input    = $this->input;
-        $attempt  = $input->read($this->request, $this->args);
+        $attempt  = $input->read($this->request, $this->routeArguments);
         $id       = IdentityId::create();
         $command  = new VerifyContact($id->toString(), $attempt);
         $dispatch = $this->dispatch;

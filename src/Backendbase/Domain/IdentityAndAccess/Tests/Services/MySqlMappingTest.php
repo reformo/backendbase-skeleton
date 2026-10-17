@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Services;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
@@ -30,21 +30,21 @@ final class MySqlMappingTest extends TestCase
             $manager = $fixture->manager();
             $id      = IdentityId::create();
             $account = Account::create($id, new AccountEmail('test@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-14T10:00:00.123456Z'));
-            $record  = IdentityAccount::create($account);
+            $record  = AccountRecord::create($account);
             $record->replacePasswordHash('stored-password-hash');
             $manager->persist($record);
             $manager->flush();
             $manager->clear();
-            $record = $manager->find(IdentityAccount::class, $id->toString());
-            self::assertInstanceOf(IdentityAccount::class, $record);
+            $record = $manager->find(AccountRecord::class, $id->toString());
+            self::assertInstanceOf(AccountRecord::class, $record);
             self::assertSame($id->toString(), $record->id());
             self::assertSame('stored-password-hash', $record->passwordHash());
             $loaded = $record->toDomain();
             self::assertFalse($loaded->snapshot()['ownershipVerified']);
             self::assertSame('2026-10-14 10:00:00.123456', $loaded->snapshot()['createdAt']);
             $connection = $fixture->connection();
-            self::assertSame($id->toString(), $connection->fetchOne('SELECT uuid FROM identity_account'));
-            self::assertSame(16, $connection->fetchOne('SELECT OCTET_LENGTH(id) FROM identity_account'));
+            self::assertSame($id->toString(), $connection->fetchOne('SELECT uuid FROM account'));
+            self::assertSame(16, $connection->fetchOne('SELECT OCTET_LENGTH(id) FROM account'));
             $metadataFactory = $manager->getMetadataFactory();
             self::assertSame([], new SchemaTool($manager)->getUpdateSchemaSql($metadataFactory->getAllMetadata()));
             self::assertSame(0, $connection->fetchOne("SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = DATABASE() AND CONSTRAINT_TYPE = 'FOREIGN KEY'"));

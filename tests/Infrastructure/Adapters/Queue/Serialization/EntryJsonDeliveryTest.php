@@ -42,7 +42,7 @@ final class EntryJsonDeliveryTest extends DoctrineEntryRepositoryTestCase
     #[DataProvider('transports')]
     public function itPreservesJsonFromProducerThroughOutboxAndTransportToTheRegisteredConsumer(string $transport, string $detailsJson): void
     {
-        $this->connection->executeStatement('CREATE TABLE integration_event_outbox (id TEXT PRIMARY KEY, event_name TEXT, event_version TEXT, destination TEXT, payload TEXT, occurred_at TEXT, created_at TEXT, available_at TEXT, published_at TEXT, claim_token TEXT, claim_until TEXT, attempts INTEGER, last_error TEXT)');
+        $this->connection->executeStatement('CREATE TABLE integration_event_outbox (id TEXT PRIMARY KEY, event_name TEXT, event_version TEXT, destination TEXT, payload TEXT, occurred_at TEXT, created_at TEXT, available_at TEXT, published_at TEXT, claim_token TEXT, claim_expires_at TEXT, attempts INTEGER, last_failure_type TEXT)');
         $now     = new DateTimeImmutable('2026-10-16T10:00:00Z');
         $clock   = new FrozenClock($now);
         $writes  = new EntryWrites($this->writeRepository(), $clock);

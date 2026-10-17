@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$docBasePath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
+$documentationBasePath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,9 +51,9 @@ $docBasePath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
 </head>
 <body>
 <elements-api
-    apiDescriptionUrl="<?= $docBasePath ?>/example-api-merged.yml?v=<?=date('Ymdhis')?>"
+    apiDescriptionUrl="<?= $documentationBasePath ?>/example-api-merged.yml?v=<?=date('Ymdhis')?>"
     router="history"
-    basePath="<?= $docBasePath ?>"
+    basePath="<?= $documentationBasePath ?>"
 />
 <script>
     window.addEventListener("dblclick", function(event){

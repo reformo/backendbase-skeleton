@@ -32,7 +32,7 @@ final class ContactVerificationFlowTest extends TestCase
         $login = $api->request('POST', '/auth/login', ['identifier' => '+905551234567', 'password' => 'valid-password-123']);
         self::assertSame(200, $login->getStatusCode());
         $connection = $fixture->connection();
-        $rows       = $connection->fetchAllAssociative('SELECT state FROM contact_info');
+        $rows       = $connection->fetchAllAssociative('SELECT state FROM contact_verification');
         self::assertCount(2, $rows);
         self::assertStringNotContainsString($token, json_encode($rows, JSON_THROW_ON_ERROR));
     }
@@ -78,7 +78,7 @@ final class ContactVerificationFlowTest extends TestCase
         $new = self::code($fixture);
         self::assertSame(401, $api->request('POST', $url . '/confirm', ['verificationContextToken' => $token, 'code' => $old])->getStatusCode());
         self::assertSame(200, $api->request('POST', $url . '/confirm', ['verificationContextToken' => $token, 'code' => $new])->getStatusCode());
-        self::assertSame(1, $fixture->connection()->fetchOne("SELECT json_extract(state, '$.failedAttempts') FROM contact_info"));
+        self::assertSame(1, $fixture->connection()->fetchOne("SELECT json_extract(state, '$.failedAttempts') FROM contact_verification"));
     }
 
     public static function confirm(IdentityFixture $fixture, IdentityApiFixture $api, string $type, string $value, string $token): string

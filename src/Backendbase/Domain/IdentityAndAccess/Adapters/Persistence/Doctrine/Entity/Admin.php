@@ -18,9 +18,9 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'identity_admin', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
-#[ORM\UniqueConstraint(name: 'identity_admin_account_unq', columns: ['account_id'])]
-class IdentityAdmin
+#[ORM\Table(name: '`admin`', options: ['charset' => 'utf8mb4', 'collation' => 'utf8mb4_tr_0900_ai_ci', 'engine' => 'InnoDB'])]
+#[ORM\UniqueConstraint(name: 'admin_account_unq', columns: ['account_id'])]
+class Admin
 {
     #[ORM\Id]
     #[ORM\Column(type: UuidBinaryType::NAME)]

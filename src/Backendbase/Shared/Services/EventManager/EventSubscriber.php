@@ -11,5 +11,5 @@ interface EventSubscriber
     /** @return array<int, string> */
     public static function getSubscribedEvents(): array;
 
-    public function handle(IntegrationEvent $args): void;
+    public function handle(IntegrationEvent $integrationEvent): void;
 }

@@ -62,7 +62,7 @@ The APIs provide no refresh-token flow.
 
 UserApi uses `/user-api` and `X-Source-Id: user`.
 SystemAdminApi uses `/system-admin-api` and `X-Source-Id: system-admin`.
-The fixed consumer map and trusted route policy select the expected realm before token validation.
+The fixed inbound API map and trusted route policy select the expected realm before token validation.
 Both APIs expose `POST /auth/login` and return `session` with `accessToken`, `tokenType`, and `expiresAt`.
 
 Redis keys use `identity:{REALM:accountId}:jti:tokenId`, `identity:{REALM:accountId}:sid:sessionId`, and `identity:{REALM:accountId}:blocked`.
@@ -194,7 +194,7 @@ Those policy choices remain in [ADR-0007](../0007-production-operating-model.md)
 ## Repository Comparison
 
 - [ADR-0029](../0029-security-responsibility-after-identity-and-access-removal.md) records the previous API-key-only identity boundary. [ADR-0037](../0037-user-and-system-admin-jwt-realms.md) supersedes that decision.
-- Consumer API separation remains valid. [ADR-0028](../0028-consumer-api-isolation-and-selection.md) adds trusted route-based realm policy.
+- Inbound API separation remains valid. [ADR-0028](../0028-inbound-api-isolation-and-selection.md) adds trusted route-based realm policy.
 - The report leaves physical database ownership open. [ADR-0008](../0008-database-ownership-between-bounded-contexts.md) now accepts a shared database with exclusive context table ownership.
 - [ADR-0027](../0027-domain-aggregates-and-persistence-records.md) retains domain and persistence separation with explicit identifier mapping and logical references.
 - Architecture, CQRS, event, outbox, release, and external-capability decisions remain valid where the report does not replace them.

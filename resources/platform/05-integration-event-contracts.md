@@ -25,3 +25,8 @@ The PHP context is `ExampleCatalog`, and PHP accessors use `entryId()`. Existing
 Keep an executable producer-to-consumer contract test. Map the producer event arguments through the real registry and dispatcher into the registered carrier.
 
 Basis: `resources/docs/3-integration-events.html`.
+
+Released payload keys remain stable when PHP fields are renamed. Event carriers declare framework-independent `INPUT_FIELD_ALIASES` when a source key differs.
+The default map is empty. The queue adapter applies the selected carrier's aliases before typed reconstruction.
+`GreetingRequestedPayload` maps released `fullname` to PHP `fullName` and continues to serialize `fullname`.
+Keep mapping-library attributes out of domain and contract classes. Verify reconstruction through the real registry and dispatcher.

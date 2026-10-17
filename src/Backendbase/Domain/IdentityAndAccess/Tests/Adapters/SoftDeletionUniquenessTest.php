@@ -32,9 +32,9 @@ final class SoftDeletionUniquenessTest extends TestCase
         $second = IdentityScenario::registered($fixture);
         self::assertNotSame($first['accountId'], $second['accountId']);
         $connection = $fixture->connection();
-        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
-        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_account WHERE active_email IS NOT NULL AND active_mobile IS NOT NULL'));
-        self::assertSame('+905551234567', $connection->fetchOne('SELECT normalized_mobile FROM identity_account WHERE deleted_at IS NOT NULL'));
+        self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM account WHERE active_email IS NOT NULL AND active_mobile IS NOT NULL'));
+        self::assertSame('+905551234567', $connection->fetchOne('SELECT normalized_mobile FROM account WHERE deleted_at IS NOT NULL'));
     }
 
     public function testActorRemovalDoesNotReleaseTheAccountMobile(): void
@@ -64,9 +64,9 @@ final class SoftDeletionUniquenessTest extends TestCase
         }
 
         $connection = $fixture->connection();
-        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
-        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_user'));
-        self::assertSame(4, $connection->fetchOne('SELECT COUNT(*) FROM contact_info'));
+        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+        self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM user'));
+        self::assertSame(4, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }
 
     public function testDatabaseConstraintRejectsDuplicateMobileWithoutTheRegistrationPrecheck(): void

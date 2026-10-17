@@ -8,11 +8,11 @@ use DateTimeZone;
 
 class DateTimeImmutable extends \DateTimeImmutable
 {
-    public static function create(string|null $date = 'now', string|null $tz = 'UTC'): self
+    public static function create(string|null $date = 'now', string|null $timezone = 'UTC'): self
     {
-        $date ??= 'now';
-        $tz   ??= 'UTC';
+        $date     ??= 'now';
+        $timezone ??= 'UTC';
 
-        return new self($date, new DateTimeZone($tz));
+        return new self($date, new DateTimeZone($timezone));
     }
 }

@@ -614,7 +614,7 @@
                     <tr><td><code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code></td><td><code>2</code></td><td>Bounds dependency connection work used by readiness checks. Use a value from <code>0.1</code> through <code>10</code>.</td></tr>
                     <tr><td><code>CDN_BASE_URL</code></td><td>Empty string</td><td>Used in root metadata, example projections, and object-store configuration. The local example points to Nginx at <code>http://127.0.0.1:8081/</code>.</td></tr>
                     <tr><td><code>BASE_PATH</code></td><td>Empty string</td><td>Sets the Slim base path after routes are registered.</td></tr>
-                    <tr><td><code>PAYMENT_CALLBACK_BASEURL</code></td><td>Empty string</td><td>Stored as <code>payment-gateway-call-baseurl</code>. No current consumer was found.</td></tr>
+                    <tr><td><code>PAYMENT_CALLBACK_BASE_URL</code></td><td>Empty string</td><td>Stored as <code>payment-gateway-call-baseurl</code>. No current consumer was found.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -651,7 +651,7 @@
                     <tbody>
                     <tr><td><code>BACKENDBASE_LOGGER_LEVEL</code></td><td>Primary log level. It takes precedence over <code>BACKENDBASE_DEBUG</code>.</td></tr>
                     <tr><td><code>BACKENDBASE_DEBUG</code></td><td>Fallback log level. Default behavior is Monolog <code>Info</code>.</td></tr>
-                    <tr><td><code>docker</code></td><td>If this lowercase key exists, logs go to <code>php://stdout</code>. Otherwise they go to <code>var/logs/app.log</code>.</td></tr>
+                    <tr><td><code>BACKENDBASE_LOG_TO_STDOUT</code></td><td>If this key exists, logs go to <code>php://stdout</code>. Otherwise they go to <code>var/logs/app.log</code>.</td></tr>
                     <tr><td><code>X-Request-Id</code></td><td>Used as the log <code>trace_id</code>. A UUID is generated when the header is absent.</td></tr>
                     </tbody>
                 </table>
@@ -723,7 +723,7 @@
                     <tr><td><code>OBJECT_STORE_SECRET_KEY</code></td><td>Empty</td><td>Object-store secret credential.</td></tr>
                     <tr><td><code>OBJECT_STORE_REGION</code></td><td>Empty</td><td>S3 client region.</td></tr>
                     <tr><td><code>OBJECT_STORE_ENDPOINT</code></td><td><code>AWS_ENDPOINT</code> when unset or empty</td><td>Optional S3-compatible endpoint. Custom endpoints use path-style requests.</td></tr>
-                    <tr><td><code>BUCKET_NAME</code></td><td>Empty</td><td>Target bucket.</td></tr>
+                    <tr><td><code>OBJECT_STORE_BUCKET_NAME</code></td><td>Empty</td><td>Target bucket.</td></tr>
                     <tr><td><code>CDN_BASE_URL</code></td><td>No default in object-store array</td><td>Public URL prefix for stored assets.</td></tr>
                     </tbody>
                 </table>
@@ -743,7 +743,7 @@
                 </table>
             </div>
             <p>Other API values are fixed in PHP: version <code>1.0.0</code> and route cache path <code>var/cache/example-api/routes.php</code>.</p>
-            <div class="related"><a href="5-use-case-api.html">Use Case API guide</a></div>
+            <div class="related"><a href="5-inbound-api.html">Inbound API guide</a></div>
         </section>
 
         <section id="entry-points">
@@ -755,7 +755,7 @@
                     <tr><td>Public API</td><td>Loads optional <code>.env</code> on every request.</td><td>Shared plus selected API; rebuilt on every request</td><td>Production route cache; separate Doctrine and object-mapping caches. No persisted merged settings or compiled container.</td></tr>
                     <tr><td><code>bin/backendbase</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared plus optional <code>config/console/*</code></td><td>No ConfigAggregator cache path</td></tr>
                     <tr><td><code>bin/doctrine</code></td><td>Always calls <code>safeLoad()</code>.</td><td>Shared, ExampleApi, and optional console</td><td>Doctrine filesystem cache outside development</td></tr>
-                    <tr><td>Base test helpers</td><td>Do not load Dotenv. Isolated tests provide their own environment values.</td><td>Shared plus the selected consumer API</td><td>Container is not compiled</td></tr>
+                    <tr><td>Base test helpers</td><td>Do not load Dotenv. Isolated tests provide their own environment values.</td><td>Shared plus the selected inbound API</td><td>Container is not compiled</td></tr>
                     <tr><td>Tolgee scripts</td><td>Calls <code>safeLoad()</code>.</td><td>Reads shared global config directly</td><td>None</td></tr>
                     </tbody>
                 </table>

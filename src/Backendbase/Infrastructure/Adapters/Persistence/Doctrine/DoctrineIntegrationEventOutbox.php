@@ -50,7 +50,7 @@ final readonly class DoctrineIntegrationEventOutbox implements IntegrationEventO
             'available_at' => $createdAt,
             'published_at' => null,
             'attempts' => 0,
-            'last_error' => null,
+            'last_failure_type' => null,
         ];
         $connection = $this->connection;
         $connection->insert('integration_event_outbox', $row);

@@ -77,7 +77,9 @@ private CatalogItemType $type;
 
 ## Current source behavior and limitations
 
-In an unmodified Backendbase project, derive each mapped entity class name from its full table name in PascalCase. Preserve table prefixes and words. For example, `example_table` maps to `ExampleTable`, and `identity_account` maps to `IdentityAccount`. Adapt this convention to the target project.
+In an unmodified Backendbase project, business table names have no bounded-context prefix. `example_table` is the sole exception.
+Derive each mapped entity class name from its full table name in PascalCase. For example, `example_table` maps to `ExampleTable`, and `account` maps to `Account`.
+Adapt this convention to the target project. Record ownership separately and check for shared-database name collisions.
 
 Each entity declares all mapped fields directly, including identifiers, versions, and timestamps.
 Entity classes have no parent class. Do not hide mapped fields in traits or mapped superclasses.

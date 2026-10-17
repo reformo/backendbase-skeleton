@@ -28,21 +28,21 @@ class Examples extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
-        $params       = $this->request->getQueryParams();
-        $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
-        $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
-        $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
+        $type            = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group           = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $queryParameters = $this->request->getQueryParams();
+        $typeTargetId    = ExampleRequestInput::optionalTypeTargetId($queryParameters['typeTargetId'] ?? null);
+        $pageSize        = ExampleRequestInput::positiveInteger($queryParameters['pageSize'] ?? 1000, 'pageSize');
+        $page            = ExampleRequestInput::positiveInteger($queryParameters['page'] ?? 1, 'page');
 
         $pagination = new Pagination($pageSize, $page);
 
-        $pageResult = $this->queryBus->handle(new GetEntriesByGroup($type, $typeTargetId, $group, $pagination));
-        $data       = [];
+        $pageResult    = $this->queryBus->handle(new GetEntriesByGroup($type, $typeTargetId, $group, $pagination));
+        $entryPayloads = [];
         foreach ($pageResult->items() as $entry) {
             $details = $entry->details();
 
-            $data[] = [
+            $entryPayloads[] = [
                 'uuid' => $entry->uuid(),
                 'type' => $type->value,
                 'typeTargetId' => $typeTargetId,
@@ -59,7 +59,7 @@ class Examples extends Action
             'pageSize' => $pageSize,
             'page' => $page,
             'total' => $pageResult->total(),
-            'examples' => $data,
+            'examples' => $entryPayloads,
         ], 200);
     }
 }

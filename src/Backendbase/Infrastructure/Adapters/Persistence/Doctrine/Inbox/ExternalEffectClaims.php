@@ -31,10 +31,10 @@ final readonly class ExternalEffectClaims
         $identifier      = Uuid::uuid7();
         $claimToken      = $identifier->toString();
         $claimTtlSeconds = $this->claimTtlSeconds;
-        $claimedUntil    = $now->modify('+' . $claimTtlSeconds . ' seconds');
+        $claimExpiresAt  = $now->modify('+' . $claimTtlSeconds . ' seconds');
 
-        $receivedAtValue   = $now->format('Y-m-d H:i:s.u');
-        $claimedUntilValue = $claimedUntil->format('Y-m-d H:i:s.u');
+        $receivedAtValue     = $now->format('Y-m-d H:i:s.u');
+        $claimExpiresAtValue = $claimExpiresAt->format('Y-m-d H:i:s.u');
 
         $connection = $this->connection;
 
@@ -44,7 +44,7 @@ final readonly class ExternalEffectClaims
             $effectName,
             $receivedAtValue,
             $claimToken,
-            $claimedUntilValue,
+            $claimExpiresAtValue,
         ): string|null {
             try {
                 $connection->insert(self::INBOX_TABLE, [
@@ -53,7 +53,7 @@ final readonly class ExternalEffectClaims
                     'event_name' => $effectName,
                     'received_at' => $receivedAtValue,
                     'processed_at' => null,
-                    'claimed_until' => $claimedUntilValue,
+                    'claim_expires_at' => $claimExpiresAtValue,
                     'claim_token' => $claimToken,
                 ]);
 
@@ -76,7 +76,7 @@ final readonly class ExternalEffectClaims
         string $now,
     ): null {
         $claim = $connection->fetchAssociative(
-            'SELECT processed_at, claimed_until FROM ' . self::INBOX_TABLE
+            'SELECT processed_at, claim_expires_at FROM ' . self::INBOX_TABLE
             . ' WHERE consumer_name = :consumerName AND message_id = :messageId',
             ['consumerName' => $consumerName, 'messageId' => $messageId],
         );
@@ -88,8 +88,8 @@ final readonly class ExternalEffectClaims
             return null;
         }
 
-        $claimedUntil = $claim['claimed_until'];
-        if (is_string($claimedUntil) && $claimedUntil >= $now) {
+        $claimExpiresAt = $claim['claim_expires_at'];
+        if (is_string($claimExpiresAt) && $claimExpiresAt >= $now) {
             throw new ExternalEffectInProgress('The external effect is already in progress.');
         }
 
@@ -101,7 +101,7 @@ final readonly class ExternalEffectClaims
         $connection = $this->connection;
         $connection->update(
             self::INBOX_TABLE,
-            ['claimed_until' => null, 'claim_token' => null],
+            ['claim_expires_at' => null, 'claim_token' => null],
             ['consumer_name' => $consumerName, 'message_id' => $messageId, 'claim_token' => $claimToken],
         );
     }
@@ -118,7 +118,7 @@ final readonly class ExternalEffectClaims
             self::INBOX_TABLE,
             [
                 'processed_at' => $processedAtValue,
-                'claimed_until' => null,
+                'claim_expires_at' => null,
                 'claim_token' => null,
             ],
             ['consumer_name' => $consumerName, 'message_id' => $messageId, 'claim_token' => $claimToken],

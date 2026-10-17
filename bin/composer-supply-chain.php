@@ -364,10 +364,10 @@ function packageContentManifest(array $lock, string $vendorPath, string $lockPat
  */
 function lockedPackages(array $lock): array
 {
-    $packages    = packageList($lock, 'packages', false);
-    $devPackages = packageList($lock, 'packages-dev', true);
+    $packages            = packageList($lock, 'packages', false);
+    $developmentPackages = packageList($lock, 'packages-dev', true);
 
-    return array_merge($packages, $devPackages);
+    return array_merge($packages, $developmentPackages);
 }
 
 /**
@@ -375,7 +375,7 @@ function lockedPackages(array $lock): array
  *
  * @return list<array<string, mixed>>
  */
-function packageList(array $lock, string $key, bool $isDev): array
+function packageList(array $lock, string $key, bool $isDevelopmentPackage): array
 {
     $value = $lock[$key] ?? null;
     if (! is_array($value)) {
@@ -388,7 +388,7 @@ function packageList(array $lock, string $key, bool $isDev): array
             throw new RuntimeException(sprintf('composer.lock contains an invalid %s entry.', $key));
         }
 
-        $package['_isDev'] = $isDev;
+        $package['_isDev'] = $isDevelopmentPackage;
         $packages[]        = $package;
     }
 

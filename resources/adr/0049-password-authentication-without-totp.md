@@ -43,12 +43,13 @@ Retain local first-Admin invitation and approval with separate evidence.
 - **Positive:** Login no longer creates a challenge. Contact verification retains expiry, attempt limits, resend invalidation, and proof hashing under [ADR-0050](0050-contact-verification-before-user-registration.md).
 - **Negative / Trade-offs:** Clients must read the session from the password login response. Previous enrollment and completion calls return 404.
 
-Accounts store their Argon2id password hash in required `identity_account.password_hash VARCHAR(255)`.
+Accounts store their Argon2id password hash in required `account.password_hash VARCHAR(255)`.
 The credential store reads and writes a string. The consolidated installation migration creates this column directly.
 Existing databases with credential JSON require a separate reviewed hash extraction and schema adoption plan.
 The former login and enrollment challenges cannot verify contact ownership. ADR-0050 replaces the email-only ownership schema for fresh installations. No automatic migration application or database cleanup runs.
-Ownership proof hashing retains the `encryptionKey` configuration names and active/previous key support.
-Stored operator evidence remains intact.
+Ownership proof hashing retains the `contactProofKey` configuration names and active/previous key support.
+First-Admin invitation and approval evidence remains in Admin state.
+The later `Version20261017173407` migration removes separate operator history under the [operator procedure](../platform/operations/identity-operator.md#operator-history-removal).
 
 ## Implementation & Validation
 

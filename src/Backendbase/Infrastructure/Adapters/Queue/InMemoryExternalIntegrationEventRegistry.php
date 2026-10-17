@@ -28,11 +28,11 @@ final class InMemoryExternalIntegrationEventRegistry implements ExternalIntegrat
         }
     }
 
-    /** @param class-string $messageFQCN */
-    private function register(string $eventName, string $eventVersion, string $messageFQCN): void
+    /** @param class-string $messageClass */
+    private function register(string $eventName, string $eventVersion, string $messageClass): void
     {
-        if (! is_a($messageFQCN, EventMessage::class, true)) {
-            throw new InvalidArgumentException($messageFQCN . ' is not an event message class.');
+        if (! is_a($messageClass, EventMessage::class, true)) {
+            throw new InvalidArgumentException($messageClass . ' is not an event message class.');
         }
 
         $key = self::key($eventName, $eventVersion);
@@ -42,19 +42,19 @@ final class InMemoryExternalIntegrationEventRegistry implements ExternalIntegrat
             );
         }
 
-        $this->messageClasses[$key] = $messageFQCN;
+        $this->messageClasses[$key] = $messageClass;
     }
 
     public function messageClass(string $eventName, string $eventVersion): string
     {
-        $messageFQCN = $this->messageClasses[self::key($eventName, $eventVersion)] ?? null;
-        if ($messageFQCN === null) {
+        $messageClass = $this->messageClasses[self::key($eventName, $eventVersion)] ?? null;
+        if ($messageClass === null) {
             throw new UnexpectedValueException(
                 'No message contract is registered for ' . $eventName . ' ' . $eventVersion . '.',
             );
         }
 
-        return $messageFQCN;
+        return $messageClass;
     }
 
     private static function key(string $eventName, string $eventVersion): string

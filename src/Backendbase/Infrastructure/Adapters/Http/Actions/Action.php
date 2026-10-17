@@ -26,22 +26,22 @@ abstract class Action
 
     protected Response $response;
     /** @var array<string, mixed> */
-    protected array $args;
+    protected array $routeArguments;
 
     public function __construct(protected LoggerInterface $logger)
     {
     }
 
     /**
-     * @param array<string, mixed> $args
+     * @param array<string, mixed> $routeArguments
      *
      * @throws HttpBadRequestException
      */
-    public function __invoke(Request $request, Response $response, array $args): Response
+    public function __invoke(Request $request, Response $response, array $routeArguments): Response
     {
-        $this->request  = $request;
-        $this->response = $response;
-        $this->args     = $args;
+        $this->request        = $request;
+        $this->response       = $response;
+        $this->routeArguments = $routeArguments;
 
         return $this->action();
     }
@@ -77,11 +77,11 @@ abstract class Action
     /** @throws HttpBadRequestException */
     protected function resolveArg(string $name): mixed
     {
-        if (! isset($this->args[$name])) {
+        if (! isset($this->routeArguments[$name])) {
             throw new HttpBadRequestException($this->request, 'Could not resolve argument `' . $name . '`.');
         }
 
-        return $this->args[$name];
+        return $this->routeArguments[$name];
     }
 
     /** @param array<array-key, mixed>|object|null $data */

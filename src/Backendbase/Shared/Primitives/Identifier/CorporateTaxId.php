@@ -34,10 +34,10 @@ class CorporateTaxId implements TaxId
         $digits = str_split($taxId, 1);
         $digits = array_map(self::parseInt(...), $digits);
         $sum    = 0;
-        for ($i = 0; $i < count($digits) - 1; $i++) {
-            $temp = ($digits[$i] + 10 - ($i + 1)) % 10;
-            $incr = ($temp === 9 ? 9 : ($temp * 2 ** (10 - ($i + 1))) % 9);
-            $sum += $incr;
+        for ($digitIndex = 0; $digitIndex < count($digits) - 1; $digitIndex++) {
+            $adjustedDigit = ($digits[$digitIndex] + 10 - ($digitIndex + 1)) % 10;
+            $weightedDigit = ($adjustedDigit === 9 ? 9 : ($adjustedDigit * 2 ** (10 - ($digitIndex + 1))) % 9);
+            $sum          += $weightedDigit;
         }
 
         $checksum = (10 - ($sum % 10)) % 10;

@@ -23,11 +23,11 @@ readonly class ContainerAwareCommandBus implements CommandBus
     #[Override]
     public function handle(Command $command): void
     {
-        $handlerFQCN = $this->handlerResolver->handlerFor($command);
+        $handlerClass = $this->handlerResolver->handlerFor($command);
 
-        $handler = $this->container->get($handlerFQCN);
+        $handler = $this->container->get($handlerClass);
         if (! $handler instanceof CommandHandler) {
-            throw new UnexpectedValueException($handlerFQCN . ' is not a command handler.');
+            throw new UnexpectedValueException($handlerClass . ' is not a command handler.');
         }
 
         $handler->handle($command);

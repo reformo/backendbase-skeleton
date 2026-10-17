@@ -45,10 +45,10 @@ jobs:
       BACKENDBASE_RABBITMQ_USER: backendbase
       BACKENDBASE_RABBITMQ_PASSWORD: backendbase
       BACKENDBASE_RABBITMQ_VHOST: /
-      BACKENDBASE_RABBITMQ_QUEUE: backendbase-queue
-      BACKENDBASE_RABBITMQ_EXCHANGE: backendbase
+      BACKENDBASE_RABBITMQ_QUEUE_NAME: backendbase-queue
+      BACKENDBASE_RABBITMQ_EXCHANGE_NAME: backendbase
       EXAMPLE_API_KEY: dast-example-api-key
-      docker: '1'
+      BACKENDBASE_LOG_TO_STDOUT: '1'
 
     services:
       mysql:
@@ -171,7 +171,7 @@ jobs:
       - name: Configure Example API authentication
         run: |
           php -r '
-          foreach (["BACKENDBASE_USER_JWT_KEY", "BACKENDBASE_ADMIN_JWT_KEY", "BACKENDBASE_IDENTITY_ENCRYPTION_KEY"] as $name) {
+          foreach (["BACKENDBASE_USER_JWT_KEY", "BACKENDBASE_ADMIN_JWT_KEY", "BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY"] as $name) {
               echo $name . "=" . base64_encode(random_bytes(32)) . PHP_EOL;
           }
           ' >> "$GITHUB_ENV"

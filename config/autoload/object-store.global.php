@@ -15,7 +15,7 @@ return [
         ],
         'region' => backendbaseEnv('OBJECT_STORE_REGION', ''),
         'endpoint' => $endpoint,
-        'bucket' => backendbaseEnv('BUCKET_NAME', ''),
+        'bucket' => backendbaseEnv('OBJECT_STORE_BUCKET_NAME', ''),
         'cdnBaseUrl' => backendbaseEnv('CDN_BASE_URL'),
     ],
 ];

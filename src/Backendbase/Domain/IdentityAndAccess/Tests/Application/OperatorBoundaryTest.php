@@ -8,8 +8,12 @@ use Backendbase\Domain\IdentityAndAccess\Adapters\Console\IdentityOperator;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Console\LocalOperatorAuthority;
 use Backendbase\Domain\IdentityAndAccess\Application\IdentityOperation;
 use Backendbase\Domain\IdentityAndAccess\Application\Operations\OperatorWorkflow;
+use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Shared\Exception\ResourceAccessForbidden;
@@ -66,7 +70,7 @@ final class OperatorBoundaryTest extends TestCase
         $tester    = new CommandTester($command);
         self::assertSame(Command::SUCCESS, $tester->execute(['--action' => 'invite-first-admin', '--target-id' => $enrolled['accountId'], '--operator' => 'operator', '--invitation' => 'ticket:123']));
         self::assertStringContainsString('No identity record changed', $tester->getDisplay());
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM `admin`'));
         self::assertSame(Command::INVALID, $tester->execute([]));
         self::assertSame(Command::INVALID, $tester->execute(['--apply' => true]));
         $input = $this->createStub(InputInterface::class);
@@ -74,7 +78,7 @@ final class OperatorBoundaryTest extends TestCase
         self::assertSame(Command::INVALID, $command->run($input, new BufferedOutput()));
     }
 
-    public function testAnUnrecordedAdminCannotUseFirstAdminApproval(): void
+    public function testAnApprovedAdminCannotUseFirstAdminApproval(): void
     {
         $fixture   = IdentityFixture::create();
         $admin     = IdentityScenario::admin($fixture);
@@ -96,5 +100,39 @@ final class OperatorBoundaryTest extends TestCase
         $workflow->run($approval, $now, true);
         $this->expectException(IdentityConflict::class);
         $workflow->run($approval, $now, true);
+    }
+
+    public function testAnAdditionalPendingAdminCannotUseOperatorApproval(): void
+    {
+        $fixture = IdentityFixture::create();
+        IdentityScenario::admin($fixture);
+        $enrolled  = IdentityScenario::verified($fixture);
+        $container = $fixture->container();
+        $store     = $container->get(IdentityStore::class);
+        $actorId   = IdentityId::create();
+        $store->transaction(static function () use ($store, $actorId, $enrolled): void {
+            $actor = SystemAdmin::invite($actorId, IdentityId::fromString($enrolled['accountId']), 'ticket:invite', new DateTimeImmutable());
+            $store->saveActor($actor);
+        });
+        $workflow = $container->get(OperatorWorkflow::class);
+        $this->expectException(IdentityConflict::class);
+        $workflow->run(new OperatorInput('approve-first-admin', $actorId->toString(), 'operator', '', 'ticket:approve'), new DateTimeImmutable(), true);
+    }
+
+    public function testARemovedAdminStillPreventsAnotherFirstAdmin(): void
+    {
+        $fixture   = IdentityFixture::create();
+        $admin     = IdentityScenario::admin($fixture);
+        $enrolled  = IdentityScenario::verified($fixture);
+        $container = $fixture->container();
+        $store     = $container->get(IdentityStore::class);
+        $store->transaction(static function () use ($store, $admin): void {
+            $actor = $store->actorForUpdate(Realm::ADMIN, $admin['actorId']);
+            $actor->remove(new DateTimeImmutable());
+            $store->saveActor($actor);
+        });
+        $workflow = $container->get(OperatorWorkflow::class);
+        $this->expectException(IdentityConflict::class);
+        $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'ticket:invite', ''), new DateTimeImmutable(), true);
     }
 }

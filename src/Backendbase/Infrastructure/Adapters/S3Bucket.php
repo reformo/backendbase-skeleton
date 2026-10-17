@@ -23,7 +23,7 @@ use function preg_match;
 
 class S3Bucket implements BucketService
 {
-    public function __construct(private readonly S3ClientInterface $s3Client, private readonly string $bucketName, private readonly string|null $cloudFront)
+    public function __construct(private readonly S3ClientInterface $s3Client, private readonly string $bucketName, private readonly string|null $cdnBaseUrl)
     {
     }
 
@@ -35,18 +35,18 @@ class S3Bucket implements BucketService
         }
 
         self::validateExpiration($expiresInSeconds);
-        if ($this->cloudFront !== null && $this->cloudFront !== '') {
-            return $this->cloudFront . $key;
+        if ($this->cdnBaseUrl !== null && $this->cdnBaseUrl !== '') {
+            return $this->cdnBaseUrl . $key;
         }
 
-        $cmd = $this->s3Client
+        $getObjectCommand = $this->s3Client
             ->getCommand('GetObject', [
                 'Bucket' => $this->bucketName,
                 'Key' => $key,
 
             ]);
 
-        $request = $this->s3Client->createPresignedRequest($cmd, '+' . $expiresInSeconds . ' seconds');
+        $request = $this->s3Client->createPresignedRequest($getObjectCommand, '+' . $expiresInSeconds . ' seconds');
         $uri     = $request->getUri();
 
         return (string) $uri;

@@ -49,13 +49,13 @@ final class MemoryTokenRegistry implements TokenRegistry
 
     public function revokeAccount(string $accountId): void
     {
-        foreach ($this->records as $sid => [$principal]) {
+        foreach ($this->records as $sessionId => [$principal]) {
             $identity = $principal->identity();
             if ($identity['accountId'] !== $accountId) {
                 continue;
             }
 
-            unset($this->records[$sid]);
+            unset($this->records[$sessionId]);
         }
     }
 

@@ -68,18 +68,18 @@ The following aggregate scans intentionally inspect the complete identity relati
 
 ```sql
 SELECT COUNT(*) AS orphanUsers
-FROM identity_user u LEFT JOIN identity_account a ON a.id = u.account_id
+FROM user u LEFT JOIN account a ON a.id = u.account_id
 WHERE a.id IS NULL;
 
 SELECT COUNT(*) AS orphanAdmins
-FROM identity_admin d LEFT JOIN identity_account a ON a.id = d.account_id
+FROM `admin` d LEFT JOIN account a ON a.id = d.account_id
 WHERE a.id IS NULL;
 
 SELECT COUNT(*) AS invalidContacts
-FROM contact_info c
-LEFT JOIN identity_account a ON a.id = c.account_id
-LEFT JOIN identity_user u ON c.realm = 'USER' AND u.id = c.actor_id
-LEFT JOIN identity_admin d ON c.realm = 'ADMIN' AND d.id = c.actor_id
+FROM contact_verification c
+LEFT JOIN account a ON a.id = c.account_id
+LEFT JOIN user u ON c.realm = 'USER' AND u.id = c.actor_id
+LEFT JOIN `admin` d ON c.realm = 'ADMIN' AND d.id = c.actor_id
 WHERE (c.account_id IS NOT NULL AND a.id IS NULL)
    OR (c.actor_id IS NOT NULL AND c.realm = 'USER' AND (u.id IS NULL OR u.account_id <> c.account_id))
    OR (c.actor_id IS NOT NULL AND c.realm = 'ADMIN' AND (d.id IS NULL OR d.account_id <> c.account_id))

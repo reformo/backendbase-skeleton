@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters\Persistence\State;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ContactInfo;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\ContactVerification;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo as Contact;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
@@ -20,14 +20,14 @@ final class ContactStateMappingTest extends TestCase
         $fixture   = IdentityFixture::create();
         $container = $fixture->container();
         $manager   = $container->get(EntityManagerInterface::class);
-        $record    = ContactInfo::create(new Contact(IdentityId::create(), StateExamples::CONTACT));
+        $record    = ContactVerification::create(new Contact(IdentityId::create(), StateExamples::CONTACT));
         $copy      = [...StateExamples::CONTACT, 'realm' => 'ADMIN', 'purpose' => 'admin-contact', 'contactValue' => 'other@example.com', 'contextHash' => 'different', 'accountId' => 'old-account', 'actorId' => 'old-actor', 'verifiedAt' => '2026-10-17 10:01:00.000000', 'revision' => 99];
         $record->replaceState(ContactState::fromArray($copy));
         $manager->persist($record);
         $manager->flush();
         $id = $record->id();
         $manager->clear();
-        $loaded = $manager->find(ContactInfo::class, $id);
+        $loaded = $manager->find(ContactVerification::class, $id);
         self::assertNotNull($loaded);
         $state = $loaded->state();
         self::assertSame($copy, $state->toArray());
@@ -38,7 +38,7 @@ final class ContactStateMappingTest extends TestCase
     public function testInvalidStateDoesNotPartiallyChangeTheRecord(): void
     {
         $id      = IdentityId::create();
-        $record  = ContactInfo::create(new Contact($id, StateExamples::CONTACT));
+        $record  = ContactVerification::create(new Contact($id, StateExamples::CONTACT));
         $invalid = new Contact($id, [...StateExamples::CONTACT, 'contactValue' => 'other@example.com', 'futureField' => true]);
         try {
             $record->synchronize($invalid);

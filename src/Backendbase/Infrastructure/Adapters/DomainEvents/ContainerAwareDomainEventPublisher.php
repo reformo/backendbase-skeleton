@@ -22,20 +22,20 @@ readonly class ContainerAwareDomainEventPublisher implements DomainEventPublishe
     #[Override]
     public function publish(DomainEvent $domainEvent): void
     {
-        $domainEventFQCN = $domainEvent::class;
-        $reflection      = new ReflectionClass($domainEventFQCN);
-        $attributes      = $reflection->getAttributes(DomainEventListenerAttribute::class);
+        $domainEventClass = $domainEvent::class;
+        $reflection       = new ReflectionClass($domainEventClass);
+        $attributes       = $reflection->getAttributes(DomainEventListenerAttribute::class);
 
         if ($attributes === []) {
-            throw new UnexpectedValueException($domainEventFQCN . ' has no domain event listener.');
+            throw new UnexpectedValueException($domainEventClass . ' has no domain event listener.');
         }
 
         $listenerAttribute = $attributes[0]->newInstance();
-        $handlerFQCN       = $listenerAttribute->handlerName;
+        $handlerClass      = $listenerAttribute->handlerName;
 
-        $handler = $this->container->get($handlerFQCN);
+        $handler = $this->container->get($handlerClass);
         if (! $handler instanceof DomainEventListener) {
-            throw new UnexpectedValueException($handlerFQCN . ' is not a domain event listener.');
+            throw new UnexpectedValueException($handlerClass . ' is not a domain event listener.');
         }
 
         $handler->handle($domainEvent);

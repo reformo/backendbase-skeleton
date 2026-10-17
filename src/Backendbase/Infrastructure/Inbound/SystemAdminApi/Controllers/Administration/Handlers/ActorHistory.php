@@ -33,7 +33,7 @@ final class ActorHistory extends Action
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
 
-        $arguments  = $this->args;
+        $arguments  = $this->routeArguments;
         $realmValue = $arguments['realm'] ?? null;
         $realm      = is_string($realmValue) ? Realm::tryFrom($realmValue) : null;
         if ($realm === null) {

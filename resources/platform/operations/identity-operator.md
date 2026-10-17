@@ -2,7 +2,7 @@
 
 Use these procedures only on an identified, authorized host and database.
 Restrict operator access to trusted administrators. Applying an action requires a local root CLI process.
-The CLI uses database transactions and appends evidence records. Preview is the default.
+The CLI uses database transactions and stores invitation and approval evidence in Admin state. Preview is the default.
 No operator action issues a token or bypasses ownership and actor approval gates.
 
 ## First Admin
@@ -28,7 +28,11 @@ Add `--apply` only after checking the preview and evidence.
 Use references to authorization records. Do not put passwords or personal data in evidence options.
 
 First-Admin invitation is available only before any Admin row exists, including deleted rows.
-Unique bootstrap audit keys prevent concurrent invitations and repeated approval.
+A database-scoped MySQL advisory lock serializes operator setup and manual seeding before either transaction begins.
+Lock acquisition waits at most five seconds. The connection releases the lock after success or failure.
+Operator approval requires the sole Admin row to be pending and active. Removed Admin rows remain part of this check.
+An approved or removed Admin cannot use operator approval again.
+The `--operator` option remains an invocation label. The application does not store it in a separate history table.
 Ordinary Admin enrollment uses the authenticated invitation and approval API after bootstrap.
 
 ## Approved initial Admin seeder
@@ -58,28 +62,38 @@ It persists `state.ownershipVerified: true`. Repeat runs require that ownership 
 The seeder encodes `AccountState` and `ActorState` from the context primitives. Repeat runs reconstruct both typed states.
 Missing, mistyped, or unsupported JSON fields stop seeding without repairing the existing records.
 It creates no User actor and sends no notification. It fabricates no contact verification record.
-The transaction records separate `seed:initial-admin:invitation` and `seed:initial-admin:approval` evidence.
+The Admin state stores separate `seed:initial-admin:invitation` and `seed:initial-admin:approval` evidence.
 Ordinary registration and invitation retain their contact verification and approval requirements.
 
 Email is the repeat-run key. A completed repeat returns the same Account and Admin identifiers.
-It preserves credentials, ownership, authorization versions, names, and audit rows.
+It preserves credentials, ownership, authorization versions, names, and Admin evidence.
 It rejects another Account with the mobile, any different Admin, a removed Admin, or changed seeded authorization.
 It cannot grant Admin access to an existing ordinary Account or repair changed seeded records.
-Concurrent initial attempts remain bounded by active contact uniqueness and unique bootstrap audit keys.
-An audit failure rolls back the entire bootstrap.
+Concurrent initial attempts use the same database-scoped lock as operator setup. Active contact uniqueness remains required.
+An Admin insert failure rolls back the Account and permits a later bootstrap attempt.
 
 `AdminSeeder` and its insert helper live under `resources/database/Seeders`.
 They are not called by migrations or releases. The command never creates or updates schema.
 Missing tables require a separately authorized migration. Preview does not authorize applying one.
-The names are columns on `identity_account`; the seed does not create a separate profile or duplicate names on the Admin.
+The names are columns on `account`; the seed does not create a separate profile or duplicate names on the Admin.
 
 ## Ownership proof key rotation
 
 Inject active and previous proof keys under distinct identifiers.
-The configuration retains the `encryptionKey` names for compatibility.
+The configuration retains the `contactProofKey` names for compatibility.
 Keep the previous key through all pending codes and confirmed evidence recovery windows.
 A confirmed record retains a 12-hour recovery window. Do not discard its required code key early.
 Restart supervised workers after runtime key injection changes.
 
 TOTP enrollment, recovery, and factor rewrapping are removed.
-Account passwords use the scalar `identity_account.password_hash` column. Operator evidence records remain stored.
+Account passwords use the scalar `account.password_hash` column. Invitation and approval references remain in Admin state.
+
+## Operator history removal
+
+`Version20261017173407` drops `operator_action` after the installation and naming migrations.
+It preserves Account and Admin rows, passwords, and Admin invitation and approval references.
+Separate operator names and action timestamps are removed. Export that history before migration if retention is required.
+Stop operator setup and seeding while migrating and activating the matching application.
+The previous application requires the removed table. An application-only rollback is unsafe.
+Recovery requires the database backup and matching application. An empty replacement table cannot restore the removed history.
+Apply the migration only to an explicitly authorized target.

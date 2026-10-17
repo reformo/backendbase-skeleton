@@ -5489,7 +5489,7 @@
       };
       var html = document.documentElement;
       var svg = document.querySelector('.diagram-container svg');
-      var btn = document.getElementById('btn-preset');
+      var presetButton = document.getElementById('btn-preset');
       var label = document.getElementById('preset-label');
       var menu = document.getElementById('preset-menu');
       var options = function () {
@@ -5511,10 +5511,10 @@
         if (PRESETS.indexOf(preset) < 0) return false;
         html.setAttribute('data-preset', preset);
         svg.setAttribute('data-preset', preset);
-        btn.setAttribute('data-preset-option', preset);
+        presetButton.setAttribute('data-preset-option', preset);
         label.textContent = LABELS[preset];
-        btn.setAttribute('aria-label', viewerText('viewer.preset.current', { style: LABELS[preset] }));
-        btn.title = viewerText('viewer.preset.choose.title');
+        presetButton.setAttribute('aria-label', viewerText('viewer.preset.current', { style: LABELS[preset] }));
+        presetButton.title = viewerText('viewer.preset.choose.title');
         options().forEach(function (option) {
           var selected = option.getAttribute('data-preset-value') === preset;
           option.setAttribute('aria-checked', String(selected));
@@ -5528,7 +5528,7 @@
         if (html.getAttribute('data-embed') === 'true') return false;
         if (Archify.exportMenu && Archify.exportMenu.isOpen()) Archify.exportMenu.close(false);
         menu.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
+        presetButton.setAttribute('aria-expanded', 'true');
         var available = options();
         var selected = available.find(function (option) { return option.getAttribute('aria-checked') === 'true'; });
         var target = focusLast ? available[available.length - 1] : (selected || available[0]);
@@ -5537,25 +5537,25 @@
       }
       function close(focusTrigger) {
         menu.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-        if (focusTrigger) btn.focus();
+        presetButton.setAttribute('aria-expanded', 'false');
+        if (focusTrigger) presetButton.focus();
         return false;
       }
 
       apply(authored);
-      btn.addEventListener('click', function (e) {
+      presetButton.addEventListener('click', function (e) {
         e.stopPropagation();
         if (isOpen()) close(false);
         else open(false);
       });
-      btn.addEventListener('keydown', function (e) {
+      presetButton.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
           e.preventDefault();
           if (!isOpen()) open(e.key === 'ArrowUp');
         }
       });
       document.addEventListener('click', function (e) {
-        if (!menu.contains(e.target) && e.target !== btn) close(false);
+        if (!menu.contains(e.target) && e.target !== presetButton) close(false);
       });
       menu.addEventListener('click', function (e) {
         var option = e.target.closest('[data-preset-value]');
@@ -5596,7 +5596,7 @@
     Archify.theme = (function () {
       var STORAGE_KEY = 'archify-theme';
       var html = document.documentElement;
-      var btn = document.getElementById('btn-theme');
+      var themeButton = document.getElementById('btn-theme');
       var label = document.getElementById('theme-label');
 
       // localStorage can throw (blocked cookies, sandboxed iframes); the whole
@@ -5627,7 +5627,7 @@
       function apply(theme) {
         html.setAttribute('data-theme', theme);
         label.textContent = viewerText(theme === 'dark' ? 'viewer.theme.dark' : 'viewer.theme.light');
-        btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+        themeButton.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
       }
 
       function toggle() {
@@ -5637,7 +5637,7 @@
       }
 
       apply(resolveInitial());
-      btn.addEventListener('click', toggle);
+      themeButton.addEventListener('click', toggle);
 
       // Follow live OS theme changes while the user has no explicit preference.
       try {
@@ -6065,9 +6065,9 @@
           !clone.style.getPropertyValue('transform') &&
           clone.querySelectorAll('[data-story-overlay], [data-story-carrier-overlay], [data-story-carrier-token], [data-story-step], [data-story-beat-state], [data-story-beat-step], [data-chapter-handoff-overlay], [data-chapter-role], [data-chapter-preview-role], [data-focus-match], [data-focus-selected], [data-reach-match], [data-reach-origin], [data-reach-depth], [data-semantic-lens-overlay], [data-lens-match], [data-lens-selected], [data-lens-peer], [data-legend-bridge], [data-legend-kind], [data-legend-bridge-runtime], [data-legend-count], [data-legend-zero], [data-legend-selected], [data-legend-preview-match], [data-legend-preview-selected], [data-legend-preview-peer], [data-relationship-hit-overlay], [data-relationship-pulse-overlay], [data-relationship-preview], [data-relationship-preview-node], [data-relationship-preview-source], [data-relationship-preview-target], [data-intent-trace-overlay], [data-intent-trace-match], [data-intent-trace-selected], [data-route-probe-overlay], [data-route-journey-overlay], [data-route-match], [data-route-start], [data-route-end], [data-route-step], [data-route-candidate], [data-route-journey-state], [data-route-journey-current], [data-share-route-match], [data-share-route-step], [data-share-route-start], [data-share-route-end], [data-share-route-middle], [data-share-reach-match], [data-share-reach-origin], [data-share-reach-depth], [data-source-evidence-beacon], [data-source-evidence-count], [data-source-evidence-original-label], [data-detail], [data-detail-anchor]').length === 0;
 
-        var vb = svg.viewBox.baseVal;
-        var finiteSvgDimensions = Number.isFinite(vb.x) && Number.isFinite(vb.y) &&
-          Number.isFinite(vb.width) && Number.isFinite(vb.height) && vb.width > 0 && vb.height > 0;
+        var viewBox = svg.viewBox.baseVal;
+        var finiteSvgDimensions = Number.isFinite(viewBox.x) && Number.isFinite(viewBox.y) &&
+          Number.isFinite(viewBox.width) && Number.isFinite(viewBox.height) && viewBox.width > 0 && viewBox.height > 0;
         var routeStateClean = opts.routeSnapshot
           ? canonicalStateClean && finiteSvgDimensions && applyRouteSnapshot(clone, opts.routeSnapshot)
           : null;
@@ -6078,32 +6078,32 @@
         // resolution directly. viewBox stays unchanged so coordinates don't
         // shift. This is the key to sharp rasters — do NOT scale later via
         // canvas upscaling.
-        clone.setAttribute('width', vb.width * scale);
-        clone.setAttribute('height', vb.height * scale);
+        clone.setAttribute('width', viewBox.width * scale);
+        clone.setAttribute('height', viewBox.height * scale);
         clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
         // Only the SVG-relevant rules: semantic classes, markers, and the
         // theme variable blocks. Toolbar/cards/print CSS can never apply
         // inside a standalone SVG and would only bloat the export.
         var hostStyle = (function () {
-          var out = [];
+          var styleRules = [];
           Array.prototype.forEach.call(document.styleSheets, function (sheet) {
             var rules;
             try { rules = sheet.cssRules; } catch (_) { return; } // cross-origin
             if (!rules) return;
             Array.prototype.forEach.call(rules, function (rule) {
               if (rule.type === 7 && /^archify-/.test(rule.name || '')) {
-                out.push(rule.cssText);
+                styleRules.push(rule.cssText);
                 return;
               }
               if (rule.type !== 1) return; // plain style rules only
-              var sel = rule.selectorText || '';
-              if (/(^|,)\s*(svg|:root|\[data-theme|\[data-preset|\.c-|\.t-|\.a-|\.m-)/.test(sel)) {
-                out.push(rule.cssText);
+              var selector = rule.selectorText || '';
+              if (/(^|,)\s*(svg|:root|\[data-theme|\[data-preset|\.c-|\.t-|\.a-|\.m-)/.test(selector)) {
+                styleRules.push(rule.cssText);
               }
             });
           });
-          return out.join('\n');
+          return styleRules.join('\n');
         })();
 
         // Derive the variable list from the stylesheet so newly added theme
@@ -6218,8 +6218,8 @@
 
         return {
           svgString: new XMLSerializer().serializeToString(clone),
-          width: vb.width * scale,
-          height: vb.height * scale,
+          width: viewBox.width * scale,
+          height: viewBox.height * scale,
           canonicalStateClean: canonicalStateClean,
           routeStateClean: routeStateClean,
           reachStateClean: reachStateClean
@@ -6228,12 +6228,12 @@
 
       function download(blob, filename) {
         var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        var downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
         setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
       }
 
@@ -6244,9 +6244,9 @@
       // pixel count fits under this cap.
       var MAX_CANVAS_PIXELS = 16 * 1024 * 1024;
 
-      function pickSafeScale(vbW, vbH) {
-        for (var s = RASTER_SCALE; s >= 1; s--) {
-          if (vbW * s * vbH * s <= MAX_CANVAS_PIXELS) return s;
+      function pickSafeScale(viewBoxWidth, viewBoxHeight) {
+        for (var rasterScale = RASTER_SCALE; rasterScale >= 1; rasterScale--) {
+          if (viewBoxWidth * rasterScale * viewBoxHeight * rasterScale <= MAX_CANVAS_PIXELS) return rasterScale;
         }
         return 1;
       }
@@ -6257,60 +6257,60 @@
         // rasterized at target resolution natively; drawImage draws at natural
         // size — no upsampling blur.
         var svg = document.querySelector('.diagram-container svg');
-        var vb = svg.viewBox.baseVal;
-        var scale = pickSafeScale(vb.width, vb.height);
+        var viewBox = svg.viewBox.baseVal;
+        var scale = pickSafeScale(viewBox.width, viewBox.height);
         var data = serializeSvg(scale);
         var svgBlob = new Blob([data.svgString], { type: 'image/svg+xml;charset=utf-8' });
         var svgUrl = URL.createObjectURL(svgBlob);
 
         return new Promise(function (resolve, reject) {
-          var img = new Image();
-          img.onload = function () {
+          var image = new Image();
+          image.onload = function () {
             try {
               var canvas = document.createElement('canvas');
               canvas.width = data.width;
               canvas.height = data.height;
-              var ctx = canvas2dOrThrow(canvas, format);
+              var canvasContext = canvas2dOrThrow(canvas, format);
               if (format === 'jpeg') {
-                ctx.fillStyle = currentBg();
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                canvasContext.fillStyle = currentBg();
+                canvasContext.fillRect(0, 0, canvas.width, canvas.height);
               }
               // Draw at natural size — SVG was already rasterized at target res.
-              ctx.drawImage(img, 0, 0);
+              canvasContext.drawImage(image, 0, 0);
               URL.revokeObjectURL(svgUrl);
-              var mime = format === 'jpeg' ? 'image/jpeg' :
+              var mediaType = format === 'jpeg' ? 'image/jpeg' :
                          format === 'webp' ? 'image/webp' : 'image/png';
               var quality = format === 'png' ? undefined : 0.95;
               canvas.toBlob(function (blob) {
                 if (!blob) reject(exportError('viewer.export.error.toBlobNull', { label: format }));
                 else resolve(blob);
-              }, mime, quality);
+              }, mediaType, quality);
             } catch (error) {
               URL.revokeObjectURL(svgUrl);
               reject(error);
             }
           };
-          img.onerror = function (e) {
+          image.onerror = function (e) {
             URL.revokeObjectURL(svgUrl);
             reject(e);
           };
-          img.src = svgUrl;
+          image.src = svgUrl;
         });
       }
 
-      function fitCanvasText(ctx, text, maxWidth, startSize, minSize, weight) {
+      function fitCanvasText(canvasContext, text, maxWidth, startSize, minSize, weight) {
         var value = String(text || '').trim();
         var size = startSize;
         var family = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
         while (size > minSize) {
-          ctx.font = (weight || '600') + ' ' + size + 'px ' + family;
-          if (ctx.measureText(value).width <= maxWidth) return value;
+          canvasContext.font = (weight || '600') + ' ' + size + 'px ' + family;
+          if (canvasContext.measureText(value).width <= maxWidth) return value;
           size -= 1;
         }
-        ctx.font = (weight || '600') + ' ' + minSize + 'px ' + family;
-        if (ctx.measureText(value).width <= maxWidth) return value;
+        canvasContext.font = (weight || '600') + ' ' + minSize + 'px ' + family;
+        if (canvasContext.measureText(value).width <= maxWidth) return value;
         var suffix = '\u2026';
-        while (value.length > 1 && ctx.measureText(value + suffix).width > maxWidth) {
+        while (value.length > 1 && canvasContext.measureText(value + suffix).width > maxWidth) {
           value = value.slice(0, -1);
         }
         return value + suffix;
@@ -6320,10 +6320,10 @@
         if (!canvas || typeof canvas.getContext !== 'function') {
           throw exportError('viewer.export.error.canvasUnavailable', { label: label });
         }
-        var ctx = canvas.getContext('2d');
-        if (!ctx) throw exportError('viewer.export.error.contextUnavailable', { label: label });
+        var canvasContext = canvas.getContext('2d');
+        if (!canvasContext) throw exportError('viewer.export.error.contextUnavailable', { label: label });
         if (typeof canvas.toBlob !== 'function') throw exportError('viewer.export.error.toBlobUnavailable', { label: label });
-        return ctx;
+        return canvasContext;
       }
 
       function renderShareCard(options) {
@@ -6332,8 +6332,8 @@
         var reachSnapshot = options.reachSnapshot || null;
         if (routeSnapshot && reachSnapshot) return Promise.reject(exportError('viewer.export.error.variantsCombined'));
         var svg = document.querySelector('.diagram-container svg');
-        var vb = svg.viewBox.baseVal;
-        var sourceScale = Math.min(2, pickSafeScale(vb.width, vb.height));
+        var viewBox = svg.viewBox.baseVal;
+        var sourceScale = Math.min(2, pickSafeScale(viewBox.width, viewBox.height));
         var data = serializeSvg(sourceScale, { routeSnapshot: routeSnapshot, reachSnapshot: reachSnapshot });
         if (!data.canonicalStateClean) return Promise.reject(exportError('viewer.export.error.viewerState'));
         if (routeSnapshot && !data.routeStateClean) return Promise.reject(exportError('viewer.export.error.routeState'));
@@ -6342,13 +6342,13 @@
         var svgUrl = URL.createObjectURL(svgBlob);
 
         return new Promise(function (resolve, reject) {
-          var img = new Image();
-          img.onload = function () {
+          var image = new Image();
+          image.onload = function () {
             try {
               var canvas = document.createElement('canvas');
               canvas.width = SHARE_CARD_WIDTH;
               canvas.height = SHARE_CARD_HEIGHT;
-              var ctx = canvas2dOrThrow(canvas, viewerText('viewer.export.shareCard'));
+              var canvasContext = canvas2dOrThrow(canvas, viewerText('viewer.export.shareCard'));
               var computed = getComputedStyle(document.documentElement);
               var bg = computed.getPropertyValue('--bg').trim() || currentBg();
               var text = computed.getPropertyValue('--text').trim() || '#ffffff';
@@ -6393,26 +6393,26 @@
                   ? viewerText('viewer.export.card.reachBadge', { direction: directionLabel.toUpperCase() })
                   : viewerText('viewer.export.card.defaultBadge', { preset: presetLabel, theme: themeLabel });
 
-              ctx.fillStyle = bg;
-              ctx.fillRect(0, 0, SHARE_CARD_WIDTH, SHARE_CARD_HEIGHT);
+              canvasContext.fillStyle = bg;
+              canvasContext.fillRect(0, 0, SHARE_CARD_WIDTH, SHARE_CARD_HEIGHT);
 
-              ctx.fillStyle = accent;
-              ctx.fillRect(SHARE_CARD_PADDING, 27, 42, 3);
+              canvasContext.fillStyle = accent;
+              canvasContext.fillRect(SHARE_CARD_PADDING, 27, 42, 3);
 
-              ctx.textBaseline = 'alphabetic';
-              ctx.fillStyle = text;
-              var fittedTitle = fitCanvasText(ctx, title, SHARE_CARD_WIDTH - SHARE_CARD_PADDING * 2 - 330, 29, 18, '700');
-              ctx.fillText(fittedTitle, SHARE_CARD_PADDING, 62);
+              canvasContext.textBaseline = 'alphabetic';
+              canvasContext.fillStyle = text;
+              var fittedTitle = fitCanvasText(canvasContext, title, SHARE_CARD_WIDTH - SHARE_CARD_PADDING * 2 - 330, 29, 18, '700');
+              canvasContext.fillText(fittedTitle, SHARE_CARD_PADDING, 62);
 
-              ctx.fillStyle = muted;
-              var fittedSubtitle = fitCanvasText(ctx, subtitle, SHARE_CARD_WIDTH - SHARE_CARD_PADDING * 2 - 280, 13, 11, '500');
-              ctx.fillText(fittedSubtitle, SHARE_CARD_PADDING, 87);
+              canvasContext.fillStyle = muted;
+              var fittedSubtitle = fitCanvasText(canvasContext, subtitle, SHARE_CARD_WIDTH - SHARE_CARD_PADDING * 2 - 280, 13, 11, '500');
+              canvasContext.fillText(fittedSubtitle, SHARE_CARD_PADDING, 87);
 
-              ctx.font = "600 12px 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
-              ctx.textAlign = 'right';
-              ctx.fillStyle = accent;
-              ctx.fillText(cardLabel, SHARE_CARD_WIDTH - SHARE_CARD_PADDING, 50);
-              ctx.textAlign = 'left';
+              canvasContext.font = "600 12px 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+              canvasContext.textAlign = 'right';
+              canvasContext.fillStyle = accent;
+              canvasContext.fillText(cardLabel, SHARE_CARD_WIDTH - SHARE_CARD_PADDING, 50);
+              canvasContext.textAlign = 'left';
 
               var availableWidth = SHARE_CARD_WIDTH - SHARE_CARD_PADDING * 2;
               var availableHeight = SHARE_CARD_HEIGHT - SHARE_CARD_HEADER - SHARE_CARD_PADDING;
@@ -6422,10 +6422,10 @@
               var drawX = SHARE_CARD_PADDING + (availableWidth - drawWidth) / 2;
               var drawY = SHARE_CARD_HEADER + (availableHeight - drawHeight) / 2;
 
-              ctx.strokeStyle = border;
-              ctx.lineWidth = 1;
-              ctx.strokeRect(drawX - 0.5, drawY - 0.5, drawWidth + 1, drawHeight + 1);
-              ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+              canvasContext.strokeStyle = border;
+              canvasContext.lineWidth = 1;
+              canvasContext.strokeRect(drawX - 0.5, drawY - 0.5, drawWidth + 1, drawHeight + 1);
+              canvasContext.drawImage(image, drawX, drawY, drawWidth, drawHeight);
               URL.revokeObjectURL(svgUrl);
 
               canvas.toBlob(function (blob) {
@@ -6437,11 +6437,11 @@
               reject(error);
             }
           };
-          img.onerror = function (e) {
+          image.onerror = function (e) {
             URL.revokeObjectURL(svgUrl);
             reject(e);
           };
-          img.src = svgUrl;
+          image.src = svgUrl;
         });
       }
 
@@ -6498,8 +6498,8 @@
         var duration = Math.max(250, Number(options.duration) || MOTION_DURATION);
         var fps = Math.max(1, Number(options.fps) || MOTION_FPS);
         var svg = document.querySelector('.diagram-container svg');
-        var vb = svg.viewBox.baseVal;
-        var scale = Math.min(1, 1280 / vb.width);
+        var viewBox = svg.viewBox.baseVal;
+        var scale = Math.min(1, 1280 / viewBox.width);
         var data = serializeSvg(scale);
         var sourceUrl = URL.createObjectURL(new Blob([data.svgString], { type: 'image/svg+xml;charset=utf-8' }));
 
@@ -6562,7 +6562,7 @@
             };
           }).filter(Boolean);
 
-          return { edges: edges, nodes: nodes, x: vb.x, y: vb.y, width: vb.width, height: vb.height };
+          return { edges: edges, nodes: nodes, x: viewBox.x, y: viewBox.y, width: viewBox.width, height: viewBox.height };
         }
 
         function pointAlong(points, progress) {
@@ -6575,27 +6575,27 @@
           };
         }
 
-        function roundedRectPath(ctx, x, y, width, height, radius) {
-          var r = Math.max(0, Math.min(radius, width / 2, height / 2));
-          ctx.beginPath();
-          ctx.moveTo(x + r, y);
-          ctx.lineTo(x + width - r, y);
-          ctx.quadraticCurveTo(x + width, y, x + width, y + r);
-          ctx.lineTo(x + width, y + height - r);
-          ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-          ctx.lineTo(x + r, y + height);
-          ctx.quadraticCurveTo(x, y + height, x, y + height - r);
-          ctx.lineTo(x, y + r);
-          ctx.quadraticCurveTo(x, y, x + r, y);
-          ctx.closePath();
+        function roundedRectPath(canvasContext, x, y, width, height, radius) {
+          var cornerRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
+          canvasContext.beginPath();
+          canvasContext.moveTo(x + cornerRadius, y);
+          canvasContext.lineTo(x + width - cornerRadius, y);
+          canvasContext.quadraticCurveTo(x + width, y, x + width, y + cornerRadius);
+          canvasContext.lineTo(x + width, y + height - cornerRadius);
+          canvasContext.quadraticCurveTo(x + width, y + height, x + width - cornerRadius, y + height);
+          canvasContext.lineTo(x + cornerRadius, y + height);
+          canvasContext.quadraticCurveTo(x, y + height, x, y + height - cornerRadius);
+          canvasContext.lineTo(x, y + cornerRadius);
+          canvasContext.quadraticCurveTo(x, y, x + cornerRadius, y);
+          canvasContext.closePath();
         }
 
-        function drawMotionFrame(ctx, backgroundImage, motionScene, elapsed) {
-          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-          ctx.drawImage(backgroundImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
-          ctx.save();
-          ctx.scale(ctx.canvas.width / motionScene.width, ctx.canvas.height / motionScene.height);
-          ctx.translate(-motionScene.x, -motionScene.y);
+        function drawMotionFrame(canvasContext, backgroundImage, motionScene, elapsed) {
+          canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+          canvasContext.drawImage(backgroundImage, 0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+          canvasContext.save();
+          canvasContext.scale(canvasContext.canvas.width / motionScene.width, canvasContext.canvas.height / motionScene.height);
+          canvasContext.translate(-motionScene.x, -motionScene.y);
 
           motionScene.edges.forEach(function (edge) {
             var duration = 1.75;
@@ -6605,29 +6605,29 @@
             var tail = Math.max(0, head - 0.24);
             var opacity = Math.sin(Math.PI * Math.min(1, progress));
 
-            ctx.save();
-            ctx.strokeStyle = edge.color;
-            ctx.fillStyle = edge.color;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.lineWidth = Math.max(3.2, edge.width * 2.2);
-            ctx.globalAlpha = 0.42 + opacity * 0.5;
-            ctx.shadowColor = edge.color;
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
+            canvasContext.save();
+            canvasContext.strokeStyle = edge.color;
+            canvasContext.fillStyle = edge.color;
+            canvasContext.lineCap = 'round';
+            canvasContext.lineJoin = 'round';
+            canvasContext.lineWidth = Math.max(3.2, edge.width * 2.2);
+            canvasContext.globalAlpha = 0.42 + opacity * 0.5;
+            canvasContext.shadowColor = edge.color;
+            canvasContext.shadowBlur = 10;
+            canvasContext.beginPath();
             for (var i = 0; i <= 14; i++) {
               var trailPoint = pointAlong(edge.points, tail + (head - tail) * i / 14);
-              if (i === 0) ctx.moveTo(trailPoint.x, trailPoint.y);
-              else ctx.lineTo(trailPoint.x, trailPoint.y);
+              if (i === 0) canvasContext.moveTo(trailPoint.x, trailPoint.y);
+              else canvasContext.lineTo(trailPoint.x, trailPoint.y);
             }
-            ctx.stroke();
+            canvasContext.stroke();
 
             var point = pointAlong(edge.points, head);
-            ctx.globalAlpha = 0.95;
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 4.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+            canvasContext.globalAlpha = 0.95;
+            canvasContext.beginPath();
+            canvasContext.arc(point.x, point.y, 4.8, 0, Math.PI * 2);
+            canvasContext.fill();
+            canvasContext.restore();
           });
 
           motionScene.nodes.forEach(function (node) {
@@ -6635,19 +6635,19 @@
             if (progress < 0 || progress > 1) return;
             var pulse = Math.sin(Math.PI * progress);
             if (pulse <= 0.02) return;
-            ctx.save();
-            ctx.strokeStyle = node.color;
-            ctx.lineWidth = 1.4 + pulse * 1.8;
-            ctx.globalAlpha = pulse * 0.5;
-            ctx.shadowColor = node.color;
-            ctx.shadowBlur = 12 * pulse;
+            canvasContext.save();
+            canvasContext.strokeStyle = node.color;
+            canvasContext.lineWidth = 1.4 + pulse * 1.8;
+            canvasContext.globalAlpha = pulse * 0.5;
+            canvasContext.shadowColor = node.color;
+            canvasContext.shadowBlur = 12 * pulse;
             var inset = 2 + pulse * 3;
-            roundedRectPath(ctx, node.x - inset, node.y - inset, node.width + inset * 2, node.height + inset * 2, 8);
-            ctx.stroke();
-            ctx.restore();
+            roundedRectPath(canvasContext, node.x - inset, node.y - inset, node.width + inset * 2, node.height + inset * 2, 8);
+            canvasContext.stroke();
+            canvasContext.restore();
           });
 
-          ctx.restore();
+          canvasContext.restore();
         }
 
         var motionScene = createMotionScene(svg);
@@ -6658,12 +6658,12 @@
             var canvas = document.createElement('canvas');
             canvas.width = Math.max(2, Math.round(data.width / 2) * 2);
             canvas.height = Math.max(2, Math.round(data.height / 2) * 2);
-            var ctx = canvas.getContext('2d');
+            var canvasContext = canvas.getContext('2d');
             var stream = canvas.captureStream(fps);
-            var mime = motionMimeType();
+            var mediaType = motionMimeType();
             var recorder;
             try {
-              recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 });
+              recorder = new MediaRecorder(stream, { mimeType: mediaType, videoBitsPerSecond: 6000000 });
             } catch (err) {
               URL.revokeObjectURL(sourceUrl);
               stream.getTracks().forEach(function (track) { track.stop(); });
@@ -6671,20 +6671,20 @@
               return;
             }
             var chunks = [];
-            var raf = 0;
+            var animationFrameId = 0;
             var stopped = false;
             var startedAt = performance.now();
             function cleanup() {
               if (stopped) return;
               stopped = true;
-              cancelAnimationFrame(raf);
+              cancelAnimationFrame(animationFrameId);
               URL.revokeObjectURL(sourceUrl);
               stream.getTracks().forEach(function (track) { track.stop(); });
             }
             function draw(now) {
               var elapsed = Math.max(0, ((Number(now) || performance.now()) - startedAt) / 1000);
-              drawMotionFrame(ctx, backgroundImage, motionScene, elapsed);
-              raf = requestAnimationFrame(draw);
+              drawMotionFrame(canvasContext, backgroundImage, motionScene, elapsed);
+              animationFrameId = requestAnimationFrame(draw);
             }
             recorder.ondataavailable = function (event) {
               if (event.data && event.data.size) chunks.push(event.data);
@@ -6695,14 +6695,14 @@
             };
             recorder.onstop = function () {
               cleanup();
-              var blob = new Blob(chunks, { type: recorder.mimeType || mime });
+              var blob = new Blob(chunks, { type: recorder.mimeType || mediaType });
               if (!blob.size) reject(exportError('viewer.export.error.emptyWebm'));
               else resolve(blob);
             };
-            drawMotionFrame(ctx, backgroundImage, motionScene, 0);
+            drawMotionFrame(canvasContext, backgroundImage, motionScene, 0);
             recorder.start(250);
             startedAt = performance.now();
-            raf = requestAnimationFrame(draw);
+            animationFrameId = requestAnimationFrame(draw);
             setTimeout(function () {
               if (recorder.state === 'inactive') return;
               // Chromium normally emits the final chunk during stop(), but
@@ -6724,7 +6724,7 @@
       }
 
       var menu = document.getElementById('export-menu');
-      var btn = document.getElementById('btn-export');
+      var exportButton = document.getElementById('btn-export');
       var routeShareItem = menu.querySelector('button[data-action="route-share-card"]');
       var reachShareItem = menu.querySelector('button[data-action="reach-share-card"]');
       var items = function () {
@@ -6763,11 +6763,11 @@
         if (format === 'share-card') return true;
         if (format === 'svg' || format === 'png') return true;
         if (format === 'webm') return canRecordMotion();
-        var mime = format === 'jpeg' ? 'image/jpeg' : 'image/webp';
+        var mediaType = format === 'jpeg' ? 'image/jpeg' : 'image/webp';
         try {
           var c = document.createElement('canvas');
           c.width = c.height = 2;
-          return c.toDataURL(mime).indexOf('data:' + mime) === 0;
+          return c.toDataURL(mediaType).indexOf('data:' + mediaType) === 0;
         } catch (_) { return false; }
       }
 
@@ -6809,32 +6809,32 @@
         syncRouteShareItem();
         syncReachShareItem();
         menu.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
+        exportButton.setAttribute('aria-expanded', 'true');
         var available = items().filter(function (i) { return !i.hidden && !i.disabled; });
         var target = focusLast ? available[available.length - 1] : available[0];
         if (target) target.focus();
       }
       function close(focusTrigger) {
         menu.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-        if (focusTrigger) btn.focus();
+        exportButton.setAttribute('aria-expanded', 'false');
+        if (focusTrigger) exportButton.focus();
       }
       function isOpen() { return menu.classList.contains('open'); }
 
-      btn.addEventListener('click', function (e) {
+      exportButton.addEventListener('click', function (e) {
         e.stopPropagation();
         if (isOpen()) close(false);
         else open();
       });
       // APG menu-button pattern: ArrowDown/ArrowUp on the trigger opens the menu.
-      btn.addEventListener('keydown', function (e) {
+      exportButton.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
           e.preventDefault();
           if (!isOpen()) open(e.key === 'ArrowUp');
         }
       });
       document.addEventListener('click', function (e) {
-        if (!menu.contains(e.target) && e.target !== btn) close(false);
+        if (!menu.contains(e.target) && e.target !== exportButton) close(false);
       });
 
       // Keyboard navigation inside the menu.
@@ -7068,8 +7068,8 @@
         var copyShareCardBtn = e.target.closest('button[data-action="copy-share-card"]');
         if (copyShareCardBtn && !copyShareCardBtn.disabled) { runCopyShareCard(); return; }
 
-        var copyBtn = e.target.closest('button[data-action="copy"]');
-        if (copyBtn && !copyBtn.disabled) { runCopy(); return; }
+        var copyButton = e.target.closest('button[data-action="copy"]');
+        if (copyButton && !copyButton.disabled) { runCopy(); return; }
 
         var formatBtn = e.target.closest('button[data-format]');
         if (formatBtn && !formatBtn.disabled) { runExport(formatBtn.dataset.format); }
@@ -7116,7 +7116,7 @@
       var STORAGE_KEY = 'archify-motion';
       var html = document.documentElement;
       var svg = document.querySelector('.diagram-container svg');
-      var btn = document.getElementById('btn-motion');
+      var motionButton = document.getElementById('btn-motion');
       var label = document.getElementById('motion-label');
       var motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
       var capable = !!(svg && svg.getAttribute('data-animation') === 'trace');
@@ -7202,8 +7202,8 @@
         } else if (!ambientStarted) {
           startAmbient();
         }
-        btn.setAttribute('aria-pressed', paused ? 'false' : 'true');
-        btn.disabled = systemPaused;
+        motionButton.setAttribute('aria-pressed', paused ? 'false' : 'true');
+        motionButton.disabled = systemPaused;
         label.textContent = viewerText(paused ? 'viewer.motion.still' : 'viewer.motion.live');
         if (paused && lastEffectivePaused !== true && Archify.guidedViews && Archify.guidedViews.isPlaying()) {
           Archify.guidedViews.pause();
@@ -7217,20 +7217,20 @@
         lastEffectivePaused = paused;
         if (Archify.routeProbe && typeof Archify.routeProbe.syncMotion === 'function') Archify.routeProbe.syncMotion();
         if (systemPaused) {
-          btn.setAttribute('aria-label', viewerText('viewer.motion.reduced'));
-          btn.title = viewerText('viewer.motion.reduced');
+          motionButton.setAttribute('aria-label', viewerText('viewer.motion.reduced'));
+          motionButton.title = viewerText('viewer.motion.reduced');
         } else if (hasSuspension()) {
-          btn.setAttribute('aria-label', viewerText('viewer.motion.hidden'));
-          btn.title = viewerText('viewer.motion.hidden');
+          motionButton.setAttribute('aria-label', viewerText('viewer.motion.hidden'));
+          motionButton.title = viewerText('viewer.motion.hidden');
         } else if (paused) {
-          btn.setAttribute('aria-label', viewerText('viewer.motion.resume'));
-          btn.title = viewerText('viewer.motion.resume');
+          motionButton.setAttribute('aria-label', viewerText('viewer.motion.resume'));
+          motionButton.title = viewerText('viewer.motion.resume');
         } else if (owner) {
-          btn.setAttribute('aria-label', viewerText('viewer.motion.yielding', { owner: ownerLabel(owner) }));
-          btn.title = viewerText('viewer.motion.yielding.title', { owner: ownerLabel(owner) });
+          motionButton.setAttribute('aria-label', viewerText('viewer.motion.yielding', { owner: ownerLabel(owner) }));
+          motionButton.title = viewerText('viewer.motion.yielding.title', { owner: ownerLabel(owner) });
         } else {
-          btn.setAttribute('aria-label', viewerText('viewer.motion.pause'));
-          btn.title = viewerText('viewer.motion.pause');
+          motionButton.setAttribute('aria-label', viewerText('viewer.motion.pause'));
+          motionButton.title = viewerText('viewer.motion.pause');
         }
       }
       function setPaused(next, options) {
@@ -7309,7 +7309,7 @@
       }
 
       if (!capable) {
-        btn.hidden = true;
+        motionButton.hidden = true;
         html.removeAttribute('data-motion-capable');
         html.removeAttribute('data-motion');
         html.removeAttribute('data-motion-owner');
@@ -7331,9 +7331,9 @@
       }
 
       html.setAttribute('data-motion-capable', 'true');
-      btn.hidden = false;
+      motionButton.hidden = false;
       readerPaused = readStored() === 'still';
-      btn.addEventListener('click', function () { setPaused(!readerPaused); });
+      motionButton.addEventListener('click', function () { setPaused(!readerPaused); });
       if (motionQuery) {
         if (typeof motionQuery.addEventListener === 'function') motionQuery.addEventListener('change', render);
         else if (typeof motionQuery.addListener === 'function') motionQuery.addListener(render);
@@ -7470,9 +7470,9 @@
       var upstreamCount = document.getElementById('focus-reach-upstream-count');
       var downstreamCount = document.getElementById('focus-reach-downstream-count');
       var relationshipList = document.getElementById('relationship-lens-list');
-      var copyBtn = document.getElementById('btn-focus-copy');
+      var copyButton = document.getElementById('btn-focus-copy');
       var relationsBtn = document.getElementById('btn-focus-relations');
-      var clearBtn = document.getElementById('btn-focus-clear');
+      var clearButton = document.getElementById('btn-focus-clear');
       var activeIds = [];
       var hoveredRelationship = null;
       var focusedRelationship = null;
@@ -7922,14 +7922,14 @@
       function renderRelationshipCopyAction() {
         var record = pinnedRelationshipRecord();
         if (record && record.id) {
-          copyBtn.textContent = viewerText('viewer.passport.copyRelation');
-          copyBtn.setAttribute('aria-label', viewerText('viewer.passport.copyPinned'));
+          copyButton.textContent = viewerText('viewer.passport.copyRelation');
+          copyButton.setAttribute('aria-label', viewerText('viewer.passport.copyPinned'));
         } else if (pinnedRelationshipKey) {
-          copyBtn.textContent = viewerText('viewer.passport.copyNode');
-          copyBtn.setAttribute('aria-label', viewerText('viewer.passport.copySource'));
+          copyButton.textContent = viewerText('viewer.passport.copyNode');
+          copyButton.setAttribute('aria-label', viewerText('viewer.passport.copySource'));
         } else {
-          copyBtn.textContent = viewerText('viewer.passport.copy');
-          copyBtn.setAttribute('aria-label', viewerText('viewer.passport.copy.focus'));
+          copyButton.textContent = viewerText('viewer.passport.copy');
+          copyButton.setAttribute('aria-label', viewerText('viewer.passport.copy.focus'));
         }
       }
       function relationshipHitGeometry(shape, className) {
@@ -8584,8 +8584,8 @@
         upstreamBtn.disabled = true;
         downstreamBtn.disabled = true;
         relationshipList.textContent = '';
-        copyBtn.textContent = viewerText('viewer.passport.copy');
-        copyBtn.setAttribute('aria-label', viewerText('viewer.passport.copy.focus'));
+        copyButton.textContent = viewerText('viewer.passport.copy');
+        copyButton.setAttribute('aria-label', viewerText('viewer.passport.copy.focus'));
         relationsBtn.textContent = viewerText('viewer.passport.relations');
         relationsBtn.setAttribute('aria-label', viewerText('viewer.passport.relations.show'));
         relationsBtn.setAttribute('aria-expanded', 'false');
@@ -8701,8 +8701,8 @@
           ? navigator.clipboard.writeText(value).then(function () { return true; }).catch(function () { return fallbackCopy(value); })
           : Promise.resolve(fallbackCopy(value));
         return copy.then(function (copied) {
-          copyBtn.textContent = viewerText(copied ? 'viewer.common.copied' : 'viewer.common.copyFailed');
-          copyBtn.setAttribute('aria-label', copied
+          copyButton.textContent = viewerText(copied ? 'viewer.common.copied' : 'viewer.common.copyFailed');
+          copyButton.setAttribute('aria-label', copied
             ? viewerText(relationId ? 'viewer.passport.copy.pinned.success' : 'viewer.passport.copy.focused.success')
             : viewerText(relationId ? 'viewer.passport.copy.pinned.failed' : 'viewer.passport.copy.focused.failed'));
           window.setTimeout(function () {
@@ -8734,8 +8734,8 @@
           Archify.view.reveal([id], { includeNeighbors: true, reason: 'focus' });
         }
       });
-      clearBtn.addEventListener('click', function () { clear({ restoreFocus: true }); });
-      copyBtn.addEventListener('click', copyFocusLink);
+      clearButton.addEventListener('click', function () { clear({ restoreFocus: true }); });
+      copyButton.addEventListener('click', copyFocusLink);
       upstreamBtn.addEventListener('click', function () { applyReachability('upstream'); });
       downstreamBtn.addEventListener('click', function () { applyReachability('downstream'); });
       relationsBtn.addEventListener('click', function () {
@@ -8831,10 +8831,10 @@
 
       function syncFocusFromHash() {
         try {
-          var params = new URLSearchParams(location.hash.replace(/^#/, ''));
-          var relation = params.get('relation');
-          var initial = params.get('focus');
-          var reach = params.get('reach');
+          var fragmentParameters = new URLSearchParams(location.hash.replace(/^#/, ''));
+          var relation = fragmentParameters.get('relation');
+          var initial = fragmentParameters.get('focus');
+          var reach = fragmentParameters.get('reach');
           if (relation) {
             if (html.getAttribute('data-embed') === 'true' ||
                 !inspectRelationshipById(relation, { updateUrl: false, toggle: false })) clear({ updateUrl: false });
@@ -8845,7 +8845,7 @@
               applyReachability(reach, { updateUrl: false, toggle: false, reveal: false });
             }
           }
-          else if (!params.get('view')) clear({ updateUrl: false });
+          else if (!fragmentParameters.get('view')) clear({ updateUrl: false });
         } catch (_) {}
       }
 
@@ -9912,8 +9912,8 @@
         var step = storyBeatIndex >= 0 ? storySteps[storyBeatIndex] : null;
         if (!view || !step) return false;
         try {
-          var params = new URLSearchParams(location.hash.replace(/^#/, ''));
-          return params.get('view') === view.id && params.get('beat') === step.nodeId;
+          var fragmentParameters = new URLSearchParams(location.hash.replace(/^#/, ''));
+          return fragmentParameters.get('view') === view.id && fragmentParameters.get('beat') === step.nodeId;
         } catch (_) { return false; }
       }
 
@@ -10691,9 +10691,9 @@
 
       function syncViewFromHash() {
         try {
-          var params = new URLSearchParams(location.hash.replace(/^#/, ''));
-          var initial = params.get('view');
-          var requestedBeat = params.get('beat');
+          var fragmentParameters = new URLSearchParams(location.hash.replace(/^#/, ''));
+          var initial = fragmentParameters.get('view');
+          var requestedBeat = fragmentParameters.get('beat');
           var restoreGeneration = ++momentRestoreGeneration;
           if (initial) {
             var activated = activateById(initial, { updateUrl: false, restore: true });
@@ -10708,7 +10708,7 @@
               if (activeIndex < 0 || views[activeIndex].id !== initial) return;
               selectStoryBeatById(requestedBeat, { linked: true, follow: true, followInstant: true });
             });
-          } else if (params.get('focus') || params.get('relation')) {
+          } else if (fragmentParameters.get('focus') || fragmentParameters.get('relation')) {
             activeIndex = -1;
             render();
           } else {
@@ -11230,11 +11230,11 @@
     Archify.view = (function () {
       var container = document.querySelector('.diagram-container');
       var svg = container.querySelector('svg');
-      var outBtn = container.querySelector('[data-view="out"]');
-      var resetBtn = container.querySelector('[data-view="reset"]');
-      var resetDetailLabel = resetBtn.querySelector('[data-view-detail]');
-      var resetPercentLabel = resetBtn.querySelector('[data-view-percent]');
-      var inBtn = container.querySelector('[data-view="in"]');
+      var zoomOutButton = container.querySelector('[data-view="out"]');
+      var resetZoomButton = container.querySelector('[data-view="reset"]');
+      var resetDetailLabel = resetZoomButton.querySelector('[data-view-detail]');
+      var resetPercentLabel = resetZoomButton.querySelector('[data-view-percent]');
+      var zoomInButton = container.querySelector('[data-view="in"]');
       var state = { scale: 1, x: 0, y: 0, mode: 'overview' };
       var drag = null;
       var cameraTimer = null;
@@ -11315,13 +11315,13 @@
           resetDetailLabel.hidden = !showDetailLevel;
         }
         if (resetPercentLabel) resetPercentLabel.textContent = percent;
-        resetBtn.toggleAttribute('data-detail-visible', showDetailLevel);
-        resetBtn.title = viewerText('viewer.nav.camera.title', {
+        resetZoomButton.toggleAttribute('data-detail-visible', showDetailLevel);
+        resetZoomButton.title = viewerText('viewer.nav.camera.title', {
           semantic: semantic ? viewerText('viewer.nav.camera.semantic') : '',
           hint: detailHint
         });
-        resetBtn.setAttribute('aria-label', viewerText('viewer.nav.camera', { hint: detailHint }));
-        resetBtn.setAttribute('data-detail-level', detail);
+        resetZoomButton.setAttribute('aria-label', viewerText('viewer.nav.camera', { hint: detailHint }));
+        resetZoomButton.setAttribute('data-detail-level', detail);
         container.setAttribute('data-detail-level', detail);
         container.setAttribute('data-camera-mode', state.mode);
         container.setAttribute('data-camera-indicator', semantic ? 'true' : 'false');
@@ -11330,8 +11330,8 @@
         clamp();
         svg.style.transform = 'translate(' + state.x + 'px,' + state.y + 'px) scale(' + state.scale + ')';
         renderControls();
-        outBtn.disabled = state.scale <= 1;
-        inBtn.disabled = state.scale >= 3;
+        zoomOutButton.disabled = state.scale <= 1;
+        zoomInButton.disabled = state.scale >= 3;
         container.classList.toggle('is-pannable', state.scale > 1);
         svg.setAttribute('data-view-scale', String(state.scale));
         if (Archify.radar && typeof Archify.radar.sync === 'function') Archify.radar.sync();
@@ -11675,9 +11675,9 @@
         }
       }
 
-      inBtn.addEventListener('click', function () { zoom(state.scale + 0.25); });
-      outBtn.addEventListener('click', function () { zoom(state.scale - 0.25); });
-      resetBtn.addEventListener('click', reset);
+      zoomInButton.addEventListener('click', function () { zoom(state.scale + 0.25); });
+      zoomOutButton.addEventListener('click', function () { zoom(state.scale - 0.25); });
+      resetZoomButton.addEventListener('click', reset);
       container.addEventListener('pointerdown', function (event) {
         if (state.scale <= 1 || event.button !== 0 || event.target.closest('.diagram-nav, .focus-chip, .node-finder, .diagram-guide, .overview-map, .route-probe, .semantic-lens') || event.target.closest('[data-node-id]') || event.target.closest('[data-relationship-hit-key]')) return;
         interruptCamera();
@@ -11735,8 +11735,8 @@
       var surface = document.getElementById('overview-map-surface');
       var status = document.getElementById('overview-map-status');
       var trigger = document.getElementById('btn-overview-map');
-      var closeBtn = document.getElementById('overview-map-close');
-      var expandBtn = document.getElementById('overview-map-expand');
+      var closeButton = document.getElementById('overview-map-close');
+      var expandButton = document.getElementById('overview-map-expand');
       var feedback = document.getElementById('overview-map-feedback');
       var navigation = container.querySelector('.diagram-nav');
       var passport = document.getElementById('focus-chip');
@@ -12258,8 +12258,8 @@
       }
 
       trigger.addEventListener('click', toggle);
-      closeBtn.addEventListener('click', function () { close({ restoreFocus: true }); });
-      expandBtn.addEventListener('click', expandCompactRadar);
+      closeButton.addEventListener('click', function () { close({ restoreFocus: true }); });
+      expandButton.addEventListener('click', expandCompactRadar);
       panelHead.addEventListener('pointerdown', beginPanelDrag);
       panelHead.addEventListener('pointermove', movePanelDrag);
       panelHead.addEventListener('pointerup', function (event) { finishPanelDrag(event, false); });
@@ -12358,7 +12358,7 @@
        ============================================================ */
     Archify.presentation = (function () {
       var html = document.documentElement;
-      var btn = document.getElementById('btn-present');
+      var presentationButton = document.getElementById('btn-present');
       var label = document.getElementById('present-label');
       var previousScrollY = 0;
 
@@ -12374,9 +12374,9 @@
       }
 
       function render(next) {
-        btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-        btn.setAttribute('aria-label', viewerText(next ? 'viewer.present.exit' : 'viewer.present.enter'));
-        btn.title = viewerText(next ? 'viewer.present.exit.title' : 'viewer.present.enter.title');
+        presentationButton.setAttribute('aria-pressed', next ? 'true' : 'false');
+        presentationButton.setAttribute('aria-label', viewerText(next ? 'viewer.present.exit' : 'viewer.present.enter'));
+        presentationButton.title = viewerText(next ? 'viewer.present.exit.title' : 'viewer.present.enter.title');
         label.textContent = viewerText(next ? 'viewer.present.exit.label' : 'viewer.present.present');
       }
 
@@ -12414,7 +12414,7 @@
       function toggle() { return setActive(!active()); }
 
       render(active());
-      btn.addEventListener('click', toggle);
+      presentationButton.addEventListener('click', toggle);
 
       return {
         enter: function () { return setActive(true); },
@@ -12436,7 +12436,7 @@
       var trigger = document.getElementById('btn-node-finder');
       var panel = document.getElementById('node-finder');
       var heading = document.getElementById('node-finder-title');
-      var closeBtn = document.getElementById('node-finder-close');
+      var closeButton = document.getElementById('node-finder-close');
       var input = document.getElementById('node-finder-input');
       var results = document.getElementById('node-finder-results');
       var empty = document.getElementById('node-finder-empty');
@@ -12642,7 +12642,7 @@
       function toggle() { return panel.hidden ? open() : (close(), false); }
 
       trigger.addEventListener('click', toggle);
-      closeBtn.addEventListener('click', function () { close(); });
+      closeButton.addEventListener('click', function () { close(); });
       input.addEventListener('input', function () { render(input.value); });
       input.addEventListener('keydown', function (event) {
         var buttons = resultButtons();
@@ -12705,16 +12705,16 @@
       var title = document.getElementById('route-probe-title');
       var path = document.getElementById('route-probe-path');
       var status = document.getElementById('route-probe-status');
-      var findBtn = document.getElementById('route-probe-find');
-      var copyBtn = document.getElementById('route-probe-copy');
-      var clearBtn = document.getElementById('route-probe-clear');
+      var findButton = document.getElementById('route-probe-find');
+      var copyButton = document.getElementById('route-probe-copy');
+      var clearButton = document.getElementById('route-probe-clear');
       var journeyControls = document.getElementById('route-journey-controls');
-      var journeyPrevBtn = document.getElementById('route-journey-prev');
-      var journeyPlayBtn = document.getElementById('route-journey-play');
+      var journeyPreviousButton = document.getElementById('route-journey-prev');
+      var journeyPlayButton = document.getElementById('route-journey-play');
       var journeyPlayIcon = document.getElementById('route-journey-play-icon');
       var journeyPlayLabel = document.getElementById('route-journey-play-label');
-      var journeyNextBtn = document.getElementById('route-journey-next');
-      var journeyOverviewBtn = document.getElementById('route-journey-overview');
+      var journeyNextButton = document.getElementById('route-journey-next');
+      var journeyOverviewButton = document.getElementById('route-journey-overview');
       var namespace = 'http://www.w3.org/2000/svg';
       var mode = 'idle';
       var startId = null;
@@ -12738,9 +12738,9 @@
         return Array.prototype.slice.call(svg.querySelectorAll('[data-edge-from][data-edge-to]'));
       }
       function nodesById() {
-        var out = Object.create(null);
-        nodes().forEach(function (node) { out[node.getAttribute('data-node-id')] = node; });
-        return out;
+        var nodeIndex = Object.create(null);
+        nodes().forEach(function (node) { nodeIndex[node.getAttribute('data-node-id')] = node; });
+        return nodeIndex;
       }
       function nodeLabel(node, fallback) {
         return node.getAttribute('data-node-label') ||
@@ -12941,11 +12941,11 @@
         title.textContent = viewerText('viewer.route.start');
         renderPlaceholder(viewerText('viewer.route.pickTwo'));
         status.textContent = viewerText('viewer.route.instructions');
-        findBtn.hidden = true;
-        findBtn.textContent = viewerText('viewer.route.start.find');
-        findBtn.setAttribute('aria-label', viewerText('viewer.route.start.find.aria'));
-        copyBtn.hidden = true;
-        copyBtn.textContent = viewerText('viewer.route.copy');
+        findButton.hidden = true;
+        findButton.textContent = viewerText('viewer.route.start.find');
+        findButton.setAttribute('aria-label', viewerText('viewer.route.start.find.aria'));
+        copyButton.hidden = true;
+        copyButton.textContent = viewerText('viewer.route.copy');
         if (Archify.exportMenu && typeof Archify.exportMenu.syncRouteShare === 'function') Archify.exportMenu.syncRouteShare();
         setTrigger(false);
         if (wasActive && options.preserveView !== true && Archify.view && typeof Archify.view.reset === 'function') {
@@ -13102,26 +13102,26 @@
         var canPlay = hasRoute && journeyMotionAllowed();
         journeyControls.hidden = !hasRoute;
         journeyControls.setAttribute('data-playing', journeyPlaying ? 'true' : 'false');
-        journeyPrevBtn.disabled = !hasRoute || journeyIndex <= 0;
-        journeyNextBtn.disabled = !hasRoute || journeyIndex >= activeNodeIds.length - 1;
-        journeyOverviewBtn.disabled = !hasRoute || journeyIndex < 0;
-        journeyPlayBtn.disabled = !canPlay;
-        journeyPlayBtn.setAttribute('aria-pressed', journeyPlaying ? 'true' : 'false');
+        journeyPreviousButton.disabled = !hasRoute || journeyIndex <= 0;
+        journeyNextButton.disabled = !hasRoute || journeyIndex >= activeNodeIds.length - 1;
+        journeyOverviewButton.disabled = !hasRoute || journeyIndex < 0;
+        journeyPlayButton.disabled = !canPlay;
+        journeyPlayButton.setAttribute('aria-pressed', journeyPlaying ? 'true' : 'false');
         if (journeyPlaying) {
           journeyPlayIcon.textContent = '\u275a\u275a';
           journeyPlayLabel.textContent = viewerText('viewer.route.pause.label');
-          journeyPlayBtn.setAttribute('aria-label', viewerText('viewer.route.pause'));
-          journeyPlayBtn.title = viewerText('viewer.route.pause');
+          journeyPlayButton.setAttribute('aria-label', viewerText('viewer.route.pause'));
+          journeyPlayButton.title = viewerText('viewer.route.pause');
         } else if (journeyComplete || journeyIndex === activeNodeIds.length - 1) {
           journeyPlayIcon.textContent = '\u21bb';
           journeyPlayLabel.textContent = viewerText('viewer.route.replay.label');
-          journeyPlayBtn.setAttribute('aria-label', viewerText('viewer.route.replay'));
-          journeyPlayBtn.title = viewerText(canPlay ? 'viewer.route.replay' : 'viewer.route.motionRequired');
+          journeyPlayButton.setAttribute('aria-label', viewerText('viewer.route.replay'));
+          journeyPlayButton.title = viewerText(canPlay ? 'viewer.route.replay' : 'viewer.route.motionRequired');
         } else {
           journeyPlayIcon.textContent = '\u25b6';
           journeyPlayLabel.textContent = viewerText('viewer.route.journey');
-          journeyPlayBtn.setAttribute('aria-label', viewerText('viewer.route.play'));
-          journeyPlayBtn.title = viewerText(canPlay ? 'viewer.route.play' : 'viewer.route.motionRequired');
+          journeyPlayButton.setAttribute('aria-label', viewerText('viewer.route.play'));
+          journeyPlayButton.title = viewerText(canPlay ? 'viewer.route.play' : 'viewer.route.motionRequired');
         }
       }
       function journeyGeometry(shape) {
@@ -13400,9 +13400,9 @@
         status.textContent = count
           ? viewerCount('viewer.route.destination.count', count)
           : viewerText('viewer.route.noOutgoing');
-        findBtn.hidden = false;
-        findBtn.textContent = viewerText('viewer.route.destination.find');
-        findBtn.setAttribute('aria-label', viewerText('viewer.route.destination.find.aria'));
+        findButton.hidden = false;
+        findButton.textContent = viewerText('viewer.route.destination.find');
+        findButton.setAttribute('aria-label', viewerText('viewer.route.destination.find.aria'));
         requestDocking();
         return true;
       }
@@ -13438,8 +13438,8 @@
           source: nodeLabel(byId[startId], startId),
           target: nodeLabel(byId[endId], endId)
         });
-        findBtn.hidden = true;
-        copyBtn.hidden = false;
+        findButton.hidden = true;
+        copyButton.hidden = false;
         setTrigger(true);
         if (Archify.exportMenu && typeof Archify.exportMenu.syncRouteShare === 'function') Archify.exportMenu.syncRouteShare();
         if (options.updateUrl !== false) {
@@ -13501,10 +13501,10 @@
         title.textContent = viewerText('viewer.route.start');
         renderPlaceholder(viewerText('viewer.route.pickOne'));
         status.textContent = viewerText('viewer.route.start.instructions');
-        findBtn.hidden = false;
-        findBtn.textContent = viewerText('viewer.route.start.find');
-        findBtn.setAttribute('aria-label', viewerText('viewer.route.start.find.aria'));
-        copyBtn.hidden = true;
+        findButton.hidden = false;
+        findButton.textContent = viewerText('viewer.route.start.find');
+        findButton.setAttribute('aria-label', viewerText('viewer.route.start.find.aria'));
+        copyButton.hidden = true;
         setTrigger(true);
         if (focused && nodesById()[focused]) chooseStart(focused);
         if (options.focusNode === true && !focused) {
@@ -13569,7 +13569,7 @@
         options = options || {};
         panel.removeAttribute('data-finder-open');
         requestDocking();
-        if (options.restoreFocus === true && !findBtn.hidden) findBtn.focus();
+        if (options.restoreFocus === true && !findButton.hidden) findButton.focus();
       }
       function openFinder() {
         var context = finderContext();
@@ -13596,11 +13596,11 @@
           ? navigator.clipboard.writeText(value).then(function () { return true; }).catch(function () { return fallbackCopy(value); })
           : Promise.resolve(fallbackCopy(value));
         return copy.then(function (copied) {
-          copyBtn.textContent = viewerText(copied ? 'viewer.common.copied' : 'viewer.common.copyFailed');
-          copyBtn.setAttribute('aria-label', viewerText(copied ? 'viewer.route.copy.success' : 'viewer.route.copy.failed'));
+          copyButton.textContent = viewerText(copied ? 'viewer.common.copied' : 'viewer.common.copyFailed');
+          copyButton.setAttribute('aria-label', viewerText(copied ? 'viewer.route.copy.success' : 'viewer.route.copy.failed'));
           window.setTimeout(function () {
-            copyBtn.textContent = viewerText('viewer.route.copy');
-            copyBtn.setAttribute('aria-label', viewerText('viewer.route.copy.aria'));
+            copyButton.textContent = viewerText('viewer.route.copy');
+            copyButton.setAttribute('aria-label', viewerText('viewer.route.copy.aria'));
           }, 1600);
           return copied;
         });
@@ -13617,8 +13617,8 @@
       }
       function syncFromHash() {
         try {
-          var params = new URLSearchParams(location.hash.replace(/^#/, ''));
-          var route = params.get('route');
+          var fragmentParameters = new URLSearchParams(location.hash.replace(/^#/, ''));
+          var route = fragmentParameters.get('route');
           if (!route) {
             if (mode !== 'idle') clear({ updateUrl: false, restoreFocus: false });
             return;
@@ -13635,12 +13635,12 @@
         options = options || {};
         if (journeyPlaying) {
           pauseJourney({ preserveElapsed: true });
-          if (options.restoreFocus === true) journeyPlayBtn.focus();
+          if (options.restoreFocus === true) journeyPlayButton.focus();
           return 'paused';
         }
         if (journeyIndex >= 0) {
           showJourneyOverview({ reveal: true });
-          if (options.restoreFocus === true) journeyOverviewBtn.focus();
+          if (options.restoreFocus === true) journeyOverviewButton.focus();
           return 'overview';
         }
         clear({ restoreFocus: options.restoreFocus === true });
@@ -13653,13 +13653,13 @@
       }
 
       trigger.addEventListener('click', function () { toggle({ focusNode: false }); });
-      findBtn.addEventListener('click', openFinder);
-      clearBtn.addEventListener('click', function () { clear({ restoreFocus: true }); });
-      copyBtn.addEventListener('click', copyLink);
-      journeyPrevBtn.addEventListener('click', previousJourney);
-      journeyPlayBtn.addEventListener('click', toggleJourney);
-      journeyNextBtn.addEventListener('click', nextJourney);
-      journeyOverviewBtn.addEventListener('click', function () { showJourneyOverview({ reveal: true }); });
+      findButton.addEventListener('click', openFinder);
+      clearButton.addEventListener('click', function () { clear({ restoreFocus: true }); });
+      copyButton.addEventListener('click', copyLink);
+      journeyPreviousButton.addEventListener('click', previousJourney);
+      journeyPlayButton.addEventListener('click', toggleJourney);
+      journeyNextButton.addEventListener('click', nextJourney);
+      journeyOverviewButton.addEventListener('click', function () { showJourneyOverview({ reveal: true }); });
       path.addEventListener('click', function (event) {
         var button = event.target.closest('[data-route-journey-index]');
         if (!button) return;
@@ -13737,11 +13737,11 @@
       var svg = container.querySelector(':scope > svg');
       var trigger = document.getElementById('btn-semantic-lens');
       var panel = document.getElementById('semantic-lens');
-      var closeBtn = document.getElementById('semantic-lens-close');
+      var closeButton = document.getElementById('semantic-lens-close');
       var kindsRoot = document.getElementById('semantic-lens-kinds');
       var status = document.getElementById('semantic-lens-status');
-      var copyBtn = document.getElementById('semantic-lens-copy');
-      var clearBtn = document.getElementById('semantic-lens-clear');
+      var copyButton = document.getElementById('semantic-lens-copy');
+      var clearButton = document.getElementById('semantic-lens-clear');
       var legendBridge = svg.querySelector('[data-legend-bridge]');
       var legendEntries = [];
       var hoveredLegendEntry = null;
@@ -14055,7 +14055,7 @@
         var active = selectedKinds.length > 0;
         trigger.setAttribute('aria-pressed', active ? 'true' : 'false');
         trigger.setAttribute('aria-label', viewerText(active ? 'viewer.lens.openActive' : 'viewer.lens.open'));
-        copyBtn.hidden = !active;
+        copyButton.hidden = !active;
         syncLegendBridge();
       }
       function overlapArea(a, b) {
@@ -14267,15 +14267,15 @@
           ? navigator.clipboard.writeText(value).then(function () { return true; }).catch(function () { return fallbackCopy(value); })
           : Promise.resolve(fallbackCopy(value));
         return copy.then(function (copied) {
-          copyBtn.textContent = viewerText(copied ? 'viewer.common.copied' : 'viewer.common.copyFailed');
-          window.setTimeout(function () { copyBtn.textContent = viewerText('viewer.common.copyLink'); }, 1600);
+          copyButton.textContent = viewerText(copied ? 'viewer.common.copied' : 'viewer.common.copyFailed');
+          window.setTimeout(function () { copyButton.textContent = viewerText('viewer.common.copyLink'); }, 1600);
           return copied;
         });
       }
       function syncFromHash() {
         try {
-          var params = new URLSearchParams(location.hash.replace(/^#/, ''));
-          var value = params.get('lens');
+          var fragmentParameters = new URLSearchParams(location.hash.replace(/^#/, ''));
+          var value = fragmentParameters.get('lens');
           if (!value) {
             if (selectedKinds.length) clear({ updateUrl: false, preserveView: true });
             return;
@@ -14347,9 +14347,9 @@
           legendEntries[next].focus();
         });
       }
-      closeBtn.addEventListener('click', function () { close(); });
-      clearBtn.addEventListener('click', function () { clear({ preserveView: true }); });
-      copyBtn.addEventListener('click', copyLink);
+      closeButton.addEventListener('click', function () { close(); });
+      clearButton.addEventListener('click', function () { clear({ preserveView: true }); });
+      copyButton.addEventListener('click', copyLink);
       kindsRoot.addEventListener('click', function (event) {
         var button = event.target.closest('[data-kind]');
         if (!button || button.disabled) return;
@@ -14413,11 +14413,11 @@
       var svg = container.querySelector(':scope > svg');
       var trigger = document.getElementById('btn-diagram-guide');
       var panel = document.getElementById('diagram-guide');
-      var closeBtn = document.getElementById('diagram-guide-close');
+      var closeButton = document.getElementById('diagram-guide-close');
       var stats = document.getElementById('diagram-guide-stats');
       var actions = document.getElementById('diagram-guide-actions');
       var feedback = document.getElementById('diagram-guide-feedback');
-      var storyBtn = actions.querySelector('[data-guide-action="story"]');
+      var storyButton = actions.querySelector('[data-guide-action="story"]');
       var storyCopy = document.getElementById('diagram-guide-story-copy');
       var routePanel = document.getElementById('route-probe');
 
@@ -14445,8 +14445,8 @@
           relationships: viewerCount('viewer.guide.fact.relationship', relationships),
           views: viewerCount('viewer.guide.fact.view', views)
         });
-        storyBtn.disabled = views === 0;
-        storyBtn.setAttribute('aria-disabled', views === 0 ? 'true' : 'false');
+        storyButton.disabled = views === 0;
+        storyButton.setAttribute('aria-disabled', views === 0 ? 'true' : 'false');
         storyCopy.textContent = views
           ? viewerCount('viewer.guide.story.available', views)
           : viewerText('viewer.guide.story.unavailable');
@@ -14532,7 +14532,7 @@
       }
 
       trigger.addEventListener('click', toggle);
-      closeBtn.addEventListener('click', function () { close(); });
+      closeButton.addEventListener('click', function () { close(); });
       actions.addEventListener('click', function (event) {
         var button = event.target.closest('[data-guide-action]');
         if (!button || button.disabled) return;
@@ -14603,76 +14603,76 @@
          Escape -> clear temporary trace/focus/view first, then exit presentation
        Ignored when focus is inside an input/textarea/contenteditable.
        ============================================================ */
-    document.addEventListener('keydown', function (e) {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.defaultPrevented) return;
-      var t = e.target;
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-      if (Archify.preset && Archify.preset.isOpen() && e.key !== 'Escape' && e.key !== 's' && e.key !== 'S') {
+    document.addEventListener('keydown', function (keyboardEvent) {
+      if (keyboardEvent.metaKey || keyboardEvent.ctrlKey || keyboardEvent.altKey) return;
+      if (keyboardEvent.defaultPrevented) return;
+      var eventTarget = keyboardEvent.target;
+      if (eventTarget && (eventTarget.tagName === 'INPUT' || eventTarget.tagName === 'TEXTAREA' || eventTarget.isContentEditable)) return;
+      if (Archify.preset && Archify.preset.isOpen() && keyboardEvent.key !== 'Escape' && keyboardEvent.key !== 's' && keyboardEvent.key !== 'S') {
         Archify.preset.close(false);
       }
-      if (e.key === '?') {
-        e.preventDefault();
+      if (keyboardEvent.key === '?') {
+        keyboardEvent.preventDefault();
         Archify.guide.toggle();
-      } else if (e.key === '/') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === '/') {
+        keyboardEvent.preventDefault();
         Archify.finder.open();
-      } else if (e.key === 't' || e.key === 'T') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 't' || keyboardEvent.key === 'T') {
+        keyboardEvent.preventDefault();
         Archify.theme.toggle();
-      } else if (e.key === 's' || e.key === 'S') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 's' || keyboardEvent.key === 'S') {
+        keyboardEvent.preventDefault();
         Archify.preset.cycle();
-      } else if (e.key === 'e' || e.key === 'E') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'e' || keyboardEvent.key === 'E') {
+        keyboardEvent.preventDefault();
         if (!Archify.exportMenu.isOpen()) Archify.exportMenu.open();
-      } else if (e.key === 'f' || e.key === 'F') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'f' || keyboardEvent.key === 'F') {
+        keyboardEvent.preventDefault();
         Archify.presentation.toggle();
-      } else if (e.key === 'm' || e.key === 'M') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'm' || keyboardEvent.key === 'M') {
+        keyboardEvent.preventDefault();
         Archify.radar.toggle();
-      } else if (e.key === 'l' || e.key === 'L') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'l' || keyboardEvent.key === 'L') {
+        keyboardEvent.preventDefault();
         Archify.semanticLens.toggle();
-      } else if (e.key === 'r' || e.key === 'R') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'r' || keyboardEvent.key === 'R') {
+        keyboardEvent.preventDefault();
         Archify.routeProbe.toggle({ focusNode: true });
-      } else if (e.key === '+' || e.key === '=') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === '+' || keyboardEvent.key === '=') {
+        keyboardEvent.preventDefault();
         Archify.view.zoomIn();
-      } else if (e.key === '-') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === '-') {
+        keyboardEvent.preventDefault();
         Archify.view.zoomOut();
-      } else if (e.key === '0') {
-        e.preventDefault();
+      } else if (keyboardEvent.key === '0') {
+        keyboardEvent.preventDefault();
         Archify.view.reset();
-      } else if (e.key === 'Escape' && Archify.preset.isOpen()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.preset.isOpen()) {
+        keyboardEvent.preventDefault();
         Archify.preset.close(true);
-      } else if (e.key === 'Escape' && Archify.semanticLens.isOpen()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.semanticLens.isOpen()) {
+        keyboardEvent.preventDefault();
         Archify.semanticLens.close({ restoreFocus: true });
-      } else if (e.key === 'Escape' && Archify.semanticLens.active()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.semanticLens.active()) {
+        keyboardEvent.preventDefault();
         Archify.semanticLens.clear({ preserveView: true });
-      } else if (e.key === 'Escape' && Archify.guide.isOpen()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.guide.isOpen()) {
+        keyboardEvent.preventDefault();
         Archify.guide.close({ restoreFocus: true });
-      } else if (e.key === 'Escape' && Archify.radar.isOpen()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.radar.isOpen()) {
+        keyboardEvent.preventDefault();
         Archify.radar.close({ restoreFocus: true });
-      } else if (e.key === 'Escape' && Archify.routeProbe.active()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.routeProbe.active()) {
+        keyboardEvent.preventDefault();
         Archify.routeProbe.escape({ restoreFocus: true });
-      } else if (e.key === 'Escape' && Archify.intentTrace.active()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.intentTrace.active()) {
+        keyboardEvent.preventDefault();
         Archify.intentTrace.clear();
-      } else if (e.key === 'Escape' && Archify.focus.active()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.focus.active()) {
+        keyboardEvent.preventDefault();
         Archify.focus.clear({ restoreFocus: true });
-      } else if (e.key === 'Escape' && Archify.presentation.active()) {
-        e.preventDefault();
+      } else if (keyboardEvent.key === 'Escape' && Archify.presentation.active()) {
+        keyboardEvent.preventDefault();
         Archify.presentation.exit();
       }
     });

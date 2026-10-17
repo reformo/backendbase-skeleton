@@ -30,7 +30,7 @@ final readonly class ContactNotification implements ContactNotifier
         }
 
         $settings = $this->settings;
-        $sender   = $settings->ownershipSender();
+        $sender   = $settings->contactEmailSender();
         $email    = new EmailNotification();
         $email->setFromAddress(Address::create($sender, 'Backendbase'));
         $email->addToAddress(Address::create($contact->value()));

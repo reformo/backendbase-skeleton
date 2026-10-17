@@ -542,7 +542,7 @@
 
         <section id="boundary">
             <h2>Boundary model</h2>
-            <p>The consumer adapter stays outside the context. It sends a contract inward. The application layer selects domain behavior and a port. The adapter implements that port.</p>
+            <p>The inbound API adapter stays outside the context. It sends a contract inward. The application layer selects domain behavior and a port. The adapter implements that port.</p>
             <figure class="diagram">
                 <svg viewBox="0 0 1040 540" role="img" aria-label="Bounded context dependency and request flow">
                     <title>Bounded context dependency and request flow</title>
@@ -816,7 +816,7 @@
                     </ul>
                 </article>
             </div>
-            <p><code>ExampleApi</code> is the only current consumer API. Each controller creates one context contract and dispatches it through the matching shared bus.</p>
+            <p><code>ExampleApi</code> is the only current inbound API. Each controller creates one context contract and dispatches it through the matching shared bus.</p>
         </section>
 
         <section id="testing">
@@ -919,7 +919,7 @@
                     <tr><td>Read and write ports</td><td><code>src/Backendbase/Domain/ExampleCatalog/Contracts/Entry*Repository.php</code></td></tr>
                     <tr><td>Doctrine adapters</td><td><code>src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine</code></td></tr>
                     <tr><td>Memory adapters</td><td><code>src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory</code></td></tr>
-                    <tr><td>HTTP consumer adapter</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi</code></td></tr>
+                    <tr><td>Inbound API adapter</td><td><code>src/Backendbase/Infrastructure/Inbound/ExampleApi</code></td></tr>
                     <tr><td>Module-local suite</td><td><code>src/Backendbase/Domain/ExampleCatalog/Tests</code></td></tr>
                     <tr><td>Functional lifecycle suite</td><td><code>tests/Functional/EntryLifecycleTest.php</code></td></tr>
                     <tr><td>Architecture boundaries</td><td><code>tests/Architecture</code></td></tr>

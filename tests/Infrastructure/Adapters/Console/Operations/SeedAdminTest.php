@@ -28,7 +28,7 @@ final class SeedAdminTest extends TestCase
         $tester    = new CommandTester($container->get(SeedAdmin::class));
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertStringContainsString('No database record changed.', $tester->getDisplay());
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
     }
 
     public function testApplyUsesThePasswordFileAndDoesNotPrintItsContents(): void
@@ -63,14 +63,14 @@ final class SeedAdminTest extends TestCase
         $allowed = new SeedAdmin($container->get(AdminSeeder::class), static function (): void {
         });
         self::assertSame(Command::INVALID, new CommandTester($allowed)->execute(['--apply' => true]));
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
     }
 
     public function testDatabaseFailuresReturnFailureWithoutPrintingThePassword(): void
     {
         $fixture   = IdentityFixture::create();
         $container = $fixture->container();
-        $fixture->connection()->executeStatement('DROP TABLE identity_admin');
+        $fixture->connection()->executeStatement('DROP TABLE `admin`');
         $path = tempnam(sys_get_temp_dir(), 'admin-seed-failure-');
         self::assertIsString($path);
         try {
@@ -81,7 +81,7 @@ final class SeedAdminTest extends TestCase
             self::assertSame(Command::FAILURE, $tester->execute(['--apply' => true, '--password-file' => $path]));
             self::assertStringContainsString('No migration was applied.', $tester->getDisplay());
             self::assertStringNotContainsString('initial-password-123', $tester->getDisplay());
-            self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+            self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
         } finally {
             unlink($path);
         }
@@ -97,6 +97,6 @@ final class SeedAdminTest extends TestCase
         $container = $fixture->container();
         $tester    = new CommandTester($container->get(SeedAdmin::class));
         self::assertSame(Command::INVALID, $tester->execute(['--apply' => true]));
-        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM identity_account'));
+        self::assertSame(0, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM account'));
     }
 }

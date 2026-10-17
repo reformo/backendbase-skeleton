@@ -1,7 +1,7 @@
 # Contact Verification
 
 User registration requires verified email and mobile before creating an Account, User, or credentials.
-IdentityAndAccess owns `contact_info`. Each row records one contact slot, purpose, realm, and verification context.
+IdentityAndAccess owns `contact_verification`. Each row records one contact slot, purpose, realm, and verification context.
 The Account remains the owner of the email and mobile used for login.
 
 ## User API flow
@@ -48,7 +48,7 @@ A repeated registration after consumption returns a conflict. Use normal login a
 
 Only SHA-256 context digests are stored. The context token has 256 bits of random input.
 Six-digit code hashes use the keyed proof hasher and bind contact, generation, purpose, realm, and record identity.
-Neither the plaintext code nor the raw context token is stored in `contact_info`.
+Neither the plaintext code nor the raw context token is stored in `contact_verification`.
 The contact record retains code deadlines, attempts, delivery state, verification time, and consumption evidence.
 `ContactState` provides immutable typed access to its stored JSON snapshot. Reconstruction validates all declared field types.
 Mapped columns remain authoritative for contact identity, owner references, verification time, and row revision.
@@ -83,7 +83,7 @@ The PHP viewer reads MiniStack captures and refreshes every five seconds. It doe
 It shows the first SMS line, up to MiniStack's 80-character log limit. Some raw emails have no stored recipient.
 See [local service limits](../19-external-services.md).
 
-Local setup requires `BACKENDBASE_IDENTITY_OWNERSHIP_SENDER` and a valid `BACKENDBASE_IDENTITY_ENCRYPTION_KEY` with its key identifier.
+Local setup requires `BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER` and a valid `BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY` with its key identifier.
 The example environment supplies a sender and a public 32-byte proof key for local development.
 Its default SES endpoint targets MiniStack. Replace the example keys and configure a real provider before deployment.
 
@@ -119,7 +119,7 @@ Malformed requests return 400. Invalid proof or authority returns 401. Conflicts
 Expired codes or evidence return 410. Request limits return 429 with `Retry-After`.
 Dependency failures return 503. Errors retain the root Problem Details structure.
 
-Code hashing retains the `encryptionKey` and `previousEncryptionKey` configuration names.
+Code hashing retains the `contactProofKey` and `previousContactProofKey` configuration names.
 Keep an issued hashing key until every dependent code and confirmation recovery window expires.
 Pending codes depend on their code deadline. Confirmed records depend on `verifiedAt + 12 hours`.
 Do not discard a required previous key during a second rotation.
@@ -134,6 +134,6 @@ Native MySQL tests cover concurrent consumption and observed lock waits on prepa
 Native Redis tests execute the cooldown, send-budget, and confirmation-reservation scripts on a prepared target.
 SQLite tests do not prove MySQL locking or optimizer behavior.
 
-The initial identity migration replaces `identity_challenge` with `contact_info` for fresh installations.
+The initial identity migration replaces `identity_challenge` with `contact_verification` for fresh installations.
 Review generated SQL against production metadata. Existing installations require a separate adoption plan.
 Do not apply migrations or send real notifications as part of local verification.

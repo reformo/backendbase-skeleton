@@ -120,10 +120,10 @@ final class ReadinessDependencyDefinitionsTest extends TestCase
                 'sns' => ['senderId' => 'Backendbase', 'smsType' => 'Transactional'],
                 'sqs' => [
                     'continuous' => false,
-                    'maxNumberOfMessages' => 10,
+                    'maximumMessageCount' => 10,
                     'queue' => 'events',
                     'queueUrl' => 'https://example.com/events',
-                    'visibilityTimeout' => 30,
+                    'visibilityTimeoutSeconds' => 30,
                     'waitTimeSeconds' => 20,
                 ],
             ],

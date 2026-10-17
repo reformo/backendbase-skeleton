@@ -11,8 +11,8 @@
 - Messaging coordination may depend only on its own types, Shared contracts and values, and native PHP types. It must not import concrete adapters, frameworks, or business contexts.
 - Infrastructure adapters map project contracts to frameworks, databases, brokers, and vendors.
 - Infrastructure adapters must not make business decisions.
-- `Infrastructure/Inbound` holds consumer-specific entry code outside bounded contexts.
-- Keep each consumer API's routes, middleware, and controllers in its own directory under `Infrastructure/Inbound`.
+- `Infrastructure/Inbound` holds inbound API entry code outside bounded contexts.
+- Keep each inbound API's routes, middleware, and controllers in its own directory under `Infrastructure/Inbound`.
 - Reusable HTTP support belongs under `Infrastructure/Adapters/Http`.
 - Operational console command entry code belongs under `Infrastructure/Adapters/Console`.
 - Shared code contains stable cross-module contracts and values. Framework support belongs in Infrastructure.

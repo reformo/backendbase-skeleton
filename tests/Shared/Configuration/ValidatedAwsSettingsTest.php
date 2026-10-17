@@ -22,10 +22,10 @@ final class ValidatedAwsSettingsTest extends TestCase
         ];
         $sqs         = [
             'continuous' => false,
-            'maxNumberOfMessages' => 10,
+            'maximumMessageCount' => 10,
             'queue' => 'events',
             'queueUrl' => '',
-            'visibilityTimeout' => 30,
+            'visibilityTimeoutSeconds' => 30,
             'waitTimeSeconds' => 20,
         ];
         $sns         = ['smsType' => 'Transactional', 'senderId' => 'Backendbase'];

@@ -30,11 +30,11 @@ readonly class ContainerAwareQueryBus implements QueryBus
     #[Override]
     public function handle(Query $query): mixed
     {
-        $handlerFQCN = $this->handlerResolver->handlerFor($query);
+        $handlerClass = $this->handlerResolver->handlerFor($query);
 
-        $handler = $this->container->get($handlerFQCN);
+        $handler = $this->container->get($handlerClass);
         if (! $handler instanceof QueryHandler) {
-            throw new UnexpectedValueException($handlerFQCN . ' is not a query handler.');
+            throw new UnexpectedValueException($handlerClass . ' is not a query handler.');
         }
 
         return $handler->handle($query);

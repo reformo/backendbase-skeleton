@@ -128,7 +128,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
             . 'available_at TEXT NOT NULL, '
             . 'published_at TEXT DEFAULT NULL, '
             . 'attempts INTEGER DEFAULT 0 NOT NULL, '
-            . 'last_error VARCHAR(255) DEFAULT NULL'
+            . 'last_failure_type VARCHAR(255) DEFAULT NULL'
             . ')',
         );
     }

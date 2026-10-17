@@ -34,9 +34,9 @@ class ClearCache extends Command
             throw new RuntimeException('Could not resolve the current directory.');
         }
 
-        $dir   = 'var/cache';
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+        $cacheDirectory = 'var/cache';
+        $files          = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($cacheDirectory, FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::CHILD_FIRST,
         );
 

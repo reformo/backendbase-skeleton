@@ -36,8 +36,8 @@ final readonly class SodiumAuthenticationSecrets implements AuthenticationSecret
     public function proofHash(string $proof): string
     {
         $settings = $this->settings;
-        $id       = $settings->encryptionKeyId();
-        $keys     = $settings->encryptionKeys();
+        $id       = $settings->contactProofKeyId();
+        $keys     = $settings->contactProofKeys();
 
         return $id . ':' . hash_hmac('sha256', $proof, $keys[$id]);
     }
@@ -46,7 +46,7 @@ final readonly class SodiumAuthenticationSecrets implements AuthenticationSecret
     {
         [$id, $digest] = array_pad(explode(':', $expectedHash, 2), 2, '');
         $settings      = $this->settings;
-        $keys          = $settings->encryptionKeys();
+        $keys          = $settings->contactProofKeys();
 
         return isset($keys[$id]) && hash_equals($digest, hash_hmac('sha256', $proof, $keys[$id]));
     }

@@ -61,10 +61,10 @@ function context(): array
     $root = dirname(__DIR__, 2);
     Dotenv::createUnsafeImmutable($root)->safeLoad();
 
-    $config  = require $root . '/config/autoload/global.php';
-    $service = $config['service-name'] ?? null;
-    $apiKey  = backendbaseEnv('TOLGEE_API_KEY');
-    $apiUrl  = backendbaseEnv('TOLGEE_API_URL', 'https://app.tolgee.io');
+    $configuration = require $root . '/config/autoload/global.php';
+    $service       = $configuration['service-name'] ?? null;
+    $apiKey        = backendbaseEnv('TOLGEE_API_KEY');
+    $apiUrl        = backendbaseEnv('TOLGEE_API_URL', 'https://app.tolgee.io');
 
     if (! is_string($service) || trim($service) === '') {
         throw new RuntimeException('config/autoload/global.php must define a non-empty "service-name".');

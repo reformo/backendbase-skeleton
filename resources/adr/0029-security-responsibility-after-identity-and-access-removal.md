@@ -7,7 +7,7 @@
 
 ## Context and Problem Statement
 
-The built-in IdentityAndAccess module and bearer-token flow have been removed. Consumer APIs still need credential validation and explicit anonymous access policy.
+The built-in IdentityAndAccess module and bearer-token flow have been removed. Inbound APIs still need credential validation and explicit anonymous access policy.
 
 This record preserves the previous implementation baseline. The [final decision report](references/2026-10-13-identity-access-decisions.md#realm-authentication-and-sessions) replaces its API-key-only identity boundary with [separate JWT realms](0037-user-and-system-admin-jwt-realms.md), a [single identity context](0036-single-identity-and-access-context-and-global-accounts.md), and [Redis session validation](0038-redis-token-allowlist-and-session-lifecycle.md).
 

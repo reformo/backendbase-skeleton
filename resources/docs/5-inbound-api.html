@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
-    <title>Backendbase Use Case API Guide</title>
+    <title>Backendbase Inbound API Guide</title>
     <style>
         :root {
             --page: #f5f6fa;
@@ -418,8 +418,8 @@
 <header class="hero">
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · HTTP Adapter Guide</p>
-        <h1>Use Case API</h1>
-        <p class="lede">Build a consumer API as a thin Slim adapter that selects a use case, validates transport input, dispatches CQRS contracts, and returns stable HTTP responses.</p>
+        <h1>Inbound API</h1>
+        <p class="lede">Build an inbound API as a thin Slim adapter that selects a use case, validates transport input, dispatches CQRS contracts, and returns stable HTTP responses.</p>
         <div class="chips" aria-label="Guide topics">
             <span class="chip">ExampleApi reference</span>
             <span class="chip">Slim routing</span>
@@ -458,7 +458,7 @@
 <div class="callout"><strong>ADR implementation:</strong> Read the <a href="../adr/implementation-status.md">implementation register</a> and <a href="../platform/14-security.md">identity security policy</a> for current identity realms, binary UUID mapping, service tests, and recovery operations.</div>
         <section id="overview">
             <h2>Overview</h2>
-            <p>A Use Case API is an HTTP adapter under <code>src/Backendbase/Infrastructure/Inbound/{ApiName}</code>. It owns transport concerns. It does not own domain rules or persistence.</p>
+            <p>An inbound API is an HTTP adapter under <code>src/Backendbase/Infrastructure/Inbound/{ApiName}</code>. It owns transport concerns. It does not own domain rules or persistence.</p>
             <div class="grid three">
                 <article class="card purple">
                     <span class="tag">Select</span>
@@ -528,8 +528,8 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <h2>Request lifecycle</h2>
             <p>The shared bootstrap builds the runtime. The selected API supplies only its middleware and routes.</p>
             <figure class="diagram">
-                <svg viewBox="0 0 1120 560" role="img" aria-label="Use Case API request lifecycle">
-                    <title>Use Case API request lifecycle</title>
+                <svg viewBox="0 0 1120 560" role="img" aria-label="Inbound API request lifecycle">
+                    <title>Inbound API request lifecycle</title>
                     <desc>A request selects ExampleApi, loads configuration and the dependency container, passes through Slim middleware and routing, invokes an action, dispatches CQRS, and returns through error handling and the response emitter.</desc>
                     <defs>
                         <marker id="api-arrow-purple" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#9f8bea"/></marker>
@@ -924,12 +924,12 @@ bin/bruno example-api local</code></pre></div>
                 <li>The controller does not access Doctrine.</li>
                 <li>Invalid input never reaches a bus.</li>
                 <li>Write handlers own the missing-resource decision.</li>
-                <li>All affected consumer APIs are updated.</li>
+                <li>All affected inbound APIs are updated.</li>
             </ul>
         </section>
 
         <section id="new-api">
-            <h2>Add another Use Case API</h2>
+            <h2>Add another Inbound API</h2>
             <p>Scaffold a separate API before you add its controllers. Use <code>ExampleApi</code> as the reference for all required roots.</p>
             <div class="table-wrap">
                 <table>
@@ -937,7 +937,7 @@ bin/bruno example-api local</code></pre></div>
                     <tbody>
                     <tr><td>Runtime adapter</td><td><code>src/Backendbase/Infrastructure/Inbound/{ApiName}</code></td></tr>
                     <tr><td>Dedicated entry point</td><td><code>public/{api-slug}/index.php</code></td></tr>
-                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Infrastructure/Adapters/Http/Bootstrap/ConsumerApiTarget.php</code>.</td></tr>
+                    <tr><td>API selection</td><td>Add the source ID, class name, and slug to <code>Infrastructure/Adapters/Http/Bootstrap/InboundApiTarget.php</code>.</td></tr>
                     <tr><td>Configuration</td><td><code>config/{api-slug}</code></td></tr>
                     <tr><td>OpenAPI source</td><td><code>resources/api-docs/{api-slug}</code></td></tr>
                     <tr><td>Generated docs</td><td><code>public/{api-slug}/docs</code></td></tr>

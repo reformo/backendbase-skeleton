@@ -21,21 +21,19 @@ final readonly class OperatorWorkflow
 
     public function run(OperatorInput $input, DateTimeImmutable $now, bool $apply): string
     {
-        $values = $input->values();
-        $store  = $this->store;
+        $values     = $input->values();
+        $store      = $this->store;
+        $operations = $this->operations;
 
-        return $store->transaction(function () use ($input, $values, $now, $apply): string {
-            $target = match ($values['action']) {
+        $work        = function () use ($input, $values, $now, $apply): string {
+            return match ($values['action']) {
                 'invite-first-admin' => $this->invite($input, $now, $apply),
                 default => $this->approve($input, $apply),
             };
-            if ($apply) {
-                $operations = $this->operations;
-                $operations->record($input, $target, $now);
-            }
+        };
+        $transaction = static fn (): string => $store->transaction($work);
 
-            return $target;
-        });
+        return $operations->exclusive($transaction);
     }
 
     private function invite(OperatorInput $input, DateTimeImmutable $now, bool $apply): string

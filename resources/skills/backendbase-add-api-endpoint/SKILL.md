@@ -74,7 +74,7 @@ The second approach returns resource state at read time, not an exact commit sna
 - Invalid input never reaches a command or query bus.
 - A boundary failure never dispatches a command or query. The command handler owns authoritative missing-state and invariant decisions for a write.
 - Request and response attributes follow the active project convention and match OpenAPI exactly.
-- In an unmodified Backendbase API, consumer operations use API-key protection. Apply the discovered target policy in other projects.
+- In an unmodified Backendbase API, inbound API operations use API-key protection. Apply the discovered target policy in other projects.
 - API-key validation, bearer authentication, and ACL authorization are separate decisions.
 - Do not leave a new command or query without a resolvable handler and complete application-path tests.
 - Known problem exceptions use the shared problem-details response path.

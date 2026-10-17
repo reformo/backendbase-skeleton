@@ -43,12 +43,12 @@ final class IdentityConcurrencyWork
         $connection->beginTransaction();
         $target = $identities[0];
         foreach (array_slice($identities, 1) as $id) {
-            $connection->executeStatement('UPDATE identity_account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$id]);
+            $connection->executeStatement('UPDATE account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$id]);
         }
 
         fwrite(STDOUT, "locked\n");
         self::command('continue');
-        $connection->executeStatement('UPDATE identity_account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$target]);
+        $connection->executeStatement('UPDATE account SET version = version + 1 WHERE id = UUID_TO_BIN(?, 0)', [$target]);
         $connection->commit();
         fwrite(STDOUT, "committed\n");
     }

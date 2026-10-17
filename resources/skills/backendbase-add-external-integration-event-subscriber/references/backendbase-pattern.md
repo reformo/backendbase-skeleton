@@ -26,6 +26,10 @@ Do not copy `Backendbase\`, `ExampleCatalog`, `Example_NewExampleAdded_Event`, v
 | Database idempotency | `InboxMessageTransaction` | Key by consumer and message ID. |
 | External-effect safety | `ExternalEffectInbox` | Claim before the call and stop on unknown outcome. |
 
+In an unmodified Backendbase project, a carrier can declare `INPUT_FIELD_ALIASES` when a released key differs from its PHP field name.
+The queue adapter applies this framework-independent map before reconstruction. Keep serialized keys unchanged and verify the real dispatcher.
+Discover and adapt the target project's equivalent mapping contract.
+
 ## Small carrier and subscriber example
 
 The source service and event names are illustrative.
@@ -123,7 +127,7 @@ For email, payment, storage, or another provider call, use a durable external-ef
 
 Backendbase keys the external-effect row by `(consumer_name, message_id)` and stores the effect name as metadata. This permits one effect per key. Redesign the unique key or use a distinct stable consumer identity when one message must start multiple independent effects.
 
-The current adapter uses a lease token and `claimed_until`. An active claim returns in-progress. An expired incomplete claim becomes outcome-unknown and does not run again. An exception after the callback starts and a failure to record completion both become outcome-unknown.
+The current adapter uses a lease token and `claim_expires_at`. An active claim returns in-progress. An expired incomplete claim becomes outcome-unknown and does not run again. An exception after the callback starts and a failure to record completion both become outcome-unknown.
 
 This protocol prevents an automatic duplicate start. It does not prove that the provider completed the effect. Add operator-visible reconciliation. The repository has no automatic reconciliation worker.
 

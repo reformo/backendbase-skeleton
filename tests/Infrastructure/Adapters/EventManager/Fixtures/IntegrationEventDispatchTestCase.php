@@ -28,7 +28,7 @@ abstract class IntegrationEventDispatchTestCase extends TestCase
             'CREATE TABLE integration_event_outbox ('
             . 'id TEXT PRIMARY KEY, destination TEXT, event_name TEXT, event_version TEXT, payload TEXT, '
             . 'occurred_at TEXT, created_at TEXT, available_at TEXT, published_at TEXT, '
-            . 'attempts INTEGER, last_error TEXT)',
+            . 'attempts INTEGER, last_failure_type TEXT)',
         );
         $connection->executeStatement(
             'CREATE TABLE subscriber_write (event_name TEXT, business_count INTEGER, outbox_count INTEGER)',

@@ -57,10 +57,10 @@ final class ProductionContainerFixture
                 'sns' => ['senderId' => 'Backendbase', 'smsType' => 'Transactional'],
                 'sqs' => [
                     'continuous' => false,
-                    'maxNumberOfMessages' => 10,
+                    'maximumMessageCount' => 10,
                     'queue' => 'events',
                     'queueUrl' => 'https://sqs.eu-central-1.amazonaws.com/123456789012/events',
-                    'visibilityTimeout' => 30,
+                    'visibilityTimeoutSeconds' => 30,
                     'waitTimeSeconds' => 20,
                 ],
             ],

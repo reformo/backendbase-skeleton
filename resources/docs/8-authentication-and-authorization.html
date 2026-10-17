@@ -25,7 +25,7 @@
     <a href="#identity-realms">12. Identity realms</a>
 </nav>
 <main id="main-content">
-<section id="overview"><p class="section-label">01 · Overview</p><h2>Each consumer API has an explicit security policy</h2>
+<section id="overview"><p class="section-label">01 · Overview</p><h2>Each inbound API has an explicit security policy</h2>
     <p>ExampleApi requires the configured API key for metadata, Authentication, Identity, and Example operations. All Example operations except <code>getExampleByCriteria</code> also require USER bearer authentication. Liveness and readiness remain public.</p>
     <p>IdentityAndAccess owns global Accounts and realm-specific User and SystemAdmin actors. ExampleApi and UserApi share USER authentication and sessions. SystemAdminApi uses the separate ADMIN realm. Greeting HTTP endpoints remain absent.</p>
     <p>All three APIs use trusted realm policies and JSON Web Tokens (JWTs) on protected identity routes. See <a href="#identity-realms">identity realms</a> for session and database gates.</p>
@@ -64,7 +64,7 @@
     <p>Metadata and all six Example routes require an API key. Liveness and readiness use <code>security: []</code>.</p>
     <p>Identity, Administration, and protected Example groups add <code>RealmAuthentication</code>, then <code>RealmPolicy</code>. Slim executes the last added middleware first. The realm therefore exists before authentication runs. Endpoint action and contact policies execute after group authentication.</p>
     <p>Public Authentication groups apply only <code>RealmPolicy</code>. Login and public contact verification do not require a bearer token. ExampleApi Authentication routes retain the API-key requirement. Health and preflight routes remain outside protected groups.</p>
-    <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
+    <div class="related"><a href="5-inbound-api.html">Inbound API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
 <section id="configuration"><p class="section-label">07 · Configuration</p><h2>Keep the key outside source control</h2>
     <p><code>EXAMPLE_API_KEY</code> supplies the expected API key through <code>config/example-api/global.php</code>. Do not log or return this value.</p>
@@ -107,12 +107,12 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/Comma
 <p>Admin enrollment requires an existing verified Account, invitation evidence, and separate approval evidence. An Admin cannot approve its own invitation. Both realms use password authentication.</p>
 <p>Account state records ownership with the boolean <code>ownershipVerified</code>. User registration sets it after both contact proofs pass. The trusted initial Admin bootstrap also confirms ownership. Login and session validation require this flag, Account enablement, and the applicable actor checks.</p>
 <p>Immutable identity state primitives validate stored JSON before domain use. Unknown, missing, or mistyped fields cause an explicit failure. Aggregate methods retain authorization decisions. Contact state serialization includes internal data and must not become a public response or diagnostic log.</p>
-<p>Accounts store the Argon2id password hash directly in required <code>identity_account.password_hash VARCHAR(255)</code>. The credential store reads and writes a string under the existing Account locks. The consolidated installation migration creates this column directly. Existing databases with credential JSON need separate schema and data adoption.</p>
+<p>Accounts store the Argon2id password hash directly in required <code>account.password_hash VARCHAR(255)</code>. The credential store reads and writes a string under the existing Account locks. The consolidated installation migration creates this column directly. Existing databases with credential JSON need separate schema and data adoption.</p>
 <p><code>POST /auth/login</code> returns a <code>session</code> result with a short-lived JSON Web Token (JWT) only after Redis records both token and session allowlist entries. Request validation checks signature, issuer, audience, realm, actor type, expiry, both Redis records, and current Account and actor state.</p>
 <p>The existing RedisJSON library stores token and session objects through atomic Lua scripts. Activation applies key-level <code>EXPIRE</code> after each <code>JSON.SET</code>, using the remaining JWT lifetime. Reads do not renew expiry. Existing string records remain readable until expiry. Account block markers remain strings.</p>
 <p>The same script applies <code>EXPIREAT</code> after <code>EXPIRE</code> to retain the JWT's exact expiration deadline.</p>
 <p>Token revocation removes the current token entry. Logout removes token and session entries. Account closure disables the Account, increments its authentication version, and blocks both realms.</p>
-<p>Local root operator commands record first-Admin invitation and approval evidence. TOTP enrollment and recovery are removed.</p>
+<p>Local root operator commands store first-Admin invitation and approval evidence in Admin state. Operator setup and manual seeding use the same database-scoped MySQL lock. Operator approval requires the sole pending Admin. Separate operator names and action timestamps have no persistence table. TOTP enrollment and recovery are removed.</p>
 <p>Protected actor mutations reload persisted authorization under Account-first locks after a target reference lookup. A concurrently removed Admin cannot restore itself through stale managed state.</p>
 <p><a href="../platform/14-security.md">Read the full identity policy</a>. Review the <a href="../api-docs/user-api/user-api-openapi.yml">User API contract</a> and <a href="../api-docs/system-admin-api/system-admin-api-openapi.yml">System Admin API contract</a>.</p>
 </section>

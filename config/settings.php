@@ -18,11 +18,11 @@ use DI\ContainerBuilder;
 use function DI\autowire;
 use function DI\create;
 
-return static function (ContainerBuilder $containerBuilder, array $config): void {
+return static function (ContainerBuilder $containerBuilder, array $configuration): void {
     // Global Settings Object
     $containerBuilder->addDefinitions([
         SettingsInterface::class => create(Settings::class)
-            ->constructor($config),
+            ->constructor($configuration),
         ApiKeySettings::class => autowire(ApiKeySettings::class),
         ApplicationRuntimeSettings::class => autowire(ApplicationRuntimeSettings::class),
         AwsSettings::class => autowire(AwsSettings::class),

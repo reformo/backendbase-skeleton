@@ -10,6 +10,9 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Outbox\DoctrineOutb
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Migrations\Version20260823000000;
 use Backendbase\Migrations\Version20261014020000;
+use Backendbase\Migrations\Version20261017000000;
+use Backendbase\Migrations\Version20261017010000;
+use Backendbase\Migrations\Version20261017173407;
 use Backendbase\Shared\Persistence\ExternalEffectResolution;
 use Backendbase\Shared\Persistence\RecoveryEvidence;
 use DateTimeImmutable;
@@ -22,7 +25,7 @@ use Tests\Support\Services\IsolatedMySql;
 use Tests\Support\Time\FrozenClock;
 
 use function getenv;
-use function str_starts_with;
+use function in_array;
 
 final class MySqlRecoveryTest extends TestCase
 {
@@ -35,7 +38,7 @@ final class MySqlRecoveryTest extends TestCase
         $fixture = IsolatedMySql::create(false);
         try {
             $connection = $fixture->connection();
-            foreach ([Version20260823000000::class, Version20261014020000::class] as $class) {
+            foreach ([Version20260823000000::class, Version20261014020000::class, Version20261017000000::class, Version20261017010000::class, Version20261017173407::class] as $class) {
                 $migration = new $class($connection, new NullLogger());
                 $migration->up(new Schema());
                 $queries = $migration->getSql();
@@ -45,15 +48,15 @@ final class MySqlRecoveryTest extends TestCase
             }
 
             $configuration = $connection->getConfiguration();
-            // Operator evidence is DBAL-owned and has no ORM mapping.
-            $configuration->setSchemaAssetsFilter(static fn (string $table): bool => str_starts_with($table, 'identity_') && $table !== 'identity_operator_action');
+            // Messaging recovery tables are DBAL-owned and have no identity ORM mapping.
+            $configuration->setSchemaAssetsFilter(static fn (string $table): bool => in_array($table, ['account', 'user', 'admin', 'contact_verification'], true));
             $manager         = $fixture->manager();
             $metadataFactory = $manager->getMetadataFactory();
             self::assertSame([], new SchemaTool($manager)->getUpdateSchemaSql($metadataFactory->getAllMetadata()));
             $id  = Uuid::uuid7()->toString();
             $now = '2026-10-14 10:00:00.000000';
             $connection->insert('integration_event_outbox', ['id' => $id, 'event_name' => 'Example_NewExampleAdded', 'event_version' => '1.0', 'payload' => '{}', 'occurred_at' => $now, 'created_at' => $now, 'available_at' => $now, 'published_at' => $now, 'destination' => 'events']);
-            $connection->insert('integration_event_inbox', ['consumer_name' => 'events', 'message_id' => $id, 'event_name' => 'notification/email', 'received_at' => $now, 'claimed_until' => '2026-10-14 09:00:00.000000']);
+            $connection->insert('integration_event_inbox', ['consumer_name' => 'events', 'message_id' => $id, 'event_name' => 'notification/email', 'received_at' => $now, 'claim_expires_at' => '2026-10-14 09:00:00.000000']);
             $clock    = new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'));
             $evidence = new RecoveryEvidence('operator', 'provider-ticket:123');
             $resolver = new DoctrineExternalEffectResolver($connection, $clock);

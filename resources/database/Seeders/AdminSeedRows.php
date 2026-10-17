@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Seeders;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Operator\DoctrineOperatorStore;
-use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
 use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\AccountState;
 use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ramsey\Uuid\Uuid;
@@ -28,13 +25,13 @@ final readonly class AdminSeedRows
     {
     }
 
-    public function insert(Account $account, SystemAdmin $admin, Password $password, DateTimeImmutable $now): void
+    public function insert(Account $account, SystemAdmin $admin, Password $password): void
     {
         $connection = $this->connection;
         $state      = $account->snapshot();
         $accountId  = $account->id();
         $identifier = Uuid::fromString($accountId);
-        $connection->insert('identity_account', [
+        $connection->insert('account', [
             'id' => $identifier->getBytes(),
             'version' => 1,
             'normalized_email' => $state['email'],
@@ -49,7 +46,7 @@ final readonly class AdminSeedRows
         $actorId = $admin->id();
         $actor   = Uuid::fromString($actorId);
         $state   = $admin->snapshot();
-        $connection->insert('identity_admin', [
+        $connection->insert('`admin`', [
             'id' => $actor->getBytes(),
             'version' => 1,
             'account_id' => $identifier->getBytes(),
@@ -57,8 +54,5 @@ final readonly class AdminSeedRows
             'deleted_at' => null,
             'state' => json_encode(ActorState::fromArray(['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']]), JSON_THROW_ON_ERROR),
         ], ['id' => ParameterType::BINARY, 'account_id' => ParameterType::BINARY]);
-        $evidence = new DoctrineOperatorStore($connection);
-        $evidence->record(new OperatorInput('invite-first-admin', $accountId, 'admin-seeder', AdminSeeder::INVITATION, ''), $actorId, $now);
-        $evidence->record(new OperatorInput('approve-first-admin', $actorId, 'admin-seeder', '', AdminSeeder::APPROVAL), $actorId, $now);
     }
 }

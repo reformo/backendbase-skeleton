@@ -14,11 +14,11 @@ return [
         'region' => backendbaseEnv('AWS_REGION', 'eu-central-1'),
         'endpoint' => backendbaseEnv('AWS_ENDPOINT', ''),
         'sqs' => [
-            'queue' => backendbaseEnv('AWS_SQS_QUEUE', 'backendbase-queue'),
+            'queue' => backendbaseEnv('AWS_SQS_QUEUE_NAME', 'backendbase-queue'),
             'queueUrl' => backendbaseEnv('AWS_SQS_QUEUE_URL', ''),
-            'maxNumberOfMessages' => backendbaseIntegerEnvironmentValue('AWS_SQS_MAX_NUMBER_OF_MESSAGES', 10),
+            'maximumMessageCount' => backendbaseIntegerEnvironmentValue('AWS_SQS_MAXIMUM_MESSAGE_COUNT', 10),
             'waitTimeSeconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_WAIT_TIME_SECONDS', 20),
-            'visibilityTimeout' => backendbaseIntegerEnvironmentValue('AWS_SQS_VISIBILITY_TIMEOUT', 30),
+            'visibilityTimeoutSeconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_VISIBILITY_TIMEOUT_SECONDS', 30),
             'continuous' => filter_var(
                 backendbaseEnv('AWS_SQS_CONTINUOUS', 'true'),
                 FILTER_VALIDATE_BOOL,

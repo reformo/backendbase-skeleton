@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Backendbase\Shared\Options\System\Environment;
 
 $environment         = backendbaseEnv('BACKENDBASE_ENV', Environment::DEV->value);
-$backendbaseDebug    = backendbaseEnv('BACKENDBASE_LOGGER_LEVEL') ?? backendbaseEnv('BACKENDBASE_DEBUG');
+$loggerLevelName     = backendbaseEnv('BACKENDBASE_LOGGER_LEVEL') ?? backendbaseEnv('BACKENDBASE_DEBUG');
 $displayErrorDetails = match (Environment::fromValue((string) $environment)) {
     Environment::DEV, Environment::TEST => true,
     default => false,
@@ -29,6 +29,6 @@ return [
     'readiness' => ['timeoutSeconds' => $readinessTimeout],
     'base-path' => backendbaseEnv('BASE_PATH', ''),
 
-    'payment-gateway-call-baseurl' => backendbaseEnv('PAYMENT_CALLBACK_BASEURL', ''),
+    'payment-gateway-call-baseurl' => backendbaseEnv('PAYMENT_CALLBACK_BASE_URL', ''),
 
 ];

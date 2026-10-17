@@ -41,7 +41,7 @@ final class MinistackCompositionTest extends TestCase
 
         $cdn = self::arrayValue($services['cdn'] ?? null);
         self::assertSame(['127.0.0.1:${BACKENDBASE_DEV_CDN_PORT:-8081}:80'], $cdn['ports']);
-        self::assertSame('${BUCKET_NAME:-backendbase-v3}', self::arrayValue($cdn['environment'])['BUCKET_NAME']);
+        self::assertSame('${OBJECT_STORE_BUCKET_NAME:-backendbase-v3}', self::arrayValue($cdn['environment'])['OBJECT_STORE_BUCKET_NAME']);
         self::assertArrayHasKey('healthcheck', $cdn);
 
         $stackport = self::arrayValue($services['stackport'] ?? null);

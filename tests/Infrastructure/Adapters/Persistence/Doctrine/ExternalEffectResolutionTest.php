@@ -66,7 +66,7 @@ final class ExternalEffectResolutionTest extends TestCase
     /** @return iterable<string, array{array<string, mixed>|null}> */
     public static function protectedRecords(): iterable
     {
-        yield 'active' => [['claimed_until' => '2026-10-14 10:00:00.000000']];
+        yield 'active' => [['claim_expires_at' => '2026-10-14 10:00:00.000000']];
         yield 'completed' => [['processed_at' => '2026-10-13 10:00:00.000000']];
         yield 'missing' => [null];
     }

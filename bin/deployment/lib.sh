@@ -120,7 +120,7 @@ deployRunHook() {
 deployCheckReadiness() {
     local readinessUrl="$1"
     local attempts="${BACKENDBASE_READINESS_ATTEMPTS:-10}"
-    local timeoutSeconds="${BACKENDBASE_READINESS_TIMEOUT_SECONDS:-5}"
+    local timeoutSeconds="${BACKENDBASE_DEPLOY_READINESS_TIMEOUT_SECONDS:-5}"
 
     curl \
         --fail \

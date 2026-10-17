@@ -40,7 +40,7 @@ final class PersistedIdentityStateTest extends TestCase
         $store     = $container->get(IdentityStore::class);
         $store->transaction(static fn () => $store->saveAccount($account));
         $connection = $fixture->connection();
-        $stored     = $connection->fetchOne('SELECT state FROM identity_account');
+        $stored     = $connection->fetchOne('SELECT state FROM account');
         self::assertIsString($stored);
         $state = json_decode($stored, true, 16, JSON_THROW_ON_ERROR);
         self::assertIsArray($state);

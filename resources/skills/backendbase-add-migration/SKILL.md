@@ -44,6 +44,7 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 - Add missing required indexes, applicable ORM metadata, forward migrations, and regression checks in the same authorized change.
 - Document intentional aggregate or validation scans. Verify optimizer decisions on an identified, prepared target database.
 - Do not add or alter any table, column, index, timestamp, status, audit field, or data outside explicit scope.
+- In an unmodified Backendbase project, business table names have no bounded-context prefix. Preserve the `example_table` exception and check shared-database name collisions.
 - Do not apply a diff that contains an unexplained change. Report it and request a decision.
 - Use `Backendbase\Migrations` and `resources/database/Migrations` in an unmodified Backendbase project.
 - Treat MySQL DDL as non-transactional and prepare forward recovery.

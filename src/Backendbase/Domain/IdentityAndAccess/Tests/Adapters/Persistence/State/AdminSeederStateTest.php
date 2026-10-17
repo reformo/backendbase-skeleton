@@ -28,16 +28,17 @@ final class AdminSeederStateTest extends TestCase
             self::fail('Invalid persisted state must stop repeat seeding.');
         } catch (AuthenticationUnavailable) {
             self::assertSame($before, $connection->fetchOne('SELECT state FROM ' . $table));
-            self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM identity_operator_action'));
+            self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+            self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM `admin`'));
         }
     }
 
     /** @return iterable<string, array{string, string}> */
     public static function invalidStates(): iterable
     {
-        yield 'missing Account version' => ['identity_account', "json_remove(state, '$.authVersion')"];
-        yield 'unknown Account field' => ['identity_account', "json_set(state, '$.futureField', 1)"];
-        yield 'missing Admin evidence' => ['identity_admin', "json_remove(state, '$.invitation')"];
-        yield 'invalid Admin approval type' => ['identity_admin', "json_set(state, '$.approved', 1)"];
+        yield 'missing Account version' => ['account', "json_remove(state, '$.authVersion')"];
+        yield 'unknown Account field' => ['account', "json_set(state, '$.futureField', 1)"];
+        yield 'missing Admin evidence' => ['admin', "json_remove(state, '$.invitation')"];
+        yield 'invalid Admin approval type' => ['admin', "json_set(state, '$.approved', 1)"];
     }
 }

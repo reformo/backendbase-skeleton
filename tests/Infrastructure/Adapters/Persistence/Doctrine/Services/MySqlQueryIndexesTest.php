@@ -7,6 +7,9 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Services;
 use Backendbase\Migrations\Version20260823000000;
 use Backendbase\Migrations\Version20260823215059;
 use Backendbase\Migrations\Version20261014020000;
+use Backendbase\Migrations\Version20261017000000;
+use Backendbase\Migrations\Version20261017010000;
+use Backendbase\Migrations\Version20261017173407;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\Query\Query;
@@ -35,7 +38,7 @@ final class MySqlQueryIndexesTest extends TestCase
 
     private function assertMigration(Connection $connection): void
     {
-        foreach ([Version20260823000000::class, Version20260823215059::class, Version20261014020000::class] as $class) {
+        foreach ([Version20260823000000::class, Version20260823215059::class, Version20261014020000::class, Version20261017000000::class, Version20261017010000::class, Version20261017173407::class] as $class) {
             $migration = new $class($connection, new NullLogger());
             self::assertFalse($migration->isTransactional());
             $migration->up(new Schema());
@@ -51,8 +54,8 @@ final class MySqlQueryIndexesTest extends TestCase
         self::assertSame(['type', 'type_target_id', 'lookup_group', 'deleted_at', 'created_at', 'id'], $indexes['example_group_entries_idx']->getColumns());
         self::assertArrayHasKey('integration_event_inbox_message_processed_idx', $manager->listTableIndexes('integration_event_inbox'));
         self::assertArrayHasKey('integration_event_delivery_failure_message_terminal_idx', $manager->listTableIndexes('integration_event_delivery_failure'));
-        self::assertCount(11, $manager->listTableNames());
-        self::assertArrayHasKey('identity_operator_bootstrap_unq', $manager->listTableIndexes('identity_operator_action'));
+        self::assertCount(10, $manager->listTableNames());
+        self::assertNotContains('operator_action', $manager->listTableNames());
         self::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM example_table'));
     }
 

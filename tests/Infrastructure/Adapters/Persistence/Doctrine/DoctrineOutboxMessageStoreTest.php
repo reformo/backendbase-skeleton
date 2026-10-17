@@ -27,8 +27,8 @@ final class DoctrineOutboxMessageStoreTest extends TestCase
             . 'id VARCHAR(36) NOT NULL PRIMARY KEY, event_name VARCHAR(190) NOT NULL, '
             . 'destination VARCHAR(100) DEFAULT NULL, event_version VARCHAR(32) NOT NULL, payload TEXT NOT NULL, occurred_at TEXT NOT NULL, '
             . 'created_at TEXT NOT NULL, available_at TEXT NOT NULL, published_at TEXT DEFAULT NULL, '
-            . 'claim_token VARCHAR(36) DEFAULT NULL, claim_until TEXT DEFAULT NULL, '
-            . 'attempts INTEGER DEFAULT 0 NOT NULL, last_error VARCHAR(255) DEFAULT NULL)',
+            . 'claim_token VARCHAR(36) DEFAULT NULL, claim_expires_at TEXT DEFAULT NULL, '
+            . 'attempts INTEGER DEFAULT 0 NOT NULL, last_failure_type VARCHAR(255) DEFAULT NULL)',
         );
         $this->connection->insert('integration_event_outbox', [
             'id' => 'message-id',
@@ -40,9 +40,9 @@ final class DoctrineOutboxMessageStoreTest extends TestCase
             'available_at' => '2000-01-01 00:00:00.000000',
             'published_at' => null,
             'claim_token' => null,
-            'claim_until' => null,
+            'claim_expires_at' => null,
             'attempts' => 0,
-            'last_error' => null,
+            'last_failure_type' => null,
         ]);
         $this->store = new DoctrineOutboxMessageStore($this->connection);
     }
@@ -83,7 +83,7 @@ final class DoctrineOutboxMessageStoreTest extends TestCase
 
         self::assertSame(3, (int) $this->value('attempts'));
         self::assertSame('2000-01-01 00:00:09.000000', $this->value('available_at'));
-        self::assertSame('publish-failed', $this->value('last_error'));
+        self::assertSame('publish-failed', $this->value('last_failure_type'));
         self::assertNull($this->value('claim_token'));
     }
 

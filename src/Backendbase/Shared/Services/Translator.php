@@ -12,12 +12,12 @@ use function strtr;
 readonly class Translator
 {
     /** @var Dot<string, mixed> */
-    private Dot $dot;
+    private Dot $translationCatalog;
 
     /** @param array<string, mixed> $dictionary */
     public function __construct(private string $defaultLocale, array $dictionary)
     {
-        $this->dot = new Dot($dictionary);
+        $this->translationCatalog = new Dot($dictionary);
     }
 
     /**
@@ -29,19 +29,19 @@ readonly class Translator
     {
         $selectedLocale = $locale ?? $this->defaultLocale;
         $localeKey      = $selectedLocale . '.' . $key;
-        $format         = $this->dot->get($localeKey, $localeKey);
+        $format         = $this->translationCatalog->get($localeKey, $localeKey);
         if (is_array($format)) {
             return $format;
         }
 
-        $replaceArray = [];
+        $replacements = [];
         if (is_array($values)) {
             foreach ($values as $arrayKey => $value) {
-                $replaceArray[':' . $arrayKey] = $value;
+                $replacements[':' . $arrayKey] = $value;
             }
         }
 
-        return strtr($format, $replaceArray);
+        return strtr($format, $replacements);
     }
 
     /**

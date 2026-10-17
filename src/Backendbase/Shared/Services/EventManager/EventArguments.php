@@ -9,11 +9,11 @@ use stdClass;
 
 class EventArguments implements EventArgs
 {
-    private static EventArgs|null $emptyEventArgsInstance = null;
+    private static EventArgs|null $emptyInstance = null;
 
     public static function getEmptyInstance(): EventArgs
     {
-        return self::$emptyEventArgsInstance ??= new self();
+        return self::$emptyInstance ??= new self();
     }
 
     /** @return array<string, mixed> */

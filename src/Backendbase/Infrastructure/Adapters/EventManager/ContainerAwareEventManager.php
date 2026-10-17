@@ -75,23 +75,23 @@ class ContainerAwareEventManager implements EventManager
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
     #[Override]
-    public function addEventSubscriber(string|array $events, string $subscriberFQCN): void
+    public function addEventSubscriber(string|array $events, string $subscriberClass): void
     {
         $subscribers = $this->subscribers;
-        $subscribers->addEventSubscriber($events, $subscriberFQCN);
+        $subscribers->addEventSubscriber($events, $subscriberClass);
     }
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
     #[Override]
-    public function removeEventSubscriber(string|array $events, string $subscriberFQCN): void
+    public function removeEventSubscriber(string|array $events, string $subscriberClass): void
     {
         $subscribers = $this->subscribers;
-        $subscribers->removeEventSubscriber($events, $subscriberFQCN);
+        $subscribers->removeEventSubscriber($events, $subscriberClass);
     }
 }

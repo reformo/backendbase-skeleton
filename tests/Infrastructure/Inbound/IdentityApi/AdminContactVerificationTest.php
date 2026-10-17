@@ -27,7 +27,7 @@ final class AdminContactVerificationTest extends TestCase
         $adminToken = self::token($fixture, Realm::ADMIN);
         $userToken  = self::token($fixture, Realm::USER);
         $connection = $fixture->connection();
-        $before     = $connection->fetchOne('SELECT state FROM identity_account');
+        $before     = $connection->fetchOne('SELECT state FROM account');
         $context    = ContactScenario::token();
         IdentityScenario::advance($fixture, 'PT60S');
         $response = $adminApi->request('POST', '/identity/contact-verifications', ['contactType' => 'mobile', 'verificationContextToken' => $context], $adminToken);
@@ -40,7 +40,7 @@ final class AdminContactVerificationTest extends TestCase
         $path  = '/identity/contact-verifications/' . $id . '/confirm';
         self::assertSame(401, $adminApi->request('POST', $path, ['verificationContextToken' => $context, 'code' => $wrong], $adminToken)->getStatusCode());
         self::assertSame(200, $adminApi->request('POST', $path, ['verificationContextToken' => $context, 'code' => $valid], $adminToken)->getStatusCode());
-        self::assertSame($before, $connection->fetchOne('SELECT state FROM identity_account'));
+        self::assertSame($before, $connection->fetchOne('SELECT state FROM account'));
         self::assertSame(200, $adminApi->request('GET', '/identity', token: $adminToken)->getStatusCode());
         self::assertSame(200, $userApi->request('GET', '/identity', token: $userToken)->getStatusCode());
         self::assertSame(401, $adminApi->request('POST', '/identity/contact-verifications', ['contactType' => 'email', 'verificationContextToken' => $context], $userToken)->getStatusCode());
@@ -51,7 +51,7 @@ final class AdminContactVerificationTest extends TestCase
         $fixture = IdentityFixture::create();
         IdentityScenario::admin($fixture);
         $connection = $fixture->connection();
-        $connection->executeStatement("UPDATE identity_admin SET state = json_set(state, '$.approved', json('false'))");
+        $connection->executeStatement("UPDATE `admin` SET state = json_set(state, '$.approved', json('false'))");
         IdentityScenario::advance($fixture, 'PT60S');
         $api     = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $context = ContactScenario::token();
@@ -65,7 +65,7 @@ final class AdminContactVerificationTest extends TestCase
         self::resend($fixture, $api, '/auth/contact-verifications/' . $id, $context);
         $code = ContactVerificationFlowTest::code($fixture);
         self::assertSame(200, $api->request('POST', '/auth/contact-verifications/' . $id . '/confirm', ['verificationContextToken' => $context, 'code' => $code])->getStatusCode());
-        self::assertSame(0, $connection->fetchOne("SELECT json_extract(state, '$.approved') FROM identity_admin"));
+        self::assertSame(0, $connection->fetchOne("SELECT json_extract(state, '$.approved') FROM `admin`"));
         self::assertSame(401, $api->request('POST', '/auth/login', ['identifier' => 'admin@example.com', 'password' => 'valid-password-123'])->getStatusCode());
         $userApi = IdentityApiFixture::create($fixture, Realm::USER);
         self::assertSame(401, $userApi->request('POST', '/auth/contact-verifications/' . $id . '/confirm', ['verificationContextToken' => $context, 'code' => $code])->getStatusCode());
@@ -87,7 +87,7 @@ final class AdminContactVerificationTest extends TestCase
         $id         = UserFlowTest::text($contact, 'contactInfoId');
         $code       = ContactVerificationFlowTest::code($fixture);
         $connection = $fixture->connection();
-        $connection->executeStatement("UPDATE identity_admin SET deleted_at = '2026-10-14 10:02:00.000000' WHERE uuid = ?", [$admin['actorId']]);
+        $connection->executeStatement("UPDATE `admin` SET deleted_at = '2026-10-14 10:02:00.000000' WHERE uuid = ?", [$admin['actorId']]);
         self::assertSame(401, $api->request('POST', '/auth/contact-verifications', $request)->getStatusCode());
         self::assertSame(401, $api->request('POST', '/auth/contact-verifications/' . $id . '/confirm', ['verificationContextToken' => $token, 'code' => $code])->getStatusCode());
     }

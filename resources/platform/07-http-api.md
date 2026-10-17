@@ -1,10 +1,14 @@
 # HTTP API Adapter
 
-A Use Case API owns transport behavior. It must not own domain rules, persistence, or transaction control.
+An inbound API exposes application operations over HTTP. It owns request validation, routing, middleware, and response mapping.
+Application handlers own use-case coordination. An inbound API must not own domain rules, persistence, or transaction control.
+
+Use `inbound API` for an HTTP API surface and `inbound adapter` for the broader architectural category.
+Console entry points and message handlers can also be inbound adapters. Keep `consumer` for message consumers and API clients.
 
 ## Runtime
 
-- All public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `ConsumerApiTarget`.
+- All public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `InboundApiTarget`.
 - Invalid source selection returns HTTP `400` with `application/problem+json` and a matching Problem Details status before container creation.
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
 - API middleware, routes, controllers, configuration, OpenAPI, and Bruno use matching class and slug names.
@@ -48,7 +52,7 @@ Use non-static group callbacks because Slim binds them to the dependency contain
 - Slim exception titles use the standard HTTP reason phrase. Domain error titles describe the mapped problem type.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.
 
-Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example operations require an API key. Every Example operation except `getExampleByCriteria` also requires a USER bearer token.
+Protect new inbound API endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example operations require an API key. Every Example operation except `getExampleByCriteria` also requires a USER bearer token.
 
 Example POST and PATCH read bounded raw JSON through `ExampleRequestBody`. The root and supplied non-null details must be objects.
 The API preserves accepted text and detail values. It does not escape HTML, transform credential-like detail names, or derive image URLs.
@@ -60,10 +64,10 @@ ExampleApi CORS permits `Authorization` and `Backendbase-Api-Key`. Public authen
 Optional locale, timezone, and trace headers use documented defaults.
 All three API CORS configurations permit `Accept-Language`, timezone, trace, and source headers.
 
-Basis: `resources/docs/5-use-case-api.html`.
+Basis: `resources/docs/5-inbound-api.html`.
 
 The bootstrap validates supplied trace UUIDs and timezone values before logger creation. Missing optional headers retain documented defaults.
 JSON body limits run before parsing. Identity inputs require JSON objects, while token, session, and Account deletion require empty bodies.
 
-Browser OPTIONS preflight can select a fixed consumer from its API path without an `X-Source-Id` value.
+Browser OPTIONS preflight can select a fixed inbound API from its path without an `X-Source-Id` value.
 Ordinary requests still require the declared source header. Preflight does not invoke authentication or business handlers.

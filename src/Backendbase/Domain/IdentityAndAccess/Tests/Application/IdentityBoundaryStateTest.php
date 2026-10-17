@@ -21,7 +21,7 @@ final class IdentityBoundaryStateTest extends TestCase
         $principal  = IdentityScenario::principal($fixture);
         $connection = $fixture->connection();
         $accountId  = Uuid::uuid7();
-        $connection->executeStatement('UPDATE identity_user SET account_id = :account WHERE uuid = :actor', ['account' => $accountId->getBytes(), 'actor' => $first['actorId']], ['account' => ParameterType::BINARY]);
+        $connection->executeStatement('UPDATE user SET account_id = :account WHERE uuid = :actor', ['account' => $accountId->getBytes(), 'actor' => $first['actorId']], ['account' => ParameterType::BINARY]);
         $container = $fixture->container();
         $gate      = $container->get(AuthenticationGate::class);
         $this->expectException(AuthenticationDenied::class);

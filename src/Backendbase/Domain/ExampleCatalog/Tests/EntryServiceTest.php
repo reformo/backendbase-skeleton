@@ -135,9 +135,9 @@ class EntryServiceTest extends TestCase
         $this->assertNotEmpty($domainEventRecords[0]->context['occurredOn']);
         $this->assertArrayNotHasKey('arguments', $domainEventRecords[0]->context);
 
-        $entryId2 = Uuid::uuid7()->toString();
-        $command  = new AddEntry(
-            $entryId2,
+        $secondEntryId = Uuid::uuid7()->toString();
+        $command       = new AddEntry(
+            $secondEntryId,
             EntryType::SYSTEM,
             null,
             'settings',
@@ -151,7 +151,7 @@ class EntryServiceTest extends TestCase
 
         $result = $this->queryBus->handle($query);
         $this->assertSame(2, $result->total());
-        $this->assertSame($entryId2, $result->items()[1]->uuid());
+        $this->assertSame($secondEntryId, $result->items()[1]->uuid());
         $this->assertSame(2, count($result->items()));
         $this->assertCount(2, $this->domainEventLogHandler->getRecords());
     }

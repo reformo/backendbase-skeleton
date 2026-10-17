@@ -8,7 +8,8 @@ The domain does not know Doctrine. Context-owned ports separate behavior from st
 - Write handlers depend on a write repository port.
 - Doctrine ORM records map typed aggregate snapshots to columns.
 - Derive each mapped Doctrine entity class name from its full table name in PascalCase.
-- Preserve table prefixes and words: `example_table` maps to `ExampleTable`, and `identity_account` maps to `IdentityAccount`.
+- Do not add bounded-context prefixes to business tables. Keep `example_table` as the sole exception.
+- Preserve each table's words in its entity name: `example_table` maps to `ExampleTable`, and `account` maps to `Account`.
 - Declare all mapped fields in the entity class, including shared identifiers, versions, and timestamps.
 - Doctrine entity classes must not extend another class or receive mapped fields from a trait.
 - Interfaces and behavior-only traits can supply shared contracts or methods.
@@ -88,9 +89,9 @@ Test-only SQL and vendor-generated migration metadata queries are not applicatio
 | `EntryReadRepository::getEntriesByGroup` | Fixed type, target, group, and `deleted_at`; order by `created_at, id` | The installation includes `example_group_entries_idx`. Earlier indexes do not supply this ordered prefix. |
 | `IdentityRecordStore`, `DoctrineIdentityStore`, `IdentityActorRecords`, `DoctrineCredentialStore` | Binary IDs, active email, active mobile, or actor Account reference | Identity primary keys, active-email and active-mobile unique indexes, and lifetime actor Account unique indexes. Each lookup selects at most one identity. |
 | `AdminSeeder` | Initial Account by active email or mobile; Admin by Account ID; whole-Admin count | Existing active-contact and Admin Account unique indexes. The bootstrap count intentionally scans the Admin table. |
-| `DoctrineContactStore` | Binary proof ID or exact context hash, realm, purpose, and contact type | Contact primary key and `contact_info_context_slot_unq`. Bound-owner checks use existing Account and actor primary keys. |
+| `DoctrineContactStore` | Binary proof ID or exact context hash, realm, purpose, and contact type | Contact primary key and `contact_verification_context_slot_unq`. Bound-owner checks use existing Account and actor primary keys. |
 | `DoctrineIdentityReadRepository::actorHistory` | Actor binary ID with an Account join | User or Admin primary key and Account primary key. Virtual display UUIDs do not need a lookup index. |
-| `DoctrineOperatorStore` | Bootstrap key plus target; initial Admin count; audit inserts | Existing bootstrap unique index limits the target check to one row. The initial count is a deliberate aggregate. Inserts use existing primary and unique keys. |
+| `DoctrineOperatorStore` | First-Admin existence and sole Admin identity; database-scoped setup lock | Existing indexes cover reads limited to one or two Admin rows, including removed rows. MySQL advisory locks require no table or index. |
 | `DoctrineInboxMessageTransaction`, `ExternalEffectClaims`, `DoctrineExternalEffectResolver` | Consumer and message identity, with claim or state checks | Existing inbox composite primary key. Extra state or claim filters apply to that one identity. |
 | `DoctrineQueueMessageFailureStore` | Consumer and message identity | Existing delivery-failure composite primary key. |
 | `DoctrineOutboxMessageStore`, `DoctrineOutboxReplay` | Message ID updates or locked reads | Outbox primary key. Replay's consumer/message inbox check uses the inbox primary key. |

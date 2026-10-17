@@ -26,11 +26,11 @@ class ExampleGroups extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $params       = $this->request->getQueryParams();
-        $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
-        $pageSize     = ExampleRequestInput::positiveInteger($params['pageSize'] ?? 1000, 'pageSize');
-        $page         = ExampleRequestInput::positiveInteger($params['page'] ?? 1, 'page');
+        $type            = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $queryParameters = $this->request->getQueryParams();
+        $typeTargetId    = ExampleRequestInput::optionalTypeTargetId($queryParameters['typeTargetId'] ?? null);
+        $pageSize        = ExampleRequestInput::positiveInteger($queryParameters['pageSize'] ?? 1000, 'pageSize');
+        $page            = ExampleRequestInput::positiveInteger($queryParameters['page'] ?? 1, 'page');
 
         $pagination = new Pagination($pageSize, $page);
         $result     = $this->queryBus->handle(new GetEntryGroupsByType($type, $typeTargetId, $pagination));

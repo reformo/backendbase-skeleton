@@ -98,7 +98,7 @@ class ActionError implements JsonSerializable
     #[Override]
     public function jsonSerialize(): array
     {
-        $returnData =  [
+        $problemDetails =  [
             'type' => $this->type,
             'code' => $this->code,
             'title' => $this->title,
@@ -106,9 +106,9 @@ class ActionError implements JsonSerializable
             'detail' => $this->description,
         ];
         if ($this->additionalData !== null && count($this->additionalData) > 0) {
-            $returnData += $this->additionalData;
+            $problemDetails += $this->additionalData;
         }
 
-        return $returnData;
+        return $problemDetails;
     }
 }

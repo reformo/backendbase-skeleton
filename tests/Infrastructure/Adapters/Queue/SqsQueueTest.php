@@ -327,10 +327,10 @@ final class SqsQueueTest extends TestCase
     {
         $values = [
             'continuous' => false,
-            'maxNumberOfMessages' => 10,
+            'maximumMessageCount' => 10,
             'queue' => 'events',
             'queueUrl' => self::QUEUE_URL,
-            'visibilityTimeout' => 30,
+            'visibilityTimeoutSeconds' => 30,
             'waitTimeSeconds' => 20,
         ];
 

@@ -27,13 +27,13 @@ interface EventManager
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
-    public function addEventSubscriber(string|array $events, string $subscriberFQCN): void;
+    public function addEventSubscriber(string|array $events, string $subscriberClass): void;
 
     /**
      * @param string|array<int, string>                                                   $events
-     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberFQCN
+     * @param class-string<IntegrationEventSubscriber|ExternalIntegrationEventSubscriber> $subscriberClass
      */
-    public function removeEventSubscriber(string|array $events, string $subscriberFQCN): void;
+    public function removeEventSubscriber(string|array $events, string $subscriberClass): void;
 }

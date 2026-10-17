@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Seeders;
 
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Operator\DoctrineOperatorStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -41,20 +42,24 @@ final readonly class AdminSeeder
     public function seed(Password $password): array
     {
         $connection = $this->connection;
+        $operations = new DoctrineOperatorStore($connection);
+        $work       = fn (): array => $this->create($password);
 
-        return $connection->transactional(fn (): array => $this->create($password));
+        $transaction = static fn (): array => $connection->transactional($work);
+
+        return $operations->exclusive($transaction);
     }
 
     /** @return array{accountId: string, actorId: string, created: bool} */
     private function create(Password $password): array
     {
         $connection = $this->connection;
-        $account    = $connection->fetchAssociative('SELECT uuid, normalized_mobile, first_name, last_name, state FROM identity_account WHERE active_email = :email', ['email' => self::EMAIL]);
+        $account    = $connection->fetchAssociative('SELECT uuid, normalized_mobile, first_name, last_name, state FROM account WHERE active_email = :email', ['email' => self::EMAIL]);
         if ($account !== false) {
             return $this->existing($account);
         }
 
-        if ($connection->fetchOne('SELECT id FROM identity_account WHERE active_mobile = :mobile', ['mobile' => self::MOBILE]) !== false || (int) $connection->fetchOne('SELECT COUNT(*) FROM identity_admin') !== 0) {
+        if ($connection->fetchOne('SELECT id FROM account WHERE active_mobile = :mobile', ['mobile' => self::MOBILE]) !== false || (int) $connection->fetchOne('SELECT COUNT(*) FROM `admin`') !== 0) {
             throw IdentityConflict::create('Initial Admin seeding requires unused contacts and no existing Admin.');
         }
 
@@ -66,7 +71,7 @@ final readonly class AdminSeeder
         $account->verifyOwnership();
         $admin = SystemAdmin::invite($actorId, $accountId, self::INVITATION, $now);
         $admin->approve(self::APPROVAL);
-        new AdminSeedRows($connection)->insert($account, $admin, $password, $now);
+        new AdminSeedRows($connection)->insert($account, $admin, $password);
 
         return ['accountId' => $accountId->toString(), 'actorId' => $actorId->toString(), 'created' => true];
     }
@@ -81,7 +86,7 @@ final readonly class AdminSeeder
         $accountId  = StateField::string($account, 'uuid');
         $identifier = Uuid::fromString($accountId);
         $connection = $this->connection;
-        $admin      = $connection->fetchAssociative('SELECT uuid, deleted_at, state FROM identity_admin WHERE account_id = :account', ['account' => $identifier->getBytes()], ['account' => ParameterType::BINARY]);
+        $admin      = $connection->fetchAssociative('SELECT uuid, deleted_at, state FROM `admin` WHERE account_id = :account', ['account' => $identifier->getBytes()], ['account' => ParameterType::BINARY]);
         if ($admin === false || $account['normalized_mobile'] !== self::MOBILE || $account['first_name'] !== 'Mehmet' || $account['last_name'] !== 'Korkmaz' || $admin['deleted_at'] !== null) {
             throw IdentityConflict::create('The existing Account cannot be replaced or granted Admin access by this seeder.');
         }

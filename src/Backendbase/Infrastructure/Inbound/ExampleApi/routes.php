@@ -14,8 +14,8 @@ return static function (App $app): void {
     $app->get('/_status', Liveness::class);
     $app->get('/_status/ready', Readiness::class);
 
-    foreach (new ModuleRoutes()->getModules() as $moduleRouteKey => $invokableFQCN) {
-        $app->group('/' . $moduleRouteKey, $invokableFQCN);
+    foreach (new ModuleRoutes()->getModules() as $moduleRouteKey => $moduleClass) {
+        $app->group('/' . $moduleRouteKey, $moduleClass);
     }
 
     $app->any('/{routes:.*}', NotFound::class);

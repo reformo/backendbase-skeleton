@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Contracts;
 
-use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
-use DateTimeImmutable;
-
 interface OperatorStore
 {
+    /**
+     * @param callable(): Result $work
+     *
+     * @return Result
+     *
+     * @template Result
+     */
+    public function exclusive(callable $work): mixed;
+
     public function assertFirstAdminAvailable(): void;
 
     public function assertBootstrapActor(string $actorId): void;
-
-    public function record(OperatorInput $input, string $targetId, DateTimeImmutable $now): void;
 }

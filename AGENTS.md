@@ -129,6 +129,8 @@ Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renam
 - Unless otherwise specified, use `camelCase` for all names.
 - Use `PascalCase` for class and namespace names.
 - Use `snake_case` for database, schema, table, column, and index names.
+- Do not add bounded-context prefixes to business table names. Keep `example_table` as the sole exception.
+- Record table ownership in `resources/platform/database-table-ownership.md`. Keep table names unique across the shared database.
 - Use `kebab-case` for URL path parameter names, configuration values, and similar names. This rule does not apply to query parameters or request-body fields.
 - Use `camelCase` for request query parameters and request-body fields.
 - Use `camelCase` for response object attributes.
@@ -157,7 +159,9 @@ Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renam
 
 ### API controller organization
 
-- Keep each consumer API's controllers inside its own `Infrastructure/Inbound/{ApiName}` directory.
+- Use `inbound API` for an HTTP API surface. Use `inbound adapter` for the broader category, including console and message entry points.
+- Keep `consumer` for message consumers and API clients. Use `use case` for application behavior.
+- Keep each inbound API's controllers inside its own `Infrastructure/Inbound/{ApiName}` directory.
 - Group new endpoint controllers by their OpenAPI tag. Use the tag's PascalCase name for the controller module.
 - Follow the [ExampleApi module structure](src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example): `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`.
 - Create one handler per documented operation inside the module's `Handlers` directory.
@@ -167,7 +171,7 @@ Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renam
 - Verify group and route middleware order. A fixed realm policy must run before group authentication.
 - Register each module explicitly in `Controllers/ModuleRoutes.php`. Create its route group in the owning API's `routes.php`.
 - Match route names to OpenAPI operation IDs. Verify tag, module, handler, and route registration together in routing tests.
-- Keep reusable HTTP helpers under `Infrastructure/Adapters/Http`. Shared domain behavior does not justify shared consumer controllers.
+- Keep reusable HTTP helpers under `Infrastructure/Adapters/Http`. Shared domain behavior does not justify shared inbound API controllers.
 
 ### Doctrine entities
 

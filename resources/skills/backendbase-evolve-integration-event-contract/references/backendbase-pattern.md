@@ -43,6 +43,10 @@ Usually incompatible:
 
 When uncertain, create a new version. Do not rely on a permissive mapper to define compatibility.
 
+In an unmodified Backendbase project, a PHP-only rename can use the carrier's `INPUT_FIELD_ALIASES` while serialization retains the released key.
+Verify old-message reconstruction through the real registry and dispatcher. A serialized field rename still requires compatibility review and a new version when incompatible.
+Adapt the target project's mapping mechanism. Keep mapping-framework attributes out of domain contracts.
+
 ## Versioned registration example
 
 The names are illustrative. Both carriers remain registered while version-one messages can exist.

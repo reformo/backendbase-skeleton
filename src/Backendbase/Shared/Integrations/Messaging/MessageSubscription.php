@@ -10,8 +10,8 @@ final readonly class MessageSubscription
      * @var array{
      *     destination: string,
      *     waitTimeSeconds: float|null,
-     *     maxNumberOfMessages: int|null,
-     *     visibilityTimeout: int|null,
+     *     maximumMessageCount: int|null,
+     *     visibilityTimeoutSeconds: int|null,
      *     continuous: bool|null
      * }
      */
@@ -20,15 +20,15 @@ final readonly class MessageSubscription
     public function __construct(
         string $destination,
         float|null $waitTimeSeconds = null,
-        int|null $maxNumberOfMessages = null,
-        int|null $visibilityTimeout = null,
+        int|null $maximumMessageCount = null,
+        int|null $visibilityTimeoutSeconds = null,
         bool|null $continuous = null,
     ) {
         $this->values = [
             'destination' => $destination,
             'waitTimeSeconds' => $waitTimeSeconds,
-            'maxNumberOfMessages' => $maxNumberOfMessages,
-            'visibilityTimeout' => $visibilityTimeout,
+            'maximumMessageCount' => $maximumMessageCount,
+            'visibilityTimeoutSeconds' => $visibilityTimeoutSeconds,
             'continuous' => $continuous,
         ];
     }
@@ -43,14 +43,14 @@ final readonly class MessageSubscription
         return $this->values['waitTimeSeconds'];
     }
 
-    public function maxNumberOfMessages(): int|null
+    public function maximumMessageCount(): int|null
     {
-        return $this->values['maxNumberOfMessages'];
+        return $this->values['maximumMessageCount'];
     }
 
-    public function visibilityTimeout(): int|null
+    public function visibilityTimeoutSeconds(): int|null
     {
-        return $this->values['visibilityTimeout'];
+        return $this->values['visibilityTimeoutSeconds'];
     }
 
     public function continuous(): bool|null

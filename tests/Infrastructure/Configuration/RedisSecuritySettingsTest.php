@@ -38,13 +38,13 @@ final class RedisSecuritySettingsTest extends TestCase
 
     public function testAuthenticatedTlsConnectionsKeepTypedCredentialForms(): void
     {
-        $root     = ['redis' => ['host' => 'redis.example.com', 'port' => 6379, 'password' => 'test-password', 'tls' => true], 'readiness' => ['timeoutSeconds' => 2]];
-        $password = new RedisSettings(new Settings($root));
-        self::assertSame('tls://redis.example.com', $password->connectionHost());
-        self::assertSame(['stream' => ['verify_peer' => true, 'verify_peer_name' => true]], $password->connectionContext());
-        self::assertSame('test-password', $password->credentials());
-        $acl = new RedisSettings(new Settings([...$root, 'redis' => [...$root['redis'], 'username' => 'application']]));
-        self::assertSame(['application', 'test-password'], $acl->credentials());
+        $root                 = ['redis' => ['host' => 'redis.example.com', 'port' => 6379, 'password' => 'test-password', 'tls' => true], 'readiness' => ['timeoutSeconds' => 2]];
+        $passwordOnlySettings = new RedisSettings(new Settings($root));
+        self::assertSame('tls://redis.example.com', $passwordOnlySettings->connectionHost());
+        self::assertSame(['stream' => ['verify_peer' => true, 'verify_peer_name' => true]], $passwordOnlySettings->connectionContext());
+        self::assertSame('test-password', $passwordOnlySettings->credentials());
+        $namedUserSettings = new RedisSettings(new Settings([...$root, 'redis' => [...$root['redis'], 'username' => 'application']]));
+        self::assertSame(['application', 'test-password'], $namedUserSettings->credentials());
     }
 
     public function testPlainConnectionsDoNotActivateATlsStreamContext(): void

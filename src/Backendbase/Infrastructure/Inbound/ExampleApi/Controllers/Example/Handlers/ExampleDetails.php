@@ -29,19 +29,19 @@ class ExampleDetails extends Action
     #[Override]
     protected function action(): Response
     {
-        $type         = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
-        $group        = ExampleRequestInput::group($this->request->getAttribute('example-group'));
-        $entryKey     = ExampleRequestInput::key($this->request->getAttribute('example-key'));
-        $params       = $this->request->getQueryParams();
-        $typeTargetId = ExampleRequestInput::optionalTypeTargetId($params['typeTargetId'] ?? null);
+        $type            = ExampleRequestInput::type($this->request->getAttribute('type-slug'));
+        $group           = ExampleRequestInput::group($this->request->getAttribute('example-group'));
+        $entryKey        = ExampleRequestInput::key($this->request->getAttribute('example-key'));
+        $queryParameters = $this->request->getQueryParams();
+        $typeTargetId    = ExampleRequestInput::optionalTypeTargetId($queryParameters['typeTargetId'] ?? null);
 
         $entry = $this->queryBus->handle(new GetEntryByCriteria($type, $typeTargetId, $group, $entryKey));
         if (! $entry instanceof EntryDetailsReadModel) {
             throw ResourceNotFound::create('The example was not found.');
         }
 
-        $details = $entry->details();
-        $data    = [
+        $details      = $entry->details();
+        $entryPayload = [
             'uuid' => $entry->uuid(),
             'type' => $entry->type()->value,
             'typeTargetId' => $entry->typeTargetId(),
@@ -54,6 +54,6 @@ class ExampleDetails extends Action
             'createdAt' => $entry->createdAt()->format(DATE_ATOM),
         ];
 
-        return new JsonResponse(['example' => $data], 200);
+        return new JsonResponse(['example' => $entryPayload], 200);
     }
 }

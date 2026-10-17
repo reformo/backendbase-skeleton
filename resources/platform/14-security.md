@@ -6,7 +6,7 @@ Example and Identity protected groups also require the existing USER bearer auth
 UserApi and SystemAdminApi use separate JWT authentication realms.
 Liveness and readiness remain public in each API.
 
-## Consumer boundaries
+## Inbound API boundaries
 
 - `X-Source-Id: example` selects ExampleApi. Its Authentication, Identity, and protected Example groups use the trusted USER realm.
 - `X-Source-Id: user` selects UserApi and the trusted USER realm policy.
@@ -73,6 +73,9 @@ Login does not create a challenge. TOTP enrollment and login-completion endpoint
 Admin enrollment requires stored invitation and approval evidence.
 An Admin cannot approve its own enrollment. Contact ownership remains a separate session gate.
 First-Admin setup uses local root operator commands with separate invitation and approval evidence.
+The evidence remains in Admin state. Operator names and action timestamps have no separate persistence table.
+Operator setup and manual seeding share a database-scoped MySQL advisory lock before starting their transactions.
+Only the sole pending Admin can receive operator approval. Removed Admin rows prevent another first-Admin invitation.
 The manually approved initial Admin seeder attests ownership and records separate bootstrap invitation and approval evidence.
 It remains separate from ordinary User registration. It creates no contact verification record.
 Operator commands and the seeder never issue a token. See [operator procedures](operations/identity-operator.md).
@@ -128,10 +131,12 @@ Greeting HTTP endpoints remain absent.
 Keys have no production defaults. Runtime configuration selects a managed provider and controlled injection.
 Stored passwords use Argon2id. Ownership proofs use keyed SHA-256 hashes.
 Signing-key and ownership-proof-key rotation support an active key and a distinct previous key identifier.
-Ownership proof keys retain the `encryptionKey` configuration names for compatibility.
+Contact proof keys use `contactProofKey`, `contactProofKeyId`, and the corresponding previous-key settings.
+Environment variables use `CONTACT_PROOF_KEY` names. The former `ENCRYPTION_KEY` environment names remain fallback aliases during rollout.
+Canonical names take precedence. Retain both active and previous key values while pending proof and recovery windows require them.
 Retain each required proof key until pending codes and confirmed evidence recovery windows expire.
 A confirmed record requires its code key through `verifiedAt + 12 hours`. Do not discard that key during another rotation.
-Accounts store the Argon2id password hash directly in `identity_account.password_hash`, a required `VARCHAR(255)` column.
+Accounts store the Argon2id password hash directly in `account.password_hash`, a required `VARCHAR(255)` column.
 The credential store reads and writes the hash as a string. Account ownership, state checks, and locking remain required.
 The consolidated installation migration creates this column directly. Existing databases with credential JSON require separate schema and data adoption.
 No automatic data conversion or cleanup runs.

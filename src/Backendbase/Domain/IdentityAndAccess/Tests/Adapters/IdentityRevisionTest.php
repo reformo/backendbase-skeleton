@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAdmin;
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityUser;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Admin as AdminRecord;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\User as UserRecord;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
@@ -26,7 +26,7 @@ final class IdentityRevisionTest extends TestCase
         $actor     = $realm === Realm::USER
             ? User::create($actorId, $accountId, $now)
             : SystemAdmin::invite($actorId, $accountId, 'invitation', $now);
-        $record    = $actor instanceof User ? IdentityUser::create($actor) : IdentityAdmin::create($actor);
+        $record    = $actor instanceof User ? UserRecord::create($actor) : AdminRecord::create($actor);
         $before    = $actor->snapshot();
         $stale     = $actor instanceof User
             ? new User($actorId, [...$before, 'revision' => 2, 'approved' => false])

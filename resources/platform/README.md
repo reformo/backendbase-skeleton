@@ -117,7 +117,7 @@ Read only the selected reference sections needed for the task. Reuse established
 
 | Skill | Use it for |
 | --- | --- |
-| [`backendbase-add-use-case-api`](../skills/backendbase-add-use-case-api/SKILL.md) | Scaffold a new consumer API surface. |
+| [`backendbase-add-inbound-api`](../skills/backendbase-add-inbound-api/SKILL.md) | Scaffold a new inbound API surface. |
 | [`backendbase-add-api-module`](../skills/backendbase-add-api-module/SKILL.md) | Add a route-prefix module to an existing API. |
 | [`backendbase-add-api-endpoint`](../skills/backendbase-add-api-endpoint/SKILL.md) | Implement one endpoint in an existing API module. |
 | [`backendbase-secure-api-endpoint`](../skills/backendbase-secure-api-endpoint/SKILL.md) | Apply the target API-key and access-control policy to an operation. |

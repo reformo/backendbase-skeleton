@@ -28,9 +28,9 @@ final readonly class ExternalIntegrationEventDispatcher
             throw new UnexpectedValueException('No subscriber is registered for ' . $eventName . '.');
         }
 
-        foreach ($subscribers as $subscriberFQCN) {
-            if (! is_a($subscriberFQCN, ExternalIntegrationEventSubscriber::class, true)) {
-                throw new UnexpectedValueException($subscriberFQCN . ' is not an external event subscriber.');
+        foreach ($subscribers as $subscriberClass) {
+            if (! is_a($subscriberClass, ExternalIntegrationEventSubscriber::class, true)) {
+                throw new UnexpectedValueException($subscriberClass . ' is not an external event subscriber.');
             }
         }
 
@@ -38,11 +38,13 @@ final readonly class ExternalIntegrationEventDispatcher
             throw new UnexpectedValueException('The queue message data must be an object.');
         }
 
-        $messageFQCN = $this->registry->messageClass($eventName, $eventVersion);
-        $message     = new MapperBuilder()
+        $messageClass = $this->registry->messageClass($eventName, $eventVersion);
+        $fieldAliases = $messageClass::INPUT_FIELD_ALIASES;
+        $message      = new MapperBuilder()
             ->allowPermissiveTypes()
+            ->registerKeyConverter(static fn (string $key): string => $fieldAliases[$key] ?? $key)
             ->mapper()
-            ->map($messageFQCN, $payload);
+            ->map($messageClass, $payload);
         $this->eventManager->dispatchExternalEvent($eventName, $message);
     }
 }

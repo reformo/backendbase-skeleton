@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-$consumerApiSlug = 'example-api';
-$consumerApiName = 'ExampleApi';
+$inboundApiSlug = 'example-api';
+$inboundApiName = 'ExampleApi';
 require_once __DIR__ . '/../index.php';

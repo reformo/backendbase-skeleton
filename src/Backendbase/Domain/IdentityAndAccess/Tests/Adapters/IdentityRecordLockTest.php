@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\IdentityAccount;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity\Account as AccountRecord;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentityRecordStore;
 use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\IdentitySession;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
@@ -30,7 +30,7 @@ final class IdentityRecordLockTest extends TestCase
         require 'config/doctrine-types.php';
         $accountId  = IdentityId::create();
         $identifier = $accountId->toString();
-        $record     = IdentityAccount::create(Account::create($accountId, new AccountEmail('locks@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-15T10:00:00Z')));
+        $record     = AccountRecord::create(Account::create($accountId, new AccountEmail('locks@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-15T10:00:00Z')));
         $uuid       = Uuid::fromString($identifier);
         $connection = $this->createMock(Connection::class);
         $platform   = $connection->method('getDatabasePlatform');
@@ -59,7 +59,7 @@ final class IdentityRecordLockTest extends TestCase
         $unit->registerManaged($record, ['id' => $uuid], []);
         $store = new IdentityRecordStore($session);
         try {
-            self::assertSame($record, $store->find(IdentityAccount::class, $identifier, $write));
+            self::assertSame($record, $store->find(AccountRecord::class, $identifier, $write));
         } finally {
             $session->discard();
         }

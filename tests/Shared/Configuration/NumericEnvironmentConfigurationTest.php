@@ -56,17 +56,17 @@ final class NumericEnvironmentConfigurationTest extends TestCase
                 'an integer',
             ],
             'RabbitMQ connection timeout' => [
-                'BACKENDBASE_RABBITMQ_CONNECTION_TIMEOUT',
+                'BACKENDBASE_RABBITMQ_CONNECTION_TIMEOUT_SECONDS',
                 'config/autoload/rabbitmq.global.php',
                 'a finite number',
             ],
             'RabbitMQ read-write timeout' => [
-                'BACKENDBASE_RABBITMQ_READ_WRITE_TIMEOUT',
+                'BACKENDBASE_RABBITMQ_READ_WRITE_TIMEOUT_SECONDS',
                 'config/autoload/rabbitmq.global.php',
                 'a finite number',
             ],
             'RabbitMQ heartbeat' => [
-                'BACKENDBASE_RABBITMQ_HEARTBEAT',
+                'BACKENDBASE_RABBITMQ_HEARTBEAT_SECONDS',
                 'config/autoload/rabbitmq.global.php',
                 'an integer',
             ],
@@ -76,7 +76,7 @@ final class NumericEnvironmentConfigurationTest extends TestCase
                 'an integer',
             ],
             'SQS batch size' => [
-                'AWS_SQS_MAX_NUMBER_OF_MESSAGES',
+                'AWS_SQS_MAXIMUM_MESSAGE_COUNT',
                 'config/autoload/aws.global.php',
                 'an integer',
             ],
@@ -86,7 +86,7 @@ final class NumericEnvironmentConfigurationTest extends TestCase
                 'an integer',
             ],
             'SQS visibility timeout' => [
-                'AWS_SQS_VISIBILITY_TIMEOUT',
+                'AWS_SQS_VISIBILITY_TIMEOUT_SECONDS',
                 'config/autoload/aws.global.php',
                 'an integer',
             ],

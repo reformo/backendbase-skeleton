@@ -23,14 +23,14 @@ final class MemoryVerificationLimiter implements VerificationLimiter
 
     public function send(ContactValue $contact, VerificationClient $client): void
     {
-        $key = $contact->counterKey();
-        $ip  = $client->key();
+        $key       = $contact->counterKey();
+        $clientKey = $client->key();
         $this->check('cooldown:' . $key, 1);
         $this->check('send:' . $key, 5);
-        $this->check('ip:' . $ip, 20);
+        $this->check('ip:' . $clientKey, 20);
         $this->increment('cooldown:' . $key, 60);
         $this->increment('send:' . $key, 3600);
-        $this->increment('ip:' . $ip, 3600);
+        $this->increment('ip:' . $clientKey, 3600);
     }
 
     public function attempt(ContactValue $contact): void

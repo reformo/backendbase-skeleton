@@ -67,19 +67,19 @@ final readonly class IdentitySettings
     }
 
     /** @return array<non-empty-string, non-empty-string> */
-    public function encryptionKeys(): array
+    public function contactProofKeys(): array
     {
-        return $this->keys('encryptionKeyId', 'encryptionKey', 'previousEncryptionKeyId', 'previousEncryptionKey');
+        return $this->keys('contactProofKeyId', 'contactProofKey', 'previousContactProofKeyId', 'previousContactProofKey');
     }
 
-    public function encryptionKeyId(): string
+    public function contactProofKeyId(): string
     {
-        return $this->keyId('encryptionKeyId');
+        return $this->keyId('contactProofKeyId');
     }
 
-    public function ownershipSender(): string
+    public function contactEmailSender(): string
     {
-        return $this->string('ownershipSender');
+        return $this->string('contactEmailSender');
     }
 
     /** @return array<non-empty-string, non-empty-string> */

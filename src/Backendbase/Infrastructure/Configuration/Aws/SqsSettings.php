@@ -15,7 +15,7 @@ final readonly class SqsSettings
     /**
      * @var array{
      *     continuous: bool,
-     *     maxNumberOfMessages: int,
+     *     maximumMessageCount: int,
      *     queueName: string|null,
      *     queueUrl: string|null,
      *     visibilityTimeoutSeconds: int,
@@ -29,10 +29,10 @@ final readonly class SqsSettings
     {
         $this->values = [
             'continuous' => $values['continuous'] ?? true,
-            'maxNumberOfMessages' => min(10, max(1, $values['maxNumberOfMessages'] ?? 1)),
+            'maximumMessageCount' => min(10, max(1, $values['maximumMessageCount'] ?? 1)),
             'queueName' => $values['queue'] ?? null,
             'queueUrl' => $values['queueUrl'] ?? null,
-            'visibilityTimeoutSeconds' => min(43200, max(0, $values['visibilityTimeout'] ?? 30)),
+            'visibilityTimeoutSeconds' => min(43200, max(0, $values['visibilityTimeoutSeconds'] ?? 30)),
             'waitTimeSeconds' => min(20, max(0, $values['waitTimeSeconds'] ?? 20)),
         ];
     }
@@ -42,9 +42,9 @@ final readonly class SqsSettings
         return $this->values['continuous'];
     }
 
-    public function maxNumberOfMessages(): int
+    public function maximumMessageCount(): int
     {
-        return $this->values['maxNumberOfMessages'];
+        return $this->values['maximumMessageCount'];
     }
 
     public function queueName(): string|null

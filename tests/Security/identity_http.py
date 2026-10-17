@@ -63,8 +63,8 @@ return static function (\\DI\\ContainerBuilder $builder): void {
         "AWS_ACCESS_KEY_ID": "fixture", "AWS_SECRET_ACCESS_KEY": "fixture",
         "AWS_ENDPOINT": "http://127.0.0.1:1", "AWS_EC2_METADATA_DISABLED": "true",
         "OBJECT_STORE_ACCESS_KEY": "", "OBJECT_STORE_SECRET_KEY": "",
-        "BACKENDBASE_IDENTITY_ENCRYPTION_KEY": base64.b64encode(b"e" * 32).decode(),
-        "BACKENDBASE_IDENTITY_OWNERSHIP_SENDER": "identity@example.test",
+        "BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY": base64.b64encode(b"e" * 32).decode(),
+        "BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER": "identity@example.test",
         "BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS": "900",
     })
     for realm, key in [("USER", b"u" * 32), ("ADMIN", b"a" * 32)]:
@@ -77,21 +77,21 @@ return static function (\\DI\\ContainerBuilder $builder): void {
 
 
 class IdentityClient:
-    def __init__(self, base_url, directory, suffix):
-        self.base_url = base_url
+    def __init__(self, baseUrl, directory, suffix):
+        self.baseUrl = baseUrl
         self.directory = directory
         self.results = []
-        self.operator_email = "operator-" + suffix + "@example.test"
-        self.user_email = "user-" + suffix + "@example.test"
-        self.operator_mobile = "+901" + suffix
-        self.user_mobile = "+902" + suffix
+        self.operatorEmail = "operator-" + suffix + "@example.test"
+        self.userEmail = "user-" + suffix + "@example.test"
+        self.operatorMobile = "+901" + suffix
+        self.userMobile = "+902" + suffix
 
     def request(self, api, method, path, expected, payload=None, token=None):
         headers = {"X-Source-Id": api, "Content-Type": "application/json"}
         if token:
             headers["Authorization"] = "Bearer " + token
         body = None if payload is None else json.dumps(payload).encode()
-        request = urllib.request.Request(self.base_url + "/" + api + "-api" + path,
+        request = urllib.request.Request(self.baseUrl + "/" + api + "-api" + path,
                                          data=body, headers=headers, method=method)
         try:
             response = urllib.request.urlopen(request, timeout=15)
@@ -126,7 +126,7 @@ class IdentityClient:
 
     def register(self):
         context = secrets.token_urlsafe(32)
-        values = {"email": self.user_email, "mobile": self.user_mobile}
+        values = {"email": self.userEmail, "mobile": self.userMobile}
         contacts = {}
         for kind, value in values.items():
             payload = {"contactType": kind, "contactValue": value, "verificationContextToken": context}
@@ -165,34 +165,34 @@ def exercise(client):
         client.request(api, "POST", "/auth/login", 400, {"identifier": []})
         client.request(api, "POST", "/auth/login", 400, {"identifier": "x" * 255, "password": PASSWORD})
     user = client.register()
-    user_token = client.login("user", client.user_email)
-    admin_token = client.login("system-admin", client.operator_email)
-    for api, token, wrong, key in [("user", user_token, admin_token, b"u" * 32),
-                                   ("system-admin", admin_token, user_token, b"a" * 32)]:
+    userToken = client.login("user", client.userEmail)
+    adminToken = client.login("system-admin", client.operatorEmail)
+    for api, token, wrong, key in [("user", userToken, adminToken, b"u" * 32),
+                                   ("system-admin", adminToken, userToken, b"a" * 32)]:
         client.request(api, "GET", "/identity", 200, token=token)
         client.request(api, "GET", "/identity", 401, token=wrong)
         client.request(api, "GET", "/identity", 401, token=expired_token(token, key))
     invitation = client.request("system-admin", "POST", "/administration/admins/invite", 201,
-                                {"accountId": user["accountId"], "evidence": "http:invite"}, admin_token)["invitation"]
+                                {"accountId": user["accountId"], "evidence": "http:invite"}, adminToken)["invitation"]
     client.request("system-admin", "POST", "/auth/login", 401,
-                   {"identifier": client.user_email, "password": PASSWORD})
+                   {"identifier": client.userEmail, "password": PASSWORD})
     client.request("system-admin", "POST", "/administration/admins/approve", 200,
-                   {"actorId": invitation["actorId"], "evidence": "http:approve"}, admin_token)
+                   {"actorId": invitation["actorId"], "evidence": "http:approve"}, adminToken)
     for action in ["remove", "restore"]:
         client.request("system-admin", "POST", "/administration/actors/change", 200,
-                       {"actorId": user["actorId"], "realm": "USER", "action": action}, admin_token)
-        client.request("system-admin", "GET", "/administration/actors/USER/" + user["actorId"], 200, token=admin_token)
+                       {"actorId": user["actorId"], "realm": "USER", "action": action}, adminToken)
+        client.request("system-admin", "GET", "/administration/actors/USER/" + user["actorId"], 200, token=adminToken)
     client.contact("system-admin", "/auth/contact-verifications",
-                   {"identifier": client.operator_email, "password": PASSWORD, "contactType": "email"},
-                   client.operator_email)
+                   {"identifier": client.operatorEmail, "password": PASSWORD, "contactType": "email"},
+                   client.operatorEmail)
     client.contact("system-admin", "/identity/contact-verifications", {"contactType": "mobile"},
-                   client.operator_mobile, admin_token)
-    for api, identifier in [("user", client.user_email), ("system-admin", client.operator_email)]:
+                   client.operatorMobile, adminToken)
+    for api, identifier in [("user", client.userEmail), ("system-admin", client.operatorEmail)]:
         for path in ["/identity/token", "/identity/session"]:
             token = client.login(api, identifier)
             client.request(api, "DELETE", path, 200, token=token)
             client.request(api, "GET", "/identity", 401, token=token)
-    for api, identifier in [("user", client.user_email), ("system-admin", client.operator_email)]:
+    for api, identifier in [("user", client.userEmail), ("system-admin", client.operatorEmail)]:
         token = client.login(api, identifier)
         client.request(api, "DELETE", "/identity/account", 200, token=token)
         client.request(api, "GET", "/identity", 401, token=token)
@@ -256,8 +256,8 @@ def main():
                         from identity_zap import scan
                         environment["BACKENDBASE_HTTP_FIXTURE_SUFFIX"] = str(secrets.randbelow(900000000) + 100000000)
                         php("seed", environment, directory)
-                        scan_client = IdentityClient(client.base_url, directory, environment["BACKENDBASE_HTTP_FIXTURE_SUFFIX"])
-                        scan(scan_client, ROOT)
+                        scanClient = IdentityClient(client.baseUrl, directory, environment["BACKENDBASE_HTTP_FIXTURE_SUFFIX"])
+                        scan(scanClient, ROOT)
                 except Exception:
                     log.flush()
                     evidence = ROOT / "artifacts/identity-http-server.log"

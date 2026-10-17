@@ -25,10 +25,10 @@ class ModuleRoutes
         $this->addModule(ExampleModuleConfig::ROUTE_KEY, ExampleModuleConfig::class);
     }
 
-    /** @param class-string $moduleFQCN */
-    private function addModule(string $routeKey, string $moduleFQCN): void
+    /** @param class-string $moduleClass */
+    private function addModule(string $routeKey, string $moduleClass): void
     {
-        $this->modules[$routeKey] = $moduleFQCN;
+        $this->modules[$routeKey] = $moduleClass;
     }
 
     /** @return array<string, class-string> */

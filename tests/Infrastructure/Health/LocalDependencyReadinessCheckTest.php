@@ -30,12 +30,12 @@ final class LocalDependencyReadinessCheckTest extends TestCase
         $redisJson = $this->createMock(RedisJsonInterface::class);
         $redisJson->expects(self::once())->method('raw')->with('PING')->willReturn('PONG');
 
-        $mySQLCheck = new MySQLReadinessCheck($connection);
+        $mysqlCheck = new MySQLReadinessCheck($connection);
         $redisCheck = new RedisReadinessCheck($redisJson);
 
-        self::assertSame('mysql', $mySQLCheck->name());
+        self::assertSame('mysql', $mysqlCheck->name());
         self::assertSame('redis', $redisCheck->name());
-        $mySQLCheck->check();
+        $mysqlCheck->check();
         $redisCheck->check();
     }
 

@@ -49,8 +49,8 @@ final class MySqlContactVerificationTest extends TestCase
             $workflow = $container->get(RegistrationWorkflow::class);
             $workflow->register(IdentityScenario::id(), new RegistrationInput(...$values));
             self::assertSame('consumed', $worker->receive());
-            self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
-            self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_info WHERE account_id IS NOT NULL'));
+            self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+            self::assertSame(2, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification WHERE account_id IS NOT NULL'));
         } finally {
             $worker?->close();
             $fixture->destroy();
@@ -77,8 +77,8 @@ final class MySqlContactVerificationTest extends TestCase
                 $worker->awaitLockWait($connection, $connectionId);
             });
             self::assertSame('expired', $worker->receive());
-            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
-            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM contact_info WHERE account_id IS NOT NULL'));
+            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM account'));
+            self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification WHERE account_id IS NOT NULL'));
         } finally {
             $worker?->close();
             $fixture->destroy();

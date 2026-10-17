@@ -27,7 +27,7 @@ final class DoctrineCredentialStoreTest extends TestCase
         $hash        = $credentials->hashPassword($password);
         $store->transaction(static fn () => $credentials->initialize($registered['accountId'], $hash));
         $connection = $fixture->connection();
-        self::assertSame($hash, $connection->fetchOne('SELECT password_hash FROM identity_account'));
+        self::assertSame($hash, $connection->fetchOne('SELECT password_hash FROM account'));
         $store->transaction(static fn () => $credentials->assertPassword($registered['accountId'], $password));
         $this->expectException(AuthenticationDenied::class);
         $store->transaction(static fn () => $credentials->assertPassword($registered['accountId'], new Password('valid-password-123')));
@@ -38,9 +38,9 @@ final class DoctrineCredentialStoreTest extends TestCase
         $fixture    = IdentityFixture::create();
         $registered = IdentityScenario::registered($fixture);
         $connection = $fixture->connection();
-        $hash       = $connection->fetchOne('SELECT password_hash FROM identity_account');
+        $hash       = $connection->fetchOne('SELECT password_hash FROM account');
         self::closeAccount($fixture, $registered['accountId']);
-        self::assertSame($hash, $connection->fetchOne('SELECT password_hash FROM identity_account'));
+        self::assertSame($hash, $connection->fetchOne('SELECT password_hash FROM account'));
         $container   = $fixture->container();
         $store       = $container->get(IdentityStore::class);
         $credentials = $container->get(CredentialStore::class);
@@ -53,7 +53,7 @@ final class DoctrineCredentialStoreTest extends TestCase
         $fixture    = IdentityFixture::create();
         $registered = IdentityScenario::registered($fixture);
         $connection = $fixture->connection();
-        $hash       = $connection->fetchOne('SELECT password_hash FROM identity_account');
+        $hash       = $connection->fetchOne('SELECT password_hash FROM account');
         self::assertIsString($hash);
         self::closeAccount($fixture, $registered['accountId']);
         $container   = $fixture->container();
