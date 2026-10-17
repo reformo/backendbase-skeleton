@@ -48,17 +48,20 @@ function parseSms(string $logs): array
 /** @return list<array{timestamp: string, recipient: string, message: string}> */
 function readSms(): array
 {
-    return parseSms(readProcess(['docker', 'logs', '--timestamps', '--tail', '2000', 'backendbase-ministack']));
-}
-
-/** @param non-empty-list<string> $command */
-function readProcess(array $command, float $timeoutSeconds = 5): string
-{
-    $process = proc_open($command, [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    $process = proc_open('exec docker logs --timestamps --tail 2000 backendbase-ministack', [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
     if (! is_resource($process)) {
         throw new RuntimeException('Cannot start the local Docker reader.');
     }
 
+    return parseSms(readProcess($process, $pipes));
+}
+
+/**
+ * @param resource             $process
+ * @param array<int, resource> $pipes
+ */
+function readProcess($process, array $pipes, float $timeoutSeconds = 5): string
+{
     foreach ($pipes as $pipe) {
         stream_set_blocking($pipe, false);
     }

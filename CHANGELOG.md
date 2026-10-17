@@ -87,7 +87,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
-- Use a fixed Docker command for local SMS log reads. Preserve bounded output reads and process termination. Add a command regression.
+- Use a literal Docker command for local SMS log reads to resolve the blocking Semgrep finding. Preserve bounded output reads and process termination. Add a command regression.
 
 - Verify all 55 previously skipped service cases on isolated MySQL, Redis, and Sentinel fixtures. Refresh quality metrics and acceptance evidence for 1,160 passing tests, zero skips, and 100% executable-line and method coverage.
 
