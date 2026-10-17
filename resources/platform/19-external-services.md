@@ -27,6 +27,7 @@ Nginx serves the configured MiniStack bucket at `http://127.0.0.1:8081/`. Set lo
 StackPort connects to MiniStack through `http://ministack:4566` and exposes a local resource browser at `http://127.0.0.1:8082`.
 
 Run `composer message-viewer` on the host to inspect local SNS SMS messages and captured SES emails at `http://127.0.0.1:8083`.
+Set `BACKENDBASE_ENV=dev` in the process environment or `.env`. Composer rejects other modes before startup, and viewer requests return HTTP 403 outside `dev`.
 The viewer uses the project PHP runtime and Composer dependencies. Docker access is required for SMS logs.
 Use `php -S 127.0.0.1:8084 bin/dev/message-viewer.php` to change its loopback port.
 It reads the latest 2,000 log lines from `backendbase-ministack` and returns at most 200 SMS records.

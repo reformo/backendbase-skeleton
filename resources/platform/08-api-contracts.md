@@ -127,6 +127,7 @@ The grouped commands call the individual API commands below.
 
 Each API documentation viewer loads the merged YAML from its own `public/{api-slug}/docs` directory.
 Local housekeeping generates ExampleApi, UserApi, and SystemAdminApi documents.
+It requires `BACKENDBASE_ENV=dev` in the process environment or `.env` before generating files.
 Quality and release workflows use the grouped identity commands.
 
 ## Endpoint groups

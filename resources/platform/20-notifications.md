@@ -25,6 +25,7 @@ Each contact code generation has one delivery identity. Unknown outcomes require
 See [contact verification](operations/contact-verification.md).
 
 For local SNS and SES delivery, run `composer message-viewer` and open `http://127.0.0.1:8083`.
+The viewer requires `BACKENDBASE_ENV=dev` in the process environment or `.env`.
 Select SMS or Emails. Expand an email to preview its stored HTML or plain text and inspect its headers.
 This PHP development tool reads existing MiniStack captures. It does not change notification providers or send notifications.
 MiniStack records up to 80 characters per SMS. The viewer shows the first line, recipient, and time with automatic refresh and filtering.

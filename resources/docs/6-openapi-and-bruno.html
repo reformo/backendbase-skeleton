@@ -811,7 +811,7 @@ composer run validate-example-api-spec</code></pre>
                 <tr><td>SystemAdminApi</td><td><code>composer run generate-system-admin-api-spec</code></td><td><code>composer run validate-system-admin-api-spec</code></td><td><a href="../../public/system-admin-api/docs/system-admin-api-merged.yml"><code>public/system-admin-api/docs/system-admin-api-merged.yml</code></a></td></tr>
             </tbody></table></div>
             <p><code>composer run generate-identity-api-specs</code> generates both identity documents. <code>composer run validate-identity-api-specs</code> validates both source and merged documents, including tag grouping. Each API's <code>public/{api-slug}/docs/index.html</code> viewer loads its merged YAML.</p>
-            <p>Development housekeeping generates all three API documents. Quality and release workflows use the grouped identity commands.</p>
+            <p>Development housekeeping requires <code>BACKENDBASE_ENV=dev</code> before generating all three API documents. Quality and release workflows use the grouped identity commands.</p>
         </section>
 
         <section id="viewer">

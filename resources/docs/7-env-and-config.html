@@ -582,6 +582,7 @@
         <section id="environments">
             <h2>Environment modes</h2>
             <p>Use exact mode values to keep all entry points consistent.</p>
+            <p>Commands under <code>bin/dev</code> require an explicit <code>BACKENDBASE_ENV=dev</code> from the process environment or <code>.env</code>. Process values take precedence. Missing, empty, unknown, and other modes, including development aliases, are rejected before work starts. Composer checks before starting the message viewer. The viewer checks each request and returns HTTP 403 when the check fails.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th><code>BACKENDBASE_ENV</code></th><th>HTTP error details</th><th>Public container</th><th>Doctrine CLI cache</th></tr></thead>

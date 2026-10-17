@@ -74,6 +74,7 @@ The identity transaction commits before synchronous notification delivery throug
 Email and SMS use the configured existing providers. Provider acceptance does not prove final delivery.
 
 Inspect local SNS and SES verification messages with `composer message-viewer` at `http://127.0.0.1:8083`.
+The viewer requires `BACKENDBASE_ENV=dev` in the process environment or `.env`.
 Select SMS or Emails. Expand an email to view its headers and preview.
 The PHP viewer reads MiniStack captures and refreshes every five seconds. It does not create or resend a verification request.
 It shows the first SMS line, up to MiniStack's 80-character log limit. Some raw emails have no stored recipient.

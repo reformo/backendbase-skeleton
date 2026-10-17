@@ -27,6 +27,10 @@ Standalone maintenance and translation tools resolve their own project root.
 
 Use exact `BACKENDBASE_ENV` values: `dev`, `test`, `ci`, `stage`, or `production`.
 
+Commands under `bin/dev` require an explicit `BACKENDBASE_ENV=dev` from the process environment or `.env`.
+The shared `bin/dev/require-dev.php` check preserves process values and rejects missing, empty, unknown, or other modes, including development aliases.
+Housekeeping checks before changing files. Composer checks before starting the message viewer. The viewer checks each request and returns HTTP 403 when the check fails.
+
 Select the CQRS resolver in dependency definitions. The `config/dependencies.php` provider defaults to `RegistryHandlerResolver::class`. The registry resolver reads handler mappings from each context's `ServiceProvider::getHandlers()`. `AttributeHandlerResolver` requires attributed contracts and cannot dispatch the current commands and queries.
 
 The public API reloads runtime configuration and builds container definitions without persistent credential caches.

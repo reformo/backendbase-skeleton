@@ -17,7 +17,7 @@ composer --timeout=0 run start-apis
 - `post-install-run` lists these commands in order: `cp .env.example .env`, `composer update`, `mkdir -p ./artifacts`, and `bin/dev/housekeeping.sh`.
 
 The copy workflow replaces the target `.env` with `.env.example` before maintenance. Review the target configuration before running it.
-Housekeeping clears caches, fixes source style, generates OpenAPI, updates dependencies, and refreshes supply-chain evidence. See the [testing guide](resources/docs/10-testing-and-quality.html#automation).
+Housekeeping requires `BACKENDBASE_ENV=dev` before it clears caches, fixes source style, generates OpenAPI, updates dependencies, and refreshes supply-chain evidence. See the [testing guide](resources/docs/10-testing-and-quality.html#automation).
 
 Run isolated Redis Sentinel checks with `bash bin/tests/redis-failover.sh`. The runner creates and removes its own primary, replica, and three Sentinels. See [Redis failover tests](resources/platform/operations/redis-failover-tests.md).
 
@@ -41,7 +41,9 @@ The default stack starts MiniStack at `http://127.0.0.1:4566` for S3, SQS, SNS, 
 
 StackPort 0.4.3 connects to MiniStack inside Docker and shows its local AWS resources. Change `BACKENDBASE_DEV_STACKPORT_PORT` to use another host port.
 
-Start the local message viewer with the project PHP runtime, Composer dependencies, and Docker available on the host:
+Start the local message viewer with the project PHP runtime, Composer dependencies, and Docker available on the host.
+Set `BACKENDBASE_ENV=dev` in the process environment or `.env`. Commands under `bin/dev` reject missing, empty, or other environment values.
+Process values take precedence over `.env`. Composer checks the environment before starting the viewer. The viewer also checks every request and returns HTTP 403 outside `dev`.
 
 ```sh
 composer message-viewer

@@ -129,6 +129,10 @@ These tests cover parsing, bounded process reads, provider failures, HTTP respon
 They use isolated PHP child processes and HTTP client doubles. They send no notifications.
 Verify browser rendering, filtering, refresh, and email previews against existing MiniStack captures after UI changes.
 
+Run `vendor/bin/phpunit tests/Tools/DevelopmentCommandsTest.php` for the shared `bin/dev` environment check.
+These tests cover exact `dev` selection, process precedence over `.env`, rejected modes, missing values, and malformed settings.
+They use temporary project fixtures and stop allowed housekeeping at a command stub before any maintenance work.
+
 For agent instruction changes, include root and context files explicitly because the default targets omit them:
 
 ```sh
@@ -149,7 +153,7 @@ Deployment fixtures cover explicit fresh installation. Native MySQL tests reject
 
 The Composer supply-chain workflow runs each week and for dependency changes. It copies reviewed Composer public keys into an isolated Composer home before it diagnoses Composer 2.10.3. It disables plugins and scripts during review, audits the lock file, and checks the committed CycloneDX SBOM and package-content digests.
 
-`bin/dev/housekeeping.sh` clears caches, fixes source style, generates ExampleApi, UserApi, and SystemAdminApi OpenAPI documents, and runs `composer update`. It then runs `composer update --lock --no-install --no-plugins --no-scripts --no-interaction` before isolated validation and audit. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
+`bin/dev/housekeeping.sh` requires `BACKENDBASE_ENV=dev` before any maintenance work. It clears caches, fixes source style, generates ExampleApi, UserApi, and SystemAdminApi OpenAPI documents, and runs `composer update`. It then runs `composer update --lock --no-install --no-plugins --no-scripts --no-interaction` before isolated validation and audit. It installs the updated lock without plugins or scripts, then regenerates and checks both evidence files. Review the lock and evidence diffs before committing.
 
 `bin/validate-agent-memory.sh` checks the local `.agents/memory` directories, templates, required fields, and orchestration rules. Run it from the repository root when that local memory structure exists. It does not validate application behavior.
 

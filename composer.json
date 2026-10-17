@@ -131,7 +131,10 @@
             "Aws\\Script\\Composer\\Composer::removeUnusedServices"
         ],
         "start-apis": "php -S 0.0.0.0:8080 -t public",
-        "message-viewer": "php -S 127.0.0.1:8083 bin/dev/message-viewer.php",
+        "message-viewer": [
+            "@php bin/dev/require-dev.php",
+            "php -S 127.0.0.1:8083 bin/dev/message-viewer.php"
+        ],
         "complexity": "vendor/bin/phpcs --standard=phpcs-complexity.xml.dist --warning-severity=0",
         "cs-check": "vendor/bin/phpcs",
         "cs-fix": "sh -c 'vendor/bin/phpcbf \"$@\"; code=$?; [ \"$code\" -eq 1 ] && exit 0; exit \"$code\"' --",        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon  --memory-limit 2G",

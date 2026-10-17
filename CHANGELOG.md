@@ -125,6 +125,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Restrict commands under `bin/dev` to explicit `BACKENDBASE_ENV=dev`. Check housekeeping before changes and the message viewer before Composer startup and each request. Preserve process environment precedence over `.env` and add isolated regressions.
+
 - Reconcile project, security, testing, and skill documentation with tag-based controller modules and group-owned realm policies. Remove stale API-key-only identity claims from skill guidance.
 
 - Use ExampleApi-style fluent route declarations in UserApi and SystemAdminApi modules. Define each group's realm once through RealmPolicy. Keep action and contact policies independent of realm selection. Apply shared realm authentication to protected route groups. Verify missing-token and cross-realm rejection for all protected routes.
