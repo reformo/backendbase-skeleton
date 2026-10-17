@@ -129,6 +129,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Refresh quality-report metrics and verification evidence from the full 1,319-test service run after the operator-action migration cleanup. Record zero skips, 100% executable-line coverage, dependency checks, Bruno, and all three authenticated ZAP scans.
+
 - Apply the remaining naming review proposals across PHP, shell, Python, JavaScript, configuration, and persistence. Preserve released event and API keys, add proof-key environment aliases, and clarify contact verification and claim expiry through a forward migration. Add framework-independent event field aliases and protect quoted table names in migration filters. Update the naming report with verification and migration results.
 
 - Remove bounded-context prefixes from the Account, User, and Admin tables and their indexes. Align Doctrine entity names, SQL, tests, and guidance. Retain the `example_table` exception. Add a data-preserving forward migration and pin its release target.
