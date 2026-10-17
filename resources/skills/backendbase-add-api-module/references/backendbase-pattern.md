@@ -46,7 +46,7 @@ final class ModuleConfig implements ModuleRoute
 }
 ```
 
-Current Backendbase Example operations use API-wide key middleware. UserApi and SystemAdminApi also contain anonymous and bearer-authenticated operations.
+Current Backendbase Example operations use API-wide key middleware. All except `getExampleByCriteria` also require USER bearer authentication. ExampleApi and UserApi share USER identity services; SystemAdminApi uses ADMIN.
 Use fluent route declarations, following ExampleApi. Keep endpoint-specific policy on each route and attach common middleware once through `group()`.
 Authentication, Identity, and Administration modules define the realm once per group through `RealmPolicy`.
 `RoutePolicy` supplies only the endpoint action. `ContactRoutePolicy` supplies only contact settings. Neither policy sets or replaces the group realm.
@@ -83,7 +83,7 @@ Use both types of route evidence:
 These conditions are audit prompts. Do not reproduce them as target behavior.
 
 - Example route placeholders use `kebab-case`, matching OpenAPI and Bruno. Follow the target naming rule for new paths.
-- All Example reads and writes require an API key. New consumer endpoints use this protection by default.
+- All Example reads and writes require an API key. All except `getExampleByCriteria` also require a USER bearer token. Discover each new operation's complete security policy.
 - Example write commands and handlers have no identity or privilege inputs. Internal greeting authorization remains in its handler.
 - Current route tests prove API-key rejection and successful writes without identity attributes. Adapt equivalent tests to the target policy.
 - Shared-header presence requirements remain stricter in OpenAPI than at runtime. All three API CORS configurations allow `Accept-Language`. Group pagination and security status codes match their documented behavior. Detail timestamps use the OpenAPI `date-time` format.

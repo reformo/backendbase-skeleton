@@ -129,7 +129,7 @@ security:
   - bearerAuth: []
 ```
 
-Use bearer examples only when the target provides bearer authentication. Backendbase ExampleApi uses API-key protection. UserApi and SystemAdminApi use bearer authentication for protected groups and explicitly permit anonymous authentication and health operations.
+Use bearer examples only when the target provides bearer authentication. Backendbase ExampleApi requires an API key and adds USER bearer authentication for protected Example and Identity operations. UserApi and SystemAdminApi use bearer authentication for protected groups and explicitly permit anonymous authentication and health operations.
 
 ACL is an application authorization decision rather than an OpenAPI security scheme. Document its `403` outcome and keep the named privilege explicit in runtime code and tests.
 
@@ -141,7 +141,7 @@ Backendbase operations reference `Accept-Language`, `The-Timezone-IANA`, `X-Requ
 
 These differences are semantic audit prompts. Do not reproduce them as target behavior.
 
-- Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
+- Current Example HTTP operations require an API key. All except `getExampleByCriteria` also require USER bearer authentication. Missing or invalid credentials return `401`; unavailable authentication state returns `503`. Internal access-control denial uses the shared forbidden error.
 - Example creation requires `lookupValue`. PATCH treats explicit null as omitted, and its schema declares those fields nullable.
 - In an unmodified Backendbase project, Example metadata uses `apiMetadata`, lists use plural keys with root pagination, and details use `example`.
 - Example timestamps use `DATE_ATOM` and the OpenAPI `date-time` format. List schemas include `createdAt`. Empty detail and readiness maps serialize as JSON objects.

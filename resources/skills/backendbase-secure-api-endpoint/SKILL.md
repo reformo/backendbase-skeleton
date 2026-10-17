@@ -43,9 +43,10 @@ Test expired or revoked credentials only when the selected mechanism provides th
 
 ## Backendbase reference policy
 
-- Backendbase ExampleApi uses API-key protection for metadata and all Example reads and writes.
+- Backendbase ExampleApi requires an API key for metadata, Authentication, Identity, and all Example operations.
+- Its protected Example and Identity groups also require the USER realm. `getExampleByCriteria` and Authentication operations require no bearer token.
 - Liveness and readiness are public.
-- Backendbase UserApi and SystemAdminApi provide account flows and separate bearer authentication realms.
+- Backendbase ExampleApi and UserApi share USER account and session flows. SystemAdminApi uses the separate ADMIN realm.
 - Define each group's realm once through `RealmPolicy`. Protected groups also apply `RealmAuthentication`; public Authentication groups apply only `RealmPolicy`.
 - Keep endpoint action and contact policies independent of realm selection. Verify group middleware order through actual requests.
 - Shared `AccessControl` remains available for application privilege decisions.

@@ -83,10 +83,17 @@ post:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
       $ref: '../../common/components.yaml#/schemas/403'
+    503:
+      description: Authentication dependency unavailable.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
     404:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
+      bearerToken: [ ]
 
 get:
   tags:
@@ -206,7 +213,14 @@ get:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
       $ref: '../../common/components.yaml#/schemas/403'
+    503:
+      description: Authentication dependency unavailable.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
     404:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
+      bearerToken: [ ]

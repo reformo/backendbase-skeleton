@@ -1,0 +1,44 @@
+info:
+  name: 'Register User'
+  type: http
+  seq: 14
+http:
+  method: POST
+  url: '{{baseUrl}}/auth/register'
+  headers:
+    - name: Backendbase-Api-Key
+      value: '{{apiKey}}'
+    -
+      name: X-Source-Id
+      value: example
+    -
+      name: Accept-Language
+      value: en-US
+    -
+      name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "firstName": "{{firstName}}",
+        "lastName": "{{lastName}}",
+        "email": "{{email}}",
+        "mobile": "{{mobile}}",
+        "password": "{{password}}",
+        "emailContactInfoId": "{{emailContactInfoId}}",
+        "mobileContactInfoId": "{{mobileContactInfoId}}",
+        "verificationContextToken": "{{verificationContextToken}}"
+      }
+runtime:
+  scripts:
+    -
+      type: tests
+      code: |
+        expect(res.status).to.equal(201);
+        const body = res.getBody();
+        expect(body).not.to.have.property("statusCode");
+        expect(body).to.have.property("registration");
+        expect(body).not.to.have.property("data");
+        expect(body.registration.accountId).to.match(/^[0-9a-f-]{36}$/);
+        bru.setVar("accountId", body.registration.accountId);

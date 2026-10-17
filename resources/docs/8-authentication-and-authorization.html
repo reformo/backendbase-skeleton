@@ -26,15 +26,15 @@
 </nav>
 <main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Each consumer API has an explicit security policy</h2>
-    <p>ExampleApi requires the configured API key for metadata and every Example read or write. Liveness and readiness remain public.</p>
-    <p>IdentityAndAccess owns global Accounts and realm-specific User and SystemAdmin actors. UserApi and SystemAdminApi expose separate authentication flows. Greeting HTTP endpoints remain absent.</p>
-    <p>Both identity APIs use trusted realm policies and JSON Web Tokens (JWTs). See <a href="#identity-realms">identity realms</a> for session and database gates.</p>
+    <p>ExampleApi requires the configured API key for metadata, Authentication, Identity, and Example operations. All Example operations except <code>getExampleByCriteria</code> also require USER bearer authentication. Liveness and readiness remain public.</p>
+    <p>IdentityAndAccess owns global Accounts and realm-specific User and SystemAdmin actors. ExampleApi and UserApi share USER authentication and sessions. SystemAdminApi uses the separate ADMIN realm. Greeting HTTP endpoints remain absent.</p>
+    <p>All three APIs use trusted realm policies and JSON Web Tokens (JWTs) on protected identity routes. See <a href="#identity-realms">identity realms</a> for session and database gates.</p>
 </section>
 <section id="map"><p class="section-label">02 · Component map</p><h2>HTTP protection and internal access control have separate owners</h2>
     <div class="table-wrap"><table><thead><tr><th>Component</th><th>Responsibility</th></tr></thead><tbody>
         <tr><td><code>ValidateApiKey</code></td><td>Validate an API-specific key before dispatch.</td></tr>
         <tr><td><code>ApiKeySettings</code></td><td>Validate configuration and compare the expected key.</td></tr>
-        <tr><td><code>RealmPolicy</code></td><td>Set the trusted realm once per Authentication, Identity, or Administration group.</td></tr>
+        <tr><td><code>RealmPolicy</code></td><td>Set the trusted realm once per Authentication, Identity, Administration, or protected Example group.</td></tr>
         <tr><td><code>RealmAuthentication</code></td><td>Validate a bearer token against the group realm and supply the verified principal.</td></tr>
         <tr><td><code>RoutePolicy</code> and <code>ContactRoutePolicy</code></td><td>Set endpoint actions and contact settings without changing the group realm.</td></tr>
         <tr><td><code>AccessControl</code></td><td>Shared interface for an application privilege decision.</td></tr>
@@ -44,7 +44,7 @@
 <section id="flow"><p class="section-label">03 · Request flow</p><h2>Validate the API key before controller dispatch</h2>
     <div class="diagram-wrap"><ol class="flow">
         <li><strong>Client</strong><small>sends API key</small></li><li><strong>API context</strong><small>sets API attributes</small></li>
-        <li><strong>Validation</strong><small>compares configured key</small></li><li><strong>Controller</strong><small>validates input</small></li>
+        <li><strong>Validation</strong><small>compares configured key</small></li><li><strong>USER realm</strong><small>selects the trusted policy</small></li><li><strong>Bearer validation</strong><small>checks protected routes</small></li><li><strong>Controller</strong><small>validates input</small></li>
         <li><strong>Handler</strong><small>executes the use case</small></li>
     </ol></div>
     <p>Example write commands contain business input. They do not receive bearer identity or access-control attributes.</p>
@@ -60,10 +60,10 @@
     <p>Configured public path prefixes bypass validation. OPTIONS returns an empty 200 response.</p>
 </section>
 <section id="routes"><p class="section-label">06 · Route policy</p><h2>Protect new endpoints by default</h2>
-    <p>Apply the target API's existing security policy. Example operations use the API key. Identity operations use trusted USER or ADMIN policies. Declare anonymous policy explicitly in routing and OpenAPI.</p>
+    <p>Apply the target API's existing security policy. Example operations require the API key. All except <code>getExampleByCriteria</code> also require a USER bearer token. Identity operations use trusted USER or ADMIN policies. Declare anonymous policy explicitly in routing and OpenAPI.</p>
     <p>Metadata and all six Example routes require an API key. Liveness and readiness use <code>security: []</code>.</p>
-    <p>Identity and Administration groups add <code>RealmAuthentication</code>, then <code>RealmPolicy</code>. Slim executes the last added middleware first. The realm therefore exists before authentication runs. Endpoint action and contact policies execute after group authentication.</p>
-    <p>Public Authentication groups apply only <code>RealmPolicy</code>. Login and public contact verification do not require a bearer token. Health and preflight routes remain outside protected groups.</p>
+    <p>Identity, Administration, and protected Example groups add <code>RealmAuthentication</code>, then <code>RealmPolicy</code>. Slim executes the last added middleware first. The realm therefore exists before authentication runs. Endpoint action and contact policies execute after group authentication.</p>
+    <p>Public Authentication groups apply only <code>RealmPolicy</code>. Login and public contact verification do not require a bearer token. ExampleApi Authentication routes retain the API-key requirement. Health and preflight routes remain outside protected groups.</p>
     <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
 <section id="configuration"><p class="section-label">07 · Configuration</p><h2>Keep the key outside source control</h2>
@@ -72,7 +72,7 @@
     <div class="related"><a href="7-env-and-config.html">Environment and Configuration</a></div>
 </section>
 <section id="failures"><p class="section-label">08 · Failure behavior</p><h2>Security errors use stable public responses</h2>
-    <p>A missing or invalid API key returns 401 with code <code>identity-access/api-key-invalid</code> before command dispatch.</p>
+    <p>A missing or invalid API key returns 401 with code <code>identity-access/api-key-invalid</code> before command dispatch. Missing or invalid bearer credentials return 401. Unavailable authentication state returns 503.</p>
     <p>The shared <code>ResourceAccessForbidden</code> mapping remains available with status 403. Internal greeting denial stops the transaction.</p>
 </section>
 <section id="gaps"><p class="section-label">09 · Current limits</p><h2>Known limits</h2>
@@ -88,7 +88,7 @@
 vendor/bin/phpunit tests/Infrastructure/Inbound/IdentityApi
 vendor/bin/phpunit tests/Infrastructure/Adapters/Http/Middleware
 vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/QueueGreetingHandlerTest.php</code></pre>
-    <p>Route tests verify allowed writes, missing or invalid API keys, retained responses, and removed endpoints. Internal tests verify greeting authorization and duplicate delivery.</p>
+    <p>Route tests verify allowed reads and writes, missing or invalid credentials, ADMIN tokens, expired and revoked tokens, and authentication dependency failures. Detail reads require no bearer token. Shared USER session tests verify revocation across ExampleApi and UserApi. Internal tests verify greeting authorization and duplicate delivery.</p>
     <p>Identity <code>ModuleRoutingTest</code> checks tag-based modules and all 15 protected routes for missing-token and cross-realm rejection. The identity suite also covers public login, contact verification, authenticated flows, and anonymous preflight.</p>
 </section>
 <section id="sources"><p class="section-label">11 · Source map</p><h2>Primary sources</h2>
@@ -102,7 +102,7 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Application/Comma
     </tbody></table></div>
 </section>
 <section id="identity-realms"><h2>Identity realms and session gates</h2>
-<p>Set <code>X-Source-Id</code> to <code>user</code> or <code>system-admin</code>. The selected API's group sets USER or ADMIN through <code>RealmPolicy</code>. A client header does not grant authority.</p>
+<p>Set <code>X-Source-Id</code> to <code>example</code>, <code>user</code>, or <code>system-admin</code>. The selected API's group sets USER or ADMIN through <code>RealmPolicy</code>. A client header does not grant authority.</p>
 <p>Verify both email and mobile before User registration. Both proofs must be less than 12 hours old. Registration consumes both proofs and creates one global Account and one User actor atomically. Admin contact verification remains optional after enrollment and login. See <a href="../platform/operations/contact-verification.md">contact verification</a> for the complete contract.</p>
 <p>Admin enrollment requires an existing verified Account, invitation evidence, and separate approval evidence. An Admin cannot approve its own invitation. Both realms use password authentication.</p>
 <p><code>POST /auth/login</code> returns a <code>session</code> result with a short-lived JSON Web Token (JWT) only after Redis records both token and session allowlist entries. Request validation checks signature, issuer, audience, realm, actor type, expiry, both Redis records, and current Account and actor state.</p>

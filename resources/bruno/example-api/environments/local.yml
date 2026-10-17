@@ -28,3 +28,27 @@ variables:
   -
     name: lastName
     value: 'Korkmaz'
+  - name: email
+    value: ""
+  - name: mobile
+    value: ""
+  - name: identifier
+    value: ""
+  - name: password
+    value: ""
+  - name: code
+    value: ""
+  - name: accessToken
+    value: ""
+  - name: contactType
+    value: ""
+  - name: contactValue
+    value: ""
+  - name: contactInfoId
+    value: ""
+  - name: emailContactInfoId
+    value: ""
+  - name: mobileContactInfoId
+    value: ""
+  - name: verificationContextToken
+    value: ""

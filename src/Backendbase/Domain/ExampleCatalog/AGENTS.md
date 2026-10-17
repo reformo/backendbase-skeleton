@@ -14,6 +14,7 @@ This context is the complete business-module reference. Production contexts use 
 - Preserve stored timestamps during reconstitution.
 - Keep mutation and domain-event publication inside `EntryEventTransaction`, which delegates to `IntegrationEventTransaction`.
 - Preserve released event names and version-one `exampleId` payload keys. PHP accessors use `entryId()`.
+- Require the existing USER bearer authentication for every Example-tagged route except `getExampleByCriteria`. Retain API-key protection on all Example routes.
 - Keep `QueueGreeting` authorization on `example.add`. Greeting HTTP endpoints remain absent.
 
 ## Change locations

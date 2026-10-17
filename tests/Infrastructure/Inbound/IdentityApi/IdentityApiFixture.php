@@ -37,9 +37,18 @@ final readonly class IdentityApiFixture
 
     public static function create(IdentityFixture $identity, Realm $realm): self
     {
+        return self::build($identity, $realm === Realm::USER ? 'UserApi' : 'SystemAdminApi', $realm === Realm::USER ? 'user-api' : 'system-admin-api');
+    }
+
+    public static function example(IdentityFixture $identity): self
+    {
+        return self::build($identity, 'ExampleApi', 'example-api');
+    }
+
+    private static function build(IdentityFixture $identity, string $name, string $slug): self
+    {
         $container = $identity->container();
         $app       = AppFactory::create(container: $container);
-        $name      = $realm === Realm::USER ? 'UserApi' : 'SystemAdminApi';
         $root      = 'src/Backendbase/Infrastructure/Inbound/' . $name;
         $routes    = require $root . '/routes.php';
         $routes($app);
@@ -51,13 +60,17 @@ final readonly class IdentityApiFixture
         $middleware = $app->addErrorMiddleware(false, false, false);
         $middleware->setDefaultErrorHandler(new HttpErrorHandler($app->getCallableResolver(), $app->getResponseFactory(), new NullLogger(), new DomainErrorProblemDetailsMapper()));
 
-        return new self($app, $realm === Realm::USER ? 'user-api' : 'system-admin-api');
+        return new self($app, $slug);
     }
 
     /** @param array<string, mixed>|null $payload */
     public function request(string $method, string $path, array|null $payload = null, string|null $token = null): ResponseInterface
     {
         $request = new ServerRequestFactory()->createServerRequest($method, $path, ['REMOTE_ADDR' => '127.0.0.1']);
+        if ($this->slug === 'example-api') {
+            $request = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
+        }
+
         if ($payload !== null) {
             $stream = new Stream('php://temp', 'r+');
             $stream->write(json_encode($payload, JSON_THROW_ON_ERROR));
@@ -102,7 +115,11 @@ final readonly class IdentityApiFixture
 
     private function assertRouteResponse(RouteInterface $route, string $method, string $path, ResponseInterface $response): void
     {
-        $pattern    = $route->getPattern();
+        $pattern = $route->getPattern();
+        if ($pattern === '/{routes:.*}') {
+            return;
+        }
+
         $expression = preg_replace('/\{[^}]+\}/', '[^/]+', $pattern);
         Assert::assertIsString($expression);
         $methods = $route->getMethods();

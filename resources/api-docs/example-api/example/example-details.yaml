@@ -180,10 +180,17 @@ patch:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
       $ref: '../../common/components.yaml#/schemas/403'
+    503:
+      description: Authentication dependency unavailable.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
     404:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
+      bearerToken: [ ]
 
 delete:
   tags:
@@ -241,7 +248,14 @@ delete:
       $ref: '../../common/components.yaml#/schemas/401'
     403:
       $ref: '../../common/components.yaml#/schemas/403'
+    503:
+      description: Authentication dependency unavailable.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
     404:
       $ref: '../../common/components.yaml#/schemas/404'
   security:
     - apiKey: [ ]
+      bearerToken: [ ]

@@ -50,7 +50,7 @@
 <section id="api"><p class="section-label">06 · API and contract</p><h2>Verify both adapter behavior and the published contract</h2>
 <ul><li>Controller tests check input parsing, bus dispatch, response status, headers, and body shape.</li><li>Routing tests check method, path, module registration, and authorization grouping.</li>
 <li>OpenAPI validation checks document structure.</li><li>Bruno checks documented Example API operations against a running API and writes an HTML report.</li><li>OpenAPI and Bruno do not replace failure-path PHPUnit tests.</li></ul>
-<p><code>ApiDefinitionParityTest</code> checks source/merged equality and Bruno response assertions for 37 operations: 9 Example, 11 User, and 17 System Admin. Runtime response tests check the published shapes separately.</p>
+<p><code>ApiDefinitionParityTest</code> checks source/merged equality and Bruno response assertions for 46 operations: 18 Example, 11 User, and 17 System Admin. Runtime response tests check the published shapes separately.</p>
 <p>Identity <code>ModuleRoutingTest</code> checks module registration, handler namespaces, and route names against OpenAPI tags and operation IDs. It verifies missing-token and cross-realm rejection on all 15 protected routes through the actual group middleware.</p>
 <p>The identity HTTP suite covers public login, contact verification, authenticated flows, and anonymous preflight across UserApi and SystemAdminApi.</p>
 <div class="related"><a href="5-use-case-api.html">Use Case API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>

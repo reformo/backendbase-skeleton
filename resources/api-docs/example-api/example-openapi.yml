@@ -13,6 +13,24 @@ servers:
   - url: https://example.api.backendbaseapp.com
     description: EXAMPLE API Production URL
 paths:
+  '/auth/contact-verifications/{contact-info-id}/resend':
+    $ref: './authentication/contact-resend.yaml'
+  '/auth/contact-verifications/{contact-info-id}/confirm':
+    $ref: './authentication/contact-confirmation.yaml'
+  '/auth/contact-verifications':
+    $ref: './authentication/contact-verification.yaml'
+  /auth/register:
+    $ref: "./authentication/register.yaml"
+  /auth/login:
+    $ref: "./authentication/login.yaml"
+  /identity:
+    $ref: "./identity/current.yaml"
+  /identity/token:
+    $ref: "./identity/token.yaml"
+  /identity/session:
+    $ref: "./identity/session.yaml"
+  /identity/account:
+    $ref: "./identity/account.yaml"
   /:
     $ref: "./system/api-metadata.yaml"
   /_status:
@@ -28,6 +46,28 @@ paths:
 
 components:
   schemas:
+    Completed:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/Completed'
+    ContactConfirmation:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/ContactConfirmation'
+    ContactInfo:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/ContactInfo'
+    ContactRequest:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/ContactRequest'
+    ContactResend:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/ContactResend'
+    Identity:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/Identity'
+    LoginInput:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/LoginInput'
+    Problem:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/Problem'
+    Registration:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/Registration'
+    RegistrationInput:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/RegistrationInput'
+    Session:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/Session'
     Readiness:
       type: object
       additionalProperties: false
@@ -59,11 +99,19 @@ components:
               type: string
               enum: [ready, unavailable]
   securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
     apiKey:
       type: apiKey
       in: header
       name: Backendbase-Api-Key
 tags:
+  - name: Authentication
+    description: User registration, contact ownership, and password login.
+  - name: Identity
+    description: Current User identity, access tokens, sessions, and account closure.
   - name: System
     description: API metadata, liveness, and dependency readiness.
   - name: Example

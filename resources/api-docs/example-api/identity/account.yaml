@@ -1,0 +1,67 @@
+delete:
+  tags:
+    - Identity
+  operationId: exampleCloseAccount
+  summary: 'Close Account'
+  parameters:
+    -
+      $ref: '../../common/components.yaml#/headers/Accept-Language'
+    -
+      $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
+    -
+      $ref: '../../common/components.yaml#/headers/X-Request-Id'
+    -
+      name: X-Source-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        enum:
+          - example
+  security:
+    -
+      apiKey: []
+      bearerToken: []
+  responses:
+    200:
+      description: 'Completed operation'
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            enum:
+              - no-store
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required:
+              - account
+            properties:
+              account:
+                $ref: '../example-openapi.yml#/components/schemas/Completed'
+    400:
+      description: 'Invalid request'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
+    401:
+      description: 'Authentication denied'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
+    409:
+      description: 'Identity conflict'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'
+    503:
+      description: 'Authentication dependency unavailable'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../example-openapi.yml#/components/schemas/Problem'

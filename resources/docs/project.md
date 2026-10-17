@@ -166,7 +166,7 @@ Use `ExampleApi` as the reference for general HTTP adapter patterns. Use the exi
 
 Before implementing a feature, inspect the current `Infrastructure/Inbound` directories. Update each existing affected API. If the request requires an API that is not present, confirm whether to scaffold it before adding adapters or documentation.
 
-Apply the target API's existing security policy. Example reads and writes require an API key. Identity routes use their trusted USER or ADMIN policy. Define anonymous access explicitly. Internal `QueueGreeting` retains its Shared `AccessControl` check. See [the identity security policy](../platform/14-security.md).
+Apply the target API's existing security policy. Example operations require an API key. Every Example operation except `getExampleByCriteria` also requires a USER bearer token. ExampleApi reuses UserApi contact verification, registration, login, identity, and session services. Identity routes use their trusted USER or ADMIN policy. Define anonymous access explicitly. Internal `QueueGreeting` retains its Shared `AccessControl` check. See [the identity security policy](../platform/14-security.md).
 
 Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. Add all four shared header references to each new OpenAPI operation's `parameters` section. Follow `resources/api-docs/example-api/example/examples.yaml`.
 

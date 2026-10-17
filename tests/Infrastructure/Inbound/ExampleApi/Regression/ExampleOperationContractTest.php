@@ -44,11 +44,12 @@ final class ExampleOperationContractTest extends TestCase
 
             return $identity->typeTargetId() === 42;
         }));
-        $app      = ExampleApiFixture::build($commands);
-        $request  = new ServerRequestFactory()->createServerRequest('DELETE', '/example-types/user/groups/settings/examples/key');
-        $request  = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
-        $request  = $request->withQueryParams(['typeTargetId' => '42']);
-        $response = $app->handle($request);
+        [$app, $token] = ExampleApiFixture::authenticated($commands);
+        $request       = new ServerRequestFactory()->createServerRequest('DELETE', '/example-types/user/groups/settings/examples/key');
+        $request       = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
+        $request       = $request->withHeader('Authorization', 'Bearer ' . $token);
+        $request       = $request->withQueryParams(['typeTargetId' => '42']);
+        $response      = $app->handle($request);
         self::assertSame(204, $response->getStatusCode());
     }
 
@@ -57,11 +58,12 @@ final class ExampleOperationContractTest extends TestCase
     {
         $commands = $this->createMock(CommandBus::class);
         $commands->expects(self::once())->method('handle')->willThrowException(EntryAlreadyExists::create('The example already exists.'));
-        $app             = ExampleApiFixture::build($commands);
+        [$app, $token]   = ExampleApiFixture::authenticated($commands);
         $errorMiddleware = $app->addErrorMiddleware(false, false, false);
         $errorMiddleware->setDefaultErrorHandler(new HttpErrorHandler($app->getCallableResolver(), $app->getResponseFactory(), new NullLogger(), new DomainErrorProblemDetailsMapper()));
         $request  = new ServerRequestFactory()->createServerRequest('POST', '/example-types/system/groups/settings/examples');
         $request  = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
+        $request  = $request->withHeader('Authorization', 'Bearer ' . $token);
         $request  = $request->withBody(JsonRequestBody::create(['lookupValue' => 'value']));
         $response = $app->handle($request);
         self::assertSame(409, $response->getStatusCode());
@@ -73,11 +75,12 @@ final class ExampleOperationContractTest extends TestCase
     {
         $commands = $this->createMock(CommandBus::class);
         $commands->expects(self::never())->method('handle');
-        $app             = ExampleApiFixture::build($commands);
+        [$app, $token]   = ExampleApiFixture::authenticated($commands);
         $errorMiddleware = $app->addErrorMiddleware(false, false, false);
         $errorMiddleware->setDefaultErrorHandler(new HttpErrorHandler($app->getCallableResolver(), $app->getResponseFactory(), new NullLogger(), new DomainErrorProblemDetailsMapper()));
         $request  = new ServerRequestFactory()->createServerRequest('PATCH', '/example-types/system/groups/settings/examples/key');
         $request  = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
+        $request  = $request->withHeader('Authorization', 'Bearer ' . $token);
         $request  = $request->withBody(JsonRequestBody::create(['details' => ['x']]));
         $response = $app->handle($request);
         self::assertSame(400, $response->getStatusCode());

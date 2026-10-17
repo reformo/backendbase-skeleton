@@ -4,6 +4,7 @@
 
 ```text
 API selection -> route match -> API context -> API-key validation
+-> fixed USER realm -> bearer validation for protected groups
 -> controller input validation -> command or query -> application work
 ```
 
@@ -13,11 +14,11 @@ Slim uses last-in, first-out middleware execution. The API context runs before t
 | --- | --- | --- |
 | API key | `ValidateApiKey` compares the configured key | Header, key storage, public paths, failure contract |
 | API context | Middleware supplies API name, header name, and key mode | Typed or validated target request context |
-| HTTP policy | Example reads and writes require an API key | Requested target policy and available mechanisms |
+| HTTP policy | Example reads and writes require an API key; all except `getExampleByCriteria` also require USER bearer authentication | Requested target policy and available mechanisms |
 | Application access control | Internal `QueueGreeting` uses Shared `AccessControl` | Target privilege contract and caller implementation |
-| OpenAPI | Protected Example operations declare `apiKey`; protected identity operations declare bearer authentication | Exact target security schemes |
+| OpenAPI | Protected Example operations declare `apiKey` and `bearerToken` in one requirement | Exact target security schemes |
 
-Backendbase UserApi and SystemAdminApi use the IdentityAndAccess account, token, and session flows. Inspect available mechanisms in other target projects.
+Backendbase ExampleApi and UserApi share IdentityAndAccess USER account, token, and session flows. SystemAdminApi uses ADMIN. Inspect available mechanisms in other target projects.
 
 Their Authentication, Identity, and Administration modules define each group's realm once through `RealmPolicy`.
 Protected groups add `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.

@@ -555,7 +555,7 @@
                         <tr><td>Consumer APIs</td><td><code>ExampleApi</code>, <code>UserApi</code>, <code>SystemAdminApi</code></td><td><code>Infrastructure/Inbound</code></td></tr>
                         <tr><td>Business modules</td><td><code>ExampleCatalog</code> and <code>IdentityAndAccess</code></td><td>Reference catalog and identity contexts</td></tr>
                         <tr><td>Queue drivers</td><td>RabbitMQ or Amazon SQS</td><td>Selected by environment configuration</td></tr>
-                        <tr><td>API request collections</td><td>37 Bruno requests across three APIs</td><td>9 Example, 11 User, and 17 System Admin operations</td></tr>
+                        <tr><td>API request collections</td><td>46 Bruno requests across three APIs</td><td>18 Example, 11 User, and 17 System Admin operations</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -725,7 +725,7 @@
                 </article>
                 <article class="card">
                     <h3>Routes</h3>
-                    <p>The root routes provide API metadata, liveness, and readiness. <code>ModuleRoutes</code> registers the Example module. All Example operations require an API key. A final route handles missing paths.</p>
+                    <p>The root routes provide API metadata, liveness, and readiness. <code>ModuleRoutes</code> registers Authentication, Identity, and Example modules. All Example operations require an API key. Every Example operation except <code>getExampleByCriteria</code> also requires a USER bearer token. ExampleApi reuses UserApi authentication and sessions. A final route handles missing paths.</p>
                 </article>
             </div>
             <div class="callout good"><strong>Current security state:</strong> ExampleApi middleware validates <code>Backendbase-Api-Key</code>. Example reads and writes use this protection. Missing or invalid API keys return status <code>401</code>.</div>
@@ -868,7 +868,7 @@ composer run start-apis</code></pre>
                 </article>
                 <article class="card">
                     <h3>Bruno collection</h3>
-                    <p>Requests under <code>resources/bruno/example-api</code> cover nine documented Example API operations against a selected environment.</p>
+                    <p>Requests under <code>resources/bruno/example-api</code> cover 18 documented Example API operations against a selected environment.</p>
                 </article>
             </div>
             <p>Every new operation supports <code>Accept-Language</code>, <code>The-Timezone-IANA</code>, <code>X-Request-Id</code>, and <code>X-Source-Id</code>.</p>

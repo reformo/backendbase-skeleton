@@ -156,12 +156,30 @@ jobs:
           require "vendor/autoload.php";
           $specification = Symfony\Component\Yaml\Yaml::parseFile("public/example-api/docs/example-api-merged.yml");
           unset($specification["paths"]["/_status/ready"]);
+          foreach (array_keys($specification["paths"]) as $path) {
+              if (str_starts_with($path, "/auth/") || str_starts_with($path, "/identity")) {
+                  unset($specification["paths"][$path]);
+              }
+          }
           file_put_contents(
               "artifacts/zap/example-api-openapi.yml",
               Symfony\Component\Yaml\Yaml::dump($specification, 20, 2, Symfony\Component\Yaml\Yaml::DUMP_OBJECT_AS_MAP),
           );
           '
           vendor/bin/php-openapi validate --silent artifacts/zap/example-api-openapi.yml
+
+      - name: Configure Example API authentication
+        run: |
+          php -r '
+          foreach (["BACKENDBASE_USER_JWT_KEY", "BACKENDBASE_ADMIN_JWT_KEY", "BACKENDBASE_IDENTITY_ENCRYPTION_KEY"] as $name) {
+              echo $name . "=" . base64_encode(random_bytes(32)) . PHP_EOL;
+          }
+          ' >> "$GITHUB_ENV"
+          echo 'BACKENDBASE_USER_JWT_ISSUER=https://user.example.test' >> "$GITHUB_ENV"
+          echo 'BACKENDBASE_USER_JWT_AUDIENCE=user-api' >> "$GITHUB_ENV"
+          echo 'BACKENDBASE_ADMIN_JWT_ISSUER=https://admin.example.test' >> "$GITHUB_ENV"
+          echo 'BACKENDBASE_ADMIN_JWT_AUDIENCE=system-admin-api' >> "$GITHUB_ENV"
+          echo 'BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS=3600' >> "$GITHUB_ENV"
 
       - name: Start Example API
         run: |
@@ -206,10 +224,30 @@ jobs:
           cat "$readinessResponse"
           exit 1
 
-      - name: Run Bruno API-key write sequence
+      - name: Create Example API scan session
+        run: |
+          fixtureSuffix="$(php -r 'echo random_int(100000000, 999999999);')"
+          BACKENDBASE_HTTP_FIXTURE_SUFFIX="$fixtureSuffix" php tests/Security/http-fixture.php seed > /dev/null
+          loginPayload="$(jq --null-input --compact-output --arg identifier "operator-$fixtureSuffix@example.test" '{identifier: $identifier, password: "http-fixture-password"}')"
+          sessionFile="$RUNNER_TEMP/example-api-session.json"
+          curl --fail-with-body --silent --show-error --connect-timeout 5 --max-time 15 \
+            --request POST \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header 'Content-Type: application/json' \
+            --data "$loginPayload" \
+            --output "$sessionFile" \
+            http://127.0.0.1:8080/example-api/auth/login
+          accessToken="$(jq --exit-status --raw-output '.session.accessToken | select(type == "string" and length > 0)' "$sessionFile")"
+          echo "::add-mask::$accessToken"
+          echo "DAST_USER_TOKEN=$accessToken" >> "$GITHUB_ENV"
+          rm "$sessionFile"
+
+      - name: Run Bruno authenticated Example write sequence
         run: >-
-          bin/bruno example-api local
+          bin/bruno example-api local example
           --env-var "apiKey=$EXAMPLE_API_KEY"
+          --env-var "accessToken=$DAST_USER_TOKEN"
           --bail
 
       - name: Create DAST write fixture
@@ -226,6 +264,7 @@ jobs:
           curl --fail-with-body --silent --show-error \
             --request POST \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header "Authorization: Bearer $DAST_USER_TOKEN" \
             --header 'X-Source-Id: example' \
             --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
@@ -235,6 +274,7 @@ jobs:
           curl --fail-with-body --silent --show-error \
             --request PATCH \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header "Authorization: Bearer $DAST_USER_TOKEN" \
             --header 'X-Source-Id: example' \
             --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
@@ -283,9 +323,17 @@ jobs:
             --header 'Content-Type: application/json' \
             --data "$validPayload" \
             "$writeUrl"
+          assertStatus 401 'Missing bearer token on write' \
+            --request POST \
+            --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header 'X-Source-Id: example' \
+            --header 'Content-Type: application/json' \
+            --data "$validPayload" \
+            "$writeUrl"
           assertStatus 400 'Invalid request input' \
             --request POST \
             --header "Backendbase-Api-Key: $EXAMPLE_API_KEY" \
+            --header "Authorization: Bearer $DAST_USER_TOKEN" \
             --header 'X-Source-Id: example' \
             --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
@@ -293,19 +341,44 @@ jobs:
             http://127.0.0.1:8080/example-api/example-types/not-a-type/groups/zap-scan/examples
 
       - name: Run OWASP ZAP OpenAPI scan
-        uses: zaproxy/action-api-scan@5158fe4d9d8fcc75ea204db81317cce7f9e5453d # v0.10.0
+        env:
+          ZAP_AUTH_HEADER: Authorization
+          ZAP_AUTH_HEADER_VALUE: Bearer ${{ env.DAST_USER_TOKEN }}
+          ZAP_AUTH_HEADER_SITE: 127.0.0.1
+          EXAMPLE_KEY: ${{ steps.dast-fixture.outputs.example-key }}
+        run: |
+          mkdir -p artifacts/zap/raw
+          chmod a+w artifacts/zap/raw
+          scanStatus=0
+          docker run --rm --network host -v "$PWD:/zap/wrk:rw" \
+            -e ZAP_AUTH_HEADER -e ZAP_AUTH_HEADER_VALUE -e ZAP_AUTH_HEADER_SITE \
+            ghcr.io/zaproxy/zaproxy@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef \
+            zap-api-scan.py -t artifacts/zap/example-api-openapi.yml -f openapi \
+            -c .zap/rules.tsv -a -T 10 -O http://127.0.0.1:8080/example-api \
+            -J artifacts/zap/raw/report_json.json -w artifacts/zap/raw/report_md.md -r artifacts/zap/raw/report_html.html \
+            -z "-config replacer.full_list(0).description=ExampleApiKey -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Backendbase-Api-Key -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=$EXAMPLE_API_KEY -config replacer.full_list(1).description=SourceId -config replacer.full_list(1).enabled=true -config replacer.full_list(1).matchtype=REQ_HEADER -config replacer.full_list(1).matchstr=X-Source-Id -config replacer.full_list(1).regex=false -config replacer.full_list(1).replacement=example -config formhandler.fields.field(0).fieldId=typeSlug -config formhandler.fields.field(0).value=system -config formhandler.fields.field(0).enabled=true -config formhandler.fields.field(1).fieldId=exampleGroup -config formhandler.fields.field(1).value=zap-scan -config formhandler.fields.field(1).enabled=true -config formhandler.fields.field(2).fieldId=exampleKey -config formhandler.fields.field(2).value=$EXAMPLE_KEY -config formhandler.fields.field(2).enabled=true -config formhandler.fields.field(3).fieldId=lookupKey -config formhandler.fields.field(3).value=$EXAMPLE_KEY -config formhandler.fields.field(3).enabled=true -config formhandler.fields.field(4).fieldId=lookupValue -config formhandler.fields.field(4).value=zap-scan-value -config formhandler.fields.field(4).enabled=true" || scanStatus=$?
+          python3 - <<'PYTHON'
+          import os
+          from pathlib import Path
+          destination = Path("artifacts/zap-example")
+          destination.mkdir(parents=True, exist_ok=True)
+          for name in ("report_json.json", "report_md.md", "report_html.html"):
+              source = Path("artifacts/zap/raw") / name
+              if source.exists():
+                  content = source.read_text().replace(os.environ["DAST_USER_TOKEN"], "[redacted]")
+                  content = content.replace(os.environ["EXAMPLE_API_KEY"], "[redacted]")
+                  (destination / name).write_text(content)
+          PYTHON
+          exit "$scanStatus"
+
+      - name: Upload sanitized Example scan reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          target: artifacts/zap/example-api-openapi.yml
-          format: openapi
-          rules_file_name: .zap/rules.tsv
-          cmd_options: >-
-            -a
-            -T 10
-            -O http://127.0.0.1:8080/example-api
-            -z "-config replacer.full_list(0).description=ExampleApiKey -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Backendbase-Api-Key -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=${{ env.EXAMPLE_API_KEY }} -config replacer.full_list(1).description=SourceId -config replacer.full_list(1).enabled=true -config replacer.full_list(1).matchtype=REQ_HEADER -config replacer.full_list(1).matchstr=X-Source-Id -config replacer.full_list(1).regex=false -config replacer.full_list(1).replacement=example -config formhandler.fields.field(0).fieldId=typeSlug -config formhandler.fields.field(0).value=system -config formhandler.fields.field(0).enabled=true -config formhandler.fields.field(1).fieldId=exampleGroup -config formhandler.fields.field(1).value=zap-scan -config formhandler.fields.field(1).enabled=true -config formhandler.fields.field(2).fieldId=exampleKey -config formhandler.fields.field(2).value=${{ steps.dast-fixture.outputs.example-key }} -config formhandler.fields.field(2).enabled=true -config formhandler.fields.field(3).fieldId=lookupKey -config formhandler.fields.field(3).value=${{ steps.dast-fixture.outputs.example-key }} -config formhandler.fields.field(3).enabled=true -config formhandler.fields.field(4).fieldId=lookupValue -config formhandler.fields.field(4).value=zap-scan-value -config formhandler.fields.field(4).enabled=true"
-          fail_action: true
-          allow_issue_writing: false
-          artifact_name: zap-api-report
+          name: zap-api-report
+          path: artifacts/zap-example
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Show server log on failure
         if: failure()

@@ -22,6 +22,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Added
 
+- Add ExampleApi contact verification, User registration, login, identity, token revocation, logout, and Account closure through the existing USER services. Require USER bearer authorization on every Example operation except `getExampleByCriteria`, while retaining API-key checks. Update contracts, Bruno requests, route regressions, security workflow, and guidance.
+
 - Add a PHP message viewer for local MiniStack SMS logs and captured SES emails. Include automatic refresh, filtering, and isolated HTML or plain text previews. Add parser, process, HTTP, and preview regressions.
 
 - Add live checks for all 28 identity API operations and authenticated ZAP scans for both realms. Use disposable fixtures, a local contact sink, and sanitized reports. Pin Semgrep scanner content and the full rule snapshot.
@@ -84,6 +86,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Added reviewed Composer public keys for deterministic isolated self-diagnosis.
 
 ### Fixed
+
+- Use a fixed Docker command for local SMS log reads. Preserve bounded output reads and process termination. Add a command regression.
 
 - Verify all 55 previously skipped service cases on isolated MySQL, Redis, and Sentinel fixtures. Refresh quality metrics and acceptance evidence for 1,160 passing tests, zero skips, and 100% executable-line and method coverage.
 

@@ -18,7 +18,8 @@ This context owns global Accounts, User and SystemAdmin actors, contact evidence
 ## Change locations and decisions
 
 - Bind owned ports and handlers in [ServiceProvider.php](ServiceProvider.php).
-- Keep controllers and route registration inside their owning [UserApi](../../Infrastructure/Inbound/UserApi) or [SystemAdminApi](../../Infrastructure/Inbound/SystemAdminApi) directory.
+- Keep controllers and route registration inside their owning [ExampleApi](../../Infrastructure/Inbound/ExampleApi), [UserApi](../../Infrastructure/Inbound/UserApi) or [SystemAdminApi](../../Infrastructure/Inbound/SystemAdminApi) directory.
+- ExampleApi reuses the USER realm, contact evidence, signing settings, sessions, and revocation state. Keep its Authentication and Identity controllers inside ExampleApi.
 - Match controller modules to OpenAPI tags: Authentication, Identity, System, and SystemAdminApi Administration. Apply the [API controller organization rule](../../../../AGENTS.md#api-controller-organization).
 - Use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`, following ExampleApi. Keep `ROUTE_KEY` and `routeKey()` equal to the module's URL prefix.
 - Register modules explicitly in `Controllers/ModuleRoutes.php`. Give each operation its own handler and use its OpenAPI operation ID as the route name.

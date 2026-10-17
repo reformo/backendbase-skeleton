@@ -45,7 +45,7 @@ Use the target collection format, variable names, base URL, headers, authenticat
 - Requests are YAML files under the API collection.
 - Common headers come from environment variables.
 - Protected requests send API key and bearer credentials when both are required.
-- Current Backendbase requests use API keys only. Capture tokens only when the target provides a token flow.
+- Current Backendbase Example requests retain API keys. Protected Example and Identity requests also send a USER bearer token. ExampleApi login captures that token at runtime. Discover the target token flow before adding capture logic.
 - Create operations capture the target resource identifier from the runtime response or a documented response header when later requests need it.
 - Versioned environments contain placeholders, not live secrets.
 - Assertions check status and contract-significant fields.

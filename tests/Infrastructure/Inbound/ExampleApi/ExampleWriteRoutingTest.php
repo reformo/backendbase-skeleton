@@ -22,7 +22,7 @@ final class ExampleWriteRoutingTest extends TestCase
     private const string COLLECTION_PATH = '/example-types/system/groups/settings/examples';
 
     #[Test]
-    public function itAddsAnExampleWithOnlyAnApiKey(): void
+    public function itAddsAnExampleWithAUserTokenAndApiKey(): void
     {
         $command  = null;
         $response = $this->write('POST', self::COLLECTION_PATH, $command);
@@ -40,7 +40,7 @@ final class ExampleWriteRoutingTest extends TestCase
     }
 
     #[Test]
-    public function itChangesAnExampleWithOnlyAnApiKey(): void
+    public function itChangesAnExampleWithAUserTokenAndApiKey(): void
     {
         $command = null;
         $this->write('PATCH', self::COLLECTION_PATH . '/page-size', $command);
@@ -54,7 +54,7 @@ final class ExampleWriteRoutingTest extends TestCase
     }
 
     #[Test]
-    public function itRemovesAnExampleWithOnlyAnApiKey(): void
+    public function itRemovesAnExampleWithAUserTokenAndApiKey(): void
     {
         $command = null;
         $this->write('DELETE', self::COLLECTION_PATH . '/page-size', $command);
@@ -99,8 +99,8 @@ final class ExampleWriteRoutingTest extends TestCase
             ->willReturnCallback(static function (Command $dispatched) use (&$command): void {
                 $command = $dispatched;
             });
-        $app     = ExampleApiFixture::build($bus);
-        $payload = [
+        [$app, $token] = ExampleApiFixture::authenticated($bus);
+        $payload       = [
             'lookupValue' => '25 & items',
             'isActive' => false,
             'details' => ['unit' => 'items'],
@@ -111,6 +111,7 @@ final class ExampleWriteRoutingTest extends TestCase
 
         $request  = (new ServerRequestFactory())->createServerRequest($method, $path)
             ->withHeader('Backendbase-Api-Key', 'example-api-key')
+            ->withHeader('Authorization', 'Bearer ' . $token)
             ->withBody(JsonRequestBody::create($payload));
         $response = $app->handle($request);
         self::assertSame(204, $response->getStatusCode());

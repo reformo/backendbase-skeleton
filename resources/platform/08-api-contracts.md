@@ -66,7 +66,7 @@ Clients that read the previous metadata key must update their lookup.
 
 ## Automated response checks
 
-The specifications and Bruno collections contain 37 operations: ExampleApi has 9, UserApi has 11, and SystemAdminApi has 17.
+The specifications and Bruno collections contain 46 operations: ExampleApi has 18, UserApi has 11, and SystemAdminApi has 17.
 `ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
 It also checks success key names and Bruno status, key, and wrapper assertions.
 Identity API `ModuleRoutingTest` checks module registration, route names, and handler namespaces against the OpenAPI tags and operation IDs.
@@ -81,7 +81,7 @@ Run live Bruno tests only against an identified, prepared target.
 
 | Endpoint or result | Response key |
 | --- | --- |
-| UserApi current identity | `user` |
+| ExampleApi and UserApi current identity | `user` |
 | SystemAdminApi current identity | `admin` |
 | User registration | `registration` |
 | Contact request, confirmation, and resend | `contactInfo` |
@@ -110,7 +110,12 @@ bin/bruno example-api local
 
 Bruno environment files must contain placeholders, not live secrets. Assertions must check the status and important response fields.
 
-Identity realm sources, generated documents, and Bruno collections have matching operations.
+Identity realm sources, generated documents, and Bruno collections have matching operations. ExampleApi exposes the nine User Authentication and Identity operations with `example` operation ID prefixes and `X-Source-Id: example`.
+ExampleApi references the existing UserApi schemas. Regenerate ExampleApi when those shared schemas change.
+All ExampleApi operations except health require an API key. Protected Example and Identity operations also declare `bearerToken` in the same security requirement.
+`getExampleByCriteria` and Authentication operations require no bearer token.
+Populate the ExampleApi Bruno `accessToken` variable from login before running the `example` folder. Contact verification and registration require prepared contact proofs.
+Run token revocation, logout, and Account closure with the intended session. Obtain another session after revocation or logout.
 Run `composer run generate-identity-api-specs` and `composer run validate-identity-api-specs` after realm contract changes.
 
 The grouped commands call the individual API commands below.
@@ -136,7 +141,7 @@ Quality and release workflows use the grouped identity commands.
 
 Each API root owns metadata, servers, tags, components, and the path reference index.
 Endpoint files own operation definitions. Keep methods for one path together.
-UserApi and SystemAdminApi controller modules use the same names as their OpenAPI tags.
+ExampleApi, UserApi, and SystemAdminApi identity controller modules use the same names as their OpenAPI tags.
 Each module contains `ModuleConfig.php` and a `Handlers` directory with one handler per operation.
 Register each module in `Controllers/ModuleRoutes.php`. Keep browser preflight in `Controllers/Root` because it has no OpenAPI operation.
 For example, UserApi references `./authentication/login.yaml` from its root `paths` entry for `/auth/login`.

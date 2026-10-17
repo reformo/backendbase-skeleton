@@ -172,9 +172,9 @@ Backendbase stores these decisions as `migrationTarget` and `applicationRollback
 
 Use these as regression prompts. Do not preserve them as desired behavior:
 
-- `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify the discovered target security policy; current Example operations use API-key protection only.
+- `ValidateApiKey` is active in `ExampleApi/middleware.php`. Verify the discovered target security policy; current Example operations require an API key and, except `getExampleByCriteria`, a USER bearer token.
 - `public/index.php` selects an API through `X-Source-Id` and `ConsumerApiTarget::TARGETS`. Dedicated bootstrap variables are not the current selection contract.
-- Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
+- Current Example HTTP operations require an API key. All except `getExampleByCriteria` also require a USER bearer token. Missing or invalid credentials return `401`; unavailable authentication state returns `503`. Internal access-control denial uses the shared forbidden error.
 - Example groups use a complete total and the requested page. Detail fields match the projection, and timestamps use the OpenAPI `date-time` format.
 - The version 1 producer and registered carrier both preserve the nested `command` shape. Keep the real producer-to-dispatcher contract test passing.
 - Producer transactions dispatch local integration subscribers before commit. Verify both delivery flag values and rollback when a local subscriber fails.

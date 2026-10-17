@@ -620,7 +620,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
 
         <section id="routing">
             <h2>Routing and modules</h2>
-            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers modules at <code>/example-types</code>.</p>
+            <p><code>routes.php</code> adds root routes, each registered module group, and a final catch-all route. <code>ModuleRoutes</code> registers modules at <code>/auth</code>, <code>/identity</code>, and <code>/example-types</code>.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Method</th><th>Path</th><th>Action</th><th>API key</th></tr></thead>
@@ -634,6 +634,15 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                     <tr><td><span class="method post">POST</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>NewExample</code></td><td>Required</td></tr>
                     <tr><td><span class="method patch">PATCH</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>ChangeExampleDetails</code></td><td>Required</td></tr>
                     <tr><td><span class="method delete">DELETE</span></td><td><code>/example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>RemoveExample</code></td><td>Required</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/auth/contact-verifications</code></td><td><code>RequestContactVerification</code></td><td>Required</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/auth/contact-verifications/{contact-info-id}/confirm</code></td><td><code>ConfirmContactVerification</code></td><td>Required</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/auth/contact-verifications/{contact-info-id}/resend</code></td><td><code>ResendContactVerification</code></td><td>Required</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/auth/register</code></td><td><code>RegisterUser</code></td><td>Required</td></tr>
+                    <tr><td><span class="method post">POST</span></td><td><code>/auth/login</code></td><td><code>PasswordLogin</code></td><td>Required</td></tr>
+                    <tr><td><span class="method get">GET</span></td><td><code>/identity</code></td><td><code>CurrentIdentity</code></td><td>Required</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/identity/token</code></td><td><code>RevokeAccessToken</code></td><td>Required</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/identity/session</code></td><td><code>EndSession</code></td><td>Required</td></tr>
+                    <tr><td><span class="method delete">DELETE</span></td><td><code>/identity/account</code></td><td><code>CloseAccount</code></td><td>Required</td></tr>
                     <tr><td><span class="method any">ANY</span></td><td><code>/{routes:.*}</code></td><td><code>NotFound</code></td><td>Required outside public paths</td></tr>
                     </tbody>
                 </table>
@@ -661,7 +670,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                 <article class="card purple">
                     <span class="tag">API key</span>
                     <h3>API protection</h3>
-                    <p><code>ValidateApiKey</code> checks the configured API key before dispatch. Example writes do not receive authorization attributes.</p>
+                    <p><code>ValidateApiKey</code> checks the API key. Protected Example and Identity groups also validate USER bearer tokens. Example commands retain their business input.</p>
                 </article>
             </div>
             <p>The shared bootstrap also adds body parsing, routing, error middleware, a shutdown handler, and the response emitter.</p>
@@ -669,7 +678,8 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                 <strong>API-key validation is active</strong>
                 <code>ExampleApi/middleware.php</code> adds <code>ValidateApiKey::class</code>. It validates <code>Backendbase-Api-Key</code> on non-public paths and returns status <code>401</code> for a missing or invalid key.
             </div>
-            <p>Protected routes expect <code>Backendbase-Api-Key</code>. Missing or invalid API keys return status <code>401</code>.</p>
+            <p>Example operations require <code>Backendbase-Api-Key</code>. All except <code>getExampleByCriteria</code> also require <code>Authorization: Bearer</code> with a valid USER token. Missing or invalid credentials return <code>401</code>. Unavailable authentication state returns <code>503</code>.</p>
+            <p>ExampleApi exposes the same contact verification, registration, login, current identity, token revocation, logout, and Account closure operations as UserApi. Both APIs share USER signing settings and session state. Authentication routes require the API key without a bearer token.</p>
         </section>
 
         <section id="controllers">
@@ -848,7 +858,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
 
         <section id="openapi">
             <h2>OpenAPI documentation</h2>
-            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components and the three Example path files.</p>
+            <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components, UserApi identity schemas, and grouped System, Authentication, Identity, and Example path files.</p>
             <div class="process" aria-label="OpenAPI generation flow">
                 <div class="step"><span class="step-number">01</span><strong>Edit operation</strong><br><span class="muted">Change the module YAML and shared references.</span></div>
                 <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference all four shared request headers.</span></div>
@@ -882,7 +892,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                 <article class="card purple">
                     <span class="tag">Bruno</span>
                     <h3>End-to-end collection</h3>
-                    <p>Nine YAML requests cover system status and the Example lifecycle.</p>
+                    <p>Eighteen YAML requests cover system status, USER authentication, identity, and the Example lifecycle.</p>
                     <p>The local environment points to <code>http://127.0.0.1:8080/example-api</code>.</p>
                     <p>Each run writes an HTML report under <code>artifacts/bruno/example-api</code>.</p>
                 </article>

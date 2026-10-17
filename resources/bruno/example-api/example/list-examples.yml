@@ -7,6 +7,8 @@ http:
   method: "GET"
   url: "{{baseUrl}}/example-types/{{type-slug}}/groups/{{example-group}}/examples"
   headers:
+    - name: "Authorization"
+      value: "Bearer {{accessToken}}"
     - name: "Backendbase-Api-Key"
       value: "{{apiKey}}"
     - name: "Accept-Language"

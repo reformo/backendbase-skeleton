@@ -1,19 +1,21 @@
 # Authentication and Access Control
 
-ExampleApi protects metadata and Example reads and writes with an API key.
+ExampleApi requires an API key for metadata, Authentication, Identity, and Example operations.
+Example and Identity protected groups also require the existing USER bearer authentication.
+`getExampleByCriteria` requires no bearer token. ExampleApi and UserApi share Accounts, signing settings, sessions, and revocation state.
 UserApi and SystemAdminApi use separate JWT authentication realms.
 Liveness and readiness remain public in each API.
 
 ## Consumer boundaries
 
-- `X-Source-Id: example` selects ExampleApi. Its API-key contract remains unchanged.
+- `X-Source-Id: example` selects ExampleApi. Its Authentication, Identity, and protected Example groups use the trusted USER realm.
 - `X-Source-Id: user` selects UserApi and the trusted USER realm policy.
 - `X-Source-Id: system-admin` selects SystemAdminApi and the trusted ADMIN realm policy.
 - The bootstrap uses a fixed target map. A header cannot supply a filesystem path.
-- Each Authentication, Identity, and Administration group defines its realm once through `RealmPolicy`.
+- Each Authentication, Identity, Administration, and protected Example group defines its realm once through `RealmPolicy`.
 - Protected groups add `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
 - `RoutePolicy` supplies endpoint actions. `ContactRoutePolicy` supplies contact settings. Neither policy changes the group realm.
-- Public Authentication groups apply only `RealmPolicy`. Health and preflight routes do not require bearer authentication.
+- Authentication groups apply only `RealmPolicy` at the group level. ExampleApi still requires its API key. Health and preflight routes require no credentials.
 - USER and ADMIN use distinct issuers, audiences, and signing keys.
 - Signing uses HS256 with configured 32-byte keys and explicit key identifiers.
 - Verification checks signature, algorithm, issuer, audience, dates, realm, actor type, and canonical identifiers.
@@ -61,7 +63,8 @@ AuthenticationGate and LoginWorkflow do not inspect aggregate snapshots for thes
 LoginWorkflow and ContactAuthorizer call Credentials directly. LoginAuthentication selects expiry after the login transaction.
 RegistrationCompletion creates identities and consumes proofs within the workflow transaction. Password hashing remains outside that transaction.
 ContactDelivery executes verification before notification delivery. ContactCompletion records the operation result after delivery succeeds.
-Both realms authenticate through `POST /auth/login` and return the `session` result.
+Both realms authenticate through `POST /auth/login` and return the `session` result. ExampleApi exposes the same User contact, registration, login, identity, token, session, and Account endpoints as UserApi.
+ExampleApi uses its own controllers and the existing identity input, dispatch, policy, and application services. Its identity response key remains `user`.
 Login does not create a challenge. TOTP enrollment and login-completion endpoints are absent.
 
 Admin enrollment requires stored invitation and approval evidence.

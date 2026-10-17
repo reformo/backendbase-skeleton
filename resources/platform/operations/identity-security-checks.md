@@ -38,6 +38,17 @@ It writes sanitized ZAP reports and scan scope to `artifacts/zap-identity`.
 The security workflow retains these artifacts for 30 days.
 ZAP authentication tokens are removed from retained reports.
 
+## ExampleApi checks
+
+The security workflow configures temporary USER and ADMIN signing keys for its disposable services.
+It seeds a fixture Account and obtains a USER session through ExampleApi login.
+The Bruno `example` folder and Example write fixtures send both the API key and bearer token.
+Boundary checks reject writes without a bearer token.
+The Example ZAP contract excludes Authentication, Identity, and readiness operations.
+It retains the six Example operations, metadata, and liveness. The scan supplies the API key and USER bearer token.
+The workflow redacts both credentials before uploading reports from `artifacts/zap-example`.
+Example Authentication and Identity routes have isolated PHPUnit evidence. The live identity sequence continues to cover UserApi and SystemAdminApi.
+
 ## Static scan inputs
 
 The security workflow pins the Semgrep image by digest.

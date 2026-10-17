@@ -9,17 +9,17 @@ A Use Case API owns transport behavior. It must not own domain rules, persistenc
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
 - API middleware, routes, controllers, configuration, OpenAPI, and Bruno use matching class and slug names.
 - `ModuleRoutes` must register each HTTP module explicitly.
-- UserApi and SystemAdminApi each own their controllers and route registration. Their route policies select a fixed authentication realm.
+- ExampleApi, UserApi, and SystemAdminApi each own their identity controllers and route registration. Their route policies select a fixed authentication realm.
 - Group new endpoint controllers by OpenAPI tag inside their owning API. Use `Controllers/{TagName}/ModuleConfig.php` and `Controllers/{TagName}/Handlers/`.
-- UserApi and SystemAdminApi modules are Authentication, Identity, System, and SystemAdminApi Administration.
+- ExampleApi includes Authentication, Identity, and Example modules. UserApi and SystemAdminApi modules are Authentication, Identity, System, and SystemAdminApi Administration.
 - Follow ExampleApi's module pattern: `ModuleConfig` implements `ModuleRoute`, declares `ROUTE_KEY`, and registers one handler per operation under `Handlers`.
 - `ModuleRoutes` maps prefixes to module classes. `routes.php` creates their route groups. Route names match OpenAPI operation IDs.
 - Use fluent route declarations in `ModuleConfig`, following ExampleApi. Chain the HTTP method, `setName()`, and endpoint-specific `add()` calls.
 - Place routes with common middleware in `group()`. Attach shared middleware once to that group.
 - Reusable identity input, dispatch, and policy helpers live under `Infrastructure/Adapters/Http/Identity`. Administration input belongs inside SystemAdminApi's Administration module.
 
-Authentication, Identity, and Administration modules define their realm once per group through `RealmPolicy`.
-Identity and Administration modules use an empty-prefix subgroup. The subgroup adds `RealmAuthentication`, then its fixed `RealmPolicy`.
+Authentication, Identity, Administration, and protected Example groups define their realm once per group through `RealmPolicy`.
+Identity, Administration, and protected Example operations use an empty-prefix subgroup. The subgroup adds `RealmAuthentication`, then its fixed `RealmPolicy`.
 Slim runs the last added middleware first. The group policy supplies `expectedRealm` before authentication runs.
 `RoutePolicy` supplies only the endpoint action. `ContactRoutePolicy` supplies only contact settings. Neither policy sets or replaces the group realm.
 Endpoint action and contact policies run after group authentication. Public Authentication groups apply only `RealmPolicy` and do not require a bearer token.
@@ -48,14 +48,15 @@ Use non-static group callbacks because Slim binds them to the dependency contain
 - Slim exception titles use the standard HTTP reason phrase. Domain error titles describe the mapped problem type.
 - Never access Doctrine, SQL, queues, or aggregate persistence directly.
 
-Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example reads and writes use API-key protection only.
+Protect new consumer endpoints with the existing API-key middleware by default. Declare anonymous access explicitly. Example operations require an API key. Every Example operation except `getExampleByCriteria` also requires a USER bearer token.
 
 Example POST and PATCH read bounded raw JSON through `ExampleRequestBody`. The root and supplied non-null details must be objects.
 The API preserves accepted text and detail values. It does not escape HTML, transform credential-like detail names, or derive image URLs.
 Example types are `system` and `user`. Groups, keys, values, and target identifiers follow the context value constraints.
 
 `X-Source-Id` selects `example`, `user`, or `system-admin`. The header does not grant access.
-Realm endpoints use route-owned bearer authentication. Public authentication and health routes explicitly permit anonymous access.
+Realm endpoints use route-owned bearer authentication. ExampleApi reuses the USER realm and existing UserApi sessions. Its Authentication and Identity modules expose the same operations as UserApi.
+ExampleApi CORS permits `Authorization` and `Backendbase-Api-Key`. Public authentication and health routes explicitly permit anonymous access.
 Optional locale, timezone, and trace headers use documented defaults.
 All three API CORS configurations permit `Accept-Language`, timezone, trace, and source headers.
 

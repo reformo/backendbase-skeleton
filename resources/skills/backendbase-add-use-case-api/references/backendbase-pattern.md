@@ -58,7 +58,7 @@ Adapt names and equivalent module roles in other projects. Do not copy Example d
 ## Current source limitations
 
 - `public/example-api/index.php` assigns `$consumerApiSlug` and `$consumerApiName`, but current `public/index.php` does not read them. Ordinary requests still need a valid `X-Source-Id`. OPTIONS can select a fixed API from its recognized path. Do not copy those unused assignments as a headerless-selection mechanism.
-- Current Example HTTP operations use API-key protection only. Missing or invalid keys return `401`. Internal access-control denial uses the shared forbidden error.
+- Current Example HTTP operations require an API key. All except `getExampleByCriteria` also require a USER bearer token. Missing or invalid credentials return `401`; unavailable authentication state returns `503`. Internal access-control denial uses the shared forbidden error.
 - The source selector returns HTTP `400` with `application/problem+json` and a matching Problem Details status for an invalid source.
 - The checked Bruno local environment contains an API-key placeholder. Do not copy it as a target credential.
 

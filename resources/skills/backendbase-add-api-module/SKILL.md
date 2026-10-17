@@ -33,7 +33,7 @@ Use the target API namespace, routing framework, module interface, naming rules,
 3. Confirm that every handler can call a complete command or query application path before adding controller wiring.
 4. Create the target module configuration and handler directory under the owning API, using the tag's module name and route-module contract.
 5. Register the module in the API's explicit module registry.
-6. Apply the target security policy with its established middleware. Current Backendbase Example operations use API-key protection. Add identity or privilege layers only when the target provides and requires them.
+6. Apply the target security policy with its established middleware. Current Backendbase Example operations require an API key. All except `getExampleByCriteria` also require USER bearer authentication. Add identity or privilege layers only when the target provides and requires them.
 7. Add or connect handlers without moving business logic into routing code.
 8. Reconcile route placeholders, operation names, security, responses, and shared headers with OpenAPI and any configured CORS policy.
 9. Regenerate the merged OpenAPI document, validate source and generated contracts, and review the generated diff.
@@ -56,7 +56,7 @@ Use the target API namespace, routing framework, module interface, naming rules,
 - In an unmodified Backendbase API, `ROUTE_KEY` and `routeKey()` identify the same prefix.
 - In an unmodified Backendbase API, `ModuleRoutes` registers every module explicitly.
 - Route names are unique and match the corresponding OpenAPI operation IDs.
-- Current Backendbase Example routes use the API-wide key middleware without an identity subgroup.
+- Current Backendbase Example routes retain API-wide key middleware. Protected Example operations use a USER identity subgroup; `getExampleByCriteria` stays outside it.
 - Routing code selects transport policy only. It does not contain domain decisions.
 - Path placeholders and OpenAPI parameter names match exactly.
 - An API-key-only operation is protected. Only an intentional anonymous operation uses `security: []`.
