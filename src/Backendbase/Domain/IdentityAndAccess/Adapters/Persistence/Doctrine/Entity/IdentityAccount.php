@@ -62,9 +62,8 @@ class IdentityAccount
     #[ORM\Column(type: Types::JSON)]
     private array $state;
 
-    /** @var array<string, mixed> */
-    #[ORM\Column(type: Types::JSON)]
-    private array $credentials = ['passwordHash' => ''];
+    #[ORM\Column(name: 'password_hash', type: Types::STRING, length: 255)]
+    private string $passwordHash = '';
 
     public static function create(Account $account): self
     {
@@ -113,18 +112,14 @@ class IdentityAccount
         ]);
     }
 
-    /** @return array{passwordHash: string} */
-    public function credentials(): array
+    public function passwordHash(): string
     {
-        return [
-            'passwordHash' => StateField::string($this->credentials, 'passwordHash'),
-        ];
+        return $this->passwordHash;
     }
 
-    /** @param array{passwordHash: string} $credentials */
-    public function replaceCredentials(array $credentials): void
+    public function replacePasswordHash(string $passwordHash): void
     {
-        $this->credentials = $credentials;
+        $this->passwordHash = $passwordHash;
     }
 
     public function id(): string

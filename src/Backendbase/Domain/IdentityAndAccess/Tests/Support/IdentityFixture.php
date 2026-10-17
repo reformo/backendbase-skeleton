@@ -97,7 +97,7 @@ final readonly class IdentityFixture
     private static function schema(Connection $connection): void
     {
         $base = 'id BLOB NOT NULL PRIMARY KEY, uuid TEXT GENERATED ALWAYS AS (BIN_TO_UUID(id, 0)) VIRTUAL, version INTEGER NOT NULL DEFAULT 1, ';
-        $connection->executeStatement('CREATE TABLE identity_account (' . $base . 'normalized_email TEXT NOT NULL, normalized_mobile TEXT NOT NULL, first_name TEXT NULL, last_name TEXT NULL, created_at TEXT NOT NULL, deleted_at TEXT NULL, active_email TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_email ELSE NULL END) VIRTUAL UNIQUE, active_mobile TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_mobile ELSE NULL END) VIRTUAL UNIQUE, state TEXT NOT NULL, credentials TEXT NOT NULL)');
+        $connection->executeStatement('CREATE TABLE identity_account (' . $base . 'normalized_email TEXT NOT NULL, normalized_mobile TEXT NOT NULL, first_name TEXT NULL, last_name TEXT NULL, created_at TEXT NOT NULL, deleted_at TEXT NULL, active_email TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_email ELSE NULL END) VIRTUAL UNIQUE, active_mobile TEXT GENERATED ALWAYS AS (CASE WHEN deleted_at IS NULL THEN normalized_mobile ELSE NULL END) VIRTUAL UNIQUE, state TEXT NOT NULL, password_hash TEXT NOT NULL)');
         foreach (['identity_user', 'identity_admin'] as $table) {
             $connection->executeStatement('CREATE TABLE ' . $table . ' (' . $base . 'account_id BLOB NOT NULL UNIQUE, created_at TEXT NOT NULL, deleted_at TEXT NULL, state TEXT NOT NULL)');
         }

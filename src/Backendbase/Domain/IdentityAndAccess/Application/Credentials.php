@@ -26,7 +26,7 @@ final readonly class Credentials
     {
         $currentStore = $this->store;
 
-        $currentStore->save($accountId, ['passwordHash' => $passwordHash]);
+        $currentStore->save($accountId, $passwordHash);
     }
 
     public function assertPassword(string $accountId, Password $password): void
@@ -34,8 +34,8 @@ final readonly class Credentials
         $currentStore   = $this->store;
         $currentSecrets = $this->secrets;
 
-        $credentials = $currentStore->read($accountId);
-        if (! $currentSecrets->verifyPassword($password, $credentials['passwordHash'])) {
+        $passwordHash = $currentStore->read($accountId);
+        if (! $currentSecrets->verifyPassword($password, $passwordHash)) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
     }

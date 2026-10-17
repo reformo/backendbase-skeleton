@@ -79,4 +79,4 @@ A confirmed record retains a 12-hour recovery window. Do not discard its require
 Restart supervised workers after runtime key injection changes.
 
 TOTP enrollment, recovery, and factor rewrapping are removed.
-Existing credential JSON fields remain unused. Operator evidence records remain stored.
+Account passwords use the scalar `identity_account.password_hash` column. Operator evidence records remain stored.

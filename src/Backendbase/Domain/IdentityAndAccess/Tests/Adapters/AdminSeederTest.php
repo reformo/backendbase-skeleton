@@ -15,6 +15,8 @@ use Backendbase\Seeders\AdminSeeder;
 use Doctrine\DBAL\Exception as DatabaseException;
 use PHPUnit\Framework\TestCase;
 
+use function password_verify;
+
 final class AdminSeederTest extends TestCase
 {
     public function testTheSeedCreatesOneNamedAdminAndRepeatRunsPreserveItsPassword(): void
@@ -24,13 +26,15 @@ final class AdminSeederTest extends TestCase
         $seeder     = $container->get(AdminSeeder::class);
         $first      = $seeder->seed(new Password('initial-password-123'));
         $connection = $fixture->connection();
-        $hash       = $connection->fetchOne('SELECT credentials FROM identity_account');
-        $second     = $seeder->seed(new Password('different-password-123'));
+        $hash       = $connection->fetchOne('SELECT password_hash FROM identity_account');
+        self::assertIsString($hash);
+        self::assertTrue(password_verify('initial-password-123', $hash));
+        $second = $seeder->seed(new Password('different-password-123'));
         self::assertTrue($first['created']);
         self::assertFalse($second['created']);
         self::assertSame($first['accountId'], $second['accountId']);
         self::assertSame($first['actorId'], $second['actorId']);
-        self::assertSame($hash, $connection->fetchOne('SELECT credentials FROM identity_account'));
+        self::assertSame($hash, $connection->fetchOne('SELECT password_hash FROM identity_account'));
         self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_account'));
         self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM identity_admin'));
         self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM identity_user'));

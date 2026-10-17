@@ -39,7 +39,7 @@ The migration history supports fresh installations only. Three migrations create
 | --- | --- |
 | `Version20260823000000` | Outbox, inbox, delivery failures, replay and resolution evidence, destinations, and cleanup indexes |
 | `Version20260823215059` | Example binary UUID keys, virtual public UUIDs, versions, microsecond timestamps, active uniqueness, and query indexes |
-| `Version20261014020000` | Account with required email and mobile active keys and nullable first/last names; User, Admin, contact verification, and operator evidence tables |
+| `Version20261014020000` | Account with required email and mobile active keys, nullable first/last names, and required `password_hash VARCHAR(255)`; User, Admin, contact verification, and operator evidence tables |
 
 The release manifest pins `Version20261014020000`. Application rollback to the previous integer-key version remains unsafe.
 Messaging and identity rollbacks reject evidence removal. Example rollback drops its table only through an explicitly authorized operation.

@@ -12,10 +12,7 @@ use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-use function json_decode;
-use function json_encode;
-
-use const JSON_THROW_ON_ERROR;
+use function password_verify;
 
 final class PasswordLoginTest extends TestCase
 {
@@ -64,18 +61,14 @@ final class PasswordLoginTest extends TestCase
         }
     }
 
-    public function testExistingCredentialsRemainReadableAndPasswordLoginDoesNotCreateChallenges(): void
+    public function testPasswordHashIsStoredDirectlyAndPasswordLoginDoesNotCreateChallenges(): void
     {
-        $fixture    = IdentityFixture::create();
-        $user       = IdentityScenario::verified($fixture);
+        $fixture = IdentityFixture::create();
+        IdentityScenario::verified($fixture);
         $connection = $fixture->connection();
-        $stored     = $connection->fetchOne('SELECT credentials FROM identity_account');
+        $stored     = $connection->fetchOne('SELECT password_hash FROM identity_account');
         self::assertIsString($stored);
-        $credentials = json_decode($stored, true, flags: JSON_THROW_ON_ERROR);
-        self::assertIsArray($credentials);
-        self::assertCount(1, $credentials);
-        $legacy = [...$credentials, 'totpSecret' => 'retired-key:ciphertext', 'pendingTotpSecret' => null, 'lastTotpStep' => 1, 'failedMfaAttempts' => 5, 'blockedUntil' => '2099-01-01 00:00:00.000000'];
-        $connection->executeStatement('UPDATE identity_account SET credentials = ? WHERE uuid = ?', [json_encode($legacy, JSON_THROW_ON_ERROR), $user['accountId']]);
+        self::assertTrue(password_verify('valid-password-123', $stored));
         $api      = IdentityApiFixture::create($fixture, Realm::USER);
         $response = $api->request('POST', '/auth/login', ['identifier' => 'ada@example.com', 'password' => 'valid-password-123']);
         self::assertSame(200, $response->getStatusCode());

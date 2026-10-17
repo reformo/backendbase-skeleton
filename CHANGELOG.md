@@ -125,6 +125,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Replace Account credential JSON with required `password_hash VARCHAR(255)`. Update the credential port, Doctrine mapping, seeders, fixtures, regressions, and guidance. Revise the existing installation migration without adding a migration.
+
 - Restrict commands under `bin/dev` to explicit `BACKENDBASE_ENV=dev`. Check housekeeping before changes and the message viewer before Composer startup and each request. Preserve process environment precedence over `.env` and add isolated regressions.
 
 - Reconcile project, security, testing, and skill documentation with tag-based controller modules and group-owned realm policies. Remove stale API-key-only identity claims from skill guidance.

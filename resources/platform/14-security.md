@@ -124,8 +124,10 @@ Signing-key and ownership-proof-key rotation support an active key and a distinc
 Ownership proof keys retain the `encryptionKey` configuration names for compatibility.
 Retain each required proof key until pending codes and confirmed evidence recovery windows expire.
 A confirmed record requires its code key through `verifiedAt + 12 hours`. Do not discard that key during another rotation.
-New credential JSON contains only `passwordHash`. Existing credential JSON can retain unused factor fields.
-No database schema change or automatic data cleanup is required.
+Accounts store the Argon2id password hash directly in `identity_account.password_hash`, a required `VARCHAR(255)` column.
+The credential store reads and writes the hash as a string. Account ownership, state checks, and locking remain required.
+The consolidated installation migration creates this column directly. Existing databases with credential JSON require separate schema and data adoption.
+No automatic data conversion or cleanup runs.
 Configuration and container definitions do not persist live credential values in caches.
 Logs exclude submitted values and exception arguments.
 

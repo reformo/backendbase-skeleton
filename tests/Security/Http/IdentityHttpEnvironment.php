@@ -93,7 +93,7 @@ final class IdentityHttpEnvironment
             $store->saveActor(User::create(IdentityId::create(), $id, $now));
             $store->saveActor($admin);
             $accountId = $account->id();
-            $credentials->save($accountId, ['passwordHash' => password_hash('http-fixture-password', PASSWORD_ARGON2ID)]);
+            $credentials->save($accountId, password_hash('http-fixture-password', PASSWORD_ARGON2ID));
 
             return ['accountId' => $accountId, 'actorId' => $admin->id()];
         });

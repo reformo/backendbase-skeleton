@@ -12,8 +12,7 @@ final readonly class DoctrineCredentialStore implements CredentialStore
     {
     }
 
-    /** @return array{passwordHash: string} */
-    public function read(string $accountId): array
+    public function read(string $accountId): string
     {
         $currentRecords = $this->records;
 
@@ -21,17 +20,16 @@ final readonly class DoctrineCredentialStore implements CredentialStore
         $account = $record->toDomain();
         $account->assertActive();
 
-        return $record->credentials();
+        return $record->passwordHash();
     }
 
-    /** @param array{passwordHash: string} $credentials */
-    public function save(string $accountId, array $credentials): void
+    public function save(string $accountId, string $passwordHash): void
     {
         $currentRecords = $this->records;
 
         $record  = $currentRecords->account($accountId, true);
         $account = $record->toDomain();
         $account->assertActive();
-        $record->replaceCredentials($credentials);
+        $record->replacePasswordHash($passwordHash);
     }
 }

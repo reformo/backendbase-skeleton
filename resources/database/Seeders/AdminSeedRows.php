@@ -42,7 +42,7 @@ final readonly class AdminSeedRows
             'created_at' => $state['createdAt'],
             'deleted_at' => null,
             'state' => json_encode(['owned' => true, 'enabled' => true, 'authVersion' => 1], JSON_THROW_ON_ERROR),
-            'credentials' => json_encode(['passwordHash' => password_hash($password->forHashing(), PASSWORD_ARGON2ID)], JSON_THROW_ON_ERROR),
+            'password_hash' => password_hash($password->forHashing(), PASSWORD_ARGON2ID),
         ], ['id' => ParameterType::BINARY]);
         $actorId = $admin->id();
         $actor   = Uuid::fromString($actorId);

@@ -30,12 +30,15 @@ final class MySqlMappingTest extends TestCase
             $manager = $fixture->manager();
             $id      = IdentityId::create();
             $account = Account::create($id, new AccountEmail('test@example.com'), new AccountMobile('+905551234567'), new DateTimeImmutable('2026-10-14T10:00:00.123456Z'));
-            $manager->persist(IdentityAccount::create($account));
+            $record  = IdentityAccount::create($account);
+            $record->replacePasswordHash('stored-password-hash');
+            $manager->persist($record);
             $manager->flush();
             $manager->clear();
             $record = $manager->find(IdentityAccount::class, $id->toString());
             self::assertInstanceOf(IdentityAccount::class, $record);
             self::assertSame($id->toString(), $record->id());
+            self::assertSame('stored-password-hash', $record->passwordHash());
             $loaded = $record->toDomain();
             self::assertSame('2026-10-14 10:00:00.123456', $loaded->snapshot()['createdAt']);
             $connection = $fixture->connection();

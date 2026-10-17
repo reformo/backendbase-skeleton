@@ -6,9 +6,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Contracts;
 
 interface CredentialStore
 {
-    /** @return array{passwordHash: string} */
-    public function read(string $accountId): array;
+    public function read(string $accountId): string;
 
-    /** @param array{passwordHash: string} $credentials */
-    public function save(string $accountId, array $credentials): void;
+    public function save(string $accountId, string $passwordHash): void;
 }

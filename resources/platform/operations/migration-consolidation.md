@@ -18,6 +18,8 @@ The Example table uses assigned binary UUID keys, virtual public UUIDs, versions
 Fresh installation creates no shadow table, retained legacy table, data copy, or atomic rename.
 Existing identifiers, data types, constraints, indexes, and audit tables keep their final schema definitions.
 The destination remains nullable for compatibility with the existing message recovery contract.
+The identity installation creates required `password_hash VARCHAR(255)` directly on `identity_account`.
+Existing databases with credential JSON require a separate reviewed hash extraction and schema adoption plan.
 
 Messaging and identity `down()` methods reject removal of recovery and operator evidence.
 Example `down()` drops the Example table. Execute that operation only with explicit authority for its data loss.
