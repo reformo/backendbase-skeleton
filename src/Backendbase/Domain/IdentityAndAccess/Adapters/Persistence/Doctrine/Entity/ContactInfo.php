@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo as Contact;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ContactState;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
@@ -67,6 +67,7 @@ class ContactInfo
             throw IdentityConflict::create('The contact verification changed.');
         }
 
+        $contactState       = ContactState::fromArray($state);
         $this->contextHash  = $state['contextHash'];
         $this->realm        = $state['realm'];
         $this->purpose      = $state['purpose'];
@@ -75,11 +76,12 @@ class ContactInfo
         $this->accountId    = $state['accountId'] === null ? null : Uuid::fromString($state['accountId']);
         $this->actorId      = $state['actorId'] === null ? null : Uuid::fromString($state['actorId']);
         $this->verifiedAt   = $state['verifiedAt'] === null ? null : new DateTimeImmutable($state['verifiedAt'], new DateTimeZone('UTC'));
-        $this->state        = $state;
+        $this->replaceState($contactState);
     }
 
     public function toDomain(): Contact
     {
+        $state    = $this->state();
         $account  = $this->accountId;
         $actor    = $this->actorId;
         $verified = $this->verifiedAt;
@@ -93,16 +95,26 @@ class ContactInfo
             'accountId' => $account?->toString(),
             'actorId' => $actor?->toString(),
             'verifiedAt' => $verified?->format('Y-m-d H:i:s.u'),
-            'generationId' => StateField::string($this->state, 'generationId'),
-            'codeHash' => StateField::string($this->state, 'codeHash'),
-            'codeExpiresAt' => StateField::string($this->state, 'codeExpiresAt'),
-            'failedAttempts' => StateField::integer($this->state, 'failedAttempts'),
-            'requestedAt' => StateField::string($this->state, 'requestedAt'),
-            'lastSentAt' => StateField::string($this->state, 'lastSentAt'),
-            'consumedAt' => StateField::nullableString($this->state, 'consumedAt'),
-            'deliveryState' => StateField::string($this->state, 'deliveryState'),
+            'generationId' => $state->generationId,
+            'codeHash' => $state->codeHash,
+            'codeExpiresAt' => $state->codeExpiresAt,
+            'failedAttempts' => $state->failedAttempts,
+            'requestedAt' => $state->requestedAt,
+            'lastSentAt' => $state->lastSentAt,
+            'consumedAt' => $state->consumedAt,
+            'deliveryState' => $state->deliveryState,
             'revision' => $this->version,
         ]);
+    }
+
+    public function state(): ContactState
+    {
+        return ContactState::fromArray($this->state);
+    }
+
+    public function replaceState(ContactState $state): void
+    {
+        $this->state = $state->toArray();
     }
 
     public function id(): string

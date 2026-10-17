@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Seeders;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
@@ -12,6 +11,9 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\AccountState;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\StateField;
 use Backendbase\Domain\IdentityAndAccess\Domain\Profiles\AccountNames;
 use Backendbase\Shared\Time\Clock;
 use Doctrine\DBAL\Connection;
@@ -84,9 +86,14 @@ final readonly class AdminSeeder
             throw IdentityConflict::create('The existing Account cannot be replaced or granted Admin access by this seeder.');
         }
 
-        $accountState = self::state($account);
-        $adminState   = self::state($admin);
-        if (! StateField::boolean($accountState, 'ownershipVerified') || ! StateField::boolean($accountState, 'enabled') || ! StateField::boolean($adminState, 'approved') || StateField::string($adminState, 'invitation') !== self::INVITATION || StateField::string($adminState, 'approval') !== self::APPROVAL) {
+        $accountState      = AccountState::fromArray(self::state($account));
+        $adminState        = ActorState::fromArray(self::state($admin));
+        $ownershipVerified = $accountState->ownershipVerified;
+        $enabled           = $accountState->enabled;
+        $approved          = $adminState->approved;
+        $invitation        = $adminState->invitation;
+        $approval          = $adminState->approval;
+        if (! $ownershipVerified || ! $enabled || ! $approved || $invitation !== self::INVITATION || $approval !== self::APPROVAL) {
             throw IdentityConflict::create('The seeded Admin state has changed. No existing record was modified.');
         }
 

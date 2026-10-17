@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Actor;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
@@ -65,15 +65,26 @@ class IdentityAdmin
             throw IdentityConflict::create('The actor Account reference cannot change.');
         }
 
+        $actorState      = ActorState::fromArray(['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']]);
         $this->accountId = Uuid::fromString($state['accountId']);
         $this->createdAt = new DateTimeImmutable($state['createdAt'], new DateTimeZone('UTC'));
         $this->deletedAt = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
-        $this->state     = ['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']];
+        $this->replaceState($actorState);
     }
 
     public function toDomain(): SystemAdmin
     {
         return new SystemAdmin(IdentityId::fromString($this->id()), $this->snapshot());
+    }
+
+    public function state(): ActorState
+    {
+        return ActorState::fromArray($this->state);
+    }
+
+    public function replaceState(ActorState $state): void
+    {
+        $this->state = $state->toArray();
     }
 
     public function id(): string
@@ -93,6 +104,7 @@ class IdentityAdmin
     /** @return array{accountId: string, approved: bool, invitation: string|null, approval: string|null, deletedAt: string|null, revision: int, createdAt: string} */
     private function snapshot(): array
     {
+        $state            = $this->state();
         $currentDeletedAt = $this->deletedAt;
         $currentCreatedAt = $this->createdAt;
 
@@ -100,9 +112,9 @@ class IdentityAdmin
 
         return [
             'accountId' => $accountId->toString(),
-            'approved' => StateField::boolean($this->state, 'approved'),
-            'invitation' => StateField::nullableString($this->state, 'invitation'),
-            'approval' => StateField::nullableString($this->state, 'approval'),
+            'approved' => $state->approved,
+            'invitation' => $state->invitation,
+            'approval' => $state->approval,
             'deletedAt' => $currentDeletedAt?->format('Y-m-d H:i:s.u'),
             'revision' => $this->version,
             'createdAt' => $currentCreatedAt->format('Y-m-d H:i:s.u'),

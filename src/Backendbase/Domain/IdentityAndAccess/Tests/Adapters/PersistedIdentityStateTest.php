@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Tests\Adapters;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Adapters\ReadModel\DoctrineIdentityReadRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
@@ -13,6 +12,7 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\StateField;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use DateTimeImmutable;
@@ -88,7 +88,7 @@ final class PersistedIdentityStateTest extends TestCase
     public function testMalformedHistoryRowsCannotBecomePublicReadModels(array $changes): void
     {
         $id         = Uuid::uuid7();
-        $row        = ['uuid' => $id->toString(), 'account_id' => $id->getBytes(), 'normalized_email' => 'test@example.com', 'normalized_mobile' => '+905551234567', 'first_name' => null, 'last_name' => null, 'created_at' => '2026-10-14 10:00:00.000000', 'deleted_at' => null, 'state' => '{"approved":true}'];
+        $row        = ['uuid' => $id->toString(), 'account_id' => $id->getBytes(), 'normalized_email' => 'test@example.com', 'normalized_mobile' => '+905551234567', 'first_name' => null, 'last_name' => null, 'created_at' => '2026-10-14 10:00:00.000000', 'deleted_at' => null, 'state' => '{"approved":true,"invitation":null,"approval":null}'];
         $connection = $this->createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([...$row, ...$changes]);
         $repository = new DoctrineIdentityReadRepository($connection);

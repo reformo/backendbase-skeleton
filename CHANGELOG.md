@@ -127,6 +127,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Make immutable context primitives the default for non-list database JSON columns. Document list handling, explicit Example details and outbox payload exceptions, and shared ORM, DBAL, seeder, and skill guidance.
+
+- Standardize context primitive classes under `Domain/Primitives`. Rename ExampleCatalog’s `Domain/Value` directory and update PHP namespaces, imports, tests, and guidance.
+
+- Represent identity JSON state with immutable context primitives and explicit array conversion. Update Doctrine records, actor history, Admin seeding, validation tests, and documentation. Exempt typed immutable state classes from the two-property limit. Preserve existing JSON shapes without adding a migration.
+
 - Rename Account `state.owned` to `ownershipVerified` in domain snapshots, Doctrine persistence, Admin seeding, and authentication tests. Update guidance without adding a migration.
 
 - Replace Account credential JSON with required `password_hash VARCHAR(255)`. Update the credential port, Doctrine mapping, seeders, fixtures, regressions, and guidance. Revise the existing installation migration without adding a migration.

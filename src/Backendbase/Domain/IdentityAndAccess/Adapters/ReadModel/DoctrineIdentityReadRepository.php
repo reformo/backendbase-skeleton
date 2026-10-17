@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\ReadModel;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityReadRepository;
 use Backendbase\Domain\IdentityAndAccess\Contracts\ReadModel\ActorHistory;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\StateField;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Connection;
@@ -51,6 +52,8 @@ final readonly class DoctrineIdentityReadRepository implements IdentityReadRepos
             throw AuthenticationUnavailable::create('The persisted actor history is invalid.');
         }
 
+        $actorState = ActorState::fromArray($state);
+
         return new ActorHistory([
             'actorId' => $id->toString(),
             'accountId' => $accountUuid->toString(),
@@ -59,7 +62,7 @@ final readonly class DoctrineIdentityReadRepository implements IdentityReadRepos
             'mobile' => StateField::string($row, 'normalized_mobile'),
             'firstName' => StateField::nullableString($row, 'first_name'),
             'lastName' => StateField::nullableString($row, 'last_name'),
-            'approved' => StateField::boolean($state, 'approved'),
+            'approved' => $actorState->approved,
             'createdAt' => self::date(StateField::string($row, 'created_at')),
             'deletedAt' => $row['deleted_at'] === null ? null : self::date(StateField::string($row, 'deleted_at')),
         ]);

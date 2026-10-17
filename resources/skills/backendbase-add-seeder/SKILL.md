@@ -43,6 +43,15 @@ Adapt the seeder namespace, table, bound values, identity generation, natural-ke
 - Do not invoke the reference Example seeder unless that exact data is requested.
 - Do not create or alter schema as part of this skill.
 
+## JSON column values
+
+Inspect the target JSON column's declared shape and documented mapping exception before seeding.
+In an unmodified Backendbase project, non-list JSON columns default to immutable context primitives with `JsonSerializable`, `fromArray()`, and `toArray()`.
+Use the same conversion and validation as runtime writers and repeat-run readers. Do not maintain an independent array schema in the seeder.
+List columns retain validated list representations. Open-ended details and heterogeneous outbox payloads retain their explicit mapping exceptions.
+Preserve nullability, empty and nested shapes, and documented compatibility. Adapt the contract to the target project.
+See the [JSON column policy](../../platform/09-persistence.md#json-column-policy).
+
 ## Verification
 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.

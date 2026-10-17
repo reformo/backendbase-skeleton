@@ -1,6 +1,7 @@
 # Shared Primitives
 
 Put a value in Shared only when its meaning is stable across bounded contexts. Keep business-specific status, limits, roles, and decisions inside their owning context.
+Place context-owned primitive value classes under `<BoundedContext>/Domain/Primitives`.
 
 ## Current patterns
 
@@ -19,6 +20,15 @@ Repositories must allowlist filter columns and bind values. Never use client fie
 Current gaps include unvalidated coordinate ranges, missing email normalization, and an unimplemented password validation method.
 
 Test construction boundaries, invalid values, exact serialization, and public exception types.
+
+Database JSON columns with non-list contracts use immutable context primitives by default, subject to [explicit mapping exceptions](09-persistence.md#json-column-policy).
+List columns retain validated list representations. Do not infer a root shape from an empty PHP array.
+
+Identity state primitives live in `IdentityAndAccess/Domain/Primitives` because their meaning belongs to that context.
+`AccountState`, `ActorState`, and `ContactState` are immutable and implement `JsonSerializable`.
+They validate array reconstruction and export explicit storage arrays. See [identity state mapping](09-persistence.md#typed-identity-json-state).
+Their typed readonly fields qualify for the immutable-state exception to the two-property limit.
+
 
 ## Time
 

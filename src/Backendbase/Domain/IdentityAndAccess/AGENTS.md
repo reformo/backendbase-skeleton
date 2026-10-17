@@ -9,6 +9,10 @@ This context owns global Accounts, User and SystemAdmin actors, contact evidence
 - Keep USER and ADMIN authentication realms separate. The JWT `sub` identifies the actor; `accountId` identifies the Account.
 - Keep contact ownership, password authentication, and Admin approval as separate checks.
 - Persist Account ownership verification as `state.ownershipVerified`. Keep it separate from Account enablement and Admin approval.
+- Apply the [default JSON column policy](../../../../resources/platform/09-persistence.md#json-column-policy) to identity state without a mapping exception.
+- Represent identity JSON state with immutable `AccountState`, `ActorState`, and `ContactState` classes under `Domain/Primitives`.
+- Keep Doctrine state fields as arrays. Use typed `state()` reads and `replaceState()` writes with explicit `fromArray()` and `toArray()` conversion.
+- Reject missing, mistyped, and unknown state fields. Keep storage serialization out of public responses and diagnostic logs.
 - Require both email and mobile proofs before User registration. Validate matching contacts, shared context, unused evidence, and freshness after both locks.
 - Consume both proofs atomically with Account, User, and credential creation. Use the 12-hour evidence window from ADR-0050.
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.

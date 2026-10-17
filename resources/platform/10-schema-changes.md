@@ -2,6 +2,10 @@
 
 Database structure requires explicit feature scope. Do not add tables, columns, indexes, timestamps, soft deletion, status, or audit data without authorization.
 
+For new or changed JSON columns, identify the declared root shape and apply the [JSON column policy](09-persistence.md#json-column-policy).
+Record the typed class or explicit exception before finalizing mapping. A PHP representation change alone does not require a migration.
+Review stored-data compatibility before changing required fields or accepted JSON shapes.
+
 ## Migration flow
 
 1. Complete domain and repository behavior.

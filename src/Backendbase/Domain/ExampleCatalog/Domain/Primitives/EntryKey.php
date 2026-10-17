@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Domain\ExampleCatalog\Domain\Value;
+namespace Backendbase\Domain\ExampleCatalog\Domain\Primitives;
 
 use Backendbase\Shared\Exception\InvalidUserInput;
 
 use function mb_check_encoding;
 use function mb_strlen;
 
-final readonly class EntryValue
+final readonly class EntryKey
 {
     public function __construct(private string $value)
     {
-        if (! mb_check_encoding($value, 'UTF-8') || mb_strlen($value, 'UTF-8') > 2048) {
-            throw InvalidUserInput::create('The lookupValue value must contain 0 to 2048 UTF-8 characters.');
+        if (! mb_check_encoding($value, 'UTF-8') || $value === '' || mb_strlen($value, 'UTF-8') > 160) {
+            throw InvalidUserInput::create('The lookupKey value must contain 1 to 160 UTF-8 characters.');
         }
     }
 

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Domain;
 
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryId;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryTargetId;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryValue;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryId;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryKey;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryTargetId;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryValue;
 use DateTimeImmutable;
 
 /**

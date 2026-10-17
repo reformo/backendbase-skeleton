@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryValue;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryValue;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 

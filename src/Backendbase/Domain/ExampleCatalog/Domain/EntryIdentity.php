@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Domain;
 
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryTargetId;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryKey;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryTargetId;
 
 /**
  * @phpstan-type EntryIdentityState array{

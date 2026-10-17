@@ -43,6 +43,10 @@ Coordinate checks once for the complete task. The commands below are available c
 
 Start with the smallest relevant test. Expand to its owning directory, related integration tests, or the full suite when risk or project policy requires it. Broad changes require the full suite. Keep existing continuous-integration and release gates unchanged.
 
+For typed JSON columns, test validated reconstruction, exact scalar types, nullable and missing fields, and the documented unknown-field policy.
+Verify storage round trips, explicit replacement, and unchanged earlier snapshots. Cover empty objects, empty lists, and nested shape preservation where permitted.
+For list columns, verify element validation, order, and list shape. For each mapping exception, test its documented contract.
+
 For JSON payload changes, test the producer, persisted outbox, outgoing and incoming transport mappers, and registered consumer carrier together.
 Include empty objects, empty lists, nested objects with integer member names, and accepted depth boundaries.
 For detail validation changes, verify that rejected values leave all aggregate fields and previous command details unchanged.
@@ -96,6 +100,9 @@ Identity health tests execute both API route maps. Liveness skips dependency che
 
 Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.
 Ownership state tests persist and reload both boolean values through `ownershipVerified`. Seeder and login tests reject unverified ownership.
+Identity state tests cover exact JSON serialization, nullable fields, missing fields, invalid types, and unknown fields.
+Production Doctrine mapping tests verify typed replacement, fresh hydration, unchanged earlier snapshots, and rejection before domain use.
+Contact tests preserve authoritative column values when JSON contains duplicate snapshot fields.
 Credential tests cover scalar password-hash persistence, replacement, and closed-Account read and write rejection.
 Schema parity tests require `password_hash VARCHAR(255) NOT NULL` and reject the former `credentials` column.
 SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.

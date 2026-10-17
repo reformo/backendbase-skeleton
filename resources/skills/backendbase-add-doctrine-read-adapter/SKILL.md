@@ -54,6 +54,17 @@ Adapt SQL, selected fields, criteria, null semantics, filters, ordering, paginat
 - Filter removed records according to the declared contract.
 - Do not add columns, indexes, limits, or response fields without requested scope.
 
+## JSON column contract
+
+Inspect declared root shapes and exceptions before decoding persisted JSON. An empty PHP array cannot distinguish a JSON object from a list.
+In an unmodified Backendbase project, complete non-list JSON values default to immutable context primitives with validated `fromArray()` reconstruction.
+These classes also provide `toArray()` and `JsonSerializable` for the shared storage contract.
+Validate list elements and order directly. Validate selected scalar JSON projections without fetching unused fields merely to construct a complete object.
+Preserve empty and nested object/list shapes. Reject missing, mistyped, or unknown fields unless the documented compatibility contract explicitly accepts them.
+Open-ended details and heterogeneous versioned outbox payloads use documented alternative mappings with their own validation.
+Adapt mappings and exceptions to the target project. Never silently discard fields or expose storage objects as public responses.
+See [current Backendbase mappings](references/backendbase-pattern.md#json-column-default-and-exceptions).
+
 ## Verification
 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.

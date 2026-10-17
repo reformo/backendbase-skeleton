@@ -26,6 +26,15 @@ Read only the sections of [references/backendbase-pattern.md](references/backend
 - Preserve evidence for duplicates, failed deliveries, and unknown external-effect outcomes.
 - Do not claim exactly-once delivery.
 
+## Outbox JSON representation
+
+Inspect the target project's JSON-column rules before mapping the outbox payload.
+In an unmodified Backendbase project, the generic outbox payload is an explicit exception to the default immutable class per non-list JSON column.
+Keep the relay independent of business payload classes. Producers and consumers own their versioned schemas.
+Preserve event names, versions, and nested object/list shapes through storage and transport. Validate each boundary and test the complete delivery path.
+Record the exact column, owner, reason, mapping, validation, compatibility, and tests when applying this exception to another project.
+See the [JSON column exceptions](../../platform/09-persistence.md#explicit-exceptions).
+
 ## Completion report
 
 Report installed contracts, schema, delivery semantics, retry limits, commands, migrations created but not applied, verification, and remaining infrastructure work.

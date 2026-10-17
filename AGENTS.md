@@ -116,7 +116,7 @@ Finish when the requested behavior works, required checks pass, and affected doc
 5. Use at most one object access operator (`->` or `?->`) per statement to avoid traversing object graphs (Law of Demeter). Fluent route and group declarations in `ModuleConfig` are an exception.
 6. Do not abbreviate class, method, property, or variable names; use complete, intention-revealing names.
 7. Keep classes small — no more than 150 lines per class file and no more than 10 class files per namespace directory.
-8. Use no more than two instance properties per class. Doctrine entity mapped fields are exempt because each entity must declare all of its fields directly.
+8. Use no more than two instance properties per class. Doctrine entity mapped fields are exempt because each entity must declare all of its fields directly. Immutable state classes are also exempt when they declare typed readonly fields and validate reconstruction. Keep their business decisions on aggregates.
 9. Do not expose public properties or trivial getters and setters for callers to make business decisions; put that behavior on the object (Tell, don't ask).
 10. Keep cyclomatic complexity at 12 or less for each function and method.
 
@@ -176,6 +176,19 @@ Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renam
 - Do not declare mapped fields in traits or mapped superclasses.
 - Use interfaces or behavior-only traits when shared behavior needs a common contract.
 - Derive each entity class name from its full table name in PascalCase.
+
+### JSON columns
+
+- For database JSON columns whose declared value is not a list, use an immutable context-owned class by default unless an exception is documented.
+- Put these classes under `<BoundedContext>/Domain/Primitives`. Implement `JsonSerializable`, validated `fromArray()`, and explicit `toArray()` conversion.
+- Keep Doctrine mapped fields as arrays. Typed read methods reconstruct the class; typed replacement methods store its array representation.
+- Use the same conversion contract in DBAL adapters, seeders, and other database writers. Keep business decisions on aggregates.
+- Classify the column from its declared storage contract. A list has consecutive zero-based integer indexes. Do not infer the contract from an empty PHP array.
+- Validate list columns and their elements without requiring an object wrapper for the list itself. Preserve `[]`, `{}`, nullable values, and nested shapes.
+- Document exceptions by table and column, with ownership, reason, mapping, validation, compatibility, and tests. Do not coerce scalar or mixed-root JSON into an object.
+- `example_table.details` is an explicit exception: retain `EntryDetails` and `JSON_OBJECT` mapping for open-ended object contents and nested shape preservation.
+- `integration_event_outbox.payload` is an explicit exception: retain versioned event payloads and a generic relay without business-class reconstruction.
+- Follow the [JSON column policy](resources/platform/09-persistence.md#json-column-policy) for validation, exceptions, and verification.
 
 ### SQL indexes
 

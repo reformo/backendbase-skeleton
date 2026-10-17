@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Backendbase\Domain\ExampleCatalog\Domain\Value;
+namespace Backendbase\Domain\ExampleCatalog\Domain\Primitives;
 
 use Backendbase\Shared\Exception\InvalidUserInput;
 use JsonException;

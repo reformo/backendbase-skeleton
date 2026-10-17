@@ -9,7 +9,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
 use Backendbase\Domain\ExampleCatalog\Domain\Entry;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryDetails;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryDetails;
 use Backendbase\Shared\Exception\InvalidUserInput;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;

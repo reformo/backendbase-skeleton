@@ -54,6 +54,14 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 - Do not run migration commands from outside the repository root.
 - Do not run a mutating migration against an unspecified or shared database. For production, require explicit authority and the approved deployment and recovery workflow.
 
+## JSON column review
+
+Identify the declared root shape for each authorized JSON column before generating SQL.
+In an unmodified Backendbase project, non-list JSON columns default to immutable context primitives with explicit validated array conversion and `JsonSerializable`.
+Record the class or documented exception. List columns, open-ended detail objects, and heterogeneous versioned outbox payloads have distinct representation contracts.
+Review existing rows, nullability, empty shapes, unknown-field handling, and mixed-version readers before changing that contract.
+A PHP class change alone does not require a database migration. Adapt the [JSON column policy](../../platform/09-persistence.md#json-column-policy) to the target project.
+
 ## Verification
 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.

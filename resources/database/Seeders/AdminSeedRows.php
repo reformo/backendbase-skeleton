@@ -9,6 +9,8 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Input\OperatorInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\AccountState;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
@@ -41,7 +43,7 @@ final readonly class AdminSeedRows
             'last_name' => $state['lastName'] ?? null,
             'created_at' => $state['createdAt'],
             'deleted_at' => null,
-            'state' => json_encode(['ownershipVerified' => true, 'enabled' => true, 'authVersion' => 1], JSON_THROW_ON_ERROR),
+            'state' => json_encode(AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']]), JSON_THROW_ON_ERROR),
             'password_hash' => password_hash($password->forHashing(), PASSWORD_ARGON2ID),
         ], ['id' => ParameterType::BINARY]);
         $actorId = $admin->id();
@@ -53,7 +55,7 @@ final readonly class AdminSeedRows
             'account_id' => $identifier->getBytes(),
             'created_at' => $state['createdAt'],
             'deleted_at' => null,
-            'state' => json_encode(['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']], JSON_THROW_ON_ERROR),
+            'state' => json_encode(ActorState::fromArray(['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']]), JSON_THROW_ON_ERROR),
         ], ['id' => ParameterType::BINARY, 'account_id' => ParameterType::BINARY]);
         $evidence = new DoctrineOperatorStore($connection);
         $evidence->record(new OperatorInput('invite-first-admin', $accountId, 'admin-seeder', AdminSeeder::INVITATION, ''), $actorId, $now);

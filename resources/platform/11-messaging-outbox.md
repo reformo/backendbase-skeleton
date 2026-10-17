@@ -26,6 +26,10 @@ Consumers must therefore be idempotent. Do not treat broker delivery as exactly 
 
 The outbox stores event name, version, payload, occurrence time, attempts, errors, availability, publication time, and claim state.
 
+`integration_event_outbox.payload` is an [explicit exception to typed JSON columns](09-persistence.md#explicit-exceptions).
+The shared relay preserves versioned payloads without reconstructing context-owned business classes.
+Producer and consumer contracts still validate their event schemas.
+
 `Queue/Serialization/JsonPayload` preserves nested JSON object and list shapes when the outbox publisher and transport mappers decode payloads.
 The SQS and RabbitMQ adapters retain empty objects, empty lists, and objects with integer member names through publication and consumption.
 Transport serialization does not change released event names, versions, or payload fields.

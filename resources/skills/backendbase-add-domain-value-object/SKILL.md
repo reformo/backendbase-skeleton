@@ -26,7 +26,7 @@ Adapt the invariant, normalization policy, exception type, equality needs, and s
 ## Workflow
 
 1. Define the exact valid set, boundary cases, and canonical representation.
-2. Place context-specific meaning under the owning context. Use Shared only for stable cross-context meaning.
+2. Place context-specific meaning under the owning context. In an unmodified Backendbase project, use `<BoundedContext>/Domain/Primitives`. Adapt the location to the target project. Use Shared only for stable cross-context meaning.
 3. Enforce the invariant during construction or a named constructor.
 4. Add only behavior required by callers. Avoid trivial setters and speculative conversion methods.
 5. Update boundary conversion, contracts, and persistence mapping only where the new type is used.
@@ -40,6 +40,17 @@ Adapt the invariant, normalization policy, exception type, equality needs, and s
 - Translate invalid external values into the project's public typed failure where required.
 - Keep sensitive values out of logs and serialized diagnostics.
 - Do not add database columns or migration work merely because a wrapper type was added.
+
+## JSON state primitives
+
+Inspect the owning storage contract before defining a JSON state primitive.
+In an unmodified Backendbase project, non-list database JSON columns default to immutable classes under `<BoundedContext>/Domain/Primitives` unless explicitly excepted.
+Provide `JsonSerializable`, validated `fromArray()`, and explicit `toArray()`. Keep database parsing and framework dependencies outside the primitive.
+Require exact types and explicit nullability. Define unknown-field compatibility without silent data loss.
+Use typed readonly fields without mutable nested references. These state classes qualify for Backendbase's two-property exception.
+Business decisions remain on aggregates. Lists do not require an object wrapper for the list itself.
+Open-ended details and heterogeneous versioned outbox payloads retain documented alternative representations.
+Adapt these rules to the target project. See the [current default and exceptions](../../platform/09-persistence.md#json-column-policy).
 
 ## Verification
 

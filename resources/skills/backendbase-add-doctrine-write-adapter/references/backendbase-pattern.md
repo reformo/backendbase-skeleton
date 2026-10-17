@@ -91,6 +91,20 @@ Adapt identifiers, columns, and mapping behavior to the target schema.
 - The Example repository contract suite runs unchanged against Doctrine and memory adapters.
 - Mapping changes do not authorize a migration. Generate one only after repository behavior is final and schema scope is approved.
 
+## JSON column default and exceptions
+
+In an unmodified Backendbase project, non-list database JSON columns use immutable context primitives with `JsonSerializable`, `fromArray()`, and `toArray()` by default.
+Doctrine fields stay arrays. Typed accessors reconstruct values and replacement methods store arrays. DBAL and seeders use the same contract.
+List columns retain validated lists. Preserve empty objects, empty lists, and nested shapes; classify from the declared contract.
+
+- Identity `state` columns use `AccountState`, `ActorState`, and `ContactState` under `IdentityAndAccess/Domain/Primitives`.
+- `example_table.details` is an explicit exception. `EntryDetails` and `JSON_OBJECT` preserve open-ended content, nested shapes, and legacy empty-list read compatibility.
+- `integration_event_outbox.payload` is an explicit exception. The shared relay preserves versioned event payloads without reconstructing business classes.
+
+Each exception requires ownership, a reason, mapping, validation, compatibility, and tests.
+These identifiers describe current Backendbase source. Discover equivalent roles and explicit exceptions in the target project.
+See the [complete policy](../../../platform/09-persistence.md#json-column-policy).
+
 ## Verification map
 
 ```sh

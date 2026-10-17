@@ -6,7 +6,8 @@ This context is the complete business-module reference. Production contexts use 
 ## Context rules
 
 - Use `Entry` terminology for PHP records and operations in this context.
-- Enforce UUIDs, positive nullable target identifiers, and UTF-8 field limits through context-owned values.
+- Enforce UUIDs, positive nullable target identifiers, and UTF-8 field limits through context-owned values under `Domain/Primitives`.
+- Treat `example_table.details` as an explicit exception to the default typed JSON-column mapping. Retain `EntryDetails` and `JSON_OBJECT` shape preservation.
 - Preserve accepted text and JSON details. Reject non-object HTTP details and integer top-level detail names.
 - Validate detail encoding and decoding within 64 levels before mutation. Reject NUL-prefixed member names at every depth.
 - Order entry pages by creation time and UUID in both repository adapters.

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example;
 
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryGroup;
-use Backendbase\Domain\ExampleCatalog\Domain\Value\EntryKey;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryGroup;
+use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryKey;
 use Backendbase\Shared\Exception\InvalidUserInput;
 use stdClass;
 

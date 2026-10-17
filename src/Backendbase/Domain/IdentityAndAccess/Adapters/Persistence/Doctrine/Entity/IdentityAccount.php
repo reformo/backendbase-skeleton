@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\Entity;
 
-use Backendbase\Domain\IdentityAndAccess\Adapters\Persistence\Doctrine\StateField;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\AccountState;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
@@ -67,8 +67,10 @@ class IdentityAccount
 
     public static function create(Account $account): self
     {
-        $record = new self();
-        $record->assignId($account->id());
+        $record       = new self();
+        $id           = $account->id();
+        $record->id   = Uuid::fromString($id);
+        $record->uuid = $id;
         $record->synchronize($account);
 
         return $record;
@@ -78,6 +80,7 @@ class IdentityAccount
     {
         $state = $account->snapshot();
         $this->assertRevision($state['revision']);
+        $accountState       = AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']]);
         $this->email        = $state['email'];
         $this->mobile       = $state['mobile'];
         $this->firstName    = $state['firstName'] ?? null;
@@ -86,11 +89,12 @@ class IdentityAccount
         $this->deletedAt    = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
         $this->activeEmail  = $state['deletedAt'] === null ? $state['email'] : null;
         $this->activeMobile = $state['deletedAt'] === null ? $state['mobile'] : null;
-        $this->state        = ['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']];
+        $this->replaceState($accountState);
     }
 
     public function toDomain(): Account
     {
+        $state            = $this->state();
         $currentDeletedAt = $this->deletedAt;
         $currentCreatedAt = $this->createdAt;
 
@@ -103,9 +107,7 @@ class IdentityAccount
             'mobile' => $this->mobile,
             'firstName' => $this->firstName,
             'lastName' => $this->lastName,
-            'ownershipVerified' => StateField::boolean($this->state, 'ownershipVerified'),
-            'enabled' => StateField::boolean($this->state, 'enabled'),
-            'authVersion' => StateField::integer($this->state, 'authVersion'),
+            ...$state->toArray(),
             'deletedAt' => $currentDeletedAt?->format('Y-m-d H:i:s.u'),
             'revision' => $this->version,
             'createdAt' => $currentCreatedAt->format('Y-m-d H:i:s.u'),
@@ -122,6 +124,16 @@ class IdentityAccount
         $this->passwordHash = $passwordHash;
     }
 
+    public function state(): AccountState
+    {
+        return AccountState::fromArray($this->state);
+    }
+
+    public function replaceState(AccountState $state): void
+    {
+        $this->state = $state->toArray();
+    }
+
     public function id(): string
     {
         $id = $this->id;
@@ -134,11 +146,5 @@ class IdentityAccount
         if ($expected !== $this->version) {
             throw IdentityConflict::create('The identity record changed. Reload the record before another attempt.');
         }
-    }
-
-    private function assignId(string $id): void
-    {
-        $this->id   = Uuid::fromString($id);
-        $this->uuid = $id;
     }
 }

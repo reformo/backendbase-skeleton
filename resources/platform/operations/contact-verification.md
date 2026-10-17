@@ -50,6 +50,9 @@ Only SHA-256 context digests are stored. The context token has 256 bits of rando
 Six-digit code hashes use the keyed proof hasher and bind contact, generation, purpose, realm, and record identity.
 Neither the plaintext code nor the raw context token is stored in `contact_info`.
 The contact record retains code deadlines, attempts, delivery state, verification time, and consumption evidence.
+`ContactState` provides immutable typed access to its stored JSON snapshot. Reconstruction validates all declared field types.
+Mapped columns remain authoritative for contact identity, owner references, verification time, and row revision.
+The JSON snapshot retains its existing duplicate fields. Do not log or expose its complete serialization.
 
 ## Optional Admin verification
 

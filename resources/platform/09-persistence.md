@@ -20,6 +20,50 @@ Example details use Doctrine `JSON_OBJECT` hydration to preserve nested object a
 The DBAL mapper accepts legacy empty `[]` details as an empty object. Nonempty lists and integer top-level member names remain invalid.
 Both Example read adapters order entry pages by `created_at` and UUID before slicing. Their shared contract tests use reversed insertion order.
 
+## JSON column policy
+
+For database JSON columns whose declared value is not a list, use an immutable context-owned class by default.
+An explicitly documented exception can define a different representation.
+This policy concerns database columns. It does not impose storage classes on HTTP JSON bodies or Redis records.
+
+### Default mapping
+
+- Place the class under `<BoundedContext>/Domain/Primitives` and implement `JsonSerializable`.
+- Provide `fromArray()` for validated reconstruction and `toArray()` for explicit storage conversion.
+- Require declared fields and exact types. Distinguish missing fields from nullable values. Do not silently coerce values or supply defaults.
+- Reject unknown fields unless the documented compatibility contract requires their preservation. Never silently discard them during a read/write cycle.
+- Keep fields typed and readonly. Returned objects must be immutable snapshots without mutable nested references.
+- Keep Doctrine mapped fields as arrays. A typed read method reconstructs the class; a typed replacement method stores `toArray()`.
+- Use the same classes and conversion contract in ORM, DBAL, seeders, and other writers. Decode and encode JSON at the persistence boundary.
+- Validate selected scalar JSON projections directly. Do not fetch unused fields solely to reconstruct a complete value.
+- Keep authorization and other business decisions on aggregates. Storage serialization must not become a public response or a diagnostic log.
+- Preserve JSON object and list shapes, including empty `{}` and `[]`. Document an alternative mapping when array storage cannot preserve the contract.
+
+The immutable-state exception to the two-property limit applies to these classes when they have typed readonly fields and validated reconstruction.
+Adding a class alone does not authorize a schema change or data migration.
+Review existing rows and mixed-version readers before changing required fields, accepted types, or unknown-field behavior.
+
+### Lists and other root shapes
+
+Classify each column from its declared storage contract, not from one runtime value.
+A JSON list corresponds to consecutive zero-based integer indexes. A keyed map is not a list.
+An empty PHP array cannot establish whether the intended JSON value is `{}` or `[]`.
+List columns do not require an object wrapper for the list itself. Validate their elements and preserve their order and JSON list shape.
+Element classes can still be required by their own contracts.
+SQL nullability remains explicit and separate from the JSON root shape.
+Scalar or mixed-root JSON needs a documented representation exception. Do not convert it to an object merely to satisfy this policy.
+
+### Explicit exceptions
+
+| Column | Owner and reason | Mapping and required protection |
+| --- | --- | --- |
+| `example_table.details` | ExampleCatalog owns open-ended object contents. Fixed state fields would restrict accepted detail keys. | Retain `EntryDetails` validation and Doctrine `JSON_OBJECT` mapping. Preserve nested objects and lists, empty shapes, and accepted depth. Retain the documented legacy empty-list read compatibility. Verify malformed data and ORM/DBAL round trips. |
+| `integration_event_outbox.payload` | Shared messaging stores multiple event schemas and versions. The generic relay must remain independent of business classes. | Retain versioned producer and consumer contracts with generic payload storage and relay decoding. Preserve event names, versions, and nested JSON shapes. Verify producer, stored payload, outgoing/incoming transport, and registered consumer together. |
+
+These exceptions do not remove validation or permit silent data loss.
+Document each additional exception in the owning context and this policy, or link its authoritative contract here.
+Record the exact table and column, owner, reason, representation, validation, compatibility behavior, and verification scope.
+
 ## Query indexes
 
 Review every runtime SQL statement, query-builder predicate, and Doctrine lookup against current migration and ORM indexes.
@@ -104,6 +148,35 @@ Accounts store their Argon2id password hash directly in required `password_hash 
 The credential store reads and writes a string under the existing Account locks. Password hashes have no lookup index.
 Account `state` JSON stores `ownershipVerified`, `enabled`, and `authVersion`.
 Persist ownership verification as a boolean. Domain snapshots and Doctrine hydration use the same `ownershipVerified` key.
+
+### Typed identity JSON state
+
+Identity JSON state uses immutable classes under `IdentityAndAccess/Domain/Primitives`.
+`AccountState` owns Account flags and authentication version. `ActorState` owns User and Admin approval fields.
+`ContactState` represents the existing Contact snapshot, including its duplicated column values.
+These classes implement `JsonSerializable`. Their `jsonSerialize()` methods delegate to `toArray()`.
+`fromArray()` requires every declared field, validates its PHP type, and rejects unknown or numeric keys.
+Nullable fields must be present. Missing values never receive defaults.
+Business transitions and authorization decisions remain on the existing aggregates.
+
+Each Doctrine entity keeps its mapped `state` field as an array.
+`state()` reconstructs the corresponding immutable class on each call.
+`replaceState()` accepts that exact class and stores its `toArray()` result.
+These methods belong to persistence records. Application code continues to use aggregate operations and repository ports.
+A returned state is a detached immutable snapshot. Persist a replacement explicitly; modifying an exported array does not modify the record.
+The initial Admin seeder uses the same classes for encoding and repeat-run validation.
+Actor history reads validate the complete actor state before building the public read model.
+
+Public readonly fields support mapping. They do not authorize callers to move business decisions outside aggregates.
+Immutable state classes are exempt from the two-property limit. They must keep typed readonly fields and explicit validated reconstruction.
+Do not serialize these objects into public responses or logs. Contact state includes internal code hashes and contact data.
+
+The JSON shapes, mapped column types, and indexes stay unchanged. This change needs no migration.
+Contact hydration still takes identity, ownership references, verification time, and revision from mapped columns.
+The corresponding JSON copies remain stored for compatibility and do not override those columns.
+Existing rows with the declared keys and types remain readable. Unknown fields now cause an explicit failure.
+Review stored state before deployment. Coordinate future key additions across all readers during mixed-version deployments.
+Example details and outbox payloads use the [explicit exceptions](#explicit-exceptions). Redis records are outside this database-column policy.
 
 Identity and Example records use assigned binary UUID identifiers, read-only virtual UUID projections, and optimistic versions.
 New aggregate identifiers use UUIDv7. Fresh Example installation uses binary UUIDs directly.

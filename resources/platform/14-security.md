@@ -78,6 +78,10 @@ It remains separate from ordinary User registration. It creates no contact verif
 Operator commands and the seeder never issue a token. See [operator procedures](operations/identity-operator.md).
 Factor recovery and factor rewrapping actions are absent.
 
+Identity state primitives reject missing, mistyped, and unsupported stored fields before domain reconstitution.
+Actor history reads and repeat Admin seeding use the same state types.
+State serialization is an internal storage contract. Never expose Contact code hashes through logs or public responses.
+
 ## Session state
 
 Session issuance stores both `jti` and `sid` allowlist records before token delivery.

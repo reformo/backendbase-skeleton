@@ -53,6 +53,19 @@ Adapt the port operations, identifier, table and column mapping, enum and JSON h
 - Keep mapped records in a directory discovered by both runtime and Doctrine CLI.
 - Do not add a table, column, index, timestamp, status, or soft deletion without explicit scope.
 
+## JSON column contract
+
+Inspect each JSON column's declared root shape and documented exceptions before choosing its PHP representation.
+In an unmodified Backendbase project, non-list JSON columns default to immutable classes under the owning context's `Domain/Primitives` directory.
+Require `JsonSerializable`, validated `fromArray()`, and explicit `toArray()` conversion.
+Keep mapped fields as arrays. Typed reads reconstruct objects; typed replacements store arrays. Use the same contract in seeders and DBAL writers.
+Validate required fields, exact types, nullability, and unknown-field behavior. Preserve empty and nested object/list shapes.
+List columns require element and order validation without a wrapper requirement for the list itself.
+Open-ended detail objects and heterogeneous versioned outbox payloads can use explicit alternative mappings.
+Record the exact column, owner, reason, mapping, validation, compatibility, and tests for each exception.
+Adapt these choices to the target project's contracts. Do not add a migration solely for a PHP representation change.
+See [current Backendbase mappings](references/backendbase-pattern.md#json-column-default-and-exceptions).
+
 ## Verification
 
 Select checks for the changed behavior and target policy. Command lists are examples, not a fixed sequence. Keep required static-analysis, complexity, and style gates for code changes. Reuse successful results while relevant inputs and the environment remain unchanged.
