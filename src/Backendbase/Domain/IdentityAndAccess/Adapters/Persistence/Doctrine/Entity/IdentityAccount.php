@@ -86,7 +86,7 @@ class IdentityAccount
         $this->deletedAt    = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));
         $this->activeEmail  = $state['deletedAt'] === null ? $state['email'] : null;
         $this->activeMobile = $state['deletedAt'] === null ? $state['mobile'] : null;
-        $this->state        = ['owned' => $state['owned'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']];
+        $this->state        = ['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']];
     }
 
     public function toDomain(): Account
@@ -103,7 +103,7 @@ class IdentityAccount
             'mobile' => $this->mobile,
             'firstName' => $this->firstName,
             'lastName' => $this->lastName,
-            'owned' => StateField::boolean($this->state, 'owned'),
+            'ownershipVerified' => StateField::boolean($this->state, 'ownershipVerified'),
             'enabled' => StateField::boolean($this->state, 'enabled'),
             'authVersion' => StateField::integer($this->state, 'authVersion'),
             'deletedAt' => $currentDeletedAt?->format('Y-m-d H:i:s.u'),

@@ -56,7 +56,7 @@ The contact record retains code deadlines, attempts, delivery state, verificatio
 Admin enrollment continues to require invitation and separate approval. Public Admin registration remains absent.
 A pending invited Admin can request verification with its identifier, password, contact type, and context token.
 The anonymous Admin route derives the destination from the stored Account.
-It requires an active, owned Account and an active invited Admin actor.
+It requires an active Account with `state.ownershipVerified: true` and an active invited Admin actor.
 Confirmation and resend require the context secret and a current Account and actor.
 
 After login, use `/identity/contact-verifications` and its `/{contact-info-id}/confirm` and `/resend` paths.

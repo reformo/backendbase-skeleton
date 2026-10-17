@@ -86,7 +86,7 @@ final readonly class AdminSeeder
 
         $accountState = self::state($account);
         $adminState   = self::state($admin);
-        if (! StateField::boolean($accountState, 'owned') || ! StateField::boolean($accountState, 'enabled') || ! StateField::boolean($adminState, 'approved') || StateField::string($adminState, 'invitation') !== self::INVITATION || StateField::string($adminState, 'approval') !== self::APPROVAL) {
+        if (! StateField::boolean($accountState, 'ownershipVerified') || ! StateField::boolean($accountState, 'enabled') || ! StateField::boolean($adminState, 'approved') || StateField::string($adminState, 'invitation') !== self::INVITATION || StateField::string($adminState, 'approval') !== self::APPROVAL) {
             throw IdentityConflict::create('The seeded Admin state has changed. No existing record was modified.');
         }
 

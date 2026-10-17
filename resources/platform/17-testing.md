@@ -95,6 +95,7 @@ Identity health tests execute both API route maps. Liveness skips dependency che
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 
 Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.
+Ownership state tests persist and reload both boolean values through `ownershipVerified`. Seeder and login tests reject unverified ownership.
 Credential tests cover scalar password-hash persistence, replacement, and closed-Account read and write rejection.
 Schema parity tests require `password_hash VARCHAR(255) NOT NULL` and reject the former `credentials` column.
 SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.

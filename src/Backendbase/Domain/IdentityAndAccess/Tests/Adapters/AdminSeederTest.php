@@ -80,6 +80,18 @@ final class AdminSeederTest extends TestCase
         $seeder->seed(new Password('initial-password-123'));
     }
 
+    public function testChangedOwnershipVerificationPreventsARepeatSeed(): void
+    {
+        $fixture   = IdentityFixture::create();
+        $container = $fixture->container();
+        $seeder    = $container->get(AdminSeeder::class);
+        $seeder->seed(new Password('initial-password-123'));
+        $connection = $fixture->connection();
+        $connection->executeStatement("UPDATE identity_account SET state = json_set(state, '$.ownershipVerified', json('false'))");
+        $this->expectException(IdentityConflict::class);
+        $seeder->seed(new Password('initial-password-123'));
+    }
+
     public function testAuditFailureRollsBackTheAccountAdminAndInvitation(): void
     {
         $fixture    = IdentityFixture::create();

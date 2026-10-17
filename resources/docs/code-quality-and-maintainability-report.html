@@ -386,7 +386,7 @@
     <main id="main-content">
         <div class="callout"><strong>Assessment scope:</strong> The initial assessment rated revision df29f9c at 8/10. This follow-up records the implemented changes and fresh verification on 16 October 2026.</div>
         <div class="callout good"><strong>Latest isolated verification:</strong> The 16 October working tree based on <code>726e8de</code> passes all 1,160 tests with zero skips. All 55 previously skipped MySQL, Redis, and Sentinel cases pass. Executable-line and method coverage are 100%. The assessment score and earlier security evidence retain their dated scope.</div>
-        <div class="callout"><strong>Latest local verification · 17 October 2026:</strong> The ExampleApi authentication change passes the local suite and 100% executable-line coverage. Native services, live Bruno, and ZAP were not rerun. Updated workflow syntax and report redaction pass isolated checks.</div>
+        <div class="callout"><strong>Latest local verification · 17 October 2026:</strong> The scalar password-hash and <code>ownershipVerified</code> changes pass the local suite with 100% executable-line and method coverage. An isolated MySQL 8.4 mapping check verifies hash storage and the renamed ownership state. The pinned Semgrep workflow scan reports zero findings. The full native service suite, live Bruno, and ZAP were not rerun.</div>
         <section id="verdict">
             <p class="section-label">01 · Verdict</p>
             <h2>Required improvements are complete; production acceptance remains open</h2>
@@ -471,14 +471,14 @@
             <p>JUnit reports 1,160 tests, 30,476 assertions, and no failures, errors, or skips. All 6,306 executable lines and 1,497 methods are covered. The 100% coverage gate passes. Deployment, rollback, and fresh-installation fixtures pass within <code>composer test</code>.</p>
             <p>All 55 previously skipped cases executed successfully: 24 MySQL, 23 standalone Redis, and eight Sentinel cases. Test identities were compared with the earlier skipped-case list. No code correction was required. See the <a href="../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">service versions, targets, and verification interval</a>.</p>
             <p>HTTP regressions close the 27-line gap in seven identity handlers. They verify Admin contact resends, token revocation, Account closure across both realms, User logout, and anonymous health responses. Dependency doubles exercise ready and unavailable responses without external calls.</p>
-            <p>PHPStan level 8, complexity, and PHPCS pass for the same working tree. PHPStan uses <code>--debug</code> because the sandbox blocks its parallel worker socket. The metrics below come from the 17 October local run. It skips 55 native MySQL, Redis, and Sentinel cases. The service verification above retains its dated scope. Production acceptance remains open.</p>
+            <p>PHPStan level 8, complexity, and PHPCS pass for the same working tree. The metrics below come from the 17 October local run. It skips 55 native MySQL, Redis, and Sentinel cases. A separate mapping test passes on a disposable MySQL 8.4.11 target. It verifies scalar password-hash persistence, <code>ownershipVerified</code> hydration, and ORM schema parity. The full service verification above retains its dated scope. Production acceptance remains open.</p>
             <div class="summary-grid" aria-label="Latest local test metrics">
-                <div class="stat"><strong><span data-quality-metric="tests">1,199</span></strong><span>Tests discovered · 55 service cases skipped</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">45,579</span></strong><span>Verified assertions</span></div>
-                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">6,434</span>/<span data-quality-metric="total-lines">6,434</span></strong><span>Covered executable lines · <span data-quality-metric="line-coverage-percent">100.00%</span></span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">1,221</span></strong><span>Tests discovered · 55 service cases skipped</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">46,578</span></strong><span>Verified assertions</span></div>
+                <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">6,432</span>/<span data-quality-metric="total-lines">6,432</span></strong><span>Covered executable lines · <span data-quality-metric="line-coverage-percent">100.00%</span></span></div>
                 <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,519</span>/<span data-quality-metric="total-methods">1,519</span></strong><span>Covered methods · <span data-quality-metric="method-coverage-percent">100.00%</span></span></div>
             </div>
-            <p>The current quality-tool inventory contains <span data-quality-metric="phpcs-files">876</span> PHP files. PHPCS checks all 876 files successfully.</p>
+            <p>The current quality-tool inventory contains <span data-quality-metric="phpcs-files">880</span> PHP files. PHPCS checks all files in this inventory successfully.</p>
             <p>Local links pass for all 213 resource documents. ADR copies and generated metrics match their sources. All 46 API operations pass schema and tag checks. The architecture map passes nine structural checks with 18 verified source references. Changed HTML files pass nesting and unique-ID checks. Rendered layout remains unverified.</p>
         </section>
         <section id="strengths">

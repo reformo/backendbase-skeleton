@@ -24,6 +24,8 @@ Rollback preserves both proofs. The registration deadline does not expire establ
 Optional Admin verification requires its existing Account and actor.
 Before login, the request requires password possession. Authenticated requests require the ADMIN realm and the matching principal.
 Verification preserves ownership, credential version, sessions, invitation, and separate approval requirements.
+Account state uses the boolean `ownershipVerified`. User registration sets it after both contact proofs pass.
+The trusted initial Admin bootstrap also sets `ownershipVerified: true`. Account enablement and actor approval remain separate checks.
 No public Admin registration or mandatory login verification is introduced.
 
 Each contact code generation has a distinct delivery identity. Delivery occurs after database commit.
@@ -39,6 +41,7 @@ The active/previous key configuration requires retaining the previous key before
 The former post-registration email ownership endpoints and `identity_challenge` implementation are removed.
 The initial identity migration supports fresh installations and creates `contact_info` directly.
 Existing installations require a separate adoption migration. This decision does not authorize applying migrations.
+Account JSON containing the former `owned` key requires a separate data adoption step that preserves its boolean value as `ownershipVerified`.
 
 MySQL and Redis do not share a transaction. Conservative request reservations can remain charged after interrupted operations.
 Contact verification details, exact quotas, errors, and operational boundaries are documented in [contact verification](../platform/operations/contact-verification.md).

@@ -51,6 +51,9 @@ Current identity and actor history responses expose Account email and mobile. To
 Account closure releases both active contact keys. Actor removal preserves the Account contact reservations.
 
 Contact ownership, actor approval, and password authentication establish separate facts.
+Account `state.ownershipVerified` records whether the ownership requirement is satisfied. It starts as `false`.
+User registration sets it to `true` after both contact proofs pass. The trusted initial Admin bootstrap also attests ownership.
+Login and session validation require `ownershipVerified: true`, an enabled Account, and the applicable actor checks.
 Verify both email and mobile through the contact endpoints before User registration.
 Both proofs must be less than 12 hours old when registration holds both evidence locks.
 Codes expire after five minutes. Failed attempts, resend limits, and delivery identities are contact-specific.

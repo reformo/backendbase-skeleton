@@ -45,7 +45,7 @@ final class AccountSessionTest extends TestCase
         $account = self::account($id);
         $now     = new DateTimeImmutable();
         $actor   = User::create(IdentityId::create(), $state === 'account-mismatch' ? IdentityId::create() : $id, $now);
-        if ($state !== 'unowned') {
+        if ($state !== 'ownership-unverified') {
             $account->verifyOwnership();
         }
 
@@ -69,7 +69,7 @@ final class AccountSessionTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function deniedStates(): iterable
     {
-        foreach (['account-mismatch', 'wrong-realm', 'unowned', 'closed', 'removed', 'unapproved'] as $state) {
+        foreach (['account-mismatch', 'wrong-realm', 'ownership-unverified', 'closed', 'removed', 'unapproved'] as $state) {
             yield $state => [$state];
         }
     }

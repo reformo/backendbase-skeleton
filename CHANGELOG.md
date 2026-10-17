@@ -125,6 +125,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Rename Account `state.owned` to `ownershipVerified` in domain snapshots, Doctrine persistence, Admin seeding, and authentication tests. Update guidance without adding a migration.
+
 - Replace Account credential JSON with required `password_hash VARCHAR(255)`. Update the credential port, Doctrine mapping, seeders, fixtures, regressions, and guidance. Revise the existing installation migration without adding a migration.
 
 - Restrict commands under `bin/dev` to explicit `BACKENDBASE_ENV=dev`. Check housekeeping before changes and the message viewer before Composer startup and each request. Preserve process environment precedence over `.env` and add isolated regressions.

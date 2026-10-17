@@ -8,6 +8,7 @@ This context owns global Accounts, User and SystemAdmin actors, contact evidence
 - Keep Account identity separate from actor identity. One Account can own at most one actor of each type, including removed records.
 - Keep USER and ADMIN authentication realms separate. The JWT `sub` identifies the actor; `accountId` identifies the Account.
 - Keep contact ownership, password authentication, and Admin approval as separate checks.
+- Persist Account ownership verification as `state.ownershipVerified`. Keep it separate from Account enablement and Admin approval.
 - Require both email and mobile proofs before User registration. Validate matching contacts, shared context, unused evidence, and freshness after both locks.
 - Consume both proofs atomically with Account, User, and credential creation. Use the 12-hour evidence window from ADR-0050.
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.

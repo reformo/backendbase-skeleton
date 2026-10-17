@@ -11,7 +11,7 @@ use DateTimeImmutable;
 
 final class Account
 {
-    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
+    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
     private function __construct(private readonly IdentityId $id, private array $state)
     {
         new AccountEmail($state['email']);
@@ -28,10 +28,10 @@ final class Account
         $profile    = $names ?? new AccountNames();
         $nameValues = $profile->snapshot();
 
-        return new self($id, [...$nameValues, 'email' => $emailValue, 'mobile' => $mobileValue, 'owned' => false, 'enabled' => true, 'authVersion' => 1, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $createdAt]);
+        return new self($id, [...$nameValues, 'email' => $emailValue, 'mobile' => $mobileValue, 'ownershipVerified' => false, 'enabled' => true, 'authVersion' => 1, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $createdAt]);
     }
 
-    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
+    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
     public static function reconstitute(IdentityId $id, array $state): self
     {
         return new self($id, $state);
@@ -40,7 +40,7 @@ final class Account
     public function verifyOwnership(): void
     {
         $this->assertActive();
-        $this->state['owned'] = true;
+        $this->state['ownershipVerified'] = true;
     }
 
     public function assertActive(): void
@@ -53,7 +53,7 @@ final class Account
     public function assertSessionAllowed(int $expectedVersion): void
     {
         $this->assertActive();
-        if (! $this->state['owned'] || $this->state['authVersion'] !== $expectedVersion) {
+        if (! $this->state['ownershipVerified'] || $this->state['authVersion'] !== $expectedVersion) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
     }
@@ -93,7 +93,7 @@ final class Account
         return $id->toString();
     }
 
-    /** @return array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, owned: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} */
+    /** @return array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} */
     public function snapshot(): array
     {
         return $this->state;

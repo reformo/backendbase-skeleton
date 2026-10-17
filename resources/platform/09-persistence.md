@@ -102,6 +102,8 @@ Identity Accounts store nullable `first_name` and `last_name` columns as UTF-8 t
 Names have no uniqueness or lookup index. Identity and history reads select them through the Account primary key.
 Accounts store their Argon2id password hash directly in required `password_hash VARCHAR(255)`.
 The credential store reads and writes a string under the existing Account locks. Password hashes have no lookup index.
+Account `state` JSON stores `ownershipVerified`, `enabled`, and `authVersion`.
+Persist ownership verification as a boolean. Domain snapshots and Doctrine hydration use the same `ownershipVerified` key.
 
 Identity and Example records use assigned binary UUID identifiers, read-only virtual UUID projections, and optimistic versions.
 New aggregate identifiers use UUIDv7. Fresh Example installation uses binary UUIDs directly.

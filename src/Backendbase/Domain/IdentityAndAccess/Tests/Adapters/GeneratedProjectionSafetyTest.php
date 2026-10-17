@@ -24,7 +24,7 @@ final class GeneratedProjectionSafetyTest extends TestCase
         $unit      = $manager->getUnitOfWork();
         $id        = Uuid::uuid7();
         $common    = ['id' => $id, 'uuid' => $id->toString(), 'version' => 1, 'createdAt' => new DateTimeImmutable('2026-10-14T10:00:00Z'), 'deletedAt' => null];
-        $record    = $unit->createEntity(IdentityAccount::class, [...$common, 'email' => 'user@example.com', 'activeEmail' => $kind === 'email' ? 'wrong@example.com' : 'user@example.com', 'mobile' => '+905551234567', 'activeMobile' => $kind === 'mobile' ? '+905551234568' : '+905551234567', 'state' => ['owned' => true, 'enabled' => true, 'authVersion' => 1]]);
+        $record    = $unit->createEntity(IdentityAccount::class, [...$common, 'email' => 'user@example.com', 'activeEmail' => $kind === 'email' ? 'wrong@example.com' : 'user@example.com', 'mobile' => '+905551234567', 'activeMobile' => $kind === 'mobile' ? '+905551234568' : '+905551234567', 'state' => ['ownershipVerified' => true, 'enabled' => true, 'authVersion' => 1]]);
         self::assertInstanceOf(IdentityAccount::class, $record);
         $this->expectException(AuthenticationUnavailable::class);
         $record->toDomain();

@@ -40,7 +40,7 @@ final class PasswordLoginTest extends TestCase
         });
         if ($state === 'unverified') {
             $connection = $fixture->connection();
-            $connection->executeStatement("UPDATE identity_account SET state = json_set(state, '$.owned', json('false'))");
+            $connection->executeStatement("UPDATE identity_account SET state = json_set(state, '$.ownershipVerified', json('false'))");
         }
 
         $api      = IdentityApiFixture::create($fixture, Realm::USER);

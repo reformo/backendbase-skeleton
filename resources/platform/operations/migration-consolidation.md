@@ -20,6 +20,8 @@ Existing identifiers, data types, constraints, indexes, and audit tables keep th
 The destination remains nullable for compatibility with the existing message recovery contract.
 The identity installation creates required `password_hash VARCHAR(255)` directly on `identity_account`.
 Existing databases with credential JSON require a separate reviewed hash extraction and schema adoption plan.
+Existing Account state JSON using `owned` requires a separate rename to `ownershipVerified` that preserves the boolean value.
+The application reads `ownershipVerified` directly. This JSON-key rename adds no migration or database column.
 
 Messaging and identity `down()` methods reject removal of recovery and operator evidence.
 Example `down()` drops the Example table. Execute that operation only with explicit authority for its data loss.
