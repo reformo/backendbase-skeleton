@@ -30,14 +30,13 @@ final class MySqlTablePrefixRemovalTest extends TestCase
             $connection->insert('identity_account', ['id' => $identifier, 'normalized_email' => 'rename@example.com', 'normalized_mobile' => '+905551234567', 'created_at' => '2026-10-17 00:00:00', 'state' => '{"enabled":true}', 'password_hash' => 'preserved-hash']);
             $connection->insert('identity_user', ['id' => $identifier, 'account_id' => $identifier, 'created_at' => '2026-10-17 00:00:00', 'state' => '{"approved":true}']);
             $connection->insert('identity_admin', ['id' => $identifier, 'account_id' => $identifier, 'created_at' => '2026-10-17 00:00:00', 'state' => '{"approved":false}']);
-            $connection->insert('identity_operator_action', ['id' => $identifier, 'target_id' => $identifier, 'action_name' => 'approve', 'bootstrap_key' => 'first-admin', 'operator_name' => 'operator', 'recorded_at' => '2026-10-17 00:00:00']);
-            $tables        = ['account', 'user', 'admin', 'operator_action'];
+            $tables        = ['account', 'user', 'admin'];
             $before        = self::rows($connection, $tables, 'identity_');
             $schemaManager = $connection->createSchemaManager();
             $beforeSchema  = $schemaManager->introspectSchema();
             self::apply($connection, new Version20261017000000($connection, new NullLogger()), 'up');
             self::assertSame($before, self::rows($connection, $tables, ''));
-            self::assertSame(['account', 'admin', 'contact_info', 'operator_action', 'user'], $schemaManager->listTableNames());
+            self::assertSame(['account', 'admin', 'contact_info', 'user'], $schemaManager->listTableNames());
             foreach ($tables as $table) {
                 $this->assertIndexesPreserved($beforeSchema, $schemaManager->introspectSchema(), $table);
             }

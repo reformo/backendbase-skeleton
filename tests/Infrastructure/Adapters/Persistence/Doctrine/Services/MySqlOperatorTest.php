@@ -23,7 +23,6 @@ use Backendbase\Migrations\Version20260823000000;
 use Backendbase\Migrations\Version20261014020000;
 use Backendbase\Migrations\Version20261017000000;
 use Backendbase\Migrations\Version20261017010000;
-use Backendbase\Migrations\Version20261017173407;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -40,7 +39,7 @@ use function getenv;
 
 final class MySqlOperatorTest extends TestCase
 {
-    public function testFirstAdminSetupContinuesAfterOperatorHistoryRemovalOnMySql84(): void
+    public function testFirstAdminSetupUsesTheFreshSchemaOnMySql84(): void
     {
         if (getenv('BACKENDBASE_SERVICE_TESTS') !== '1') {
             self::markTestSkipped('An explicitly prepared MySQL 8.4 target is required.');
@@ -69,8 +68,6 @@ final class MySqlOperatorTest extends TestCase
             $enrolled  = IdentityScenario::verified($identity);
             $workflow  = $container->get(OperatorWorkflow::class);
             $adminId   = $workflow->run(new OperatorInput('invite-first-admin', $enrolled['accountId'], 'operator', 'invite:123', ''), $clock->now(), true);
-            $connection->executeStatement("INSERT INTO operator_action (id, target_id, action_name, bootstrap_key, operator_name, invitation_evidence, recorded_at) VALUES (UUID_TO_BIN(UUID(), 0), UUID_TO_BIN(?, 0), 'invite-first-admin', 'invite-first-admin', 'operator', 'invite:123', '2026-10-14 10:00:00')", [$adminId]);
-            $this->apply($connection, new Version20261017173407($connection, new NullLogger()));
             $workflow->run(new OperatorInput('approve-first-admin', $adminId, 'operator', '', 'approve:456'), $clock->now(), true);
             $principal = IdentityScenario::principal($identity, Realm::ADMIN, 'ada@example.com');
             self::assertSame($adminId, $principal->identity()['actorId']);

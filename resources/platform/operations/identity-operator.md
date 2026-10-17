@@ -88,12 +88,9 @@ Restart supervised workers after runtime key injection changes.
 TOTP enrollment, recovery, and factor rewrapping are removed.
 Account passwords use the scalar `account.password_hash` column. Invitation and approval references remain in Admin state.
 
-## Operator history removal
+## Schema history
 
-`Version20261017173407` drops `operator_action` after the installation and naming migrations.
-It preserves Account and Admin rows, passwords, and Admin invitation and approval references.
-Separate operator names and action timestamps are removed. Export that history before migration if retention is required.
-Stop operator setup and seeding while migrating and activating the matching application.
-The previous application requires the removed table. An application-only rollback is unsafe.
-Recovery requires the database backup and matching application. An empty replacement table cannot restore the removed history.
-Apply the migration only to an explicitly authorized target.
+Installation and naming migrations omit the operator history table and its indexes.
+Admin state retains invitation and approval references. No migration creates or drops a separate operator table.
+Existing databases that used earlier history require a reviewed [adoption plan](migration-consolidation.md#existing-database-adoption).
+Compare their actual schema and executed migration versions before any separately authorized changes.

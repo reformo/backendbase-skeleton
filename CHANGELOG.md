@@ -10,7 +10,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Removed
 
-- Remove the `operator_action` table through a forward migration. Keep invitation and approval evidence in Admin state. Preserve first-Admin setup, repeat seeding, and concurrent setup protection without separate operator audit rows.
+- Omit `operator_action` and its indexes from installation and naming migrations. Remove the obsolete drop migration. Retain first-Admin setup protection and invitation and approval evidence in Admin state. Update the release target, tests, quality report, and existing-database adoption guidance.
 
 - Replace User and System Admin usernames with Account email or mobile login. Require globally unique active E.164 mobile numbers at registration. Update initial identity migration, API contracts, operator commands, contact responses, tests, and identity guidance.
 
@@ -111,7 +111,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 - Use a TLS stream context only for configured Redis TLS endpoints. Plain Redis connections no longer attempt a TLS handshake.
 
-- Exclude the DBAL-owned operator evidence table from the native recovery test's ORM schema comparison.
+- Restrict the native recovery test's ORM schema comparison to mapped identity tables.
 
 - Audit all 38 API operations for response contract parity. Use `apiMetadata` for Example metadata, declare required Example response fields and list timestamps, preserve empty JSON objects, and return complete catch-all Problem Details. Align Bruno health assertions and add source, merged, Bruno, and runtime response checks.
 
@@ -131,7 +131,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 - Apply the remaining naming review proposals across PHP, shell, Python, JavaScript, configuration, and persistence. Preserve released event and API keys, add proof-key environment aliases, and clarify contact verification and claim expiry through a forward migration. Add framework-independent event field aliases and protect quoted table names in migration filters. Update the naming report with verification and migration results.
 
-- Remove bounded-context prefixes from the Account, User, Admin, and operator evidence tables and their indexes. Align Doctrine entity names, SQL, tests, and guidance. Retain the `example_table` exception. Add a data-preserving forward migration and pin its release target.
+- Remove bounded-context prefixes from the Account, User, and Admin tables and their indexes. Align Doctrine entity names, SQL, tests, and guidance. Retain the `example_table` exception. Add a data-preserving forward migration and pin its release target.
 
 - Adopt inbound API terminology across the API selector, bootstrap variables, tests, architecture guidance, and skills. Rename the API guide and scaffolding skill. Preserve message consumer names and existing API contracts.
 
@@ -185,7 +185,7 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 - Replace generic success `data` wrappers with resource and result keys, including `user`, `admin`, `registration`, `challenge`, `enrollment`, and `session`. Preserve payload fields and HTTP/error contracts. Update OpenAPI sources, merged YAML, Bruno assertions, regression tests, and guidance. Require descriptive response keys in project and skill rules.
 
-- Consolidate seven migration drafts into three final-schema installations for messaging, ExampleCatalog, and IdentityAndAccess. Include recovery and operator evidence and required indexes at creation. Remove the staged Example conversion from fresh installation. Update release metadata, regression tests, and existing-database adoption guidance.
+- Consolidate seven migration drafts into three final-schema installations for messaging, ExampleCatalog, and IdentityAndAccess. Include messaging recovery evidence and required indexes at creation. Remove the staged Example conversion from fresh installation. Update release metadata, regression tests, and existing-database adoption guidance.
 
 - Declare all identity Doctrine fields and mapping methods in their entity classes. Remove mapped superclasses, preserve database mappings, and enforce direct field ownership in tests and guidance.
 - Derive mapped Doctrine entity class names from full table names in PascalCase. Rename Example and Identity entities and update references and guidance.

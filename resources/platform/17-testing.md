@@ -107,7 +107,7 @@ Credential tests cover scalar password-hash persistence, replacement, and closed
 Schema parity tests require `password_hash VARCHAR(255) NOT NULL` and reject the former `credentials` column.
 First-Admin tests run without an operator history table and retain invitation and approval evidence in Admin state.
 They cover preview, separate evidence, repeated approval, additional and removed Admin rows, and bootstrap rollback.
-Native MySQL tests verify operator history removal, pending Admin approval afterward, and competing setup lock timeouts.
+Native MySQL tests verify fresh installation without operator history, first-Admin approval, and competing setup lock timeouts.
 SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.
 Native RedisJSON tests verify token and session objects, key-level TTL, automatic removal, unchanged claims, and existing string-record reads.
 They also verify duplicate-token and duplicate-session rejection without partial records or lifetime renewal.

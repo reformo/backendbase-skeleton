@@ -125,7 +125,7 @@ Bounded contexts live under `src/Backendbase/Domain/{ContextName}`. Use `Example
 
 `IdentityAndAccess` owns global Accounts, User and SystemAdmin actors, contact verification, credentials, session checks, and first-Admin setup.
 Admin state retains invitation and approval evidence. Operator setup and manual seeding share a database-scoped MySQL advisory lock.
-The forward migration `Version20261017173407` removes the separate operator history table.
+Installation and naming migrations create no separate operator history table.
 
 ### Enforced Dependency Boundaries
 

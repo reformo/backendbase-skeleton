@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Migrations;
 
 use Backendbase\Migrations\Version20261017000000;
+use Backendbase\Migrations\Version20261017010000;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\Exception\AbortMigration;
@@ -18,18 +19,18 @@ use function str_replace;
 final class TablePrefixRemovalMigrationTest extends TestCase
 {
     #[DataProvider('directions')]
-    public function testPlanRenamesOnlyTheFourTablesAndTheirIndexes(string $direction): void
+    public function testPlanRenamesOnlyTheThreeTablesAndTheirIndexes(string $direction): void
     {
         $connection = DriverManager::getConnection(['driver' => 'pdo_mysql', 'serverVersion' => '8.4.0']);
         $migration  = new Version20261017000000($connection, new NullLogger());
         $migration->$direction(new Schema());
         $queries = $migration->getSql();
-        $names   = ['account' => ['account_active_email_unq', 'account_active_mobile_unq'], 'user' => ['user_account_unq'], 'admin' => ['admin_account_unq'], 'operator_action' => ['operator_bootstrap_unq', 'operator_target_idx']];
+        $names   = ['account' => ['account_active_email_unq', 'account_active_mobile_unq'], 'user' => ['user_account_unq'], 'admin' => ['admin_account_unq']];
         if ($direction === 'down') {
             $names = array_reverse($names, true);
         }
 
-        self::assertCount(4, $queries);
+        self::assertCount(3, $queries);
         $position = 0;
         foreach ($names as $name => $indexes) {
             $sql = str_replace('`', '', $queries[$position++]->getStatement());
@@ -53,6 +54,22 @@ final class TablePrefixRemovalMigrationTest extends TestCase
         }
 
         self::assertSame($expected, $sql);
+    }
+
+    #[DataProvider('directions')]
+    public function testRemainingNamingChangesAffectOnlyContactAndMessageTables(string $direction): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_mysql', 'serverVersion' => '8.4.0']);
+        $migration  = new Version20261017010000($connection, new NullLogger());
+        $migration->$direction(new Schema());
+        $queries = $migration->getSql();
+        $tables  = $direction === 'up'
+            ? ['contact_info', 'integration_event_outbox', 'integration_event_inbox']
+            : ['integration_event_inbox', 'integration_event_outbox', 'contact_verification'];
+        self::assertCount(3, $queries);
+        foreach ($tables as $position => $table) {
+            self::assertStringStartsWith('ALTER TABLE ' . $table . ' ', $queries[$position]->getStatement());
+        }
     }
 
     #[DataProvider('directions')]
