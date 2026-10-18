@@ -490,13 +490,16 @@
             <p>The working tree based on <code>3782cbe</code> passes all 1,422 tests with 61,118 assertions and zero skips. All 63 earlier skipped cases and the new native HTTP replay case pass. MySQL 8.4.11 applies the six-migration history through <code>Version20261018000000</code>. Repeated table creation is rejected. Independent connections verify active-request rejection, encrypted response replay, conflicts, fixed expiry, cleanup, and unresolved claims.</p>
             <p>On 1,000 generated rows, replay lookup selects <code>PRIMARY</code> with constant access. Cleanup selects <code>http_request_replay_expiry_idx</code> with range access. Live identity checks exercise all 31 operations through 59 initial requests, 39 retries, and 21 changed-body probes. Six retries with revoked credentials receive 401. All generated MySQL, Redis, and Sentinel containers, networks, and volumes are removed.</p>
             <p>See the <a href="../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">latest targets, UTC interval, and evidence files</a>. Current local results are stored under <code>artifacts/service-verification/idempotency</code>. Production performance and live security scan evidence retain their separate scopes.</p>
+            <h3>Redis fixture assertion stability · 18 October 2026</h3>
+            <p>The full isolated suite passes 1,426 tests and 61,128 assertions with no failures, errors, or skips. All 6,805 executable lines remain covered. Deployment fixtures, PHPStan level 8, complexity, and PHPCS pass.</p>
+            <p>Redis fixtures record one authentication assertion in both password modes. The selected Redis tests pass 28 cases and 431 assertions with and without a password. Four regressions verify fixed assertion counts, skipped AUTH for empty passwords, rejected credentials, and propagated authentication errors.</p>
             <div class="summary-grid" aria-label="Latest local test metrics">
-                <div class="stat"><strong><span data-quality-metric="tests">1,422</span></strong><span>Tests passed · zero skips</span></div>
-                <div class="stat"><strong><span data-quality-metric="assertions">61,118</span></strong><span>Verified assertions</span></div>
+                <div class="stat"><strong><span data-quality-metric="tests">1,426</span></strong><span>Tests passed · zero skips</span></div>
+                <div class="stat"><strong><span data-quality-metric="assertions">61,128</span></strong><span>Verified assertions</span></div>
                 <div class="stat ratio-stat"><strong><span data-quality-metric="covered-lines">6,805</span>/<span data-quality-metric="total-lines">6,805</span></strong><span>Covered executable lines · <span data-quality-metric="line-coverage-percent">100.00%</span></span></div>
                 <div class="stat ratio-stat"><strong><span data-quality-metric="covered-methods">1,594</span>/<span data-quality-metric="total-methods">1,594</span></strong><span>Covered methods · <span data-quality-metric="method-coverage-percent">100.00%</span></span></div>
             </div>
-            <p>The current quality-tool inventory contains <span data-quality-metric="phpcs-files">938</span> PHP files. PHPCS checks all files in this inventory successfully.</p>
+            <p>The current quality-tool inventory contains <span data-quality-metric="phpcs-files">940</span> PHP files. PHPCS checks all files in this inventory successfully.</p>
             <p>Documentation and instruction links pass for 225 files. Generated metrics match the latest test artifacts. All 52 API operations pass schema and tag checks. The 17 October checks verified ADR copies, nine architecture map checks, 18 source references, and changed HTML nesting and unique IDs. Rendered layout remains unverified.</p>
         </section>
         <section id="strengths">

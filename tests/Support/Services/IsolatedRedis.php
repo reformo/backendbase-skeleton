@@ -79,9 +79,7 @@ final readonly class IsolatedRedis
         Assert::assertIsString($password);
         $client = new Redis();
         Assert::assertTrue($client->connect('127.0.0.1', $port, 2, read_timeout: 2));
-        if ($password !== '') {
-            Assert::assertTrue($client->auth($password));
-        }
+        RedisAuthentication::verify($client, $password);
 
         $info = $client->info('server');
         Assert::assertIsArray($info);

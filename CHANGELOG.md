@@ -28,6 +28,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Use a separate CI API port so ZAP add-on updates cannot collide with the application listener. Keep authenticated Bruno requests and security probes on the same API address. Add an isolated scanner startup regression.
+
+- Keep Redis fixture assertion totals stable with and without password authentication. Add regressions for authentication modes and failures to prevent quality-report drift between local and CI runs.
+
 - Preserve the conflict response when concurrent User registrations reuse consumed contact evidence. Check evidence freshness before its consumed owner references. Add unknown-contact and contact-realm rejection coverage. Verify all 62 native service cases with isolated MySQL, Redis, and Sentinel fixtures.
 
 ### Removed

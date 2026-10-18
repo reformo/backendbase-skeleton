@@ -149,6 +149,11 @@ They use temporary project fixtures and stop allowed housekeeping at a command s
 The delayed command regression verifies a fixed assertion total regardless of process duration.
 Keep timeout assertions outside polling loops so process timing cannot change generated report metrics.
 
+Redis service fixtures use `Tests\Support\Services\RedisAuthentication` for optional password authentication.
+The helper records one assertion with or without a password. It skips AUTH only when the configured password is empty.
+Run `vendor/bin/phpunit tests/Tools/Services/RedisAuthenticationTest.php` for assertion-count, rejected-credential, and authentication-error regressions.
+Keep fixture assertion totals independent of environment options as well as polling duration.
+
 For agent instruction changes, include root and context files explicitly because the default targets omit them:
 
 ```sh

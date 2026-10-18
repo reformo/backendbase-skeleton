@@ -89,6 +89,7 @@
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known quality-tool differences</h2>
 <ul><li>All adapters now have explicit ownership. Unknown adapter categories fail classification checks.</li>
 <li>The security workflow preserves ExampleApi checks and defines live HTTP scenarios for all 31 identity operations. Authenticated ZAP scans cover protected reads and metadata in both realms.</li>
+<li>The CI ExampleApi listener uses port 8081. Port 8080 remains free for ZAP during add-on updates. Bruno and all ExampleApi probes use the CI address.</li>
 <li>Native service tests require prepared targets. A passing local run with skipped cases does not establish current service behavior.</li>
 <li>Complexity and coding-standard checks do not enforce every object-design rule. The corrected <code>SqsQueue.php</code> has 148 lines. The selected forwarding layers are simplified. Remaining design deductions appear in the detailed scorecard.</li>
 <li>Rector is not configured or installed.</li><li>Bruno needs external runtime state and is not a self-contained suite.</li></ul>
@@ -123,6 +124,7 @@ bin/bruno example-api local
 <p><code>composer test</code> runs PHPUnit, enforces 100% executable-line coverage, then runs <code>tests/Deployment/deployment-scripts.sh</code>.</p>
 <p><code>tests/bootstrap.php</code> changes the working directory to the project root before loading Composer. Project test fixtures use root-relative paths. Module-owned tests can use file-relative paths for fixtures that move with their bounded context.</p>
 <p>Keep timeout assertions outside polling loops. Assertion totals must remain stable across process durations because generated report checks compare them exactly. The development command regression uses a delayed process to verify this rule.</p>
+<p>Keep fixture assertion totals independent of environment options. <code>Tests\Support\Services\RedisAuthentication</code> records one assertion with or without a Redis password. Run <code>vendor/bin/phpunit tests/Tools/Services/RedisAuthenticationTest.php</code> to verify both modes, rejected credentials, and authentication errors.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>

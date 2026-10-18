@@ -181,9 +181,10 @@ jobs:
           echo 'BACKENDBASE_ADMIN_JWT_AUDIENCE=system-admin-api' >> "$GITHUB_ENV"
           echo 'BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS=3600' >> "$GITHUB_ENV"
 
+      # ZAP add-on updates can temporarily bind the default proxy port 8080.
       - name: Start Example API
         run: |
-          php -d expose_php=0 -S 127.0.0.1:8080 -t public > "$RUNNER_TEMP/backendbase-dast.log" 2>&1 &
+          php -d expose_php=0 -S 127.0.0.1:8081 -t public > "$RUNNER_TEMP/backendbase-dast.log" 2>&1 &
 
       - name: Wait for Example API
         run: |
@@ -191,7 +192,7 @@ jobs:
             if curl --fail --silent --show-error \
               --header 'X-Source-Id: example' \
               --header 'Backendbase-Api-Key: dast-example-api-key' \
-              http://127.0.0.1:8080/example-api/ > /dev/null; then
+              http://127.0.0.1:8081/example-api/ > /dev/null; then
               exit 0
             fi
 
@@ -209,7 +210,7 @@ jobs:
               --output "$readinessResponse" \
               --write-out '%{http_code}' \
               --header 'X-Source-Id: example' \
-              http://127.0.0.1:8080/example-api/_status/ready
+              http://127.0.0.1:8081/example-api/_status/ready
           )"
           if [[ "$readinessStatus" == '503' ]] && jq --exit-status '
               .checks.mysql == "ready"
@@ -238,7 +239,7 @@ jobs:
             --header 'Content-Type: application/json' \
             --data "$loginPayload" \
             --output "$sessionFile" \
-            http://127.0.0.1:8080/example-api/auth/login
+            http://127.0.0.1:8081/example-api/auth/login
           accessToken="$(jq --exit-status --raw-output '.session.accessToken | select(type == "string" and length > 0)' "$sessionFile")"
           echo "::add-mask::$accessToken"
           echo "DAST_USER_TOKEN=$accessToken" >> "$GITHUB_ENV"
@@ -247,6 +248,7 @@ jobs:
       - name: Run Bruno authenticated Example write sequence
         run: >-
           bin/bruno example-api local example
+          --env-var "baseUrl=http://127.0.0.1:8081/example-api"
           --env-var "apiKey=$EXAMPLE_API_KEY"
           --env-var "accessToken=$DAST_USER_TOKEN"
           --bail
@@ -271,7 +273,7 @@ jobs:
             --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
             --data "$fixturePayload" \
-            http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples
+            http://127.0.0.1:8081/example-api/example-types/system/groups/zap-scan/examples
 
           curl --fail-with-body --silent --show-error \
             --request PATCH \
@@ -282,7 +284,7 @@ jobs:
             --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
             --data '{"lookupValue":"ZAP patched value","typeTargetId":null}' \
-            "http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples/$exampleKey"
+            "http://127.0.0.1:8081/example-api/example-types/system/groups/zap-scan/examples/$exampleKey"
 
           echo "example-key=$exampleKey" >> "$GITHUB_OUTPUT"
 
@@ -304,15 +306,15 @@ jobs:
           }
 
           validPayload='{"lookupKey":"boundary-test","lookupValue":"value","typeTargetId":null}'
-          writeUrl='http://127.0.0.1:8080/example-api/example-types/system/groups/zap-scan/examples'
+          writeUrl='http://127.0.0.1:8081/example-api/example-types/system/groups/zap-scan/examples'
 
           assertStatus 401 'Missing API key' \
             --header 'X-Source-Id: example' \
-            http://127.0.0.1:8080/example-api/
+            http://127.0.0.1:8081/example-api/
           assertStatus 401 'Invalid API key' \
             --header 'Backendbase-Api-Key: invalid-api-key' \
             --header 'X-Source-Id: example' \
-            http://127.0.0.1:8080/example-api/
+            http://127.0.0.1:8081/example-api/
           assertStatus 401 'Missing API key on write' \
             --request POST \
             --header 'Idempotency-Key: dast-write-4' \
@@ -345,7 +347,7 @@ jobs:
             --header 'The-Timezone-IANA: Europe/Istanbul' \
             --header 'Content-Type: application/json' \
             --data '{"lookupValue":[]}' \
-            http://127.0.0.1:8080/example-api/example-types/not-a-type/groups/zap-scan/examples
+            http://127.0.0.1:8081/example-api/example-types/not-a-type/groups/zap-scan/examples
 
       - name: Run OWASP ZAP OpenAPI scan
         env:
@@ -361,7 +363,7 @@ jobs:
             -e ZAP_AUTH_HEADER -e ZAP_AUTH_HEADER_VALUE -e ZAP_AUTH_HEADER_SITE \
             ghcr.io/zaproxy/zaproxy@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef \
             zap-api-scan.py -t artifacts/zap/example-api-openapi.yml -f openapi \
-            -c .zap/rules.tsv -a -T 10 -O http://127.0.0.1:8080/example-api \
+            -c .zap/rules.tsv -a -T 10 -O http://127.0.0.1:8081/example-api \
             -J artifacts/zap/raw/report_json.json -w artifacts/zap/raw/report_md.md -r artifacts/zap/raw/report_html.html \
             -z "-config replacer.full_list(0).description=ExampleApiKey -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Backendbase-Api-Key -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=$EXAMPLE_API_KEY -config replacer.full_list(1).description=SourceId -config replacer.full_list(1).enabled=true -config replacer.full_list(1).matchtype=REQ_HEADER -config replacer.full_list(1).matchstr=X-Source-Id -config replacer.full_list(1).regex=false -config replacer.full_list(1).replacement=example -config replacer.full_list(2).description=ReplayHeader -config replacer.full_list(2).enabled=true -config replacer.full_list(2).matchtype=REQ_HEADER -config replacer.full_list(2).matchstr=Idempotency-Key -config replacer.full_list(2).regex=false -config replacer.full_list(2).replacement=zap-replay-placeholder -config replacer.full_list(3).description=UniqueReplayKey -config replacer.full_list(3).enabled=true -config replacer.full_list(3).matchtype=REQ_HEADER_STR -config replacer.full_list(3).matchstr=zap-replay-placeholder -config replacer.full_list(3).regex=false -config replacer.full_list(3).replacement={{UUID}} -config replacer.full_list(3).extraprocessing=true -config formhandler.fields.field(0).fieldId=typeSlug -config formhandler.fields.field(0).value=system -config formhandler.fields.field(0).enabled=true -config formhandler.fields.field(1).fieldId=exampleGroup -config formhandler.fields.field(1).value=zap-scan -config formhandler.fields.field(1).enabled=true -config formhandler.fields.field(2).fieldId=exampleKey -config formhandler.fields.field(2).value=$EXAMPLE_KEY -config formhandler.fields.field(2).enabled=true -config formhandler.fields.field(3).fieldId=lookupKey -config formhandler.fields.field(3).value=$EXAMPLE_KEY -config formhandler.fields.field(3).enabled=true -config formhandler.fields.field(4).fieldId=lookupValue -config formhandler.fields.field(4).value=zap-scan-value -config formhandler.fields.field(4).enabled=true" || scanStatus=$?
           python3 - <<'PYTHON'

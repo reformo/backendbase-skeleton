@@ -13,6 +13,7 @@ use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Redis;
 use Redislabs\Module\RedisJson\RedisJson;
+use Tests\Support\Services\RedisAuthentication;
 
 use function filter_var;
 use function getenv;
@@ -38,9 +39,7 @@ final class RedisSessionTest extends TestCase
         self::assertIsString($password);
         $this->client = new Redis();
         self::assertTrue($this->client->connect('127.0.0.1', $port, 2, read_timeout: 2));
-        if ($password !== '') {
-            self::assertTrue($this->client->auth($password));
-        }
+        RedisAuthentication::verify($this->client, $password);
 
         $info = $this->client->info('server');
         self::assertIsArray($info);

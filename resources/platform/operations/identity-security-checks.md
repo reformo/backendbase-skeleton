@@ -42,6 +42,24 @@ ZAP authentication tokens are removed from retained reports.
 
 ## ExampleApi checks
 
+The workflow starts ExampleApi on loopback port `8081`.
+Keep port `8080` free because ZAP add-on updates can temporarily bind that default proxy port.
+The workflow uses the same API address for readiness, authentication, Bruno, write fixtures, and the ZAP target override.
+The local Bruno environment keeps its default address. CI overrides `baseUrl` explicitly.
+
+Run the scanner startup regression in an isolated container:
+
+```sh
+docker run --rm --entrypoint python3 --tmpfs /zap/wrk:mode=1777 \
+  --mount "type=bind,src=$PWD/tests/Security/zap_startup.py,dst=/zap/wrk/zap_startup.py,readonly" \
+  ghcr.io/zaproxy/zaproxy@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef \
+  /zap/wrk/zap_startup.py 8081
+```
+
+The fixture retains add-on updates and alpha rules. It verifies API requests and report creation after scanner startup.
+It accepts passive warnings from its dummy HTTP server. The application security workflow retains its existing failure policy.
+Use `8080` as the final argument to reproduce the former bind conflict. That diagnostic run prints the scanner result.
+
 The security workflow configures temporary USER and ADMIN signing keys for its disposable services.
 It seeds a fixture Account and obtains a USER session through ExampleApi login.
 The Bruno `example` folder and Example write fixtures send the API key, bearer token, and required `Idempotency-Key`.
