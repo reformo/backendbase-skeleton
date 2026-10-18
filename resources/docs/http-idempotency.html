@@ -34,12 +34,13 @@
         <strong>Developer guide</strong>
         <a href="#client-contract">4. Client contract</a>
         <a href="#mechanism">5. How it works</a>
-        <a href="#identity">6. Authentication and contact flows</a>
+        <a href="#payment-example">6. Payment example</a>
+        <a href="#identity">7. Authentication and contact flows</a>
         <strong>Operations guide</strong>
-        <a href="#configuration">7. Configuration and rollout</a>
-        <a href="#recovery">8. Cleanup and recovery</a>
-        <a href="#limits">9. Important limits</a>
-        <a href="#verification">10. Verification and sources</a>
+        <a href="#configuration">8. Configuration and rollout</a>
+        <a href="#recovery">9. Cleanup and recovery</a>
+        <a href="#limits">10. Important limits</a>
+        <a href="#verification">11. Verification and sources</a>
     </nav>
     <main id="main-content">
         <section id="overview">
@@ -194,8 +195,134 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
             </details>
         </section>
 
+        <section id="payment-example">
+            <p class="section-label">06 · Hypothetical payment example</p>
+            <h2>Follow one payment from the inbound API to recovery</h2>
+            <p>A customer pays an unpaid order for TRY 259.00. The application must charge once and remain safe when a response is lost.</p>
+            <aside class="callout">
+                <strong>Illustrative design:</strong> The payment API, routes, business records, and provider integration below are hypothetical. They are not implemented Backendbase capabilities.
+                The example applies the existing HTTP replay contract to a proposed payment use case.
+            </aside>
+            <p>Assume the provider supports idempotent charges and payment-status lookup. The application stores payment attempts and permits only one active or successful payment per order.</p>
+            <p>The provider call is synchronous in this example. Receipt delivery is asynchronous. No database transaction remains open during the provider call.</p>
+
+            <div class="diagram-wrap" tabindex="0" role="region" aria-label="Hypothetical payment flow">
+                <ol class="flow guide-flow five">
+                    <li><strong>Inbound API</strong><small>Select the API, route, and authenticated caller.</small></li>
+                    <li><strong>HTTP claim</strong><small>Claim the request or return its stored response.</small></li>
+                    <li><strong>Payment</strong><small>Commit an attempt, then call the provider.</small></li>
+                    <li><strong>Business result</strong><small>Commit payment state and a receipt event.</small></li>
+                    <li><strong>HTTP result</strong><small>Encrypt, store, and return the response.</small></li>
+                </ol>
+            </div>
+
+            <h3>1. The client retains one intended payment</h3>
+            <p>The proposed client generates one key when the customer selects Pay. It retains the same key and request for duplicate clicks and retries.</p>
+            <p>The request uses a provider-issued payment-method token. It contains no card number or card security code. All values below are illustrative.</p>
+            <pre><code>POST /payments-api/payments
+X-Source-Id: payments
+Backendbase-Api-Key: &lt;API key&gt;
+Authorization: Bearer &lt;access token&gt;
+Idempotency-Key: 019f6322-1234-7000-8000-000000000101
+X-Request-Id: 019f6322-1234-7000-8000-000000000102
+Content-Type: application/json
+Accept: application/json
+Accept-Language: en
+The-Timezone-IANA: Europe/Istanbul
+
+{"orderId":"019f6322-1234-7000-8000-000000000103","paymentMethodToken":"pm_example"}</code></pre>
+            <p>The amount and currency come from the server's order record. The payment operation does not trust a client-supplied price.</p>
+
+            <h3>2. The inbound API selects and authenticates the request</h3>
+            <ol class="steps">
+                <li><strong>Bootstrap:</strong> A proposed selector entry maps <code>X-Source-Id: payments</code> to the payment API. Bootstrap validates trace and timezone input.</li>
+                <li><strong>Routing:</strong> The API's module registry resolves POST <code>/payments</code> to a named operation and handler. Its operation ID stays stable.</li>
+                <li><strong>Authentication:</strong> API-key validation and the fixed USER realm policy precede bearer authentication. Current identity and session checks must pass before replay.</li>
+                <li><strong>Replay input:</strong> Shared middleware validates the idempotency header and bounded request body. Authentication and input rejection at this stage create no replay claim.</li>
+            </ol>
+            <p>A browser preflight checks the configured cross-origin policy. OPTIONS does not claim a payment or invoke its business handler.</p>
+
+            <h3>3. The middleware commits the HTTP claim</h3>
+            <p>The scope combines the named operation, USER realm, Account, actor, and client key. The fingerprint includes the request content and relevant headers.</p>
+            <p>A unique MySQL claim lets one request proceed. A matching completed claim returns its stored response before the payment handler runs.</p>
+            <p>A concurrent or unresolved matching request receives 409. Changed content under the same scoped key receives 422. Neither branch calls the provider.</p>
+
+            <h3>4. The application prepares a durable payment attempt</h3>
+            <ol class="steps">
+                <li><strong>HTTP handler:</strong> Validate the JSON fields and construct typed application input. Invoke one application operation.</li>
+                <li><strong>Business authorization:</strong> Verify that the caller can pay this order. Validate the payment-method token through the provider boundary as required.</li>
+                <li><strong>First business transaction:</strong> Lock the order and check its authoritative amount, currency, and payment state.</li>
+                <li><strong>Duplicate protection:</strong> Enforce one active or successful attempt per order with a database constraint and transactional checks.</li>
+                <li><strong>Commit before charging:</strong> Save a pending payment, its payment identifier, and a stable provider-operation key. Commit this transaction before calling the provider.</li>
+            </ol>
+            <p>A different HTTP key can reach this business check. It must not create another charge for an order that already has an active or successful payment.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Payment identifiers and their responsibilities">
+                <table>
+                    <thead><tr><th scope="col">Identifier</th><th scope="col">Owner</th><th scope="col">Purpose</th></tr></thead>
+                    <tbody>
+                        <tr><td>HTTP idempotency key</td><td>Client and shared middleware</td><td>Recognize retries of one HTTP operation and return its stored response.</td></tr>
+                        <tr><td>Payment identifier and provider-operation key</td><td>Payment application</td><td>Identify one durable payment attempt across provider calls, recovery, and different HTTP requests.</td></tr>
+                        <tr><td>Request trace identifier</td><td>Each HTTP attempt</td><td>Connect diagnostic records. It can change between retries.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>5. The provider charges and the application records the result</h3>
+            <ol class="steps">
+                <li><strong>Provider adapter:</strong> Send the stored amount, currency, token, and provider-operation key with an explicit timeout.</li>
+                <li><strong>Provider retries:</strong> Reuse the same provider key and charge parameters within the provider's documented guarantees. Use bounded retries only for transient failures.</li>
+                <li><strong>Validate the result:</strong> Check the provider response, payment reference, amount, currency, and status before accepting success.</li>
+                <li><strong>Second business transaction:</strong> Lock the payment and order. Record the successful charge and mark the order paid.</li>
+                <li><strong>Receipt event:</strong> Write the receipt event to the transactional outbox in the same transaction. Commit payment state and the event together.</li>
+            </ol>
+            <p>The outbox relay can publish more than once. The receipt consumer needs its own durable duplicate protection for delivery.</p>
+            <p>A receipt failure does not repeat the charge. Its delivery retry belongs to the notification flow.</p>
+
+            <h3>6. The API stores the response before returning it</h3>
+            <p>The application returns a declared result after the business commit. The HTTP handler maps that result to a hypothetical 201 response:</p>
+            <pre><code>{"payment":{"id":"019f6322-1234-7000-8000-000000000104","status":"succeeded","amountMinor":25900,"currency":"TRY"}}</code></pre>
+            <p><code>amountMinor</code> expresses the amount in the currency's smallest unit. Here, 25,900 kuruş equals TRY 259.00.</p>
+            <p>The middleware encrypts the status, body, and selected response headers. It completes the replay claim in a separate commit, then returns the response.</p>
+            <p>The HTTP claim, pending-payment record, successful-payment record, and stored HTTP response are separate commits. The provider charge occurs between the business transactions.</p>
+
+            <h3>7. Retries and recovery follow the recorded state</h3>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Payment retry and recovery cases">
+                <table>
+                    <thead><tr><th scope="col">Interruption or retry</th><th scope="col">Recorded state</th><th scope="col">Required behavior</th></tr></thead>
+                    <tbody>
+                        <tr><td>The client loses the completed response.</td><td>Payment succeeded; encrypted HTTP response exists.</td><td>A matching authenticated retry within 24 hours returns the same 201 response. No handler, charge, or receipt event runs again.</td></tr>
+                        <tr><td>Two identical requests arrive together.</td><td>One HTTP claim is active.</td><td>One request proceeds. The other receives 409 until a response is stored or the outcome requires recovery.</td></tr>
+                        <tr><td>The order or token changes under the same key.</td><td>The request fingerprint differs.</td><td>Return 422 before payment execution. Resolve the original attempt before creating a new intended payment.</td></tr>
+                        <tr><td>The process stops after claiming, before charging.</td><td>The HTTP claim is unresolved; a pending payment may exist.</td><td>Keep the claim blocked. Recovery checks durable payment and provider evidence before deciding whether work can continue.</td></tr>
+                        <tr><td>The provider times out or the process stops after a charge.</td><td>The provider may have charged; local payment state can still be pending.</td><td>Query provider status with the stored payment identity. Reconcile the existing attempt before any further charge request.</td></tr>
+                        <tr><td>The charge succeeds but the business commit fails.</td><td>The provider has a successful charge; local success is absent.</td><td>Recover the provider reference and complete the business transaction once. Preserve the original provider key.</td></tr>
+                        <tr><td>The provider confirms a declined charge.</td><td>The payment is recorded as failed; the order remains unpaid.</td><td>Store the documented failure response. A corrected payment attempt needs a new key after the previous attempt is confirmed terminal.</td></tr>
+                        <tr><td>The business commit succeeds but HTTP response storage fails.</td><td>Payment and outbox event exist; HTTP claim remains unresolved.</td><td>Return 503 if possible. Later retries receive 409. Reconcile the exact claim through an authorized recovery process.</td></tr>
+                        <tr><td>An application error response was stored.</td><td>The replay claim is completed with that error.</td><td>A matching retry returns the same error. Recovery of the payment does not automatically replace the stored HTTP response.</td></tr>
+                        <tr><td>Credentials expire or change.</td><td>Payment state is independent of the current token.</td><td>Invalid credentials receive 401. A replacement token changes the fingerprint. Use an authorized payment-status query to establish the outcome.</td></tr>
+                        <tr><td>The HTTP response expires or the client uses another key.</td><td>HTTP middleware can accept a new claim.</td><td>The durable order/payment invariant still prevents another charge. HTTP retention is not the payment's lifetime.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>A proposed GET <code>/payments/{payment-id}</code> would return current payment state after authentication and ownership checks. It needs no idempotency key.</p>
+            <p>Recovery can use provider status lookup or a verified provider callback. Callbacks require signature verification, duplicate-event handling, and transactional state updates.</p>
+            <p>Only a confirmed provider outcome can move an uncertain payment to success or failure. Receipt creation must remain unique during recovery.</p>
+            <aside class="callout warning">
+                <strong>Do not clear evidence to retry a charge.</strong> Keep unresolved HTTP claims and payment attempts while checking the provider.
+                Backendbase has no automatic claim takeover or payment-recovery command. Any payment recovery described here would require a dedicated, authorized implementation.
+            </aside>
+            <p>HTTP encryption and cleanup follow the existing contract. Payment records and provider evidence need their own retention policy.</p>
+            <p>Logs can connect the trace, payment identifier, and safe provider reference. They must exclude credentials, payment-method tokens, and card data.</p>
+            <div class="related">
+                <a href="../platform/operations/http-idempotency.md">HTTP replay and recovery contract</a>
+                <a href="../platform/11-messaging-outbox.md">Transactional outbox</a>
+                <a href="../platform/12-messaging-consumers.md">Consumer duplicate protection</a>
+                <a href="../platform/19-external-services.md">External-service boundaries</a>
+            </div>
+        </section>
+
         <section id="identity">
-            <p class="section-label">06 · Authentication and contact flows</p>
+            <p class="section-label">07 · Authentication and contact flows</p>
             <h2>Replay preserves results and current access checks</h2>
             <ul class="checklist">
                 <li><strong>Login:</strong> A matching retry returns the original token. It does not issue another session, renew token expiry, or restore a revoked session. A fresh login needs a new key.</li>
@@ -209,7 +336,7 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
         </section>
 
         <section id="configuration">
-            <p class="section-label">07 · Configuration and rollout</p>
+            <p class="section-label">08 · Configuration and rollout</p>
             <h2>Prepare the database and secret before activation</h2>
             <div class="table-wrap" tabindex="0" role="region" aria-label="Idempotency configuration">
                 <table>
@@ -240,7 +367,7 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
         </section>
 
         <section id="recovery">
-            <p class="section-label">08 · Operations and support</p>
+            <p class="section-label">09 · Operations and support</p>
             <h2>Remove expired results and preserve uncertain outcomes</h2>
             <p>Run the cleanup command only on the identified, authorized target:</p>
             <pre><code>bin/backendbase idempotency:cleanup</code></pre>
@@ -259,7 +386,7 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
         </section>
 
         <section id="limits">
-            <p class="section-label">09 · Important limits</p>
+            <p class="section-label">10 · Important limits</p>
             <h2>Know what duplicate protection guarantees</h2>
             <ul class="checklist">
                 <li><strong>The key must be reused.</strong> Different keys do not share duplicate protection.</li>
@@ -272,7 +399,7 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
         </section>
 
         <section id="verification">
-            <p class="section-label">10 · Evidence and developer references</p>
+            <p class="section-label">11 · Evidence and developer references</p>
             <h2>Native behavior is verified on isolated services</h2>
             <p>The 18 October 2026 run passed 1,422 tests with 61,118 assertions and zero failures, errors, or skips. Executable-line coverage was 100%.</p>
             <p>MySQL 8.4.11 verified migration execution, independent connections, HTTP replay, conflicts, encryption, expiry, cleanup, and unresolved claims. Query plans selected the request primary key and expiry index.</p>
