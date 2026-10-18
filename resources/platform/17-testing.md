@@ -145,6 +145,8 @@ Verify browser rendering, filtering, refresh, and email previews against existin
 Run `vendor/bin/phpunit tests/Tools/DevelopmentCommandsTest.php` for the shared `bin/dev` environment check.
 These tests cover exact `dev` selection, process precedence over `.env`, rejected modes, missing values, and malformed settings.
 They use temporary project fixtures and stop allowed housekeeping at a command stub before any maintenance work.
+The delayed command regression verifies a fixed assertion total regardless of process duration.
+Keep timeout assertions outside polling loops so process timing cannot change generated report metrics.
 
 For agent instruction changes, include root and context files explicitly because the default targets omit them:
 

@@ -122,6 +122,7 @@ bin/bruno example-api local
 # Report: artifacts/bruno/example-api/local.html</code></pre>
 <p><code>composer test</code> runs PHPUnit, enforces 100% executable-line coverage, then runs <code>tests/Deployment/deployment-scripts.sh</code>.</p>
 <p><code>tests/bootstrap.php</code> changes the working directory to the project root before loading Composer. Project test fixtures use root-relative paths. Module-owned tests can use file-relative paths for fixtures that move with their bounded context.</p>
+<p>Keep timeout assertions outside polling loops. Assertion totals must remain stable across process durations because generated report checks compare them exactly. The development command regression uses a delayed process to verify this rule.</p>
 </section>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>

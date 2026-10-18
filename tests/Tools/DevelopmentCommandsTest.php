@@ -9,6 +9,21 @@ use PHPUnit\Framework\TestCase;
 
 final class DevelopmentCommandsTest extends TestCase
 {
+    public function testProcessDurationDoesNotChangeAssertionTotals(): void
+    {
+        $fixture = DevelopmentCommandFixture::create(null, 150_000);
+        try {
+            $assertionsBeforeCommand = self::getCount();
+            $result                  = $fixture->run('housekeeping.sh', 'dev');
+            $commandAssertions       = self::getCount() - $assertionsBeforeCommand;
+            self::assertSame(42, $result['status']);
+            self::assertTrue($result['started']);
+            self::assertSame(2, $commandAssertions);
+        } finally {
+            $fixture->destroy();
+        }
+    }
+
     #[DataProvider('environments')]
     public function testItChecksTheEnvironmentBeforeRunningCommands(string|null $dotenv, string|null $environment, bool $allowed): void
     {

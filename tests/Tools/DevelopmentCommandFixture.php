@@ -36,7 +36,7 @@ final class DevelopmentCommandFixture
     {
     }
 
-    public static function create(string|null $dotenv): self
+    public static function create(string|null $dotenv, int $commandDelayMicroseconds = 0): self
     {
         $root        = sys_get_temp_dir() . '/development-commands-' . bin2hex(random_bytes(8));
         $projectRoot = dirname(__DIR__, 2);
@@ -51,7 +51,7 @@ final class DevelopmentCommandFixture
             file_put_contents($root . '/.env', $dotenv);
         }
 
-        file_put_contents($root . '/bin/backendbase', '#!' . PHP_BINARY . "\n<?php\nfile_put_contents(dirname(__DIR__) . '/started', 'yes');\nexit(42);\n");
+        file_put_contents($root . '/bin/backendbase', '#!' . PHP_BINARY . "\n<?php\nusleep(" . $commandDelayMicroseconds . ");\nfile_put_contents(dirname(__DIR__) . '/started', 'yes');\nexit(42);\n");
         chmod($root . '/bin/backendbase', 0700);
 
         return new self($root);
@@ -117,9 +117,10 @@ final class DevelopmentCommandFixture
         $deadline = microtime(true) + 5;
         do {
             $status = proc_get_status($process);
-            Assert::assertLessThan($deadline, microtime(true), 'The development command did not finish within five seconds.');
             usleep(10_000);
-        } while ($status['running']);
+        } while ($status['running'] && microtime(true) < $deadline);
+
+        Assert::assertFalse($status['running'], 'The development command did not finish within five seconds.');
 
         return $status['exitcode'];
     }
