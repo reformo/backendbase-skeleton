@@ -147,7 +147,7 @@ Identity Accounts store nullable `first_name` and `last_name` columns as UTF-8 t
 Names have no uniqueness or lookup index. Identity and history reads select them through the Account primary key.
 Accounts store their Argon2id password hash directly in required `password_hash VARCHAR(255)`.
 The credential store reads and writes a string under the existing Account locks. Password hashes have no lookup index.
-Account `state` JSON stores `ownershipVerified`, `enabled`, and `authVersion`.
+Account `state` JSON stores `ownershipVerified`, `enabled`, `authVersion`, and `registrationAccepted`.
 Persist ownership verification as a boolean. Domain snapshots and Doctrine hydration use the same `ownershipVerified` key.
 
 ### Typed identity JSON state
@@ -156,8 +156,10 @@ Identity JSON state uses immutable classes under `IdentityAndAccess/Domain/Primi
 `AccountState` owns Account flags and authentication version. `ActorState` owns User and Admin approval fields.
 `ContactState` represents the existing Contact snapshot, including its duplicated column values.
 These classes implement `JsonSerializable`. Their `jsonSerialize()` methods delegate to `toArray()`.
-`fromArray()` requires every declared field, validates its PHP type, and rejects unknown or numeric keys.
-Nullable fields must be present. Missing values never receive defaults.
+`fromArray()` validates exact PHP types and rejects unknown or numeric keys. Nullable fields must be present.
+Account state has one compatibility rule: missing `registrationAccepted` derives from the required, validated `ownershipVerified` boolean.
+This preserves legacy authentication decisions without a data rewrite. An explicit acceptance value must be a boolean.
+All other declared fields remain required. New Account writes include the acceptance field.
 Business transitions and authorization decisions remain on the existing aggregates.
 
 Each Doctrine entity keeps its mapped `state` field as an array.
@@ -172,7 +174,8 @@ Public readonly fields support mapping. They do not authorize callers to move bu
 Immutable state classes are exempt from the two-property limit. They must keep typed readonly fields and explicit validated reconstruction.
 Do not serialize these objects into public responses or logs. Contact state includes internal code hashes and contact data.
 
-The JSON shapes, mapped column types, and indexes stay unchanged. This change needs no migration.
+The Account JSON shape adds registration acceptance. Mapped column types and indexes stay unchanged. No schema migration is required.
+Stop mixed-version application access before new state writes. Older readers reject the new field. Clear mapping caches during rollout.
 Contact hydration still takes identity, ownership references, verification time, and revision from mapped columns.
 The corresponding JSON copies remain stored for compatibility and do not override those columns.
 Existing rows with the declared keys and types remain readable. Unknown fields now cause an explicit failure.
@@ -185,7 +188,8 @@ An existing database needs a separate reviewed conversion and migration-history 
 `DoctrineContactStore` locks verification evidence by its binary primary key.
 Its context-slot lookup uses the unique `(context_hash, realm, purpose, contact_type)` index.
 Registration looks up the email slot, then the mobile slot, before reading UTC time.
-The mobile proof is required. Matching fresh email evidence is optional. Both lookups retain the existing context-slot index.
+The deployment policy selects required mobile and email proofs. Matching fresh optional evidence is also consumed.
+No context lookup occurs when the token is omitted under the no-proof policy. Existing lookups retain the context-slot index.
 Bound evidence also checks current Account and actor state under Account-first locks.
 No contact lookup requires a separate Account index.
 

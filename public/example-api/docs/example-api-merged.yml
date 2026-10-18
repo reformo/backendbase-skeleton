@@ -4924,7 +4924,6 @@ components:
         - email
         - mobile
         - password
-        - verificationContextToken
       type: object
       properties:
         firstName:
@@ -4944,8 +4943,8 @@ components:
           minLength: 43
           pattern: '^[A-Za-z0-9_-]{43}$'
           type: string
-          description: 'Client-generated 32-byte random secret encoded as canonical unpadded base64url. Keep this token for both contacts.'
-          writeOnly: true
+          description: 'Required and non-null when either verification setting is enabled. May be omitted or null only when neither is required. A supplied token must be canonical unpadded base64url for 32 random bytes.'
+          nullable: true
         email:
           maxLength: 254
           type: string
@@ -4963,7 +4962,7 @@ components:
           type: string
           description: 'UTF-8, at most 512 bytes, without null bytes.'
           format: password
-      description: 'Required email and mobile values. Only mobile verification is required before registration. Matching fresh email evidence is optional. Contact identifiers are rejected.'
+      description: 'Email, mobile, and password are required. Deployment settings independently require mobile and email verification. The default requires mobile only. Each required proof must be fresh and match this context and contact value. Valid optional proofs are consumed. Contact identifiers are rejected.'
       additionalProperties: false
     Session:
       required:

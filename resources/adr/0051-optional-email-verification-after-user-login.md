@@ -4,6 +4,7 @@
 - **Date:** 2026-10-18
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
+- **Partially superseded by:** [ADR-0052](0052-configurable-registration-verification.md) for configurable registration proof requirements and separate User registration acceptance.
 - **Supersedes:** The registration email requirement, client-selected evidence identifiers, and registration lock order in [ADR-0050](0050-contact-verification-before-user-registration.md).
 
 ## Context and Problem Statement

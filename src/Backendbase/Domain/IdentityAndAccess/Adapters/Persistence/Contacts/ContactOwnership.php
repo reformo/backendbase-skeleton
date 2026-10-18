@@ -28,8 +28,8 @@ final readonly class ContactOwnership
         $records->refreshPersistedUnderLock($accountRecord, true);
         $account      = $accountRecord->toDomain();
         $accountState = $account->snapshot();
-        $account->assertSessionAllowed($accountState['authVersion']);
-        $realm       = Realm::from($state['realm']);
+        $realm        = Realm::from($state['realm']);
+        $account->assertSessionAllowed($accountState['authVersion'], $realm);
         $actorRecord = $records->actor($realm, $state['actorId']);
         $records->refreshPersistedUnderLock($actorRecord, false);
         $actor = $actorRecord->toDomain();

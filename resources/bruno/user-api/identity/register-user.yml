@@ -1,3 +1,6 @@
+# Uses the default registration policy: verified mobile, optional verified email.
+# Verify each contact required by the target deployment with the same context token.
+# If neither proof is required, omit verificationContextToken or set it to null.
 info:
   name: 'Register User'
   type: http

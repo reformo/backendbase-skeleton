@@ -37,6 +37,34 @@ Contact registration tests use the actual context and evidence locks. SQLite doe
 
 ## Latest isolated regression evidence
 
+The full suite passed on 18 October 2026 with configurable registration and kebab-case configuration changes present.
+
+| Evidence | Recorded value |
+| --- | --- |
+| Source | Working tree based on `ea72606db607e1d8951249da6be81d0d959ec417` |
+| Operator | Automated local fixture runner |
+| UTC interval | 13:13:22 to 13:18:56, including preparation, verification, deployment fixtures, and cleanup |
+| Runtime | PHP 8.5.6, PHPUnit 13.4.3, PCOV 1.0.12 |
+| Services | MySQL 8.4.11; standalone Redis, failover nodes, and Sentinels use Redis 8.10.2 |
+| MySQL and Redis project | `backendbase-native-verification-1792329202-26171`; localhost ports 52678 and 52677 |
+| Failover project | `backendbase-redis-failover-1792329207-26195`; separate bridge network and random localhost ports |
+| Data and schema | Generated records in unique MySQL databases. MySQL and Redis data use temporary memory mounts. |
+| Suite result | 1,527 tests, 72,701 assertions, zero failures, zero errors, zero skips |
+| Coverage | 6,858 of 6,858 executable lines; 1,604 of 1,604 methods |
+| Cleanup | Both projects have no remaining containers, including stopped containers, networks, or volumes. Exact project-label checks confirm cleanup. |
+
+All 64 previously skipped identities pass: 33 MySQL, 23 standalone Redis, and eight Sentinel cases.
+Each class and case name matches the saved default-suite skip list.
+Deployment, rollback, fresh-installation, maintenance-failure, and release-manifest compatibility checks pass.
+No code correction was required for this run.
+
+Local evidence is under `artifacts/service-verification/registration`.
+It includes baseline and native JUnit results, coverage, matched case identities, service versions, target ports, logs, and cleanup records.
+Sentinel cases retain their isolated SQLite identity store.
+Live HTTP acceptance, index-plan measurements, security scans, and static analysis retain their earlier verification scopes.
+
+## HTTP replay evidence on 18 October 2026
+
 The full suite passed on 18 October 2026 after adding native HTTP replay coverage.
 
 | Evidence | Recorded value |

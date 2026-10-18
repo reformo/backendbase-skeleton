@@ -80,7 +80,7 @@ class Account
     {
         $state = $account->snapshot();
         $this->assertRevision($state['revision']);
-        $accountState       = AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']]);
+        $accountState       = AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion'], 'registrationAccepted' => $state['registrationAccepted']]);
         $this->email        = $state['email'];
         $this->mobile       = $state['mobile'];
         $this->firstName    = $state['firstName'] ?? null;

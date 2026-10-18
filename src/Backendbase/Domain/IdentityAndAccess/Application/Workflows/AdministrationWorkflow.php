@@ -36,7 +36,7 @@ final readonly class AdministrationWorkflow
             $currentGate->assertCurrent($principal);
             $account = $currentStore->account($input->accountId());
             $state   = $account->snapshot();
-            $account->assertSessionAllowed($state['authVersion']);
+            $account->assertSessionAllowed($state['authVersion'], Realm::ADMIN);
             $identity = $principal->identity();
             $actor    = SystemAdmin::invite($id, IdentityId::fromString($account->id()), 'invite:' . $identity['actorId'] . ':' . $input->evidence(), $now);
             $currentStore->saveActor($actor);
@@ -71,7 +71,7 @@ final readonly class AdministrationWorkflow
             $state        = $actor->snapshot();
             $account      = $currentStore->account($state['accountId']);
             $accountState = $account->snapshot();
-            $account->assertSessionAllowed($accountState['authVersion']);
+            $account->assertSessionAllowed($accountState['authVersion'], Realm::ADMIN);
             $actor->approve('approve:' . $identity['actorId'] . ':' . $input->evidence());
             $currentStore->saveActor($actor);
         });

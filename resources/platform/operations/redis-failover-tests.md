@@ -70,8 +70,8 @@ The failover runner supplies `BACKENDBASE_REDIS_FAILOVER_TESTS=1` and its genera
 Ordinary PHPUnit runs skip these eight cases when that runner is absent.
 Quality and release workflows run the full suite through the failover runner while retaining their separate service containers.
 
-The latest 18 October 2026 isolated run passes all eight failover cases in the 1,422-test suite with zero skipped tests.
-It used Redis 8.10.2 and removed all generated containers and networks after completion.
+The latest 18 October 2026 isolated run passes all eight failover cases in the 1,527-test suite with zero skipped tests.
+It used Redis 8.10.2 and removed all generated containers, networks, and volumes after completion.
 See [the recorded service evidence](identity-acceptance.md#latest-isolated-regression-evidence) for targets, versions, and the UTC interval.
 
 Startup, Docker commands, replication discovery, and promotion use finite deadlines.

@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\SessionLifetime;
+use Backendbase\Domain\IdentityAndAccess\Domain\Registration\RegistrationPolicy;
 use Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
+use Backendbase\Infrastructure\Configuration\Identity\RegistrationSettings;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Translator;
@@ -17,6 +19,11 @@ use Psr\Container\ContainerInterface;
 
 return static function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
+        RegistrationPolicy::class => static function (ContainerInterface $container): RegistrationPolicy {
+            $settings = $container->get(RegistrationSettings::class);
+
+            return $settings->policy();
+        },
         SessionLifetime::class => static function (ContainerInterface $container): SessionLifetime {
             $settings = $container->get(IdentitySettings::class);
 

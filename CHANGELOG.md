@@ -12,6 +12,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 - Require kebab-case for project-owned configuration keys and file names. Rename runtime providers, nested settings, subscriber registrations, and release policy keys. Update consumers, tests, and documentation. Preserve external option names, environment variables, public payloads, and generated deployment contracts.
 
+- Configure User registration mobile and email proof requirements independently. Preserve mobile-only verification by default. Store registration acceptance separately from ownership, preserve legacy accounts and sessions, retain Admin ownership checks, and allow omission of the context token when neither proof is required. Update API contracts, configuration, documentation, and regression coverage.
+
+- Verify all 64 skipped service cases with temporary MySQL, Redis, and Sentinel targets. Record the full 1,527-test run with zero skips, complete coverage, and confirmed environment cleanup.
+
 - Add PHP examples to the hypothetical HTTP idempotency payment walkthrough. Show route registration, existing replay middleware, payment transactions, response mapping, and provider-status recovery.
 
 - Add a hypothetical payment walkthrough to the HTTP idempotency guide, covering inbound routing, authentication, claims, provider calls, transactions, response replay, and recovery.

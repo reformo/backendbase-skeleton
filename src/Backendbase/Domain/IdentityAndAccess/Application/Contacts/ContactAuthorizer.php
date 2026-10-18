@@ -60,7 +60,7 @@ final readonly class ContactAuthorizer
         if ($principal !== null) {
             $identity = $principal->identity();
             $account  = $store->account($identity['accountId']);
-            $account->assertSessionAllowed($identity['authVersion']);
+            $account->assertSessionAllowed($identity['authVersion'], $values['realm']);
             $actor = $store->actor($values['realm'], $identity['actorId']);
             $actor->assertSessionAllowed();
             $state = $actor->snapshot();
@@ -82,7 +82,7 @@ final readonly class ContactAuthorizer
         $state        = $actor->snapshot();
         $account      = $store->account($state['accountId']);
         $accountState = $account->snapshot();
-        $account->assertSessionAllowed($accountState['authVersion']);
+        $account->assertSessionAllowed($accountState['authVersion'], Realm::ADMIN);
         $credentials = $this->credentials;
         $password    = $login->password();
         $credentials->assertPassword($state['accountId'], $password);

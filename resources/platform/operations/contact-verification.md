@@ -1,11 +1,16 @@
 # Contact Verification
 
-User registration requires email and mobile input. Only mobile verification is required before creating identity records.
-Email verification is optional before registration and available after login.
+User registration requires email and mobile input. Deployment settings independently require mobile and email verification.
+The default requires mobile verification and leaves email verification optional. Both or neither can also be required.
+Email verification remains available after login. See [registration configuration](../15-configuration.md#registration-verification-policy).
+Registration acceptance is stored separately from ownership evidence. Configuration changes affect new registrations only.
 IdentityAndAccess owns `contact_verification`. Each row records one contact slot, purpose, realm, and verification context.
 The Account remains the owner of the email and mobile used for login.
 
 ## User API flow
+
+The following sequence uses the default policy. Verify each configured required contact before registration.
+When neither proof is required, skip verification and omit the context token, or supply a token for optional evidence.
 
 1. Generate 32 random bytes with a cryptographic random generator.
 2. Encode the bytes as canonical unpadded base64url.
@@ -21,18 +26,22 @@ The Account remains the owner of the email and mobile used for login.
 Registration fields are `email`, `mobile`, `password`, and `verificationContextToken`.
 The server rejects `emailContactInfoId` and `mobileContactInfoId` as unknown registration fields.
 It finds contact slots through the context token, USER realm, registration purpose, and contact type.
-The required mobile value must match its verification evidence exactly after normalization.
+Each required contact value must match its verification evidence exactly after normalization.
+The context token is required and non-null when either verification setting is enabled.
+When neither is enabled, the token can be omitted or null. A supplied token must still be valid.
 The server rejects required evidence from another context, purpose, or realm.
 Email is lowercase ASCII. Mobile uses E.164 format without spaces or inferred country codes.
 
-The required mobile verification timestamp must precede or equal server time and be less than 12 hours old.
+Each required verification timestamp must precede or equal server time and be less than 12 hours old.
 Evidence exactly 12 hours old is expired. This deadline applies only to registration.
 Normal login remains available after that interval.
 
-Registration looks up and locks email first, then mobile, before reading the authorization time.
-It consumes fresh matching mobile evidence and creates identity records in one transaction.
-It also consumes matching, unused email evidence when that evidence meets the same freshness requirement.
-Missing, unconfirmed, expired, future, consumed, or different email evidence does not block registration.
+When a context is supplied, registration locks email first, then mobile, before reading the authorization time.
+It validates all required evidence before creating identity records or consuming proofs.
+It consumes required and matching, unused optional evidence in the same transaction as identity creation.
+Missing, unconfirmed, expired, future, consumed, or different optional evidence does not block registration.
+Successful registration sets `registrationAccepted: true`. It sets `ownershipVerified: true` only when evidence is consumed.
+Registration without evidence leaves ownership unverified. User login uses stored acceptance; Admin authentication still requires ownership.
 Rollback preserves all selected proofs. Concurrent registration permits only one successful consumption.
 Account uniqueness constraints remain the final guard for duplicate email and mobile.
 

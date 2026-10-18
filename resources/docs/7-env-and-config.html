@@ -960,7 +960,14 @@ composer run start-apis</code></pre></div>
                 </table>
             </div>
         </section>
-    </main>
+    <section id="registration-verification-policy">
+    <h2>Registration verification policy</h2>
+    <p><code>identity.registration.require-mobile-verification</code> defaults to <code>true</code>. <code>identity.registration.require-email-verification</code> defaults to <code>false</code>.</p>
+    <p>The environment variables are <code>BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_MOBILE_VERIFICATION</code> and <code>BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_EMAIL_VERIFICATION</code>. Values must be exactly <code>true</code> or <code>false</code>.</p>
+    <p>The settings apply to new User registrations in UserApi and ExampleApi. Both contacts, one contact, or neither contact can require proof. Existing Accounts and sessions use stored acceptance. Admin ownership rules remain unchanged.</p>
+    <p>Clear input-mapping caches during deployment. Prevent mixed-version access before writing the new Account state field. See <a href="../platform/15-configuration.md#registration-verification-policy">the complete configuration contract</a>.</p>
+</section>
+</main>
 </div>
 
 <footer>

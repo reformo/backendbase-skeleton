@@ -11,7 +11,7 @@ use DateTimeImmutable;
 
 final class Account
 {
-    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
+    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, registrationAccepted: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
     private function __construct(private readonly IdentityId $id, private array $state)
     {
         new AccountEmail($state['email']);
@@ -28,13 +28,19 @@ final class Account
         $profile    = $names ?? new AccountNames();
         $nameValues = $profile->snapshot();
 
-        return new self($id, [...$nameValues, 'email' => $emailValue, 'mobile' => $mobileValue, 'ownershipVerified' => false, 'enabled' => true, 'authVersion' => 1, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $createdAt]);
+        return new self($id, [...$nameValues, 'email' => $emailValue, 'mobile' => $mobileValue, 'ownershipVerified' => false, 'registrationAccepted' => false, 'enabled' => true, 'authVersion' => 1, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $createdAt]);
     }
 
-    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
+    /** @param array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, registrationAccepted?: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} $state */
     public static function reconstitute(IdentityId $id, array $state): self
     {
-        return new self($id, $state);
+        return new self($id, ['registrationAccepted' => $state['ownershipVerified'], ...$state]);
+    }
+
+    public function acceptRegistration(): void
+    {
+        $this->assertActive();
+        $this->state['registrationAccepted'] = true;
     }
 
     public function verifyOwnership(): void
@@ -50,17 +56,19 @@ final class Account
         }
     }
 
-    public function assertSessionAllowed(int $expectedVersion): void
+    public function assertSessionAllowed(int $expectedVersion, Realm $realm): void
     {
         $this->assertActive();
-        if (! $this->state['ownershipVerified'] || $this->state['authVersion'] !== $expectedVersion) {
+        $state    = $this->state;
+        $accepted = $realm === Realm::USER ? $state['registrationAccepted'] : $state['ownershipVerified'];
+        if (! $accepted || $state['authVersion'] !== $expectedVersion) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
     }
 
     public function startSession(Realm $realm, Actor $actor): Principal
     {
-        $this->assertSessionAllowed($this->state['authVersion']);
+        $this->assertSessionAllowed($this->state['authVersion'], $realm);
         $accountId = $this->id();
         $actor->assertSessionIdentity($realm, $accountId);
         $actorId           = $actor->id();
@@ -93,7 +101,7 @@ final class Account
         return $id->toString();
     }
 
-    /** @return array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} */
+    /** @return array{firstName?: string|null, lastName?: string|null, email: string, mobile: string, ownershipVerified: bool, registrationAccepted: bool, enabled: bool, authVersion: int, deletedAt: string|null, revision: int, createdAt: string} */
     public function snapshot(): array
     {
         return $this->state;

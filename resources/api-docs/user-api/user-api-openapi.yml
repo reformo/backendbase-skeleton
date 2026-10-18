@@ -44,14 +44,13 @@ components:
       bearerFormat: JWT
   schemas:
     RegistrationInput:
-      description: Required email and mobile values. Only mobile verification is required before registration. Matching fresh email evidence is optional. Contact identifiers are rejected.
+      description: Email, mobile, and password are required. Deployment settings independently require mobile and email verification. The default requires mobile only. Each required proof must be fresh and match this context and contact value. Valid optional proofs are consumed. Contact identifiers are rejected.
       type: object
       additionalProperties: false
       required:
         - email
         - mobile
         - password
-        - verificationContextToken
       properties:
         firstName:
           type: string
@@ -66,7 +65,12 @@ components:
           maxLength: 160
           description: 'Optional Account last name. Reject surrounding spaces and control characters.'
         verificationContextToken:
-          $ref: '#/components/schemas/VerificationContextToken'
+          type: string
+          nullable: true
+          minLength: 43
+          maxLength: 43
+          pattern: '^[A-Za-z0-9_-]{43}$'
+          description: 'Required and non-null when either verification setting is enabled. May be omitted or null only when neither is required. A supplied token must be canonical unpadded base64url for 32 random bytes.'
         email:
           type: string
           format: email

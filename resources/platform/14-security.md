@@ -46,26 +46,30 @@ Each Account can have at most one User and one Admin, including removed actor ro
 Account email and mobile are each globally unique among active Accounts. Actors have no username.
 ASCII normalization lowercases accepted email addresses. Mobile numbers use E.164 format: a plus sign and 2 to 15 digits.
 Reject whitespace, domestic formatting, extensions, non-ASCII email, and non-ASCII digits. Do not infer a country code.
-Registration requires email, mobile, password, and the mobile verification context token. Contact identifier fields are rejected. Login requires `identifier` and `password`.
+Registration requires email, mobile, and password. The context token is required when either configured contact proof is required. Contact identifier fields are rejected. Login requires `identifier` and `password`.
 The identifier accepts email or mobile. Resolve the Account before selecting its actor in the trusted realm.
 Admin invitations use an existing Account and evidence. They do not introduce separate login identifiers.
 Current identity and actor history responses expose Account email and mobile. Tokens do not contain contact fields.
 Account closure releases both active contact keys. Actor removal preserves the Account contact reservations.
 
 Contact ownership, actor approval, and password authentication establish separate facts.
-Account `state.ownershipVerified` records whether the ownership requirement is satisfied. It starts as `false`.
-User registration sets it to `true` after the required mobile proof passes. The trusted initial Admin bootstrap also attests ownership.
-Login and session validation require `ownershipVerified: true`, an enabled Account, and the applicable actor checks.
-Verify mobile through the public contact endpoints before User registration. Email verification is optional.
+Account `state.registrationAccepted` records successful User registration under the policy in effect at creation.
+Account `state.ownershipVerified` records ownership attested at registration or trusted Admin bootstrap. Both flags start as `false`.
+Registration sets acceptance after all configured proof requirements pass. It verifies ownership only when evidence is consumed.
+User login and session validation require acceptance. Admin authentication and enrollment retain the ownership requirement.
+Both realms also require an enabled Account, the current authentication version, and the applicable actor checks.
+Legacy state without acceptance derives that value from validated ownership. Reads do not rewrite records or invalidate existing sessions.
+The default registration policy requires mobile proof and permits optional email proof. Each requirement is independently configurable.
+Configuration changes affect new registrations. They do not recheck accepted Accounts or alter token claims.
 Registration resolves evidence by submitted values and context. It locks email first, then mobile, before checking the 12-hour evidence window.
-Matching fresh email evidence is consumed when present. Missing or unusable email evidence does not block registration.
+Matching fresh optional evidence is consumed when present. Missing or unusable optional evidence does not block registration.
 Authenticated Users can verify their stored email through `/identity/contact-verifications` with a separate Account-bound purpose.
 Email verification preserves ownership and sessions. It cannot authorize registration or change the stored email.
 Codes expire after five minutes. Failed attempts, resend limits, and delivery identities are contact-specific.
 Optional Admin verification preserves ownership, credential versions, and existing sessions.
 See [contact verification](operations/contact-verification.md) for request fields, state transitions, quotas, and error contracts.
 
-Password verification issues a session only after ownership, Account state, and actor approval checks pass.
+Password verification issues a session after the realm-specific Account gate, Account state, and actor approval checks pass.
 Account.startSession owns current-version principal creation. Actor.assertSessionIdentity checks approval, removal, realm, and Account membership.
 AuthenticationGate and LoginWorkflow do not inspect aggregate snapshots for these decisions.
 LoginWorkflow and ContactAuthorizer call Credentials directly. LoginAuthentication selects expiry after the login transaction.

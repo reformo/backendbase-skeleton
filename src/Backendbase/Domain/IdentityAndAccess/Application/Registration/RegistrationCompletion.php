@@ -33,7 +33,11 @@ final readonly class RegistrationCompletion
         $mobile           = $input->mobile();
         $names            = $input->names();
         $account          = Account::create($accountId, $email, $mobile, $now, $names);
-        $account->verifyOwnership();
+        $account->acceptRegistration();
+        if ($contacts !== []) {
+            $account->verifyOwnership();
+        }
+
         $actor = User::create($actorId, $accountId, $now);
         $store->saveAccount($account);
         $store->saveActor($actor);

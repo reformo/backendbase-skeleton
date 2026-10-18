@@ -56,7 +56,8 @@ Starting source revision: `ddc9946`.
 | [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Required Account email and E.164 mobile replace actor usernames. Email uses lowercase ASCII normalization. Database constraints enforce global active contact uniqueness and lifetime actor cardinality. |
 | [ADR-0049](0049-password-authentication-without-totp.md) | Implemented | Password login issues realm sessions after ownership, Account state, and actor approval checks. |
 | [ADR-0050](0050-contact-verification-before-user-registration.md) | Partially superseded by ADR-0051 | Code, context, delivery, quotas, and optional Admin verification remain implemented. |
-| [ADR-0051](0051-optional-email-verification-after-user-login.md) | Implemented; isolated verification below | Email input remains required. Mobile proof permits registration. Stored email can be verified after login. |
+| [ADR-0051](0051-optional-email-verification-after-user-login.md) | Partially superseded by ADR-0052 | Email input remains required. Stored email can be verified after login. |
+| [ADR-0052](0052-configurable-registration-verification.md) | Implemented | Independent mobile and email proof settings govern new registration. Stored acceptance is separate from ownership. Legacy accounts and sessions retain authorization. |
 
 ## Verification
 

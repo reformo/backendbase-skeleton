@@ -40,7 +40,7 @@ final readonly class AdminSeedRows
             'last_name' => $state['lastName'] ?? null,
             'created_at' => $state['createdAt'],
             'deleted_at' => null,
-            'state' => json_encode(AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion']]), JSON_THROW_ON_ERROR),
+            'state' => json_encode(AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion'], 'registrationAccepted' => $state['registrationAccepted']]), JSON_THROW_ON_ERROR),
             'password_hash' => password_hash($password->forHashing(), PASSWORD_ARGON2ID),
         ], ['id' => ParameterType::BINARY]);
         $actorId = $admin->id();

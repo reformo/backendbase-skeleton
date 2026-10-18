@@ -22,7 +22,7 @@ use DateTimeImmutable;
 
 final class StateExamples
 {
-    public const array ACCOUNT = ['ownershipVerified' => false, 'enabled' => true, 'authVersion' => 1];
+    public const array ACCOUNT = ['ownershipVerified' => false, 'enabled' => true, 'authVersion' => 1, 'registrationAccepted' => false];
     public const array ACTOR   = ['approved' => false, 'invitation' => 'invitation', 'approval' => null];
     public const array CONTACT = [
         'realm' => 'USER',

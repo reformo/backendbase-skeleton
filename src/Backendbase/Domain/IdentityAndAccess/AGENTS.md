@@ -9,13 +9,17 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Keep Account identity separate from actor identity. One Account can own at most one actor of each type, including removed records.
 - Keep USER and ADMIN authentication realms separate. The JWT `sub` identifies the actor; `accountId` identifies the Account.
 - Keep contact ownership, password authentication, and Admin approval as separate checks.
-- Persist Account ownership verification as `state.ownershipVerified`. Keep it separate from Account enablement and Admin approval.
+- Persist User registration acceptance as `state.registrationAccepted`. Keep it separate from `state.ownershipVerified`, Account enablement, and Admin approval.
+- User login and sessions require stored registration acceptance. Admin login, enrollment, and sessions retain verified ownership. Never reapply registration configuration to existing identities.
+- Read legacy Account state without `registrationAccepted` by deriving acceptance from its validated `ownershipVerified` value. Do not rewrite records during reads.
 - Apply the [default JSON column policy](../../../../resources/platform/09-persistence.md#json-column-policy) to identity state without a mapping exception.
 - Represent identity JSON state with immutable `AccountState`, `ActorState`, and `ContactState` classes under `Domain/Primitives`.
 - Keep Doctrine state fields as arrays. Use typed `state()` reads and `replaceState()` writes with explicit `fromArray()` and `toArray()` conversion.
 - Reject missing, mistyped, and unknown state fields. Keep storage serialization out of public responses and diagnostic logs.
-- Require email and mobile input before User registration. Require fresh mobile proof. Find evidence by the submitted contact values and context token.
-- Lock email and mobile slots in that order before checking time. Consume required mobile and matching fresh optional email evidence atomically with identity creation.
+- Require email and mobile input before User registration. Apply independent mobile and email proof requirements from the deployment policy. Default to required mobile and optional email.
+- Require a context token when either proof is required. Permit omission or null only when neither is required. Validate every supplied token. Find evidence by submitted values and context.
+- When a context is supplied, lock email and mobile slots in that order before checking time. Consume required and matching fresh optional proofs atomically with identity creation.
+- Accept registration after all configured requirements pass. Mark ownership verified only when registration consumes evidence. Keep later contact verification records separate.
 - Permit authenticated Users to verify their stored Account email after login. Bind evidence to the USER realm, Account, and actor. Preserve ownership and sessions.
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.
 - Store the Argon2id password hash directly in `account.password_hash`. Keep the credential port scalar and preserve Account locks and state checks.
@@ -40,7 +44,7 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Keep reusable identity HTTP input, dispatch, and policy support in [Adapters/Http/Identity](../../Infrastructure/Adapters/Http/Identity). Keep administration input inside SystemAdminApi's Administration module.
 - Read [authentication rules](../../../../resources/platform/14-security.md) for token, login, and session changes.
 - Read [contact verification](../../../../resources/platform/operations/contact-verification.md) for proof, quota, delivery, and recovery changes.
-- Use [ADR-0036](../../../../resources/adr/0036-single-identity-and-access-context-and-global-accounts.md), [ADR-0049](../../../../resources/adr/0049-password-authentication-without-totp.md), and [ADR-0051](../../../../resources/adr/0051-optional-email-verification-after-user-login.md) for current scope and decisions.
+- Use [ADR-0036](../../../../resources/adr/0036-single-identity-and-access-context-and-global-accounts.md), [ADR-0049](../../../../resources/adr/0049-password-authentication-without-totp.md), [ADR-0051](../../../../resources/adr/0051-optional-email-verification-after-user-login.md), and [ADR-0052](../../../../resources/adr/0052-configurable-registration-verification.md) for current scope and decisions.
 - Use [session recovery](../../../../resources/platform/operations/identity-session-recovery.md) for allowlist loss or restoration.
 
 ## Verification and maintenance

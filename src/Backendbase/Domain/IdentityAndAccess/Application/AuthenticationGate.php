@@ -37,8 +37,8 @@ final readonly class AuthenticationGate
 
         $identity = $principal->identity();
         $account  = $currentStore->account($identity['accountId']);
-        $account->assertSessionAllowed($identity['authVersion']);
-        $realm = $principal->realm();
+        $realm    = $principal->realm();
+        $account->assertSessionAllowed($identity['authVersion'], $realm);
         $actor = $currentStore->actor($realm, $identity['actorId']);
         $actor->assertSessionIdentity($realm, $identity['accountId']);
     }

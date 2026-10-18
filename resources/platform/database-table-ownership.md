@@ -52,7 +52,8 @@ Admin state retains invitation and approval evidence. A database-scoped lock ser
 The seeder creates no User or contact evidence.
 
 Pre-registration contacts have no identity owner. Registration locks email, then mobile, before reading the authorization time.
-Only mobile proof is required. Matching fresh email proof is consumed when present.
+The registration policy selects required contact proofs. Matching fresh optional proofs are consumed when present.
+Account state keeps `registrationAccepted` separate from ownership. Legacy state derives acceptance from its existing ownership value.
 Post-login User email verification binds the Account and User actor under the separate `user-contact-verification` purpose.
 Historical projections include removed actors and join their retained Account for email and mobile.
 The Account primary key supports this join. Historical reads do not acquire write locks.

@@ -104,3 +104,34 @@ Both session storage and readiness use that connection and its typed context. Re
 HTTP write replay requires `BACKENDBASE_IDEMPOTENCY_KEY`, a dedicated base64-encoded 32-byte secret shared by API instances.
 `ReplaySettings` validates it lazily. There is no deployment default.
 Keep the key through retained responses and unresolved claims. See [HTTP idempotency](operations/http-idempotency.md).
+
+## Registration verification policy
+
+`identity.registration` defines two independent settings for new User registrations in UserApi and ExampleApi.
+`RegistrationSettings` validates the values and supplies the context-owned `RegistrationPolicy` through the production container.
+
+| Setting | Environment variable | Default |
+| --- | --- | --- |
+| `require-mobile-verification` | `BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_MOBILE_VERIFICATION` | `true` |
+| `require-email-verification` | `BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_EMAIL_VERIFICATION` | `false` |
+
+PHP configuration accepts booleans. Environment values must be exactly `true` or `false`.
+Empty, null, numeric, padded, and other values are rejected. Missing settings retain their defaults.
+Settings validation occurs when the registration dependency is resolved. Invalid configuration does not disable verification.
+
+| Mobile required | Email required | Required proof |
+| --- | --- | --- |
+| `true` | `false` | Mobile only |
+| `false` | `true` | Email only |
+| `true` | `true` | Both contacts |
+| `false` | `false` | Neither contact |
+
+Email and mobile input remain required and unique among active Accounts in every mode.
+Optional proof remains usable. These settings do not disable contact verification endpoints or select notification providers.
+User authentication uses stored registration acceptance. It never reapplies current registration requirements to existing Accounts.
+Admin ownership and approval rules remain unchanged. Later User verification remains limited to the stored email.
+The API schema documents conditional token requirements. No policy discovery endpoint is added; clients must use the deployment policy.
+
+Clear mapping caches when deploying the changed registration input. Restart long-running processes after changing settings.
+Coordinate policy values across API instances. Stop mixed-version access before writing the new Account JSON field.
+Existing Account records and session claims need no rewrite. See [ADR-0052](../adr/0052-configurable-registration-verification.md).

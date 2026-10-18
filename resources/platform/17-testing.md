@@ -100,7 +100,9 @@ Identity health tests execute both API route maps. Liveness skips dependency che
 
 Identity adapter tests cover retry limits, rollback, manager disposal, managed-record locks, stale revisions, and generated projection validation.
 User email tests cover registration without email proof, stored-email verification after login, resend, expiry, and Account isolation.
-Ownership state tests persist and reload both boolean values through `ownershipVerified`. Seeder and login tests reject unverified ownership.
+Ownership state tests persist and reload both boolean values through `ownershipVerified`. Admin and seeder checks retain verified ownership.
+Registration tests cover all four policy combinations in UserApi and ExampleApi, required and optional evidence, and context omission.
+Compatibility tests preserve legacy authentication decisions and existing sessions after stricter configuration. User acceptance cannot authorize Admin login.
 Identity state tests cover exact JSON serialization, nullable fields, missing fields, invalid types, and unknown fields.
 Production Doctrine mapping tests verify typed replacement, fresh hydration, unchanged earlier snapshots, and rejection before domain use.
 Contact tests preserve authoritative column values when JSON contains duplicate snapshot fields.

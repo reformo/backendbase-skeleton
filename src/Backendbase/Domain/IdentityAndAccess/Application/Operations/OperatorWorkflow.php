@@ -44,7 +44,7 @@ final readonly class OperatorWorkflow
         $store   = $this->store;
         $account = $store->accountForUpdate($values['targetId']);
         $state   = $account->snapshot();
-        $account->assertSessionAllowed($state['authVersion']);
+        $account->assertSessionAllowed($state['authVersion'], Realm::ADMIN);
         $id    = IdentityId::create();
         $actor = SystemAdmin::invite($id, IdentityId::fromString($account->id()), $values['invitation'], $now);
         if ($apply) {
@@ -64,7 +64,7 @@ final readonly class OperatorWorkflow
         $state        = $reference->snapshot();
         $account      = $store->accountForUpdate($state['accountId']);
         $accountState = $account->snapshot();
-        $account->assertSessionAllowed($accountState['authVersion']);
+        $account->assertSessionAllowed($accountState['authVersion'], Realm::ADMIN);
         $actor = $store->actorForUpdate(Realm::ADMIN, $values['targetId']);
         if (! $actor instanceof SystemAdmin || $state['approved'] || $state['deletedAt'] !== null) {
             throw IdentityConflict::create('A pending first-Admin invitation is required.');

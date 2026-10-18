@@ -69,8 +69,23 @@ final class IdentityStateTest extends TestCase
             $missing = $values;
             unset($missing[$name]);
 
-            yield $class . ' missing ' . $name => [$class, $missing];
+            yield from self::missingField($class, $name, $missing);
             yield $class . ' invalid ' . $name => [$class, [...$values, $name => []]];
         }
+    }
+
+    /**
+     * @param class-string<AccountState|ActorState|ContactState> $class
+     * @param array<string, mixed>                               $missing
+     *
+     * @return iterable<string, array{class-string<AccountState|ActorState|ContactState>, array<string, mixed>}>
+     */
+    private static function missingField(string $class, string $name, array $missing): iterable
+    {
+        if ($class === AccountState::class && $name === 'registrationAccepted') {
+            return;
+        }
+
+        yield $class . ' missing ' . $name => [$class, $missing];
     }
 }

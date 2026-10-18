@@ -54,7 +54,7 @@
                 <div class="stat"><strong>1</strong><span>Shared Account for credentials and contacts</span></div>
                 <div class="stat"><strong>2</strong><span>Separate authentication realms: USER and ADMIN</span></div>
                 <div class="stat"><strong>15 min</strong><span>Default token lifetime; configuration can change it</span></div>
-                <div class="stat"><strong>12 hours</strong><span>Registration window after required mobile proof</span></div>
+                <div class="stat"><strong>12 hours</strong><span>Registration window after each required proof</span></div>
             </div>
             <div class="reading-path">
                 <p><strong>Product and support:</strong> Start with the Account model, registration, sessions, Admin enrollment, and support decisions.</p>
@@ -72,7 +72,7 @@
             <figure class="identity-map">
                 <div class="card identity-root">
                     <h3>Account</h3>
-                    <p>Required email and mobile, password hash, optional names, ownership, and enabled state.</p>
+                    <p>Required email and mobile, password hash, optional names, registration acceptance, ownership, and enabled state.</p>
                 </div>
                 <div class="identity-branches">
                     <article class="card">
@@ -106,7 +106,8 @@
 
         <section id="registration">
             <p class="section-label">03 · Registration and contact proof</p>
-            <h2>Verify mobile before User registration</h2>
+            <h2>Apply the registration verification policy</h2>
+            <p>Set <code>BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_MOBILE_VERIFICATION</code> and <code>BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_EMAIL_VERIFICATION</code> to exactly <code>true</code> or <code>false</code>. Defaults are <code>true</code> and <code>false</code>. See <a href="../../platform/15-configuration.md#registration-verification-policy">configuration and rollout rules</a>.</p>
             <div class="diagram-wrap" tabindex="0" role="region" aria-label="User registration flow">
                 <ol class="flow guide-flow">
                     <li><strong>Request a code</strong><small>Supply mobile and a secret verification context.</small></li>
@@ -115,8 +116,8 @@
                     <li><strong>Log in</strong><small>Use email or mobile and the password.</small></li>
                 </ol>
             </div>
-            <p>Email and mobile input are required. Only mobile proof is required for registration. Email verification is optional before registration and available after login.</p>
-            <p>Confirmed mobile proof must be less than 12 hours old at registration. Proof exactly 12 hours old is expired. Normal login remains available after this registration window.</p>
+            <p>Email and mobile input are required. The default flow shown above requires mobile proof. Two independent settings can require mobile, email, both, or neither. Email verification remains available after login.</p>
+            <p>Each required proof must be less than 12 hours old at registration. Proof exactly 12 hours old is expired. Normal login remains available after this registration window.</p>
             <p>Successful registration creates the Account and User. Login is a separate operation that issues a session.</p>
             <details>
                 <summary>Developer details: values, context, and atomic registration</summary>
@@ -125,11 +126,11 @@
                     <li>Passwords contain 12 to 128 UTF-8 characters, at most 512 bytes, and no null byte. Passwords are not trimmed.</li>
                     <li>Optional <code>firstName</code> and <code>lastName</code> contain 1 to 160 UTF-8 characters when supplied. Empty values, surrounding spaces, and control characters are rejected.</li>
                     <li>The client creates <code>verificationContextToken</code> from 32 random bytes encoded as canonical unpadded base64url. The result contains 43 characters.</li>
-                    <li>Registration accepts the contact values and context. Contact record identifiers are not accepted as registration fields.</li>
+                    <li>Registration accepts contact values and a context token. The token may be omitted or null only when neither proof is required. Contact record identifiers are rejected.</li>
                 </ul>
-                <p>The workflow locks email evidence before mobile evidence, then reads the authorization time. One MySQL transaction consumes proof and creates identity records.</p>
-                <p>Matching fresh optional email evidence is consumed too. Missing or unusable email evidence does not block registration. Concurrent registration permits one successful proof consumption.</p>
-                <p>Account state stores <code>ownershipVerified: true</code> after the required proof succeeds. Optional email verification does not replace this ownership requirement.</p>
+                <p>When a context is supplied, the workflow locks email evidence before mobile evidence, then reads the authorization time. One MySQL transaction consumes proof and creates identity records.</p>
+                <p>Matching fresh optional evidence is consumed too. Missing or unusable optional evidence does not block registration. Concurrent registration permits one successful proof consumption.</p>
+                <p>Successful registration stores <code>registrationAccepted: true</code>. It stores <code>ownershipVerified: true</code> only when evidence is consumed. Registration without proof leaves ownership false. Later email verification remains recorded separately.</p>
             </details>
             <h3>Verification after login</h3>
             <p>An authenticated User can verify the Account's stored email. The server selects the destination. The client cannot use this flow to replace the email or verify another Account.</p>
@@ -159,7 +160,7 @@
         <section id="sessions">
             <p class="section-label">04 · Login and session lifecycle</p>
             <h2>Each protected request checks current state</h2>
-            <p>Login accepts the Account email or mobile and password. It also requires verified ownership, an enabled Account, and an eligible actor in the selected realm.</p>
+            <p>Login accepts the Account email or mobile and password. User login requires stored registration acceptance. Admin login requires verified ownership. Both require an enabled Account and an eligible actor. Legacy Accounts retain their earlier authorization results. Configuration changes do not invalidate existing sessions.</p>
             <p>An invited Admin must be approved before login. A successful User login does not create Admin access.</p>
             <p>An <strong>allowlist</strong> records permitted access. Redis stores permitted tokens and sessions. MySQL stores current Account and actor state.</p>
             <div class="diagram-wrap" tabindex="0" role="region" aria-label="Protected request access checks">
@@ -232,7 +233,7 @@
                 <table>
                     <thead><tr><th scope="col">Surface</th><th scope="col">Realm</th><th scope="col">Selection and access</th></tr></thead>
                     <tbody>
-                        <tr><td><code>/user-api</code></td><td>USER</td><td><code>X-Source-Id: user</code>. Public registration, login, and mobile proof. Bearer token for protected identity flows.</td></tr>
+                        <tr><td><code>/user-api</code></td><td>USER</td><td><code>X-Source-Id: user</code>. Public registration, login, and contact proof. Bearer token for protected identity flows.</td></tr>
                         <tr><td><code>/example-api</code></td><td>USER</td><td><code>X-Source-Id: example</code>. Shares User credentials and sessions. ExampleApi also requires its API key on Authentication and Identity routes.</td></tr>
                         <tr><td><code>/system-admin-api</code></td><td>ADMIN</td><td><code>X-Source-Id: system-admin</code>. Login and optional contact verification. Bearer token for identity and administration flows.</td></tr>
                     </tbody>
@@ -260,7 +261,7 @@
                 <table>
                     <thead><tr><th scope="col">Storage</th><th scope="col">Owner and purpose</th><th scope="col">Developer rule</th></tr></thead>
                     <tbody>
-                        <tr><td>MySQL <code>account</code></td><td>Shared contacts, names, password hash, ownership, enabled state, and authentication version.</td><td>Keep Account identity separate from actor identity.</td></tr>
+                        <tr><td>MySQL <code>account</code></td><td>Shared contacts, names, password hash, registration acceptance, ownership, enabled state, and authentication version.</td><td>Keep Account identity separate from actor identity.</td></tr>
                         <tr><td>MySQL <code>user</code> and <code>admin</code></td><td>Realm-specific membership, approval, removal, and retained evidence.</td><td>One actor of each type per Account, including removed rows.</td></tr>
                         <tr><td>MySQL <code>contact_verification</code></td><td>Contact, purpose, realm, context digest, code hash, deadlines, attempts, and consumption state.</td><td>Do not expose its full internal state in responses or logs.</td></tr>
                         <tr><td>Redis</td><td>Token/session allowlists, Account blocks, and verification reservations.</td><td>Require matching token and session state. Reads do not renew expiry.</td></tr>
@@ -361,7 +362,7 @@ BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
                 <table>
                     <thead><tr><th scope="col">Situation</th><th scope="col">Check</th><th scope="col">Next action</th></tr></thead>
                     <tbody>
-                        <tr><td>User cannot register</td><td>Required values, matching context, confirmed mobile, 12-hour window, and active contact uniqueness.</td><td>Use fresh valid proof when required. Keep the original operation key while an earlier outcome is uncertain.</td></tr>
+                        <tr><td>User cannot register</td><td>Configured required proofs, required values, matching context, the 12-hour window, and active contact uniqueness.</td><td>Use fresh valid proof when required. Keep the original operation key while an earlier outcome is uncertain.</td></tr>
                         <tr><td>Invited Admin cannot log in</td><td>Account ownership, enabled state, actor removal, Admin approval, and an earlier stored login failure.</td><td>Complete approval. Start a fresh login with a new operation key. Contact verification alone grants no approval.</td></tr>
                         <tr><td><code>401</code></td><td>Credentials, realm, expiry, allowlist records, and current Account/actor state.</td><td>Use the correct realm and login flow. Do not bypass current access checks.</td></tr>
                         <tr><td><code>409</code></td><td>Read the Problem Details code. It can identify a business conflict or an outstanding replay claim.</td><td>Investigate the specific conflict before a new operation.</td></tr>

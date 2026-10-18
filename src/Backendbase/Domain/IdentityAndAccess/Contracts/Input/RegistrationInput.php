@@ -12,15 +12,15 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Profiles\AccountNames;
 
 final readonly class RegistrationInput
 {
-    /** @var array{names: AccountNames, email: AccountEmail, mobile: AccountMobile, password: Password, token: VerificationContextToken} */
+    /** @var array{names: AccountNames, email: AccountEmail, mobile: AccountMobile, password: Password, token: VerificationContextToken|null} */
     private array $values;
 
-    public function __construct(string $email, string $mobile, string $password, string $verificationContextToken, string|null $firstName = null, string|null $lastName = null)
+    public function __construct(string $email, string $mobile, string $password, string|null $verificationContextToken = null, string|null $firstName = null, string|null $lastName = null)
     {
-        $this->values = ['names' => new AccountNames($firstName, $lastName), 'email' => new AccountEmail($email), 'mobile' => new AccountMobile($mobile), 'password' => new Password($password), 'token' => new VerificationContextToken($verificationContextToken)];
+        $this->values = ['names' => new AccountNames($firstName, $lastName), 'email' => new AccountEmail($email), 'mobile' => new AccountMobile($mobile), 'password' => new Password($password), 'token' => $verificationContextToken === null ? null : new VerificationContextToken($verificationContextToken)];
     }
 
-    public function verificationContextToken(): VerificationContextToken
+    public function verificationContextToken(): VerificationContextToken|null
     {
         return $this->values['token'];
     }

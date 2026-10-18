@@ -26,7 +26,8 @@ The temporary application has a dedicated replay encryption key. Each intended w
 The deterministic HTTP sequence checks all 31 current identity operations.
 It verifies successful registration and authentication, realm isolation, approval, removal, restoration, token expiry, revocation, logout, and Account closure.
 It also checks missing credentials, invalid and oversized input, contact confirmation, and resend cooldown rejection.
-User registration supplies only mobile proof. Stored-email verification runs after User login.
+The default User registration policy requires mobile proof only. Test all four configured proof combinations.
+Stored-email verification runs after User login. Preserve legacy sessions and separate User acceptance from Admin ownership checks.
 New OpenAPI operations without a recorded HTTP result fail the suite.
 
 The two authenticated ZAP scans target `GET /identity` and `GET /_status` in separate realms.

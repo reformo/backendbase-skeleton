@@ -114,7 +114,7 @@ Identity realm sources, generated documents, and Bruno collections have matching
 ExampleApi references the existing UserApi schemas. Regenerate ExampleApi when those shared schemas change.
 All ExampleApi operations except health require an API key. Protected Example and Identity operations also declare `bearerToken` in the same security requirement.
 `getExampleByCriteria` and Authentication operations require no bearer token.
-Populate the ExampleApi Bruno `accessToken` variable from login before running the `example` folder. Registration requires a prepared mobile proof and its context token. Email verification is optional.
+Populate the ExampleApi Bruno `accessToken` variable from login before running the `example` folder. Registration requires the configured contact proofs and their context token. The default requires mobile proof only.
 Run token revocation, logout, and Account closure with the intended session. Obtain another session after revocation or logout.
 Run `composer run generate-identity-api-specs` and `composer run validate-identity-api-specs` after realm contract changes.
 
@@ -153,10 +153,11 @@ The tag check resolves referenced path files. It rejects missing or empty operat
 Add a new declared tag when a new endpoint group needs one.
 
 Identity requests use strict input mapping. Contact ownership and password authentication are separate steps.
-Registration requires `email`, `mobile`, `password`, and `verificationContextToken`.
+Registration requires `email`, `mobile`, and `password`. `verificationContextToken` is required when either contact proof is configured.
+When neither proof is required, the token may be omitted or null. Any supplied token must remain valid.
 The server rejects `emailContactInfoId` and `mobileContactInfoId`. It resolves evidence through the submitted contact values and context.
-Verify mobile less than 12 hours before registration. Email input is required, but email verification is optional.
-Matching fresh email evidence is consumed when available. Mobile uses E.164 format and is globally unique among active Accounts.
+Verify each required contact less than 12 hours before registration. The default requires mobile proof and permits optional email proof.
+Matching fresh optional evidence is consumed when available. Mobile uses E.164 format and is globally unique among active Accounts.
 Authenticated Users can request, confirm, and resend verification of their stored email under `/identity/contact-verifications`.
 Supply `contactType: email`, the context token, and a USER bearer token. The server rejects a supplied contact value.
 Login accepts `identifier` containing email or mobile, plus `password`. Username fields are rejected.

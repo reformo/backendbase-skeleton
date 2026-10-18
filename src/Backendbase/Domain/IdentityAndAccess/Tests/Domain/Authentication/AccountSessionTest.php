@@ -18,11 +18,11 @@ use PHPUnit\Framework\TestCase;
 
 final class AccountSessionTest extends TestCase
 {
-    public function testVerifiedAccountIssuesDistinctSessionAndTokenIdentities(): void
+    public function testAcceptedAccountIssuesDistinctSessionAndTokenIdentities(): void
     {
         $id      = IdentityId::create();
         $account = self::account($id);
-        $account->verifyOwnership();
+        $account->acceptRegistration();
         $actor  = User::create(IdentityId::create(), $id, new DateTimeImmutable());
         $first  = $account->startSession(Realm::USER, $actor);
         $second = $account->startSession(Realm::USER, $actor);
@@ -45,7 +45,8 @@ final class AccountSessionTest extends TestCase
         $account = self::account($id);
         $now     = new DateTimeImmutable();
         $actor   = User::create(IdentityId::create(), $state === 'account-mismatch' ? IdentityId::create() : $id, $now);
-        if ($state !== 'ownership-unverified') {
+        if ($state !== 'registration-unaccepted') {
+            $account->acceptRegistration();
             $account->verifyOwnership();
         }
 
@@ -69,7 +70,7 @@ final class AccountSessionTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function deniedStates(): iterable
     {
-        foreach (['account-mismatch', 'wrong-realm', 'ownership-unverified', 'closed', 'removed', 'unapproved'] as $state) {
+        foreach (['account-mismatch', 'wrong-realm', 'registration-unaccepted', 'closed', 'removed', 'unapproved'] as $state) {
             yield $state => [$state];
         }
     }
