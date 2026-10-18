@@ -5,6 +5,7 @@ post:
   description: 'Verify the stored Account email after login. Codes expire after five minutes. Verification is optional and preserves existing sessions.'
   security: [{apiKey: [], bearerToken: []}]
   parameters:
+    - $ref: '../../common/components.yaml#/headers/Idempotency-Key'
     - $ref: '../../common/components.yaml#/headers/Accept-Language'
     - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
     - $ref: '../../common/components.yaml#/headers/X-Request-Id'
@@ -21,6 +22,10 @@ post:
         schema:
           $ref: '../example-openapi.yml#/components/schemas/AuthenticatedContactRequest'
   responses:
+    422:
+      $ref: '../../common/components.yaml#/schemas/422'
+    500:
+      $ref: '../../common/components.yaml#/schemas/500'
     200:
       description: 'Contact verification state'
       headers:

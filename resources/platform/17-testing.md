@@ -178,3 +178,10 @@ Verify pristine packages before trusted install transformations. AWS service pru
 A later check against that transformed tree cannot substitute for the isolated-install check.
 
 Basis: `resources/docs/10-testing-and-quality.html`.
+
+HTTP replay tests under `tests/Infrastructure/Inbound/Idempotency` cover login, registration, contact delivery, and revoked authentication.
+Adapter tests cover request matching, parallel attempts, encryption, storage failure, expiry, and cleanup.
+`IdempotencyContractTest` checks required write headers, runtime rejection, CORS, and maintained Bruno headers.
+Native MySQL replay checks remain opt-in and require a prepared target.
+`MySqlHttpReplayTest` verifies HTTP replay, conflicts, encryption, expiry, cleanup, and unresolved claims through independent MySQL connections.
+See [HTTP idempotency](operations/http-idempotency.md).

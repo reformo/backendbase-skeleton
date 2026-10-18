@@ -63,7 +63,7 @@
     <p>Apply the target API's existing security policy. Example operations require the API key. All except <code>getExampleByCriteria</code> also require a USER bearer token. Identity operations use trusted USER or ADMIN policies. Declare anonymous policy explicitly in routing and OpenAPI.</p>
     <p>Metadata and all six Example routes require an API key. Liveness and readiness use <code>security: []</code>.</p>
     <p>Identity, Administration, and protected Example groups add <code>RealmAuthentication</code>, then <code>RealmPolicy</code>. Slim executes the last added middleware first. The realm therefore exists before authentication runs. Endpoint action and contact policies execute after group authentication.</p>
-    <p>Public Authentication groups apply only <code>RealmPolicy</code>. Login and public contact verification do not require a bearer token. ExampleApi Authentication routes retain the API-key requirement. Health and preflight routes remain outside protected groups.</p>
+    <p>Public Authentication groups apply <code>RealmPolicy</code> and write replay through <code>Idempotency</code>. Login and public contact verification do not require a bearer token. ExampleApi Authentication routes retain the API-key requirement. Health and preflight routes remain outside protected groups.</p>
     <div class="related"><a href="5-inbound-api.html">Inbound API</a><a href="6-openapi-and-bruno.html">OpenAPI and Bruno</a></div>
 </section>
 <section id="configuration"><p class="section-label">07 · Configuration</p><h2>Keep the key outside source control</h2>

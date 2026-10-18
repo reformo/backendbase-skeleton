@@ -179,3 +179,11 @@ These differences are semantic audit prompts. Do not reproduce them as target be
 - `resources/platform/24-feature-workflow.md`
 
 The target contract controls component names and API values. These files provide the composition model only.
+
+### HTTP replay reference
+
+In an unmodified Backendbase project, every write route requires `Idempotency-Key`. Protected groups run replay after authentication.
+Public Authentication groups run replay after realm selection. Preserve application transaction ownership.
+Update required header references, 400/409/422/500/503 responses, CORS, and maintained clients together.
+Do not use trace identifiers for duplicate protection. Adapt this policy to the target operation and its external effects.
+See [HTTP idempotency](../../../platform/operations/http-idempotency.md) for Backendbase expiry, encryption, and unresolved-claim rules.

@@ -24,6 +24,7 @@ return static function (ContainerBuilder $containerBuilder, string $resolverClas
         'queue.php',
         'readiness.php',
         'application.php',
+        'idempotency.php',
         'bounded-contexts.php',
     ];
 

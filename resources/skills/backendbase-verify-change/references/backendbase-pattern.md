@@ -186,7 +186,7 @@ Use these as regression prompts. Do not preserve them as desired behavior:
 - Pagination rejects non-positive page sizes and overflowing offsets; HTTP boundaries also reject non-positive page numbers.
 - The repository provides safe HTTP measurements, MySQL diagnostic metrics, and Linux systemd units and timers.
 - Manual replay and external-outcome resolution require recorded operator evidence. No automatic dead-letter replay exists.
-- Shared OpenAPI parameters mark four request headers as required, but current runtime does not reject every missing header. All three API CORS configurations allow `Accept-Language`.
+- Shared OpenAPI parameters keep locale, timezone, and trace optional and source selection required. All three API CORS configurations allow `Accept-Language`.
 
 ## Backendbase CI and verification commands
 
@@ -242,3 +242,11 @@ Do not claim a CI, security, dynamic, or release check passed unless it ran in i
 - `.github/workflows/quality-gates.yml`
 - `.github/workflows/security-checks.yml`
 - `.github/workflows/release-artifact.yml`
+
+### HTTP replay reference
+
+In an unmodified Backendbase project, every write route requires `Idempotency-Key`. Protected groups run replay after authentication.
+Public Authentication groups run replay after realm selection. Preserve application transaction ownership.
+Update required header references, 400/409/422/500/503 responses, CORS, and maintained clients together.
+Do not use trace identifiers for duplicate protection. Adapt this policy to the target operation and its external effects.
+See [HTTP idempotency](../../../platform/operations/http-idempotency.md) for Backendbase expiry, encryption, and unresolved-claim rules.

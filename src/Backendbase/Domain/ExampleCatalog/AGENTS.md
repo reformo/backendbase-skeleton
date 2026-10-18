@@ -34,3 +34,6 @@ Include [architecture tests](../../../../tests/Architecture) when dependencies o
 
 Update this file when context ownership, invariants, contracts, or verification entry points change.
 Keep detailed explanations in platform documents and decisions in architecture decision records.
+
+Example HTTP writes require `Idempotency-Key` after bearer authentication. Shared HTTP replay preserves the existing application transaction boundary.
+See [HTTP idempotency](../../../../resources/platform/operations/http-idempotency.md).

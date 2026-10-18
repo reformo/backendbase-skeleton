@@ -115,6 +115,7 @@ patch:
   operationId: changeExampleDetails
   description: Change example details
   parameters:
+    - $ref: '../../common/components.yaml#/headers/Idempotency-Key'
     - $ref: '../../common/components.yaml#/headers/Accept-Language'
     - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
     - $ref: '../../common/components.yaml#/headers/X-Request-Id'
@@ -172,6 +173,12 @@ patch:
               nullable: true
 
   responses:
+    409:
+      $ref: '../../common/components.yaml#/schemas/409'
+    422:
+      $ref: '../../common/components.yaml#/schemas/422'
+    500:
+      $ref: '../../common/components.yaml#/schemas/500'
     204:
       $ref: '../../common/components.yaml#/schemas/204'
     400:
@@ -198,6 +205,7 @@ delete:
   operationId: removeExample
   description: Remove example
   parameters:
+    - $ref: '../../common/components.yaml#/headers/Idempotency-Key'
     - $ref: '../../common/components.yaml#/headers/Accept-Language'
     - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
     - $ref: '../../common/components.yaml#/headers/X-Request-Id'
@@ -240,6 +248,12 @@ delete:
         nullable: true
 
   responses:
+    409:
+      $ref: '../../common/components.yaml#/schemas/409'
+    422:
+      $ref: '../../common/components.yaml#/schemas/422'
+    500:
+      $ref: '../../common/components.yaml#/schemas/500'
     204:
       $ref: '../../common/components.yaml#/schemas/204'
     400:

@@ -14,6 +14,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 - State the HTTP idempotency requirement in root `AGENTS.md`. Link the detailed contract for write endpoints and retries.
 
+- Add HTML capability guides for HTTP idempotency and IdentityAndAccess. Explain business behavior, developer contracts, configuration, support decisions, and recovery. Link both guides from the documentation catalog.
+
+- Require a separate `Idempotency-Key` on all 38 write operations. Preserve request tracing. Add durable claims, encrypted response replay, payload conflict checks, safe handling of interrupted operations, a cleanup command, and a forward migration draft. Update API contracts, Bruno requests, configuration, and regression tests.
+
+- Verify the replay migration and HTTP behavior on isolated MySQL 8.4.11. Add native HTTP replay regression coverage. Execute all 63 previously skipped MySQL, Redis, and Sentinel cases. Record live identity retries, index plans, and fixture cleanup.
+
 - Require email input without mandatory email verification at User registration. Resolve evidence from submitted contact values and the context token. Keep fresh mobile proof required. Add authenticated stored-email verification, confirmation, and resend in UserApi and ExampleApi. Update contracts, Bruno examples, regression tests, and identity guidance.
 
 ### Fixed

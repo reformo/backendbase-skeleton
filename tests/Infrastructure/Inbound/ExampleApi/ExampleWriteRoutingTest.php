@@ -112,6 +112,7 @@ final class ExampleWriteRoutingTest extends TestCase
         $request  = (new ServerRequestFactory())->createServerRequest($method, $path)
             ->withHeader('Backendbase-Api-Key', 'example-api-key')
             ->withHeader('Authorization', 'Bearer ' . $token)
+            ->withHeader('Idempotency-Key', 'write-example')
             ->withBody(JsonRequestBody::create($payload));
         $response = $app->handle($request);
         self::assertSame(204, $response->getStatusCode());

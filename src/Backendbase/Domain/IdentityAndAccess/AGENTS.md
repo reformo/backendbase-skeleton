@@ -35,7 +35,7 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Register modules explicitly in `Controllers/ModuleRoutes.php`. Give each operation its own handler and use its OpenAPI operation ID as the route name.
 - Use fluent route declarations. Define the realm once per group through `RealmPolicy`. Do not repeat realms in `RoutePolicy` or `ContactRoutePolicy`.
 - Group protected routes with `RealmAuthentication` and `RealmPolicy`. Add `RealmPolicy` last so it runs before authentication.
-- Apply only `RealmPolicy` to public Authentication groups. Realm selection does not require bearer authentication.
+- Apply `RealmPolicy` and write replay through `Idempotency` to public Authentication groups. Realm selection does not require bearer authentication.
 - Keep action and contact policies on individual routes. Keep anonymous authentication, health, and preflight routes outside protected groups.
 - Keep reusable identity HTTP input, dispatch, and policy support in [Adapters/Http/Identity](../../Infrastructure/Adapters/Http/Identity). Keep administration input inside SystemAdminApi's Administration module.
 - Read [authentication rules](../../../../resources/platform/14-security.md) for token, login, and session changes.
@@ -51,3 +51,7 @@ Distinguish isolated tests from native MySQL and Redis checks. Service-backed ch
 
 Update this file when context ownership, invariants, contracts, or verification entry points change.
 Keep detailed explanations in platform documents and decisions in architecture decision records. Check supersession status before using an older decision.
+
+All identity HTTP writes require `Idempotency-Key`, including public authentication and contact operations.
+Protected response replay requires current authentication. Shared replay claims do not wrap identity transactions.
+See [HTTP idempotency](../../../../resources/platform/operations/http-idempotency.md) for encrypted responses and uncertain outcomes.

@@ -6,6 +6,8 @@ http:
   method: POST
   url: '{{baseUrl}}/auth/contact-verifications'
   headers:
+    - name: Idempotency-Key
+      value: "{{$randomUUID}}"
     - name: X-Source-Id
       value: system-admin
     - name: Accept-Language

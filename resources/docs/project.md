@@ -170,7 +170,7 @@ Before implementing a feature, inspect the current `Infrastructure/Inbound` dire
 
 Apply the target API's existing security policy. Example operations require an API key. Every Example operation except `getExampleByCriteria` also requires a USER bearer token. ExampleApi reuses UserApi contact verification, registration, login, identity, and session services. Identity routes use their trusted USER or ADMIN policy. Define anonymous access explicitly. Internal `QueueGreeting` retains its Shared `AccessControl` check. See [the identity security policy](../platform/14-security.md).
 
-Every new endpoint request must include `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. Add all four shared header references to each new OpenAPI operation's `parameters` section. Follow `resources/api-docs/example-api/example/examples.yaml`.
+Every new operation references `Accept-Language`, `The-Timezone-IANA`, `X-Request-Id`, and `X-Source-Id`. Locale, timezone, and trace headers remain optional. Every write operation also requires `Idempotency-Key`. Follow `resources/api-docs/example-api/example/examples.yaml`.
 
 ### CQRS
 
@@ -399,3 +399,5 @@ The later isolated service run uses the working tree based on `726e8de`. It pass
 - Update the `Unreleased` section of `CHANGELOG.md` in every commit.
 - Use targeted tests under `tests/Infrastructure/Inbound/ExampleApi` for HTTP adapter behavior.
 - Report required checks that could not run, with exact commands and blockers. Omit command examples unrelated to the changed behavior.
+
+See [HTTP idempotency](../platform/operations/http-idempotency.md) for request matching, encrypted replay, configuration, and recovery.

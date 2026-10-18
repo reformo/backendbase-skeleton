@@ -4,6 +4,7 @@ delete:
   operationId: systemadminCloseAccount
   summary: 'Close Account'
   parameters:
+    - $ref: '../../common/components.yaml#/headers/Idempotency-Key'
     -
       $ref: '../../common/components.yaml#/headers/Accept-Language'
     -
@@ -22,6 +23,10 @@ delete:
     -
       bearerToken: {}
   responses:
+    422:
+      $ref: '../../common/components.yaml#/schemas/422'
+    500:
+      $ref: '../../common/components.yaml#/schemas/500'
     200:
       description: 'Completed operation'
       headers:

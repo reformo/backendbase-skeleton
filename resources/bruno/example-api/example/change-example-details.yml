@@ -7,6 +7,8 @@ http:
   method: "PATCH"
   url: "{{baseUrl}}/example-types/{{type-slug}}/groups/{{example-group}}/examples/{{example-key}}"
   headers:
+    - name: Idempotency-Key
+      value: "{{$randomUUID}}"
     - name: "Authorization"
       value: "Bearer {{accessToken}}"
     - name: "Backendbase-Api-Key"

@@ -29,12 +29,53 @@ Native tests cover these requirements:
 | Activation conflicts and cleanup after JSON or expiry failures | `RedisJsonAtomicityTest` |
 | Missing, restored, and reconnected authentication state | `RedisRecoveryTest` |
 | Sentinel promotion, primary failure, stale replicas, and lost quorum | `RedisFailoverTest` |
+| HTTP replay migration, durable claims, encrypted responses, conflicts, expiry, cleanup, and index plans | `MySqlReplayTest`, `MySqlHttpReplayTest` |
 
 Concurrency workers use separate PHP processes and database connections.
 Tests wait for an observed InnoDB lock wait before allowing the competing transaction to proceed.
 Contact registration tests use the actual context and evidence locks. SQLite does not prove those lock waits.
 
 ## Latest isolated regression evidence
+
+The full suite passed on 18 October 2026 after adding native HTTP replay coverage.
+
+| Evidence | Recorded value |
+| --- | --- |
+| Source | Working tree based on `3782cbe22456209971a28be68380b9817e6abf77` |
+| Operator | Automated local fixture runner |
+| UTC interval | 06:52:07 to 07:00:35, including preparation, verification, deployment fixtures, and cleanup |
+| Runtime | PHP 8.5.6, PHPUnit 13.4.3, PCOV 1.0.12 |
+| Services | MySQL 8.4.11; standalone Redis, failover nodes, and Sentinels use Redis 8.10.2 |
+| MySQL and Redis project | `backendbase-native-verification-1792306327-48213`; localhost ports 56974 and 56976 |
+| Failover project | `backendbase-redis-failover-1792306523-48654`; separate bridge network and random localhost ports |
+| Data and schema | Generated records in unique MySQL databases. Service data uses temporary storage. |
+| Suite result | 1,422 tests, 61,118 assertions, zero failures, zero errors, zero skips |
+| Coverage | 6,805 of 6,805 executable lines; 1,594 of 1,594 methods |
+| Cleanup | All generated containers, networks, and volumes removed. Exact project-label checks confirm cleanup. |
+
+All 63 previously skipped identities pass: 32 MySQL, 23 standalone Redis, and eight Sentinel cases.
+The added native HTTP replay case also passes. Deployment, rollback, and fresh-installation fixtures pass.
+PHPStan level 8, complexity, and coding standards pass.
+
+Fresh-installation dry-run and execution reach `Version20261018000000` through all six migrations.
+Existing replay tables reject repeated creation. Two independent MySQL connections verify active-request rejection and completed response replay.
+Native HTTP tests verify encrypted responses, changed-body rejection, fixed expiry, and cleanup.
+Unresolved claims remain blocked after advancing the test clock by 30 days.
+
+On 1,000 generated replay rows, the lookup selects `PRIMARY` with constant access and one estimated row.
+The cleanup selects `http_request_replay_expiry_idx` with range access and 20 estimated expired rows.
+These plans verify fixture index selection. They do not measure production performance.
+
+The production HTTP entry point passes all 31 UserApi and SystemAdminApi operations through 59 initial requests.
+An additional 39 retries verify 33 unchanged response replays and six revoked-credential rejections.
+Another 21 requests change body bytes under the same key and receive 422.
+The temporary application uses real MySQL and Redis adapters and a private contact-notification sink.
+No ZAP scan runs in this verification.
+
+Local evidence is under `artifacts/service-verification/idempotency`.
+It includes JUnit, coverage, skipped-case identities, migration SQL, schema details, index plans, HTTP results, and cleanup records.
+
+## Contact registration evidence on 18 October 2026
 
 The full suite passed on 18 October 2026 after correction of a concurrent registration conflict response.
 

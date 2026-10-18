@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\SystemAdminApi\Controllers\Authenti
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
+use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
 use Backendbase\Infrastructure\Adapters\Http\Identity\ContactRoutePolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RoutePolicy;
@@ -38,6 +39,7 @@ final class ModuleConfig implements ModuleRoute
                 ->setName('systemadminContactResend')
                 ->add(new ContactRoutePolicy(['action' => 'resend', 'authenticated' => false]));
         })
+            ->add(Idempotency::class)
             ->add(new RealmPolicy(Realm::ADMIN));
     }
 

@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Example;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
+use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmAuthentication;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
 use Override;
@@ -40,6 +41,7 @@ class ModuleConfig implements ModuleRoute
             $group->delete('/{type-slug}/groups/{example-group}/examples/{example-key}', Handlers\RemoveExample::class)
                 ->setName('removeExample');
         })
+            ->add(Idempotency::class)
             ->add(RealmAuthentication::class)
             ->add(new RealmPolicy(Realm::USER));
     }

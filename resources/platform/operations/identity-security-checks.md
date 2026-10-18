@@ -19,6 +19,7 @@ The suite uses a temporary application copy and the production HTTP entry point,
 It replaces only the contact notifier with a private local file sink.
 It creates separate fixture Accounts and credentials without using the personal initial Admin seeder.
 The fixture database, temporary server, and scan containers are removed when the run ends.
+The temporary application has a dedicated replay encryption key. Each intended write supplies a new `Idempotency-Key`.
 
 ## Coverage
 
@@ -43,10 +44,12 @@ ZAP authentication tokens are removed from retained reports.
 
 The security workflow configures temporary USER and ADMIN signing keys for its disposable services.
 It seeds a fixture Account and obtains a USER session through ExampleApi login.
-The Bruno `example` folder and Example write fixtures send both the API key and bearer token.
+The Bruno `example` folder and Example write fixtures send the API key, bearer token, and required `Idempotency-Key`.
 Boundary checks reject writes without a bearer token.
 The Example ZAP contract excludes Authentication, Identity, and readiness operations.
 It retains the six Example operations, metadata, and liveness. The scan supplies the API key and USER bearer token.
+Two ordered ZAP replacer rules add the replay header and replace its placeholder with a UUID for each request.
+This prevents earlier scan responses from masking changed probe payloads. See [ZAP token processing](https://www.zaproxy.org/docs/desktop/addons/replacer/#token-processing).
 The workflow redacts both credentials before uploading reports from `artifacts/zap-example`.
 Example Authentication and Identity routes have isolated PHPUnit evidence. The live identity sequence continues to cover UserApi and SystemAdminApi.
 

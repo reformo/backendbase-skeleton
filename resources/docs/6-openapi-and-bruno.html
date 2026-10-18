@@ -571,7 +571,8 @@
             </div>
             <div class="callout good"><strong>Verified state:</strong> <code>public/example-api/docs/example-api-merged.yml</code> validates against the OpenAPI 3.0 schema.</div>
             <p>Do not edit the merged file. Edit the source files under <code>resources/api-docs</code>, and then regenerate the merged file.</p>
-        </section>
+        <p>Write contracts reference the required <code>Idempotency-Key</code> header and document replay conflicts. Bruno uses <code>{{$randomUUID}}</code> for new operations. Use a fixed value to test a retry. See <a href="../platform/operations/http-idempotency.md">HTTP idempotency</a> for the complete contract and recovery procedure.</p>
+</section>
 
         <section id="artifact-map">
             <p class="section-label">02 · Artifact map</p>
@@ -767,7 +768,7 @@ bin/bruno                                       # Bruno command wrapper</pre>
                     <tbody>
                         <tr><td><code>Accept-Language</code></td><td><span class="badge">Required</span></td><td>Response language</td><td><code>acceptLanguage</code></td></tr>
                         <tr><td><code>The-Timezone-IANA</code></td><td><span class="badge">Required</span></td><td>IANA time zone</td><td><code>timezone</code></td></tr>
-                        <tr><td><code>X-Request-Id</code></td><td><span class="badge">Required</span></td><td>Request correlation</td><td><code>requestId</code></td></tr>
+                        <tr><td><code>X-Request-Id</code></td><td><span class="badge">Optional</span></td><td>Request correlation</td><td><code>requestId</code></td></tr>
                         <tr><td><code>X-Source-Id</code></td><td><span class="badge">Required</span></td><td>API source selection and context</td><td><code>sourceId</code></td></tr>
                     </tbody>
                 </table>

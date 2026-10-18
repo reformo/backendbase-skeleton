@@ -4,6 +4,7 @@ delete:
   operationId: exampleRevokeCurrentAccessToken
   summary: 'Revoke current access token'
   parameters:
+    - $ref: '../../common/components.yaml#/headers/Idempotency-Key'
     -
       $ref: '../../common/components.yaml#/headers/Accept-Language'
     -
@@ -23,6 +24,10 @@ delete:
       apiKey: []
       bearerToken: []
   responses:
+    422:
+      $ref: '../../common/components.yaml#/schemas/422'
+    500:
+      $ref: '../../common/components.yaml#/schemas/500'
     200:
       description: 'Completed operation'
       headers:

@@ -16,6 +16,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
+use Ramsey\Uuid\Uuid;
 use Slim\App;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteInterface;
@@ -64,9 +65,12 @@ final readonly class IdentityApiFixture
     }
 
     /** @param array<string, mixed>|null $payload */
-    public function request(string $method, string $path, array|null $payload = null, string|null $token = null): ResponseInterface
+    public function request(string $method, string $path, array|null $payload = null, string|null $token = null, string|null $idempotencyKey = null): ResponseInterface
     {
-        $request = new ServerRequestFactory()->createServerRequest($method, $path, ['REMOTE_ADDR' => '127.0.0.1']);
+        $request    = new ServerRequestFactory()->createServerRequest($method, $path, ['REMOTE_ADDR' => '127.0.0.1']);
+        $identifier = Uuid::uuid7();
+        $key        = $idempotencyKey ?? $identifier->toString();
+        $request    = $request->withHeader('Idempotency-Key', $key);
         if ($this->slug === 'example-api') {
             $request = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
         }

@@ -50,9 +50,9 @@ Current Backendbase Example operations use API-wide key middleware. All except `
 Use fluent route declarations, following ExampleApi. Keep endpoint-specific policy on each route and attach common middleware once through `group()`.
 Authentication, Identity, and Administration modules define the realm once per group through `RealmPolicy`.
 `RoutePolicy` supplies only the endpoint action. `ContactRoutePolicy` supplies only contact settings. Neither policy sets or replaces the group realm.
-Identity and Administration modules use an empty-prefix subgroup with `RealmAuthentication`, followed by a fixed `RealmPolicy` in the declaration.
+Identity and Administration modules use an empty-prefix subgroup with `Idempotency`, `RealmAuthentication`, followed by a fixed `RealmPolicy` in the declaration.
 Slim executes the last added middleware first. The realm policy therefore runs before authentication; endpoint policies run after group authentication.
-Public Authentication groups apply only `RealmPolicy` and do not require a bearer token.
+Public Authentication groups apply `RealmPolicy` and write replay through `Idempotency` and do not require a bearer token.
 Use non-static group callbacks because Slim binds them to the dependency container. Keep anonymous operations outside protected groups.
 Adapt the middleware names, policy, and callback behavior to the target project.
 

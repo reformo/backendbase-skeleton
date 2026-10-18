@@ -178,3 +178,10 @@ Bruno scripts check response envelopes and retain contact IDs and authentication
 Account registration accepts optional nullable `firstName` and `lastName` fields.
 Each supplied name has 1 to 160 UTF-8 characters without surrounding spaces or control characters.
 Current identity and actor history include `firstName` and `lastName`, with null for omitted names.
+
+## Write retry contract
+
+Each write operation references the required shared `Idempotency-Key` parameter and documents 400, 409, 422, 500, and 503 responses.
+GET and preflight operations need no idempotency key. `X-Request-Id` remains optional tracing metadata.
+Bruno write requests use `{{$randomUUID}}` for fresh operations. Replace that expression with a fixed key when testing a retry.
+Reuse the exact request and key for that retry. See [HTTP idempotency](operations/http-idempotency.md).

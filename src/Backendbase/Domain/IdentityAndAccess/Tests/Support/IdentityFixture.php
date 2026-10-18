@@ -7,6 +7,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Tests\Support;
 use Backendbase\Domain\IdentityAndAccess\Contracts\ContactNotifier;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
 use Backendbase\Domain\IdentityAndAccess\Contracts\VerificationLimiter;
+use Backendbase\Infrastructure\Configuration\Idempotency\ReplaySettings;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Shared\Health\ReadinessChecks;
 use Backendbase\Shared\Services\Settings;
@@ -23,6 +24,7 @@ use Psr\Log\NullLogger;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use Tests\Infrastructure\Composition\ProductionContainerFixture;
+use Tests\Support\Http\ReplayFixture;
 use Tests\Support\Time\FrozenClock;
 
 use function array_replace_recursive;
@@ -50,6 +52,7 @@ final readonly class IdentityFixture
             return $uuid->toString();
         }, 2, Sqlite::DETERMINISTIC);
         self::schema($connection);
+        ReplayFixture::schema($connection);
         $configuration = ORMSetup::createAttributeMetadataConfiguration(['src/Backendbase/Domain/IdentityAndAccess/Adapters/Persistence/Doctrine/Entity'], true);
         $configuration->enableNativeLazyObjects(true);
         $clock     = new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'));
@@ -60,6 +63,7 @@ final readonly class IdentityFixture
             Configuration::class => $configuration,
             Clock::class => $clock,
             IdentitySettings::class => self::settings(),
+            ReplaySettings::class => ReplayFixture::settings(),
             ContactNotifier::class => new CapturedContactNotifier(),
             VerificationLimiter::class => new MemoryVerificationLimiter($clock),
             TokenRegistry::class => new MemoryTokenRegistry($clock),

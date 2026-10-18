@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="A practical guide to safe write retries, Idempotency-Key, configuration, failure handling, and operations in Backendbase.">
+    <title>HTTP Idempotency · Backendbase Capability Guide</title>
+    <link rel="stylesheet" href="documentation.css">
+    <link rel="stylesheet" href="documentation-light.css">
+    <link rel="stylesheet" href="capability-guides.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase · Capability guide</p>
+        <h1>Safe retries with idempotency</h1>
+        <p class="lede">A lost response must not turn one intended operation into two. This guide explains how the API remembers an operation and returns its result again.</p>
+        <div class="chips">
+            <span class="chip">Product and support</span>
+            <span class="chip">Developers</span>
+            <span class="chip">Operations</span>
+            <span class="chip">Reviewed 18 October 2026</span>
+        </div>
+    </div>
+</header>
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>Start here</strong>
+        <a href="#overview">1. What this means</a>
+        <a href="#examples">2. Everyday examples</a>
+        <a href="#decisions">3. What to do after a response</a>
+        <strong>Developer guide</strong>
+        <a href="#client-contract">4. Client contract</a>
+        <a href="#mechanism">5. How it works</a>
+        <a href="#identity">6. Authentication and contact flows</a>
+        <strong>Operations guide</strong>
+        <a href="#configuration">7. Configuration and rollout</a>
+        <a href="#recovery">8. Cleanup and recovery</a>
+        <a href="#limits">9. Important limits</a>
+        <a href="#verification">10. Verification and sources</a>
+    </nav>
+    <main id="main-content">
+        <section id="overview">
+            <p class="section-label">01 · For every reader</p>
+            <h2>One intended operation has one key</h2>
+            <p>Applications use an application programming interface (API) to request work from the server.</p>
+            <p><strong>Idempotency</strong> means that a retry can return the original result without performing the operation again. The client supplies an <code>Idempotency-Key</code> to identify that intended operation.</p>
+            <p>For example, registration can succeed while the response is lost. A retry with the same key and request returns the stored registration result.</p>
+            <div class="summary-grid">
+                <div class="stat"><strong>38</strong><span>Documented write operations require a key</span></div>
+                <div class="stat"><strong>24 hours</strong><span>Completed responses remain replayable</span></div>
+                <div class="stat"><strong>1 key</strong><span>Reuse it for one operation and its retries</span></div>
+                <div class="stat"><strong>409</strong><span>An active or unresolved attempt stays blocked</span></div>
+            </div>
+            <div class="reading-path">
+                <p><strong>Product and support:</strong> Read the examples, response decisions, and important limits.</p>
+                <p><strong>Developers:</strong> Read the client contract, mechanism, and authentication behavior.</p>
+                <p><strong>Operations:</strong> Read configuration, rollout, cleanup, and recovery before activation.</p>
+            </div>
+            <aside class="callout warning">
+                <strong>A timeout does not prove failure.</strong> The operation can already have changed data or sent a message. Keep the original key while checking the outcome.
+            </aside>
+        </section>
+
+        <section id="examples">
+            <p class="section-label">02 · Everyday examples</p>
+            <h2>Keep the operation identity when the connection fails</h2>
+            <div class="grid-2">
+                <article class="card">
+                    <h3>A registration response is lost</h3>
+                    <p>The server creates the Account and stores the response. The application retries the same request with the same key.</p>
+                    <p><strong>Result:</strong> The API returns the original result. It does not create another Account.</p>
+                </article>
+                <article class="card">
+                    <h3>A contact request is repeated</h3>
+                    <p>The first request sends a verification message. A matching retry receives the stored response.</p>
+                    <p><strong>Result:</strong> The retry does not send another message. An explicit resend is a new operation with a new key.</p>
+                </article>
+            </div>
+            <h3>Tracing identifies each attempt</h3>
+            <p><code>X-Request-Id</code> identifies one HTTP attempt for diagnostics. <code>Idempotency-Key</code> identifies the intended operation across attempts.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Operation key and request trace examples">
+                <table>
+                    <thead><tr><th scope="col">Attempt</th><th scope="col">Operation key</th><th scope="col">Trace identifier</th><th scope="col">Expected behavior</th></tr></thead>
+                    <tbody>
+                        <tr><td>First request</td><td><code>registration-001</code></td><td><code>trace-a</code></td><td>Execute and store the response.</td></tr>
+                        <tr><td>Retry after a lost response</td><td><code>registration-001</code></td><td><code>trace-b</code></td><td>Return the original response when completed.</td></tr>
+                        <tr><td>A separate intended registration</td><td><code>registration-002</code></td><td><code>trace-c</code></td><td>Start a separate operation.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small">The trace labels above explain the distinction. Use valid universally unique identifiers (UUIDs) for actual trace headers.</p>
+            <aside class="callout">
+                <strong>Client responsibility:</strong> Two clicks with two new keys are two operations. The client must retain one key for duplicate submissions of the same intended action.
+            </aside>
+        </section>
+
+        <section id="decisions">
+            <p class="section-label">03 · Response decisions</p>
+            <h2>Use the response to select the next action</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Idempotency response decisions">
+                <table>
+                    <thead><tr><th scope="col">Response or condition</th><th scope="col">Meaning</th><th scope="col">Next action</th></tr></thead>
+                    <tbody>
+                        <tr><td>Original success response</td><td>The operation completed. A retry can return the same status and body.</td><td>Use the returned resource or result.</td></tr>
+                        <tr><td><code>400</code> for the key</td><td>The key is missing, repeated, malformed, or too long. Execution has not started.</td><td>Correct the header before submission.</td></tr>
+                        <tr><td><code>409</code> with <code>idempotency/request-outstanding</code></td><td>The first attempt is active, or its outcome needs investigation.</td><td>Keep the same key. Use bounded retries for an active attempt. Escalate a persistent unresolved result.</td></tr>
+                        <tr><td><code>422</code> with <code>idempotency/request-mismatch</code></td><td>The same scoped key already identifies different request content.</td><td>Restore the original request for a retry. Use a new key only for a confirmed new operation.</td></tr>
+                        <tr><td><code>503</code> from replay storage</td><td>The server cannot safely claim, store, encrypt, or read the result.</td><td>Keep the original key. Retry with bounded backoff and check persistent failures.</td></tr>
+                        <tr><td><code>401</code> on a protected retry</td><td>The credentials are expired, revoked, or invalid.</td><td>Follow the authentication flow. Do not assume that the earlier operation failed.</td></tr>
+                        <tr><td>An earlier application error repeats</td><td>Errors returned after execution starts are stored too.</td><td>Check the cause and outcome before starting a new operation.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Other business rules can also return <code>409</code>. Read the Problem Details <code>code</code> and <code>detail</code> fields before choosing a recovery action.</p>
+            <p>Missing-key, authentication, and body-size rejection happen before the claim. These rejections are not stored.</p>
+        </section>
+
+        <section id="client-contract">
+            <p class="section-label">04 · For developers</p>
+            <h2>Keep the request unchanged during a retry</h2>
+            <p>Every current POST, PATCH, and DELETE operation requires the header. The middleware also supports PUT on a named write route. GET, HEAD, and OPTIONS need no key.</p>
+            <ol class="steps">
+                <li>Generate an unpredictable key when the user starts an intended operation. A UUID is suitable.</li>
+                <li>Retain the key and the exact request while the outcome is unknown.</li>
+                <li>Reuse that key for retries of the operation.</li>
+                <li>Generate a new key for a separate intended operation or a corrected payload after checking the earlier outcome.</li>
+            </ol>
+            <h3>Header format</h3>
+            <p>Send exactly one unquoted value containing 1 to 255 characters. Start with an ASCII letter or digit. Remaining characters can also include <code>.</code>, <code>_</code>, <code>:</code>, and <code>-</code>.</p>
+            <pre><code>Idempotency-Key: 019f6322-1234-7000-8000-000000000001
+X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
+            <details>
+                <summary>Developer details: request matching and scope</summary>
+                <p>The stored key scope contains the operation ID, caller identity, and key. Authenticated identity includes realm, Account, and actor. Public authentication uses an anonymous scope for its operation.</p>
+                <p>Operation IDs separate the inbound APIs. Keep them stable while retained claims exist.</p>
+                <p>A request fingerprint is a derived value used to compare request content. Its calculation uses a secret key.</p>
+                <p>The request fingerprint includes the method, path, raw query string, exact body bytes, and these headers:</p>
+                <ul>
+                    <li><code>Content-Type</code>, <code>Accept</code>, and <code>Accept-Language</code>.</li>
+                    <li><code>The-Timezone-IANA</code>, <code>Authorization</code>, and <code>Backendbase-Api-Key</code>.</li>
+                </ul>
+                <p>JSON whitespace and query ordering matter. Changing credentials also changes the fingerprint. <code>X-Request-Id</code> can change between attempts.</p>
+                <p>The fingerprint is keyed. An anonymous key cannot replay a different caller's request content without matching its credentials and payload.</p>
+            </details>
+            <details>
+                <summary>Developer details: response contract and Bruno requests</summary>
+                <p>Replay preserves the original status and body. Selected headers are <code>Content-Type</code>, <code>Cache-Control</code>, <code>Content-Language</code>, <code>Backendbase-Insert-Id</code>, <code>Location</code>, and <code>Retry-After</code>.</p>
+                <p>Trace, cookie, transport, and cross-origin headers are not stored for replay.</p>
+                <p>The raw request-body limit is 65,536 bytes. Stored response bodies must fit within 1 MiB. Oversized responses leave their claims unresolved and return 503.</p>
+                <p>Maintained Bruno writes use <code>{{$randomUUID}}</code>, which creates a new key for each send. Replace it with one fixed test key when checking retries.</p>
+            </details>
+            <div class="related">
+                <a href="6-openapi-and-bruno.html">API contracts and Bruno</a>
+                <a href="../api-docs/common/components.yaml">Shared header contract</a>
+            </div>
+        </section>
+
+        <section id="mechanism">
+            <p class="section-label">05 · Mechanism</p>
+            <h2>The server records a claim before doing the work</h2>
+            <div class="diagram-wrap" tabindex="0" role="region" aria-label="First write request flow">
+                <ol class="flow guide-flow">
+                    <li><strong>Validate</strong><small>Check required headers and applicable authentication.</small></li>
+                    <li><strong>Claim</strong><small>Commit a unique request claim in MySQL.</small></li>
+                    <li><strong>Execute</strong><small>Run the existing application operation.</small></li>
+                    <li><strong>Remember</strong><small>Encrypt and commit the response, then return it.</small></li>
+                </ol>
+            </div>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Stored request states and retry behavior">
+                <table>
+                    <thead><tr><th scope="col">Stored state</th><th scope="col">Matching retry</th><th scope="col">Retention</th></tr></thead>
+                    <tbody>
+                        <tr><td>No claim</td><td>One caller can claim and execute.</td><td>Not applicable.</td></tr>
+                        <tr><td>Claim without a stored response</td><td>Return 409. No caller can take over automatically.</td><td>No automatic expiry.</td></tr>
+                        <tr><td>Completed claim</td><td>Return the stored result without execution.</td><td>24 hours after completion. Reads do not renew it.</td></tr>
+                        <tr><td>Expired completed claim</td><td>The key can start another operation.</td><td>The expired record can be removed.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The MySQL primary key prevents two accepted claims for the same scoped key. All API instances must use the same replay database and encryption secret.</p>
+            <aside class="callout warning">
+                <strong>The work and response are separate commits.</strong> A crash after a change but before response storage leaves an unresolved claim. The server blocks another execution under that key.
+            </aside>
+            <details>
+                <summary>Developer details: storage and application boundaries</summary>
+                <p><code>http_request_replay</code> stores request and content digests, encrypted responses, and timestamps. Raw keys, request bodies, passwords, and credentials are not stored there.</p>
+                <p>Sodium authenticated encryption protects responses, including login tokens and personal data. The cipher binds each response to its request identity.</p>
+                <p>The replay store commits independently. HTTP middleware does not open an outer transaction around business handlers.</p>
+                <p>Existing application transactions, Redis changes, and notification delivery keep their current boundaries. MySQL and an external provider do not share one transaction.</p>
+                <p>The request primary key supports claim, lookup, completion, and single-key expiry checks. <code>http_request_replay_expiry_idx</code> supports ordered cleanup.</p>
+            </details>
+        </section>
+
+        <section id="identity">
+            <p class="section-label">06 · Authentication and contact flows</p>
+            <h2>Replay preserves results and current access checks</h2>
+            <ul class="checklist">
+                <li><strong>Login:</strong> A matching retry returns the original token. It does not issue another session, renew token expiry, or restore a revoked session. A fresh login needs a new key.</li>
+                <li><strong>Protected writes:</strong> API-key and bearer checks run before replay where required.</li>
+                <li><strong>Logout, token revocation, and Account closure:</strong> A successful action can make its own retry credentials invalid. The retry then returns 401.</li>
+                <li><strong>Contact request, confirmation, and resend:</strong> Matching retries do not send another message, consume proof again, or extend verification time.</li>
+                <li><strong>Explicit resend:</strong> Use the documented resend operation with a new key. Cooldown and quota checks still apply.</li>
+            </ul>
+            <p>A login response can remain replayable after its token expires. An earlier failed login can also remain stored after Admin approval. Start a fresh login with a new key.</p>
+            <div class="related"><a href="bounded-contexts/identity-and-access.html">IdentityAndAccess guide</a></div>
+        </section>
+
+        <section id="configuration">
+            <p class="section-label">07 · Configuration and rollout</p>
+            <h2>Prepare the database and secret before activation</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Idempotency configuration">
+                <table>
+                    <thead><tr><th scope="col">Setting or dependency</th><th scope="col">Requirement</th><th scope="col">Attention point</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BACKENDBASE_IDEMPOTENCY_KEY</code></td><td>A dedicated base64-encoded 32-byte secret on every API instance.</td><td>No fallback key exists. Keep it separate from JWT signing and contact proof keys.</td></tr>
+                        <tr><td>MySQL schema</td><td>Apply reviewed migration <code>Version20261018000000</code> to the identified target.</td><td>It creates only the replay table and its indexes. Existing tables stop creation.</td></tr>
+                        <tr><td>Database connection</td><td>Use the application's configured MySQL connection and shared replay storage.</td><td>Claims must commit independently of application transactions.</td></tr>
+                        <tr><td>Clients and cross-origin access</td><td>Supply the required header. Permit it through proxies and browser policies.</td><td>All three maintained API CORS configurations include it.</td></tr>
+                        <tr><td>Retention and size</td><td>24-hour completed retention, 1 MiB response limit, 500-row cleanup batch.</td><td>These values are fixed in the current implementation.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The public value in <code>.env.example</code> is for local development. Production configuration needs a separately generated secret.</p>
+            <h3>Activation sequence</h3>
+            <ol class="steps">
+                <li>Update clients to send stable operation keys.</li>
+                <li>Prepare the dedicated secret and review the target database migration.</li>
+                <li>Apply the migration through the authorized deployment procedure.</li>
+                <li>Stop writes during mixed-version activation. Older nodes do not enforce this contract.</li>
+                <li>Activate the new code and clear route caches.</li>
+                <li>Verify a successful write, matching replay, changed-body rejection, and cleanup on the prepared target.</li>
+            </ol>
+            <aside class="callout danger">
+                <strong>Key rotation needs a recovery plan.</strong> Online replay-key rotation is not implemented. A changed secret invalidates retained fingerprints and ciphertext. Drain writes. Reconcile unresolved claims. Wait for completed replay windows to end before an authorized replacement.
+            </aside>
+            <p>Preserve the secret with encrypted backups. Restore claim evidence consistently with business data. The reverse migration refuses to drop replay evidence.</p>
+        </section>
+
+        <section id="recovery">
+            <p class="section-label">08 · Operations and support</p>
+            <h2>Remove expired results and preserve uncertain outcomes</h2>
+            <p>Run the cleanup command only on the identified, authorized target:</p>
+            <pre><code>bin/backendbase idempotency:cleanup</code></pre>
+            <p>One run removes up to 500 expired completed responses. Repeat bounded runs for the deployment's volume. The application installs no automatic schedule.</p>
+            <p>Cleanup never removes unresolved claims. Access to an expired completed key can also remove that one record before a new claim.</p>
+            <h3>When a 409 remains unresolved</h3>
+            <ol class="steps">
+                <li>Keep the original operation key and available trace identifiers.</li>
+                <li>Check whether the original process is still active.</li>
+                <li>Inspect business records, message evidence, Redis state, and provider evidence for the actual outcome.</li>
+                <li>Keep the claim blocked while the outcome is uncertain.</li>
+                <li>Use a separately authorized recovery procedure after proving the outcome.</li>
+            </ol>
+            <p>No automatic claim takeover or operator reconciliation command is provided. Do not delete a claim, reset its timestamps, or generate a new key merely to bypass an unresolved result.</p>
+            <p>Monitor replay-storage failures, persistent outstanding claims, cleanup backlog, and database growth. Keep credentials, tokens, verification codes, and request payloads out of diagnostic logs.</p>
+        </section>
+
+        <section id="limits">
+            <p class="section-label">09 · Important limits</p>
+            <h2>Know what duplicate protection guarantees</h2>
+            <ul class="checklist">
+                <li><strong>The key must be reused.</strong> Different keys do not share duplicate protection.</li>
+                <li><strong>Completed retention is finite.</strong> After 24 hours, the same key can execute again. Do not automatically retry an uncertain old operation.</li>
+                <li><strong>Unresolved retention is indefinite.</strong> Safety requires investigation and can increase storage use.</li>
+                <li><strong>Failures can be replayed.</strong> An earlier 400, 429, 500, or 503 returned during execution can remain the stored result.</li>
+                <li><strong>External effects can be uncertain.</strong> Provider acceptance does not prove delivery. Replay does not establish exactly-once external delivery.</li>
+                <li><strong>Recovery evidence matters.</strong> Losing claims or restoring older claims can permit duplicate execution.</li>
+            </ul>
+        </section>
+
+        <section id="verification">
+            <p class="section-label">10 · Evidence and developer references</p>
+            <h2>Native behavior is verified on isolated services</h2>
+            <p>The 18 October 2026 run passed 1,422 tests with 61,118 assertions and zero failures, errors, or skips. Executable-line coverage was 100%.</p>
+            <p>MySQL 8.4.11 verified migration execution, independent connections, HTTP replay, conflicts, encryption, expiry, cleanup, and unresolved claims. Query plans selected the request primary key and expiry index.</p>
+            <p>Live identity checks added 39 retries and 21 changed-body probes. Six retries with revoked credentials returned 401. These fixtures do not measure production performance.</p>
+            <ul class="source-list">
+                <li><a href="../platform/operations/http-idempotency.md">Canonical replay contract and operations</a></li>
+                <li><a href="../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">Native targets, UTC interval, and evidence files</a></li>
+                <li><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/Idempotency.php">HTTP replay middleware</a> and <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/ReplayInput.php">request matching</a></li>
+                <li><a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/DoctrineRequestReplayStore.php">Doctrine replay store</a> and <a href="../database/Migrations/Version20261018000000.php">migration</a></li>
+                <li><a href="../../src/Backendbase/Infrastructure/Adapters/Security/Idempotency/SodiumRequestReplayCipher.php">Response encryption</a> and <a href="../../config/autoload/idempotency.global.php">configuration</a></li>
+                <li><a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/MySqlHttpReplayTest.php">Native HTTP replay regression</a></li>
+            </ul>
+            <div class="related">
+                <a href="0-project.html#guides">All guides</a>
+                <a href="bounded-contexts/identity-and-access.html">IdentityAndAccess</a>
+                <a href="code-quality-and-maintainability-report.html#evidence">Quality and verification report</a>
+            </div>
+        </section>
+    </main>
+</div>
+<footer>Backendbase · HTTP Idempotency · Current source and isolated evidence reviewed on 18 October 2026</footer>
+</body>
+</html>

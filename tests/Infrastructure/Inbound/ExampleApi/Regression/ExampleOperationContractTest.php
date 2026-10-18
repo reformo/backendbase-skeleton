@@ -48,6 +48,7 @@ final class ExampleOperationContractTest extends TestCase
         $request       = new ServerRequestFactory()->createServerRequest('DELETE', '/example-types/user/groups/settings/examples/key');
         $request       = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
         $request       = $request->withHeader('Authorization', 'Bearer ' . $token);
+        $request       = $request->withHeader('Idempotency-Key', 'remove-example');
         $request       = $request->withQueryParams(['typeTargetId' => '42']);
         $response      = $app->handle($request);
         self::assertSame(204, $response->getStatusCode());
@@ -64,6 +65,7 @@ final class ExampleOperationContractTest extends TestCase
         $request  = new ServerRequestFactory()->createServerRequest('POST', '/example-types/system/groups/settings/examples');
         $request  = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
         $request  = $request->withHeader('Authorization', 'Bearer ' . $token);
+        $request  = $request->withHeader('Idempotency-Key', 'duplicate-example');
         $request  = $request->withBody(JsonRequestBody::create(['lookupValue' => 'value']));
         $response = $app->handle($request);
         self::assertSame(409, $response->getStatusCode());
@@ -81,6 +83,7 @@ final class ExampleOperationContractTest extends TestCase
         $request  = new ServerRequestFactory()->createServerRequest('PATCH', '/example-types/system/groups/settings/examples/key');
         $request  = $request->withHeader('Backendbase-Api-Key', 'example-api-key');
         $request  = $request->withHeader('Authorization', 'Bearer ' . $token);
+        $request  = $request->withHeader('Idempotency-Key', 'duplicate-example');
         $request  = $request->withBody(JsonRequestBody::create(['details' => ['x']]));
         $response = $app->handle($request);
         self::assertSame(400, $response->getStatusCode());

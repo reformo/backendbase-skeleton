@@ -44,3 +44,7 @@ When an SQS handler throws, `SqsTransport` records safe exception, queue, and me
 The repository has no trace exporter, dashboard, or alert backend.
 
 Basis: `resources/docs/11-error-handling-and-observability.html`.
+
+`Idempotency-Key` identifies an intended write independently of `X-Request-Id`. Retries can use different trace identifiers.
+Replay excludes trace headers and stores safe failure responses without debug details. Never log request bodies, keys, or response ciphertext.
+Monitor unresolved HTTP claims and storage failures. See [HTTP idempotency](operations/http-idempotency.md).

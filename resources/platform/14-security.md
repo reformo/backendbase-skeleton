@@ -1,5 +1,7 @@
 # Authentication and Access Control
 
+Read the [IdentityAndAccess capability guide](../docs/bounded-contexts/identity-and-access.html) for business explanations, workflows, configuration, and support decisions.
+
 ExampleApi requires an API key for metadata, Authentication, Identity, and Example operations.
 Example and Identity protected groups also require the existing USER bearer authentication.
 `getExampleByCriteria` requires no bearer token. ExampleApi and UserApi share Accounts, signing settings, sessions, and revocation state.
@@ -13,9 +15,9 @@ Liveness and readiness remain public in each API.
 - `X-Source-Id: system-admin` selects SystemAdminApi and the trusted ADMIN realm policy.
 - The bootstrap uses a fixed target map. A header cannot supply a filesystem path.
 - Each Authentication, Identity, Administration, and protected Example group defines its realm once through `RealmPolicy`.
-- Protected groups add `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
+- Protected groups add `Idempotency`, `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
 - `RoutePolicy` supplies endpoint actions. `ContactRoutePolicy` supplies contact settings. Neither policy changes the group realm.
-- Authentication groups apply only `RealmPolicy` at the group level. ExampleApi still requires its API key. Health and preflight routes require no credentials.
+- Authentication groups apply `RealmPolicy` and write replay through `Idempotency` at the group level. ExampleApi still requires its API key. Health and preflight routes require no credentials.
 - USER and ADMIN use distinct issuers, audiences, and signing keys.
 - Signing uses HS256 with configured 32-byte keys and explicit key identifiers.
 - Verification checks signature, algorithm, issuer, audience, dates, realm, actor type, and canonical identifiers.
@@ -147,3 +149,10 @@ Configuration and container definitions do not persist live credential values in
 Logs exclude submitted values and exception arguments.
 
 Basis: [realm ADR](../adr/0037-user-and-system-admin-jwt-realms.md), [session ADR](../adr/0038-redis-token-allowlist-and-session-lifecycle.md), and [password authentication ADR](../adr/0049-password-authentication-without-totp.md).
+
+## HTTP replay protection
+
+All write routes require `Idempotency-Key`. Protected replay follows current API-key and bearer authentication.
+Revoked sessions remain rejected. Login replay returns the original token without renewing or restoring its session.
+Dedicated `BACKENDBASE_IDEMPOTENCY_KEY` protects body fingerprints and encrypted responses. Raw passwords and tokens are absent from claim metadata.
+See [HTTP idempotency](operations/http-idempotency.md) for retention and key replacement constraints.

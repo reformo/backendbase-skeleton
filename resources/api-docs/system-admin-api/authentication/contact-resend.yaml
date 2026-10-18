@@ -5,6 +5,7 @@ post:
   description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
   security: []
   parameters:
+    - $ref: '../../common/components.yaml#/headers/Idempotency-Key'
     - $ref: '../../common/components.yaml#/headers/Accept-Language'
     - $ref: '../../common/components.yaml#/headers/The-Timezone-IANA'
     - $ref: '../../common/components.yaml#/headers/X-Request-Id'
@@ -27,6 +28,10 @@ post:
         schema:
           $ref: '../system-admin-api-openapi.yml#/components/schemas/ContactResend'
   responses:
+    422:
+      $ref: '../../common/components.yaml#/schemas/422'
+    500:
+      $ref: '../../common/components.yaml#/schemas/500'
     200:
       description: 'Contact verification state'
       headers:

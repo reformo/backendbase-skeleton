@@ -37,7 +37,7 @@ Migration-history rewrites require a separate adoption plan for databases that a
 
 ## Current migration history
 
-The migration history contains three consolidated installation migrations and two forward naming migrations:
+The migration history contains three consolidated installation migrations, two forward naming migrations, and one HTTP replay migration:
 
 | Migration | Final schema |
 | --- | --- |
@@ -46,8 +46,9 @@ The migration history contains three consolidated installation migrations and tw
 | `Version20261014020000` | Account with required email and mobile active keys, nullable first/last names, and required `password_hash VARCHAR(255)`; User, Admin, and contact verification tables |
 | `Version20261017000000` | Remove `identity_` from Account, User, and Admin table and index names; preserve rows, columns, and index definitions |
 | `Version20261017010000` | Rename contact verification, claim expiry, and failure type without changing stored values |
+| `Version20261018000000` | Add durable HTTP replay claims, encrypted responses, and an expiry index |
 
-The release manifest pins `Version20261017010000`. Application-only rollback remains unsafe because older applications require the former table and column names.
+The release manifest pins `Version20261018000000`. Application-only rollback remains unsafe because older applications require the former table and column names.
 Messaging and identity installation rollbacks reject removal of their retained evidence.
 Example rollback drops its table only through an explicitly authorized operation.
 Fresh installation creates no Example shadow or legacy table and performs no copy or rename.
@@ -95,7 +96,7 @@ All existing values, column types, defaults, index column order, uniqueness, and
 The three MySQL ALTER statements are non-transactional. Review all source and target names before execution.
 After partial execution, inspect each affected object before choosing forward repair or the reviewed reverse migration.
 The previous application cannot use the renamed objects. Keep application-only rollback disabled.
-A fresh database runs all five migrations in order. Existing databases must satisfy the earlier adoption and recovery gates.
+A fresh database runs all six migrations in order. Existing databases must satisfy the earlier adoption and recovery gates.
 
 ## Operator history
 
@@ -107,3 +108,9 @@ Existing installations require a separate adoption plan that compares actual tab
 Include any operator tables or removed migration versions from earlier history in that review.
 Preserve recoverable evidence before any separately authorized table cleanup or migration-record reconciliation.
 Do not rerun installation migrations, delete migration records, or infer schema equivalence from a recorded version alone.
+
+## HTTP request replay
+
+The HTTP replay migration creates `http_request_replay` without changing business tables.
+Its reverse operation preserves evidence by refusing to drop the table.
+See [HTTP idempotency](operations/http-idempotency.md) for deployment, expiry, indexes, and uncertain-outcome recovery.

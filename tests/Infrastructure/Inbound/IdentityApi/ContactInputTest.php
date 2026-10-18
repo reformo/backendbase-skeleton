@@ -51,6 +51,7 @@ final class ContactInputTest extends TestCase
         self::assertSame(400, $api->request('POST', $path, ['verificationContextToken' => ContactScenario::token(), 'code' => '12345'])->getStatusCode());
         self::assertSame(400, $api->request('POST', '/auth/contact-verifications')->getStatusCode());
         $request = new ServerRequestFactory()->createServerRequest('POST', '/auth/contact-verifications', ['REMOTE_ADDR' => 'invalid']);
+        $request = $request->withHeader('Idempotency-Key', 'invalid-contact-input');
         $request = $request->withHeader('Content-Type', 'application/json')->withParsedBody(['contactType' => 'email', 'contactValue' => 'ada@example.com', 'verificationContextToken' => ContactScenario::token()]);
         self::assertSame(400, $api->handle($request)->getStatusCode());
     }

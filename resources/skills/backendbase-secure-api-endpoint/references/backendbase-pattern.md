@@ -21,9 +21,9 @@ Slim uses last-in, first-out middleware execution. The API context runs before t
 Backendbase ExampleApi and UserApi share IdentityAndAccess USER account, token, and session flows. SystemAdminApi uses ADMIN. Inspect available mechanisms in other target projects.
 
 Their Authentication, Identity, and Administration modules define each group's realm once through `RealmPolicy`.
-Protected groups add `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
+Protected groups add `Idempotency`, `RealmAuthentication`, then `RealmPolicy`. Slim executes `RealmPolicy` first, before token validation.
 `RoutePolicy` and `ContactRoutePolicy` supply endpoint settings without changing the group realm.
-Public Authentication groups apply only `RealmPolicy`. Realm selection does not require a bearer token.
+Public Authentication groups apply `RealmPolicy` and write replay through `Idempotency`. Realm selection does not require a bearer token.
 Adapt middleware names, security policy, and execution order to the target framework.
 
 ## Policy matrix

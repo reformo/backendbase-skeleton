@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\ExampleApi\Controllers\Identity;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
+use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
 use Backendbase\Infrastructure\Adapters\Http\Identity\ContactRoutePolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmAuthentication;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
@@ -50,6 +51,7 @@ final class ModuleConfig implements ModuleRoute
                 ->setName('exampleAuthenticatedContactResend')
                 ->add(new ContactRoutePolicy(['action' => 'resend', 'authenticated' => true]));
         })
+            ->add(Idempotency::class)
             ->add(RealmAuthentication::class)
             ->add(new RealmPolicy(Realm::USER));
     }

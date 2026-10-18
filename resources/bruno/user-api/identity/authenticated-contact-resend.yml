@@ -6,6 +6,8 @@ http:
   method: POST
   url: '{{baseUrl}}/identity/contact-verifications/{{contactInfoId}}/resend'
   headers:
+    - name: Idempotency-Key
+      value: "{{$randomUUID}}"
     - name: X-Source-Id
       value: user
     - name: Accept-Language

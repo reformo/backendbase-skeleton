@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\SystemAdminApi\Controllers\Administ
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
+use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmAuthentication;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RoutePolicy;
@@ -37,6 +38,7 @@ final class ModuleConfig implements ModuleRoute
             $group->get('/actors/{realm}/{actor-id}', Handlers\ActorHistory::class)
                 ->setName('systemadminReadActorHistory');
         })
+            ->add(Idempotency::class)
             ->add(RealmAuthentication::class)
             ->add(new RealmPolicy(Realm::ADMIN));
     }

@@ -481,7 +481,8 @@
                 <strong>Current reference</strong>
                 The repository contains <code>ExampleApi</code>, <code>UserApi</code>, and <code>SystemAdminApi</code>. Each API owns its controllers and route registration.
             </div>
-        </section>
+        <p>All 38 write operations require <code>Idempotency-Key</code>. Group authentication runs before replay. Claims preserve existing application transaction boundaries. See <a href="../platform/operations/http-idempotency.md">HTTP idempotency</a> for the complete contract and recovery procedure.</p>
+</section>
 
         <section id="topology">
             <h2>Current topology</h2>
@@ -519,7 +520,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <p>Use fluent route declarations in <code>ModuleConfig</code>, following ExampleApi. Chain the HTTP method, <code>setName()</code>, and endpoint-specific <code>add()</code> calls. Use <code>group()</code> to apply common middleware once.</p>
             <p>Authentication, Identity, and Administration modules define their realm once per group through <code>RealmPolicy</code>. <code>RoutePolicy</code> supplies only the endpoint action. <code>ContactRoutePolicy</code> supplies only contact settings. Neither policy sets or replaces the group realm.</p>
             <p>Protected Identity and Administration routes share an empty-prefix subgroup. Add <code>RealmAuthentication</code>, then the fixed <code>RealmPolicy</code>. Slim executes the last added middleware first, so the realm policy runs before authentication. Keep action and contact policies on individual routes. Use non-static group callbacks because Slim binds them to the dependency container.</p>
-            <p>Public Authentication groups apply only <code>RealmPolicy</code> and do not require a bearer token.</p>
+            <p>Public Authentication groups apply <code>RealmPolicy</code> and write replay through <code>Idempotency</code> and do not require a bearer token.</p>
             <p>Anonymous authentication, health, and preflight routes remain outside protected groups.</p>
             <p>Both APIs use the same <code>IdentityAndAccess</code> application operations. Reusable HTTP input, dispatch, and policy helpers belong under <code>Infrastructure/Adapters/Http/Identity</code>.</p>
         </section>
@@ -739,7 +740,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
                     <tbody>
                     <tr><td><code>Accept-Language</code></td><td>Required</td><td>Used by shared translation configuration through server state. The API middleware does not reject absence.</td></tr>
                     <tr><td><code>The-Timezone-IANA</code></td><td>Required</td><td>Protected routes create <code>clientTimezone</code>. Absence defaults to <code>UTC</code>.</td></tr>
-                    <tr><td><code>X-Request-Id</code></td><td>Required</td><td>The logger uses it as <code>trace_id</code>. The logger generates a UUID when absent.</td></tr>
+                    <tr><td><code>X-Request-Id</code></td><td>Optional</td><td>The logger uses it as <code>trace_id</code>. The logger generates a UUID when absent.</td></tr>
                     <tr><td><code>X-Source-Id</code></td><td>Required</td><td>The shared front controller uses it to select <code>ExampleApi</code>. The dedicated front controller also requires this header.</td></tr>
                     </tbody>
                 </table>
@@ -861,7 +862,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
             <p>The editable specification starts at <code>resources/api-docs/example-api/example-openapi.yml</code>. It references shared components, UserApi identity schemas, and grouped System, Authentication, Identity, and Example path files.</p>
             <div class="process" aria-label="OpenAPI generation flow">
                 <div class="step"><span class="step-number">01</span><strong>Edit operation</strong><br><span class="muted">Change the module YAML and shared references.</span></div>
-                <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference all four shared request headers.</span></div>
+                <div class="step"><span class="step-number">02</span><strong>Add headers</strong><br><span class="muted">Reference the shared headers and require Idempotency-Key for writes.</span></div>
                 <div class="step"><span class="step-number">03</span><strong>Align security</strong><br><span class="muted">Match anonymous or API-key-protected routing.</span></div>
                 <div class="step"><span class="step-number">04</span><strong>Generate</strong><br><span class="muted">Inline references into the public YAML file.</span></div>
                 <div class="step"><span class="step-number">05</span><strong>Review viewer</strong><br><span class="muted">Check schemas, examples, and status codes.</span></div>

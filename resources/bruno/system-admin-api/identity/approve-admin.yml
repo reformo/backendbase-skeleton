@@ -6,6 +6,8 @@ http:
   method: POST
   url: '{{baseUrl}}/administration/admins/approve'
   headers:
+    - name: Idempotency-Key
+      value: "{{$randomUUID}}"
     -
       name: X-Source-Id
       value: system-admin

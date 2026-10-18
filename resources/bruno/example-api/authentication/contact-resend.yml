@@ -6,6 +6,8 @@ http:
   method: POST
   url: '{{baseUrl}}/auth/contact-verifications/{{contactInfoId}}/resend'
   headers:
+    - name: Idempotency-Key
+      value: "{{$randomUUID}}"
     - name: Backendbase-Api-Key
       value: '{{apiKey}}'
     - name: X-Source-Id

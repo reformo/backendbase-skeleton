@@ -537,7 +537,8 @@
             <p>The repository provides <code>ExampleApi</code>, <code>UserApi</code>, and <code>SystemAdminApi</code>. <code>ExampleCatalog</code> supplies the reference business module. <code>IdentityAndAccess</code> owns identity and authentication behavior.</p>
             <div class="callout good"><strong>Use this page first.</strong> Follow its links when you need the complete rules for one architecture topic.</div>
             <p>Read the <a href="code-quality-and-maintainability-report.html">16 October engineering assessment</a> and <a href="ports-and-adapters-critique.html">architecture assessment</a> for strengths, weaknesses, and verification limits.</p>
-        </section>
+        <p>Write operations also require <code>Idempotency-Key</code>. Keep it stable across retries. <code>X-Request-Id</code> remains optional tracing metadata. See <a href="../platform/operations/http-idempotency.md">HTTP idempotency</a> for the complete contract and recovery procedure.</p>
+</section>
 
         <section id="state">
             <p class="section-label">02 · Current state</p>
@@ -975,6 +976,8 @@ bin/bruno example-api local</code></pre>
                 <article class="guide-card"><h3><a href="14-external-services-and-object-storage.html">14. External Services and Object Storage</a></h3><p>Integration boundaries, failure policy, S3 uploads, signed requests, configuration, and tests.</p></article>
                 <article class="guide-card"><h3><a href="15-internationalization-and-tolgee.html">15. Internationalization and Tolgee</a></h3><p>Runtime dictionaries, locale selection, placeholders, Tolgee scripts, cron, and current differences.</p></article>
                 <article class="guide-card"><h3><a href="16-shared-primitives-and-object-mapping.html">16. Shared Primitives and Object Mapping</a></h3><p>Identifiers, validated values, query primitives, object mapping, serialization, and safe reuse.</p></article>
+                <article class="guide-card"><h3><a href="http-idempotency.html">HTTP Idempotency</a></h3><p>Safe retries, client keys, encrypted results, configuration, cleanup, and recovery for support, developers, and operations.</p></article>
+                <article class="guide-card"><h3><a href="bounded-contexts/identity-and-access.html">IdentityAndAccess</a></h3><p>Accounts, User and Admin access, verification, sessions, configuration, operator work, and recovery.</p></article>
                 <article class="guide-card"><h3><a href="project.md">Agent Project Reference</a></h3><p>Machine-oriented repository rules, feature sequence, entry points, and implementation constraints.</p></article>
                 <article class="guide-card"><h3><a href="code-quality-and-maintainability-report.html">Engineering Assessment</a></h3><p>Current strengths, weaknesses, local execution, recorded coverage, and follow-up checks.</p></article>
                 <article class="guide-card"><h3><a href="ports-and-adapters-critique.html">Architecture Assessment</a></h3><p>Dependency direction, adapter classification, domain encapsulation, and navigation costs.</p></article>

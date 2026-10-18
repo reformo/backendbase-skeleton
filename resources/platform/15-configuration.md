@@ -73,3 +73,7 @@ Redis settings support optional ACL credentials and verified TLS. Malformed conn
 Plain Redis endpoints use a null connection context. TLS endpoints use peer and peer-name verification.
 The RedisJSON library reuses the lazy native `SessionRedis` connection and its Redis 8 version check.
 Both session storage and readiness use that connection and its typed context. Rebuild clients after changing endpoint configuration.
+
+HTTP write replay requires `BACKENDBASE_IDEMPOTENCY_KEY`, a dedicated base64-encoded 32-byte secret shared by API instances.
+`ReplaySettings` validates it lazily. There is no deployment default.
+Keep the key through retained responses and unresolved claims. See [HTTP idempotency](operations/http-idempotency.md).

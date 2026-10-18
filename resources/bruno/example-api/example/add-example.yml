@@ -7,6 +7,8 @@ http:
   method: "POST"
   url: "{{baseUrl}}/example-types/{{type-slug}}/groups/{{example-group}}/examples"
   headers:
+    - name: Idempotency-Key
+      value: "{{$randomUUID}}"
     - name: "Authorization"
       value: "Bearer {{accessToken}}"
     - name: "Backendbase-Api-Key"

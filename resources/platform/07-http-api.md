@@ -23,10 +23,10 @@ Console entry points and message handlers can also be inbound adapters. Keep `co
 - Reusable identity input, dispatch, and policy helpers live under `Infrastructure/Adapters/Http/Identity`. Administration input belongs inside SystemAdminApi's Administration module.
 
 Authentication, Identity, Administration, and protected Example groups define their realm once per group through `RealmPolicy`.
-Identity, Administration, and protected Example operations use an empty-prefix subgroup. The subgroup adds `RealmAuthentication`, then its fixed `RealmPolicy`.
+Identity, Administration, and protected Example operations use an empty-prefix subgroup. The subgroup adds `Idempotency`, `RealmAuthentication`, then its fixed `RealmPolicy`.
 Slim runs the last added middleware first. The group policy supplies `expectedRealm` before authentication runs.
 `RoutePolicy` supplies only the endpoint action. `ContactRoutePolicy` supplies only contact settings. Neither policy sets or replaces the group realm.
-Endpoint action and contact policies run after group authentication. Public Authentication groups apply only `RealmPolicy` and do not require a bearer token.
+Endpoint action and contact policies run after group authentication. Public Authentication groups apply `RealmPolicy` and write replay through `Idempotency` and do not require a bearer token.
 Anonymous authentication, health, and preflight routes remain outside protected groups.
 Use non-static group callbacks because Slim binds them to the dependency container.
 
@@ -71,3 +71,10 @@ JSON body limits run before parsing. Identity inputs require JSON objects, while
 
 Browser OPTIONS preflight can select a fixed inbound API from its path without an `X-Source-Id` value.
 Ordinary requests still require the declared source header. Preflight does not invoke authentication or business handlers.
+
+## Idempotent writes
+
+All documented POST, PATCH, and DELETE operations require `Idempotency-Key`. The middleware also supports future named PUT operations.
+`Idempotency` runs after group authentication and before endpoint work. Public Authentication groups run it after realm selection.
+All three API CORS configurations permit the header. Reads and preflight skip replay storage.
+See [HTTP idempotency](operations/http-idempotency.md) for matching, expiry, errors, encrypted responses, and recovery.

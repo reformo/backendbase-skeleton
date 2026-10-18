@@ -13,6 +13,7 @@ Infrastructure table names identify technical responsibilities and remain unchan
 | ExampleCatalog | `example_table` | Assigned binary UUID primary key; read-only virtual public UUID; opaque integer target selector retained |
 | Infrastructure messaging | `integration_event_outbox`, `integration_event_inbox`, `integration_event_delivery_failure` | Existing technical message and claim UUID strings |
 | Infrastructure recovery | `integration_event_replay`, `external_effect_resolution` | Binary UUIDv7 audit identifiers; original technical message and consumer identity |
+| Infrastructure HTTP replay | `http_request_replay` | SHA-256 scoped request identity; keyed content fingerprint; encrypted response |
 | Migration runtime | `doctrine_migration_versions` | Migration class identifiers |
 
 ## Identity representation inventory

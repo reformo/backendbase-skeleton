@@ -113,7 +113,9 @@ final class BoundaryFailureTest extends TestCase
     {
         $api     = IdentityApiFixture::create(IdentityFixture::create(), Realm::USER);
         $request = new ServerRequest(uri: '/auth/register', method: 'POST');
+        $request = $request->withHeader('Idempotency-Key', 'malformed-registration');
         self::assertSame(400, $api->handle($request->withHeader('Content-Type', 'text/plain'))->getStatusCode());
+        $request = $request->withHeader('Idempotency-Key', 'malformed-registration-json');
         self::assertSame(400, $api->handle($request->withHeader('Content-Type', 'application/json'))->getStatusCode());
     }
 }

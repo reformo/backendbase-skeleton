@@ -202,3 +202,10 @@ Basis: `resources/docs/1-bounded-contexts.html`, `resources/docs/9-persistence-a
 
 Doctrine framework mutable datetime fields also use UTC microsecond SQL declarations and preserve their PHP mutable type.
 This keeps migration metadata compatible with immutable business datetime introspection.
+
+## HTTP replay persistence
+
+Infrastructure owns `http_request_replay` through `DoctrineRequestReplayStore`. It stores digests, encrypted text, and UTC timestamps.
+Its primary key covers exact request lookups and conditional writes. Its expiry index covers bounded cleanup.
+The store commits claims independently before application work. Unresolved claims never expire automatically.
+See [HTTP idempotency](operations/http-idempotency.md) for the complete persistence and recovery contract.

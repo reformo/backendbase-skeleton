@@ -14,7 +14,8 @@ It does not upgrade a database that applied the former migration history.
 | `Version20261014020000` | Original identity and contact verification tables |
 
 Former staged migration files are removed.
-The release target is `Backendbase\Migrations\Version20261017010000`.
+The release target is `Backendbase\Migrations\Version20261018000000`.
+A sixth migration adds durable HTTP request claims and encrypted responses. See [HTTP idempotency](http-idempotency.md).
 The Example table uses assigned binary UUID keys, virtual public UUIDs, versions, and microsecond timestamps at creation.
 The Example installation creates no shadow table, retained legacy table, data copy, or atomic rename.
 Existing identifiers, data types, constraints, indexes, and messaging recovery tables keep their final schema definitions.

@@ -28,6 +28,20 @@ headers:
       format: uuid
       default: 019f0325-5940-7702-8488-3cfe56553586
     example: 019f0325-5940-7702-8488-3cfe56553586
+  Idempotency-Key:
+    name: Idempotency-Key
+    in: header
+    required: true
+    description: >-
+      Client-generated key for one intended write. Reuse the same key, credentials, URL, headers, and exact body on retry.
+      Completed responses remain replayable for 24 hours. Concurrent or unresolved attempts return 409.
+      Changed request content returns 422. X-Request-Id can change between attempts.
+    schema:
+      type: string
+      minLength: 1
+      maxLength: 255
+      pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,254}$"
+    example: 019f6322-1234-7000-8000-000000000001
   X-Source-Id:
     name: X-Source-Id
     in: header
@@ -90,6 +104,24 @@ schemas:
           $ref: '#/schemas/ApiProblem'
   409:
     description: Conflict
+    content:
+      application/problem+json:
+        schema:
+          $ref: '#/schemas/ApiProblem'
+  422:
+    description: Idempotency key reused with different request content
+    content:
+      application/problem+json:
+        schema:
+          $ref: '#/schemas/ApiProblem'
+  500:
+    description: Internal failure; the same key replays the recorded failure
+    content:
+      application/problem+json:
+        schema:
+          $ref: '#/schemas/ApiProblem'
+  503:
+    description: Authentication or idempotency dependency unavailable
     content:
       application/problem+json:
         schema:

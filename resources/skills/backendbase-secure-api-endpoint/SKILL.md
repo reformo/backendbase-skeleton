@@ -57,7 +57,7 @@ Test expired or revoked credentials only when the selected mechanism provides th
 - Its protected Example and Identity groups also require the USER realm. `getExampleByCriteria` and Authentication operations require no bearer token.
 - Liveness and readiness are public.
 - Backendbase ExampleApi and UserApi share USER account and session flows. SystemAdminApi uses the separate ADMIN realm.
-- Define each group's realm once through `RealmPolicy`. Protected groups also apply `RealmAuthentication`; public Authentication groups apply only `RealmPolicy`.
+- Define each group's realm once through `RealmPolicy`. Protected groups also apply `RealmAuthentication`; public Authentication groups apply `RealmPolicy` and write replay through `Idempotency`.
 - Keep endpoint action and contact policies independent of realm selection. Verify group middleware order through actual requests.
 - Shared `AccessControl` remains available for application privilege decisions.
 - Internal `QueueGreeting` checks `example.add` before its transaction. It has no HTTP route.

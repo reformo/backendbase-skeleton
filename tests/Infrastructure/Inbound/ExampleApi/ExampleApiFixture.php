@@ -10,6 +10,7 @@ use Backendbase\Domain\IdentityAndAccess\Application\SessionIssuance;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
+use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
 use Backendbase\Shared\CQRS\CommandBus;
 use Backendbase\Shared\Services\Settings as SettingsValue;
 use Backendbase\Shared\Settings;
@@ -36,6 +37,7 @@ final class ExampleApiFixture
             LoggerInterface::class => new NullLogger(),
             CommandBus::class => $commandBus,
             AuthenticationGate::class => $container->get(AuthenticationGate::class),
+            Idempotency::class => $container->get(Idempotency::class),
         ]);
         AppFactory::setContainer($builder->build());
         $app        = AppFactory::create();

@@ -64,6 +64,7 @@ return static function (\\DI\\ContainerBuilder $builder): void {
         "AWS_ENDPOINT": "http://127.0.0.1:1", "AWS_EC2_METADATA_DISABLED": "true",
         "OBJECT_STORE_ACCESS_KEY": "", "OBJECT_STORE_SECRET_KEY": "",
         "BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY": base64.b64encode(b"e" * 32).decode(),
+        "BACKENDBASE_IDEMPOTENCY_KEY": base64.b64encode(secrets.token_bytes(32)).decode(),
         "BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER": "identity@example.test",
         "BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS": "900",
     })
@@ -88,6 +89,8 @@ class IdentityClient:
 
     def request(self, api, method, path, expected, payload=None, token=None):
         headers = {"X-Source-Id": api, "Content-Type": "application/json"}
+        if method in {"POST", "PUT", "PATCH", "DELETE"}:
+            headers["Idempotency-Key"] = secrets.token_hex(16)
         if token:
             headers["Authorization"] = "Bearer " + token
         body = None if payload is None else json.dumps(payload).encode()

@@ -141,6 +141,13 @@ Delete completed inbox and outbox records with a scheduled retention job:
 bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000
 ```
 
+## HTTP write retries
+
+All write endpoints require `Idempotency-Key`. Reuse it for retries and use a new key for each intended operation.
+Set `BACKENDBASE_IDEMPOTENCY_KEY` and apply the reviewed replay-table migration before activation.
+See [HTTP idempotency](resources/platform/operations/http-idempotency.md) for expiry, authentication, uncertain outcomes, and cleanup.
+Read the [HTML idempotency guide](resources/docs/http-idempotency.html) and [IdentityAndAccess guide](resources/docs/bounded-contexts/identity-and-access.html) for business explanations, configuration, and operations.
+
 ## API E2E Tests
 
 ### Usage

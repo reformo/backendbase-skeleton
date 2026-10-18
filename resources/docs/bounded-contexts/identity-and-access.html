@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="IdentityAndAccess explained for product, support, developers, and operations: Accounts, roles, registration, sessions, verification, configuration, and recovery.">
+    <title>IdentityAndAccess · Backendbase Capability Guide</title>
+    <link rel="stylesheet" href="../documentation.css">
+    <link rel="stylesheet" href="../documentation-light.css">
+    <link rel="stylesheet" href="../capability-guides.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="hero">
+    <div class="hero-inner">
+        <p class="eyebrow">Backendbase · Bounded context guide</p>
+        <h1>Identity and Access</h1>
+        <p class="lede">How an Account becomes eligible to sign in, how User and Admin access differ, and how the system checks access after login.</p>
+        <div class="chips">
+            <span class="chip">Product and support</span>
+            <span class="chip">Developers</span>
+            <span class="chip">Operations</span>
+            <span class="chip">Reviewed 18 October 2026</span>
+        </div>
+    </div>
+</header>
+<div class="layout">
+    <nav aria-label="Page contents">
+        <strong>Start here</strong>
+        <a href="#overview">1. Purpose and ownership</a>
+        <a href="#account-model">2. Account, access, and realm</a>
+        <a href="#registration">3. Registration and verification</a>
+        <a href="#sessions">4. Login and session changes</a>
+        <a href="#administration">5. Admin enrollment</a>
+        <strong>Developer guide</strong>
+        <a href="#api-surfaces">6. API surfaces and retries</a>
+        <a href="#architecture">7. Architecture and data</a>
+        <strong>Operations guide</strong>
+        <a href="#configuration">8. Configuration</a>
+        <a href="#rotation">9. Keys, deployment, and recovery</a>
+        <a href="#support">10. Support decisions</a>
+        <a href="#limits">11. Important limits</a>
+        <a href="#verification">12. Verification and sources</a>
+    </nav>
+    <main id="main-content">
+        <section id="overview">
+            <p class="section-label">01 · For every reader</p>
+            <h2>Identify the Account and check its current access</h2>
+            <p><strong>IdentityAndAccess</strong> is the application area that owns Accounts, passwords, User and Admin access, contact verification, tokens, and sessions.</p>
+            <p>A <strong>bounded context</strong> is an area with its own business rules and data ownership. This context decides whether a person can sign in and use an authenticated identity.</p>
+            <p>Applications use an application programming interface (API) to request registration, login, and other identity operations.</p>
+            <div class="summary-grid">
+                <div class="stat"><strong>1</strong><span>Shared Account for credentials and contacts</span></div>
+                <div class="stat"><strong>2</strong><span>Separate authentication realms: USER and ADMIN</span></div>
+                <div class="stat"><strong>15 min</strong><span>Default token lifetime; configuration can change it</span></div>
+                <div class="stat"><strong>12 hours</strong><span>Registration window after required mobile proof</span></div>
+            </div>
+            <div class="reading-path">
+                <p><strong>Product and support:</strong> Start with the Account model, registration, sessions, Admin enrollment, and support decisions.</p>
+                <p><strong>Developers:</strong> Read the API, transaction, data, and retry rules.</p>
+                <p><strong>Operations:</strong> Read configuration, key rotation, first-Admin setup, and recovery before activation.</p>
+            </div>
+            <aside class="callout">
+                <strong>Three separate facts:</strong> Contact verification proves control of a contact. A password proves knowledge of a credential. Admin approval grants Admin eligibility.
+            </aside>
+        </section>
+
+        <section id="account-model">
+            <p class="section-label">02 · Account model</p>
+            <h2>One Account can have User access and Admin access</h2>
+            <figure class="identity-map">
+                <div class="card identity-root">
+                    <h3>Account</h3>
+                    <p>Required email and mobile, password hash, optional names, ownership, and enabled state.</p>
+                </div>
+                <div class="identity-branches">
+                    <article class="card">
+                        <h3>User access</h3>
+                        <p><code>User</code> actor · <code>USER</code> realm</p>
+                        <p>Used by UserApi and the protected User flows in ExampleApi.</p>
+                    </article>
+                    <article class="card">
+                        <h3>Admin access</h3>
+                        <p><code>SystemAdmin</code> actor · <code>ADMIN</code> realm</p>
+                        <p>Used by SystemAdminApi after invitation and approval.</p>
+                    </article>
+                </div>
+                <figcaption>Both access records can belong to the same Account. Each Account has at most one actor of each type, including removed records.</figcaption>
+            </figure>
+            <p>An <strong>actor</strong> is the Account's access record in a realm. A <strong>realm</strong> is a separate authentication area with its own token trust settings.</p>
+            <p>User and Admin actors have different identifiers. The Account identifier refers to their shared credentials and contacts. A USER token does not grant ADMIN access.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Account and session terms">
+                <table>
+                    <thead><tr><th scope="col">Term</th><th scope="col">Meaning</th><th scope="col">Important distinction</th></tr></thead>
+                    <tbody>
+                        <tr><td>Account</td><td>The shared identity and credentials.</td><td>Closing it blocks access across both realms.</td></tr>
+                        <tr><td>Actor</td><td>User or Admin eligibility for that Account.</td><td>Removing one actor does not release the Account's contacts.</td></tr>
+                        <tr><td>Token</td><td>A signed credential supplied on API requests.</td><td>Signature validity alone does not establish current access.</td></tr>
+                        <tr><td>Session</td><td>A stored login state checked with its token.</td><td>Token and session records must both exist in Redis.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Email and mobile are globally unique among active Accounts. Account closure releases those active contact reservations. Removed actors remain retained records.</p>
+        </section>
+
+        <section id="registration">
+            <p class="section-label">03 · Registration and contact proof</p>
+            <h2>Verify mobile before User registration</h2>
+            <div class="diagram-wrap" tabindex="0" role="region" aria-label="User registration flow">
+                <ol class="flow guide-flow">
+                    <li><strong>Request a code</strong><small>Supply mobile and a secret verification context.</small></li>
+                    <li><strong>Confirm mobile</strong><small>Supply the context and the six-digit code.</small></li>
+                    <li><strong>Register</strong><small>Supply email, mobile, password, and the same context.</small></li>
+                    <li><strong>Log in</strong><small>Use email or mobile and the password.</small></li>
+                </ol>
+            </div>
+            <p>Email and mobile input are required. Only mobile proof is required for registration. Email verification is optional before registration and available after login.</p>
+            <p>Confirmed mobile proof must be less than 12 hours old at registration. Proof exactly 12 hours old is expired. Normal login remains available after this registration window.</p>
+            <p>Successful registration creates the Account and User. Login is a separate operation that issues a session.</p>
+            <details>
+                <summary>Developer details: values, context, and atomic registration</summary>
+                <ul>
+                    <li>Email uses lowercase ASCII. Mobile uses E.164: a plus sign and 2 to 15 digits. Domestic formatting and inferred country codes are rejected.</li>
+                    <li>Passwords contain 12 to 128 UTF-8 characters, at most 512 bytes, and no null byte. Passwords are not trimmed.</li>
+                    <li>Optional <code>firstName</code> and <code>lastName</code> contain 1 to 160 UTF-8 characters when supplied. Empty values, surrounding spaces, and control characters are rejected.</li>
+                    <li>The client creates <code>verificationContextToken</code> from 32 random bytes encoded as canonical unpadded base64url. The result contains 43 characters.</li>
+                    <li>Registration accepts the contact values and context. Contact record identifiers are not accepted as registration fields.</li>
+                </ul>
+                <p>The workflow locks email evidence before mobile evidence, then reads the authorization time. One MySQL transaction consumes proof and creates identity records.</p>
+                <p>Matching fresh optional email evidence is consumed too. Missing or unusable email evidence does not block registration. Concurrent registration permits one successful proof consumption.</p>
+                <p>Account state stores <code>ownershipVerified: true</code> after the required proof succeeds. Optional email verification does not replace this ownership requirement.</p>
+            </details>
+            <h3>Verification after login</h3>
+            <p>An authenticated User can verify the Account's stored email. The server selects the destination. The client cannot use this flow to replace the email or verify another Account.</p>
+            <p>Admin verification is optional. It verifies stored contacts and does not grant Admin approval. Verification preserves existing ownership and sessions.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Contact verification limits">
+                <table>
+                    <caption>Current verification limits</caption>
+                    <thead><tr><th scope="col">Rule</th><th scope="col">Value</th><th scope="col">Attention point</th></tr></thead>
+                    <tbody>
+                        <tr><td>Code lifetime</td><td>5 minutes</td><td>A resend replaces the code and invalidates the previous code.</td></tr>
+                        <tr><td>Failed confirmations per contact record</td><td>5</td><td>Resend preserves failed attempts.</td></tr>
+                        <tr><td>Send cooldown</td><td>60 seconds</td><td>Applies across contexts and realms for the normalized contact.</td></tr>
+                        <tr><td>Contact send budget</td><td>5 per hour</td><td>Applies across contexts and realms.</td></tr>
+                        <tr><td>Caller IP send budget</td><td>20 per hour</td><td>Uses the direct caller address from <code>REMOTE_ADDR</code>.</td></tr>
+                        <tr><td>Failed or outstanding confirmation budget</td><td>10 per hour per contact</td><td>A successful confirmation releases its outstanding reservation.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>These limits are current policy values. The environment configuration does not expose them as independent tuning settings.</p>
+            <aside class="callout warning">
+                <strong>Delivery can be uncertain.</strong> Notification delivery happens after the identity transaction commits. A provider timeout can leave an unknown outcome. Provider acceptance does not prove final delivery.
+            </aside>
+            <p>A repeated create request returns the existing contact state. An explicit resend creates a new code generation after cooldown and quota checks.</p>
+            <div class="related"><a href="../../platform/operations/contact-verification.md">Complete contact verification contract</a><a href="../13-notifications.html">Notification providers</a></div>
+        </section>
+
+        <section id="sessions">
+            <p class="section-label">04 · Login and session lifecycle</p>
+            <h2>Each protected request checks current state</h2>
+            <p>Login accepts the Account email or mobile and password. It also requires verified ownership, an enabled Account, and an eligible actor in the selected realm.</p>
+            <p>An invited Admin must be approved before login. A successful User login does not create Admin access.</p>
+            <p>An <strong>allowlist</strong> records permitted access. Redis stores permitted tokens and sessions. MySQL stores current Account and actor state.</p>
+            <div class="diagram-wrap" tabindex="0" role="region" aria-label="Protected request access checks">
+                <ol class="flow guide-flow five">
+                    <li><strong>Signed token</strong><small>Verify signature and trusted key identifier.</small></li>
+                    <li><strong>Realm and time</strong><small>Check issuer, audience, type, and expiry.</small></li>
+                    <li><strong>Redis state</strong><small>Require matching token and session records.</small></li>
+                    <li><strong>MySQL state</strong><small>Check current Account and actor eligibility.</small></li>
+                    <li><strong>Operation policy</strong><small>Check authority for the requested action.</small></li>
+                </ol>
+            </div>
+            <p>A JSON Web Token (JWT) is signed, but its claims can still be read. Current tokens contain identifiers and authentication state. They do not contain email, mobile, or profile names.</p>
+            <p>The default token lifetime is 900 seconds. The supported range is 60 to 3,600 seconds. Reads and replay do not renew it. No refresh-token flow is provided.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Token, session, actor, and Account lifecycle effects">
+                <table>
+                    <thead><tr><th scope="col">Action</th><th scope="col">Effect</th><th scope="col">Support implication</th></tr></thead>
+                    <tbody>
+                        <tr><td>Revoke current token</td><td>Remove the current token allowlist record.</td><td>That token cannot authenticate. Other independent sessions can remain valid.</td></tr>
+                        <tr><td>End current session</td><td>Remove the session and current token records.</td><td>The current session can no longer authenticate.</td></tr>
+                        <tr><td>Remove an actor</td><td>Mark that actor as removed. Current MySQL checks reject it.</td><td>The Account and its contact reservations remain.</td></tr>
+                        <tr><td>Restore an actor</td><td>Clear the actor's removal marker. Current Account and approval gates still apply.</td><td>Restoration does not create a new session or token.</td></tr>
+                        <tr><td>Close Account</td><td>Disable the Account, increase its authentication version, and request revocation across both realms.</td><td>Current MySQL state rejects old tokens even if Redis revocation fails.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <aside class="callout warning">
+                <strong>Actor restoration can restore old access.</strong> Removal does not delete the actor's Redis records. An existing unexpired token can become usable again after restoration when all current gates pass.
+            </aside>
+            <details>
+                <summary>Developer details: token claims and Redis records</summary>
+                <p><code>sub</code> identifies the actor. <code>accountId</code> identifies its Account. <code>realm</code> is USER or ADMIN. <code>actorType</code> is User or SystemAdmin.</p>
+                <p><code>jti</code> identifies the token. <code>sid</code> identifies the session. <code>authVersion</code> must match the current Account version.</p>
+                <p>Other claims are <code>iss</code>, <code>aud</code>, <code>iat</code>, <code>nbf</code>, and <code>exp</code>. Headers include <code>alg: HS256</code>, <code>typ: JWT</code>, and the configured <code>kid</code>.</p>
+                <p>Redis uses Account-scoped realm keys. The token and session values are RedisJSON objects. A Lua script creates both records atomically and sets expiry to the JWT deadline.</p>
+                <p>Redis stores identity claims rather than the signed token string. Existing compatible string records remain readable until their original expiry.</p>
+            </details>
+        </section>
+
+        <section id="administration">
+            <p class="section-label">05 · Admin enrollment and operator work</p>
+            <h2>Use separate invitation and approval actions</h2>
+            <ol class="steps">
+                <li>Establish an enabled Account with verified ownership.</li>
+                <li>An authorized Admin invites that Account with an invitation evidence reference.</li>
+                <li>An authorized Admin approves the invited actor with a different approval evidence reference.</li>
+                <li>The approved actor can log in through the ADMIN API with the Account credentials.</li>
+            </ol>
+            <p>The target Admin cannot approve its own enrollment. The same existing Admin can invite and approve another Admin when the evidence references differ.</p>
+            <p>Any requirement for different staff members must be enforced by the surrounding approval process. Separate evidence does not by itself establish that staff separation.</p>
+            <h3>First-Admin bootstrap</h3>
+            <p>Before any Admin row exists, local operator commands can invite and approve the first Admin. Preview is the default. Applying an action requires local root authority on the identified target.</p>
+            <p><code>identity:operator</code> requires an action, target identifier, operator label, and the applicable evidence. Invitation and approval use separate commands.</p>
+            <p>A database-scoped MySQL lock serializes bootstrap and manual seeding. Approval requires the sole Admin row to be pending and active. Removed Admin rows still count.</p>
+            <details>
+                <summary>Operator details: manual seeding and evidence limits</summary>
+                <p><code>database:seed-admin</code> is a manual bootstrap for the explicitly approved fixed initial identity. It is not a general Account or Admin creation tool.</p>
+                <p>Apply uses <code>--password-file</code> with a private file in mode <code>0600</code>. The command does not trim or print the password.</p>
+                <p>Mode <code>0600</code> permits file access only for its owner.</p>
+                <p>The seed attests ownership and creates an approved Admin. It creates no User actor, contact proof, or notification.</p>
+                <p>Operator commands issue no login token. Admin state retains invitation and approval references. There is no separate operator history table.</p>
+                <p>The <code>--operator</code> option is an invocation label. Keep any required staff approval and audit evidence in the authorized external records.</p>
+            </details>
+            <div class="related"><a href="../../platform/operations/identity-operator.md">Exact operator and seeder procedures</a></div>
+        </section>
+
+        <section id="api-surfaces">
+            <p class="section-label">06 · For developers</p>
+            <h2>Use the API surface for the intended realm</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Identity API surfaces and security">
+                <table>
+                    <thead><tr><th scope="col">Surface</th><th scope="col">Realm</th><th scope="col">Selection and access</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>/user-api</code></td><td>USER</td><td><code>X-Source-Id: user</code>. Public registration, login, and mobile proof. Bearer token for protected identity flows.</td></tr>
+                        <tr><td><code>/example-api</code></td><td>USER</td><td><code>X-Source-Id: example</code>. Shares User credentials and sessions. ExampleApi also requires its API key on Authentication and Identity routes.</td></tr>
+                        <tr><td><code>/system-admin-api</code></td><td>ADMIN</td><td><code>X-Source-Id: system-admin</code>. Login and optional contact verification. Bearer token for identity and administration flows.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>The client header selects a known API. Trusted route middleware selects the expected realm. A client cannot select extra authority through a header.</p>
+            <h3>Retries are part of the write contract</h3>
+            <p>All identity writes require <code>Idempotency-Key</code>. Reuse it with the exact request for retries. <code>X-Request-Id</code> remains a separate trace identifier.</p>
+            <p>Login replay returns the original token without renewing it. Contact replay avoids another message or proof consumption.</p>
+            <p>Authentication runs before protected replay. A successful logout, token revocation, or Account closure can therefore make its retry return 401.</p>
+            <p>Generic HTTP replay preserves the registration response for 24 hours. Without that matching retained replay, consumed registration proof causes a business conflict.</p>
+            <div class="related">
+                <a href="../http-idempotency.html">Complete idempotency guide</a>
+                <a href="../../api-docs/user-api/user-api-openapi.yml">UserApi contract</a>
+                <a href="../../api-docs/system-admin-api/system-admin-api-openapi.yml">SystemAdminApi contract</a>
+                <a href="../../api-docs/example-api/example-openapi.yml">ExampleApi contract</a>
+            </div>
+        </section>
+
+        <section id="architecture">
+            <p class="section-label">07 · Architecture and data</p>
+            <h2>Keep business decisions in the owning context</h2>
+            <p>The context lives under <code>src/Backendbase/Domain/IdentityAndAccess</code>. Its service provider binds ports and maps command and query handlers.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Identity data ownership and storage">
+                <table>
+                    <thead><tr><th scope="col">Storage</th><th scope="col">Owner and purpose</th><th scope="col">Developer rule</th></tr></thead>
+                    <tbody>
+                        <tr><td>MySQL <code>account</code></td><td>Shared contacts, names, password hash, ownership, enabled state, and authentication version.</td><td>Keep Account identity separate from actor identity.</td></tr>
+                        <tr><td>MySQL <code>user</code> and <code>admin</code></td><td>Realm-specific membership, approval, removal, and retained evidence.</td><td>One actor of each type per Account, including removed rows.</td></tr>
+                        <tr><td>MySQL <code>contact_verification</code></td><td>Contact, purpose, realm, context digest, code hash, deadlines, attempts, and consumption state.</td><td>Do not expose its full internal state in responses or logs.</td></tr>
+                        <tr><td>Redis</td><td>Token/session allowlists, Account blocks, and verification reservations.</td><td>Require matching token and session state. Reads do not renew expiry.</td></tr>
+                        <tr><td>MySQL <code>http_request_replay</code></td><td>Shared HTTP infrastructure stores request claims and encrypted results.</td><td>Keep replay outside the context's application transaction.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Passwords use Argon2id in <code>account.password_hash</code>. Contact codes use a keyed hash. Raw verification context tokens and plaintext codes are not stored in the contact table.</p>
+            <details>
+                <summary>Developer details: transactions, mapping, and HTTP adapters</summary>
+                <p>Domain objects own eligibility and state transitions. Application workflows coordinate repositories, credentials, session activation, verification, and administration.</p>
+                <p>Doctrine adapters enforce Account-first locking and database uniqueness. Transient transaction retries use fresh entity managers. Registration preserves proof on rollback.</p>
+                <p>Protected actor changes reload persisted authority under locks. A concurrently removed Admin cannot restore itself through stale managed state.</p>
+                <p>Mapped JSON fields reconstruct immutable <code>AccountState</code>, <code>ActorState</code>, and <code>ContactState</code> values. Missing, mistyped, or unsupported fields fail explicitly.</p>
+                <p>HTTP controllers remain inside their owning inbound API. Shared HTTP helpers live outside the context's domain and application layers.</p>
+                <p>Success responses use descriptive keys such as <code>registration</code>, <code>session</code>, and <code>contactInfo</code>. Problem Details fields remain at the response root.</p>
+            </details>
+            <aside class="callout warning">
+                <strong>There is no shared MySQL/Redis transaction.</strong> Session activation and notification delivery can fail after database work. Recovery must inspect both persisted state and external evidence.
+            </aside>
+        </section>
+
+        <section id="configuration">
+            <p class="section-label">08 · Configuration</p>
+            <h2>Keep three key purposes separate</h2>
+            <p>Signing keys protect tokens. Contact proof keys protect verification hashes. The replay key encrypts stored HTTP results. Use separate generated secrets for these purposes.</p>
+            <p>All three key types require base64-encoded 32-byte values. Public example keys are for local development. Inject production secrets through the approved deployment mechanism.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Identity signing and verification configuration">
+                <table>
+                    <thead><tr><th scope="col">Environment setting</th><th scope="col">Purpose</th><th scope="col">Requirement or default</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BACKENDBASE_USER_JWT_ISSUER</code><br><code>BACKENDBASE_USER_JWT_AUDIENCE</code></td><td>Trusted USER token issuer and audience.</td><td>Required, non-empty, and different from ADMIN values.</td></tr>
+                        <tr><td><code>BACKENDBASE_USER_JWT_KEY_ID</code><br><code>BACKENDBASE_USER_JWT_KEY</code></td><td>Active USER signing key and identifier.</td><td>The key must be a valid 32-byte secret.</td></tr>
+                        <tr><td><code>BACKENDBASE_ADMIN_JWT_ISSUER</code><br><code>BACKENDBASE_ADMIN_JWT_AUDIENCE</code></td><td>Trusted ADMIN token issuer and audience.</td><td>Required and separate from USER trust settings.</td></tr>
+                        <tr><td><code>BACKENDBASE_ADMIN_JWT_KEY_ID</code><br><code>BACKENDBASE_ADMIN_JWT_KEY</code></td><td>Active ADMIN signing key and identifier.</td><td>USER and ADMIN signing-key sets must not share key bytes.</td></tr>
+                        <tr><td><code>BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS</code></td><td>Token lifetime for both realms.</td><td>Default 900. Allowed range: 60 to 3,600.</td></tr>
+                        <tr><td><code>BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY_ID</code><br><code>BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY</code></td><td>Active code-hashing key.</td><td>Required for contact verification.</td></tr>
+                        <tr><td><code>BACKENDBASE_IDEMPOTENCY_KEY</code></td><td>Shared write fingerprint and response encryption.</td><td>Required for write replay. Online rotation is not implemented.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Identity service and notification configuration">
+                <table>
+                    <thead><tr><th scope="col">Dependency setting</th><th scope="col">Purpose</th><th scope="col">Attention point</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BACKENDBASE_DB_DSN</code></td><td>Application MySQL target.</td><td>Apply the reviewed migration history to the identified target.</td></tr>
+                        <tr><td><code>BACKENDBASE_REDIS_HOST</code><br><code>BACKENDBASE_REDIS_PORT</code></td><td>Redis endpoint.</td><td>Current native fixtures use Redis 8 with RedisJSON support.</td></tr>
+                        <tr><td><code>BACKENDBASE_REDIS_USERNAME</code><br><code>BACKENDBASE_REDIS_PASSWORD</code><br><code>BACKENDBASE_REDIS_TLS</code></td><td>Redis credentials and Transport Layer Security (TLS).</td><td>TLS accepts <code>true</code> or <code>false</code>. Configure the actual deployment's trusted endpoint.</td></tr>
+                        <tr><td><code>BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER</code></td><td>Verification email sender.</td><td>Set a valid sender for the configured provider.</td></tr>
+                        <tr><td><code>BACKENDBASE_SMS_DRIVER</code></td><td>SMS delivery provider.</td><td>Default <code>sns</code>. Alternatives: <code>twilio</code> and <code>netgsm</code>. Supply the selected provider's settings.</td></tr>
+                        <tr><td><code>BACKENDBASE_EMAIL_DRIVER</code></td><td>Email delivery provider.</td><td>Default <code>ses</code>. Alternative: <code>smtp</code>. Supply provider credentials and endpoint settings.</td></tr>
+                        <tr><td><code>EXAMPLE_API_KEY</code></td><td>Additional protection for ExampleApi.</td><td>An API key does not replace the required bearer identity.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <details>
+                <summary>Rotation settings: exact previous-key names</summary>
+                <p>Each JWT realm supports one previous key alongside its active key:</p>
+                <pre><code>BACKENDBASE_USER_JWT_PREVIOUS_KEY_ID
+BACKENDBASE_USER_JWT_PREVIOUS_KEY
+BACKENDBASE_ADMIN_JWT_PREVIOUS_KEY_ID
+BACKENDBASE_ADMIN_JWT_PREVIOUS_KEY</code></pre>
+                <p>Contact proof hashing supports one previous key:</p>
+                <pre><code>BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY_ID
+BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
+                <p>Configure each previous identifier and value together. Active and previous identifiers must differ. Key identifiers accept 1 to 64 letters, digits, periods, underscores, or hyphens.</p>
+                <p>The former <code>BACKENDBASE_IDENTITY_ENCRYPTION_KEY</code> and its related identifier and previous-key environment names remain compatibility aliases. Use the canonical contact proof names for new configuration.</p>
+            </details>
+            <div class="related"><a href="../../../.env.example">Public development configuration</a><a href="../7-env-and-config.html">Configuration lifecycle</a><a href="../13-notifications.html">Provider configuration</a></div>
+        </section>
+
+        <section id="rotation">
+            <p class="section-label">09 · Deployment and recovery</p>
+            <h2>Retain the state needed to verify existing work</h2>
+            <ul class="checklist">
+                <li><strong>JWT signing keys:</strong> Keep a previous verification key until tokens signed with it no longer need verification.</li>
+                <li><strong>Contact proof keys:</strong> Retain issued keys through pending-code deadlines and the confirmed evidence recovery window of <code>verifiedAt + 12 hours</code>.</li>
+                <li><strong>Replay encryption key:</strong> Follow the separate drain and reconciliation procedure. Changing it invalidates retained replay evidence.</li>
+                <li><strong>Runtime configuration:</strong> Clear relevant caches and restart supervised workers after approved key injection changes.</li>
+                <li><strong>Database history:</strong> Fresh installation applies all six current migrations. Older or divergent installations need a target-specific adoption plan.</li>
+            </ul>
+            <h3>When Redis loses revocation evidence</h3>
+            <p>Redis replication is asynchronous. A promoted stale replica can lose acknowledged token or session revocations.</p>
+            <p>Current MySQL state still rejects closed Accounts and changed authentication versions. It cannot reconstruct a lost token-only revocation.</p>
+            <p>Use the authorized session recovery procedure to invalidate affected allowlists in both realms before reopening traffic. Require login for affected sessions.</p>
+            <p>The application uses a configured Redis endpoint. It does not discover the Sentinel primary automatically. Deployment infrastructure must provide or update that endpoint.</p>
+            <div class="related">
+                <a href="../../platform/operations/identity-session-recovery.md">Session recovery</a>
+                <a href="../../platform/operations/redis-failover-tests.md">Failover behavior and tested limits</a>
+                <a href="../../platform/operations/migration-consolidation.md">Schema adoption and recovery</a>
+            </div>
+        </section>
+
+        <section id="support">
+            <p class="section-label">10 · Support decisions</p>
+            <h2>Check identity state before repeating an action</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Identity support scenarios">
+                <table>
+                    <thead><tr><th scope="col">Situation</th><th scope="col">Check</th><th scope="col">Next action</th></tr></thead>
+                    <tbody>
+                        <tr><td>User cannot register</td><td>Required values, matching context, confirmed mobile, 12-hour window, and active contact uniqueness.</td><td>Use fresh valid proof when required. Keep the original operation key while an earlier outcome is uncertain.</td></tr>
+                        <tr><td>Invited Admin cannot log in</td><td>Account ownership, enabled state, actor removal, Admin approval, and an earlier stored login failure.</td><td>Complete approval. Start a fresh login with a new operation key. Contact verification alone grants no approval.</td></tr>
+                        <tr><td><code>401</code></td><td>Credentials, realm, expiry, allowlist records, and current Account/actor state.</td><td>Use the correct realm and login flow. Do not bypass current access checks.</td></tr>
+                        <tr><td><code>409</code></td><td>Read the Problem Details code. It can identify a business conflict or an outstanding replay claim.</td><td>Investigate the specific conflict before a new operation.</td></tr>
+                        <tr><td><code>410</code></td><td>Code or required proof has expired.</td><td>Start the applicable verification flow. Existing login eligibility has a separate lifetime.</td></tr>
+                        <tr><td><code>429</code></td><td>Contact cooldown, send budget, or confirmation budget.</td><td>Observe <code>Retry-After</code>. A stored replayed error keeps its original result.</td></tr>
+                        <tr><td><code>503</code></td><td>Identity configuration, MySQL, Redis, delivery provider, and replay storage.</td><td>Restore the failing dependency. Preserve the request key while checking any uncertain effect.</td></tr>
+                        <tr><td>Verification message was not received</td><td>Provider acceptance, delivery state, destination, cooldown, and quotas.</td><td>Use explicit resend when permitted. Avoid uncontrolled repetition after an unknown provider outcome.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Keep passwords, JWTs, raw context tokens, verification codes, notification payloads, and full contact state out of diagnostic logs.</p>
+        </section>
+
+        <section id="limits">
+            <p class="section-label">11 · Important limits</p>
+            <h2>Plan processes around the current capability</h2>
+            <ul class="checklist">
+                <li>No documented refresh-token, password-reset, time-based one-time password (TOTP) enrollment, or factor-recovery flow is provided.</li>
+                <li>There is no public Admin registration. Ordinary Admin enrollment starts from an existing verified Account.</li>
+                <li>Optional contact verification does not change stored contact values or grant Admin approval.</li>
+                <li>Contact quotas apply to verification operations. They are not a general password-login rate limiter.</li>
+                <li>The context implements User and Admin identity gates. Broader application privilege rules use the project's separate access-control contracts.</li>
+                <li>MySQL, Redis, and notification providers do not form one transaction. External delivery and failover need operational recovery.</li>
+                <li>Isolated fixture success does not establish production throughput, managed-service durability, or production recovery time.</li>
+            </ul>
+        </section>
+
+        <section id="verification">
+            <p class="section-label">12 · Verification and sources</p>
+            <h2>Use recorded evidence and owning source</h2>
+            <p>The 18 October 2026 isolated run passed 1,422 tests with 61,118 assertions, zero failures, errors, or skips, and 100% executable-line coverage.</p>
+            <p>All 63 earlier skipped MySQL, Redis, and Sentinel cases passed. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
+            <p>Live UserApi and SystemAdminApi checks covered all 31 operations through 59 initial requests. Extra probes verified 39 retries and 21 changed-body rejections. Notifications used a private test sink.</p>
+            <ul class="source-list">
+                <li><a href="../../platform/14-security.md">Canonical identity and authentication rules</a></li>
+                <li><a href="../../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">Native targets, interval, and evidence</a></li>
+                <li><a href="../../../src/Backendbase/Domain/IdentityAndAccess/AGENTS.md">Context ownership and invariants</a></li>
+                <li><a href="../../../src/Backendbase/Domain/IdentityAndAccess/ServiceProvider.php">Context registration</a> and <a href="../../../src/Backendbase/Domain/IdentityAndAccess/Application/AuthenticationGate.php">current-state authentication gate</a></li>
+                <li><a href="../../../src/Backendbase/Domain/IdentityAndAccess/Application/Workflows/RegistrationWorkflow.php">Registration workflow</a> and <a href="../../../src/Backendbase/Domain/IdentityAndAccess/Application/Workflows/AdministrationWorkflow.php">Admin workflow</a></li>
+                <li><a href="../../../src/Backendbase/Infrastructure/Configuration/IdentitySettings.php">Typed identity configuration</a> and <a href="../../../config/autoload/identity.global.php">environment mapping</a></li>
+                <li><a href="../../../src/Backendbase/Domain/IdentityAndAccess/Adapters/Authentication/RedisTokenRegistry.php">Redis session adapter</a></li>
+            </ul>
+            <div class="related">
+                <a href="../0-project.html#guides">All guides</a>
+                <a href="../http-idempotency.html">HTTP idempotency</a>
+                <a href="../8-authentication-and-authorization.html">HTTP security guide</a>
+                <a href="../code-quality-and-maintainability-report.html#evidence">Quality and verification report</a>
+            </div>
+        </section>
+    </main>
+</div>
+<footer>Backendbase · IdentityAndAccess · Current source and isolated evidence reviewed on 18 October 2026</footer>
+</body>
+</html>

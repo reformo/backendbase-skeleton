@@ -11,8 +11,8 @@ The Example API registers IP resolution, API-key validation, and an inline API-c
 The current registration order is IP resolver, API-key validator, then API context. The effective execution order starts with API context, then API-key validation, then the earlier middleware. Treat this as Slim-specific last-in, first-out behavior. Discover the target framework's rule before copying the order.
 
 UserApi and SystemAdminApi define each Authentication, Identity, and Administration group's realm once through `RealmPolicy`.
-Protected groups add `RealmAuthentication`, then `RealmPolicy`. Group middleware runs before endpoint action and contact policies.
-`RoutePolicy` and `ContactRoutePolicy` do not change the group realm. Public Authentication groups apply only `RealmPolicy`.
+Protected groups add `Idempotency`, `RealmAuthentication`, then `RealmPolicy`. Group middleware runs before endpoint action and contact policies.
+`RoutePolicy` and `ContactRoutePolicy` do not change the group realm. Public Authentication groups apply `RealmPolicy` and write replay through `Idempotency`.
 Use non-static Slim group callbacks because the callable resolver binds them to the dependency container.
 Adapt group structure, middleware names, and execution order to the target project.
 
@@ -100,3 +100,11 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `resources/platform/16-errors-observability.md`
 
 Use the target framework's stack semantics when they differ from Slim.
+
+### HTTP replay reference
+
+In an unmodified Backendbase project, every write route requires `Idempotency-Key`. Protected groups run replay after authentication.
+Public Authentication groups run replay after realm selection. Preserve application transaction ownership.
+Update required header references, 400/409/422/500/503 responses, CORS, and maintained clients together.
+Do not use trace identifiers for duplicate protection. Adapt this policy to the target operation and its external effects.
+See [HTTP idempotency](../../../platform/operations/http-idempotency.md) for Backendbase expiry, encryption, and unresolved-claim rules.
