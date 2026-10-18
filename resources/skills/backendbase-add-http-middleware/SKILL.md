@@ -26,6 +26,16 @@ Do not add a middleware or public bypass without a requested transport policy.
 
 Use the target PSR interfaces, framework stack semantics, container, attribute names, header names, error response, and route inventory. Never copy Backendbase public paths, API keys, source IDs, hosts, or environment values blindly.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before changing write middleware or its order.
+Preserve authentication before protected replay and realm selection before public Authentication replay. Preserve application transaction ownership.
+Verify read and preflight bypasses, replay failures, and execution order through actual routes.
+For other targets, discover their replay contract before applying this policy.
+
 ## Workflow
 
 1. Define the trust boundary, inputs, output attributes, bypasses, and failure contract.

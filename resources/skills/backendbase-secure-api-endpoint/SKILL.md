@@ -26,6 +26,16 @@ Use target namespaces, routes, configuration, identity models, ports, headers, a
 
 Ask only when an unresolved security decision materially changes public behavior. Existing authority for the same policy remains valid.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before changing a write route's security policy.
+Authenticate protected requests before replay. Public Authentication replay follows realm selection.
+Verify that expired or revoked credentials cannot obtain a protected stored response.
+For other targets, discover their replay contract before applying this policy.
+
 ## Workflow
 
 1. State whether the operation requires anonymous access, an API key, user identity, or a named privilege.

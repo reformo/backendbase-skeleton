@@ -135,6 +135,14 @@ Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renam
 - Use `camelCase` for request query parameters and request-body fields.
 - Use `camelCase` for response object attributes.
 
+### HTTP idempotency
+
+- Require `Idempotency-Key` for every POST, PUT, PATCH, and DELETE operation, including new endpoints.
+- Use the shared `Idempotency` middleware. Authenticate protected routes before replay.
+- Reuse the same key and unchanged request for retries. Use a new key for each new intended operation.
+- Keep GET, HEAD, and OPTIONS free of the key requirement and replay storage.
+- Read [HTTP idempotency](resources/platform/operations/http-idempotency.md) before adding or changing write endpoints, middleware, or retry behavior.
+
 ### JSON response keys
 
 - Use response keys that describe the returned resource or result, such as `user`, `admin`, `challenge`, or `session`.

@@ -26,6 +26,21 @@ Do not create a request for an unimplemented operation. Do not run state-changin
 
 Use the target collection format, variable names, base URL, headers, authentication flow, fixture source, and report policy. Never copy Backendbase tokens, API keys, hosts, source IDs, passwords, user data, or fixed resource identifiers.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before adding write requests or retry assertions.
+For other targets, discover their replay contract before applying this policy.
+
+- Generate a fresh unpredictable key for each intended write operation.
+- Retain that key and the unchanged request for retries of the same operation.
+- Store the key in a runtime variable for replay tests. Do not generate a new key on each retry.
+- Treat run-unique business data and the idempotency key as separate values with separate purposes.
+- Follow the documented expiry and uncertain-outcome rules. Do not replace a key merely because a request timed out.
+- When replay testing is in scope, assert the stored response and absence of repeated effects while authentication remains valid.
+- Use [the replay test guidance](references/backendbase-pattern.md#http-idempotency) for conflict cases and authentication exceptions.
+
 ## Workflow
 
 1. Map method, URL, parameters, headers, body, response, and security from the public contract.

@@ -15,6 +15,16 @@ Identify affected behavior, public contracts, persisted data, external effects, 
 
 Select platform files and narrow skills for constraints not already covered. An unused skill is not itself a defect. Missing evidence or a violated invariant is a defect.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) when reviewing HTTP writes, retries, or middleware changes.
+Verify required headers, authentication before protected replay, public realm selection, and unchanged application transaction ownership.
+Check replay and conflict evidence, expiry and uncertain outcomes, and alignment across runtime, OpenAPI, CORS, maintained clients, and tests.
+For other targets, discover their replay contract before applying this policy.
+
 ## Route by risk
 
 Use [the verification pattern](references/backendbase-pattern.md) as a selective reference:

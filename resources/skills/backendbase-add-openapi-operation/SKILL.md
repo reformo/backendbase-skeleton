@@ -32,6 +32,16 @@ Store one Path Item Object per YAML file, with all methods for that path.
 Keep each root `paths` entry as a relative `$ref`, including metadata and health endpoints.
 Resolve references from their containing file. Adjust shared and root component references when moving definitions.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before defining a write operation's headers and responses.
+Reference the required shared header parameter. Document 400, 409, 422, 500, and 503 responses, request matching, and expiry.
+Keep runtime enforcement, generated contracts, CORS, and maintained clients aligned.
+For other targets, discover their replay contract before applying this policy.
+
 ## Workflow
 
 1. Draft the intended method, path, inputs, security, success response, headers, and errors in the authoritative OpenAPI source.

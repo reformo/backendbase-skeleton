@@ -10,6 +10,10 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Add Bruno idempotency key and replay-test guidance. Make the HTTP idempotency rule and contract link prominent in related skill instructions.
+
+- State the HTTP idempotency requirement in root `AGENTS.md`. Link the detailed contract for write endpoints and retries.
+
 - Require email input without mandatory email verification at User registration. Resolve evidence from submitted contact values and the context token. Keep fresh mobile proof required. Add authenticated stored-email verification, confirmation, and resend in UserApi and ExampleApi. Update contracts, Bruno examples, regression tests, and identity guidance.
 
 ### Fixed

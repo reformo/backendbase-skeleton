@@ -26,6 +26,16 @@ Ask before inventing a public route, resource contract, or domain behavior.
 
 Use the target framework, request types, namespace, command and query buses, response classes, exception contract, and test helpers. Never copy Example resource fields, slugs, headers, secrets, hosts, or fixtures blindly.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before adding or changing a write endpoint.
+Use shared replay middleware after authentication on protected routes and after realm selection on public Authentication routes.
+Preserve application transaction ownership. Align required headers and replay errors across runtime, OpenAPI, CORS, maintained clients, and tests.
+For other targets, discover their replay contract before applying this policy.
+
 ## Workflow
 
 1. Draft the method, path, tag, operation name, security, request contract, response contract, and errors in the authoritative OpenAPI source.

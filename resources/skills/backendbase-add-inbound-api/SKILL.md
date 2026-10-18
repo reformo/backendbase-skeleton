@@ -25,6 +25,16 @@ Stop and ask when a missing public surface or security decision would materially
 
 Use the target project's namespace, paths, headers, environment keys, hosts, credentials strategy, and fixture policy. Treat Backendbase names as role examples only. Never copy `Backendbase\`, `ExampleApi`, `example-api`, `Backendbase-Api-Key`, tokens, secrets, hosts, or fixture identifiers without an explicit target match.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before configuring the new API's write routes.
+Apply shared replay after authentication on protected routes and after realm selection on public Authentication routes.
+Align CORS and clients with required headers. Document request matching, expiry, and failure behavior.
+For other targets, discover their replay contract before applying this policy.
+
 ## Workflow
 
 1. Define the API name, slug, selector input, public base path, and ownership.

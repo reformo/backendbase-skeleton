@@ -26,6 +26,16 @@ Do not create a new API or speculative endpoints to justify a module.
 
 Use the target API namespace, routing framework, module interface, naming rules, container, and test helpers. Do not copy Example module names, paths, headers, hosts, credentials, or fixtures.
 
+## HTTP idempotency
+
+In an unmodified Backendbase project, every POST, PUT, PATCH, and DELETE operation requires `Idempotency-Key`.
+GET, HEAD, and OPTIONS need no key. `X-Request-Id` is separate tracing metadata.
+
+Read [HTTP idempotency](../../platform/operations/http-idempotency.md) before registering write routes or changing their middleware groups.
+Apply shared replay middleware after authentication on protected groups and after realm selection on public Authentication groups.
+Verify this order through actual routes. Keep required headers and replay errors aligned with OpenAPI, CORS, and maintained clients.
+For other targets, discover their replay contract before applying this policy.
+
 ## Workflow
 
 1. Define a stable module prefix and list only the requested operations.
