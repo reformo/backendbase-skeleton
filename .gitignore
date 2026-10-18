@@ -48,6 +48,7 @@ update.sh
 !bin/*/*.sh
 !docker/docker-entrypoint.sh
 !tests/Deployment/deployment-scripts.sh
+!tests/Deployment/build-release.sh
 *.local
 clover.xml
 *.phar

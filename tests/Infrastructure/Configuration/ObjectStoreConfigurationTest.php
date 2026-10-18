@@ -23,9 +23,9 @@ final class ObjectStoreConfigurationTest extends TestCase
             $_ENV['OBJECT_STORE_ENDPOINT'] = '';
             $_ENV['AWS_ENDPOINT']          = 'https://s3.example.com';
 
-            $objectStoreConfiguration = require 'config/autoload/object-store.global.php';
+            $objectStoreConfiguration = require 'config/autoload/object-store-global.php';
 
-            self::assertSame('https://s3.example.com', $objectStoreConfiguration['objectStore']['endpoint']);
+            self::assertSame('https://s3.example.com', $objectStoreConfiguration['object-store']['endpoint']);
         } finally {
             $this->restoreEnvironmentValue('OBJECT_STORE_ENDPOINT', $objectStoreEndpointExists, $objectStoreEndpoint);
             $this->restoreEnvironmentValue('AWS_ENDPOINT', $awsEndpointExists, $awsEndpoint);

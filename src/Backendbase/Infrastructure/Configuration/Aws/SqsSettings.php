@@ -15,11 +15,11 @@ final readonly class SqsSettings
     /**
      * @var array{
      *     continuous: bool,
-     *     maximumMessageCount: int,
+     *     'maximum-message-count': int,
      *     queueName: string|null,
-     *     queueUrl: string|null,
-     *     visibilityTimeoutSeconds: int,
-     *     waitTimeSeconds: int
+     *     'queue-url': string|null,
+     *     'visibility-timeout-seconds': int,
+     *     'wait-time-seconds': int
      * }
      */
     private array $values;
@@ -29,11 +29,11 @@ final readonly class SqsSettings
     {
         $this->values = [
             'continuous' => $values['continuous'] ?? true,
-            'maximumMessageCount' => min(10, max(1, $values['maximumMessageCount'] ?? 1)),
+            'maximum-message-count' => min(10, max(1, $values['maximum-message-count'] ?? 1)),
             'queueName' => $values['queue'] ?? null,
-            'queueUrl' => $values['queueUrl'] ?? null,
-            'visibilityTimeoutSeconds' => min(43200, max(0, $values['visibilityTimeoutSeconds'] ?? 30)),
-            'waitTimeSeconds' => min(20, max(0, $values['waitTimeSeconds'] ?? 20)),
+            'queue-url' => $values['queue-url'] ?? null,
+            'visibility-timeout-seconds' => min(43200, max(0, $values['visibility-timeout-seconds'] ?? 30)),
+            'wait-time-seconds' => min(20, max(0, $values['wait-time-seconds'] ?? 20)),
         ];
     }
 
@@ -44,7 +44,7 @@ final readonly class SqsSettings
 
     public function maximumMessageCount(): int
     {
-        return $this->values['maximumMessageCount'];
+        return $this->values['maximum-message-count'];
     }
 
     public function queueName(): string|null
@@ -54,16 +54,16 @@ final readonly class SqsSettings
 
     public function queueUrl(): string|null
     {
-        return $this->values['queueUrl'];
+        return $this->values['queue-url'];
     }
 
     public function visibilityTimeoutSeconds(): int
     {
-        return $this->values['visibilityTimeoutSeconds'];
+        return $this->values['visibility-timeout-seconds'];
     }
 
     public function waitTimeSeconds(): int
     {
-        return $this->values['waitTimeSeconds'];
+        return $this->values['wait-time-seconds'];
     }
 }

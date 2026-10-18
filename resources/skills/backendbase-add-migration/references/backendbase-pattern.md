@@ -78,7 +78,7 @@ In an unmodified Backendbase project, seeders live under `resources/database/See
 
 Some target projects pin an exact migration in release metadata. Discover that mechanism before completion. Keep its migration target aligned with the reviewed migration and assess whether the previous application remains compatible with the expanded schema.
 
-Current Backendbase uses `deployment/release.json` as source configuration. `bin/deployment/build-release.sh` requires `migrationTarget` to equal the latest migration and writes it into generated `release-manifest.json`. Set `applicationRollbackSafe` to `true` only when the previous application can use the new schema. Do not change it only to pass the release build. `bin/deployment/deploy-release.sh` dry-runs and applies the manifest target, and it requires a recovery hook before migration.
+Current Backendbase uses `deployment/release.json` as source configuration. `bin/deployment/build-release.sh` requires `migration-target` to equal the latest migration and writes it into generated `release-manifest.json`. Set `application-rollback-safe` to `true` only when the previous application can use the new schema. Do not change it only to pass the release build. `bin/deployment/deploy-release.sh` dry-runs and applies the manifest target, and it requires a recovery hook before migration.
 
 Edit source release configuration, not generated release artifacts. Adapt the manifest keys and rollout policy to the target project when it uses another release system.
 

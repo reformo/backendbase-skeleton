@@ -78,7 +78,7 @@ These limits are audit prompts. Do not copy them as target policy.
 - `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmAuthentication.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php`
-- `config/example-api/http-headers.global.php`
+- `config/example-api/http-headers-global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/bruno/example-api/example/`
 - `src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/QueueGreetingHandlerTest.php`

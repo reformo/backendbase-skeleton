@@ -16,7 +16,7 @@ use function trim;
 
 final readonly class SmtpSettings
 {
-    /** @var array{host: string, port: int, username: string, password: string, encryption: string, timeoutSeconds: float} */
+    /** @var array{host: string, port: int, username: string, password: string, encryption: string, 'timeout-seconds': float} */
     private array $values;
 
     public function __construct(mixed $settings)
@@ -30,7 +30,7 @@ final readonly class SmtpSettings
         $username   = $settings['username'] ?? '';
         $password   = $settings['password'] ?? '';
         $encryption = $settings['encryption'] ?? 'starttls';
-        $timeout    = $settings['timeoutSeconds'] ?? 5.0;
+        $timeout    = $settings['timeout-seconds'] ?? 5.0;
         if (! is_string($host) || trim($host) === '' || ! is_int($port) || $port < 1 || $port > 65535) {
             throw new UnexpectedValueException('SMTP host or port is invalid.');
         }
@@ -53,7 +53,7 @@ final readonly class SmtpSettings
             'username' => $username,
             'password' => $password,
             'encryption' => $encryption,
-            'timeoutSeconds' => (float) $timeout,
+            'timeout-seconds' => (float) $timeout,
         ];
     }
 
@@ -84,6 +84,6 @@ final readonly class SmtpSettings
 
     public function timeoutSeconds(): float
     {
-        return $this->values['timeoutSeconds'];
+        return $this->values['timeout-seconds'];
     }
 }

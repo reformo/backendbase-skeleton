@@ -29,7 +29,7 @@ final class NamingEnvironmentCompatibilityTest extends TestCase
                 $_ENV['BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY']    = base64_encode(str_repeat('c', 32));
             }
 
-            $configuration = require 'config/autoload/identity.global.php';
+            $configuration = require 'config/autoload/identity-global.php';
             $settings      = new IdentitySettings(new Settings($configuration));
             self::assertSame($expectedId, $settings->contactProofKeyId());
             self::assertSame([$expectedId => str_repeat($expectedByte, 32), 'previous' => str_repeat('p', 32)], $settings->contactProofKeys());
@@ -52,7 +52,7 @@ final class NamingEnvironmentCompatibilityTest extends TestCase
             $_ENV['BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY_ID'] = 'canonical';
             $_ENV['BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY']    = '';
             $_ENV['BACKENDBASE_IDENTITY_ENCRYPTION_KEY']       = base64_encode(str_repeat('l', 32));
-            $configuration                                     = require 'config/autoload/identity.global.php';
+            $configuration                                     = require 'config/autoload/identity-global.php';
             $settings                                          = new IdentitySettings(new Settings($configuration));
             $this->expectException(AuthenticationUnavailable::class);
             $settings->contactProofKeys();
@@ -67,7 +67,7 @@ final class NamingEnvironmentCompatibilityTest extends TestCase
         try {
             $_ENV['BACKENDBASE_LOG_TO_STDOUT'] = '';
             $_ENV['BACKENDBASE_LOGGER_LEVEL']  = 'info';
-            $configuration                     = require 'config/autoload/logger.global.php';
+            $configuration                     = require 'config/autoload/logger-global.php';
             self::assertSame('php://stdout', $configuration['logger']['path']);
         } finally {
             $_ENV = $originalEnvironment;

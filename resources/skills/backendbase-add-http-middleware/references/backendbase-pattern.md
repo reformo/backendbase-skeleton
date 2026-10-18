@@ -86,7 +86,7 @@ These conditions are audit prompts. Do not reproduce them as target behavior.
 - `src/Backendbase/Infrastructure/Adapters/Http/Middleware/ValidateApiKey.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmPolicy.php`
 - `src/Backendbase/Infrastructure/Adapters/Http/Identity/RealmAuthentication.php`
-- `config/example-api/http-headers.global.php`
+- `config/example-api/http-headers-global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `resources/api-docs/common/components.yaml`
 - `resources/bruno/example-api/`

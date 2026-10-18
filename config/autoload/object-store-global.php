@@ -8,7 +8,7 @@ if ($endpoint === null || $endpoint === '') {
 }
 
 return [
-    'objectStore' => [
+    'object-store' => [
         'credentials' => [
             'key' => backendbaseEnv('OBJECT_STORE_ACCESS_KEY', ''),
             'secret' => backendbaseEnv('OBJECT_STORE_SECRET_KEY', ''),
@@ -16,6 +16,6 @@ return [
         'region' => backendbaseEnv('OBJECT_STORE_REGION', ''),
         'endpoint' => $endpoint,
         'bucket' => backendbaseEnv('OBJECT_STORE_BUCKET_NAME', ''),
-        'cdnBaseUrl' => backendbaseEnv('CDN_BASE_URL'),
+        'cdn-base-url' => backendbaseEnv('CDN_BASE_URL'),
     ],
 ];

@@ -34,7 +34,7 @@ return static function (ContainerBuilder $containerBuilder): void {
             foreach ($serviceProviders as $serviceProvider) {
                 $serviceProvider = str_replace(['src', '.php', '/'], ['', '', '\\'], $serviceProvider);
                 foreach ($serviceProvider::getIntegrationEventSubscribers() as $eventSubscriber) {
-                    $eventManager->addEventSubscriber($eventSubscriber['events'], $eventSubscriber['subscriberFQCN']);
+                    $eventManager->addEventSubscriber($eventSubscriber['events'], $eventSubscriber['subscriber-fqcn']);
                 }
             }
 
@@ -50,15 +50,15 @@ return static function (ContainerBuilder $containerBuilder): void {
             foreach ($serviceProviders as $serviceProvider) {
                 $serviceProvider = str_replace(['src', '.php', '/'], ['', '', '\\'], $serviceProvider);
                 foreach ($serviceProvider::getIntegrationEventSubscribers() as $eventSubscriber) {
-                    if (! isset($eventSubscriber['messageFQCN'], $eventSubscriber['eventVersion'])) {
+                    if (! isset($eventSubscriber['message-fqcn'], $eventSubscriber['event-version'])) {
                         continue;
                     }
 
                     foreach ($eventSubscriber['events'] as $eventName) {
                         $definitions[] = [
-                            'eventName' => $eventName,
-                            'eventVersion' => $eventSubscriber['eventVersion'],
-                            'messageFQCN' => $eventSubscriber['messageFQCN'],
+                            'event-name' => $eventName,
+                            'event-version' => $eventSubscriber['event-version'],
+                            'message-fqcn' => $eventSubscriber['message-fqcn'],
                         ];
                     }
                 }

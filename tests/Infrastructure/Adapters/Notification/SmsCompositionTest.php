@@ -36,8 +36,8 @@ final class SmsCompositionTest extends TestCase
                 'sms' => [
                     'driver' => $driver,
                     'twilio' => [
-                        'accountSid' => 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                        'authToken' => 'token',
+                        'account-sid' => 'ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                        'auth-token' => 'token',
                         'from' => '+14155550100',
                     ],
                     'netgsm' => [

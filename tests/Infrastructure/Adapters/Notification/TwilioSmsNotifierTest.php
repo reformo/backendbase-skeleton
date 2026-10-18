@@ -115,10 +115,10 @@ final class TwilioSmsNotifierTest extends TestCase
     private static function notifier(MockHandler $handler, bool $httpErrors = true): TwilioSmsNotifier
     {
         $settings = new TwilioSmsSettings([
-            'accountSid' => self::ACCOUNT_SID,
-            'authToken' => 'test-token',
+            'account-sid' => self::ACCOUNT_SID,
+            'auth-token' => 'test-token',
             'from' => '+14155550100',
-            'timeoutSeconds' => 4.0,
+            'timeout-seconds' => 4.0,
         ]);
 
         return new TwilioSmsNotifier(new Client(['handler' => $handler, 'http_errors' => $httpErrors]), $settings);

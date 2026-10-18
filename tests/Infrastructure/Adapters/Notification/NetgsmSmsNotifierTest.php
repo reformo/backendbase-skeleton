@@ -127,7 +127,7 @@ final class NetgsmSmsNotifierTest extends TestCase
             'password' => 'test-password',
             'sender' => 'SENDER',
             'encoding' => 'TR',
-            'timeoutSeconds' => 4.0,
+            'timeout-seconds' => 4.0,
         ]);
 
         return new NetgsmSmsNotifier(new Client(['handler' => $handler, 'http_errors' => $httpErrors]), $settings);

@@ -23,7 +23,7 @@ final readonly class AwsSettings
      *     client: AwsClientSettings,
      *     sqs: SqsSettings,
      *     sns: SnsSettings,
-     *     objectStore: ObjectStoreSettings,
+     *     'object-store': ObjectStoreSettings,
      *     readinessTimeoutSeconds: float
      * }
      */
@@ -38,13 +38,13 @@ final readonly class AwsSettings
             $clientValues['credentials']['key'],
             $clientValues['credentials']['secret'],
         );
-        $objectStoreValues = ValidatedAwsSettings::objectStore($settings->get('objectStore'));
+        $objectStoreValues = ValidatedAwsSettings::objectStore($settings->get('object-store'));
         $objectCredentials = new AwsCredentials(
             $objectStoreValues['credentials']['key'],
             $objectStoreValues['credentials']['secret'],
         );
         $snsValues         = ValidatedAwsSettings::sns($awsSections['sns'] ?? null);
-        $senderIdentifier  = $snsValues['senderId'] ?? null;
+        $senderIdentifier  = $snsValues['sender-id'] ?? null;
         $readiness         = ValidatedApplicationSettings::readiness($settings->get('readiness'));
         $this->values      = [
             'client' => new AwsClientSettings(
@@ -53,11 +53,11 @@ final readonly class AwsSettings
             ),
             'sqs' => new SqsSettings(ValidatedAwsSettings::sqs($awsSections['sqs'] ?? null)),
             'sns' => new SnsSettings(
-                $snsValues['smsType'] ?? 'Transactional',
+                $snsValues['sms-type'] ?? 'Transactional',
                 $senderIdentifier === '' ? null : $senderIdentifier,
             ),
-            'objectStore' => new ObjectStoreSettings($objectCredentials, $objectStoreValues),
-            'readinessTimeoutSeconds' => $readiness['timeoutSeconds'],
+            'object-store' => new ObjectStoreSettings($objectCredentials, $objectStoreValues),
+            'readinessTimeoutSeconds' => $readiness['timeout-seconds'],
         ];
     }
 
@@ -78,7 +78,7 @@ final readonly class AwsSettings
 
     public function objectStore(): ObjectStoreSettings
     {
-        return $this->values['objectStore'];
+        return $this->values['object-store'];
     }
 
     public function readinessTimeoutSeconds(): float

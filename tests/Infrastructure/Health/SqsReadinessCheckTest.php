@@ -31,7 +31,7 @@ final class SqsReadinessCheckTest extends TestCase
             },
         ]);
 
-        $check = new SqsReadinessCheck(self::client($handler), self::settings(['queueUrl' => self::QUEUE_URL]));
+        $check = new SqsReadinessCheck(self::client($handler), self::settings(['queue-url' => self::QUEUE_URL]));
 
         self::assertSame('queue', $check->name());
         $check->check();
@@ -47,7 +47,7 @@ final class SqsReadinessCheckTest extends TestCase
 
         new SqsReadinessCheck(
             self::client($handler),
-            self::settings(['queue' => 'events', 'queueUrl' => '']),
+            self::settings(['queue' => 'events', 'queue-url' => '']),
         )->check();
 
         self::assertCount(0, $handler);
@@ -63,7 +63,7 @@ final class SqsReadinessCheckTest extends TestCase
         ));
         $this->assertCheckFails(new SqsReadinessCheck(
             self::client(new MockHandler([new Result()])),
-            self::settings(['queueUrl' => self::QUEUE_URL]),
+            self::settings(['queue-url' => self::QUEUE_URL]),
         ));
     }
 

@@ -19,10 +19,10 @@ final class RuntimeSettingsTest extends TestCase
         $settings = new ApplicationRuntimeSettings(new Settings([
             'env' => 'test',
             'base-path' => '/api',
-            'cdnBaseUrl' => 'https://cdn.example.com/',
-            'displayErrorDetails' => true,
-            'logError' => false,
-            'logErrorDetails' => false,
+            'cdn-base-url' => 'https://cdn.example.com/',
+            'display-error-details' => true,
+            'log-error' => false,
+            'log-error-details' => false,
             'route-cache-file' => 'var/cache/routes.php',
         ]));
 

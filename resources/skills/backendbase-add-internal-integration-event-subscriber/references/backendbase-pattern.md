@@ -57,7 +57,7 @@ Backendbase internal registration contains no message carrier or version:
 ```php
 [
     'events' => RefreshInvoiceProjectionSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' => RefreshInvoiceProjectionSubscriber::class,
+    'subscriber-fqcn' => RefreshInvoiceProjectionSubscriber::class,
 ]
 ```
 

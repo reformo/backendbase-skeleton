@@ -257,7 +257,7 @@ final class SqsQueueTest extends TestCase
                 return new Result(['MessageId' => 'message-id']);
             },
         ]);
-        $queue   = self::queue($handler, ['queueUrl' => '']);
+        $queue   = self::queue($handler, ['queue-url' => '']);
 
         self::assertSame(
             'message-id',
@@ -268,7 +268,7 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itRejectsAnUnresolvedQueueUrl(): void
     {
-        $queue = self::queue(new MockHandler([new Result()]), ['queueUrl' => '']);
+        $queue = self::queue(new MockHandler([new Result()]), ['queue-url' => '']);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -278,7 +278,7 @@ final class SqsQueueTest extends TestCase
     #[Test]
     public function itRequiresAQueueNameWhenResolvingAUrl(): void
     {
-        $queue = self::queue(new MockHandler(), ['queue' => '', 'queueUrl' => '']);
+        $queue = self::queue(new MockHandler(), ['queue' => '', 'queue-url' => '']);
 
         $this->expectException(UnexpectedValueException::class);
 
@@ -327,11 +327,11 @@ final class SqsQueueTest extends TestCase
     {
         $values = [
             'continuous' => false,
-            'maximumMessageCount' => 10,
+            'maximum-message-count' => 10,
             'queue' => 'events',
-            'queueUrl' => self::QUEUE_URL,
-            'visibilityTimeoutSeconds' => 30,
-            'waitTimeSeconds' => 20,
+            'queue-url' => self::QUEUE_URL,
+            'visibility-timeout-seconds' => 30,
+            'wait-time-seconds' => 20,
         ];
 
         return new SqsSettings(ValidatedAwsSettings::sqs([...$values, ...$overrides]));

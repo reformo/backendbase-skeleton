@@ -166,7 +166,7 @@ When a migration changes:
 - Require an explicit decision for whether the previous application can run against the expanded schema.
 - Keep this policy in the release manifest or target-project equivalent.
 
-Backendbase stores these decisions as `migrationTarget` and `applicationRollbackSafe` in `deployment/release.json`. `bin/deployment/build-release.sh` rejects a migration target that is not the latest migration class. Do not infer rollback safety from a reversible Doctrine `down()` method.
+Backendbase stores these decisions as `migration-target` and `application-rollback-safe` in `deployment/release.json`. The builder maps them to the existing camelCase manifest fields. `bin/deployment/build-release.sh` rejects a migration target that is not the latest migration class. Do not infer rollback safety from a reversible Doctrine `down()` method.
 
 ## Known Backendbase Drifts
 

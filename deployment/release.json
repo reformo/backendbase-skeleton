@@ -1,4 +1,4 @@
 {
-  "migrationTarget": "Backendbase\\Migrations\\Version20261018000000",
-  "applicationRollbackSafe": false
+  "migration-target": "Backendbase\\Migrations\\Version20261018000000",
+  "application-rollback-safe": false
 }

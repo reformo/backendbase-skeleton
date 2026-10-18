@@ -40,8 +40,8 @@ git diff --cached --quiet || deployFail 'The release working tree has staged cha
 
 releaseConfiguration="$projectRoot/deployment/release.json"
 [[ -f "$releaseConfiguration" ]] || deployFail 'deployment/release.json is unavailable.'
-migrationTarget="$(deployManifestValue "$releaseConfiguration" migrationTarget)"
-rollbackSafe="$(deployManifestValue "$releaseConfiguration" applicationRollbackSafe)"
+migrationTarget="$(deployManifestValue "$releaseConfiguration" migration-target)"
+rollbackSafe="$(deployManifestValue "$releaseConfiguration" application-rollback-safe)"
 [[ "$migrationTarget" =~ ^Backendbase\\Migrations\\Version[0-9]{14}$ ]] || deployFail 'The migration target is invalid.'
 [[ "$rollbackSafe" == 'true' || "$rollbackSafe" == 'false' ]] || deployFail 'The rollback policy is invalid.'
 
@@ -102,8 +102,8 @@ php -r '
         "composerLockSha256" => $argv[4],
         "composerSbomSha256" => $argv[5],
         "composerPackageContentSha256" => $argv[6],
-        "migrationTarget" => $configuration["migrationTarget"],
-        "applicationRollbackSafe" => $configuration["applicationRollbackSafe"],
+        "migrationTarget" => $configuration["migration-target"],
+        "applicationRollbackSafe" => $configuration["application-rollback-safe"],
     ];
     file_put_contents(
         $argv[2],

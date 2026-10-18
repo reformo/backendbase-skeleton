@@ -131,7 +131,10 @@ Use [naming-things](resources/skills/naming-things/SKILL.md) for naming or renam
 - Use `snake_case` for database, schema, table, column, and index names.
 - Do not add bounded-context prefixes to business table names. Keep `example_table` as the sole exception.
 - Record table ownership in `resources/platform/database-table-ownership.md`. Keep table names unique across the shared database.
-- Use `kebab-case` for URL path parameter names, configuration values, and similar names. This rule does not apply to query parameters or request-body fields.
+- Use lowercase `kebab-case` for project-owned configuration keys at every nesting level and for configuration file names, excluding extensions.
+- Preserve names required by external libraries, tools, or protocols. Examples include Composer fields, Doctrine options, HTTP headers, environment variables, and required file suffixes.
+- Convert project-owned keys to required library names at adapter boundaries. PHP class files and identifiers follow their PHP naming rules.
+- Use `kebab-case` for URL path parameter names, symbolic configuration values, and similar names. Preserve externally defined values. This rule does not apply to query parameters or request-body fields.
 - Use `camelCase` for request query parameters and request-body fields.
 - Use `camelCase` for response object attributes.
 

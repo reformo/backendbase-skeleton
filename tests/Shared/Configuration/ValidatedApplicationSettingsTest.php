@@ -20,8 +20,8 @@ final class ValidatedApplicationSettingsTest extends TestCase
             ValidatedApplicationSettings::database(['connect' => 'mysql://database']),
         );
         self::assertSame(
-            ['timeoutSeconds' => 2.0],
-            ValidatedApplicationSettings::readiness(['timeoutSeconds' => 2]),
+            ['timeout-seconds' => 2.0],
+            ValidatedApplicationSettings::readiness(['timeout-seconds' => 2]),
         );
         self::assertSame(
             ['host' => '127.0.0.1', 'port' => 6379, 'tls' => false, 'username' => '', 'password' => ''],

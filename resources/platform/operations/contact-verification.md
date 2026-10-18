@@ -140,7 +140,7 @@ Malformed requests return 400. Invalid proof or authority returns 401. Conflicts
 Expired codes or evidence return 410. Request limits return 429 with `Retry-After`.
 Dependency failures return 503. Errors retain the root Problem Details structure.
 
-Code hashing retains the `contactProofKey` and `previousContactProofKey` configuration names.
+Code hashing retains the `contact-proof-key` and `previous-contact-proof-key` configuration names.
 Keep an issued hashing key until every dependent code and confirmation recovery window expires.
 Pending codes depend on their code deadline. Confirmed records depend on `verifiedAt + 12 hours`.
 Do not discard a required previous key during a second rotation.

@@ -54,15 +54,15 @@ The names are illustrative. Both carriers remain registered while version-one me
 ```php
 [
     'events' => InvoiceIssuedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' => InvoiceIssuedExternalSubscriber::class,
-    'messageFQCN' => InvoiceIssuedV1Message::class,
-    'eventVersion' => '1.0',
+    'subscriber-fqcn' => InvoiceIssuedExternalSubscriber::class,
+    'message-fqcn' => InvoiceIssuedV1Message::class,
+    'event-version' => '1.0',
 ],
 [
     'events' => InvoiceIssuedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' => InvoiceIssuedExternalSubscriber::class,
-    'messageFQCN' => InvoiceIssuedV2Message::class,
-    'eventVersion' => '2.0',
+    'subscriber-fqcn' => InvoiceIssuedExternalSubscriber::class,
+    'message-fqcn' => InvoiceIssuedV2Message::class,
+    'event-version' => '2.0',
 ],
 ```
 

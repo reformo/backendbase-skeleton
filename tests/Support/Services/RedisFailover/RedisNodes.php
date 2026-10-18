@@ -58,7 +58,7 @@ final readonly class RedisNodes
         $builder->addDefinitions([
             RedisSettings::class => new RedisSettings(new Settings([
                 'redis' => ['host' => '127.0.0.1', 'port' => $this->nodes[$service]['port'], 'username' => '', 'password' => '', 'tls' => false],
-                'readiness' => ['timeoutSeconds' => 0.5],
+                'readiness' => ['timeout-seconds' => 0.5],
             ])),
         ]);
         $container = $builder->build();

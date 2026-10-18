@@ -46,8 +46,8 @@ Do not return an SDK response or accept an SDK request object. Put vendor-specif
 - `src/Backendbase/Infrastructure/Adapters/S3Bucket.php`
 - `src/Backendbase/Shared/Integrations/Notify.php`
 - `src/Backendbase/Infrastructure/Adapters/Notification/SnsNotifier.php`
-- `config/autoload/object-store.global.php`
-- `config/autoload/aws.global.php`
+- `config/autoload/object-store-global.php`
+- `config/autoload/aws-global.php`
 - `config/dependencies/aws.php`
 - `tests/Infrastructure/Adapters/S3BucketTest.php`
 - `tests/Infrastructure/Adapters/Notification/SnsNotifierTest.php`

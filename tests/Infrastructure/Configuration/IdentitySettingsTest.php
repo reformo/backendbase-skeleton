@@ -30,24 +30,24 @@ final class IdentitySettingsTest extends TestCase
     /** @return iterable<string, array{array<string, mixed>}> */
     public static function invalidRealmSettings(): iterable
     {
-        yield 'shared issuer' => [['ADMIN' => ['issuer' => 'https://user.example.com']]];
-        yield 'shared audience' => [['ADMIN' => ['audience' => 'user-api']]];
-        yield 'shared key material' => [['ADMIN' => ['key' => base64_encode(str_repeat('u', 32))]]];
-        yield 'missing field' => [['USER' => ['issuer' => '']]];
-        yield 'control character' => [['USER' => ['issuer' => "issuer\n"]]];
-        yield 'invalid base64' => [['USER' => ['key' => '!']]];
-        yield 'short key' => [['USER' => ['key' => base64_encode('short')]]];
-        yield 'invalid key id' => [['USER' => ['keyId' => 'bad key']]];
-        yield 'invalid key punctuation' => [['USER' => ['keyId' => '!bad']]];
-        yield 'duplicate key id' => [['USER' => ['previousKeyId' => 'user-key', 'previousKey' => base64_encode(str_repeat('v', 32))]]];
-        yield 'incomplete previous key' => [['USER' => ['previousKeyId' => 'old-user']]];
-        yield 'wrong realm structure' => [['USER' => 'invalid']];
+        yield 'shared issuer' => [['admin' => ['issuer' => 'https://user.example.com']]];
+        yield 'shared audience' => [['admin' => ['audience' => 'user-api']]];
+        yield 'shared key material' => [['admin' => ['key' => base64_encode(str_repeat('u', 32))]]];
+        yield 'missing field' => [['user' => ['issuer' => '']]];
+        yield 'control character' => [['user' => ['issuer' => "issuer\n"]]];
+        yield 'invalid base64' => [['user' => ['key' => '!']]];
+        yield 'short key' => [['user' => ['key' => base64_encode('short')]]];
+        yield 'invalid key id' => [['user' => ['key-id' => 'bad key']]];
+        yield 'invalid key punctuation' => [['user' => ['key-id' => '!bad']]];
+        yield 'duplicate key id' => [['user' => ['previous-key-id' => 'user-key', 'previous-key' => base64_encode(str_repeat('v', 32))]]];
+        yield 'incomplete previous key' => [['user' => ['previous-key-id' => 'old-user']]];
+        yield 'wrong realm structure' => [['user' => 'invalid']];
     }
 
     #[DataProvider('invalidLifetimes')]
     public function testSessionLifetimeRejectsCoercionAndInvalidBounds(mixed $value): void
     {
-        $settings = IdentityFixture::settings(['tokenLifetimeSeconds' => $value]);
+        $settings = IdentityFixture::settings(['token-lifetime-seconds' => $value]);
         $this->expectException(AuthenticationUnavailable::class);
         $settings->tokenLifetimeSeconds();
     }
@@ -64,7 +64,7 @@ final class IdentitySettingsTest extends TestCase
     {
         $old      = new SodiumAuthenticationSecrets(IdentityFixture::settings());
         $proof    = $old->proofHash('ownership-code');
-        $settings = IdentityFixture::settings(['contactProofKeyId' => 'new-factor', 'contactProofKey' => base64_encode(str_repeat('f', 32)), 'previousContactProofKeyId' => 'factor-key', 'previousContactProofKey' => base64_encode(str_repeat('e', 32))]);
+        $settings = IdentityFixture::settings(['contact-proof-key-id' => 'new-factor', 'contact-proof-key' => base64_encode(str_repeat('f', 32)), 'previous-contact-proof-key-id' => 'factor-key', 'previous-contact-proof-key' => base64_encode(str_repeat('e', 32))]);
         $rotated  = new SodiumAuthenticationSecrets($settings);
         self::assertTrue($rotated->verifyProof('ownership-code', $proof));
         self::assertStringStartsWith('new-factor:', $rotated->proofHash('ownership-code'));

@@ -33,19 +33,19 @@ final class ServiceProviderTest extends TestCase
 
         self::assertCount(3, $subscribers);
         $externalSubscriber = $subscribers[1];
-        if (! isset($externalSubscriber['messageFQCN'], $externalSubscriber['eventVersion'])) {
+        if (! isset($externalSubscriber['message-fqcn'], $externalSubscriber['event-version'])) {
             self::fail('The external subscriber contract is incomplete.');
         }
 
-        self::assertSame(EntryAddedMessage::class, $externalSubscriber['messageFQCN']);
-        self::assertSame('1.0', $externalSubscriber['eventVersion']);
+        self::assertSame(EntryAddedMessage::class, $externalSubscriber['message-fqcn']);
+        self::assertSame('1.0', $externalSubscriber['event-version']);
         $greetingSubscriber = $subscribers[2];
-        if (! isset($greetingSubscriber['messageFQCN'], $greetingSubscriber['eventVersion'])) {
+        if (! isset($greetingSubscriber['message-fqcn'], $greetingSubscriber['event-version'])) {
             self::fail('The greeting subscriber contract is incomplete.');
         }
 
-        self::assertSame(GreetingRequestedPayload::class, $greetingSubscriber['messageFQCN']);
-        self::assertSame('1.0', $greetingSubscriber['eventVersion']);
+        self::assertSame(GreetingRequestedPayload::class, $greetingSubscriber['message-fqcn']);
+        self::assertSame('1.0', $greetingSubscriber['event-version']);
     }
 
     #[Test]

@@ -18,15 +18,15 @@ if ($readinessTimeout < 0.1 || $readinessTimeout > 10.0) {
 return [
     'service-name' => backendbaseEnv('BACKENDBASE_SERVICE_NAME', 'example'),
     'env' => $environment,
-    'displayErrorDetails' => $displayErrorDetails,
-    'logError'            => true,
-    'logErrorDetails'     => true,
-    'cdnBaseUrl' => backendbaseEnv('CDN_BASE_URL', ''),
+    'display-error-details' => $displayErrorDetails,
+    'log-error'            => true,
+    'log-error-details'     => true,
+    'cdn-base-url' => backendbaseEnv('CDN_BASE_URL', ''),
     'use-cache' => true,
     'doctrine' => [
         'connect' => backendbaseEnv('BACKENDBASE_DB_DSN'),
     ],
-    'readiness' => ['timeoutSeconds' => $readinessTimeout],
+    'readiness' => ['timeout-seconds' => $readinessTimeout],
     'base-path' => backendbaseEnv('BASE_PATH', ''),
 
     'payment-gateway-call-baseurl' => backendbaseEnv('PAYMENT_CALLBACK_BASE_URL', ''),

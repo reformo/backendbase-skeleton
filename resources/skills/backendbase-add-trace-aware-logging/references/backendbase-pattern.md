@@ -20,7 +20,7 @@ Do not copy the Backendbase channel, header, path, service name, queue fields, o
 | --- | --- | --- |
 | Correlation source | `X-Request-Id` or UUIDv7 | Reuse a validated target header or boundary identifier. |
 | Logger processor | `config/dependencies/logger.php` | Add one canonical context field. |
-| Logger structure | `config/autoload/logger.global.php` | Keep path, channel, and level target-specific. |
+| Logger structure | `config/autoload/logger-global.php` | Keep path, channel, and level target-specific. |
 | Public error boundary | `HttpErrorHandler` | Keep internal trace data out of responses. |
 | Queue propagation | Not implemented in current envelope | Treat any addition as a contract change. |
 
@@ -113,7 +113,7 @@ Report correlation source, validation, canonical field, fallback, affected bound
 
 Verified on 2026-08-25 from:
 
-- `config/autoload/logger.global.php`
+- `config/autoload/logger-global.php`
 - `config/dependencies/logger.php`
 - `tests/Infrastructure/Composition/LoggerConfigurationTest.php`
 - `public/index.php`

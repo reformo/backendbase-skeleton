@@ -15,8 +15,8 @@ final class ValidatedQueueSettingsTest extends TestCase
     #[Test]
     public function itReturnsValidatedQueueShapes(): void
     {
-        $runtimeConnection                      = self::runtimeConnection();
-        $runtimeConnection['connectionTimeout'] = 3;
+        $runtimeConnection                       = self::runtimeConnection();
+        $runtimeConnection['connection-timeout'] = 3;
 
         self::assertSame(['driver' => 'rabbitmq'], ValidatedQueueSettings::queue(['driver' => 'rabbitmq']));
         self::assertSame(self::connection(), ValidatedQueueSettings::rabbitMQConnection(self::connection()));
@@ -85,8 +85,8 @@ final class ValidatedQueueSettingsTest extends TestCase
      *     user: string,
      *     password: string,
      *     vhost: string,
-     *     connectionTimeout: float,
-     *     readWriteTimeout: float,
+     *     'connection-timeout': float,
+     *     'read-write-timeout': float,
      *     heartbeat: int
      * }
      */
@@ -98,8 +98,8 @@ final class ValidatedQueueSettingsTest extends TestCase
             'user' => 'backendbase',
             'password' => 'backendbase',
             'vhost' => '/',
-            'connectionTimeout' => 3.0,
-            'readWriteTimeout' => 35.0,
+            'connection-timeout' => 3.0,
+            'read-write-timeout' => 35.0,
             'heartbeat' => 15,
         ];
     }
@@ -110,11 +110,11 @@ final class ValidatedQueueSettingsTest extends TestCase
         return [
             'queue' => 'backendbase-queue',
             'exchange' => 'backendbase',
-            'exchangeType' => 'direct',
-            'deadLetterExchange' => 'backendbase.dead-letter',
-            'deadLetterQueueSuffix' => '.dead-letter',
-            'messageRetentionMilliseconds' => 604800000,
-            'prefetchCount' => 1,
+            'exchange-type' => 'direct',
+            'dead-letter-exchange' => 'backendbase.dead-letter',
+            'dead-letter-queue-suffix' => '.dead-letter',
+            'message-retention-milliseconds' => 604800000,
+            'prefetch-count' => 1,
         ];
     }
 }

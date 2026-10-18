@@ -136,7 +136,7 @@ Greeting HTTP endpoints remain absent.
 Keys have no production defaults. Runtime configuration selects a managed provider and controlled injection.
 Stored passwords use Argon2id. Ownership proofs use keyed SHA-256 hashes.
 Signing-key and ownership-proof-key rotation support an active key and a distinct previous key identifier.
-Contact proof keys use `contactProofKey`, `contactProofKeyId`, and the corresponding previous-key settings.
+Contact proof keys use `contact-proof-key`, `contact-proof-key-id`, and the corresponding previous-key settings.
 Environment variables use `CONTACT_PROOF_KEY` names. The former `ENCRYPTION_KEY` environment names remain fallback aliases during rollout.
 Canonical names take precedence. Retain both active and previous key values while pending proof and recovery windows require them.
 Retain each required proof key until pending codes and confirmed evidence recovery windows expire.

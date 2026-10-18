@@ -16,7 +16,7 @@ use function trim;
 
 final readonly class TwilioSmsSettings
 {
-    /** @var array{accountSid: string, authToken: string, from: string, timeoutSeconds: float} */
+    /** @var array{'account-sid': string, 'auth-token': string, from: string, 'timeout-seconds': float} */
     private array $values;
 
     public function __construct(mixed $settings)
@@ -25,10 +25,10 @@ final readonly class TwilioSmsSettings
             throw new UnexpectedValueException('Twilio SMS settings must be an array.');
         }
 
-        $accountSid = $settings['accountSid'] ?? '';
-        $authToken  = $settings['authToken'] ?? '';
+        $accountSid = $settings['account-sid'] ?? '';
+        $authToken  = $settings['auth-token'] ?? '';
         $from       = $settings['from'] ?? '';
-        $timeout    = $settings['timeoutSeconds'] ?? 5.0;
+        $timeout    = $settings['timeout-seconds'] ?? 5.0;
         if (! is_string($accountSid) || preg_match('/^AC[0-9a-fA-F]{32}$/', $accountSid) !== 1) {
             throw new UnexpectedValueException('Twilio account SID is invalid.');
         }
@@ -42,21 +42,21 @@ final readonly class TwilioSmsSettings
         }
 
         $this->values = [
-            'accountSid' => $accountSid,
-            'authToken' => $authToken,
+            'account-sid' => $accountSid,
+            'auth-token' => $authToken,
             'from' => $from,
-            'timeoutSeconds' => (float) $timeout,
+            'timeout-seconds' => (float) $timeout,
         ];
     }
 
     public function accountSid(): string
     {
-        return $this->values['accountSid'];
+        return $this->values['account-sid'];
     }
 
     public function authToken(): string
     {
-        return $this->values['authToken'];
+        return $this->values['auth-token'];
     }
 
     public function from(): string
@@ -66,6 +66,6 @@ final readonly class TwilioSmsSettings
 
     public function timeoutSeconds(): float
     {
-        return $this->values['timeoutSeconds'];
+        return $this->values['timeout-seconds'];
     }
 }

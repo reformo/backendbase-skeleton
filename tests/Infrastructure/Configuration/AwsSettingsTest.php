@@ -24,22 +24,22 @@ final class AwsSettingsTest extends TestCase
                 'endpoint' => '',
                 'sqs' => [
                     'continuous' => false,
-                    'maximumMessageCount' => 10,
+                    'maximum-message-count' => 10,
                     'queue' => 'events',
-                    'queueUrl' => 'https://example.com/events',
-                    'visibilityTimeoutSeconds' => 30,
-                    'waitTimeSeconds' => 20,
+                    'queue-url' => 'https://example.com/events',
+                    'visibility-timeout-seconds' => 30,
+                    'wait-time-seconds' => 20,
                 ],
-                'sns' => ['smsType' => 'Transactional', 'senderId' => 'Backendbase'],
+                'sns' => ['sms-type' => 'Transactional', 'sender-id' => 'Backendbase'],
             ],
-            'objectStore' => [
+            'object-store' => [
                 'credentials' => ['key' => 'access-key', 'secret' => 'secret-key'],
                 'region' => 'eu-central-1',
                 'endpoint' => 'https://s3.example.com',
                 'bucket' => 'assets',
-                'cdnBaseUrl' => null,
+                'cdn-base-url' => null,
             ],
-            'readiness' => ['timeoutSeconds' => 2],
+            'readiness' => ['timeout-seconds' => 2],
         ]));
 
         self::assertSame('eu-central-1', $settings->client()->region());
@@ -92,16 +92,16 @@ final class AwsSettingsTest extends TestCase
                 'region' => 'eu-central-1',
                 'endpoint' => '',
                 'sqs' => [],
-                'sns' => ['smsType' => 'invalid'],
+                'sns' => ['sms-type' => 'invalid'],
             ],
-            'objectStore' => [
+            'object-store' => [
                 'credentials' => ['key' => '', 'secret' => ''],
                 'region' => '',
                 'endpoint' => '',
                 'bucket' => '',
-                'cdnBaseUrl' => null,
+                'cdn-base-url' => null,
             ],
-            'readiness' => ['timeoutSeconds' => 2],
+            'readiness' => ['timeout-seconds' => 2],
         ]));
     }
 }

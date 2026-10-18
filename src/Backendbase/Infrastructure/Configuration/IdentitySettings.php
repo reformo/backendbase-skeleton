@@ -16,6 +16,7 @@ use function is_int;
 use function is_string;
 use function preg_match;
 use function strlen;
+use function strtolower;
 
 final readonly class IdentitySettings
 {
@@ -35,7 +36,7 @@ final readonly class IdentitySettings
 
     public function tokenLifetimeSeconds(): int
     {
-        $value = $this->value('tokenLifetimeSeconds') ?? 900;
+        $value = $this->value('token-lifetime-seconds') ?? 900;
         if (! is_int($value) || $value < 60 || $value > 3600) {
             throw AuthenticationUnavailable::create('The authentication configuration is unavailable.');
         }
@@ -48,12 +49,12 @@ final readonly class IdentitySettings
     {
         $policies = [];
         foreach ([Realm::USER, Realm::ADMIN] as $candidate) {
-            $prefix                      = $candidate->value . '.';
+            $prefix                      = strtolower($candidate->value) . '.';
             $policies[$candidate->value] = [
                 'issuer' => $this->string($prefix . 'issuer'),
                 'audience' => $this->string($prefix . 'audience'),
-                'keyId' => $this->keyId($prefix . 'keyId'),
-                'keys' => $this->keys($prefix . 'keyId', $prefix . 'key', $prefix . 'previousKeyId', $prefix . 'previousKey'),
+                'keyId' => $this->keyId($prefix . 'key-id'),
+                'keys' => $this->keys($prefix . 'key-id', $prefix . 'key', $prefix . 'previous-key-id', $prefix . 'previous-key'),
             ];
         }
 
@@ -69,17 +70,17 @@ final readonly class IdentitySettings
     /** @return array<non-empty-string, non-empty-string> */
     public function contactProofKeys(): array
     {
-        return $this->keys('contactProofKeyId', 'contactProofKey', 'previousContactProofKeyId', 'previousContactProofKey');
+        return $this->keys('contact-proof-key-id', 'contact-proof-key', 'previous-contact-proof-key-id', 'previous-contact-proof-key');
     }
 
     public function contactProofKeyId(): string
     {
-        return $this->keyId('contactProofKeyId');
+        return $this->keyId('contact-proof-key-id');
     }
 
     public function contactEmailSender(): string
     {
-        return $this->string('contactEmailSender');
+        return $this->string('contact-email-sender');
     }
 
     /** @return array<non-empty-string, non-empty-string> */

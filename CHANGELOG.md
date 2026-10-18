@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Require kebab-case for project-owned configuration keys and file names. Rename runtime providers, nested settings, subscriber registrations, and release policy keys. Update consumers, tests, and documentation. Preserve external option names, environment variables, public payloads, and generated deployment contracts.
+
 - Add PHP examples to the hypothetical HTTP idempotency payment walkthrough. Show route registration, existing replay middleware, payment transactions, response mapping, and provider-status recovery.
 
 - Add a hypothetical payment walkthrough to the HTTP idempotency guide, covering inbound routing, authentication, claims, provider calls, transactions, response replay, and recovery.

@@ -52,7 +52,7 @@
 </section>
 <section id="shutdown"><p class="section-label">06 · Shutdown errors</p><h2>Fatal PHP state still gets a structured response</h2>
 <p>The shutdown handler ignores deprecation errors. It logs other last-error data and passes an internal-server exception to the HTTP error handler.</p>
-<div class="callout danger">Stage, CI, and production keep <code>displayErrorDetails</code> disabled. File paths, traces, and exception messages must not appear in shared-environment responses.</div>
+<div class="callout danger">Stage, CI, and production keep <code>display-error-details</code> disabled. File paths, traces, and exception messages must not appear in shared-environment responses.</div>
 </section>
 <section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>
 <p><code>config/dependencies/logger.php</code> explicitly sets UTC. Formatted timestamps include <code>+00:00</code> regardless of the process time zone. Logging uses Monolog’s clock independently of the application clock.</p>
@@ -99,7 +99,7 @@ vendor/bin/phpunit tests/Infrastructure/Adapters/Console</code></pre>
 <section id="sources"><p class="section-label">13 · Source map</p><h2>Primary sources</h2><div class="table-wrap"><table><thead><tr><th>Concern</th><th>Source</th></tr></thead><tbody>
 <tr><td>Known problems</td><td><code>Infrastructure/Adapters/Http/DomainErrorProblemDetailsMapper.php</code></td></tr><tr><td>HTTP error handling</td><td><code>Infrastructure/Adapters/Http/HttpErrorHandler.php</code></td></tr>
 <tr><td>Shutdown failures</td><td><code>Infrastructure/Adapters/Http/Handlers/ShutdownHandler.php</code></td></tr><tr><td>Response emission</td><td><code>Infrastructure/Adapters/Http/ResponseEmitter/ResponseEmitter.php</code></td></tr>
-<tr><td>Logger config</td><td><code>config/autoload/logger.global.php</code></td></tr><tr><td>Health actions</td><td><code>ExampleApi/Controllers/Root/Liveness.php</code> and <code>Readiness.php</code></td></tr>
+<tr><td>Logger config</td><td><code>config/autoload/logger-global.php</code></td></tr><tr><td>Health actions</td><td><code>ExampleApi/Controllers/Root/Liveness.php</code> and <code>Readiness.php</code></td></tr>
 <tr><td>SQS handler diagnostics</td><td><code>Infrastructure/Adapters/Queue/SqsTransport.php</code> and <code>SqsQueue.php</code></td></tr>
 <tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>
 </tbody></table></div></section>

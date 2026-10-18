@@ -98,10 +98,10 @@ final class RealmTokenCodecTest extends TestCase
     {
         $old   = self::codec()->encode(self::principal(), new DateTimeImmutable('2026-10-14T10:15:00Z'));
         $clock = new FrozenClock(new DateTimeImmutable('2026-10-14T10:00:00Z'));
-        $keys  = ['keyId' => 'user-key-2', 'key' => base64_encode(str_repeat('v', 32))];
-        $codec = new RealmTokenCodec(IdentityFixture::settings(['USER' => [...$keys, 'previousKeyId' => 'user-key', 'previousKey' => base64_encode(str_repeat('u', 32))]]), $clock);
+        $keys  = ['key-id' => 'user-key-2', 'key' => base64_encode(str_repeat('v', 32))];
+        $codec = new RealmTokenCodec(IdentityFixture::settings(['user' => [...$keys, 'previous-key-id' => 'user-key', 'previous-key' => base64_encode(str_repeat('u', 32))]]), $clock);
         self::assertSame(Realm::USER, $codec->decode(Realm::USER, $old)->realm());
-        $retired = new RealmTokenCodec(IdentityFixture::settings(['USER' => $keys]), $clock);
+        $retired = new RealmTokenCodec(IdentityFixture::settings(['user' => $keys]), $clock);
         $this->expectException(AuthenticationDenied::class);
         $retired->decode(Realm::USER, $old);
     }

@@ -80,7 +80,7 @@ The names are columns on `account`; the seed does not create a separate profile 
 ## Ownership proof key rotation
 
 Inject active and previous proof keys under distinct identifiers.
-The configuration retains the `contactProofKey` names for compatibility.
+The configuration uses `contact-proof-key` names. Environment aliases retain compatibility.
 Keep the previous key through all pending codes and confirmed evidence recovery windows.
 A confirmed record retains a 12-hour recovery window. Do not discard its required code key early.
 Restart supervised workers after runtime key injection changes.

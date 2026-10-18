@@ -161,7 +161,7 @@ These differences are semantic audit prompts. Do not reproduce them as target be
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ExampleRequestInput.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
-- `config/example-api/http-headers.global.php`
+- `config/example-api/http-headers-global.php`
 - `resources/bruno/example-api/example/`
 - `tests/Infrastructure/Inbound/ExampleApi/`
 - `public/example-api/docs/example-api-merged.yml`

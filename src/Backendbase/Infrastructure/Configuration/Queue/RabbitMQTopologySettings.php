@@ -26,26 +26,26 @@ final readonly class RabbitMQTopologySettings
 
     public function exchangeType(): string
     {
-        return $this->values['exchangeType'];
+        return $this->values['exchange-type'];
     }
 
     public function deadLetterExchangeName(): string
     {
-        return $this->values['deadLetterExchange'];
+        return $this->values['dead-letter-exchange'];
     }
 
     public function deadLetterQueueSuffix(): string
     {
-        return $this->values['deadLetterQueueSuffix'];
+        return $this->values['dead-letter-queue-suffix'];
     }
 
     public function messageRetentionMilliseconds(): int
     {
-        return $this->values['messageRetentionMilliseconds'];
+        return $this->values['message-retention-milliseconds'];
     }
 
     public function prefetchCount(): int
     {
-        return $this->values['prefetchCount'];
+        return $this->values['prefetch-count'];
     }
 }

@@ -60,24 +60,24 @@ final class ProducerConsumerContractTest extends TestCase
 
     /**
      * @return list<array{
-     *     eventName: string,
-     *     eventVersion: string,
-     *     messageFQCN: class-string
+     *     'event-name': string,
+     *     'event-version': string,
+     *     'message-fqcn': class-string
      * }>
      */
     private static function registeredMessageContracts(): array
     {
         $contracts = [];
         foreach (ServiceProvider::getIntegrationEventSubscribers() as $subscriber) {
-            if (! isset($subscriber['messageFQCN'], $subscriber['eventVersion'])) {
+            if (! isset($subscriber['message-fqcn'], $subscriber['event-version'])) {
                 continue;
             }
 
             foreach ($subscriber['events'] as $eventName) {
                 $contracts[] = [
-                    'eventName' => $eventName,
-                    'eventVersion' => $subscriber['eventVersion'],
-                    'messageFQCN' => $subscriber['messageFQCN'],
+                    'event-name' => $eventName,
+                    'event-version' => $subscriber['event-version'],
+                    'message-fqcn' => $subscriber['message-fqcn'],
                 ];
             }
         }

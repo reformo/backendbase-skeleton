@@ -29,9 +29,9 @@ final class ExternalIntegrationEventMessageProcessorTest extends TestCase
 {
     private const array MESSAGE_CONTRACTS = [
         [
-            'eventName' => 'Example_NewExampleAdded_Event',
-            'eventVersion' => '1.0',
-            'messageFQCN' => EntryAddedMessage::class,
+            'event-name' => 'Example_NewExampleAdded_Event',
+            'event-version' => '1.0',
+            'message-fqcn' => EntryAddedMessage::class,
         ],
     ];
 

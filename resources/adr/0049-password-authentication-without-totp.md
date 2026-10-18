@@ -47,7 +47,7 @@ Accounts store their Argon2id password hash in required `account.password_hash V
 The credential store reads and writes a string. The consolidated installation migration creates this column directly.
 Existing databases with credential JSON require a separate reviewed hash extraction and schema adoption plan.
 The former login and enrollment challenges cannot verify contact ownership. ADR-0050 replaces the email-only ownership schema for fresh installations. No automatic migration application or database cleanup runs.
-Ownership proof hashing retains the `contactProofKey` configuration names and active/previous key support.
+Ownership proof hashing retains the `contact-proof-key` configuration names and active/previous key support.
 First-Admin invitation and approval evidence remains in Admin state.
 The migration history creates no separate operator table. See the [operator procedure](../platform/operations/identity-operator.md#schema-history).
 

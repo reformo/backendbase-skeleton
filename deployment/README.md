@@ -16,7 +16,7 @@ The builder first installs dependencies with plugins and scripts disabled. It ve
 
 The archive contains production Composer dependencies, generated OpenAPI, the CycloneDX SBOM, the package-content manifest, and `release-manifest.json`. The manifest binds the commit, `composer.lock`, both supply-chain evidence files, the migration target, and the rollback policy.
 
-Update `deployment/release.json` when a migration is added. Set `applicationRollbackSafe` to `true` only when the previous application can use the new schema.
+Update `migration-target` in `deployment/release.json` when a migration is added. The builder maps source keys to the existing camelCase manifest fields. Set `application-rollback-safe` to `true` only when the previous application can use the new schema.
 
 ## Prepare a server
 

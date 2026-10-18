@@ -80,7 +80,7 @@ Stop application traffic and workers that access these tables during migration a
 After partial failure, inspect each table and index name. Complete only the unapplied statements under the recovery plan.
 Do not rerun the entire migration after partial success without reconciling the actual state.
 The reverse migration preserves rows but requires the matching older application and separate target authorization.
-Keep `applicationRollbackSafe` false. An application-only rollback cannot use the renamed tables.
+Keep `application-rollback-safe` false. An application-only rollback cannot use the renamed tables.
 Clear Doctrine metadata and proxy caches during deployment.
 
 Offline SQL and SQLite tests do not prove MySQL ALTER execution. Verify native migration, uniqueness, and ORM parity on a prepared MySQL 8.4 target.

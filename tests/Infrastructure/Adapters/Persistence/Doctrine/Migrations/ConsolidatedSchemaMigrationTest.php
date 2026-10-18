@@ -65,8 +65,8 @@ final class ConsolidatedSchemaMigrationTest extends TestCase
         self::assertIsString($source);
         $release = json_decode($source, true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($release);
-        self::assertSame(Version20261018000000::class, $release['migrationTarget']);
-        self::assertFalse($release['applicationRollbackSafe']);
+        self::assertSame(Version20261018000000::class, $release['migration-target']);
+        self::assertFalse($release['application-rollback-safe']);
     }
 
     /** @param class-string<BackendbaseAbstractMigration> $class */

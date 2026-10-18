@@ -15,9 +15,9 @@ interface ServiceProvider
     /**
      * @return iterable<int, array{
      *     events: array<int, string>,
-     *     subscriberFQCN: class-string,
-     *     messageFQCN?: class-string,
-     *     eventVersion?: string
+     *     'subscriber-fqcn': class-string,
+     *     'message-fqcn'?: class-string,
+     *     'event-version'?: string
      * }>
      */
     public static function getIntegrationEventSubscribers(): iterable;

@@ -33,7 +33,7 @@ final class IdempotencyContractTest extends TestCase
             $this->assertPath($path);
         }
 
-        $configuration = require 'config/' . $slug . '/http-headers.global.php';
+        $configuration = require 'config/' . $slug . '/http-headers-global.php';
         self::assertStringContainsString('Idempotency-Key', $configuration['headers']['Access-Control-Allow-Headers']);
         foreach (glob('resources/bruno/' . $slug . '/*/*.yml') ?: [] as $file) {
             $this->assertBruno($file);

@@ -23,7 +23,7 @@ final readonly class RedisSettings
             'username' => $redis['username'],
             'password' => $redis['password'],
             'tls' => $redis['tls'],
-            'readinessTimeoutSeconds' => $readiness['timeoutSeconds'],
+            'readinessTimeoutSeconds' => $readiness['timeout-seconds'],
         ];
     }
 

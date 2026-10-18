@@ -64,27 +64,27 @@ class ServiceProvider implements \Backendbase\Shared\ServiceProvider
     /**
      * @return iterable<int, array{
      *     events: array<int, string>,
-     *     subscriberFQCN: class-string,
-     *     messageFQCN?: class-string,
-     *     eventVersion?: string
+     *     'subscriber-fqcn': class-string,
+     *     'message-fqcn'?: class-string,
+     *     'event-version'?: string
      * }>
      */
     #[Override]
     public static function getIntegrationEventSubscribers(): iterable
     {
         return [
-            ['events' => EntryAddedSubscriber::getSubscribedEvents(), 'subscriberFQCN' => EntryAddedSubscriber::class],
+            ['events' => EntryAddedSubscriber::getSubscribedEvents(), 'subscriber-fqcn' => EntryAddedSubscriber::class],
             [
                 'events' => EntryAddedExternalSubscriber::getSubscribedEvents(),
-                'subscriberFQCN' => EntryAddedExternalSubscriber::class,
-                'messageFQCN' => EntryAddedMessage::class,
-                'eventVersion' => EntryAdded::EVENT_VERSION,
+                'subscriber-fqcn' => EntryAddedExternalSubscriber::class,
+                'message-fqcn' => EntryAddedMessage::class,
+                'event-version' => EntryAdded::EVENT_VERSION,
             ],
             [
                 'events' => GreetingRequestedExternalSubscriber::getSubscribedEvents(),
-                'subscriberFQCN' => GreetingRequestedExternalSubscriber::class,
-                'messageFQCN' => GreetingRequestedPayload::class,
-                'eventVersion' => GreetingRequested::EVENT_VERSION,
+                'subscriber-fqcn' => GreetingRequestedExternalSubscriber::class,
+                'message-fqcn' => GreetingRequestedPayload::class,
+                'event-version' => GreetingRequested::EVENT_VERSION,
             ],
         ];
     }

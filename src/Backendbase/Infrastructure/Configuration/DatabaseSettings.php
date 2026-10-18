@@ -22,7 +22,7 @@ final readonly class DatabaseSettings
         $this->dsn                      = $database['connect'];
         $this->connectionTimeoutSeconds = max(
             1,
-            (int) ceil($readiness['timeoutSeconds']),
+            (int) ceil($readiness['timeout-seconds']),
         );
     }
 

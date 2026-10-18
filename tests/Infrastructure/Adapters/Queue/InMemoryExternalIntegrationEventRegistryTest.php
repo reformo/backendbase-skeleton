@@ -19,9 +19,9 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
     {
         $registry = new InMemoryExternalIntegrationEventRegistry([
             [
-                'eventName' => 'Example_NewExampleAdded_Event',
-                'eventVersion' => '1.0',
-                'messageFQCN' => EntryAddedMessage::class,
+                'event-name' => 'Example_NewExampleAdded_Event',
+                'event-version' => '1.0',
+                'message-fqcn' => EntryAddedMessage::class,
             ],
         ]);
 
@@ -36,9 +36,9 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
     {
         $registry = new InMemoryExternalIntegrationEventRegistry([
             [
-                'eventName' => 'Example_NewExampleAdded_Event',
-                'eventVersion' => '1.0',
-                'messageFQCN' => EntryAddedMessage::class,
+                'event-name' => 'Example_NewExampleAdded_Event',
+                'event-version' => '1.0',
+                'message-fqcn' => EntryAddedMessage::class,
             ],
         ]);
 
@@ -54,9 +54,9 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
 
         new InMemoryExternalIntegrationEventRegistry([
             [
-                'eventName' => 'Invalid_Event',
-                'eventVersion' => '1.0',
-                'messageFQCN' => stdClass::class,
+                'event-name' => 'Invalid_Event',
+                'event-version' => '1.0',
+                'message-fqcn' => stdClass::class,
             ],
         ]);
     }
@@ -65,9 +65,9 @@ final class InMemoryExternalIntegrationEventRegistryTest extends TestCase
     public function itRejectsADuplicateEventContract(): void
     {
         $definition = [
-            'eventName' => 'Example_NewExampleAdded_Event',
-            'eventVersion' => '1.0',
-            'messageFQCN' => EntryAddedMessage::class,
+            'event-name' => 'Example_NewExampleAdded_Event',
+            'event-version' => '1.0',
+            'message-fqcn' => EntryAddedMessage::class,
         ];
 
         $this->expectException(InvalidArgumentException::class);

@@ -241,3 +241,5 @@ for failure in nonempty backup migration activation readiness existing; do
 done
 
 printf 'Fresh installation and maintenance failure tests passed.\n'
+
+bash "$projectRoot/tests/Deployment/build-release.sh"

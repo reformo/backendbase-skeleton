@@ -45,8 +45,8 @@ final class GreetingMessageFlowTest extends TestCase
             . 'received_at TEXT NOT NULL, processed_at TEXT NULL, PRIMARY KEY (consumer_name, message_id))',
         );
         $subscriber = iterator_to_array(ServiceProvider::getIntegrationEventSubscribers())[2];
-        self::assertSame(GreetingRequestedExternalSubscriber::class, $subscriber['subscriberFQCN']);
-        if (! isset($subscriber['messageFQCN'], $subscriber['eventVersion'])) {
+        self::assertSame(GreetingRequestedExternalSubscriber::class, $subscriber['subscriber-fqcn']);
+        if (! isset($subscriber['message-fqcn'], $subscriber['event-version'])) {
             self::fail('The greeting subscriber contract is incomplete.');
         }
 
@@ -54,12 +54,12 @@ final class GreetingMessageFlowTest extends TestCase
         $outbox->expects(self::never())->method('assertTransactionActive');
         $outbox->expects(self::never())->method('append');
         $eventManager = new ContainerAwareEventManager((new ContainerBuilder())->build(), new NullLogger(), $outbox);
-        $eventManager->addEventSubscriber($subscriber['events'], $subscriber['subscriberFQCN']);
+        $eventManager->addEventSubscriber($subscriber['events'], $subscriber['subscriber-fqcn']);
         $registry      = new InMemoryExternalIntegrationEventRegistry([
             [
-                'eventName' => GreetingRequestedExternalSubscriber::EVENT_TYPE,
-                'eventVersion' => $subscriber['eventVersion'],
-                'messageFQCN' => $subscriber['messageFQCN'],
+                'event-name' => GreetingRequestedExternalSubscriber::EVENT_TYPE,
+                'event-version' => $subscriber['event-version'],
+                'message-fqcn' => $subscriber['message-fqcn'],
             ],
         ]);
         $failurePolicy = $this->createMock(QueueMessageFailurePolicy::class);

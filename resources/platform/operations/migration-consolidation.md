@@ -28,7 +28,7 @@ The application reads `ownershipVerified` directly. This JSON-key rename adds no
 
 Messaging and identity installation `down()` methods reject removal of their retained evidence.
 Example `down()` drops the Example table. Execute that operation only with explicit authority for its data loss.
-The release keeps `applicationRollbackSafe` false. Older applications cannot use the renamed tables; the former integer-key application also cannot use the binary schema.
+The release keeps `application-rollback-safe` false. Older applications cannot use the renamed tables; the former integer-key application also cannot use the binary schema.
 
 ## Fresh installation
 

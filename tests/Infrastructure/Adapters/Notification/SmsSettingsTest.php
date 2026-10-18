@@ -75,16 +75,16 @@ final class SmsSettingsTest extends TestCase
         yield 'missing Netgsm settings' => [['driver' => 'netgsm']];
         yield 'invalid Twilio shape' => [['driver' => 'twilio', 'twilio' => 'invalid']];
         yield 'invalid Netgsm shape' => [['driver' => 'netgsm', 'netgsm' => 'invalid']];
-        yield 'invalid Twilio account SID' => [['driver' => 'twilio', 'twilio' => ['accountSid' => 'bad']]];
-        yield 'invalid Twilio token' => [['driver' => 'twilio', 'twilio' => [...self::twilioValues(), 'authToken' => '']]];
+        yield 'invalid Twilio account SID' => [['driver' => 'twilio', 'twilio' => ['account-sid' => 'bad']]];
+        yield 'invalid Twilio token' => [['driver' => 'twilio', 'twilio' => [...self::twilioValues(), 'auth-token' => '']]];
         yield 'invalid Twilio sender' => [['driver' => 'twilio', 'twilio' => [...self::twilioValues(), 'from' => '']]];
-        yield 'invalid Twilio timeout' => [['driver' => 'twilio', 'twilio' => [...self::twilioValues(), 'timeoutSeconds' => INF]]];
+        yield 'invalid Twilio timeout' => [['driver' => 'twilio', 'twilio' => [...self::twilioValues(), 'timeout-seconds' => INF]]];
         yield 'invalid Netgsm user' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'username' => '']]];
         yield 'invalid Netgsm password' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'password' => '']]];
         yield 'short Netgsm sender' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'sender' => 'AB']]];
         yield 'long Netgsm sender' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'sender' => 'ABCDEFGHIJKL']]];
         yield 'invalid Netgsm encoding' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'encoding' => 'other']]];
-        yield 'invalid Netgsm timeout' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'timeoutSeconds' => 0]]];
+        yield 'invalid Netgsm timeout' => [['driver' => 'netgsm', 'netgsm' => [...self::netgsmValues(), 'timeout-seconds' => 0]]];
     }
 
     #[Test]
@@ -104,12 +104,12 @@ final class SmsSettingsTest extends TestCase
     /** @return array<string, mixed> */
     private static function twilioValues(): array
     {
-        return ['accountSid' => self::ACCOUNT_SID, 'authToken' => 'token', 'from' => '+14155550100', 'timeoutSeconds' => 4.0];
+        return ['account-sid' => self::ACCOUNT_SID, 'auth-token' => 'token', 'from' => '+14155550100', 'timeout-seconds' => 4.0];
     }
 
     /** @return array<string, mixed> */
     private static function netgsmValues(): array
     {
-        return ['username' => '8501234567', 'password' => 'password', 'sender' => 'SENDER', 'encoding' => 'TR', 'timeoutSeconds' => 4.0];
+        return ['username' => '8501234567', 'password' => 'password', 'sender' => 'SENDER', 'encoding' => 'TR', 'timeout-seconds' => 4.0];
     }
 }

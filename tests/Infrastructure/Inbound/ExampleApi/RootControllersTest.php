@@ -26,7 +26,7 @@ final class RootControllersTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())->method('info')->with('Root endpoint called');
-        $settings = new ApplicationRuntimeSettings(new Settings(['cdnBaseUrl' => 'https://cdn.example.com/']));
+        $settings = new ApplicationRuntimeSettings(new Settings(['cdn-base-url' => 'https://cdn.example.com/']));
         $action   = new Root($settings, $logger);
         $request  = (new ServerRequestFactory())->createServerRequest('GET', '/');
 

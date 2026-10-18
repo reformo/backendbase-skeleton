@@ -17,7 +17,7 @@ use function trim;
 
 final readonly class NetgsmSmsSettings
 {
-    /** @var array{username: string, password: string, sender: string, encoding: string, timeoutSeconds: float} */
+    /** @var array{username: string, password: string, sender: string, encoding: string, 'timeout-seconds': float} */
     private array $values;
 
     public function __construct(mixed $settings)
@@ -30,7 +30,7 @@ final readonly class NetgsmSmsSettings
         $password = $settings['password'] ?? '';
         $sender   = $settings['sender'] ?? '';
         $encoding = $settings['encoding'] ?? 'TR';
-        $timeout  = $settings['timeoutSeconds'] ?? 5.0;
+        $timeout  = $settings['timeout-seconds'] ?? 5.0;
         if (! is_string($username) || trim($username) === '' || ! is_string($password) || trim($password) === '') {
             throw new UnexpectedValueException('Netgsm credentials are invalid.');
         }
@@ -52,7 +52,7 @@ final readonly class NetgsmSmsSettings
             'password' => $password,
             'sender' => $sender,
             'encoding' => $encoding,
-            'timeoutSeconds' => (float) $timeout,
+            'timeout-seconds' => (float) $timeout,
         ];
     }
 
@@ -78,6 +78,6 @@ final readonly class NetgsmSmsSettings
 
     public function timeoutSeconds(): float
     {
-        return $this->values['timeoutSeconds'];
+        return $this->values['timeout-seconds'];
     }
 }

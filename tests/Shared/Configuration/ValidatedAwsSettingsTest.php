@@ -22,19 +22,19 @@ final class ValidatedAwsSettingsTest extends TestCase
         ];
         $sqs         = [
             'continuous' => false,
-            'maximumMessageCount' => 10,
+            'maximum-message-count' => 10,
             'queue' => 'events',
-            'queueUrl' => '',
-            'visibilityTimeoutSeconds' => 30,
-            'waitTimeSeconds' => 20,
+            'queue-url' => '',
+            'visibility-timeout-seconds' => 30,
+            'wait-time-seconds' => 20,
         ];
-        $sns         = ['smsType' => 'Transactional', 'senderId' => 'Backendbase'];
+        $sns         = ['sms-type' => 'Transactional', 'sender-id' => 'Backendbase'];
         $objectStore = [
             'credentials' => ['key' => 'access-key', 'secret' => 'secret-key'],
             'region' => 'eu-central-1',
             'endpoint' => 'https://s3.example.com',
             'bucket' => 'assets',
-            'cdnBaseUrl' => null,
+            'cdn-base-url' => null,
         ];
 
         self::assertSame($client, ValidatedAwsSettings::client($client));
@@ -88,7 +88,7 @@ final class ValidatedAwsSettingsTest extends TestCase
         ];
 
         yield 'SQS' => [ValidatedAwsSettings::sqs(...), ['queue' => 1], 'The AWS SQS settings are invalid.'];
-        yield 'SNS' => [ValidatedAwsSettings::sns(...), ['senderId' => 1], 'The AWS SNS settings are invalid.'];
+        yield 'SNS' => [ValidatedAwsSettings::sns(...), ['sender-id' => 1], 'The AWS SNS settings are invalid.'];
         yield 'object store' => [
             ValidatedAwsSettings::objectStore(...),
             ['credentials' => []],

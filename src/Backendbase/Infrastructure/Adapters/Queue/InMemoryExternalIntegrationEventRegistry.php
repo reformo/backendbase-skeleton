@@ -16,14 +16,14 @@ final class InMemoryExternalIntegrationEventRegistry implements ExternalIntegrat
     /** @var array<string, class-string<EventMessage>> */
     private array $messageClasses = [];
 
-    /** @param iterable<int, array{eventName: string, eventVersion: string, messageFQCN: class-string}> $definitions */
+    /** @param iterable<int, array{'event-name': string, 'event-version': string, 'message-fqcn': class-string}> $definitions */
     public function __construct(iterable $definitions)
     {
         foreach ($definitions as $definition) {
             $this->register(
-                $definition['eventName'],
-                $definition['eventVersion'],
-                $definition['messageFQCN'],
+                $definition['event-name'],
+                $definition['event-version'],
+                $definition['message-fqcn'],
             );
         }
     }

@@ -933,7 +933,7 @@ bin/bruno example-api local</code></pre>
                 </ol>
             </div>
             <p><code>build-release.sh</code> verifies reviewed Composer package contents before dependency code executes. It creates an exact commit archive with a CycloneDX SBOM, package-content manifest, and SHA-256 checksum. Stage and production wrappers verify this evidence before migration and activation.</p>
-            <div class="callout warning"><strong>Current release gate:</strong> <code>deployment/release.json</code> sets <code>applicationRollbackSafe: false</code>. Normal updates reject this value before migration. The <a href="../platform/operations/fresh-installation.md">guarded fresh-install procedure</a> supports an empty database during maintenance. Existing databases need a separate adoption plan.</div>
+            <div class="callout warning"><strong>Current release gate:</strong> <code>deployment/release.json</code> sets <code>application-rollback-safe: false</code>. Normal updates reject this value before migration. The <a href="../platform/operations/fresh-installation.md">guarded fresh-install procedure</a> supports an empty database during maintenance. Existing databases need a separate adoption plan.</div>
         </section>
 
         <section id="change-paths">

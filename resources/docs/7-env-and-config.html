@@ -526,19 +526,23 @@
 
         <section id="sources">
             <h2>Configuration map</h2>
+            <p>Use lowercase <code>kebab-case</code> for project-owned configuration keys at every nesting level and for file names without extensions. Examples include <code>object-store.cdn-base-url</code>, <code>readiness.timeout-seconds</code>, and <code>aws-global.php</code>.</p>
+            <p>Preserve required external names, including environment variables, HTTP headers, Composer fields, Doctrine options, and client options such as <code>connect_timeout</code>. PHP identifiers and public payload fields keep their existing naming contracts.</p>
+            <p>Provider discovery uses directory wildcards. Update custom provider paths and configuration overrides to the new names. Previous camelCase keys have no compatibility aliases. Restart long-running workers after deployment.</p>
+            <p>Identity configuration uses <code>identity.user</code> and <code>identity.admin</code>. Authentication realm values remain <code>USER</code> and <code>ADMIN</code>. The release source uses <code>migration-target</code> and <code>application-rollback-safe</code>; the builder preserves camelCase fields in generated manifests and deployment state.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Source</th><th>Purpose</th><th>Scope</th></tr></thead>
                     <tbody>
                     <tr><td><code>config/autoload/global.php</code></td><td>Service name, mode, error display, database DSN, CDN URL, base path.</td><td>All entry points</td></tr>
-                    <tr><td><code>logger.global.php</code></td><td>Logger name, destination, and level.</td><td>All entry points</td></tr>
-                    <tr><td><code>rabbitmq.global.php</code></td><td>RabbitMQ connection, topology, timeouts, and prefetch.</td><td>Queue driver</td></tr>
-                    <tr><td><code>aws.global.php</code></td><td>Queue driver, AWS client, SQS, and SNS values.</td><td>AWS and queue services</td></tr>
-                    <tr><td><code>notification.global.php</code></td><td>SMS and email providers, SMTP transport, and Firebase push values.</td><td>Notification delivery</td></tr>
-                    <tr><td><code>redis.global.php</code></td><td>Redis host and port.</td><td>Redis consumers and readiness</td></tr>
-                    <tr><td><code>object-store.global.php</code></td><td>Object-store credentials, region, bucket, and CDN URL.</td><td>S3-compatible storage</td></tr>
+                    <tr><td><code>logger-global.php</code></td><td>Logger name, destination, and level.</td><td>All entry points</td></tr>
+                    <tr><td><code>rabbitmq-global.php</code></td><td>RabbitMQ connection, topology, timeouts, and prefetch.</td><td>Queue driver</td></tr>
+                    <tr><td><code>aws-global.php</code></td><td>Queue driver, AWS client, SQS, and SNS values.</td><td>AWS and queue services</td></tr>
+                    <tr><td><code>notification-global.php</code></td><td>SMS and email providers, SMTP transport, and Firebase push values.</td><td>Notification delivery</td></tr>
+                    <tr><td><code>redis-global.php</code></td><td>Redis host and port.</td><td>Redis consumers and readiness</td></tr>
+                    <tr><td><code>object-store-global.php</code></td><td>Object-store credentials, region, bucket, and CDN URL.</td><td>S3-compatible storage</td></tr>
                     <tr><td><code>config/example-api/*</code></td><td>API key, route cache, and CORS values.</td><td>ExampleApi</td></tr>
-                    <tr><td><code>config/autoload/identity.global.php</code></td><td>Shared USER signing and session settings for ExampleApi and UserApi.</td><td>IdentityAndAccess</td></tr>
+                    <tr><td><code>config/autoload/identity-global.php</code></td><td>Shared USER signing and session settings for ExampleApi and UserApi.</td><td>IdentityAndAccess</td></tr>
                     <tr><td><code>config/settings.php</code></td><td>Binds the merged array and registers typed configuration boundary objects.</td><td>PHP-DI</td></tr>
                     <tr><td><code>config/dependencies.php</code> and <code>config/dependencies/*</code></td><td>Load focused providers that inject typed settings into runtime services.</td><td>Runtime container</td></tr>
                     <tr><td><code>.env.example</code></td><td>Local convenience list. It is not complete and is not authoritative.</td><td>Developer reference</td></tr>
@@ -879,7 +883,7 @@ docker compose ps</code></pre></div>
                     <tbody>
                     <tr><td>Several code variables are absent from <code>.env.example</code>.</td><td>Examples include readiness timeout, base path, dead-letter settings, Tolgee settings, and payment callback URL.</td></tr>
                     <tr><td>The example file includes one unused name.</td><td><code>BACKENDBASE_LOGGER_HANDLER</code> has no current consumer in the inspected source.</td></tr>
-                    <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger.global.php</code>.</td></tr>
+                    <tr><td><code>$backendbaseDebug</code> is calculated in <code>global.php</code> but unused there.</td><td>Logging behavior comes from <code>logger-global.php</code>.</td></tr>
                     <tr><td><code>use-cache</code> is fixed to <code>true</code>.</td><td>No environment switch controls this setting in the inspected source.</td></tr>
                     <tr><td>Public requests reload optional Dotenv values and merged settings.</td><td>Existing process values still take precedence. Restart long-running processes after changing their injected environment.</td></tr>
                     </tbody>

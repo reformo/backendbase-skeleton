@@ -33,7 +33,7 @@ final class ErrorDetailConfigurationTest extends TestCase
                 $_ENV[$key] = $environment;
                 $settings   = require 'config/autoload/global.php';
 
-                self::assertSame($expected, $settings['displayErrorDetails'], $environment);
+                self::assertSame($expected, $settings['display-error-details'], $environment);
             }
         } finally {
             unset($_ENV[$key]);

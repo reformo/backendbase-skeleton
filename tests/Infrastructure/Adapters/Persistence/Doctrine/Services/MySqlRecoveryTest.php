@@ -61,7 +61,7 @@ final class MySqlRecoveryTest extends TestCase
             $resolver = new DoctrineExternalEffectResolver($connection, $clock);
             $resolver->resolve('events', $id, ExternalEffectResolution::NOT_ACCEPTED, $evidence, true);
             self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM integration_event_inbox'));
-            $registry = new InMemoryExternalIntegrationEventRegistry([['eventName' => 'Example_NewExampleAdded_Event', 'eventVersion' => '1.0', 'messageFQCN' => EntryAddedMessage::class]]);
+            $registry = new InMemoryExternalIntegrationEventRegistry([['event-name' => 'Example_NewExampleAdded_Event', 'event-version' => '1.0', 'message-fqcn' => EntryAddedMessage::class]]);
             new DoctrineOutboxReplay($connection, $clock, $registry)->schedule($id, $evidence, true);
             self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM integration_event_replay'));
             self::assertSame(1, $connection->fetchOne('SELECT COUNT(*) FROM external_effect_resolution'));

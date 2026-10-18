@@ -82,7 +82,7 @@ final class OutboxReplayTest extends TestCase
 
     private static function replay(MessageRecoveryFixture $fixture): DoctrineOutboxReplay
     {
-        $registry = new InMemoryExternalIntegrationEventRegistry([['eventName' => 'Example_NewExampleAdded_Event', 'eventVersion' => '1.0', 'messageFQCN' => EntryAddedMessage::class]]);
+        $registry = new InMemoryExternalIntegrationEventRegistry([['event-name' => 'Example_NewExampleAdded_Event', 'event-version' => '1.0', 'message-fqcn' => EntryAddedMessage::class]]);
 
         return new DoctrineOutboxReplay($fixture->connection(), $fixture->clock(), $registry);
     }

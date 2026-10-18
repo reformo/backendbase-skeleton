@@ -56,7 +56,7 @@ The public API loads optional Dotenv values and merges shared providers before A
 
 ## Small configuration example
 
-The key and range are illustrative. Select them from the target contract.
+The key and range are illustrative. Select them from the target contract. Backendbase uses kebab-case configuration keys and file names. Preserve required external names.
 
 ```php
 $timeout = filter_var(
@@ -69,7 +69,7 @@ if ($timeout === false || $timeout < 0.1 || $timeout > 10.0) {
 }
 
 return [
-    'search' => ['timeoutSeconds' => (float) $timeout],
+    'search' => ['timeout-seconds' => (float) $timeout],
 ];
 ```
 
@@ -79,7 +79,7 @@ A factory must reject invalid structure before creating the client:
 
 ```php
 $search = $settings->get('search');
-if (! is_array($search) || ! is_float($search['timeoutSeconds'] ?? null)) {
+if (! is_array($search) || ! is_float($search['timeout-seconds'] ?? null)) {
     throw new UnexpectedValueException('The search settings are invalid.');
 }
 ```
@@ -140,7 +140,7 @@ Verified on 2026-08-29 from:
 - `config/dependencies.php`
 - `config/dependencies/redis.php`
 - `config/autoload/global.php`
-- `config/autoload/aws.global.php`
+- `config/autoload/aws-global.php`
 - `public/index.php`
 - `bin/backendbase`
 - `tests/Shared/Helpers/HelpersTest.php`

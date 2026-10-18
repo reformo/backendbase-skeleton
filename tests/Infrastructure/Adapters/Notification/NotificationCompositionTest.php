@@ -96,10 +96,10 @@ final class NotificationCompositionTest extends TestCase
                     'username' => '',
                     'password' => '',
                     'encryption' => 'starttls',
-                    'timeoutSeconds' => 5.0,
+                    'timeout-seconds' => 5.0,
                 ],
             ],
-            'push' => ['projectId' => 'test-project'],
+            'push' => ['project-id' => 'test-project'],
         ];
         $notifier = self::notifier($settings, self::sesClient(new MockHandler()), $mailer, $messaging);
         $push     = new PushNotification();

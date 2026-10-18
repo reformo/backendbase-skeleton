@@ -398,7 +398,7 @@
             <p>Account and Actor own login and session identity decisions. The selected forwarding layers are simplified. Other identity workflows still use snapshots.</p>
             <p>No broad rewrite is justified by this assessment. Address each finding through a focused change and an observable completion check.</p>
             <p>Earlier account-provisioning and missing-MySQL-test findings are superseded. The repository supplies first-Admin setup with stored invitation and approval evidence and native concurrency regressions.</p>
-            <p>The current release retains <code>applicationRollbackSafe: false</code>. Guarded fresh installation now supports an empty database during maintenance. Existing database conversion requires a separate adoption plan.</p>
+            <p>The current release retains <code>application-rollback-safe: false</code>. Guarded fresh installation now supports an empty database during maintenance. Existing database conversion requires a separate adoption plan.</p>
             <p>Production acceptance still requires target-specific performance, revocation durability, secret injection, monitoring, and recovery evidence.</p>
         </section>
         <section id="scorecard">
@@ -615,7 +615,7 @@
                 <li>Rehearse the supported procedure on disposable infrastructure with backup, migration, activation, and readiness failures.</li>
             </ul>
             <p><strong>Complete when:</strong> A reviewed procedure successfully installs the supported release and demonstrates its failure recovery without bypassing compatibility checks.</p>
-            <p>Keep applicationRollbackSafe false until compatibility evidence supports changing it. Add only the tooling required by the reviewed procedure.</p>
+            <p>Keep application-rollback-safe false until compatibility evidence supports changing it. Add only the tooling required by the reviewed procedure.</p>
             <p>Applying this procedure to a shared target remains a separate authorized operation.</p>
 
             <h3 id="quality-plan-6">6. Complete · Restore the known class-size invariant · R8</h3>

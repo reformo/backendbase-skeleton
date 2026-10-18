@@ -19,7 +19,7 @@
 
 External dispatch never republishes the received event. The producer appends to the outbox only when `DELIVER_VIA_QUEUE` is `true`.
 
-Register each subscriber in the context `ServiceProvider`. External entries also require `messageFQCN` and `eventVersion`.
+Register each subscriber in the context `ServiceProvider`. External entries also require `message-fqcn` and `event-version`.
 
 The current registry constructs a fresh subscriber through reflection. Each subscriber needs an explicit constructor, including an empty constructor when it has no dependencies. Constructor dependencies resolve from the container by type, then by parameter name. A container binding for the subscriber class itself does not control this construction.
 

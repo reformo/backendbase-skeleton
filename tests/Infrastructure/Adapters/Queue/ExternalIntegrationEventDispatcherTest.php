@@ -30,9 +30,9 @@ final class ExternalIntegrationEventDispatcherTest extends TestCase
         $eventManager->expects(self::never())->method('dispatchExternalEvent');
         $registry   = new InMemoryExternalIntegrationEventRegistry([
             [
-                'eventName' => 'Example_NewExampleAdded_Event',
-                'eventVersion' => '1.0',
-                'messageFQCN' => EntryAddedMessage::class,
+                'event-name' => 'Example_NewExampleAdded_Event',
+                'event-version' => '1.0',
+                'message-fqcn' => EntryAddedMessage::class,
             ],
         ]);
         $dispatcher = new ExternalIntegrationEventDispatcher($eventManager, $registry);

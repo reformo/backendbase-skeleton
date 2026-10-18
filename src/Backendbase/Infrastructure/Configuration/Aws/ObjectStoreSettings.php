@@ -36,6 +36,6 @@ final readonly class ObjectStoreSettings
 
     public function cdnBaseUrl(): string|null
     {
-        return $this->values['cdnBaseUrl'];
+        return $this->values['cdn-base-url'];
     }
 }

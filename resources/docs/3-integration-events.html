@@ -990,16 +990,16 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
                     <h3>Internal registration</h3>
                     <div class="code-wrap"><pre><code>[
     'events' =&gt; EntryAddedSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' =&gt; EntryAddedSubscriber::class,
+    'subscriber-fqcn' =&gt; EntryAddedSubscriber::class,
 ]</code></pre></div>
                 </article>
                 <article class="card">
                     <h3>External registration</h3>
                     <div class="code-wrap"><pre><code>[
     'events' =&gt; EntryAddedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' =&gt; EntryAddedExternalSubscriber::class,
-    'messageFQCN' =&gt; EntryAddedMessage::class,
-    'eventVersion' =&gt; EntryAdded::EVENT_VERSION,
+    'subscriber-fqcn' =&gt; EntryAddedExternalSubscriber::class,
+    'message-fqcn' =&gt; EntryAddedMessage::class,
+    'event-version' =&gt; EntryAdded::EVENT_VERSION,
 ]</code></pre></div>
                 </article>
             </div>
@@ -1009,7 +1009,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
             <ol class="steps">
                 <li>The container scans <code>src/Backendbase/Domain/*/ServiceProvider.php</code>.</li>
                 <li>It adds every subscriber entry to <code>EventManager</code>.</li>
-                <li>It adds entries with <code>messageFQCN</code> and <code>eventVersion</code> to the external registry.</li>
+                <li>It adds entries with <code>message-fqcn</code> and <code>event-version</code> to the external registry.</li>
                 <li>The registry checks that each message class implements <code>EventMessage</code>.</li>
                 <li>The registry rejects duplicate event-name and version keys.</li>
             </ol>

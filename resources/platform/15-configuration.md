@@ -10,6 +10,33 @@ AWS and queue aggregates return immutable leaf objects. SQS, SNS, RabbitMQ, read
 
 ## Project file paths
 
+### Configuration names
+
+Use lowercase `kebab-case` for project-owned configuration keys, including nested keys, and configuration file names without their extensions.
+Examples include `object-store.cdn-base-url`, `readiness.timeout-seconds`, and `config/autoload/aws-global.php`.
+Identity configuration uses `identity.user` and `identity.admin`. Authentication realm values remain `USER` and `ADMIN`.
+Subscriber registration uses `subscriber-fqcn`, `message-fqcn`, and `event-version`. External registry definitions also use `event-name`.
+
+Preserve external names at their boundaries:
+
+- Environment variables retain names such as `BACKENDBASE_ENV` and `AWS_REGION`.
+- HTTP headers retain names such as `Access-Control-Allow-Origin`.
+- AWS and HTTP client options retain `use_path_style_endpoint` and `connect_timeout`.
+- Doctrine migration options retain `table_storage` and `migrations_paths`.
+- Tool configuration retains required names, including `composer.json`, `phpunit.xml`, and `phpcs.xml.dist`.
+- PHP class files, method names, response fields, and event payload fields keep their existing naming contracts.
+
+The configuration loader discovers every provider through directory wildcards. Provider names do not require a `.global.php` suffix.
+Use `*-global.php`, including `http-headers-global.php`, for the existing global providers.
+Update custom provider paths and configuration overrides to the new names. Previous camelCase keys have no compatibility aliases.
+Environment variable names, defaults, and validation rules are unchanged. Restart long-running workers when deploying the updated configuration.
+
+`deployment/release.json` uses `migration-target` and `application-rollback-safe`.
+The release builder maps these keys to `migrationTarget` and `applicationRollbackSafe` in the generated manifest.
+Existing release manifests and deployment state retain their serialization contracts.
+
+### Runtime paths
+
 The HTTP, console, Doctrine, and PHPUnit bootstraps change the working directory to the project root.
 Load project files with root-relative paths, such as `config/dependencies.php` and `resources/i18n/en-US.php`.
 The default local log path is `var/logs/app.log`.
@@ -67,7 +94,7 @@ Basis: `resources/docs/7-env-and-config.html`.
 Identity signing and contact code proof keys use active and previous key identifiers.
 Retain a code key through all dependent pending code and 12-hour confirmation recovery windows.
 Context and rate-limit digests remain independent of rotating proof keys.
-Contact proof keys use `contactProofKey` configuration and `BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY` environment names.
+Contact proof keys use `contact-proof-key` configuration and `BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY` environment names.
 The previous encryption-key environment names remain fallback aliases. Canonical names take precedence. See [security policy](14-security.md).
 Redis settings support optional ACL credentials and verified TLS. Malformed connection values are rejected.
 Plain Redis endpoints use a null connection context. TLS endpoints use peer and peer-name verification.

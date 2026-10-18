@@ -24,6 +24,8 @@ Read only the sections of [references/backendbase-pattern.md](references/backend
 - Do not silently coerce invalid values.
 - Keep live credentials out of source, examples, logs, and completion reports.
 - Do not assume the Backendbase namespace, environment prefix, API slug, or setting keys.
+- Follow the target configuration naming rules for keys and file names. An unmodified Backendbase target requires lowercase `kebab-case`, including nested keys.
+- Preserve mandatory library, tool, protocol, and environment names. Translate project-owned keys at adapter boundaries.
 - Clear caches and restart workers only when authorized in the target environment.
 
 ## Completion report

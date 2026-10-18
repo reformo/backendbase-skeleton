@@ -34,22 +34,22 @@ final readonly class ApplicationRuntimeSettings
 
     public function cdnBaseUrl(): string
     {
-        return $this->values['cdnBaseUrl'];
+        return $this->values['cdn-base-url'];
     }
 
     public function displaysErrorDetails(): bool
     {
-        return $this->values['displayErrorDetails'];
+        return $this->values['display-error-details'];
     }
 
     public function logsErrors(): bool
     {
-        return $this->values['logError'];
+        return $this->values['log-error'];
     }
 
     public function logsErrorDetails(): bool
     {
-        return $this->values['logErrorDetails'];
+        return $this->values['log-error-details'];
     }
 
     public function routeCacheFile(): string|null

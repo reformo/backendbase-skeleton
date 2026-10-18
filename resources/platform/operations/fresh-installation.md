@@ -2,7 +2,7 @@
 
 Use this procedure only for an identified, authorized new installation.
 The current consolidated migrations do not convert an existing database.
-Keep `applicationRollbackSafe: false` in the release policy.
+Keep `application-rollback-safe: false` in the release policy.
 
 ## Prepare the target
 

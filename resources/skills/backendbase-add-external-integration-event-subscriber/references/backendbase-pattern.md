@@ -89,9 +89,9 @@ Backendbase discovers this data from each bounded-context service provider:
 ```php
 [
     'events' => InvoiceIssuedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' => InvoiceIssuedExternalSubscriber::class,
-    'messageFQCN' => InvoiceIssuedMessage::class,
-    'eventVersion' => InvoiceIssued::EVENT_VERSION,
+    'subscriber-fqcn' => InvoiceIssuedExternalSubscriber::class,
+    'message-fqcn' => InvoiceIssuedMessage::class,
+    'event-version' => InvoiceIssued::EVENT_VERSION,
 ]
 ```
 

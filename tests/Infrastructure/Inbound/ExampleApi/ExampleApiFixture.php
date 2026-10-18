@@ -32,7 +32,7 @@ final class ExampleApiFixture
         $builder->addDefinitions([
             Settings::class => new SettingsValue([
                 'example-api' => ['api-key' => 'example-api-key'],
-                'cdnBaseUrl' => '',
+                'cdn-base-url' => '',
             ]),
             LoggerInterface::class => new NullLogger(),
             CommandBus::class => $commandBus,
@@ -67,7 +67,7 @@ final class ExampleApiFixture
             Settings::class => new SettingsValue([
                 'env' => 'test',
                 'example-api' => ['api-key' => 'example-api-key'],
-                'cdnBaseUrl' => '',
+                'cdn-base-url' => '',
             ]),
             ...$overrides,
         ]);

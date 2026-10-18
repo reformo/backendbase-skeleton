@@ -15,18 +15,18 @@ return [
         'endpoint' => backendbaseEnv('AWS_ENDPOINT', ''),
         'sqs' => [
             'queue' => backendbaseEnv('AWS_SQS_QUEUE_NAME', 'backendbase-queue'),
-            'queueUrl' => backendbaseEnv('AWS_SQS_QUEUE_URL', ''),
-            'maximumMessageCount' => backendbaseIntegerEnvironmentValue('AWS_SQS_MAXIMUM_MESSAGE_COUNT', 10),
-            'waitTimeSeconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_WAIT_TIME_SECONDS', 20),
-            'visibilityTimeoutSeconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_VISIBILITY_TIMEOUT_SECONDS', 30),
+            'queue-url' => backendbaseEnv('AWS_SQS_QUEUE_URL', ''),
+            'maximum-message-count' => backendbaseIntegerEnvironmentValue('AWS_SQS_MAXIMUM_MESSAGE_COUNT', 10),
+            'wait-time-seconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_WAIT_TIME_SECONDS', 20),
+            'visibility-timeout-seconds' => backendbaseIntegerEnvironmentValue('AWS_SQS_VISIBILITY_TIMEOUT_SECONDS', 30),
             'continuous' => filter_var(
                 backendbaseEnv('AWS_SQS_CONTINUOUS', 'true'),
                 FILTER_VALIDATE_BOOL,
             ),
         ],
         'sns' => [
-            'smsType' => backendbaseEnv('AWS_SNS_SMS_TYPE', 'Transactional'),
-            'senderId' => backendbaseEnv('AWS_SNS_SENDER_ID', ''),
+            'sms-type' => backendbaseEnv('AWS_SNS_SMS_TYPE', 'Transactional'),
+            'sender-id' => backendbaseEnv('AWS_SNS_SENDER_ID', ''),
         ],
     ],
 ];

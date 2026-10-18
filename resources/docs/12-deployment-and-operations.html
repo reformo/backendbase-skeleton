@@ -33,7 +33,7 @@
 <tr><td>Activation</td><td colspan="2">Atomic link switch, process hook, and readiness gate</td></tr>
 <tr><td>Rollback</td><td colspan="2">Only the recorded previous release; schema remains expanded</td></tr>
 </tbody></table></div>
-<div class="callout warning"><strong>Current release gate:</strong> <a href="../../deployment/release.json">release.json</a> sets <code>applicationRollbackSafe</code> to <code>false</code>. <a href="../../bin/deployment/deploy-release.sh">deploy-release.sh</a> rejects that value for normal updates. Explicit <code>--fresh-install</code> mode supports an empty MySQL database with mandatory maintenance and recovery hooks.</div>
+<div class="callout warning"><strong>Current release gate:</strong> <a href="../../deployment/release.json">release.json</a> sets <code>application-rollback-safe</code> to <code>false</code>. <a href="../../bin/deployment/deploy-release.sh">deploy-release.sh</a> rejects that value for normal updates. Explicit <code>--fresh-install</code> mode supports an empty MySQL database with mandatory maintenance and recovery hooks.</div>
 <p>Follow the <a href="../platform/operations/fresh-installation.md">fresh-installation and recovery procedure</a>. Existing databases require a separate adoption plan. Preserve the normal update compatibility guard.</p>
 </section>
 <section id="database"><p class="section-label">05 · Database</p><h2>Migration review is a release gate</h2>

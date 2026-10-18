@@ -135,7 +135,7 @@ final class ModuleRoutingTest extends TestCase
         $containerBuilder->addDefinitions([
             Settings::class => new SettingsValue([
                 'example-api' => ['api-key' => 'example-api-key'],
-                'cdnBaseUrl' => '',
+                'cdn-base-url' => '',
             ]),
             LoggerInterface::class => new NullLogger(),
         ]);

@@ -99,24 +99,24 @@ final class NotificationSettingsValidationTest extends TestCase
                     'driver' => 'smtp',
                     'smtp' => [
                         'host' => 'smtp.example.com',
-                        'timeoutSeconds' => 0,
+                        'timeout-seconds' => 0,
                     ],
                 ],
             ],
         ];
 
         yield 'push shape' => [['push' => 'invalid']];
-        yield 'push field' => [['push' => ['projectId' => 123]]];
-        yield 'push project ID' => [['push' => ['projectId' => 'Invalid ID']]];
-        yield 'push timeout' => [['push' => ['timeoutSeconds' => 0]]];
-        yield 'push infinite timeout' => [['push' => ['timeoutSeconds' => INF]]];
+        yield 'push field' => [['push' => ['project-id' => 123]]];
+        yield 'push project ID' => [['push' => ['project-id' => 'Invalid ID']]];
+        yield 'push timeout' => [['push' => ['timeout-seconds' => 0]]];
+        yield 'push infinite timeout' => [['push' => ['timeout-seconds' => INF]]];
         yield 'SMTP infinite timeout' => [
             [
                 'email' => [
                     'driver' => 'smtp',
                     'smtp' => [
                         'host' => 'smtp.example.com',
-                        'timeoutSeconds' => INF,
+                        'timeout-seconds' => INF,
                     ],
                 ],
             ],

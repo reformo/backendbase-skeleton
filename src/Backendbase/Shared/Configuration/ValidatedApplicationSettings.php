@@ -17,14 +17,14 @@ use function strlen;
 
 /**
  * @phpstan-type DatabaseSettings array{connect: string}
- * @phpstan-type ReadinessSettings array{timeoutSeconds: float}
+ * @phpstan-type ReadinessSettings array{'timeout-seconds': float}
  * @phpstan-type RedisSettings array{host: string, port: int, username: string, password: string, tls: bool}
  * @phpstan-type RuntimeSettings array{
  *     basePath: string,
- *     cdnBaseUrl: string,
- *     displayErrorDetails: bool,
- *     logError: bool,
- *     logErrorDetails: bool,
+ *     'cdn-base-url': string,
+ *     'display-error-details': bool,
+ *     'log-error': bool,
+ *     'log-error-details': bool,
  *     routeCacheFile: string|null
  * }
  */
@@ -43,12 +43,12 @@ final class ValidatedApplicationSettings
     /** @return ReadinessSettings */
     public static function readiness(mixed $settings): array
     {
-        $timeoutSeconds = is_array($settings) ? ($settings['timeoutSeconds'] ?? null) : null;
+        $timeoutSeconds = is_array($settings) ? ($settings['timeout-seconds'] ?? null) : null;
         if (! is_float($timeoutSeconds) && ! is_int($timeoutSeconds)) {
             throw new UnexpectedValueException('The readiness settings are invalid.');
         }
 
-        return ['timeoutSeconds' => (float) $timeoutSeconds];
+        return ['timeout-seconds' => (float) $timeoutSeconds];
     }
 
     /** @return RedisSettings */
@@ -102,10 +102,10 @@ final class ValidatedApplicationSettings
         $routeCacheFile      = null;
         if (is_array($settings)) {
             $basePath            = $settings['base-path'] ?? '';
-            $cdnBaseUrl          = $settings['cdnBaseUrl'] ?? '';
-            $displayErrorDetails = $settings['displayErrorDetails'] ?? false;
-            $logError            = $settings['logError'] ?? true;
-            $logErrorDetails     = $settings['logErrorDetails'] ?? true;
+            $cdnBaseUrl          = $settings['cdn-base-url'] ?? '';
+            $displayErrorDetails = $settings['display-error-details'] ?? false;
+            $logError            = $settings['log-error'] ?? true;
+            $logErrorDetails     = $settings['log-error-details'] ?? true;
             $routeCacheFile      = $settings['route-cache-file'] ?? null;
         }
 
@@ -122,10 +122,10 @@ final class ValidatedApplicationSettings
 
         return [
             'basePath' => $basePath,
-            'cdnBaseUrl' => $cdnBaseUrl,
-            'displayErrorDetails' => $displayErrorDetails,
-            'logError' => $logError,
-            'logErrorDetails' => $logErrorDetails,
+            'cdn-base-url' => $cdnBaseUrl,
+            'display-error-details' => $displayErrorDetails,
+            'log-error' => $logError,
+            'log-error-details' => $logErrorDetails,
             'routeCacheFile' => $routeCacheFile,
         ];
     }

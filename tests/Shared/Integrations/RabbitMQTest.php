@@ -377,11 +377,11 @@ class RabbitMQTest extends TestCase
         $values = ValidatedQueueSettings::rabbitMQTopology([
             'queue' => 'backendbase-queue',
             'exchange' => $exchange,
-            'exchangeType' => 'direct',
-            'deadLetterExchange' => 'backendbase.dead-letter',
-            'deadLetterQueueSuffix' => '.dead-letter',
-            'messageRetentionMilliseconds' => 604800000,
-            'prefetchCount' => 1,
+            'exchange-type' => 'direct',
+            'dead-letter-exchange' => 'backendbase.dead-letter',
+            'dead-letter-queue-suffix' => '.dead-letter',
+            'message-retention-milliseconds' => 604800000,
+            'prefetch-count' => 1,
         ]);
 
         return new RabbitMQTopologySettings($values);

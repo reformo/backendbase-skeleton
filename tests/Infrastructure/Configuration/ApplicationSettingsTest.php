@@ -20,7 +20,7 @@ final class ApplicationSettingsTest extends TestCase
     {
         $settings = new Settings([
             'doctrine' => ['connect' => 'mysql://database'],
-            'readiness' => ['timeoutSeconds' => 2.5],
+            'readiness' => ['timeout-seconds' => 2.5],
             'redis' => ['host' => '127.0.0.1', 'port' => 6379],
         ]);
         $database = new DatabaseSettings($settings);

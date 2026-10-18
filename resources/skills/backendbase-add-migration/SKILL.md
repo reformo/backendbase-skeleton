@@ -50,7 +50,7 @@ Adapt the migration namespace, path, platform guard, SQL, online-change risk, ba
 - Treat MySQL DDL as non-transactional and prepare forward recovery.
 - Keep Doctrine's migration metadata table visible to the CLI schema filter.
 - In an unmodified Backendbase release, update `deployment/release.json` to the latest reviewed migration. Do not edit generated `release-manifest.json` by hand.
-- Set `applicationRollbackSafe` to true only when the previous application can safely use the new schema.
+- Set `application-rollback-safe` to true only when the previous application can safely use the new schema.
 - Route approved stable reference data through the seeder workflow. Never seed environment, fixture, tenant, user, or secret data.
 - Do not run migration commands from outside the repository root.
 - Do not run a mutating migration against an unspecified or shared database. For production, require explicit authority and the approved deployment and recovery workflow.

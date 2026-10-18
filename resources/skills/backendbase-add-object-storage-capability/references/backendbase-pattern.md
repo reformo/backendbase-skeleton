@@ -37,7 +37,7 @@ The S3 adapter owns `S3ClientInterface`, commands, presigned requests, upload st
 
 - `src/Backendbase/Shared/Integrations/BucketService.php`
 - `src/Backendbase/Infrastructure/Adapters/S3Bucket.php`
-- `config/autoload/object-store.global.php`
+- `config/autoload/object-store-global.php`
 - `config/dependencies/aws.php`
 - `tests/Infrastructure/Adapters/S3BucketTest.php`
 - `tests/Infrastructure/Adapters/AwsDependencyDefinitionsTest.php`

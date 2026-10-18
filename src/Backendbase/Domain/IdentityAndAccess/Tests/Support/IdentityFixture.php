@@ -78,12 +78,12 @@ final readonly class IdentityFixture
     {
         return new IdentitySettings(new Settings([
             'identity' => array_replace_recursive([
-                'tokenLifetimeSeconds' => 900,
-                'contactProofKeyId' => 'factor-key',
-                'contactProofKey' => base64_encode(str_repeat('e', 32)),
-                'contactEmailSender' => 'identity@example.com',
-                'USER' => ['issuer' => 'https://user.example.com', 'audience' => 'user-api', 'keyId' => 'user-key', 'key' => base64_encode(str_repeat('u', 32))],
-                'ADMIN' => ['issuer' => 'https://admin.example.com', 'audience' => 'system-admin-api', 'keyId' => 'admin-key', 'key' => base64_encode(str_repeat('a', 32))],
+                'token-lifetime-seconds' => 900,
+                'contact-proof-key-id' => 'factor-key',
+                'contact-proof-key' => base64_encode(str_repeat('e', 32)),
+                'contact-email-sender' => 'identity@example.com',
+                'user' => ['issuer' => 'https://user.example.com', 'audience' => 'user-api', 'key-id' => 'user-key', 'key' => base64_encode(str_repeat('u', 32))],
+                'admin' => ['issuer' => 'https://admin.example.com', 'audience' => 'system-admin-api', 'key-id' => 'admin-key', 'key' => base64_encode(str_repeat('a', 32))],
             ], $overrides),
         ]));
     }

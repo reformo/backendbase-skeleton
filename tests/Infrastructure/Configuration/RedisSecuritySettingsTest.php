@@ -38,7 +38,7 @@ final class RedisSecuritySettingsTest extends TestCase
 
     public function testAuthenticatedTlsConnectionsKeepTypedCredentialForms(): void
     {
-        $root                 = ['redis' => ['host' => 'redis.example.com', 'port' => 6379, 'password' => 'test-password', 'tls' => true], 'readiness' => ['timeoutSeconds' => 2]];
+        $root                 = ['redis' => ['host' => 'redis.example.com', 'port' => 6379, 'password' => 'test-password', 'tls' => true], 'readiness' => ['timeout-seconds' => 2]];
         $passwordOnlySettings = new RedisSettings(new Settings($root));
         self::assertSame('tls://redis.example.com', $passwordOnlySettings->connectionHost());
         self::assertSame(['stream' => ['verify_peer' => true, 'verify_peer_name' => true]], $passwordOnlySettings->connectionContext());
@@ -49,7 +49,7 @@ final class RedisSecuritySettingsTest extends TestCase
 
     public function testPlainConnectionsDoNotActivateATlsStreamContext(): void
     {
-        $settings = new RedisSettings(new Settings(['redis' => ['host' => '127.0.0.1', 'port' => 6379], 'readiness' => ['timeoutSeconds' => 2]]));
+        $settings = new RedisSettings(new Settings(['redis' => ['host' => '127.0.0.1', 'port' => 6379], 'readiness' => ['timeout-seconds' => 2]]));
         self::assertSame('127.0.0.1', $settings->connectionHost());
         self::assertNull($settings->connectionContext());
     }

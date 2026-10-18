@@ -72,7 +72,7 @@ Adapt names and equivalent module roles in other projects. Do not copy Example d
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php`
 - `src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php`
 - `config/example-api/global.php`
-- `config/example-api/http-headers.global.php`
+- `config/example-api/http-headers-global.php`
 - `resources/api-docs/example-api/example-openapi.yml`
 - `public/example-api/docs/index.php`
 - `resources/bruno/example-api/opencollection.yml`

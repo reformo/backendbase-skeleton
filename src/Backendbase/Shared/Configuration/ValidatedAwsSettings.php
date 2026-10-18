@@ -20,19 +20,19 @@ use function is_string;
  * }
  * @phpstan-type SqsSettings array{
  *     continuous?: bool,
- *     maximumMessageCount?: int,
+ *     'maximum-message-count'?: int,
  *     queue?: string,
- *     queueUrl?: string,
- *     visibilityTimeoutSeconds?: int,
- *     waitTimeSeconds?: int
+ *     'queue-url'?: string,
+ *     'visibility-timeout-seconds'?: int,
+ *     'wait-time-seconds'?: int
  * }
- * @phpstan-type SnsSettings array{smsType?: string, senderId?: string}
+ * @phpstan-type SnsSettings array{'sms-type'?: string, 'sender-id'?: string}
  * @phpstan-type ObjectStoreSettings array{
  *     credentials: array{key: string, secret: string},
  *     region: string,
  *     endpoint: string,
  *     bucket: string,
- *     cdnBaseUrl: string|null
+ *     'cdn-base-url': string|null
  * }
  */
 final class ValidatedAwsSettings
@@ -79,27 +79,27 @@ final class ValidatedAwsSettings
         if (
             ! is_array($settings)
             || (array_key_exists('continuous', $settings) && ! is_bool($settings['continuous']))
-            || (array_key_exists('maximumMessageCount', $settings) && ! is_int($settings['maximumMessageCount']))
+            || (array_key_exists('maximum-message-count', $settings) && ! is_int($settings['maximum-message-count']))
             || (array_key_exists('queue', $settings) && ! is_string($settings['queue']))
-            || (array_key_exists('queueUrl', $settings) && ! is_string($settings['queueUrl']))
-            || (array_key_exists('visibilityTimeoutSeconds', $settings) && ! is_int($settings['visibilityTimeoutSeconds']))
-            || (array_key_exists('waitTimeSeconds', $settings) && ! is_int($settings['waitTimeSeconds']))
+            || (array_key_exists('queue-url', $settings) && ! is_string($settings['queue-url']))
+            || (array_key_exists('visibility-timeout-seconds', $settings) && ! is_int($settings['visibility-timeout-seconds']))
+            || (array_key_exists('wait-time-seconds', $settings) && ! is_int($settings['wait-time-seconds']))
         ) {
             throw new UnexpectedValueException('The AWS SQS settings are invalid.');
         }
 
         return [
             ...(array_key_exists('continuous', $settings) ? ['continuous' => $settings['continuous']] : []),
-            ...(array_key_exists('maximumMessageCount', $settings)
-                ? ['maximumMessageCount' => $settings['maximumMessageCount']]
+            ...(array_key_exists('maximum-message-count', $settings)
+                ? ['maximum-message-count' => $settings['maximum-message-count']]
                 : []),
             ...(array_key_exists('queue', $settings) ? ['queue' => $settings['queue']] : []),
-            ...(array_key_exists('queueUrl', $settings) ? ['queueUrl' => $settings['queueUrl']] : []),
-            ...(array_key_exists('visibilityTimeoutSeconds', $settings)
-                ? ['visibilityTimeoutSeconds' => $settings['visibilityTimeoutSeconds']]
+            ...(array_key_exists('queue-url', $settings) ? ['queue-url' => $settings['queue-url']] : []),
+            ...(array_key_exists('visibility-timeout-seconds', $settings)
+                ? ['visibility-timeout-seconds' => $settings['visibility-timeout-seconds']]
                 : []),
-            ...(array_key_exists('waitTimeSeconds', $settings)
-                ? ['waitTimeSeconds' => $settings['waitTimeSeconds']]
+            ...(array_key_exists('wait-time-seconds', $settings)
+                ? ['wait-time-seconds' => $settings['wait-time-seconds']]
                 : []),
         ];
     }
@@ -109,15 +109,15 @@ final class ValidatedAwsSettings
     {
         if (
             ! is_array($settings)
-            || (array_key_exists('smsType', $settings) && ! is_string($settings['smsType']))
-            || (array_key_exists('senderId', $settings) && ! is_string($settings['senderId']))
+            || (array_key_exists('sms-type', $settings) && ! is_string($settings['sms-type']))
+            || (array_key_exists('sender-id', $settings) && ! is_string($settings['sender-id']))
         ) {
             throw new UnexpectedValueException('The AWS SNS settings are invalid.');
         }
 
         return [
-            ...(array_key_exists('smsType', $settings) ? ['smsType' => $settings['smsType']] : []),
-            ...(array_key_exists('senderId', $settings) ? ['senderId' => $settings['senderId']] : []),
+            ...(array_key_exists('sms-type', $settings) ? ['sms-type' => $settings['sms-type']] : []),
+            ...(array_key_exists('sender-id', $settings) ? ['sender-id' => $settings['sender-id']] : []),
         ];
     }
 
@@ -133,7 +133,7 @@ final class ValidatedAwsSettings
             || ! is_string($settings['region'] ?? null)
             || ! is_string($settings['endpoint'] ?? null)
             || ! is_string($settings['bucket'] ?? null)
-            || (! is_string($settings['cdnBaseUrl'] ?? null) && ($settings['cdnBaseUrl'] ?? null) !== null)
+            || (! is_string($settings['cdn-base-url'] ?? null) && ($settings['cdn-base-url'] ?? null) !== null)
         ) {
             throw new UnexpectedValueException('The object-store settings are invalid.');
         }
@@ -143,7 +143,7 @@ final class ValidatedAwsSettings
             'region' => $settings['region'],
             'endpoint' => $settings['endpoint'],
             'bucket' => $settings['bucket'],
-            'cdnBaseUrl' => $settings['cdnBaseUrl'] ?? null,
+            'cdn-base-url' => $settings['cdn-base-url'] ?? null,
         ];
     }
 }

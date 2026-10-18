@@ -1162,7 +1162,7 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
                 </li>
                 <li>
                     <strong>Register the contract and subscriber.</strong>
-                    Add <code>events</code>, <code>subscriberFQCN</code>, <code>messageFQCN</code>, and <code>eventVersion</code> to the bounded-context <code>ServiceProvider</code>.
+                    Add <code>events</code>, <code>subscriber-fqcn</code>, <code>message-fqcn</code>, and <code>event-version</code> to the bounded-context <code>ServiceProvider</code>.
                 </li>
                 <li>
                     <strong>Test success, duplicate, invalid, and failure paths.</strong>
@@ -1174,9 +1174,9 @@ bin/backendbase integration-messages:cleanup --retention-days=30 --limit=1000</c
             <div class="code-wrap">
                 <pre><code>[
     'events' =&gt; EntryAddedExternalSubscriber::getSubscribedEvents(),
-    'subscriberFQCN' =&gt; EntryAddedExternalSubscriber::class,
-    'messageFQCN' =&gt; EntryAddedMessage::class,
-    'eventVersion' =&gt; EntryAdded::EVENT_VERSION,
+    'subscriber-fqcn' =&gt; EntryAddedExternalSubscriber::class,
+    'message-fqcn' =&gt; EntryAddedMessage::class,
+    'event-version' =&gt; EntryAdded::EVENT_VERSION,
 ]</code></pre>
             </div>
         </section>
@@ -1300,8 +1300,8 @@ ORDER BY received_at DESC;</code></pre>
                     <tbody>
                         <tr><td>Driver selection</td><td><code>config/dependencies/queue.php</code></td></tr>
                         <tr><td>Messaging ports and values</td><td><code>src/Backendbase/Shared/Integrations/MessagePublisher.php</code>, <code>MessageConsumer.php</code>, <code>Messaging/</code>, <code>Operation/MessagePublicationResult.php</code></td></tr>
-                        <tr><td>RabbitMQ settings</td><td><code>config/autoload/rabbitmq.global.php</code></td></tr>
-                        <tr><td>SQS settings</td><td><code>config/autoload/aws.global.php</code></td></tr>
+                        <tr><td>RabbitMQ settings</td><td><code>config/autoload/rabbitmq-global.php</code></td></tr>
+                        <tr><td>SQS settings</td><td><code>config/autoload/aws-global.php</code></td></tr>
                         <tr><td>RabbitMQ adapter</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/RabbitMQ.php</code></td></tr>
                         <tr><td>SQS adapter, transport diagnostics, and envelope</td><td><code>src/Backendbase/Infrastructure/Adapters/Queue/SqsQueue.php</code>, <code>SqsTransport.php</code>, <code>SqsMessageMapper.php</code></td></tr>
                         <tr><td>Producer transaction</td><td><code>src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</code></td></tr>

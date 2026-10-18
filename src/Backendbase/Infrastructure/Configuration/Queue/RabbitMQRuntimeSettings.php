@@ -21,12 +21,12 @@ final readonly class RabbitMQRuntimeSettings
 
     public function connectionTimeoutSeconds(): float
     {
-        return $this->values['connectionTimeout'];
+        return $this->values['connection-timeout'];
     }
 
     public function readWriteTimeoutSeconds(): float
     {
-        return $this->values['readWriteTimeout'];
+        return $this->values['read-write-timeout'];
     }
 
     public function heartbeatSeconds(): int

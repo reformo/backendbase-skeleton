@@ -40,7 +40,7 @@ final readonly class QueueSettings
             'topology' => new RabbitMQTopologySettings(
                 ValidatedQueueSettings::rabbitMQTopology($rabbitMq),
             ),
-            'readinessTimeoutSeconds' => $readiness['timeoutSeconds'],
+            'readinessTimeoutSeconds' => $readiness['timeout-seconds'],
         ];
     }
 
