@@ -30,6 +30,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Include the Git attribution hook installer in version control. Exempt its exact path from the shell-script ignore rule so the skill installation link resolves in fresh checkouts.
+
 - Use a separate CI API port so ZAP add-on updates cannot collide with the application listener. Keep authenticated Bruno requests and security probes on the same API address. Add an isolated scanner startup regression.
 
 - Keep Redis fixture assertion totals stable with and without password authentication. Add regressions for authentication modes and failures to prevent quality-report drift between local and CI runs.
