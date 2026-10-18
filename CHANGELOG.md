@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Add PHP examples to the hypothetical HTTP idempotency payment walkthrough. Show route registration, existing replay middleware, payment transactions, response mapping, and provider-status recovery.
+
 - Add a hypothetical payment walkthrough to the HTTP idempotency guide, covering inbound routing, authentication, claims, provider calls, transactions, response replay, and recovery.
 
 - Add Bruno idempotency key and replay-test guidance. Make the HTTP idempotency rule and contract link prominent in related skill instructions.

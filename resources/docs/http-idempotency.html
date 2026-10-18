@@ -205,6 +205,8 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
             </aside>
             <p>Assume the provider supports idempotent charges and payment-status lookup. The application stores payment attempts and permits only one active or successful payment per order.</p>
             <p>The provider call is synchronous in this example. Receipt delivery is asynchronous. No database transaction remains open during the provider call.</p>
+            <p>The PHP examples show the proposed implementation boundaries. Payment classes, ports, and configuration remain illustrative. Supporting types and their imports are omitted.</p>
+            <p>The middleware excerpt comes from current source. The payment examples require domain rules, adapters, registration, migrations, and tests before use.</p>
 
             <div class="diagram-wrap" tabindex="0" role="region" aria-label="Hypothetical payment flow">
                 <ol class="flow guide-flow five">
@@ -241,11 +243,74 @@ The-Timezone-IANA: Europe/Istanbul
                 <li><strong>Replay input:</strong> Shared middleware validates the idempotency header and bounded request body. Authentication and input rejection at this stage create no replay claim.</li>
             </ol>
             <p>A browser preflight checks the configured cross-origin policy. OPTIONS does not claim a payment or invoke its business handler.</p>
+            <details>
+                <summary>PHP: register the protected payment route</summary>
+                <p>The proposed file is <code>Infrastructure/Inbound/PaymentsApi/Controllers/Payments/ModuleConfig.php</code>. Its operation name must match the proposed OpenAPI operation ID.</p>
+                <pre><code class="language-php">namespace Backendbase\Infrastructure\Inbound\PaymentsApi\Controllers\Payments;
+
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
+use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
+use Backendbase\Infrastructure\Adapters\Http\Identity\RealmAuthentication;
+use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
+use Psr\Container\ContainerInterface;
+use Slim\Routing\RouteCollectorProxy;
+
+final class ModuleConfig implements ModuleRoute
+{
+    public const string ROUTE_KEY = 'payments';
+
+    /** @param RouteCollectorProxy&lt;ContainerInterface&gt; $routeCollector */
+    public function __invoke(RouteCollectorProxy $routeCollector): void
+    {
+        $routeCollector-&gt;group('', static function (RouteCollectorProxy $group): void {
+            $group-&gt;post('', Handlers\CreatePayment::class)
+                -&gt;setName('createPayment');
+        })
+            -&gt;add(Idempotency::class)
+            -&gt;add(RealmAuthentication::class)
+            -&gt;add(new RealmPolicy(Realm::USER));
+    }
+
+    public function routeKey(): string
+    {
+        return self::ROUTE_KEY;
+    }
+}</code></pre>
+                <p>Slim executes the last added middleware first: realm policy, authentication, then idempotency. API-key validation runs earlier in the API pipeline.</p>
+                <p>The proposed API must also register this module in <code>Controllers/ModuleRoutes.php</code> and mount its route group at <code>/payments</code>.</p>
+                <p>The API selector, pipeline, container bindings, OpenAPI contract, and handler registry require separate registration.</p>
+                <p>Follow the existing <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php">ExampleApi module</a> and <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php">API route registration</a>.</p>
+            </details>
 
             <h3>3. The middleware commits the HTTP claim</h3>
             <p>The scope combines the named operation, USER realm, Account, actor, and client key. The fingerprint includes the request content and relevant headers.</p>
             <p>A unique MySQL claim lets one request proceed. A matching completed claim returns its stored response before the payment handler runs.</p>
             <p>A concurrent or unresolved matching request receives 409. Changed content under the same scoped key receives 422. Neither branch calls the provider.</p>
+            <details>
+                <summary>PHP: claim, replay, execute, and store</summary>
+                <p>This method is copied from the existing <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/Idempotency.php">Idempotency middleware</a>. Reuse that middleware for the proposed route.</p>
+                <pre><code class="language-php">private function processWrite(ServerRequestInterface $request, RequestHandlerInterface $handler, string $key): ResponseInterface
+{
+    $exchange = $this-&gt;exchange;
+    $store    = $this-&gt;store;
+    $identity = $exchange-&gt;identity($request, $key);
+    $stored   = $store-&gt;claim($identity);
+    if ($stored !== null) {
+        return $exchange-&gt;replay($identity, $stored);
+    }
+
+    $response  = $exchange-&gt;execute($request, $handler);
+    $encrypted = $exchange-&gt;encrypt($identity, $response);
+    $store-&gt;complete($identity, $encrypted);
+
+    return $response;
+}</code></pre>
+                <p><code>claim()</code> returns <code>null</code> only for a new committed claim. It returns ciphertext for a completed matching claim.</p>
+                <p>The store throws <code>RequestMismatch</code> or <code>RequestOutstanding</code> for conflicting claims. The enclosing <code>process()</code> maps these exceptions to 422 or 409.</p>
+                <p><code>execute()</code> translates application exceptions into safe HTTP responses. Those error responses are encrypted and stored too.</p>
+                <p>A storage failure returns 503. A claim without a stored response remains blocked. The middleware does not delete it after an exception.</p>
+            </details>
 
             <h3>4. The application prepares a durable payment attempt</h3>
             <ol class="steps">
@@ -277,6 +342,109 @@ The-Timezone-IANA: Europe/Istanbul
             </ol>
             <p>The outbox relay can publish more than once. The receipt consumer needs its own durable duplicate protection for delivery.</p>
             <p>A receipt failure does not repeat the charge. Its delivery retry belongs to the notification flow.</p>
+            <details>
+                <summary>PHP: commit the attempt, call the provider, then commit the outcome</summary>
+                <p>The proposed <code>PayOrderHandler</code> belongs in the payment context's <code>Application/CommandHandlers</code> directory. Its command handler returns <code>void</code>.</p>
+                <pre><code class="language-php">use Backendbase\Shared\CQRS\Command;
+use Backendbase\Shared\CQRS\CommandHandler;
+
+final readonly class PayOrderHandler implements CommandHandler
+{
+    public function __construct(
+        private PaymentAttemptWrites $attempts,
+        private PaymentProvider $provider,
+    ) {
+    }
+
+    /** @param PayOrder $command */
+    public function handle(Command $command): void
+    {
+        $access = $command-&gt;accessControl();
+        if (! $access-&gt;isAllowed('payment.create')) {
+            throw new PaymentNotAllowed();
+        }
+
+        $attempts = $this-&gt;attempts;
+        $provider = $this-&gt;provider;
+        $attempt  = $attempts-&gt;prepare($command);
+        $charge   = $attempt-&gt;chargeRequest();
+
+        try {
+            $outcome = $provider-&gt;charge($charge);
+        } catch (ProviderOutcomeUnknown $exception) {
+            throw new PaymentOutcomeUnknown(
+                'Check the existing payment before another attempt.',
+                0,
+                $exception,
+            );
+        }
+
+        $paymentId = $command-&gt;paymentId();
+        $attempts-&gt;complete($paymentId, $outcome);
+        $outcome-&gt;assertSucceeded();
+    }
+}</code></pre>
+                <p><code>PaymentProvider</code> is a context-owned port. Its infrastructure adapter sets finite connection and request timeouts and validates every provider response.</p>
+                <p><code>chargeRequest()</code> contains the stored provider-operation key, amount, currency, and payment-method token. It never derives a provider key from an HTTP retry.</p>
+                <p>A timeout or an ambiguous response raises <code>ProviderOutcomeUnknown</code>. The attempt remains pending. The handler does not repeat the charge.</p>
+                <p>A confirmed decline is persisted before <code>assertSucceeded()</code> raises the documented business problem. Only a confirmed terminal outcome can release the order's active-attempt guard.</p>
+                <h4>The two business transactions</h4>
+                <p>The proposed application service below uses context-owned persistence ports. <code>PaymentTransaction::run()</code> commits before returning and rolls back when its callback throws.</p>
+                <pre><code class="language-php">final readonly class PaymentAttemptWrites
+{
+    public function __construct(
+        private PaymentWriteRepository $repository,
+        private PaymentTransaction $transaction,
+    ) {
+    }
+
+    public function prepare(PayOrder $command): PaymentAttempt
+    {
+        $transaction = $this-&gt;transaction;
+        $work = fn (): PaymentAttempt =&gt; $this-&gt;reserve($command);
+
+        return $transaction-&gt;run($work);
+    }
+
+    private function reserve(PayOrder $command): PaymentAttempt
+    {
+        $repository = $this-&gt;repository;
+        $orderId    = $command-&gt;orderId();
+        $order      = $repository-&gt;getOrderForUpdate($orderId);
+        $access     = $command-&gt;accessControl();
+        $order-&gt;assertPaymentAllowed($access);
+
+        $paymentId   = $command-&gt;paymentId();
+        $providerKey = ProviderOperationKey::forPayment($paymentId);
+        $methodToken = $command-&gt;paymentMethodToken();
+        $attempt     = $order-&gt;startPayment($paymentId, $providerKey, $methodToken);
+        $repository-&gt;savePending($order, $attempt);
+
+        return $attempt;
+    }
+
+    public function complete(PaymentId $paymentId, ChargeOutcome $outcome): void
+    {
+        $transaction = $this-&gt;transaction;
+        $work = fn () =&gt; $this-&gt;record($paymentId, $outcome);
+        $transaction-&gt;run($work);
+    }
+
+    private function record(PaymentId $paymentId, ChargeOutcome $outcome): void
+    {
+        $repository = $this-&gt;repository;
+        $order      = $repository-&gt;getOrderForPaymentUpdate($paymentId);
+        $receipt    = $order-&gt;recordPaymentOutcome($paymentId, $outcome);
+        $repository-&gt;saveOutcomeAndOutbox($order, $receipt);
+    }
+}</code></pre>
+                <p><code>startPayment()</code> rejects an active attempt or a paid order and uses the order's authoritative price. <code>savePending()</code> persists the attempt and order guard together.</p>
+                <p>The proposed schema needs a unique guard per order. Every payment write must lock the same order before its payment record.</p>
+                <p><code>recordPaymentOutcome()</code> checks the payment identity, provider reference, amount, currency, and permitted state transition before mutation.</p>
+                <p>Repeated matching outcomes produce no new receipt event. Conflicting terminal outcomes fail explicitly. <code>saveOutcomeAndOutbox()</code> writes the order, payment, and optional receipt event in one transaction.</p>
+                <p>The receipt event uses a stable identity derived from the payment identifier. A unique outbox identity prevents duplicate receipt creation during recovery.</p>
+                <p>The ports hide SQL and Doctrine details. The proposed tables, constraints, indexes, and provider-token retention require their own design and verification.</p>
+            </details>
 
             <h3>6. The API stores the response before returning it</h3>
             <p>The application returns a declared result after the business commit. The HTTP handler maps that result to a hypothetical 201 response:</p>
@@ -284,6 +452,52 @@ The-Timezone-IANA: Europe/Istanbul
             <p><code>amountMinor</code> expresses the amount in the currency's smallest unit. Here, 25,900 kuruş equals TRY 259.00.</p>
             <p>The middleware encrypts the status, body, and selected response headers. It completes the replay claim in a separate commit, then returns the response.</p>
             <p>The HTTP claim, pending-payment record, successful-payment record, and stored HTTP response are separate commits. The provider charge occurs between the business transactions.</p>
+            <details>
+                <summary>PHP: read the committed result and map the HTTP response</summary>
+                <p>The proposed <code>PayOrderAndRead</code> application orchestrator dispatches one command and then reads the committed payment.</p>
+                <pre><code class="language-php">use Backendbase\Shared\CQRS\CommandBus;
+use Backendbase\Shared\CQRS\QueryBus;
+
+final readonly class PayOrderAndRead
+{
+    public function __construct(private CommandBus $commands, private QueryBus $queries)
+    {
+    }
+
+    public function pay(PayOrder $command): PaymentView
+    {
+        $commands = $this-&gt;commands;
+        $commands-&gt;handle($command);
+
+        $paymentId = $command-&gt;paymentId();
+        $access    = $command-&gt;accessControl();
+        $query     = new GetPayment($paymentId, $access);
+        $queries   = $this-&gt;queries;
+
+        return $queries-&gt;handle($query);
+    }
+}</code></pre>
+                <p><code>PayOrder</code> and <code>GetPayment</code> belong in the payment context's <code>Contracts</code> layer. Register both handlers in its <code>ServiceProvider::getHandlers()</code> map.</p>
+                <p>The query repeats access checks and reads the primary database. A missing result or read failure raises a safe error without repeating the command.</p>
+                <p>The proposed <code>Handlers/CreatePayment.php</code> action uses that orchestrator. The excerpt assumes constructor injection through <code>$this-&gt;payments</code>.</p>
+                <pre><code class="language-php">use Laminas\Diactoros\Response\JsonResponse;
+use Psr\Http\Message\ResponseInterface;
+
+protected function action(): ResponseInterface
+{
+    $command  = PaymentRequestInput::payOrder($this-&gt;request);
+    $payments = $this-&gt;payments;
+    $payment  = $payments-&gt;pay($command);
+
+    return new JsonResponse(['payment' =&gt; $payment], 201, [
+        'Cache-Control' =&gt; 'no-store',
+    ]);
+}</code></pre>
+                <p>The inbound input mapper rejects invalid JSON, fields, identifiers, and token sizes. It creates typed command values and access control from the authenticated principal.</p>
+                <p>The mapper generates the payment identifier before dispatch. The command carries that identifier into persistence. The provider-operation key derives from that same identifier.</p>
+                <p><code>PaymentView</code> is an immutable, serializable read model with the fields shown above. The HTTP action selects the <code>payment</code> response key.</p>
+                <p>Follow the <a href="../platform/04-cqrs.md#client-visible-write-results">client-visible write-result rules</a>. A failed command does not produce a success response.</p>
+            </details>
 
             <h3>7. Retries and recovery follow the recorded state</h3>
             <div class="table-wrap" tabindex="0" role="region" aria-label="Payment retry and recovery cases">
@@ -307,6 +521,28 @@ The-Timezone-IANA: Europe/Istanbul
             <p>A proposed GET <code>/payments/{payment-id}</code> would return current payment state after authentication and ownership checks. It needs no idempotency key.</p>
             <p>Recovery can use provider status lookup or a verified provider callback. Callbacks require signature verification, duplicate-event handling, and transactional state updates.</p>
             <p>Only a confirmed provider outcome can move an uncertain payment to success or failure. Receipt creation must remain unique during recovery.</p>
+            <details>
+                <summary>PHP: reconcile the existing attempt after a provider timeout</summary>
+                <p>A proposed recovery command handler can call this application function with context-owned ports. The function returns no command result.</p>
+                <pre><code class="language-php">function reconcilePayment(
+    ReconcilePayment $command,
+    PaymentRecoveryRead $recovery,
+    PaymentProvider $provider,
+    PaymentAttemptWrites $attempts,
+): void
+{
+    $attempt  = $recovery-&gt;getAuthorizedAttempt($command);
+    $lookup   = $attempt-&gt;statusRequest();
+    $outcome  = $provider-&gt;status($lookup);
+
+    $paymentId = $command-&gt;paymentId();
+    $attempts-&gt;complete($paymentId, $outcome);
+}</code></pre>
+                <p><code>getAuthorizedAttempt()</code> enforces recovery authority and reads the stored provider identity. It leaves no transaction open during status lookup.</p>
+                <p><code>status()</code> returns only a validated terminal outcome. A pending, missing, malformed, or unavailable provider result raises <code>ProviderOutcomeUnknown</code>.</p>
+                <p>That exception leaves the existing attempt pending. A lookup failure does not authorize another charge. Completion uses the same transaction and receipt identity as normal execution.</p>
+                <p>This command does not complete, delete, or replace the HTTP replay claim. A stored HTTP error still replays unchanged after business recovery.</p>
+            </details>
             <aside class="callout warning">
                 <strong>Do not clear evidence to retry a charge.</strong> Keep unresolved HTTP claims and payment attempts while checking the provider.
                 Backendbase has no automatic claim takeover or payment-recovery command. Any payment recovery described here would require a dedicated, authorized implementation.

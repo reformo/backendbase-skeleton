@@ -1,6 +1,8 @@
 # HTTP Idempotency
 
 Read the [HTML capability guide](../../docs/http-idempotency.html) for examples, response decisions, configuration, and recovery guidance for mixed audiences.
+Its [payment walkthrough](../../docs/http-idempotency.html#payment-example) includes PHP examples for route registration, middleware replay, business transactions, response mapping, and provider-status recovery.
+The payment types are illustrative. The replay middleware excerpt reflects the current implementation.
 
 All 38 documented POST, PATCH, and DELETE operations require `Idempotency-Key`.
 The shared middleware also supports PUT when a named write route is added.
