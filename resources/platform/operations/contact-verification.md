@@ -1,6 +1,7 @@
 # Contact Verification
 
-User registration requires verified email and mobile before creating an Account, User, or credentials.
+User registration requires email and mobile input. Only mobile verification is required before creating identity records.
+Email verification is optional before registration and available after login.
 IdentityAndAccess owns `contact_verification`. Each row records one contact slot, purpose, realm, and verification context.
 The Account remains the owner of the email and mobile used for login.
 
@@ -9,27 +10,47 @@ The Account remains the owner of the email and mobile used for login.
 1. Generate 32 random bytes with a cryptographic random generator.
 2. Encode the bytes as canonical unpadded base64url.
 3. Keep the resulting 43-character `verificationContextToken` secret.
-4. Request email verification through `POST /auth/contact-verifications`.
-5. Supply `contactType`, `contactValue`, and `verificationContextToken`.
+4. Request mobile verification through `POST /auth/contact-verifications`.
+5. Supply `contactType: mobile`, `contactValue`, and `verificationContextToken`.
 6. Confirm through `POST /auth/contact-verifications/{contact-info-id}/confirm`.
 7. Supply the context token and six-digit `code`.
-8. Repeat the request and confirmation for mobile with the same context token.
+8. Optionally verify email with the same context token.
 9. Register through `POST /auth/register`.
-10. Supply email, mobile, password, both contact IDs, and the context token.
+10. Supply email, mobile, password, and the context token.
 
-Registration fields are `email`, `mobile`, `password`, `emailContactInfoId`, `mobileContactInfoId`, and `verificationContextToken`.
-Both contact values must match their verification evidence exactly after normalization.
-The server rejects evidence from another context, purpose, or realm.
+Registration fields are `email`, `mobile`, `password`, and `verificationContextToken`.
+The server rejects `emailContactInfoId` and `mobileContactInfoId` as unknown registration fields.
+It finds contact slots through the context token, USER realm, registration purpose, and contact type.
+The required mobile value must match its verification evidence exactly after normalization.
+The server rejects required evidence from another context, purpose, or realm.
 Email is lowercase ASCII. Mobile uses E.164 format without spaces or inferred country codes.
 
-Both verification timestamps must precede or equal the server time and be less than 12 hours old.
+The required mobile verification timestamp must precede or equal server time and be less than 12 hours old.
 Evidence exactly 12 hours old is expired. This deadline applies only to registration.
 Normal login remains available after that interval.
 
-Registration locks the evidence rows in canonical UUID order before reading the authorization time.
-It checks both deadlines at that time. It consumes both proofs and creates identity records in one transaction.
-Rollback preserves both proofs. Concurrent registration permits only one successful consumption.
+Registration looks up and locks email first, then mobile, before reading the authorization time.
+It consumes fresh matching mobile evidence and creates identity records in one transaction.
+It also consumes matching, unused email evidence when that evidence meets the same freshness requirement.
+Missing, unconfirmed, expired, future, consumed, or different email evidence does not block registration.
+Rollback preserves all selected proofs. Concurrent registration permits only one successful consumption.
 Account uniqueness constraints remain the final guard for duplicate email and mobile.
+
+## User email verification after login
+
+1. Log in through `POST /auth/login` with the Account email or mobile and password.
+2. Generate a new context token.
+3. Send `contactType: email` and `verificationContextToken` to `POST /identity/contact-verifications`.
+4. Send the USER bearer token with each request.
+5. Confirm through `POST /identity/contact-verifications/{contact-info-id}/confirm` with the context token and six-digit code.
+6. Use `POST /identity/contact-verifications/{contact-info-id}/resend` with the context token when another code is required.
+
+The server selects the email from the authenticated Account. It rejects a supplied destination and the mobile contact type.
+The evidence purpose is `user-contact-verification`. Each record belongs to the authenticated Account and User actor.
+Another User, an ADMIN token, or an anonymous registration route cannot confirm or resend this evidence.
+Confirmation persists `verifiedAt`. The response has `registrationValidUntil: null` because this evidence does not authorize registration.
+Verification preserves Account ownership, passwords, authorization versions, and sessions. It does not change the email value.
+ExampleApi exposes the same flow with its required API key.
 
 ## Code and context state
 

@@ -184,7 +184,8 @@ New aggregate identifiers use UUIDv7. Fresh Example installation uses binary UUI
 An existing database needs a separate reviewed conversion and migration-history adoption plan.
 `DoctrineContactStore` locks verification evidence by its binary primary key.
 Its context-slot lookup uses the unique `(context_hash, realm, purpose, contact_type)` index.
-Registration locks both proof identifiers in sorted order before it reads UTC time.
+Registration looks up the email slot, then the mobile slot, before reading UTC time.
+The mobile proof is required. Matching fresh email evidence is optional. Both lookups retain the existing context-slot index.
 Bound evidence also checks current Account and actor state under Account-first locks.
 No contact lookup requires a separate Account index.
 

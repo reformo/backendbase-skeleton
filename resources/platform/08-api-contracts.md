@@ -66,7 +66,7 @@ Clients that read the previous metadata key must update their lookup.
 
 ## Automated response checks
 
-The specifications and Bruno collections contain 46 operations: ExampleApi has 18, UserApi has 11, and SystemAdminApi has 17.
+The specifications and Bruno collections contain 52 operations: ExampleApi has 21, UserApi has 14, and SystemAdminApi has 17.
 `ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
 It also checks success key names and Bruno status, key, and wrapper assertions.
 Identity API `ModuleRoutingTest` checks module registration, route names, and handler namespaces against the OpenAPI tags and operation IDs.
@@ -110,11 +110,11 @@ bin/bruno example-api local
 
 Bruno environment files must contain placeholders, not live secrets. Assertions must check the status and important response fields.
 
-Identity realm sources, generated documents, and Bruno collections have matching operations. ExampleApi exposes the nine User Authentication and Identity operations with `example` operation ID prefixes and `X-Source-Id: example`.
+Identity realm sources, generated documents, and Bruno collections have matching operations. ExampleApi exposes the twelve User Authentication and Identity operations with `example` operation ID prefixes and `X-Source-Id: example`.
 ExampleApi references the existing UserApi schemas. Regenerate ExampleApi when those shared schemas change.
 All ExampleApi operations except health require an API key. Protected Example and Identity operations also declare `bearerToken` in the same security requirement.
 `getExampleByCriteria` and Authentication operations require no bearer token.
-Populate the ExampleApi Bruno `accessToken` variable from login before running the `example` folder. Contact verification and registration require prepared contact proofs.
+Populate the ExampleApi Bruno `accessToken` variable from login before running the `example` folder. Registration requires a prepared mobile proof and its context token. Email verification is optional.
 Run token revocation, logout, and Account closure with the intended session. Obtain another session after revocation or logout.
 Run `composer run generate-identity-api-specs` and `composer run validate-identity-api-specs` after realm contract changes.
 
@@ -153,11 +153,15 @@ The tag check resolves referenced path files. It rejects missing or empty operat
 Add a new declared tag when a new endpoint group needs one.
 
 Identity requests use strict input mapping. Contact ownership and password authentication are separate steps.
-Registration requires `email`, `mobile`, `password`, `emailContactInfoId`, `mobileContactInfoId`, and `verificationContextToken`.
-Verify both contacts less than 12 hours before registration. Mobile uses E.164 format and is globally unique among active Accounts.
+Registration requires `email`, `mobile`, `password`, and `verificationContextToken`.
+The server rejects `emailContactInfoId` and `mobileContactInfoId`. It resolves evidence through the submitted contact values and context.
+Verify mobile less than 12 hours before registration. Email input is required, but email verification is optional.
+Matching fresh email evidence is consumed when available. Mobile uses E.164 format and is globally unique among active Accounts.
+Authenticated Users can request, confirm, and resend verification of their stored email under `/identity/contact-verifications`.
+Supply `contactType: email`, the context token, and a USER bearer token. The server rejects a supplied contact value.
 Login accepts `identifier` containing email or mobile, plus `password`. Username fields are rejected.
 Contact request, confirmation, and resend use `contactInfo`. The former `/auth/ownership/*` paths are removed.
-See [contact verification](operations/contact-verification.md) for public and authenticated Admin contracts.
+See [contact verification](operations/contact-verification.md) for public registration, authenticated User email, and Admin contracts.
 Admin invitations require `accountId` and `evidence`. Current identity and actor history responses include Account `email` and `mobile`.
 `POST /auth/login` returns `session` with `accessToken`, `tokenType`, and `expiresAt`.
 TOTP enrollment and `/auth/login/complete` endpoints are removed. Update clients to use the single login response.

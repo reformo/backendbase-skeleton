@@ -127,22 +127,19 @@ class IdentityClient:
     def register(self):
         context = secrets.token_urlsafe(32)
         values = {"email": self.userEmail, "mobile": self.userMobile}
-        contacts = {}
-        for kind, value in values.items():
-            payload = {"contactType": kind, "contactValue": value, "verificationContextToken": context}
-            challenge = self.request("user", "POST", "/auth/contact-verifications", 200, payload)["contactInfo"]
-            identifier = challenge["contactInfoId"]
-            self.request("user", "POST", f"/auth/contact-verifications/{identifier}/resend", 429,
-                         {"verificationContextToken": context})
-            capture = self.directory / "sink" / (hashlib.sha256(value.encode()).hexdigest() + ".json")
-            code = json.loads(capture.read_text())["code"]
-            self.request("user", "POST", f"/auth/contact-verifications/{identifier}/confirm", 400,
-                         {"verificationContextToken": context, "code": "invalid"})
-            self.request("user", "POST", f"/auth/contact-verifications/{identifier}/confirm", 200,
-                         {"verificationContextToken": context, "code": code})
-            contacts[kind + "ContactInfoId"] = identifier
+        payload = {"contactType": "mobile", "contactValue": self.userMobile, "verificationContextToken": context}
+        challenge = self.request("user", "POST", "/auth/contact-verifications", 200, payload)["contactInfo"]
+        identifier = challenge["contactInfoId"]
+        self.request("user", "POST", f"/auth/contact-verifications/{identifier}/resend", 429,
+                     {"verificationContextToken": context})
+        capture = self.directory / "sink" / (hashlib.sha256(self.userMobile.encode()).hexdigest() + ".json")
+        code = json.loads(capture.read_text())["code"]
+        self.request("user", "POST", f"/auth/contact-verifications/{identifier}/confirm", 400,
+                     {"verificationContextToken": context, "code": "invalid"})
+        self.request("user", "POST", f"/auth/contact-verifications/{identifier}/confirm", 200,
+                     {"verificationContextToken": context, "code": code})
         return self.request("user", "POST", "/auth/register", 201,
-                            {**values, **contacts, "password": PASSWORD,
+                            {**values, "password": PASSWORD,
                              "verificationContextToken": context})["registration"]
 
 
@@ -167,6 +164,8 @@ def exercise(client):
     user = client.register()
     userToken = client.login("user", client.userEmail)
     adminToken = client.login("system-admin", client.operatorEmail)
+    client.contact("user", "/identity/contact-verifications", {"contactType": "email"},
+                   client.userEmail, userToken)
     for api, token, wrong, key in [("user", userToken, adminToken, b"u" * 32),
                                    ("system-admin", adminToken, userToken, b"a" * 32)]:
         client.request(api, "GET", "/identity", 200, token=token)

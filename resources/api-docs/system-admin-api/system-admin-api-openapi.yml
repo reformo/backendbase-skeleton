@@ -56,8 +56,6 @@ components:
         - email
         - mobile
         - password
-        - emailContactInfoId
-        - mobileContactInfoId
         - verificationContextToken
       properties:
         firstName:
@@ -72,12 +70,6 @@ components:
           minLength: 1
           maxLength: 160
           description: 'Optional Account last name. Reject surrounding spaces and control characters.'
-        emailContactInfoId:
-          type: string
-          format: uuid
-        mobileContactInfoId:
-          type: string
-          format: uuid
         verificationContextToken:
           $ref: '#/components/schemas/VerificationContextToken'
         email:

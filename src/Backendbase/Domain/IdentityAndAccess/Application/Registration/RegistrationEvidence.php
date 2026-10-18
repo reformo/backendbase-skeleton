@@ -7,15 +7,14 @@ namespace Backendbase\Domain\IdentityAndAccess\Application\Registration;
 use Backendbase\Domain\IdentityAndAccess\Contracts\ContactStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\RegistrationInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactValue;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactVerificationExpired;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationScope;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
-
-use function sort;
-
-use const SORT_STRING;
 
 final readonly class RegistrationEvidence
 {
@@ -26,25 +25,25 @@ final readonly class RegistrationEvidence
     /** @return array{list<ContactInfo>, DateTimeImmutable} */
     public function verify(RegistrationInput $input): array
     {
-        $proof = $input->evidence();
-        $ids   = [$proof['emailContactInfoId'], $proof['mobileContactInfoId']];
-        sort($ids, SORT_STRING);
-        if ($ids[0] === $ids[1]) {
-            throw AuthenticationDenied::create('Both contacts require verification.');
-        }
-
         $store         = $this->contacts;
-        $firstContact  = $store->get($ids[0]);
-        $secondContact = $store->get($ids[1]);
-        $clock         = $this->clock;
-        $now           = $clock->now();
+        $token         = $input->verificationContextToken();
+        $scope         = new VerificationScope(Realm::USER);
         $email         = $input->email();
         $mobile        = $input->mobile();
-        $expected      = ['email' => $email->toString(), 'mobile' => $mobile->toString()];
-        $this->validate($firstContact, $input, $now, $expected);
-        $this->validate($secondContact, $input, $now, $expected);
+        $emailValue    = new ContactValue('email', $email->toString());
+        $mobileValue   = new ContactValue('mobile', $mobile->toString());
+        $emailContact  = $store->slot($token, $scope, $emailValue);
+        $mobileContact = $store->slot($token, $scope, $mobileValue)
+            ?? throw AuthenticationDenied::create('Mobile verification is required.');
+        $clock         = $this->clock;
+        $now           = $clock->now();
+        $this->validate($mobileContact, $input, $now, $mobileValue);
+        $contacts = [$mobileContact];
+        if ($emailContact !== null && $this->acceptEmail($emailContact, $input, $now, $emailValue)) {
+            $contacts[] = $emailContact;
+        }
 
-        return [[$firstContact, $secondContact], $now];
+        return [$contacts, $now];
     }
 
     /** @param list<ContactInfo> $contacts */
@@ -57,16 +56,28 @@ final readonly class RegistrationEvidence
         }
     }
 
-    /** @param array{email: string, mobile: string} $expected */
-    private function validate(ContactInfo $contact, RegistrationInput $input, DateTimeImmutable $now, array $expected): void
+    private function acceptEmail(ContactInfo $contact, RegistrationInput $input, DateTimeImmutable $now, ContactValue $expected): bool
+    {
+        try {
+            $this->validate($contact, $input, $now, $expected);
+
+            return true;
+        } catch (AuthenticationDenied | ContactVerificationExpired | IdentityConflict) {
+            return false;
+        }
+    }
+
+    private function validate(ContactInfo $contact, RegistrationInput $input, DateTimeImmutable $now, ContactValue $expected): void
     {
         $contact->assertFresh($now);
-        $proof = $input->evidence();
-        $contact->assertContext($proof['token'], new VerificationScope(Realm::USER));
-        $state = $contact->snapshot();
-        $id    = $contact->id();
-        $type  = $id === $proof['emailContactInfoId'] ? 'email' : 'mobile';
-        if ($state['contactType'] !== $type || $state['contactValue'] !== $expected[$type]) {
+        $token = $input->verificationContextToken();
+        $contact->assertContext($token, new VerificationScope(Realm::USER));
+        $value         = $contact->contact();
+        $expectedType  = $expected->type();
+        $expectedValue = $expected->value();
+        $type          = $value->type();
+        $contactValue  = $value->value();
+        if ($type !== $expectedType || $contactValue !== $expectedValue) {
             throw AuthenticationDenied::create('The registration contacts do not match their verification evidence.');
         }
     }

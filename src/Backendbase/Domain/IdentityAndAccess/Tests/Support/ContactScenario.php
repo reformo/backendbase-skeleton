@@ -28,15 +28,15 @@ final class ContactScenario
         return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
     }
 
-    /** @return array{email: string, mobile: string, password: string, emailContactInfoId: string, mobileContactInfoId: string, verificationContextToken: string} */
+    /** @return array{email: string, mobile: string, password: string, verificationContextToken: string} */
     public static function verified(IdentityFixture $fixture, string $email = 'ada@example.com', string $mobile = '+905551234567'): array
     {
         IdentityScenario::advance($fixture, 'PT61S');
-        $token    = self::token();
-        $emailId  = self::verify($fixture, new ContactValue('email', $email), $token);
-        $mobileId = self::verify($fixture, new ContactValue('mobile', $mobile), $token);
+        $token = self::token();
+        self::verify($fixture, new ContactValue('email', $email), $token);
+        self::verify($fixture, new ContactValue('mobile', $mobile), $token);
 
-        return ['email' => $email, 'mobile' => $mobile, 'password' => 'valid-password-123', 'emailContactInfoId' => $emailId, 'mobileContactInfoId' => $mobileId, 'verificationContextToken' => $token];
+        return ['email' => $email, 'mobile' => $mobile, 'password' => 'valid-password-123', 'verificationContextToken' => $token];
     }
 
     public static function input(IdentityFixture $fixture, string $email = 'ada@example.com', string $mobile = '+905551234567'): RegistrationInput
@@ -46,7 +46,7 @@ final class ContactScenario
         return new RegistrationInput(...$values);
     }
 
-    private static function verify(IdentityFixture $fixture, ContactValue $value, string $tokenValue): string
+    private static function verify(IdentityFixture $fixture, ContactValue $value, string $tokenValue): void
     {
         $container        = $fixture->container();
         $requests         = $container->get(ContactRequests::class);
@@ -61,7 +61,5 @@ final class ContactScenario
         }
 
         $confirmation->confirm($contact->id(), $token, $scope, $code);
-
-        return $contact->id();
     }
 }

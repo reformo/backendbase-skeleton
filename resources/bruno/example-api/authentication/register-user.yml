@@ -26,8 +26,6 @@ http:
         "email": "{{email}}",
         "mobile": "{{mobile}}",
         "password": "{{password}}",
-        "emailContactInfoId": "{{emailContactInfoId}}",
-        "mobileContactInfoId": "{{mobileContactInfoId}}",
         "verificationContextToken": "{{verificationContextToken}}"
       }
 runtime:

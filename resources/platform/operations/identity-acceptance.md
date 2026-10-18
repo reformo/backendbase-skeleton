@@ -36,6 +36,40 @@ Contact registration tests use the actual context and evidence locks. SQLite doe
 
 ## Latest isolated regression evidence
 
+The full suite passed on 18 October 2026 after correction of a concurrent registration conflict response.
+
+| Evidence | Recorded value |
+| --- | --- |
+| Source | Working tree based on `bfbd30fa3ca249e1263df6145772ecb9ebcbe65a` |
+| Operator | Automated local fixture runner |
+| UTC interval | 05:13:16 to 05:18:00, including startup, deployment fixtures, and cleanup |
+| Runtime | PHP 8.5.6, PHPUnit 13.4.3, PCOV 1.0.12 |
+| Services | MySQL 8.4.11; standalone Redis, failover nodes, and Sentinels use Redis 8.10.2 |
+| MySQL and Redis project | `backendbase-native-verification-1792300396-32492`; localhost ports 54898 and 54897 |
+| Failover project | `backendbase-redis-failover-1792300401-32517`; separate bridge network and random localhost ports |
+| Data and schema | Generated fixture records in unique MySQL databases. Service data uses temporary storage. |
+| Suite result | 1,350 tests, 56,922 assertions, zero failures, zero errors, zero skips |
+| Coverage | 6,594 of 6,594 executable lines; 1,556 of 1,556 methods |
+| Cleanup | All generated containers, networks, and volumes removed. Exact project-label checks confirm cleanup. |
+
+The run passes all 62 previously skipped cases: 31 MySQL, 23 standalone Redis, and eight Sentinel cases.
+Each case identity matches the recorded skipped-case list. Deployment, rollback, and fresh-installation fixtures also pass.
+PHPStan level 8, complexity, and coding standards pass.
+
+The competing registration now receives `IdentityConflict` after another transaction consumes its proof.
+Freshness is checked before consumed owner references. Evidence locks still precede the authorization time.
+Unknown-contact HTTP requests and mismatched verification realms have explicit rejection tests.
+
+A separate MySQL fixture contains 2,048 generated contact records for query-plan checks.
+The context lookup selects `contact_verification_context_slot_unq`. The proof lock lookup selects `PRIMARY`.
+Both plans use `const` access and estimate one row. The fixture database is removed after the check.
+These plans verify index selection. They do not measure production performance.
+
+Local evidence files are `artifacts/service-verification/native-suite.json` and `artifacts/service-verification/contact-registration-explain.json`.
+The Sentinel cases retain their isolated SQLite identity store. Live security scans retain their earlier verification scope.
+
+## Isolated regression evidence on 16 October 2026
+
 The full suite passed on 16 October 2026 with all service tests enabled. No code correction was required.
 
 | Evidence | Recorded value |

@@ -47,7 +47,7 @@ final class ContactHttpInput
         $server  = $request->getServerParams();
         $client  = new VerificationClient(self::text($server, 'REMOTE_ADDR'));
         $token   = new VerificationContextToken(self::text($payload, 'verificationContextToken'));
-        $contact = $action === 'request' && $realm === Realm::USER ? new ContactValue(self::text($payload, 'contactType'), self::text($payload, 'contactValue')) : null;
+        $contact = $action === 'request' && $realm === Realm::USER && ! $authenticated ? new ContactValue(self::text($payload, 'contactType'), self::text($payload, 'contactValue')) : null;
         $login   = $action === 'request' && $realm === Realm::ADMIN && ! $authenticated ? new LoginInput(self::text($payload, 'identifier'), self::text($payload, 'password')) : null;
 
         return new ContactAttempt(['action' => $action, 'realm' => $realm, 'contactId' => $arguments['contact-info-id'] ?? null, 'token' => $token, 'client' => $client, 'contact' => $contact, 'contactType' => $action === 'request' ? self::text($payload, 'contactType') : null, 'code' => $action === 'confirm' ? new VerificationCode(self::text($payload, 'code')) : null, 'principal' => $principal, 'login' => $login]);
@@ -64,7 +64,7 @@ final class ContactHttpInput
             return ['verificationContextToken'];
         }
 
-        if ($realm === Realm::USER) {
+        if ($realm === Realm::USER && ! $authenticated) {
             return ['contactType', 'contactValue', 'verificationContextToken'];
         }
 

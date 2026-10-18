@@ -20,9 +20,9 @@ final class ContactVerificationTest extends TestCase
         $identity = ExampleApiFixture::identity();
         $api      = IdentityApiFixture::example($identity);
         $context  = ContactScenario::token();
-        $email    = self::verify($identity, $api, 'email', 'ada@example.com', $context);
-        $mobile   = self::verify($identity, $api, 'mobile', '+905551234567', $context);
-        $payload  = ['email' => 'ada@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123', 'emailContactInfoId' => $email, 'mobileContactInfoId' => $mobile, 'verificationContextToken' => $context];
+        self::verify($identity, $api, 'email', 'ada@example.com', $context);
+        self::verify($identity, $api, 'mobile', '+905551234567', $context);
+        $payload = ['email' => 'ada@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123', 'verificationContextToken' => $context];
 
         self::assertSame(201, $api->request('POST', '/auth/register', $payload)->getStatusCode());
         self::assertSame(409, $api->request('POST', '/auth/register', $payload)->getStatusCode());
@@ -31,7 +31,7 @@ final class ContactVerificationTest extends TestCase
         self::assertSame(400, $api->request('POST', '/auth/login', ['identifier' => 42, 'password' => 'valid-password-123'])->getStatusCode());
     }
 
-    private static function verify(IdentityFixture $identity, IdentityApiFixture $api, string $type, string $value, string $context): string
+    private static function verify(IdentityFixture $identity, IdentityApiFixture $api, string $type, string $value, string $context): void
     {
         $response = $api->request('POST', '/auth/contact-verifications', ['contactType' => $type, 'contactValue' => $value, 'verificationContextToken' => $context]);
         self::assertSame(200, $response->getStatusCode());
@@ -44,7 +44,5 @@ final class ContactVerificationTest extends TestCase
         self::assertSame(200, $api->request('POST', $path . '/resend', $payload)->getStatusCode());
         $code = ContactVerificationFlowTest::code($identity);
         self::assertSame(200, $api->request('POST', $path . '/confirm', [...$payload, 'code' => $code])->getStatusCode());
-
-        return $id;
     }
 }

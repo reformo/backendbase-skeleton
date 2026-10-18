@@ -71,6 +71,9 @@ final class ExampleAuthorizationTest extends TestCase
         yield 'create' => ['POST', '/example-types/system/groups/settings/examples'];
         yield 'update' => ['PATCH', '/example-types/system/groups/settings/examples/page-size'];
         yield 'remove' => ['DELETE', '/example-types/system/groups/settings/examples/page-size'];
+        yield 'contact request' => ['POST', '/identity/contact-verifications'];
+        yield 'contact confirm' => ['POST', '/identity/contact-verifications/' . IdentityScenario::id() . '/confirm'];
+        yield 'contact resend' => ['POST', '/identity/contact-verifications/' . IdentityScenario::id() . '/resend'];
         yield 'identity' => ['GET', '/identity'];
         yield 'revoke token' => ['DELETE', '/identity/token'];
         yield 'end session' => ['DELETE', '/identity/session'];

@@ -1,0 +1,35 @@
+info:
+  name: 'Request Authenticated Contact Verification'
+  type: http
+  seq: 13
+http:
+  method: POST
+  url: '{{baseUrl}}/identity/contact-verifications'
+  headers:
+    - name: X-Source-Id
+      value: user
+    - name: Accept-Language
+      value: en-US
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: 'Bearer {{accessToken}}'
+  body:
+    type: json
+    data: |-
+      {
+        "verificationContextToken": "{{verificationContextToken}}",
+        "contactType": "email"
+      }
+runtime:
+  scripts:
+    - type: tests
+      code: |
+        expect(res.status).to.equal(200);
+        const body = res.getBody();
+        expect(body).to.have.property("contactInfo");
+        expect(body).not.to.have.property("data");
+        expect(body).not.to.have.property("statusCode");
+        expect(body.contactInfo.contactInfoId).to.match(/^[0-9a-f-]{36}$/);
+        expect(body.contactInfo).not.to.have.property("code");
+        bru.setVar("contactInfoId", body.contactInfo.contactInfoId);

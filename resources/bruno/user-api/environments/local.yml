@@ -49,12 +49,6 @@ variables:
     name: contactInfoId
     value: ''
   -
-    name: emailContactInfoId
-    value: ''
-  -
-    name: mobileContactInfoId
-    value: ''
-  -
     name: verificationContextToken
     value: ''
   -

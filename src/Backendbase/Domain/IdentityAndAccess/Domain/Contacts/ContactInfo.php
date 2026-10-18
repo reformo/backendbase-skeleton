@@ -47,7 +47,7 @@ final class ContactInfo
 
         $verified = $this->state['verifiedAt'];
         if ($verified === null) {
-            throw AuthenticationDenied::create('Both contacts require verification.');
+            throw AuthenticationDenied::create('The contact requires verification.');
         }
 
         $date = new DateTimeImmutable($verified, new DateTimeZone('UTC'));

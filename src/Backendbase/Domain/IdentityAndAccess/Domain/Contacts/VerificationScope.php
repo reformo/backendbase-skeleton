@@ -12,6 +12,10 @@ final readonly class VerificationScope
     /** @param array{accountId: string|null, actorId: string|null} $owner */
     public function __construct(private Realm $realm, private array $owner = ['accountId' => null, 'actorId' => null])
     {
+        if (($owner['accountId'] === null) !== ($owner['actorId'] === null)) {
+            throw AuthenticationDenied::create('A verification context requires both Account and actor references.');
+        }
+
         if ($realm === Realm::ADMIN && ($owner['accountId'] === null || $owner['actorId'] === null)) {
             throw AuthenticationDenied::create('An Admin verification context requires its Account and actor.');
         }
@@ -24,7 +28,11 @@ final readonly class VerificationScope
 
     public function purpose(): string
     {
-        return $this->realm === Realm::USER ? 'user-registration' : 'admin-contact-reverification';
+        if ($this->realm === Realm::ADMIN) {
+            return 'admin-contact-reverification';
+        }
+
+        return $this->owner['accountId'] === null ? 'user-registration' : 'user-contact-verification';
     }
 
     /** @return array{accountId: string|null, actorId: string|null} */

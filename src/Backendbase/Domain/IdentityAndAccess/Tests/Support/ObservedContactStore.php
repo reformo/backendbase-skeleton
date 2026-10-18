@@ -38,8 +38,13 @@ final readonly class ObservedContactStore implements ContactStore
     public function slot(VerificationContextToken $token, VerificationScope $scope, ContactValue $contact): ContactInfo|null
     {
         $store = $this->store;
+        $found = $store->slot($token, $scope, $contact);
+        if ($found !== null) {
+            $observe = $this->afterRead;
+            $observe();
+        }
 
-        return $store->slot($token, $scope, $contact);
+        return $found;
     }
 
     public function save(ContactInfo $contact): void

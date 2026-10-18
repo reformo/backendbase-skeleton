@@ -52,7 +52,7 @@ final class ContactRotationAndClockTest extends TestCase
         $retry = $confirmation->confirm($email->id(), $token, $scope, $emailCode);
         self::assertSame($confirmed->snapshot()['verifiedAt'], $retry->snapshot()['verifiedAt']);
         $registration = $container->get(RegistrationWorkflow::class);
-        $result       = $registration->register(IdentityScenario::id(), new RegistrationInput('ada@example.com', '+905551234567', 'valid-password-123', $email->id(), $mobile->id(), $contextValue));
+        $result       = $registration->register(IdentityScenario::id(), new RegistrationInput('ada@example.com', '+905551234567', 'valid-password-123', $contextValue));
         self::assertNotEmpty($result['accountId']);
         self::assertSame(2, $fixture->connection()->fetchOne('SELECT COUNT(*) FROM contact_verification'));
     }

@@ -1,11 +1,14 @@
 # ADR-0050: Contact Verification Before User Registration
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-0051
 - **Date:** 2026-10-15
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
 
 ## Context and Problem Statement
+
+ADR-0051 replaces the required email proof, client-selected contact identifiers, and registration lock order described below.
+The remaining code, context, delivery, quota, and Admin rules remain applicable.
 
 User registration requires proof of both email and mobile ownership before any identity records exist.
 The evidence must be less than 12 hours old. Admin verification remains optional after enrollment and login.

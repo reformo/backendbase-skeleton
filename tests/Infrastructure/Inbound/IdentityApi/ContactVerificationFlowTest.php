@@ -24,9 +24,9 @@ final class ContactVerificationFlowTest extends TestCase
         $fixture = IdentityFixture::create();
         $api     = IdentityApiFixture::create($fixture, Realm::USER);
         $token   = ContactScenario::token();
-        $email   = self::confirm($fixture, $api, 'email', 'ADA@EXAMPLE.COM', $token);
-        $mobile  = self::confirm($fixture, $api, 'mobile', '+905551234567', $token);
-        $body    = ['email' => 'ada@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123', 'emailContactInfoId' => $email, 'mobileContactInfoId' => $mobile, 'verificationContextToken' => $token];
+        self::confirm($fixture, $api, 'email', 'ADA@EXAMPLE.COM', $token);
+        self::confirm($fixture, $api, 'mobile', '+905551234567', $token);
+        $body = ['email' => 'ada@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123', 'verificationContextToken' => $token];
         self::assertSame(201, $api->request('POST', '/auth/register', $body)->getStatusCode());
         self::assertSame(409, $api->request('POST', '/auth/register', $body)->getStatusCode());
         $login = $api->request('POST', '/auth/login', ['identifier' => '+905551234567', 'password' => 'valid-password-123']);
@@ -81,15 +81,13 @@ final class ContactVerificationFlowTest extends TestCase
         self::assertSame(1, $fixture->connection()->fetchOne("SELECT json_extract(state, '$.failedAttempts') FROM contact_verification"));
     }
 
-    public static function confirm(IdentityFixture $fixture, IdentityApiFixture $api, string $type, string $value, string $token): string
+    public static function confirm(IdentityFixture $fixture, IdentityApiFixture $api, string $type, string $value, string $token): void
     {
         $response = $api->request('POST', '/auth/contact-verifications', ['contactType' => $type, 'contactValue' => $value, 'verificationContextToken' => $token]);
         self::assertSame(200, $response->getStatusCode());
         $contact = UserFlowTest::resource($response, 'contactInfo');
         $id      = UserFlowTest::text($contact, 'contactInfoId');
         self::assertSame(200, $api->request('POST', '/auth/contact-verifications/' . $id . '/confirm', ['verificationContextToken' => $token, 'code' => self::code($fixture)])->getStatusCode());
-
-        return $id;
     }
 
     public static function code(IdentityFixture $fixture): string

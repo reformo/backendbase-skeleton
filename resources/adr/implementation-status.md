@@ -55,9 +55,27 @@ Starting source revision: `ddc9946`.
 | [ADR-0047](0047-generated-uuid-projection-mapping.md) | Implemented; verification below | Supported read-only generated projections round-trip on MySQL 8.4 and produce no repeated ORM schema differences. |
 | [ADR-0048](0048-business-key-normalization-and-uniqueness.md) | Implemented; verification below | Required Account email and E.164 mobile replace actor usernames. Email uses lowercase ASCII normalization. Database constraints enforce global active contact uniqueness and lifetime actor cardinality. |
 | [ADR-0049](0049-password-authentication-without-totp.md) | Implemented | Password login issues realm sessions after ownership, Account state, and actor approval checks. |
-| [ADR-0050](0050-contact-verification-before-user-registration.md) | Implemented; local verification below | Both User contacts require fresh evidence. Admin verification remains optional and preserves authorization. |
+| [ADR-0050](0050-contact-verification-before-user-registration.md) | Partially superseded by ADR-0051 | Code, context, delivery, quotas, and optional Admin verification remain implemented. |
+| [ADR-0051](0051-optional-email-verification-after-user-login.md) | Implemented; isolated verification below | Email input remains required. Mobile proof permits registration. Stored email can be verified after login. |
 
 ## Verification
+
+### User email and native service verification on 18 October 2026
+
+Working tree based on source revision `bfbd30fa3ca249e1263df6145772ecb9ebcbe65a`.
+
+- The full suite passes 1,350 tests and 56,922 assertions with zero failures, errors, or skips.
+- All 62 previously skipped cases pass: 31 MySQL, 23 standalone Redis, and eight Sentinel cases.
+- Dedicated MySQL 8.4.11 and Redis 8.10.2 fixtures use random localhost ports and temporary storage.
+- All 6,594 executable lines and 1,556 methods are covered. The coverage gate and deployment fixtures pass.
+- A concurrent registration conflict is corrected by checking consumed evidence before its changed owner references.
+- Contact realm mismatches and unknown contact confirmation or resend requests have explicit rejection coverage.
+- Registration succeeds without email proof. Mobile proof, optional email consumption, rollback, and post-login verification remain covered.
+- PHPStan level 8, complexity, coding standards, generated report metrics, API contracts, and documentation links pass.
+- MySQL contact query plans select the context-slot unique index and binary primary key on 2,048 fixture rows.
+- All generated containers, networks, and volumes are removed. Case identities match the skipped-case list.
+- See [native service evidence](../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence) for targets and the UTC interval.
+- No schema migration or data rewrite is required. Live HTTP security scans retain their earlier verification scope.
 
 ### Isolated service, coverage, and documentation verification on 16 October 2026
 
@@ -67,7 +85,7 @@ Working tree based on source revision `726e8def449e9d4f0e8fbaa0b9ff3a81fc049b05`
 - All 55 previously skipped cases execute successfully: 24 MySQL, 23 standalone Redis, and eight Sentinel cases.
 - Dedicated MySQL 8.4.11 and Redis 8.10.2 containers use random localhost ports and temporary storage. The failover topology uses a separate network.
 - The run and cleanup completed from 19:44:58 to 19:48:38 UTC. All generated containers and networks were removed. No code correction was required.
-- See [isolated regression evidence](../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence) for fixture targets and verification scope.
+- See [isolated regression evidence](../platform/operations/identity-acceptance.md#isolated-regression-evidence-on-16-october-2026) for fixture targets and verification scope.
 - Executable-line coverage is 6,306 of 6,306 lines (100%). Method coverage is 1,497 of 1,497 methods (100%).
 - HTTP tests close the 27-line gap in seven identity handlers. They cover Admin contact resends and token revocation, Account closure, User logout, and health responses.
 - Account closure rejects existing tokens and new login in both realms. Readiness tests cover success and safe dependency failure through local doubles.

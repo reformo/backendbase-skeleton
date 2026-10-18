@@ -8,6 +8,14 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ## Unreleased
 
+### Changed
+
+- Require email input without mandatory email verification at User registration. Resolve evidence from submitted contact values and the context token. Keep fresh mobile proof required. Add authenticated stored-email verification, confirmation, and resend in UserApi and ExampleApi. Update contracts, Bruno examples, regression tests, and identity guidance.
+
+### Fixed
+
+- Preserve the conflict response when concurrent User registrations reuse consumed contact evidence. Check evidence freshness before its consumed owner references. Add unknown-contact and contact-realm rejection coverage. Verify all 62 native service cases with isolated MySQL, Redis, and Sentinel fixtures.
+
 ### Removed
 
 - Omit `operator_action` and its indexes from installation and naming migrations. Remove the obsolete drop migration. Retain first-Admin setup protection and invitation and approval evidence in Admin state. Update the release target, tests, quality report, and existing-database adoption guidance.

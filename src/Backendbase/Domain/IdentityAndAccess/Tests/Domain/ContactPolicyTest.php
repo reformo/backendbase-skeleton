@@ -20,6 +20,7 @@ use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Shared\Exception\InvalidUserInput;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ContactPolicyTest extends TestCase
@@ -61,6 +62,20 @@ final class ContactPolicyTest extends TestCase
     {
         $this->expectException(AuthenticationDenied::class);
         new VerificationScope(Realm::ADMIN);
+    }
+
+    #[DataProvider('incompleteOwners')]
+    public function testBoundEvidenceRequiresBothOwnerReferences(string|null $accountId, string|null $actorId): void
+    {
+        $this->expectException(AuthenticationDenied::class);
+        new VerificationScope(Realm::USER, ['accountId' => $accountId, 'actorId' => $actorId]);
+    }
+
+    /** @return iterable<string, array{string|null, string|null}> */
+    public static function incompleteOwners(): iterable
+    {
+        yield 'missing Account' => [null, IdentityScenario::id()];
+        yield 'missing actor' => [IdentityScenario::id(), null];
     }
 
     public function testUnknownActionsAreRejected(): void

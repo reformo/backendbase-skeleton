@@ -59,8 +59,8 @@ final class SuccessResponseContractTest extends TestCase
     /** @return iterable<string, array{string, int, string}> */
     public static function documents(): iterable
     {
-        yield 'user source' => ['resources/api-docs/user-api/user-api-openapi.yml', 9, 'user'];
-        yield 'user merged' => ['public/user-api/docs/user-api-merged.yml', 9, 'user'];
+        yield 'user source' => ['resources/api-docs/user-api/user-api-openapi.yml', 12, 'user'];
+        yield 'user merged' => ['public/user-api/docs/user-api-merged.yml', 12, 'user'];
         yield 'admin source' => ['resources/api-docs/system-admin-api/system-admin-api-openapi.yml', 15, 'admin'];
         yield 'admin merged' => ['public/system-admin-api/docs/system-admin-api-merged.yml', 15, 'admin'];
     }

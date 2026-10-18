@@ -18,6 +18,20 @@ use function str_repeat;
 
 final class ContactInputTest extends TestCase
 {
+    public function testUnknownContactCannotBeConfirmedOrResent(): void
+    {
+        $fixture  = IdentityFixture::create();
+        $api      = IdentityApiFixture::create($fixture, Realm::USER);
+        $path     = '/auth/contact-verifications/' . IdentityScenario::id();
+        $token    = ContactScenario::token();
+        $response = $api->request('POST', $path . '/confirm', ['verificationContextToken' => $token, 'code' => '123456']);
+        self::assertSame(401, $response->getStatusCode());
+        $response = $api->request('POST', $path . '/resend', ['verificationContextToken' => $token]);
+        self::assertSame(401, $response->getStatusCode());
+        $connection = $fixture->connection();
+        self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM contact_verification'));
+    }
+
     #[DataProvider('invalidRequests')]
     public function testInvalidContactInputCannotCreateEvidence(string $field, mixed $invalid): void
     {

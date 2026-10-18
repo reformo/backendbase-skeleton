@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Inbound\IdentityApi;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Laminas\Diactoros\ServerRequest;
@@ -39,8 +40,16 @@ final class BoundaryFailureTest extends TestCase
     /** @return iterable<string, array{string, string, array<string, mixed>|null, int}> */
     public static function invalidRequests(): iterable
     {
-        $valid = ['email' => 'test@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123'];
+        $valid = ['email' => 'test@example.com', 'mobile' => '+905551234567', 'password' => 'valid-password-123', 'verificationContextToken' => ContactScenario::token()];
 
+        yield 'email missing' => ['POST', '/auth/register', ['mobile' => '+905551234567', 'password' => 'valid-password-123', 'verificationContextToken' => $valid['verificationContextToken']], 400];
+        yield 'email null' => ['POST', '/auth/register', [...$valid, 'email' => null], 400];
+        yield 'email empty' => ['POST', '/auth/register', [...$valid, 'email' => ''], 400];
+        yield 'email malformed' => ['POST', '/auth/register', [...$valid, 'email' => 'invalid'], 400];
+        yield 'email numeric' => ['POST', '/auth/register', [...$valid, 'email' => 123], 400];
+        yield 'removed email identifier' => ['POST', '/auth/register', [...$valid, 'emailContactInfoId' => IdentityScenario::id()], 400];
+        yield 'removed mobile identifier' => ['POST', '/auth/register', [...$valid, 'mobileContactInfoId' => IdentityScenario::id()], 400];
+        yield 'unverified mobile' => ['POST', '/auth/register', $valid, 401];
         yield 'mobile missing' => ['POST', '/auth/register', ['email' => 'test@example.com', 'password' => 'valid-password-123'], 400];
         yield 'mobile null' => ['POST', '/auth/register', [...$valid, 'mobile' => null], 400];
         yield 'mobile numeric' => ['POST', '/auth/register', [...$valid, 'mobile' => 905551234567], 400];

@@ -31,6 +31,3 @@ runtime:
         expect(body.contactInfo.contactInfoId).to.match(/^[0-9a-f-]{36}$/);
         expect(body.contactInfo).not.to.have.property("code");
         bru.setVar("contactInfoId", body.contactInfo.contactInfoId);
-        if (body.contactInfo.verifiedAt) {
-          bru.setVar(body.contactInfo.contactType + "ContactInfoId", body.contactInfo.contactInfoId);
-        }

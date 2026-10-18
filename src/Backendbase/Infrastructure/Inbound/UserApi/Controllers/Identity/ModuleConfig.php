@@ -6,6 +6,7 @@ namespace Backendbase\Infrastructure\Inbound\UserApi\Controllers\Identity;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\ModuleRoute;
+use Backendbase\Infrastructure\Adapters\Http\Identity\ContactRoutePolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmAuthentication;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RoutePolicy;
@@ -36,6 +37,18 @@ final class ModuleConfig implements ModuleRoute
             $group->delete('/account', Handlers\CloseAccount::class)
                 ->setName('userCloseAccount')
                 ->add(new RoutePolicy('close-account'));
+
+            $group->post('/contact-verifications', Handlers\RequestContactVerification::class)
+                ->setName('userAuthenticatedContactRequest')
+                ->add(new ContactRoutePolicy(['action' => 'request', 'authenticated' => true]));
+
+            $group->post('/contact-verifications/{contact-info-id}/confirm', Handlers\ConfirmContactVerification::class)
+                ->setName('userAuthenticatedContactConfirm')
+                ->add(new ContactRoutePolicy(['action' => 'confirm', 'authenticated' => true]));
+
+            $group->post('/contact-verifications/{contact-info-id}/resend', Handlers\ResendContactVerification::class)
+                ->setName('userAuthenticatedContactResend')
+                ->add(new ContactRoutePolicy(['action' => 'resend', 'authenticated' => true]));
         })
             ->add(RealmAuthentication::class)
             ->add(new RealmPolicy(Realm::USER));

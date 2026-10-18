@@ -50,7 +50,9 @@ The Account owns nullable first and last names. The manual initial Admin seeder 
 Admin state retains invitation and approval evidence. A database-scoped lock serializes operator setup and manual seeding.
 The seeder creates no User or contact evidence.
 
-Pre-registration contacts have no identity owner. Registration locks both contacts before reading the authorization time.
+Pre-registration contacts have no identity owner. Registration locks email, then mobile, before reading the authorization time.
+Only mobile proof is required. Matching fresh email proof is consumed when present.
+Post-login User email verification binds the Account and User actor under the separate `user-contact-verification` purpose.
 Historical projections include removed actors and join their retained Account for email and mobile.
 The Account primary key supports this join. Historical reads do not acquire write locks.
 

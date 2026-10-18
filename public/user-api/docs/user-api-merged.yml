@@ -12,7 +12,7 @@ paths:
       tags:
         - Authentication
       summary: 'Resend contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: userContactResend
       parameters:
         -
@@ -137,7 +137,7 @@ paths:
       tags:
         - Authentication
       summary: 'Confirm contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: userContactConfirm
       parameters:
         -
@@ -262,7 +262,7 @@ paths:
       tags:
         - Authentication
       summary: 'Request contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: userContactRequest
       parameters:
         -
@@ -571,6 +571,380 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security: []
+  /identity/contact-verifications:
+    post:
+      tags:
+        - Identity
+      summary: 'Request contact verification'
+      description: 'Verify the stored Account email after login. Codes expire after five minutes. Verification is optional and preserves existing sessions.'
+      operationId: userAuthenticatedContactRequest
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - user
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticatedContactRequest'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  '/identity/contact-verifications/{contact-info-id}/confirm':
+    post:
+      tags:
+        - Identity
+      summary: 'Confirm contact verification'
+      description: 'Verify the stored Account email after login. Codes expire after five minutes. Verification is optional and preserves existing sessions.'
+      operationId: userAuthenticatedContactConfirm
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - user
+            type: string
+        -
+          name: contact-info-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactConfirmation'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
+  '/identity/contact-verifications/{contact-info-id}/resend':
+    post:
+      tags:
+        - Identity
+      summary: 'Resend contact verification'
+      description: 'Verify the stored Account email after login. Codes expire after five minutes. Verification is optional and preserves existing sessions.'
+      operationId: userAuthenticatedContactResend
+      parameters:
+        -
+          name: Accept-Language
+          in: header
+          description: 'selected language'
+          required: false
+          schema:
+            type: string
+            default: tr-TR
+          example: tr-TR
+        -
+          name: The-Timezone-IANA
+          in: header
+          description: "Client's timezone"
+          required: false
+          schema:
+            type: string
+            format: 'Timezone IANA name'
+            default: Europe/Istanbul
+          example: Europe/Istanbul
+        -
+          name: X-Request-Id
+          in: header
+          description: 'Trace Id for request'
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: 019f0325-5940-7702-8488-3cfe56553586
+          example: 019f0325-5940-7702-8488-3cfe56553586
+        -
+          name: X-Source-Id
+          in: header
+          required: true
+          schema:
+            enum:
+              - user
+            type: string
+        -
+          name: contact-info-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactResend'
+        required: true
+      responses:
+        '200':
+          description: 'Contact verification state'
+          headers:
+            Cache-Control:
+              schema:
+                enum:
+                  - no-store
+                type: string
+          content:
+            application/json:
+              schema:
+                required:
+                  - contactInfo
+                type: object
+                properties:
+                  contactInfo:
+                    $ref: '#/components/schemas/ContactInfo'
+                additionalProperties: false
+        '400':
+          description: 'Invalid input'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: 'Verification denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: 'Access denied'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: 'Verification conflict'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '410':
+          description: 'Verification expired'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: 'Verification limit reached'
+          headers:
+            Retry-After:
+              schema:
+                minimum: 1
+                type: integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: 'Verification dependency unavailable'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        -
+          bearerToken: []
   /identity:
     get:
       tags:
@@ -1048,8 +1422,6 @@ components:
         - email
         - mobile
         - password
-        - emailContactInfoId
-        - mobileContactInfoId
         - verificationContextToken
       type: object
       properties:
@@ -1065,12 +1437,6 @@ components:
           type: string
           description: 'Optional Account last name. Reject surrounding spaces and control characters.'
           nullable: true
-        emailContactInfoId:
-          type: string
-          format: uuid
-        mobileContactInfoId:
-          type: string
-          format: uuid
         verificationContextToken:
           $ref: '#/components/schemas/VerificationContextToken'
         email:
@@ -1090,6 +1456,7 @@ components:
           type: string
           description: 'UTF-8, at most 512 bytes, without null bytes.'
           format: password
+      description: 'Required email and mobile values. Only mobile verification is required before registration. Matching fresh email evidence is optional. Contact identifiers are rejected.'
       additionalProperties: false
     LoginInput:
       required:
@@ -1191,7 +1558,6 @@ components:
         contactType:
           enum:
             - email
-            - mobile
           type: string
         verificationContextToken:
           $ref: '#/components/schemas/VerificationContextToken'

@@ -17,9 +17,6 @@ use Tests\Support\Services\IsolatedMySql;
 use Tests\Support\Services\MySqlWorker;
 
 use function getenv;
-use function sort;
-
-use const SORT_STRING;
 
 final class MySqlContactVerificationTest extends TestCase
 {
@@ -31,7 +28,7 @@ final class MySqlContactVerificationTest extends TestCase
             $connection   = $fixture->connection();
             $identity     = IdentityServiceFixture::create($connection);
             $values       = ContactScenario::verified($identity);
-            $worker       = MySqlWorker::start($connection, 'register-contact', [$values['email'], $values['mobile'], $values['emailContactInfoId'], $values['mobileContactInfoId'], $values['verificationContextToken']]);
+            $worker       = MySqlWorker::start($connection, 'register-contact', [$values['email'], $values['mobile'], $values['verificationContextToken']]);
             $connectionId = (int) $worker->receive();
             $container    = $identity->container();
             self::assertInstanceOf(Container::class, $container);
@@ -65,14 +62,14 @@ final class MySqlContactVerificationTest extends TestCase
             $connection   = $fixture->connection();
             $identity     = IdentityServiceFixture::create($connection);
             $values       = ContactScenario::verified($identity);
-            $worker       = MySqlWorker::start($connection, 'register-contact-expired', [$values['email'], $values['mobile'], $values['emailContactInfoId'], $values['mobileContactInfoId'], $values['verificationContextToken']]);
+            $worker       = MySqlWorker::start($connection, 'register-contact-expired', [$values['email'], $values['mobile'], $values['verificationContextToken']]);
             $connectionId = (int) $worker->receive();
             $container    = $identity->container();
             $store        = $container->get(ContactStore::class);
-            $ids          = [$values['emailContactInfoId'], $values['mobileContactInfoId']];
-            sort($ids, SORT_STRING);
-            $store->transaction(static function () use ($store, $ids, $worker, $connection, $connectionId): void {
-                $store->get($ids[0]);
+            $emailId      = $connection->fetchOne("SELECT uuid FROM contact_verification WHERE contact_type = 'email'");
+            self::assertIsString($emailId);
+            $store->transaction(static function () use ($store, $emailId, $worker, $connection, $connectionId): void {
+                $store->get($emailId);
                 $worker->send('begin');
                 $worker->awaitLockWait($connection, $connectionId);
             });

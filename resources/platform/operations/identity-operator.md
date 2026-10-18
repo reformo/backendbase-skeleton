@@ -7,8 +7,8 @@ No operator action issues a token or bypasses ownership and actor approval gates
 
 ## First Admin
 
-1. Verify email and mobile through the USER contact endpoints.
-2. Register the User Account within 12 hours using both contact IDs and the context token.
+1. Verify mobile through the USER contact endpoints. Email verification is optional.
+2. Register the User Account within 12 hours with email, mobile, password, and the context token.
 3. Preview the first-Admin invitation with the Account UUID, operator, and invitation evidence.
 4. Apply the invitation through the authorized root process.
 5. Record the returned Admin actor UUID.

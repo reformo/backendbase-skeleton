@@ -17,6 +17,12 @@ paths:
     $ref: "./authentication/register.yaml"
   /auth/login:
     $ref: "./authentication/login.yaml"
+  '/identity/contact-verifications':
+    $ref: './identity/contact-verification.yaml'
+  '/identity/contact-verifications/{contact-info-id}/confirm':
+    $ref: './identity/contact-confirmation.yaml'
+  '/identity/contact-verifications/{contact-info-id}/resend':
+    $ref: './identity/contact-resend.yaml'
   /identity:
     $ref: "./identity/current.yaml"
   /identity/token:
@@ -38,14 +44,13 @@ components:
       bearerFormat: JWT
   schemas:
     RegistrationInput:
+      description: Required email and mobile values. Only mobile verification is required before registration. Matching fresh email evidence is optional. Contact identifiers are rejected.
       type: object
       additionalProperties: false
       required:
         - email
         - mobile
         - password
-        - emailContactInfoId
-        - mobileContactInfoId
         - verificationContextToken
       properties:
         firstName:
@@ -60,12 +65,6 @@ components:
           minLength: 1
           maxLength: 160
           description: 'Optional Account last name. Reject surrounding spaces and control characters.'
-        emailContactInfoId:
-          type: string
-          format: uuid
-        mobileContactInfoId:
-          type: string
-          format: uuid
         verificationContextToken:
           $ref: '#/components/schemas/VerificationContextToken'
         email:
@@ -170,7 +169,7 @@ components:
       properties:
         contactType:
           type: string
-          enum: [email, mobile]
+          enum: [email]
         verificationContextToken:
           $ref: '#/components/schemas/VerificationContextToken'
     ContactConfirmation:

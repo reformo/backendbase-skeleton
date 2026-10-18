@@ -77,6 +77,9 @@ final class ModuleRoutingTest extends TestCase
     /** @return iterable<string, array{Realm, string, string}> */
     public static function protectedRoutes(): iterable
     {
+        yield 'user contact request' => [Realm::USER, 'POST', '/identity/contact-verifications'];
+        yield 'user contact confirm' => [Realm::USER, 'POST', '/identity/contact-verifications/' . IdentityScenario::id() . '/confirm'];
+        yield 'user contact resend' => [Realm::USER, 'POST', '/identity/contact-verifications/' . IdentityScenario::id() . '/resend'];
         yield 'user identity' => [Realm::USER, 'GET', '/identity'];
         yield 'user revoke token' => [Realm::USER, 'DELETE', '/identity/token'];
         yield 'user end session' => [Realm::USER, 'DELETE', '/identity/session'];

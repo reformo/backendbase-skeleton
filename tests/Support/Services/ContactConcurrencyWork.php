@@ -48,7 +48,7 @@ final class ContactConcurrencyWork
         }
 
         try {
-            $workflow->register(IdentityScenario::id(), new RegistrationInput($values[0], $values[1], 'valid-password-123', $values[2], $values[3], $values[4]));
+            $workflow->register(IdentityScenario::id(), new RegistrationInput($values[0], $values[1], 'valid-password-123', $values[2]));
             fwrite(STDOUT, "registered\n");
         } catch (IdentityConflict) {
             fwrite(STDOUT, "consumed\n");

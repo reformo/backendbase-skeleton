@@ -12,7 +12,7 @@ paths:
       tags:
         - Identity
       summary: 'Resend contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: systemadminAuthenticatedContactResend
       parameters:
         -
@@ -139,7 +139,7 @@ paths:
       tags:
         - Identity
       summary: 'Confirm contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: systemadminAuthenticatedContactConfirm
       parameters:
         -
@@ -266,7 +266,7 @@ paths:
       tags:
         - Identity
       summary: 'Request contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: systemadminAuthenticatedContactRequest
       parameters:
         -
@@ -386,7 +386,7 @@ paths:
       tags:
         - Authentication
       summary: 'Resend contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: systemadminContactResend
       parameters:
         -
@@ -511,7 +511,7 @@ paths:
       tags:
         - Authentication
       summary: 'Confirm contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: systemadminContactConfirm
       parameters:
         -
@@ -636,7 +636,7 @@ paths:
       tags:
         - Authentication
       summary: 'Request contact verification'
-      description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+      description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
       operationId: systemadminContactRequest
       parameters:
         -
@@ -1749,8 +1749,6 @@ components:
         - email
         - mobile
         - password
-        - emailContactInfoId
-        - mobileContactInfoId
         - verificationContextToken
       type: object
       properties:
@@ -1766,12 +1764,6 @@ components:
           type: string
           description: 'Optional Account last name. Reject surrounding spaces and control characters.'
           nullable: true
-        emailContactInfoId:
-          type: string
-          format: uuid
-        mobileContactInfoId:
-          type: string
-          format: uuid
         verificationContextToken:
           $ref: '#/components/schemas/VerificationContextToken'
         email:

@@ -22,9 +22,10 @@ The fixture database, temporary server, and scan containers are removed when the
 
 ## Coverage
 
-The deterministic HTTP sequence checks all 28 current identity operations.
+The deterministic HTTP sequence checks all 31 current identity operations.
 It verifies successful registration and authentication, realm isolation, approval, removal, restoration, token expiry, revocation, logout, and Account closure.
-It also checks missing credentials, invalid and oversized field input, contact confirmation, and resend cooldown rejection.
+It also checks missing credentials, invalid and oversized input, contact confirmation, and resend cooldown rejection.
+User registration supplies only mobile proof. Stored-email verification runs after User login.
 New OpenAPI operations without a recorded HTTP result fail the suite.
 
 The two authenticated ZAP scans target `GET /identity` and `GET /_status` in separate realms.

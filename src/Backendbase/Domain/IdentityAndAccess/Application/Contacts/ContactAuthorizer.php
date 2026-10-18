@@ -23,15 +23,20 @@ final readonly class ContactAuthorizer
     /** @return array{VerificationScope, ContactValue|null} */
     public function resolve(ContactAttempt $input, ContactStore $contacts): array
     {
-        $values = $input->values();
-        if ($values['realm'] === Realm::USER) {
-            return [new VerificationScope(Realm::USER), $values['contact']];
+        $values    = $input->values();
+        $principal = $values['principal'];
+        if ($principal !== null && $principal->realm() !== $values['realm']) {
+            throw AuthenticationDenied::create('Contact verification is not permitted.');
         }
 
         if ($values['principal'] !== null || $values['login'] !== null) {
             $store = $this->identities;
 
             return $store->transaction(fn () => $this->authorize($input));
+        }
+
+        if ($values['realm'] === Realm::USER) {
+            return [new VerificationScope(Realm::USER), $values['contact']];
         }
 
         $id = $values['contactId'] ?? throw InvalidUserInput::create('A contact identifier is required.');
@@ -53,11 +58,10 @@ final readonly class ContactAuthorizer
         $store     = $this->identities;
         $principal = $values['principal'];
         if ($principal !== null) {
-            $principal->assertAdmin();
             $identity = $principal->identity();
             $account  = $store->account($identity['accountId']);
             $account->assertSessionAllowed($identity['authVersion']);
-            $actor = $store->actor(Realm::ADMIN, $identity['actorId']);
+            $actor = $store->actor($values['realm'], $identity['actorId']);
             $actor->assertSessionAllowed();
             $state = $actor->snapshot();
             if ($state['accountId'] !== $identity['accountId']) {
@@ -89,8 +93,8 @@ final readonly class ContactAuthorizer
     /** @return array{VerificationScope, ContactValue|null} */
     private function authorized(ContactAttempt $input, string $accountId, string $actorId): array
     {
-        $scope  = new VerificationScope(Realm::ADMIN, ['accountId' => $accountId, 'actorId' => $actorId]);
         $values = $input->values();
+        $scope  = new VerificationScope($values['realm'], ['accountId' => $accountId, 'actorId' => $actorId]);
         if ($values['action'] !== 'request') {
             return [$scope, null];
         }
@@ -99,6 +103,10 @@ final readonly class ContactAuthorizer
         $account = $store->account($accountId);
         $state   = $account->snapshot();
         $type    = $values['contactType'];
+        if ($values['realm'] === Realm::USER && $type !== 'email') {
+            throw InvalidUserInput::create('Select email for User contact verification after login.');
+        }
+
         if ($type !== 'email' && $type !== 'mobile') {
             throw InvalidUserInput::create('Select email or mobile.');
         }

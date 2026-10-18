@@ -23,6 +23,12 @@ paths:
     $ref: "./authentication/register.yaml"
   /auth/login:
     $ref: "./authentication/login.yaml"
+  '/identity/contact-verifications':
+    $ref: './identity/contact-verification.yaml'
+  '/identity/contact-verifications/{contact-info-id}/confirm':
+    $ref: './identity/contact-confirmation.yaml'
+  '/identity/contact-verifications/{contact-info-id}/resend':
+    $ref: './identity/contact-resend.yaml'
   /identity:
     $ref: "./identity/current.yaml"
   /identity/token:
@@ -46,6 +52,8 @@ paths:
 
 components:
   schemas:
+    AuthenticatedContactRequest:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/AuthenticatedContactRequest'
     Completed:
       $ref: '../user-api/user-api-openapi.yml#/components/schemas/Completed'
     ContactConfirmation:

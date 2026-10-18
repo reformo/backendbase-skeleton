@@ -61,7 +61,7 @@ final readonly class IdentityHttpInput
     private function payload(string $action, ServerRequestInterface $request): Input\RegistrationInput|Input\LoginInput
     {
         [$class, $fields] = match ($action) {
-            'register' => [Input\RegistrationInput::class, ['email', 'mobile', 'password', 'emailContactInfoId', 'mobileContactInfoId', 'verificationContextToken', 'firstName', 'lastName']],
+            'register' => [Input\RegistrationInput::class, ['email', 'mobile', 'password', 'verificationContextToken', 'firstName', 'lastName']],
             'login' => [Input\LoginInput::class, ['identifier', 'password']],
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };

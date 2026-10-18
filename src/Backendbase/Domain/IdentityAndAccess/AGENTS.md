@@ -14,8 +14,9 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Represent identity JSON state with immutable `AccountState`, `ActorState`, and `ContactState` classes under `Domain/Primitives`.
 - Keep Doctrine state fields as arrays. Use typed `state()` reads and `replaceState()` writes with explicit `fromArray()` and `toArray()` conversion.
 - Reject missing, mistyped, and unknown state fields. Keep storage serialization out of public responses and diagnostic logs.
-- Require both email and mobile proofs before User registration. Validate matching contacts, shared context, unused evidence, and freshness after both locks.
-- Consume both proofs atomically with Account, User, and credential creation. Use the 12-hour evidence window from ADR-0050.
+- Require email and mobile input before User registration. Require fresh mobile proof. Find evidence by the submitted contact values and context token.
+- Lock email and mobile slots in that order before checking time. Consume required mobile and matching fresh optional email evidence atomically with identity creation.
+- Permit authenticated Users to verify their stored Account email after login. Bind evidence to the USER realm, Account, and actor. Preserve ownership and sessions.
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.
 - Store the Argon2id password hash directly in `account.password_hash`. Keep the credential port scalar and preserve Account locks and state checks.
 - Require both token and session allowlist records and current database identity state for authentication.
@@ -39,7 +40,7 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Keep reusable identity HTTP input, dispatch, and policy support in [Adapters/Http/Identity](../../Infrastructure/Adapters/Http/Identity). Keep administration input inside SystemAdminApi's Administration module.
 - Read [authentication rules](../../../../resources/platform/14-security.md) for token, login, and session changes.
 - Read [contact verification](../../../../resources/platform/operations/contact-verification.md) for proof, quota, delivery, and recovery changes.
-- Use [ADR-0036](../../../../resources/adr/0036-single-identity-and-access-context-and-global-accounts.md), [ADR-0049](../../../../resources/adr/0049-password-authentication-without-totp.md), and [ADR-0050](../../../../resources/adr/0050-contact-verification-before-user-registration.md) for current scope and decisions.
+- Use [ADR-0036](../../../../resources/adr/0036-single-identity-and-access-context-and-global-accounts.md), [ADR-0049](../../../../resources/adr/0049-password-authentication-without-totp.md), and [ADR-0051](../../../../resources/adr/0051-optional-email-verification-after-user-login.md) for current scope and decisions.
 - Use [session recovery](../../../../resources/platform/operations/identity-session-recovery.md) for allowlist loss or restoration.
 
 ## Verification and maintenance

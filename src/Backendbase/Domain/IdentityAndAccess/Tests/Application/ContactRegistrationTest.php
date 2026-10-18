@@ -28,11 +28,9 @@ final class ContactRegistrationTest extends TestCase
         $values     = ContactScenario::verified($fixture);
         $connection = $fixture->connection();
         match ($scenario) {
-            'email mismatch' => $values['email']                   = 'other@example.com',
             'mobile mismatch' => $values['mobile']                 = '+905551234568',
             'wrong context' => $values['verificationContextToken'] = ContactScenario::token(),
-            'same row' => $values['mobileContactInfoId']           = $values['emailContactInfoId'],
-            'unknown row' => $values['emailContactInfoId']         = IdentityScenario::id(),
+            'missing mobile proof' => $connection->executeStatement("DELETE FROM contact_verification WHERE contact_type = 'mobile'"),
             'unverified' => $connection->executeStatement('UPDATE contact_verification SET verified_at = NULL WHERE contact_type = ?', ['mobile']),
             'future' => $connection->executeStatement("UPDATE contact_verification SET verified_at = '2099-01-01 00:00:00.000000'"),
             'wrong purpose' => $connection->executeStatement("UPDATE contact_verification SET purpose = 'admin-contact-reverification'"),
@@ -43,7 +41,7 @@ final class ContactRegistrationTest extends TestCase
         $workflow  = $container->get(RegistrationWorkflow::class);
         try {
             $workflow->register(IdentityScenario::id(), new RegistrationInput(...$values));
-            self::fail('Registration must require both fresh matching contact proofs.');
+            self::fail('Registration must require fresh matching mobile evidence.');
         } catch (DomainException) {
             self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM account'));
             self::assertSame(0, $connection->fetchOne('SELECT COUNT(*) FROM user'));
@@ -54,7 +52,7 @@ final class ContactRegistrationTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function rejectedEvidence(): iterable
     {
-        foreach (['email mismatch', 'mobile mismatch', 'wrong context', 'same row', 'unknown row', 'unverified', 'future', 'wrong purpose', 'wrong realm', 'PT12H', 'PT12H1S'] as $scenario) {
+        foreach (['mobile mismatch', 'wrong context', 'missing mobile proof', 'unverified', 'future', 'wrong purpose', 'wrong realm', 'PT12H', 'PT12H1S'] as $scenario) {
             yield $scenario => [$scenario];
         }
     }
@@ -67,6 +65,8 @@ final class ContactRegistrationTest extends TestCase
         $container  = $fixture->container();
         $workflow   = $container->get(RegistrationWorkflow::class);
         $registered = $workflow->register(IdentityScenario::id(), new RegistrationInput(...$values));
+        $connection = $fixture->connection();
+        self::assertSame(2, $connection->fetchOne("SELECT COUNT(*) FROM contact_verification WHERE account_id IS NOT NULL AND actor_id IS NOT NULL AND json_extract(state, '$.consumedAt') IS NOT NULL"));
         IdentityScenario::advance($fixture, 'PT13H');
         $principal = IdentityScenario::principal($fixture);
         self::assertSame($registered['actorId'], $principal->identity()['actorId']);
@@ -81,13 +81,16 @@ final class ContactRegistrationTest extends TestCase
 
     public function testTransactionRollbackPreservesBothUsableProofs(): void
     {
-        $fixture   = IdentityFixture::create();
-        $values    = ContactScenario::verified($fixture);
-        $container = $fixture->container();
-        $store     = $container->get(ContactStore::class);
+        $fixture    = IdentityFixture::create();
+        $values     = ContactScenario::verified($fixture);
+        $container  = $fixture->container();
+        $store      = $container->get(ContactStore::class);
+        $connection = $fixture->connection();
+        $emailId    = $connection->fetchOne("SELECT uuid FROM contact_verification WHERE contact_type = 'email'");
+        self::assertIsString($emailId);
         try {
-            $store->transaction(static function () use ($store, $values): void {
-                $first               = $store->get($values['emailContactInfoId']);
+            $store->transaction(static function () use ($store, $emailId): void {
+                $first               = $store->get($emailId);
                 $state               = $first->snapshot();
                 $state['consumedAt'] = '2026-10-14 10:02:00.000000';
                 $store->save(new ContactInfo(IdentityId::fromString($first->id()), $state));

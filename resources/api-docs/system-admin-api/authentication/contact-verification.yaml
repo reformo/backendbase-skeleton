@@ -2,7 +2,7 @@ post:
   tags: [Authentication]
   operationId: systemadminContactRequest
   summary: 'Request contact verification'
-  description: 'Codes expire after five minutes. User registration requires both contacts verified less than 12 hours ago. Admin verification is optional and preserves existing access.'
+  description: 'Codes expire after five minutes. User registration requires mobile verification less than 12 hours ago. Email verification is optional before registration and available after login. Admin verification is optional and preserves existing access.'
   security: []
   parameters:
     - $ref: '../../common/components.yaml#/headers/Accept-Language'

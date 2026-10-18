@@ -71,7 +71,7 @@ final class ModuleRoutingTest extends TestCase
         $routes = require 'src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php';
         $routes($app);
 
-        self::assertCount(19, $app->getRouteCollector()->getRoutes());
+        self::assertCount(22, $app->getRouteCollector()->getRoutes());
     }
 
     #[Test]

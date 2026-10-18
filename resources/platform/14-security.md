@@ -44,7 +44,7 @@ Each Account can have at most one User and one Admin, including removed actor ro
 Account email and mobile are each globally unique among active Accounts. Actors have no username.
 ASCII normalization lowercases accepted email addresses. Mobile numbers use E.164 format: a plus sign and 2 to 15 digits.
 Reject whitespace, domestic formatting, extensions, non-ASCII email, and non-ASCII digits. Do not infer a country code.
-Registration requires email, mobile, password, both verified contact IDs, and a shared context token. Login requires `identifier` and `password`.
+Registration requires email, mobile, password, and the mobile verification context token. Contact identifier fields are rejected. Login requires `identifier` and `password`.
 The identifier accepts email or mobile. Resolve the Account before selecting its actor in the trusted realm.
 Admin invitations use an existing Account and evidence. They do not introduce separate login identifiers.
 Current identity and actor history responses expose Account email and mobile. Tokens do not contain contact fields.
@@ -52,10 +52,13 @@ Account closure releases both active contact keys. Actor removal preserves the A
 
 Contact ownership, actor approval, and password authentication establish separate facts.
 Account `state.ownershipVerified` records whether the ownership requirement is satisfied. It starts as `false`.
-User registration sets it to `true` after both contact proofs pass. The trusted initial Admin bootstrap also attests ownership.
+User registration sets it to `true` after the required mobile proof passes. The trusted initial Admin bootstrap also attests ownership.
 Login and session validation require `ownershipVerified: true`, an enabled Account, and the applicable actor checks.
-Verify both email and mobile through the contact endpoints before User registration.
-Both proofs must be less than 12 hours old when registration holds both evidence locks.
+Verify mobile through the public contact endpoints before User registration. Email verification is optional.
+Registration resolves evidence by submitted values and context. It locks email first, then mobile, before checking the 12-hour evidence window.
+Matching fresh email evidence is consumed when present. Missing or unusable email evidence does not block registration.
+Authenticated Users can verify their stored email through `/identity/contact-verifications` with a separate Account-bound purpose.
+Email verification preserves ownership and sessions. It cannot authorize registration or change the stored email.
 Codes expire after five minutes. Failed attempts, resend limits, and delivery identities are contact-specific.
 Optional Admin verification preserves ownership, credential versions, and existing sessions.
 See [contact verification](operations/contact-verification.md) for request fields, state transitions, quotas, and error contracts.
