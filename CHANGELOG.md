@@ -34,6 +34,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Fixed
 
+- Accept User registration in the DAST operator fixture before persistence. Verify fixture login and protected identity access in both realms during every identity HTTP run.
+
 - Include the Git attribution hook installer in version control. Exempt its exact path from the shell-script ignore rule so the skill installation link resolves in fresh checkouts.
 
 - Use a separate CI API port so ZAP add-on updates cannot collide with the application listener. Keep authenticated Bruno requests and security probes on the same API address. Add an isolated scanner startup regression.

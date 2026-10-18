@@ -18,12 +18,14 @@ python3 tests/Security/identity_http.py --scan
 The suite uses a temporary application copy and the production HTTP entry point, configuration, routes, middleware, Doctrine adapters, and Redis adapters.
 It replaces only the contact notifier with a private local file sink.
 It creates separate fixture Accounts and credentials without using the personal initial Admin seeder.
+The operator fixture has accepted User registration, verified ownership, and an approved Admin actor.
 The fixture database, temporary server, and scan containers are removed when the run ends.
 The temporary application has a dedicated replay encryption key. Each intended write supplies a new `Idempotency-Key`.
 
 ## Coverage
 
 The deterministic HTTP sequence checks all 31 current identity operations.
+It first verifies operator login and protected identity access in both realms, including runs without `--scan`.
 It verifies successful registration and authentication, realm isolation, approval, removal, restoration, token expiry, revocation, logout, and Account closure.
 It also checks missing credentials, invalid and oversized input, contact confirmation, and resend cooldown rejection.
 The default User registration policy requires mobile proof only. Test all four configured proof combinations.

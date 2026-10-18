@@ -86,6 +86,7 @@ final class IdentityHttpEnvironment
             $id      = IdentityId::create();
             $now     = new DateTimeImmutable();
             $account = Account::create($id, new AccountEmail('operator-' . $suffix . '@example.test'), new AccountMobile('+901' . $suffix), $now);
+            $account->acceptRegistration();
             $account->verifyOwnership();
             $admin = SystemAdmin::invite(IdentityId::create(), $id, 'http-fixture:invitation', $now);
             $admin->approve('http-fixture:approval');

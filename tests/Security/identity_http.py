@@ -164,6 +164,8 @@ def exercise(client):
         client.request(api, "GET", "/identity", 401)
         client.request(api, "POST", "/auth/login", 400, {"identifier": []})
         client.request(api, "POST", "/auth/login", 400, {"identifier": "x" * 255, "password": PASSWORD})
+        token = client.login(api, client.operatorEmail)
+        client.request(api, "GET", "/identity", 200, token=token)
     user = client.register()
     userToken = client.login("user", client.userEmail)
     adminToken = client.login("system-admin", client.operatorEmail)

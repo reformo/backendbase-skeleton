@@ -170,6 +170,7 @@ Generate fresh test artifacts before updating metrics. Record skipped service ca
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.
 The security workflow runs all identity operations over HTTP and separate authenticated ZAP scans for both realms.
+The HTTP sequence verifies seeded operator login and protected identity access in both realms before lifecycle changes, including runs without scanning.
 It uses the production entry point and native adapters with a local contact-notification sink.
 See [identity security checks](operations/identity-security-checks.md) for prepared targets, scope, exclusions, and pinned scan inputs.
 Deployment fixtures cover explicit fresh installation. Native MySQL tests reject existing tables, views, routines, and events.
