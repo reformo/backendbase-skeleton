@@ -393,9 +393,10 @@ BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
         <section id="verification">
             <p class="section-label">12 · Verification and sources</p>
             <h2>Use recorded evidence and owning source</h2>
-            <p>The 18 October 2026 isolated run passed 1,422 tests with 61,118 assertions, zero failures, errors, or skips, and 100% executable-line coverage.</p>
-            <p>All 63 earlier skipped MySQL, Redis, and Sentinel cases passed. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
-            <p>Live UserApi and SystemAdminApi checks covered all 31 operations through 59 initial requests. Extra probes verified 39 retries and 21 changed-body rejections. Notifications used a private test sink.</p>
+            <p>The latest recorded isolated run passed on 18 October 2026. It completed 1,527 tests and 72,701 assertions with zero failures, errors, or skips.</p>
+            <p>Coverage reached 100% for executable lines and methods: 6,858 of 6,858 lines and 1,604 of 1,604 methods.</p>
+            <p>All 64 previously skipped service cases passed: 33 MySQL, 23 standalone Redis, and eight Sentinel cases. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
+            <p>The earlier <a href="../../platform/operations/identity-acceptance.md#http-replay-evidence-on-18-october-2026">live UserApi and SystemAdminApi checks</a> covered all 31 operations through 59 initial requests. Extra probes verified 39 retries and 21 changed-body rejections. Notifications used a private test sink.</p>
             <ul class="source-list">
                 <li><a href="../../platform/14-security.md">Canonical identity and authentication rules</a></li>
                 <li><a href="../../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">Native targets, interval, and evidence</a></li>

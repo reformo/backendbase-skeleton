@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Update the IdentityAndAccess HTML guide with the latest recorded isolated test totals, service cases, and coverage. Preserve the earlier live HTTP verification scope.
+
 - Require kebab-case for project-owned configuration keys and file names. Rename runtime providers, nested settings, subscriber registrations, and release policy keys. Update consumers, tests, and documentation. Preserve external option names, environment variables, public payloads, and generated deployment contracts.
 
 - Configure User registration mobile and email proof requirements independently. Preserve mobile-only verification by default. Store registration acceptance separately from ownership, preserve legacy accounts and sessions, retain Admin ownership checks, and allow omission of the context token when neither proof is required. Update API contracts, configuration, documentation, and regression coverage.
