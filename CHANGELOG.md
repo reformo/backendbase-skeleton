@@ -10,6 +10,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Extend live security checks to all 52 operations and all 38 writes. Add malformed-input, authentication, cross-account contact, and replay probes. Run authenticated ZAP scans for all three APIs. Record zero-skip native regressions and clean pinned scan results. Set Security verification to 9.5/10, engineering quality to 9.4/10, and architecture to 9.4/10. Keep deployment durability unverified.
+
+- Verify all 141 locked packages through a clean uncached installation with plugins and scripts disabled. Confirm committed content digests and the software bill of materials without regeneration. Record successful Composer diagnosis, strict validation, and an advisory audit with no advisories or abandoned packages. Set Dependency integrity to 10/10.
+
+- Refresh engineering and architecture assessments from current source and local checks. Record weighted scores, typed identity state, registration policy, HTTP replay, and installation scope. Remove revision identifiers and historical results from the reports. Synchronize assessment summaries and state the remaining deployment, provider, load, and scan scope limits.
+
 - Consolidate fresh installation into four migrations for messaging, Example, identity, and HTTP replay. Create final names directly and remove both naming migrations and their obsolete tests. Preserve the final eleven-table schema, release target, and rollback safeguards. Update tests, quality metrics, and existing-database adoption guidance. Verify fresh installation and Doctrine schema parity on temporary MySQL 8.4.11, with seven native cases passing and all temporary resources removed.
 
 - Update the IdentityAndAccess HTML guide with the latest recorded isolated test totals, service cases, and coverage. Preserve the earlier live HTTP verification scope.

@@ -24,21 +24,29 @@ The temporary application has a dedicated replay encryption key. Each intended w
 
 ## Coverage
 
-The deterministic HTTP sequence checks all 31 current identity operations.
-It first verifies operator login and protected identity access in both realms, including runs without `--scan`.
+The deterministic HTTP sequence checks all 52 operations across ExampleApi, UserApi, and SystemAdminApi.
+It verifies operator login and protected identity access in both realms, including runs without `--scan`.
 It verifies successful registration and authentication, realm isolation, approval, removal, restoration, token expiry, revocation, logout, and Account closure.
 It also checks missing credentials, invalid and oversized input, contact confirmation, and resend cooldown rejection.
 The default User registration policy requires mobile proof only. Test all four configured proof combinations.
 Stored-email verification runs after User login. Preserve legacy sessions and separate User acceptance from Admin ownership checks.
+ExampleApi uses a separate disposable User Account for registration, contact verification, identity changes, and the six Example operations.
 New OpenAPI operations without a recorded HTTP result fail the suite.
+Every write operation must also record missing-key rejection and unchanged-request replay behavior.
 
-The two authenticated ZAP scans target `GET /identity` and `GET /_status` in separate realms.
+Bounded write probes check missing and malformed replay keys, authentication, malformed JSON, oversized bodies, and changed-request rejection.
+Protected replay probes remove credentials before retrying. Revocation, logout, and closure retries must return 401.
+Cross-account probes reject contact confirmation and resend attempts in all three APIs.
+Public login probes reject replay with another Account identifier.
+These checks use separate request keys. Only replay probes intentionally reuse a key.
+
+Three authenticated ZAP scans target `GET /identity` and `GET /_status` in each API.
 Fresh sessions must access the protected route before and after each scan.
 Mutation routes use the deterministic sequence because scanning them can revoke or close the scan identity.
 Readiness uses a deterministic check that requires MySQL and Redis readiness while unprovisioned dependencies remain unavailable.
 This scope does not claim exhaustive payload fuzzing of every mutation.
 
-The suite writes operation results to `artifacts/identity-http.json`.
+The suite writes operation statuses and probe categories to `artifacts/identity-http.json`.
 It writes sanitized ZAP reports and scan scope to `artifacts/zap-identity`.
 The security workflow retains these artifacts for 30 days.
 ZAP authentication tokens are removed from retained reports.
@@ -72,7 +80,7 @@ It retains the six Example operations, metadata, and liveness. The scan supplies
 Two ordered ZAP replacer rules add the replay header and replace its placeholder with a UUID for each request.
 This prevents earlier scan responses from masking changed probe payloads. See [ZAP token processing](https://www.zaproxy.org/docs/desktop/addons/replacer/#token-processing).
 The workflow redacts both credentials before uploading reports from `artifacts/zap-example`.
-Example Authentication and Identity routes have isolated PHPUnit evidence. The live identity sequence continues to cover UserApi and SystemAdminApi.
+Example Authentication and Identity routes have isolated PHPUnit evidence and complete live operation coverage in the identity sequence.
 
 ## Static scan inputs
 

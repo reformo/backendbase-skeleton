@@ -78,7 +78,7 @@
 <section id="gaps"><p class="section-label">09 · Current limits</p><h2>Known limits</h2>
     <ul><li>The API-key public-path list includes prefixes outside the current ExampleApi route set.</li>
         <li>Runtime validation accepts missing trace and timezone headers. Supplied values must pass format validation.</li>
-        <li>The security workflow preserves ExampleApi checks and defines HTTP checks for all 31 identity operations. Separate authenticated scans cover protected identity reads and metadata. See <a href="../platform/operations/identity-security-checks.md">the exact scope</a>.</li>
+        <li>The security workflow checks all 52 operations across three APIs. All 38 writes have replay and missing-key probes. Separate authenticated scans cover identity and liveness reads in each API. See <a href="../platform/operations/identity-security-checks.md">the exact scope</a>.</li>
         <li>Production revocation durability, managed secret injection, and recovery require target-specific acceptance evidence.</li></ul>
     <p>All three API header configurations allow <code>Accept-Language</code>. See the <a href="code-quality-and-maintainability-report.html#risks">current assessment</a> and <a href="../platform/operations/identity-acceptance.md">identity acceptance procedure</a>.</p>
     <p>Databases that executed the removed account migration can still contain account and privilege tables. Review their schema and migration history before deployment.</p>

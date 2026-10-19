@@ -14,11 +14,11 @@
 <div class="callout"><strong>ADR implementation:</strong> Read the <a href="../adr/implementation-status.md">implementation register</a> and <a href="../platform/14-security.md">identity security policy</a> for current identity realms, binary UUID mapping, service tests, and recovery operations.</div>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
 <p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
-<div class="summary-grid"><div class="stat"><strong>240</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
-<p>The <a href="code-quality-and-maintainability-report.html#evidence">quality report</a> records the latest isolated service run separately from the earlier assessment. The working tree based on <code>726e8de</code> passes 1,160 tests and 30,476 assertions with no failures, errors, or skips. All 55 service cases execute on MySQL 8.4.11, Redis 8.10.2, and a separate Sentinel topology. All 6,306 executable lines and 1,497 methods are covered. The coverage gate, deployment fixtures, PHPStan level 8, complexity, and PHPCS pass.</p>
+<div class="summary-grid"><div class="stat"><strong>277</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
+<p>The <a href="code-quality-and-maintainability-report.html#evidence">quality report</a> records current checks and execution limits. All 1,521 cases pass with zero skips and 72,662 assertions. Executable-line and method coverage remain 100%. Static, API, native MySQL, Redis, Sentinel, and temporary deployment checks pass. Deployment durability remains unverified.</p>
 </section>
 <section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
-<p>The test-file count uses <code>*Test.php</code> files under both suite roots, inspected in the working tree based on <code>726e8de</code> on 16 October 2026.</p>
+<p>The test-file count includes <code>*Test.php</code> files under both configured suite roots.</p>
 <div class="table-wrap"><table><thead><tr><th>Location</th><th>Ownership</th><th>Examples</th></tr></thead><tbody>
 <tr><td><code>src/Backendbase/Domain/*/Tests</code></td><td>One movable bounded context</td><td>Aggregates, handlers, contracts, repositories, and provider tests</td></tr>
 <tr><td><code>tests/Shared</code></td><td>Shared building blocks</td><td>CQRS contracts, primitives, persistence ports, services</td></tr>
@@ -88,12 +88,12 @@
 </section>
 <section id="gaps"><p class="section-label">11 · Current gaps</p><h2>Known quality-tool differences</h2>
 <ul><li>All adapters now have explicit ownership. Unknown adapter categories fail classification checks.</li>
-<li>The security workflow preserves ExampleApi checks and defines live HTTP scenarios for all 31 identity operations. The HTTP sequence verifies seeded operator login and protected identity access in both realms before lifecycle changes. Authenticated ZAP scans cover protected reads and metadata in both realms.</li>
+<li>The security workflow defines live HTTP scenarios for all 52 operations. All 38 writes have missing-key and replay checks. Bounded probes check authentication, malformed input, and cross-account contact access. Authenticated ZAP scans cover identity and liveness reads in all three APIs.</li>
 <li>The CI ExampleApi listener uses port 8081. Port 8080 remains free for ZAP during add-on updates. Bruno and all ExampleApi probes use the CI address.</li>
 <li>Native service tests require prepared targets. A passing local run with skipped cases does not establish current service behavior.</li>
 <li>Complexity and coding-standard checks do not enforce every object-design rule. The corrected <code>SqsQueue.php</code> has 148 lines. The selected forwarding layers are simplified. Remaining design deductions appear in the detailed scorecard.</li>
 <li>Rector is not configured or installed.</li><li>Bruno needs external runtime state and is not a self-contained suite.</li></ul>
-<p>See the <a href="ports-and-adapters-critique.html#weaknesses">architecture findings</a> for completed fixes and remaining design costs. Follow the <a href="../platform/operations/identity-security-checks.md">identity security procedure</a> for disposable targets, pinned inputs, and scan limits.</p>
+<p>See the <a href="ports-and-adapters-critique.html#weaknesses">architecture findings</a> for current design costs and execution limits. Follow the <a href="../platform/operations/identity-security-checks.md">identity security procedure</a> for disposable targets, pinned inputs, and scan limits.</p>
 </section>
 <section id="commands"><p class="section-label">12 · Commands</p><h2>Common verification commands</h2>
 <pre><code># Focused behavior

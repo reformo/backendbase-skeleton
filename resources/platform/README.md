@@ -172,7 +172,7 @@ Read only the selected reference sections needed for the task. Reuse established
 
 The platform files and numbered HTML guides describe the current source. The latest documentation consistency review was on 16 October 2026 against revision `726e8de`. It covered API counts and headers, bootstrap configuration, source references, skill examples, repository inventory, and generated documents.
 
-Dated assessments retain their original verification scope. Generated quality metrics use the latest local test artifacts. The [quality report](../docs/code-quality-and-maintainability-report.html#evidence) separates current local results from earlier service-backed evidence.
+Assessment reports describe current source, scores, executed checks, and remaining limits. Generated quality metrics use fresh local test artifacts. The [quality report](../docs/code-quality-and-maintainability-report.html#evidence) states skipped service cases separately from passed checks.
 
 Check all resource links with `php bin/check-documentation-links.php resources`. Check the embedded ADR copies with `node bin/build-adr-index.mjs --check`. Check generated metrics with `composer reports:check` after a fresh test run.
 

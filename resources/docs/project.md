@@ -375,18 +375,25 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 
 ## Current Assessment
 
-The [engineering assessment](code-quality-and-maintainability-report.html) and [architecture assessment](ports-and-adapters-critique.html) record the completed working tree based on `df29f9c` on 16 October 2026. Code quality is reassessed from 8/10 to 9.2/10. The report gives ten area scores, twenty criterion scores, deductions, and the calculation.
+The [engineering assessment](code-quality-and-maintainability-report.html) scores current source quality at **9.4/10** from 94/100 points.
+The [architecture assessment](ports-and-adapters-critique.html) scores dependency and design criteria at **9.4/10** from 75.5/80 points.
+Both reports state criterion weights, evidence, deductions, and execution limits.
 
-- Preserve context-owned ports, registry mappings, transaction completion, failure-path tests, and API contract parity.
-- All adapters have explicit ownership. Unknown categories and forbidden dependency fixtures fail architecture checks.
-- Account and Actor now own login and session identity decisions. The selected forwarding layers are simplified. Other workflow snapshots remain a local design cost.
-- Live HTTP checks cover all 28 identity operations. Both realms have authenticated scans of protected reads and metadata. Semgrep inputs are pinned.
-- Dependency integrity passed for all 141 packages in a fresh isolated install. Local AWS pruning and PHPCS configuration explain the working-installation differences.
-- The current release policy retains unsafe application rollback. Guarded fresh installation supports an empty database during maintenance. Normal update guards remain active.
+- Context-owned ports, registry mappings, explicit transactions, and complete adapter classification remain strengths.
+- Validated identity JSON state, independent registration proof policies, and encrypted HTTP replay have local regression coverage.
+- All 52 API operations pass schema and tag checks. All 38 write operations require `Idempotency-Key`.
+- Four installation migrations create eleven application tables. Existing databases require a separate adoption plan.
+- Snapshot-based application decisions and static event timestamps remain design costs.
 
-The assessment suite passed 998 tests and 22,653 assertions with no skips and 100% executable-line coverage. Its static, API, dependency, security, and deployment results retain that dated scope. Production acceptance remains open.
-
-The later isolated service run uses the working tree based on `726e8de`. It passes 1,160 tests and 30,476 assertions with no failures, errors, or skips. All 55 previously skipped cases pass on dedicated MySQL 8.4.11, Redis 8.10.2, and Sentinel fixtures. All 6,306 executable lines and 1,497 methods are covered. The coverage gate, isolated deployment fixtures, PHPStan level 8, complexity, and PHPCS pass. HTTP regressions close the earlier gap in seven identity handlers. See the [latest verification evidence](code-quality-and-maintainability-report.html#evidence).
+The current native-enabled suite passes all 1,521 cases with zero skips.
+It records 72,662 assertions, no failures or errors, and 100% executable-line and method coverage.
+PHPStan level 8, complexity, coding standards, API validation, and temporary deployment fixtures pass.
+Dependency integrity scores **10/10**. All 141 pristine packages match committed content digests and the software bill of materials.
+Isolated Composer diagnosis, strict validation, and the current advisory audit pass. No advisories or abandoned packages are reported.
+Security verification scores **9.5/10**. Native MySQL, Redis, and Sentinel tests pass.
+Live checks cover 52 operations and all 38 writes. Semgrep and authenticated ZAP scans for three APIs pass.
+Deployment durability and production acceptance remain unverified.
+See the [current verification evidence](code-quality-and-maintainability-report.html#evidence).
 
 ## Agent Working Notes
 

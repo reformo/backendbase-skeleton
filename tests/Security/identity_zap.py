@@ -21,7 +21,7 @@ def scan(client, root):
     target = f"http://{host}:{port}"
     evidence = root / "artifacts/zap-identity"
     evidence.mkdir(parents=True, exist_ok=True)
-    for api in ["user", "system-admin"]:
+    for api in ["example", "user", "system-admin"]:
         token = client.login(api, client.operatorEmail)
         client.request(api, "GET", "/identity", 200, token=token)
         specification = subprocess.check_output([
@@ -33,13 +33,17 @@ def scan(client, root):
         specification["paths"] = {path: specification["paths"][path] for path in ["/identity", "/_status"]}
         specification["servers"] = [{"url": target + "/" + api + "-api"}]
         (directory / f"{api}.json").write_text(json.dumps(specification))
-        arguments = []
-        for index, (header, value) in enumerate([("X-Source-Id", api), ("Authorization", "Bearer " + token)]):
+        arguments = ["-config scanner.threadPerHost=1"]
+        headers = [("X-Source-Id", api), ("Authorization", "Bearer " + token)]
+        if api == "example":
+            headers.append(("Backendbase-Api-Key", "http-fixture-api-key"))
+        for index, (header, value) in enumerate(headers):
             for name, setting in [("description", header), ("enabled", "true"), ("matchtype", "REQ_HEADER"),
                                   ("matchstr", header), ("regex", "false"), ("replacement", value)]:
                 arguments.append(f'-config replacer.full_list({index}).{name}="{setting}"')
         container = "backendbase-identity-zap-" + secrets.token_hex(8)
-        command = ["docker", "run", "--rm", "--name", container, "--network", "host", "-v", f"{directory}:/zap/wrk:rw",
+        command = ["docker", "run", "--rm", "--name", container, "--network", "host",
+                   "-e", "JAVA_OPTS=-Xmx512m", "--shm-size", "512m", "-v", f"{directory}:/zap/wrk:rw",
                    IMAGE, "zap-api-scan.py", "-t", f"/zap/wrk/{api}.json", "-f", "openapi",
                    "-c", "/zap/wrk/rules.tsv", "-T", "3", "-r", f"{api}.html",
                    "-J", f"{api}-report.json", "-z", " ".join(arguments)]
@@ -56,6 +60,7 @@ def scan(client, root):
         client.request(api, "GET", "/identity", 200, token=token)
         print(f"Authenticated ZAP scan passed: {api}", flush=True)
     (evidence / "scope.json").write_text(json.dumps({
-        "image": IMAGE, "scannedPaths": ["GET /identity", "GET /_status"],
+        "image": IMAGE, "apis": ["example", "user", "system-admin"],
+        "scannedPaths": ["GET /identity", "GET /_status"],
         "excludedPaths": "Mutations and expected-unavailable readiness use the complete deterministic HTTP lifecycle checks.",
     }, indent=2) + "\n")

@@ -18,6 +18,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from write_probes import after_write, before_write, record_operation, request_headers, should_probe
+
 ROOT = Path(__file__).resolve().parents[2]
 PASSWORD = "http-fixture-password"
 
@@ -67,6 +69,7 @@ return static function (\\DI\\ContainerBuilder $builder): void {
         "BACKENDBASE_IDEMPOTENCY_KEY": base64.b64encode(secrets.token_bytes(32)).decode(),
         "BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER": "identity@example.test",
         "BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS": "900",
+        "EXAMPLE_API_KEY": "http-fixture-api-key",
     })
     for realm, key in [("USER", b"u" * 32), ("ADMIN", b"a" * 32)]:
         environment.update({
@@ -87,13 +90,23 @@ class IdentityClient:
         self.operatorMobile = "+901" + suffix
         self.userMobile = "+902" + suffix
 
-    def request(self, api, method, path, expected, payload=None, token=None):
-        headers = {"X-Source-Id": api, "Content-Type": "application/json"}
-        if method in {"POST", "PUT", "PATCH", "DELETE"}:
-            headers["Idempotency-Key"] = secrets.token_hex(16)
-        if token:
-            headers["Authorization"] = "Bearer " + token
-        body = None if payload is None else json.dumps(payload).encode()
+    def request(self, api, method, path, expected, payload=None, token=None, *, headers=None, raw=None, probe=None):
+        headers = request_headers(api, method, token, headers)
+        check = should_probe(method, expected, probe)
+        if check:
+            before_write(self, api, method, path, payload, token)
+        body = raw if raw is not None else (None if payload is None else json.dumps(payload).encode())
+        status, result = self.response(api, method, path, body, headers)
+        assert status == expected, f"{api} {method} {path}: expected {expected}, got {status}"
+        if status >= 400 and path != "/_status/ready":
+            assert result["status"] == status
+            assert "trace" not in result and "exception" not in result
+        self.results.append({"api": api, "method": method.lower(), "path": path, "status": status, "probe": probe})
+        if check:
+            after_write(self, api, method, path, expected, payload, token, headers["Idempotency-Key"], result)
+        return result
+
+    def response(self, api, method, path, body, headers):
         request = urllib.request.Request(self.baseUrl + "/" + api + "-api" + path,
                                          data=body, headers=headers, method=method)
         try:
@@ -102,19 +115,15 @@ class IdentityClient:
             response = error
         with response:
             status = response.status
-            result = json.loads(response.read())
-        assert status == expected, f"{api} {method} {path}: expected {expected}, got {status}"
-        if status >= 400 and path != "/_status/ready":
-            assert result["status"] == status
-            assert "trace" not in result and "exception" not in result
-        self.results.append({"api": api, "method": method.lower(), "path": path, "status": status})
-        return result
+            content = response.read()
+            result = json.loads(content) if content else None
+        return status, result
 
     def login(self, api, identifier):
         return self.request(api, "POST", "/auth/login", 200,
                             {"identifier": identifier, "password": PASSWORD})["session"]["accessToken"]
 
-    def contact(self, api, prefix, payload, value, token=None):
+    def contact(self, api, prefix, payload, value, token=None, other_token=None):
         context = secrets.token_urlsafe(32)
         payload = {**payload, "verificationContextToken": context}
         challenge = self.request(api, "POST", prefix, 200, payload, token)["contactInfo"]
@@ -123,25 +132,28 @@ class IdentityClient:
                      {"verificationContextToken": context}, token)
         capture = self.directory / "sink" / (hashlib.sha256(value.encode()).hexdigest() + ".json")
         code = json.loads(capture.read_text())["code"]
+        if other_token:
+            from write_probes import cross_account_contact
+            cross_account_contact(self, api, identifier, context, code, other_token)
         self.request(api, "POST", prefix + "/" + identifier + "/confirm", 200,
                      {"verificationContextToken": context, "code": code}, token)
         return identifier, context
 
-    def register(self):
+    def register(self, api="user", email=None, mobile=None):
         context = secrets.token_urlsafe(32)
-        values = {"email": self.userEmail, "mobile": self.userMobile}
-        payload = {"contactType": "mobile", "contactValue": self.userMobile, "verificationContextToken": context}
-        challenge = self.request("user", "POST", "/auth/contact-verifications", 200, payload)["contactInfo"]
+        values = {"email": email or self.userEmail, "mobile": mobile or self.userMobile}
+        payload = {"contactType": "mobile", "contactValue": values["mobile"], "verificationContextToken": context}
+        challenge = self.request(api, "POST", "/auth/contact-verifications", 200, payload)["contactInfo"]
         identifier = challenge["contactInfoId"]
-        self.request("user", "POST", f"/auth/contact-verifications/{identifier}/resend", 429,
+        self.request(api, "POST", f"/auth/contact-verifications/{identifier}/resend", 429,
                      {"verificationContextToken": context})
-        capture = self.directory / "sink" / (hashlib.sha256(self.userMobile.encode()).hexdigest() + ".json")
+        capture = self.directory / "sink" / (hashlib.sha256(values["mobile"].encode()).hexdigest() + ".json")
         code = json.loads(capture.read_text())["code"]
-        self.request("user", "POST", f"/auth/contact-verifications/{identifier}/confirm", 400,
+        self.request(api, "POST", f"/auth/contact-verifications/{identifier}/confirm", 400,
                      {"verificationContextToken": context, "code": "invalid"})
-        self.request("user", "POST", f"/auth/contact-verifications/{identifier}/confirm", 200,
+        self.request(api, "POST", f"/auth/contact-verifications/{identifier}/confirm", 200,
                      {"verificationContextToken": context, "code": code})
-        return self.request("user", "POST", "/auth/register", 201,
+        return self.request(api, "POST", "/auth/register", 201,
                             {**values, "password": PASSWORD,
                              "verificationContextToken": context})["registration"]
 
@@ -157,6 +169,9 @@ def expired_token(token, key):
 
 
 def exercise(client):
+    from example_http import exercise_example
+    from write_probes import changed_public_login
+    exercise_example(client)
     for api in ["user", "system-admin"]:
         client.request(api, "GET", "/_status", 200)
         ready = client.request(api, "GET", "/_status/ready", 503)
@@ -165,12 +180,13 @@ def exercise(client):
         client.request(api, "POST", "/auth/login", 400, {"identifier": []})
         client.request(api, "POST", "/auth/login", 400, {"identifier": "x" * 255, "password": PASSWORD})
         token = client.login(api, client.operatorEmail)
+        changed_public_login(client, api, token)
         client.request(api, "GET", "/identity", 200, token=token)
     user = client.register()
     userToken = client.login("user", client.userEmail)
     adminToken = client.login("system-admin", client.operatorEmail)
     client.contact("user", "/identity/contact-verifications", {"contactType": "email"},
-                   client.userEmail, userToken)
+                   client.userEmail, userToken, client.login("user", client.operatorEmail))
     for api, token, wrong, key in [("user", userToken, adminToken, b"u" * 32),
                                    ("system-admin", adminToken, userToken, b"a" * 32)]:
         client.request(api, "GET", "/identity", 200, token=token)
@@ -182,6 +198,7 @@ def exercise(client):
                    {"identifier": client.userEmail, "password": PASSWORD})
     client.request("system-admin", "POST", "/administration/admins/approve", 200,
                    {"actorId": invitation["actorId"], "evidence": "http:approve"}, adminToken)
+    otherAdminToken = client.login("system-admin", client.userEmail)
     for action in ["remove", "restore"]:
         client.request("system-admin", "POST", "/administration/actors/change", 200,
                        {"actorId": user["actorId"], "realm": "USER", "action": action}, adminToken)
@@ -190,7 +207,7 @@ def exercise(client):
                    {"identifier": client.operatorEmail, "password": PASSWORD, "contactType": "email"},
                    client.operatorEmail)
     client.contact("system-admin", "/identity/contact-verifications", {"contactType": "mobile"},
-                   client.operatorMobile, adminToken)
+                   client.operatorMobile, adminToken, otherAdminToken)
     for api, identifier in [("user", client.userEmail), ("system-admin", client.operatorEmail)]:
         for path in ["/identity/token", "/identity/session"]:
             token = client.login(api, identifier)
@@ -205,23 +222,24 @@ def exercise(client):
 
 def record_coverage(client):
     code = '''require "vendor/autoload.php"; $result=[];
-foreach (["user", "system-admin"] as $api) {
+foreach (["example", "user", "system-admin"] as $api) {
  $spec=Symfony\\Component\\Yaml\\Yaml::parseFile("public/$api-api/docs/$api-api-merged.yml");
  foreach ($spec["paths"] as $path=>$methods) { foreach ($methods as $method=>$operation) {
   if (isset($operation["operationId"])) $result[]=["api"=>$api,"path"=>$path,"method"=>$method,"operationId"=>$operation["operationId"]];
  } } } echo json_encode($result);'''
     inventory = json.loads(subprocess.check_output(["php", "-r", code], cwd=ROOT, text=True))
     for operation in inventory:
-        pattern = re.sub(r"\{[^}]+\}", "[^/]+", operation["path"])
-        operation["statuses"] = sorted({result["status"] for result in client.results
-                                         if result["api"] == operation["api"]
-                                         and result["method"] == operation["method"]
-                                         and re.fullmatch(pattern, result["path"])})
-        assert operation["statuses"], "Uncovered operation: " + operation["operationId"]
+        record_operation(operation, operation_results(operation, client.results))
     evidence = ROOT / "artifacts/identity-http.json"
     evidence.parent.mkdir(exist_ok=True)
     evidence.write_text(json.dumps({"operations": inventory, "requests": len(client.results)}, indent=2) + "\n")
     print(f"Identity HTTP checks passed: {len(inventory)} operations, {len(client.results)} requests.")
+
+
+def operation_results(operation, results):
+    pattern = re.sub(r"\{[^}]+\}", "[^/]+", operation["path"])
+    return [result for result in results if result["api"] == operation["api"]
+            and result["method"] == operation["method"] and re.fullmatch(pattern, result["path"])]
 
 
 def main():
