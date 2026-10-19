@@ -172,6 +172,8 @@ GitHub Actions provides quality gates, security checks, and release-artifact wor
 The security workflow runs all 52 operations over HTTP and separate authenticated ZAP scans for all three APIs.
 The HTTP sequence verifies seeded operator login and protected identity access in both realms before lifecycle changes, including runs without scanning.
 All 38 writes require recorded missing-key rejection and replay checks. Bounded probes cover malformed input, authentication, and cross-account contact access.
+The same disposable HTTP fixture supports `--bruno` for complete collection execution with Bruno CLI 4.0.0.
+It enforces operation coverage and runs contact verification, registration, Example writes, administration, and session changes in prepared phases.
 It uses the production entry point and native adapters with a local contact-notification sink.
 See [identity security checks](operations/identity-security-checks.md) for prepared targets, scope, exclusions, and pinned scan inputs.
 Deployment fixtures cover explicit fresh installation. Native MySQL tests reject existing tables, views, routines, and events.

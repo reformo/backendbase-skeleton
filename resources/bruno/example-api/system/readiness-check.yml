@@ -20,12 +20,14 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.be.oneOf([200, 503]);
-        const body = res.getBody();
-        expect(body).not.to.have.property("data");
-        expect(body).not.to.have.property("statusCode");
-        expect(body.status).to.equal(res.status === 200 ? "ready" : "unavailable");
-        expect(body.checks).to.have.property("mysql");
-        expect(body.checks).to.have.property("redis");
-        expect(body.checks).to.have.property("queue");
-        expect(body.checks).to.have.property("objectStore");
+        test("Response matches the API contract", function () {
+          expect(res.status).to.be.oneOf([200, 503]);
+          const body = res.getBody();
+          expect(body).not.to.have.property("data");
+          expect(body).not.to.have.property("statusCode");
+          expect(body.status).to.equal(res.status === 200 ? "ready" : "unavailable");
+          expect(body.checks).to.have.property("mysql");
+          expect(body.checks).to.have.property("redis");
+          expect(body.checks).to.have.property("queue");
+          expect(body.checks).to.have.property("objectStore");
+        });

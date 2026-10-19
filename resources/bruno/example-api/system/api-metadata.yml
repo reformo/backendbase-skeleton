@@ -22,11 +22,13 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(200);
-        const body = res.getBody();
-        expect(body).not.to.have.property("data");
-        expect(body).not.to.have.property("statusCode");
-        expect(body).to.have.property("apiMetadata");
-        expect(body["apiMetadata"]).to.have.property("version");
-        expect(body["apiMetadata"]).to.have.property("buildId");
-        expect(body["apiMetadata"]).to.have.property("cdnBaseUrl");
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(200);
+          const body = res.getBody();
+          expect(body).not.to.have.property("data");
+          expect(body).not.to.have.property("statusCode");
+          expect(body).to.have.property("apiMetadata");
+          expect(body["apiMetadata"]).to.have.property("version");
+          expect(body["apiMetadata"]).to.have.property("buildId");
+          expect(body["apiMetadata"]).to.have.property("cdnBaseUrl");
+        });

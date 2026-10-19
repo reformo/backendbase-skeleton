@@ -64,6 +64,7 @@ For other targets, discover their replay contract before applying this policy.
 - Create operations capture the target resource identifier from the runtime response or a documented response header when later requests need it.
 - Versioned environments contain placeholders, not live secrets.
 - Assertions check status and contract-significant fields.
+- Put response assertions inside named Bruno tests. Require recorded passing tests when checking reports.
 - State-changing lifecycles use run-unique data and deterministic cleanup.
 - Reports exclude authorization headers, API keys, and request or response bodies.
 

@@ -76,6 +76,8 @@ These shape checks do not validate every OpenAPI format or numeric limit.
 HTTP tests cover identity flows, Example reads and writes, health responses, and failure paths.
 Browser preflight and the Example catch-all are transport behavior outside the documented operation count.
 Run live Bruno tests only against an identified, prepared target.
+Use `python3 tests/Security/identity_http.py --bruno` for complete collection execution on disposable services.
+The [Bruno contract procedure](operations/identity-security-checks.md#bruno-contract-checks) supplies fixtures, contact codes, cooldown waits, fresh sessions, and sanitized reports.
 
 ## Identity response keys
 
@@ -105,7 +107,7 @@ Run:
 ```sh
 composer run generate-example-api-spec
 composer run validate-example-api-spec
-bin/bruno example-api local
+bin/bruno example-api local example
 ```
 
 Bruno environment files must contain placeholders, not live secrets. Assertions must check the status and important response fields.
@@ -164,6 +166,7 @@ Login accepts `identifier` containing email or mobile, plus `password`. Username
 Contact request, confirmation, and resend use `contactInfo`. The former `/auth/ownership/*` paths are removed.
 See [contact verification](operations/contact-verification.md) for public registration, authenticated User email, and Admin contracts.
 Admin invitations require `accountId` and `evidence`. Current identity and actor history responses include Account `email` and `mobile`.
+The Bruno invitation request saves `invitation.actorId` as `targetActorId` for subsequent administration requests.
 `POST /auth/login` returns `session` with `accessToken`, `tokenType`, and `expiresAt`.
 TOTP enrollment and `/auth/login/complete` endpoints are removed. Update clients to use the single login response.
 Bruno identity collections use blank credential and proof variables. Populate them only for an identified test target.
@@ -174,7 +177,7 @@ Basis: `resources/docs/6-openapi-and-bruno.html`.
 
 Identity API source specifications and Bruno collections cover the same operations as trusted realm routes.
 Optional trace, timezone, and language headers use the common contract. Problem responses include a stable code.
-Bruno scripts check response envelopes and retain contact IDs and authentication tokens only as runtime variables.
+Bruno scripts check response envelopes inside named tests and retain contact IDs and authentication tokens only as runtime variables.
 
 Account registration accepts optional nullable `firstName` and `lastName` fields.
 Each supplied name has 1 to 160 UTF-8 characters without surrounding spaces or control characters.

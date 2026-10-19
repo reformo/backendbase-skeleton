@@ -26,17 +26,19 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(200);
-        const body = res.getBody();
-        expect(body).not.to.have.property("data");
-        expect(body).not.to.have.property("statusCode");
-        expect(body.example).to.have.property("uuid");
-        expect(body.example.details).to.be.an("object");
-        expect(body.example).to.have.property("type");
-        expect(body.example).to.have.property("exampleGroup");
-        expect(body.example).to.have.property("lookupKey");
-        expect(body.example).to.have.property("lookupValue");
-        expect(body.example).to.have.property("details");
-        expect(body.example.details.label).to.equal("A & B <tag>");
-        expect(body.example.details.heroImage).to.deep.equal({path: "hero.png"});
-        expect(body.example.details).not.to.have.property("heroImageUrl");
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(200);
+          const body = res.getBody();
+          expect(body).not.to.have.property("data");
+          expect(body).not.to.have.property("statusCode");
+          expect(body.example).to.have.property("uuid");
+          expect(body.example.details).to.be.an("object");
+          expect(body.example).to.have.property("type");
+          expect(body.example).to.have.property("exampleGroup");
+          expect(body.example).to.have.property("lookupKey");
+          expect(body.example).to.have.property("lookupValue");
+          expect(body.example).to.have.property("details");
+          expect(body.example.details.label).to.equal("A & B <tag>");
+          expect(body.example.details.heroImage).to.deep.equal({path: "hero.png"});
+          expect(body.example.details).not.to.have.property("heroImageUrl");
+        });

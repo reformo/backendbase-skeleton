@@ -853,7 +853,7 @@ composer run validate-example-api-spec</code></pre>
                     </tbody>
                 </table>
             </div>
-            <p>The collection has one request for each of the 18 documented operations. Authentication requests use prepared contact proofs and credentials. Login saves the USER token in the runtime <code>accessToken</code> variable.</p>
+            <p>The ExampleApi collection has one request for each of its 21 documented operations. Authentication requests use prepared contact proofs and credentials. Login saves the USER token in the runtime <code>accessToken</code> variable.</p>
         </section>
 
         <section id="bruno-request">
@@ -878,7 +878,9 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(204);</code></pre>
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(204);
+        });</code></pre>
             </div>
             <div class="card-grid">
                 <article class="card">
@@ -908,9 +910,14 @@ runtime:
             </div>
             <div class="code-shell">
                 <button class="copy-button" type="button">Copy</button>
-                <pre><code>bin/bruno example-api local</code></pre>
+                <pre><code>bin/bruno example-api local example</code></pre>
             </div>
             <p>The wrapper changes to <code>resources/bruno/example-api</code>, runs Bruno, and writes <code>artifacts/bruno/example-api/local.html</code>.</p>
+            <p>Use the <a href="../platform/operations/identity-security-checks.md#bruno-contract-checks">disposable Bruno contract runner</a> to verify all three collections. It executes all 52 maintained operations with private fixture values.</p>
+            <pre><code>python3 tests/Security/identity_http.py --bruno</code></pre>
+            <p>The runner waits for contact resend cooldowns and reads codes from its local test sink. It confirms contact proofs before registration.</p>
+            <p>Fresh login separates revocation, logout, and Account closure. Admin invitation supplies the actor identifier for subsequent administration requests.</p>
+            <p>Per-phase reports and operation coverage are retained under <code>artifacts/bruno-verification</code>. Reports omit headers and request and response bodies.</p>
             <div class="callout"><strong>Report privacy:</strong> The HTML report omits request and response bodies, bearer tokens, and API keys.</div>
             <div class="callout"><strong>API preparation:</strong> The local environment needs a prepared API and its key. The DAST workflow creates an Example fixture after migrations.</div>
         </section>
@@ -947,7 +954,7 @@ runtime:
                         <tr><td>Generation</td><td><code>composer run generate-example-api-spec</code></td><td>External references can be resolved.</td><td>The contract is correct or valid.</td></tr>
                         <tr><td>Schema validation</td><td><code>php-openapi validate</code></td><td>The merged document follows OpenAPI 3.0 structure.</td><td>The API follows the document.</td></tr>
                         <tr><td>Tag validation</td><td><code>check-openapi-tags.php</code></td><td>Every operation uses declared, non-empty tags, including referenced path files.</td><td>The endpoint group matches the business meaning.</td></tr>
-                        <tr><td>Bruno</td><td><code>bin/bruno example-api local</code></td><td>A running API passes selected examples and assertions.</td><td>Full schema coverage or all failure paths.</td></tr>
+                        <tr><td>Bruno</td><td><code>python3 tests/Security/identity_http.py --bruno</code></td><td>All 52 maintained operations pass their named contract tests on disposable services.</td><td>Full schema coverage or all failure paths.</td></tr>
                         <tr><td>PHPUnit</td><td><code>tests/Infrastructure/Inbound/ExampleApi</code></td><td>Application adapters and endpoint behavior pass their tests.</td><td>The published contract matches all behavior.</td></tr>
                         <tr><td>Review</td><td>OpenAPI, Bruno, route, and test difference</td><td>Names, payloads, status codes, and security stay aligned.</td><td>Future behavior.</td></tr>
                     </tbody>
@@ -1009,8 +1016,8 @@ composer run validate-identity-api-specs
 # Start the project API services
 composer run start-apis
 
-# Run the Example API Bruno collection with local values
-bin/bruno example-api local
+# Run the Example operations with prepared local credentials
+bin/bruno example-api local example
 
 # Run focused Example API PHP tests
 vendor/bin/phpunit tests/Infrastructure/Inbound/ExampleApi</code></pre>

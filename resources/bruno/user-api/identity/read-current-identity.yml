@@ -20,13 +20,15 @@ runtime:
     -
       type: tests
       code: |
-        expect(res.status).to.equal(200);
-        const body = res.getBody();
-        expect(body).not.to.have.property("statusCode");
-        expect(body).to.have.property("user");
-        expect(body).not.to.have.property("data");
-        expect(body.user.email).to.be.a("string");
-        expect(body.user.mobile).to.match(/^\+[1-9][0-9]{1,14}$/);
-        expect(body.user).not.to.have.property("loginName");
-        expect(body.user).to.have.property("firstName");
-        expect(body.user).to.have.property("lastName");
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(200);
+          const body = res.getBody();
+          expect(body).not.to.have.property("statusCode");
+          expect(body).to.have.property("user");
+          expect(body).not.to.have.property("data");
+          expect(body.user.email).to.be.a("string");
+          expect(body.user.mobile).to.match(/^\+[1-9][0-9]{1,14}$/);
+          expect(body.user).not.to.have.property("loginName");
+          expect(body.user).to.have.property("firstName");
+          expect(body.user).to.have.property("lastName");
+        });

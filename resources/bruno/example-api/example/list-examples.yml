@@ -34,26 +34,28 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(200);
-        const body = res.getBody();
-        expect(body).not.to.have.property("data");
-        expect(body).not.to.have.property("statusCode");
-        expect(body.pageSize).to.equal(1000);
-        expect(body.page).to.equal(1);
-        expect(body).to.have.property("total");
-        expect(body.examples).to.be.an("array");
-        expect(body.total).to.be.a("number").and.to.be.at.least(body.examples.length);
-        expect(body.examples.length).to.be.at.most(body.pageSize);
-        if (body.examples.length > 0) {
-          expect(body.examples[0]).to.have.property("uuid");
-          expect(body.examples[0]).to.have.property("lookupKey");
-          expect(body.examples[0]).to.have.property("lookupValue");
-          expect(body.examples[0]).to.have.property("details");
-          expect(body.examples[0].details).to.be.an("object");
-          expect(body.examples[0]).to.have.property("createdAt");
-        }
-        const created = body.examples.find(entry => entry.lookupKey === bru.getVar("example-key"));
-        expect(created).to.exist;
-        expect(created.details.label).to.equal("A & B <tag>");
-        expect(created.details.heroImage).to.deep.equal({path: "hero.png"});
-        expect(created.details).not.to.have.property("heroImageUrl");
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(200);
+          const body = res.getBody();
+          expect(body).not.to.have.property("data");
+          expect(body).not.to.have.property("statusCode");
+          expect(body.pageSize).to.equal(1000);
+          expect(body.page).to.equal(1);
+          expect(body).to.have.property("total");
+          expect(body.examples).to.be.an("array");
+          expect(body.total).to.be.a("number").and.to.be.at.least(body.examples.length);
+          expect(body.examples.length).to.be.at.most(body.pageSize);
+          if (body.examples.length > 0) {
+            expect(body.examples[0]).to.have.property("uuid");
+            expect(body.examples[0]).to.have.property("lookupKey");
+            expect(body.examples[0]).to.have.property("lookupValue");
+            expect(body.examples[0]).to.have.property("details");
+            expect(body.examples[0].details).to.be.an("object");
+            expect(body.examples[0]).to.have.property("createdAt");
+          }
+          const created = body.examples.find(entry => entry.lookupKey === bru.getVar("example-key"));
+          expect(created).to.exist;
+          expect(created.details.label).to.equal("A & B <tag>");
+          expect(created.details.heroImage).to.deep.equal({path: "hero.png"});
+          expect(created.details).not.to.have.property("heroImageUrl");
+        });

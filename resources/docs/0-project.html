@@ -869,13 +869,14 @@ composer run start-apis</code></pre>
                 </article>
                 <article class="card">
                     <h3>Bruno collection</h3>
-                    <p>Requests under <code>resources/bruno/example-api</code> cover 18 documented Example API operations against a selected environment.</p>
+                    <p>Requests under <code>resources/bruno/example-api</code> cover 21 documented Example API operations against a selected environment.</p>
                 </article>
             </div>
             <p>Every new operation supports <code>Accept-Language</code>, <code>The-Timezone-IANA</code>, <code>X-Request-Id</code>, and <code>X-Source-Id</code>.</p>
             <pre><code>composer run generate-example-api-spec
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
-bin/bruno example-api local</code></pre>
+python3 tests/Security/identity_http.py --bruno</code></pre>
+            <p>The <a href="../platform/operations/identity-security-checks.md#bruno-contract-checks">disposable Bruno runner</a> supplies fixtures and executes all 52 operations across three APIs.</p>
         </section>
 
         <section id="console">
@@ -912,7 +913,7 @@ bin/bruno example-api local</code></pre>
                         <tr><td>Documentation links</td><td><code>composer docs:check-links</code></td><td>Local HTML and Markdown targets plus HTML fragments</td></tr>
                         <tr><td>Report metrics</td><td><code>composer reports:check</code></td><td>JUnit, Clover, and repository-inventory values</td></tr>
                         <tr><td>OpenAPI validation</td><td><code>php-openapi validate</code></td><td>Generated contract structure</td></tr>
-                        <tr><td>API E2E</td><td><code>bin/bruno example-api local</code></td><td>Running API and local data</td></tr>
+                        <tr><td>API E2E</td><td><code>python3 tests/Security/identity_http.py --bruno</code></td><td>Prepared disposable MySQL and Redis</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1001,7 +1002,7 @@ bin/doctrine migrations:migrate --no-interaction
 # Contract and E2E
 composer run generate-example-api-spec
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
-bin/bruno example-api local
+python3 tests/Security/identity_http.py --bruno
 
 # Quality
 composer test

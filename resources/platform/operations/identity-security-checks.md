@@ -4,6 +4,9 @@ Use dedicated disposable MySQL and Redis services.
 The HTTP suite creates and removes one uniquely named MySQL database.
 It leaves short-lived Redis verification counters and session records in the disposable Redis service.
 Do not run this suite against shared application services.
+Start with a fresh disposable Redis service for each complete verification sequence.
+Repeated runs can reach the normal twenty-send hourly limit for the loopback caller.
+Recreate only the owned disposable service before repeating the sequence. Read its assigned port again.
 
 Set `BACKENDBASE_SERVICE_TESTS=1` only after identifying the prepared targets.
 Set `BACKENDBASE_TEST_MYSQL_PORT` and `BACKENDBASE_TEST_MYSQL_PASSWORD` for the loopback MySQL root connection.
@@ -50,6 +53,30 @@ The suite writes operation statuses and probe categories to `artifacts/identity-
 It writes sanitized ZAP reports and scan scope to `artifacts/zap-identity`.
 The security workflow retains these artifacts for 30 days.
 ZAP authentication tokens are removed from retained reports.
+
+## Bruno contract checks
+
+Use the prepared disposable MySQL and Redis targets for complete consumer verification:
+
+```sh
+python3 tests/Security/identity_http.py --bruno
+```
+
+Install Bruno CLI 4.0.0, matching the security workflow. The runner rejects another version.
+The runner executes the maintained requests and their assertions across all three collections.
+It supplies private temporary environment values and uses a separate Account for each API lifecycle.
+It retrieves contact codes from the private notifier sink and waits for the normal resend cooldown.
+Resend runs before confirmation. Registration runs after the required mobile proof.
+Login precedes protected requests. Fresh login separates token revocation, logout, and Account closure.
+The Admin invitation captures its actor identifier for approval, removal, and history checks.
+Account closure runs after the Example and administration operations.
+
+The coverage gate requires every maintained HTTP request file to have a passing result and a recorded passing contract test.
+Each response assertion script uses a named Bruno test so the report records its result.
+It retains per-phase HTML, JSON, and sanitized logs under `artifacts/bruno-verification`.
+Reports omit all headers and request and response bodies. Runtime credentials remain in the temporary application directory.
+The runner removes its database and temporary application when execution ends. Remove the disposable services after all checks finish.
+The security workflow runs this sequence and retains its sanitized reports with the other HTTP evidence.
 
 ## ExampleApi checks
 

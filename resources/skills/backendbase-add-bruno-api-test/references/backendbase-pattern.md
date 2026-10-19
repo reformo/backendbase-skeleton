@@ -34,8 +34,10 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(200);
-        expect(res.getBody()).to.have.property("item");
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(200);
+          expect(res.getBody()).to.have.property("item");
+        });
 ```
 
 Add all required headers from variables. Add token acquisition only when the target provides that flow. A write request also needs a safe uniqueness or cleanup plan.
@@ -53,6 +55,7 @@ For each request, compare:
 - Documented error behavior that the lifecycle intentionally covers.
 
 A passing Bruno request proves only the assertions it contains. It does not prove full OpenAPI conformance. Keep focused PHPUnit boundary and security tests for invalid input and failure branches.
+Require named test results in the retained report. A request result alone does not establish that the report contains contract-test evidence.
 
 ## Repeatable writes and cleanup
 

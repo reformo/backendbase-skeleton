@@ -242,6 +242,15 @@ def operation_results(operation, results):
             and result["method"] == operation["method"] and re.fullmatch(pattern, result["path"])]
 
 
+def verify_http(client):
+    if "--bruno" in sys.argv:
+        from bruno_http import exercise_bruno
+        exercise_bruno(client)
+        return
+    exercise(client)
+    record_coverage(client)
+
+
 def main():
     environment = dict(os.environ)
     assert environment.get("BACKENDBASE_SERVICE_TESTS") == "1", "Prepared disposable services are required."
@@ -272,8 +281,7 @@ def main():
                         except OSError:
                             time.sleep(0.1)
                     client = IdentityClient(f"http://127.0.0.1:{port}", directory, suffix)
-                    exercise(client)
-                    record_coverage(client)
+                    verify_http(client)
                     if "--scan" in sys.argv:
                         from identity_zap import scan
                         environment["BACKENDBASE_HTTP_FIXTURE_SUFFIX"] = str(secrets.randbelow(900000000) + 100000000)

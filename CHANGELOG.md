@@ -10,7 +10,9 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
-- Extend live security checks to all 52 operations and all 38 writes. Add malformed-input, authentication, cross-account contact, and replay probes. Run authenticated ZAP scans for all three APIs. Record zero-skip native regressions and clean pinned scan results. Set Security verification to 9.5/10, engineering quality to 9.4/10, and architecture to 9.4/10. Keep deployment durability unverified.
+- Execute all three maintained Bruno collections on disposable local services. Pass all 52 operations through 58 requests and 58 named tests. Capture the invited Admin actor identifier for subsequent requests. Add a repeatable fixture runner and retain sanitized reports in the security workflow. Set Public API contracts to 10/10 and engineering quality to 9.5/10 from 94.5/100 points. Synchronize reports and request guidance without revision identifiers or historical results.
+
+- Extend live security checks to all 52 operations and all 38 writes. Add malformed-input, authentication, cross-account contact, and replay probes. Run authenticated ZAP scans for all three APIs. Record zero-skip native regressions and clean pinned scan results. Set Security verification to 9.5/10 and architecture to 9.4/10. Keep deployment durability unverified.
 
 - Verify all 141 locked packages through a clean uncached installation with plugins and scripts disabled. Confirm committed content digests and the software bill of materials without regeneration. Record successful Composer diagnosis, strict validation, and an advisory audit with no advisories or abandoned packages. Set Dependency integrity to 10/10.
 

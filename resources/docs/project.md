@@ -375,7 +375,7 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 
 ## Current Assessment
 
-The [engineering assessment](code-quality-and-maintainability-report.html) scores current source quality at **9.4/10** from 94/100 points.
+The [engineering assessment](code-quality-and-maintainability-report.html) scores current source quality at **9.5/10** from 94.5/100 points (9.45/10 before rounding).
 The [architecture assessment](ports-and-adapters-critique.html) scores dependency and design criteria at **9.4/10** from 75.5/80 points.
 Both reports state criterion weights, evidence, deductions, and execution limits.
 
@@ -390,6 +390,8 @@ It records 72,662 assertions, no failures or errors, and 100% executable-line an
 PHPStan level 8, complexity, coding standards, API validation, and temporary deployment fixtures pass.
 Dependency integrity scores **10/10**. All 141 pristine packages match committed content digests and the software bill of materials.
 Isolated Composer diagnosis, strict validation, and the current advisory audit pass. No advisories or abandoned packages are reported.
+The Public API contracts score is **10/10**. All 52 maintained Bruno operations pass through 58 requests and 58 named tests.
+Reports exclude headers and bodies. The disposable fixtures and services are removed.
 Security verification scores **9.5/10**. Native MySQL, Redis, and Sentinel tests pass.
 Live checks cover 52 operations and all 38 writes. Semgrep and authenticated ZAP scans for three APIs pass.
 Deployment durability and production acceptance remain unverified.

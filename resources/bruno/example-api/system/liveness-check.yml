@@ -20,5 +20,7 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(200);
-        expect(res.getBody()).to.deep.equal({ status: "alive" });
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(200);
+          expect(res.getBody()).to.deep.equal({ status: "alive" });
+        });

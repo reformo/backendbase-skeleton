@@ -129,14 +129,16 @@ jobs:
           composer validate-identity-api-specs
           vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 
-      - name: Verify identity HTTP boundaries and authenticated scans
+      - name: Verify live API boundaries, authenticated scans, and Bruno collections
         env:
           BACKENDBASE_SERVICE_TESTS: '1'
           BACKENDBASE_TEST_MYSQL_PORT: '3306'
           BACKENDBASE_TEST_MYSQL_PASSWORD: backendbase_ci_root
           BACKENDBASE_TEST_REDIS_PORT: '6379'
           BACKENDBASE_TEST_REDIS_PASSWORD: ''
-        run: python3 tests/Security/identity_http.py --scan
+        run: |
+          python3 tests/Security/identity_http.py --scan
+          python3 tests/Security/identity_http.py --bruno
 
       - name: Upload identity verification evidence
         if: always()
@@ -145,6 +147,7 @@ jobs:
           name: identity-http-security-${{ github.sha }}
           path: |
             artifacts/identity-http.json
+            artifacts/bruno-verification
             artifacts/zap-identity
           if-no-files-found: error
           retention-days: 30

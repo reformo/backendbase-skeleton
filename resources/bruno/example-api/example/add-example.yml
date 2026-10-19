@@ -49,4 +49,6 @@ runtime:
   scripts:
     - type: "tests"
       code: |
-        expect(res.status).to.equal(204);
+        test("Response matches the API contract", function () {
+          expect(res.status).to.equal(204);
+        });
