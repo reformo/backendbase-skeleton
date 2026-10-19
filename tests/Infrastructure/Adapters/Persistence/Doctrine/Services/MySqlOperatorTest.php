@@ -21,8 +21,6 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\BackendbaseAbstract
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
 use Backendbase\Migrations\Version20260823000000;
 use Backendbase\Migrations\Version20261014020000;
-use Backendbase\Migrations\Version20261017000000;
-use Backendbase\Migrations\Version20261017010000;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
@@ -48,7 +46,7 @@ final class MySqlOperatorTest extends TestCase
         $fixture = IsolatedMySql::create(false);
         try {
             $connection = $fixture->connection();
-            foreach ([Version20260823000000::class, Version20261014020000::class, Version20261017000000::class, Version20261017010000::class] as $class) {
+            foreach ([Version20260823000000::class, Version20261014020000::class] as $class) {
                 $this->apply($connection, new $class($connection, new NullLogger()));
             }
 

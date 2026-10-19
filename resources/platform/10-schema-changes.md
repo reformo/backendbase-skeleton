@@ -37,26 +37,23 @@ Migration-history rewrites require a separate adoption plan for databases that a
 
 ## Current migration history
 
-The migration history contains three consolidated installation migrations, two forward naming migrations, and one HTTP replay migration:
+The migration history contains four installation migrations. They create eleven application tables directly with their final names:
 
 | Migration | Final schema |
 | --- | --- |
-| `Version20260823000000` | Outbox, inbox, delivery failures, replay and resolution evidence, destinations, and cleanup indexes |
+| `Version20260823000000` | Outbox, inbox, delivery failures, replay and resolution evidence, destinations, final claim and failure column names, and cleanup indexes |
 | `Version20260823215059` | Example binary UUID keys, virtual public UUIDs, versions, microsecond timestamps, active uniqueness, and query indexes |
-| `Version20261014020000` | Account with required email and mobile active keys, nullable first/last names, and required `password_hash VARCHAR(255)`; User, Admin, and contact verification tables |
-| `Version20261017000000` | Remove `identity_` from Account, User, and Admin table and index names; preserve rows, columns, and index definitions |
-| `Version20261017010000` | Rename contact verification, claim expiry, and failure type without changing stored values |
-| `Version20261018000000` | Add durable HTTP replay claims, encrypted responses, and an expiry index |
+| `Version20261014020000` | `account` with required email and mobile active keys, nullable first/last names, and required `password_hash VARCHAR(255)`; `user`, `admin`, and `contact_verification` tables |
+| `Version20261018000000` | Durable HTTP replay claims, encrypted responses, and an expiry index |
 
 The release manifest pins `Version20261018000000`. Application-only rollback remains unsafe because older applications require the former table and column names.
-Messaging and identity installation rollbacks reject removal of their retained evidence.
+Messaging, identity, and HTTP replay installation rollbacks reject removal of their retained evidence.
 Example rollback drops its table only through an explicitly authorized operation.
 Fresh installation creates no Example shadow or legacy table and performs no copy or rename.
 See [migration consolidation and adoption](operations/migration-consolidation.md).
 
-The former recovery, Example conversion, and query-index migrations have been incorporated into these installations.
+The former recovery, Example conversion, query-index, and naming migrations have been incorporated into these installations.
 Do not rerun consolidated installation migrations on an existing database.
-The naming migration supports an existing database at the exact `Version20261014020000` consolidated schema after target review.
 Existing databases require a separate adoption plan based on their schema, data, and recorded versions.
 Do not delete data or mark versions executed without verifying every consolidated object.
 
@@ -65,42 +62,27 @@ Basis: `resources/docs/9-persistence-and-database.html`, `resources/docs/12-depl
 The CLI keeps migration metadata visible to migration status and execution.
 ORM validation excludes that technical table. The diff command filters business tables after migration status checks.
 
-## Remove bounded-context table prefixes
+## Final installation names
 
-`Version20261017000000` renames `identity_account` to `account`, `identity_user` to `user`, and `identity_admin` to `admin`.
-It removes the same prefix from four index names. Index columns, column order, and uniqueness stay unchanged.
-`contact_verification`, `example_table`, and infrastructure messaging and recovery tables stay unchanged.
+The identity installation creates `account`, `user`, `admin`, and `contact_verification` with their final index names.
 The corresponding mapped classes are `Account`, `User`, and `Admin`. Use explicit aliases when domain classes have the same names.
 Quote the `admin` identifier in SQL and ORM metadata because the MySQL keyword catalog includes it.
 The Doctrine CLI uses `MappedTableFilter` for schema discovery and migration diffs. It accepts plain, MySQL-quoted, and DBAL-quoted names.
 
-Each table and its indexes change in one ALTER statement. Missing source names or existing target names make that statement fail.
-The three statements are not one transaction. Review target names, existing indexes, schema parity, backup, and lock impact before execution.
-Stop application traffic and workers that access these tables during migration and application activation. Mixed application versions are incompatible.
-After partial failure, inspect each table and index name. Complete only the unapplied statements under the recovery plan.
-Do not rerun the entire migration after partial success without reconciling the actual state.
-The reverse migration preserves rows but requires the matching older application and separate target authorization.
-Keep `application-rollback-safe` false. An application-only rollback cannot use the renamed tables.
-Clear Doctrine metadata and proxy caches during deployment.
-
-Offline SQL and SQLite tests do not prove MySQL ALTER execution. Verify native migration, uniqueness, and ORM parity on a prepared MySQL 8.4 target.
-
-## Remaining naming migration
-
-`Version20261017010000` follows the prefix-removal migration. It renames `contact_info` to `contact_verification` and its context-slot index.
-It renames the outbox and inbox claim expiry columns to `claim_expires_at`.
-The outbox `last_error` column becomes `last_failure_type`. It continues to store a failure type, not an error message.
+The messaging installation creates `claim_expires_at` directly in the outbox and inbox, including their indexes.
+The outbox creates `last_failure_type` directly. It stores a failure type, not an error message.
 The contact Doctrine entity is `ContactVerification`. Public contact response fields keep their released names.
-All existing values, column types, defaults, index column order, uniqueness, and identifiers stay unchanged.
 
-The three MySQL ALTER statements are non-transactional. Review all source and target names before execution.
-After partial execution, inspect each affected object before choosing forward repair or the reviewed reverse migration.
-The previous application cannot use the renamed objects. Keep application-only rollback disabled.
-A fresh database runs all six migrations in order. Existing databases must satisfy the earlier adoption and recovery gates.
+Fresh installation performs no ALTER, rename, backfill, or data copy.
+Column types, defaults, index column order, uniqueness, and identifiers match the former history's final schema.
+A fresh database runs all four migrations in order. Existing databases require a separate adoption plan, including earlier consolidated installations.
+The version identifier alone does not establish schema equivalence because the installation definitions have changed.
+After partial failure, inspect completed tables and indexes before choosing recovery. MySQL table creation is non-transactional.
+Offline SQL and SQLite tests do not prove native MySQL execution. Verify migration, uniqueness, and ORM parity on a prepared MySQL 8.4 target.
 
 ## Operator history
 
-Installation and naming migrations omit `operator_action` and its indexes. There is no operator table creation, rename, or drop migration.
+Installation migrations omit `operator_action` and its indexes. There is no operator table creation, rename, or drop migration.
 Admin state retains invitation and approval evidence. Operator setup and manual seeding use the same database-scoped MySQL advisory lock.
 
 This migration-history rewrite does not change an existing database.

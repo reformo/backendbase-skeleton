@@ -10,8 +10,6 @@ use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Outbox\DoctrineOutb
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Migrations\Version20260823000000;
 use Backendbase\Migrations\Version20261014020000;
-use Backendbase\Migrations\Version20261017000000;
-use Backendbase\Migrations\Version20261017010000;
 use Backendbase\Shared\Persistence\ExternalEffectResolution;
 use Backendbase\Shared\Persistence\RecoveryEvidence;
 use DateTimeImmutable;
@@ -37,7 +35,7 @@ final class MySqlRecoveryTest extends TestCase
         $fixture = IsolatedMySql::create(false);
         try {
             $connection = $fixture->connection();
-            foreach ([Version20260823000000::class, Version20261014020000::class, Version20261017000000::class, Version20261017010000::class] as $class) {
+            foreach ([Version20260823000000::class, Version20261014020000::class] as $class) {
                 $migration = new $class($connection, new NullLogger());
                 $migration->up(new Schema());
                 $queries = $migration->getSql();

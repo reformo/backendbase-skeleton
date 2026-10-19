@@ -22,7 +22,7 @@ use function str_replace;
 
 final class IdentityContactSchemaTest extends TestCase
 {
-    public function testInstallationAndPrefixRemovalMatchProductionMappingsAndIndexes(): void
+    public function testInstallationMatchesProductionMappingsAndIndexes(): void
     {
         require 'config/doctrine-types.php';
         $connection    = DriverManager::getConnection(['driver' => 'pdo_mysql', 'serverVersion' => '8.4.0']);
@@ -62,7 +62,7 @@ final class IdentityContactSchemaTest extends TestCase
         self::assertFalse($schema->hasTable('identity_challenge'));
         $migration = new Version20261014020000($connection, new NullLogger());
         $migration->up(new Schema());
-        $statements = array_map(static fn (Query $query): string => str_replace(['`', 'identity_account', 'identity_user', 'identity_admin', 'identity_operator', 'contact_info'], ['', 'account', 'user', 'admin', 'operator', 'contact_verification'], $query->getStatement()), $migration->getSql());
+        $statements = array_map(static fn (Query $query): string => str_replace('`', '', $query->getStatement()), $migration->getSql());
         foreach (new SchemaTool($manager)->getCreateSchemaSql($metadata) as $statement) {
             self::assertContains(str_replace('`', '', $statement), $statements);
         }

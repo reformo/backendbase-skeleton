@@ -85,7 +85,8 @@ All 63 previously skipped identities pass: 32 MySQL, 23 standalone Redis, and ei
 The added native HTTP replay case also passes. Deployment, rollback, and fresh-installation fixtures pass.
 PHPStan level 8, complexity, and coding standards pass.
 
-Fresh-installation dry-run and execution reach `Version20261018000000` through all six migrations.
+That run verified fresh-installation dry-run and execution through the former six-migration history to `Version20261018000000`.
+The current four-migration history passed [native MySQL verification on 19 October 2026](migration-consolidation.md#native-verification-on-19-october-2026).
 Existing replay tables reject repeated creation. Two independent MySQL connections verify active-request rejection and completed response replay.
 Native HTTP tests verify encrypted responses, changed-body rejection, fixed expiry, and cleanup.
 Unresolved claims remain blocked after advancing the test clock by 30 days.

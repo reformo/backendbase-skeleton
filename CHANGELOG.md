@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Consolidate fresh installation into four migrations for messaging, Example, identity, and HTTP replay. Create final names directly and remove both naming migrations and their obsolete tests. Preserve the final eleven-table schema, release target, and rollback safeguards. Update tests, quality metrics, and existing-database adoption guidance. Verify fresh installation and Doctrine schema parity on temporary MySQL 8.4.11, with seven native cases passing and all temporary resources removed.
+
 - Update the IdentityAndAccess HTML guide with the latest recorded isolated test totals, service cases, and coverage. Preserve the earlier live HTTP verification scope.
 
 - Require kebab-case for project-owned configuration keys and file names. Rename runtime providers, nested settings, subscriber registrations, and release policy keys. Update consumers, tests, and documentation. Preserve external option names, environment variables, public payloads, and generated deployment contracts.

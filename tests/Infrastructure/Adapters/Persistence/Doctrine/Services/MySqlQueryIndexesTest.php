@@ -7,8 +7,6 @@ namespace Tests\Infrastructure\Adapters\Persistence\Doctrine\Services;
 use Backendbase\Migrations\Version20260823000000;
 use Backendbase\Migrations\Version20260823215059;
 use Backendbase\Migrations\Version20261014020000;
-use Backendbase\Migrations\Version20261017000000;
-use Backendbase\Migrations\Version20261017010000;
 use Backendbase\Migrations\Version20261018000000;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Schema;
@@ -38,7 +36,7 @@ final class MySqlQueryIndexesTest extends TestCase
 
     private function assertMigration(Connection $connection): void
     {
-        foreach ([Version20260823000000::class, Version20260823215059::class, Version20261014020000::class, Version20261017000000::class, Version20261017010000::class, Version20261018000000::class] as $class) {
+        foreach ([Version20260823000000::class, Version20260823215059::class, Version20261014020000::class, Version20261018000000::class] as $class) {
             $migration = new $class($connection, new NullLogger());
             self::assertFalse($migration->isTransactional());
             $migration->up(new Schema());

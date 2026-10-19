@@ -46,6 +46,8 @@ final class ConsolidatedSchemaMigrationTest extends TestCase
         foreach ($tables as $position => $table) {
             self::assertStringStartsWith('CREATE TABLE ' . $table . ' (', $statements[$position]);
         }
+
+        self::assertFalse($connection->isConnected());
     }
 
     /** @return iterable<string, array{class-string<BackendbaseAbstractMigration>, list<string>}> */
@@ -53,14 +55,15 @@ final class ConsolidatedSchemaMigrationTest extends TestCase
     {
         yield 'messaging' => [Version20260823000000::class, ['integration_event_outbox', 'integration_event_inbox', 'integration_event_delivery_failure', 'external_effect_resolution', 'integration_event_replay']];
         yield 'example' => [Version20260823215059::class, ['example_table']];
-        yield 'identity' => [Version20261014020000::class, ['identity_admin', 'identity_user', 'contact_info', 'identity_account']];
+        yield 'identity' => [Version20261014020000::class, ['`admin`', 'user', 'contact_verification', 'account']];
+        yield 'http replay' => [Version20261018000000::class, ['http_request_replay']];
     }
 
     public function testReleasePinsTheLatestMigrationAfterTheInstallations(): void
     {
         $files = glob('resources/database/Migrations/Version*.php');
         self::assertIsArray($files);
-        self::assertSame(['Version20260823000000.php', 'Version20260823215059.php', 'Version20261014020000.php', 'Version20261017000000.php', 'Version20261017010000.php', 'Version20261018000000.php'], array_map(basename(...), $files));
+        self::assertSame(['Version20260823000000.php', 'Version20260823215059.php', 'Version20261014020000.php', 'Version20261018000000.php'], array_map(basename(...), $files));
         $source = file_get_contents('deployment/release.json');
         self::assertIsString($source);
         $release = json_decode($source, true, flags: JSON_THROW_ON_ERROR);

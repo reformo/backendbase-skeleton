@@ -122,7 +122,8 @@ Offline SQL review and SQLite evidence do not establish native MySQL execution o
 
 The 18 October 2026 isolated run verifies native execution on MySQL 8.4.11 and Redis 8.10.2.
 All 63 previously skipped cases and the added native HTTP replay case pass within the 1,422-test suite, with zero skips.
-Fresh-installation dry-run and execution include all six migrations. Existing replay tables reject repeated creation.
+That run verified fresh-installation dry-run and execution through the former six-migration history. Existing replay tables reject repeated creation.
+The current four-migration history passed [native MySQL verification on 19 October 2026](migration-consolidation.md#native-verification-on-19-october-2026).
 Replay lookup uses `PRIMARY`. Ordered cleanup uses `http_request_replay_expiry_idx` on 1,000 generated rows.
 Live identity requests verify 33 unchanged response replays, 21 changed-body rejections, and six revoked-credential rejections.
 All generated services are removed. See [recorded native evidence](identity-acceptance.md#latest-isolated-regression-evidence).

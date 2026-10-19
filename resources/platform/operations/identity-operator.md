@@ -90,7 +90,7 @@ Account passwords use the scalar `account.password_hash` column. Invitation and 
 
 ## Schema history
 
-Installation and naming migrations omit the operator history table and its indexes.
+Installation migrations omit the operator history table and its indexes.
 Admin state retains invitation and approval references. No migration creates or drops a separate operator table.
 Existing databases that used earlier history require a reviewed [adoption plan](migration-consolidation.md#existing-database-adoption).
 Compare their actual schema and executed migration versions before any separately authorized changes.

@@ -60,9 +60,8 @@ The Account primary key supports this join. Historical reads do not acquire writ
 
 ## Adoption gates
 
-The three consolidated installation migrations support fresh installations only.
-`Version20261017000000` then removes the `identity_` table and index prefixes without changing stored rows.
-An existing database already at the exact consolidated schema can apply this forward migration after target review.
+The four installation migrations support fresh installations only. They create all eleven application tables with final names directly.
+Existing databases require separate schema and version-record adoption, including databases that ran earlier consolidated installation definitions.
 See [migration adoption](operations/migration-consolidation.md) before using an existing database.
 Inventory actual target tables, references, existing identifiers, collations, and migration history before deployment.
 Compare known old IdentityAndAccess artifacts with this table list. Do not adopt unknown rows or sessions automatically.

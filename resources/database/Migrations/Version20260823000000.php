@@ -33,11 +33,11 @@ final class Version20260823000000 extends BackendbaseAbstractMigration
             . 'available_at DATETIME(6) NOT NULL, '
             . 'published_at DATETIME(6) DEFAULT NULL, '
             . 'attempts INT UNSIGNED DEFAULT 0 NOT NULL, '
-            . 'last_error VARCHAR(255) DEFAULT NULL, '
+            . 'last_failure_type VARCHAR(255) DEFAULT NULL, '
             . 'claim_token CHAR(36) DEFAULT NULL, '
-            . 'claim_until DATETIME(6) DEFAULT NULL, '
+            . 'claim_expires_at DATETIME(6) DEFAULT NULL, '
             . 'INDEX integration_event_outbox_pending_idx '
-            . '(published_at, available_at, claim_until, created_at), '
+            . '(published_at, available_at, claim_expires_at, created_at), '
             . 'PRIMARY KEY (id)'
             . ') DEFAULT CHARACTER SET utf8mb4',
         );
@@ -48,10 +48,10 @@ final class Version20260823000000 extends BackendbaseAbstractMigration
             . 'event_name VARCHAR(190) NOT NULL, '
             . 'received_at DATETIME(6) NOT NULL, '
             . 'processed_at DATETIME(6) DEFAULT NULL, '
-            . 'claimed_until DATETIME(6) DEFAULT NULL, '
+            . 'claim_expires_at DATETIME(6) DEFAULT NULL, '
             . 'claim_token CHAR(36) DEFAULT NULL, '
             . 'INDEX integration_event_inbox_processed_idx (processed_at), '
-            . 'INDEX integration_event_inbox_claim_idx (claimed_until), '
+            . 'INDEX integration_event_inbox_claim_idx (claim_expires_at), '
             . 'INDEX integration_event_inbox_message_processed_idx (message_id, processed_at), '
             . 'PRIMARY KEY (consumer_name, message_id)'
             . ') DEFAULT CHARACTER SET utf8mb4',

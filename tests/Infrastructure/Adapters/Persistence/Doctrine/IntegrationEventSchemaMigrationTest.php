@@ -49,12 +49,15 @@ final class IntegrationEventSchemaMigrationTest extends TestCase
         self::assertStringContainsString('integration_event_inbox_message_processed_idx (message_id, processed_at)', $statements[1]);
         self::assertStringContainsString('integration_event_delivery_failure_message_terminal_idx (message_id, dead_lettered_at)', $statements[2]);
         self::assertStringContainsString('claim_token CHAR(36) DEFAULT NULL', $statements[0]);
+        self::assertStringContainsString('last_failure_type VARCHAR(255) DEFAULT NULL', $statements[0]);
+        self::assertStringContainsString('claim_expires_at DATETIME(6) DEFAULT NULL', $statements[0]);
+        self::assertStringContainsString('claim_expires_at DATETIME(6) DEFAULT NULL', $statements[1]);
         self::assertStringContainsString(
-            'integration_event_outbox_pending_idx (published_at, available_at, claim_until, created_at)',
+            'integration_event_outbox_pending_idx (published_at, available_at, claim_expires_at, created_at)',
             $statements[0],
         );
         self::assertStringContainsString('integration_event_inbox_processed_idx (processed_at)', $statements[1]);
-        self::assertStringContainsString('integration_event_inbox_claim_idx (claimed_until)', $statements[1]);
+        self::assertStringContainsString('integration_event_inbox_claim_idx (claim_expires_at)', $statements[1]);
         self::assertStringContainsString(
             'integration_event_delivery_failure_dead_lettered_idx (dead_lettered_at)',
             $statements[2],
