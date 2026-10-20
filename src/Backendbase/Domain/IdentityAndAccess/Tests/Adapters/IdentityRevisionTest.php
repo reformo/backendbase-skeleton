@@ -27,7 +27,7 @@ final class IdentityRevisionTest extends TestCase
             ? User::create($actorId, $accountId, $now)
             : SystemAdmin::invite($actorId, $accountId, 'invitation', $now);
         $record    = $actor instanceof User ? UserRecord::create($actor) : AdminRecord::create($actor);
-        $before    = $actor->snapshot();
+        $before    = $actor->snapshot()->toArray();
         $stale     = $actor instanceof User
             ? new User($actorId, [...$before, 'revision' => 2, 'approved' => false])
             : new SystemAdmin($actorId, [...$before, 'revision' => 2, 'approved' => false]);
@@ -39,7 +39,7 @@ final class IdentityRevisionTest extends TestCase
         }
 
         $unchanged = $record->toDomain();
-        self::assertSame($before, $unchanged->snapshot());
+        self::assertSame($before, $unchanged->snapshot()->toArray());
     }
 
     /** @return iterable<string, array{Realm}> */

@@ -14,6 +14,7 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Read legacy Account state without `registrationAccepted` by deriving acceptance from its validated `ownershipVerified` value. Do not rewrite records during reads.
 - Apply the [default JSON column policy](../../../../resources/platform/09-persistence.md#json-column-policy) to identity state without a mapping exception.
 - Represent identity JSON state with immutable `AccountState`, `ActorState`, and `ContactState` classes under `Domain/Primitives`.
+- Keep aggregate state in validated immutable snapshots. Keep eligibility, contact membership, and approval decisions on aggregates.
 - Keep Doctrine state fields as arrays. Use typed `state()` reads and `replaceState()` writes with explicit `fromArray()` and `toArray()` conversion.
 - Reject missing, mistyped, and unknown state fields. Keep storage serialization out of public responses and diagnostic logs.
 - Require email and mobile input before User registration. Apply independent mobile and email proof requirements from the deployment policy. Default to required mobile and optional email.

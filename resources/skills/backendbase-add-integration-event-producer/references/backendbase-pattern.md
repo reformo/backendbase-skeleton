@@ -63,9 +63,9 @@ final class InvoiceIssued implements IntegrationEvent
 
     use IntegrationEventTrait;
 
-    public function __construct(private readonly InvoiceIssuedPayload $payload)
+    public function __construct(private readonly InvoiceIssuedPayload $payload, DateTimeImmutable $occurredOn)
     {
-        $this->occurredOn = new DateTimeImmutable();
+        $this->occurredOn = $occurredOn;
     }
 
     public function eventName(): string
@@ -86,7 +86,8 @@ final class InvoiceIssued implements IntegrationEvent
 }
 ```
 
-Adapt trait initialization to the target. Backendbase uses its project clock helper.
+Adapt trait initialization to the target. Backendbase requires an explicit instant from the application `Clock` port.
+Keep event time separate from outbox creation time. Preserve exact microseconds through persistence.
 
 ## Command-handler boundary
 
@@ -95,12 +96,14 @@ Return the payload from the transaction callback after authoritative reads and w
 ```php
 $this->integrationEventTransaction->execute(
     function () use ($invoice, $command): IntegrationEvent {
+        $clock = $this->clock;
+        $occurredOn = $clock->now();
         $this->invoiceRepository->save($invoice);
 
         return new InvoiceIssued(new InvoiceIssuedPayload(
             invoiceId: $command->invoiceId(),
             totalMinor: $command->totalMinor(),
-        ));
+        ), $occurredOn);
     },
 );
 ```

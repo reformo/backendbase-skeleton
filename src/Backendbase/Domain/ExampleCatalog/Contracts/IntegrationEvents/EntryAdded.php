@@ -7,7 +7,7 @@ namespace Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryAddedPayload;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventTrait;
-use Backendbase\Shared\Helpers\DateTimeImmutable;
+use DateTimeImmutable;
 
 final class EntryAdded implements IntegrationEvent
 {
@@ -17,9 +17,9 @@ final class EntryAdded implements IntegrationEvent
 
     public const string EVENT_TYPE = 'Example_NewExampleAdded';
 
-    public function __construct(private readonly EntryAddedPayload $payload)
+    public function __construct(private readonly EntryAddedPayload $payload, DateTimeImmutable $occurredOn)
     {
-        $this->occurredOn = DateTimeImmutable::create();
+        $this->occurredOn = $occurredOn;
     }
 
     public function eventName(): string

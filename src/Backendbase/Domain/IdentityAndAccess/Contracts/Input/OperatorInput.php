@@ -12,10 +12,9 @@ use function preg_match;
 
 final readonly class OperatorInput
 {
-    /** @var array{action: string, target: IdentityId, operator: string, invitation: string, approval: string} */
-    private array $values;
+    private IdentityId $target;
 
-    public function __construct(string $action, string $targetId, string $operator, string $invitation, string $approval)
+    public function __construct(public string $action, string $targetId, public string $operator, public string $invitation, public string $approval)
     {
         if (! in_array($action, ['invite-first-admin', 'approve-first-admin'], true)) {
             throw new InvalidArgumentException('Select a supported identity operator action.');
@@ -30,15 +29,14 @@ final readonly class OperatorInput
             self::evidence($approval);
         }
 
-        $this->values = ['action' => $action, 'target' => IdentityId::fromString($targetId), 'operator' => $operator, 'invitation' => $invitation, 'approval' => $approval];
+        $this->target = IdentityId::fromString($targetId);
     }
 
-    /** @return array{action: string, targetId: string, operator: string, invitation: string, approval: string} */
-    public function values(): array
+    public function targetId(): string
     {
-        $target = $this->values['target'];
+        $target = $this->target;
 
-        return ['action' => $this->values['action'], 'targetId' => $target->toString(), 'operator' => $this->values['operator'], 'invitation' => $this->values['invitation'], 'approval' => $this->values['approval']];
+        return $target->toString();
     }
 
     private static function evidence(string $value): void

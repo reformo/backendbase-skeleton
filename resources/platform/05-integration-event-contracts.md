@@ -11,6 +11,9 @@ An integration event is a versioned business fact. Its name, version, and payloa
 - Keep published event names stable.
 - Put producer payloads under `Contracts/IntegrationEvents/{Version}`.
 - Use explicit typed payload fields. Do not serialize aggregates or commands.
+- Require an explicit `DateTimeImmutable` occurrence time in each event constructor.
+- Read the application `Clock` inside the transaction after authoritative reads. Reuse the mutation instant for its related events.
+- Preserve that instant in `occurredOn()` and outbox `occurred_at`. Keep outbox `created_at` as the persistence instant.
 - Create a new version for an incompatible released payload change.
 - Keep old contracts while old messages can still exist.
 

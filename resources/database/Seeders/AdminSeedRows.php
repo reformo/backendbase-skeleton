@@ -7,8 +7,6 @@ namespace Backendbase\Seeders;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
-use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\AccountState;
-use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ActorState;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Ramsey\Uuid\Uuid;
@@ -34,13 +32,13 @@ final readonly class AdminSeedRows
         $connection->insert('account', [
             'id' => $identifier->getBytes(),
             'version' => 1,
-            'normalized_email' => $state['email'],
-            'normalized_mobile' => $state['mobile'],
-            'first_name' => $state['firstName'] ?? null,
-            'last_name' => $state['lastName'] ?? null,
-            'created_at' => $state['createdAt'],
+            'normalized_email' => $state->email,
+            'normalized_mobile' => $state->mobile,
+            'first_name' => $state->firstName ?? null,
+            'last_name' => $state->lastName ?? null,
+            'created_at' => $state->createdAt,
             'deleted_at' => null,
-            'state' => json_encode(AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion'], 'registrationAccepted' => $state['registrationAccepted']]), JSON_THROW_ON_ERROR),
+            'state' => json_encode($state->authentication, JSON_THROW_ON_ERROR),
             'password_hash' => password_hash($password->forHashing(), PASSWORD_ARGON2ID),
         ], ['id' => ParameterType::BINARY]);
         $actorId = $admin->id();
@@ -50,9 +48,9 @@ final readonly class AdminSeedRows
             'id' => $actor->getBytes(),
             'version' => 1,
             'account_id' => $identifier->getBytes(),
-            'created_at' => $state['createdAt'],
+            'created_at' => $state->createdAt,
             'deleted_at' => null,
-            'state' => json_encode(ActorState::fromArray(['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']]), JSON_THROW_ON_ERROR),
+            'state' => json_encode($state->authorization, JSON_THROW_ON_ERROR),
         ], ['id' => ParameterType::BINARY, 'account_id' => ParameterType::BINARY]);
     }
 }

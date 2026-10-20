@@ -20,9 +20,9 @@ final class CatalogItemDiscontinued implements DomainEvent
 {
     use DomainEventTrait;
 
-    public function __construct(private string $itemId)
+    public function __construct(private string $itemId, DateTimeImmutable $occurredOn)
     {
-        $this->initializeOccurredOn();
+        $this->initializeOccurredOn($occurredOn);
     }
 
     public function eventName(): string
@@ -83,7 +83,8 @@ A direct listener test proves listener behavior only. An architecture test prove
 ## Current source behavior and limitations
 
 - `ContainerAwareDomainEventPublisher` reads the first listener attribute and resolves that class from the container.
-- `AddEntryHandler` supplies its domain event to `EntryEventTransaction`. The wrapper publishes after `EntryWrites` persists the aggregate, inside `IntegrationEventTransaction`.
+- `AddEntryHandler` supplies an event factory to `EntryEventTransaction`. The wrapper creates and publishes the domain event after persistence, inside `IntegrationEventTransaction`.
+- The factory reuses the integration event occurrence time. `EntryWrites` obtains that instant from the application clock.
 - Publication is synchronous. Listener exceptions propagate to the caller.
 - `AddEntryHandlerTest` asserts that repository persistence and domain-event publication both occur before the transaction callback ends.
 - The listener does not require `ServiceProvider` subscriber metadata.

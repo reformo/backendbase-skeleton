@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Domain\ExampleCatalog\Contracts\DomainEvents\EntryAdded;
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandHandler;
+use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Override;
 
 readonly class AddEntryHandler implements CommandHandler
@@ -25,8 +26,7 @@ readonly class AddEntryHandler implements CommandHandler
         $writes      = $this->writes;
         $transaction = $this->transaction;
         $work        = static fn () => $writes->add($command);
-        $entryId     = $command->entryId();
-        $event       = new EntryAdded($entryId, $command);
-        $transaction->execute($work, $event);
+        $domainEvent = static fn (IntegrationEvent $event): EntryAdded => new EntryAdded($command, $event->occurredOn());
+        $transaction->execute($work, $domainEvent);
     }
 }

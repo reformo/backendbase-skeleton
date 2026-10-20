@@ -16,6 +16,7 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationScope;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ContactState;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Shared\Exception\InvalidUserInput;
@@ -32,9 +33,9 @@ final class ContactPolicyTest extends TestCase
         $contact->issue('first', 'first-hash', $now);
         $contact->issue('second', 'second-hash', $now);
         $contact->recordDelivery('first', 'accepted');
-        self::assertSame('pending', $contact->snapshot()['deliveryState']);
+        self::assertSame('pending', $contact->snapshot()->toArray()['deliveryState']);
         $contact->recordDelivery('second', 'unknown');
-        self::assertSame('unknown', $contact->snapshot()['deliveryState']);
+        self::assertSame('unknown', $contact->snapshot()->toArray()['deliveryState']);
     }
 
     public function testAConsumedProofCannotBeUsedAgain(): void
@@ -52,10 +53,10 @@ final class ContactPolicyTest extends TestCase
     {
         $contact = self::contact();
         $record  = Record::create($contact);
-        $state   = $contact->snapshot();
+        $state   = $contact->snapshot()->toArray();
         $state['revision']++;
         $this->expectException(IdentityConflict::class);
-        $record->synchronize(new ContactInfo(IdentityId::fromString($contact->id()), $state));
+        $record->synchronize(new ContactInfo(IdentityId::fromString($contact->id()), ContactState::fromArray($state)));
     }
 
     public function testAdminEvidenceMustHaveAnAccountAndActor(): void
@@ -81,7 +82,7 @@ final class ContactPolicyTest extends TestCase
     public function testUnknownActionsAreRejected(): void
     {
         $this->expectException(InvalidUserInput::class);
-        new ContactAttempt(['action' => 'delete', 'realm' => Realm::USER, 'contactId' => null, 'token' => new VerificationContextToken(ContactScenario::token()), 'client' => new VerificationClient('::1'), 'contact' => null, 'contactType' => null, 'code' => null, 'principal' => null, 'login' => null]);
+        new ContactAttempt(action: 'delete', realm: Realm::USER, contactId: null, token: new VerificationContextToken(ContactScenario::token()), client: new VerificationClient('::1'), contact: null, contactType: null, code: null, principal: null, login: null);
     }
 
     public function testPersistedAdminStateWithoutInvitationIsRejected(): void

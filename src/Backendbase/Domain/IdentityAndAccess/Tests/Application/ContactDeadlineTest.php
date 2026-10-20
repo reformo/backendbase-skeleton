@@ -55,7 +55,7 @@ final class ContactDeadlineTest extends TestCase
         try {
             $confirmed = $confirmation->confirm($contact->id(), $token, $scope, $code);
             self::assertSame('PT4M59S', $advance);
-            self::assertNotNull($confirmed->snapshot()['verifiedAt']);
+            self::assertNotNull($confirmed->snapshot()->toArray()['verifiedAt']);
         } catch (ContactVerificationExpired) {
             self::assertNotSame('PT4M59S', $advance);
             self::assertNull($fixture->connection()->fetchOne('SELECT verified_at FROM contact_verification'));

@@ -14,6 +14,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryAddedP
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareEventManager;
 use Backendbase\Infrastructure\Adapters\EventManager\ContainerAwareSubscriberRegistry;
 use Backendbase\Shared\Persistence\Outbox\IntegrationEventOutbox;
+use DateTimeImmutable;
 use DI\Container;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -35,7 +36,7 @@ final class ContainerAwareEventManagerTest extends TestCase
             [EntryAdded::EVENT_TYPE, 'Example_*'],
             EntryAddedSubscriber::class,
         );
-        $eventManager->dispatchEvent(new EntryRemoved('example-id'));
+        $eventManager->dispatchEvent(new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
         $eventManager->dispatchEvent(new EntryAdded(new EntryAddedPayload(
             'example-id',
             'system',
@@ -45,7 +46,7 @@ final class ContainerAwareEventManagerTest extends TestCase
             'key',
             'value',
             [],
-        )));
+        ), new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
 
         self::assertSame(2, $this->matchingLogCount($logHandler, 'EntryAddedSubscriber'));
         self::assertTrue($eventManager->hasSubscriber('Example_ExampleChanged'));
@@ -89,7 +90,7 @@ final class ContainerAwareEventManagerTest extends TestCase
         $eventManager->addEventSubscriber('Example_*', EntryAddedSubscriber::class);
         $eventManager->removeEventSubscriber('Example_*', EntryAddedSubscriber::class);
 
-        $eventManager->dispatchEvent(new EntryRemoved('example-id'));
+        $eventManager->dispatchEvent(new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
 
         self::assertSame(0, $this->matchingLogCount($logHandler, 'EntryAddedSubscriber'));
     }
@@ -130,7 +131,7 @@ final class ContainerAwareEventManagerTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
 
-        $eventManager->dispatchEvent(new EntryRemoved('example-id'));
+        $eventManager->dispatchEvent(new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
     }
 
     #[Test]

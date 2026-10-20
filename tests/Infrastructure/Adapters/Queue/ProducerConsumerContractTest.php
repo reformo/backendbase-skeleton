@@ -12,6 +12,7 @@ use Backendbase\Domain\ExampleCatalog\ServiceProvider;
 use Backendbase\Infrastructure\Adapters\Queue\ExternalIntegrationEventDispatcher;
 use Backendbase\Infrastructure\Adapters\Queue\InMemoryExternalIntegrationEventRegistry;
 use Backendbase\Shared\Services\EventManager\EventManager;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +30,7 @@ final class ProducerConsumerContractTest extends TestCase
             'page-size',
             '25',
             ['unit' => 'items'],
-        ));
+        ), new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         $eventManager = $this->createMock(EventManager::class);
         $eventManager->method('getSubscriber')->willReturn([
             'subscriber' => EntryAddedExternalSubscriber::class,

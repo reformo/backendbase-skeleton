@@ -16,6 +16,7 @@ Translate failures at architectural boundaries. Keep public error bodies stable 
 - The Example catch-all returns the five-field Problem Details core with `type: about:blank` and `application/problem+json`.
 - Successful response envelopes omit `statusCode`. This rule does not remove error `status` fields.
 - `ShutdownHandler` logs fatal PHP errors and emits a structured 500 response.
+- Warnings, notices, and deprecations do not trigger another response at shutdown. Normal PHP diagnostic logging remains active.
 - Stage, CI, production, and unknown environments hide internal exception details.
 
 Monolog uses channel `backendbase-app`. It writes `extra.trace_id` from `X-Request-Id` or a generated UUIDv7.

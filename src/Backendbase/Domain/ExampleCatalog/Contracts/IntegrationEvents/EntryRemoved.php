@@ -6,7 +6,7 @@ namespace Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents;
 
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventTrait;
-use Backendbase\Shared\Helpers\DateTimeImmutable;
+use DateTimeImmutable;
 
 class EntryRemoved implements IntegrationEvent
 {
@@ -16,9 +16,9 @@ class EntryRemoved implements IntegrationEvent
 
     public const string EVENT_TYPE = 'Example_ExampleRemoved';
 
-    public function __construct(private readonly string $entryId)
+    public function __construct(private readonly string $entryId, DateTimeImmutable $occurredOn)
     {
-        $this->occurredOn = DateTimeImmutable::create();
+        $this->occurredOn = $occurredOn;
     }
 
     public function eventName(): string

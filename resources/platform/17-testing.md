@@ -65,6 +65,10 @@ Repository adapter tests use isolated SQLite schemas where configured. Deploymen
 
 Run Bruno and other service-backed tests only against identified, prepared targets within existing authority. A local command name does not establish a disposable target. An approved migration draft does not authorize applying it.
 
+`ShutdownHandlerTest` verifies that native warnings, user warnings, notices, and deprecations preserve the response.
+It verifies fatal-error logging and safe responses with details enabled and disabled.
+The local deployment rehearsal checks concurrent cold startup and a packaged Redis outage through PHP-FPM and Nginx.
+
 ## Available commands
 
 ```sh
@@ -110,6 +114,8 @@ Credential tests cover scalar password-hash persistence, replacement, and closed
 Schema parity tests require `password_hash VARCHAR(255) NOT NULL` and reject the former `credentials` column.
 First-Admin tests run without an operator history table and retain invitation and approval evidence in Admin state.
 They cover preview, separate evidence, repeated approval, additional and removed Admin rows, and bootstrap rollback.
+`OperatorExecutionTest` uses production command and query dispatch to verify preview, clock use, committed identifiers, and failure without result publication.
+`CommandAndQueryContractsTest` verifies stable entry serialization, rejection before patch replacement, and null clearing of pending changes.
 Native MySQL tests verify fresh installation without operator history, first-Admin approval, and competing setup lock timeouts.
 SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.
 Native RedisJSON tests verify token and session objects, key-level TTL, automatic removal, unchanged claims, and existing string-record reads.
@@ -196,3 +202,38 @@ Adapter tests cover request matching, parallel attempts, encryption, storage fai
 Native MySQL replay checks remain opt-in and require a prepared target.
 `MySqlHttpReplayTest` verifies HTTP replay, conflicts, encryption, expiry, cleanup, and unresolved claims through independent MySQL connections.
 See [HTTP idempotency](operations/http-idempotency.md).
+
+## Runtime composition evidence
+
+`tests/Infrastructure/Composition/provider-factories.json` inventories 41 dynamic factories in all 13 dependency providers.
+Each provider lists its supported branches and executable evidence. `ProviderFactoryInventoryTest` rejects new or removed factories without an inventory update.
+Review branch coverage when a factory body changes. Matching the inventory alone does not prove behavior.
+
+`ProductionContainerFixture::configured()` loads the production configuration files and dependency providers with explicit fixture settings.
+Composition tests replace delivery clients at their network boundaries. They do not send external messages.
+
+| Factory selection | Executed evidence |
+| --- | --- |
+| SNS, Twilio, or Netgsm; SES or SMTP; push enabled or disabled | `NotificationCompositionTest` dispatches all 12 combinations through the configured container. |
+| SMTP encryption and authentication | `SmtpCompositionTest` checks plain, STARTTLS, and SMTPS transport settings, with and without credentials. |
+| Firebase credentials | `FirebaseCompositionTest` constructs the SDK with explicit or application-default temporary credentials. It makes no delivery call. |
+| RabbitMQ or SQS | `RuntimeCompositionTest` resolves both queue ports to the same owned adapter. Readiness tests execute both branches. |
+| Development, test, CI, stage, or production | `RuntimeCompositionTest` verifies mapper and Doctrine cache selection with isolated SQLite. |
+| Service or custom AWS endpoints | `RuntimeCompositionTest` verifies client endpoints and command timeout options without executing requests. |
+| Request language | `RuntimeCompositionTest` checks missing, empty, unsupported, and weighted language headers. |
+| Context handlers, Redis, logger, replay, and clocks | The inventory links existing container, boundary, native service, and failure-path tests. |
+
+Run the architecture suite with these tests. Static adapter classification and dependency checks remain separate requirements.
+This evidence covers supported repository configuration. It does not establish deployment settings or arbitrary future dynamic code.
+
+Identity snapshot tests verify immutable replacements, exact reconstruction, legacy registration acceptance, and unchanged earlier snapshots.
+Registration ordering tests verify hashing before transaction entry and rollback after a credential write failure.
+Event tests advance the clock before transactional work. They compare exact event and audit instants with stored outbox occurrence and creation times.
+
+## Local deployment runtime
+
+Use `python3 tests/Deployment/local-runtime.py` for an explicitly authorized disposable deployment rehearsal.
+It builds the current workspace release and runs real PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3 services.
+It checks installation failures, worker restarts, concurrent HTTP requests, interrupted replay, database restore, and controlled Redis recovery.
+The runner removes owned resources and stores sanitized results.
+See [local deployment rehearsal](operations/local-deployment-rehearsal.md) for requirements, scope, and target acceptance limits.

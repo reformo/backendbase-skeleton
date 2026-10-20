@@ -49,6 +49,7 @@ update.sh
 !docker/docker-entrypoint.sh
 !tests/Deployment/deployment-scripts.sh
 !tests/Deployment/build-release.sh
+!resources/testing/deployment-runtime/*.sh
 !resources/skills/enforce-git-attribution/scripts/install-global-hooks.sh
 *.local
 clover.xml

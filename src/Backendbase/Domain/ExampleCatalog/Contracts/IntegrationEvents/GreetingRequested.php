@@ -7,7 +7,7 @@ namespace Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\GreetingRequestedPayload;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventTrait;
-use Backendbase\Shared\Helpers\DateTimeImmutable;
+use DateTimeImmutable;
 
 final class GreetingRequested implements IntegrationEvent
 {
@@ -16,9 +16,9 @@ final class GreetingRequested implements IntegrationEvent
     public const bool DELIVER_VIA_QUEUE = true;
     use IntegrationEventTrait;
 
-    public function __construct(private readonly GreetingRequestedPayload $payload)
+    public function __construct(private readonly GreetingRequestedPayload $payload, DateTimeImmutable $occurredOn)
     {
-        $this->occurredOn = DateTimeImmutable::create();
+        $this->occurredOn = $occurredOn;
     }
 
     public function eventName(): string

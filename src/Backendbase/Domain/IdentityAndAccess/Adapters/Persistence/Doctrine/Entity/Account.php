@@ -78,9 +78,10 @@ class Account
 
     public function synchronize(AccountAggregate $account): void
     {
-        $state = $account->snapshot();
+        $snapshot = $account->snapshot();
+        $state    = $snapshot->toArray();
         $this->assertRevision($state['revision']);
-        $accountState       = AccountState::fromArray(['ownershipVerified' => $state['ownershipVerified'], 'enabled' => $state['enabled'], 'authVersion' => $state['authVersion'], 'registrationAccepted' => $state['registrationAccepted']]);
+        $accountState       = $snapshot->authentication;
         $this->email        = $state['email'];
         $this->mobile       = $state['mobile'];
         $this->firstName    = $state['firstName'] ?? null;
@@ -136,9 +137,7 @@ class Account
 
     public function id(): string
     {
-        $id = $this->id;
-
-        return $id->toString();
+        return (string) $this->id;
     }
 
     public function assertRevision(int $expected): void

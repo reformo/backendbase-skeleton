@@ -77,7 +77,7 @@
 <section id="risks"><p class="section-label">11 · Current risks</p><h2>Known operational limits</h2>
 <ul><li>The current rollback-unsafe release supports guarded fresh installation only. Existing database conversion remains a separate reviewed operation.</li><li>The repository does not define the server-specific backup and process activation hooks.</li><li>The first conversion from a working tree to the release-link layout requires a maintenance window.</li>
 <li>MySQL DDL needs backup recovery or a reviewed forward repair after partial execution.</li><li>Systemd templates exist. Production process setup, monitoring collection, dashboards, and alerts require target configuration.</li></ul>
-<p>The <a href="code-quality-and-maintainability-report.html">16 October assessment</a> separates isolated deployment tests from production acceptance. Use <a href="../platform/operations/identity-acceptance.md">identity acceptance</a> for service, latency, revocation, and recovery measurements.</p>
+<p>The <a href="code-quality-and-maintainability-report.html">current assessment</a> separates isolated deployment tests from production acceptance. Use <a href="../platform/operations/identity-acceptance.md">identity acceptance</a> for service, latency, revocation, and recovery measurements.</p>
 </section>
 <section id="checklist"><p class="section-label">12 · Checklist</p><h2>Release completion criteria</h2>
 <ul><li>The deployed revision is known.</li><li>Dependencies install without development packages.</li><li>OpenAPI generates and validates.</li><li>Reviewed migrations complete.</li>
@@ -92,4 +92,10 @@
 <tr><td>Local infrastructure</td><td><code>docker-compose.yaml</code></td></tr><tr><td>Environment contract</td><td><code>.env.example</code></td></tr>
 <tr><td>HTTP health routes</td><td><code>Infrastructure/Inbound/ExampleApi/routes.php</code></td></tr><tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>
 </tbody></table></div></section>
+<section id="local-deployment-rehearsal"><p class="section-label">Local deployment verification</p><h2>Exercise the release with disposable services</h2>
+<p>Run <code>python3 tests/Deployment/local-runtime.py</code> to build the current workspace and use real PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3 services.</p>
+<p>The runner checks installation failures, worker restarts, concurrent requests, interrupted replay, database restore, and controlled session recovery. It removes owned resources and writes a sanitized result.</p>
+<p>The fixture uses local process supervision and manual Redis promotion. Target server hooks, secret providers, storage durability, and representative capacity require separate acceptance.</p>
+<p>See the <a href="../platform/operations/local-deployment-rehearsal.md">rehearsal procedure</a> and the <a href="code-quality-and-maintainability-report.html#local-deployment">current results</a>.</p>
+</section>
 </main></div><footer>Backendbase Core · Deployment and operations guide</footer></body></html>

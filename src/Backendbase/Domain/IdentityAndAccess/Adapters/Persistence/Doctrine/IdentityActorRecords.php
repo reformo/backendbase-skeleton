@@ -78,15 +78,16 @@ final readonly class IdentityActorRecords
             return null;
         }
 
-        $actor   = $record->toDomain();
-        $state   = $actor->snapshot();
-        $account = $this->accountForUpdate($state['accountId']);
+        $actor     = $record->toDomain();
+        $state     = $actor->snapshot();
+        $accountId = $state->accountId;
+        $account   = $this->accountForUpdate($accountId);
         $account->assertActive();
         $records->refreshUnderLock($record, false);
         $actor = $record->toDomain();
         $state = $actor->snapshot();
 
-        return $state['deletedAt'] === null ? $actor : null;
+        return $state->deletedAt === null ? $actor : null;
     }
 
     public function saveActor(Actor $actor): void
@@ -94,7 +95,8 @@ final readonly class IdentityActorRecords
         $currentRecords = $this->records;
 
         $state         = $actor->snapshot();
-        $accountRecord = $currentRecords->account($state['accountId']);
+        $accountId     = $state->accountId;
+        $accountRecord = $currentRecords->account($accountId);
         $account       = $accountRecord->toDomain();
         $account->assertActive();
         $records = $this->records;

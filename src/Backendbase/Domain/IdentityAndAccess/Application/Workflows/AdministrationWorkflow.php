@@ -35,8 +35,7 @@ final readonly class AdministrationWorkflow
             $principal->assertAdmin();
             $currentGate->assertCurrent($principal);
             $account = $currentStore->account($input->accountId());
-            $state   = $account->snapshot();
-            $account->assertSessionAllowed($state['authVersion'], Realm::ADMIN);
+            $account->assertEligible(Realm::ADMIN);
             $identity = $principal->identity();
             $actor    = SystemAdmin::invite($id, IdentityId::fromString($account->id()), 'invite:' . $identity['actorId'] . ':' . $input->evidence(), $now);
             $currentStore->saveActor($actor);
@@ -59,19 +58,20 @@ final readonly class AdministrationWorkflow
                 throw ResourceAccessForbidden::create('An Admin cannot approve its own enrollment.');
             }
 
-            $reference      = $currentStore->actorReference(Realm::ADMIN, $input->actorId());
-            $referenceState = $reference->snapshot();
-            $currentStore->protectActorMutation($identity['accountId'], $referenceState['accountId']);
+            $reference        = $currentStore->actorReference(Realm::ADMIN, $input->actorId());
+            $accountReference = $reference->accountReference();
+            $accountId        = $accountReference->toString();
+            $currentStore->protectActorMutation($identity['accountId'], $accountId);
             $currentGate->assertCurrent($principal);
             $actor = $currentStore->actorForUpdate(Realm::ADMIN, $input->actorId());
             if (! $actor instanceof SystemAdmin) {
                 throw ResourceAccessForbidden::create('The target actor must be a SystemAdmin.');
             }
 
-            $state        = $actor->snapshot();
-            $account      = $currentStore->account($state['accountId']);
-            $accountState = $account->snapshot();
-            $account->assertSessionAllowed($accountState['authVersion'], Realm::ADMIN);
+            $accountReference = $actor->accountReference();
+            $accountId        = $accountReference->toString();
+            $account          = $currentStore->account($accountId);
+            $account->assertEligible(Realm::ADMIN);
             $actor->approve('approve:' . $identity['actorId'] . ':' . $input->evidence());
             $currentStore->saveActor($actor);
         });
@@ -86,10 +86,11 @@ final readonly class AdministrationWorkflow
             $currentGate  = $this->gate;
 
             $principal->assertAdmin();
-            $identity       = $principal->identity();
-            $reference      = $currentStore->actorReference($input->realm(), $input->actorId());
-            $referenceState = $reference->snapshot();
-            $currentStore->protectActorMutation($identity['accountId'], $referenceState['accountId']);
+            $identity         = $principal->identity();
+            $reference        = $currentStore->actorReference($input->realm(), $input->actorId());
+            $accountReference = $reference->accountReference();
+            $accountId        = $accountReference->toString();
+            $currentStore->protectActorMutation($identity['accountId'], $accountId);
             $currentGate->assertCurrent($principal);
             $actor = $currentStore->actorForUpdate($input->realm(), $input->actorId());
             if ($input->action() === 'restore') {

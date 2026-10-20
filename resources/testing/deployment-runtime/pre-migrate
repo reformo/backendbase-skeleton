@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$4" == /srv/backendbase/state/recovery/* ]]
+set -a
+source /run/backendbase/runtime.env
+set +a
+if [[ -e /run/rehearsal/fail-backup ]]; then printf "Injected backup failure.\n" >&2; exit 1; fi
+MYSQL_PWD="$FIXTURE_MYSQL_PASSWORD" mysqldump --host=mysql --user=root \
+    --single-transaction --routines --events --triggers --hex-blob --no-tablespaces \
+    --set-gtid-purged=OFF --column-statistics=0 deployment > "$4/database.sql"
+[[ -s "$4/database.sql" ]]
+sha256sum "$4/database.sql" > "$4/backup.sha256"
+printf 'Temporary MySQL backup is complete.\n' > "$4/backup-check.txt"
+
+if [[ -e /run/rehearsal/fail-migration ]]; then
+    MYSQL_PWD="$FIXTURE_MYSQL_PASSWORD" mysql --host=mysql --user=root deployment -e "CREATE TABLE account (fixture INT)"
+fi

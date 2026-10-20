@@ -10,13 +10,14 @@ use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\GreetingReq
 use Backendbase\Shared\CQRS\Command;
 use Backendbase\Shared\CQRS\CommandHandler;
 use Backendbase\Shared\Persistence\IntegrationEventTransaction;
+use Backendbase\Shared\Time\Clock;
 use Override;
 
 final readonly class QueueGreetingHandler implements CommandHandler
 {
     public const string REQUIRED_PRIVILEGE = 'example.add';
 
-    public function __construct(private IntegrationEventTransaction $integrationEventTransaction)
+    public function __construct(private IntegrationEventTransaction $integrationEventTransaction, private Clock $clock)
     {
     }
 
@@ -27,10 +28,13 @@ final readonly class QueueGreetingHandler implements CommandHandler
         $accessControl = $command->accessControl();
         $accessControl->isAllowed(self::REQUIRED_PRIVILEGE);
 
-        $this->integrationEventTransaction->execute(
-            static fn (): GreetingRequested => new GreetingRequested(
-                new GreetingRequestedPayload($command->fullName()),
-            ),
-        );
+        $clock       = $this->clock;
+        $transaction = $this->integrationEventTransaction;
+        $transaction->execute(static function () use ($command, $clock): GreetingRequested {
+            $now      = $clock->now();
+            $fullName = $command->fullName();
+
+            return new GreetingRequested(new GreetingRequestedPayload($fullName), $now);
+        });
     }
 }

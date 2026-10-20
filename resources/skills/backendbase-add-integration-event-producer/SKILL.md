@@ -15,8 +15,8 @@ Read only the sections of [references/backendbase-pattern.md](references/backend
 2. Confirm that the requested fact must cross a process or service boundary.
 3. Define a stable event name, explicit version, and typed JSON-compatible payload.
 4. Run authoritative database reads and mutations inside the integration-event transaction callback.
-5. Return the complete event from the callback after required identifiers and state are known.
-6. Add schema, handler-order, and atomic rollback tests.
+5. Read the application clock after authoritative reads. Pass the mutation instant into the complete event returned from the callback.
+6. Add schema, exact timestamp, handler-order, and atomic rollback tests.
 
 ## Invariants
 

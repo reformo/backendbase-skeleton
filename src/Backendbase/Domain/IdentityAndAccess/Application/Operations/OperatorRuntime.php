@@ -9,13 +9,14 @@ use Backendbase\Shared\Time\Clock;
 
 final readonly class OperatorRuntime
 {
-    public function __construct(private Clock $clock)
+    public function __construct(private OperatorWorkflow $workflow, private Clock $clock)
     {
     }
 
-    public function execute(OperatorWorkflow $workflow, OperatorInput $input, bool $apply): string
+    public function execute(OperatorInput $input, bool $apply): string
     {
-        $clock = $this->clock;
+        $clock    = $this->clock;
+        $workflow = $this->workflow;
 
         return $workflow->run($input, $clock->now(), $apply);
     }

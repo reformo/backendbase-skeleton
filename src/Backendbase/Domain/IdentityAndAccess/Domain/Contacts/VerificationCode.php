@@ -29,7 +29,13 @@ final readonly class VerificationCode
         $state = $contact->snapshot();
         $id    = $contact->id();
 
-        return $id . ':' . $state['generationId'] . ':' . $state['realm'] . ':' . $state['purpose'] . ':' . $state['contactType'] . ':' . $state['contactValue'] . ':' . $this->value;
+        $generationId = $state->generationId;
+        $realm        = $state->realm;
+        $purpose      = $state->purpose;
+        $type         = $state->contactType;
+        $value        = $state->contactValue;
+
+        return $id . ':' . $generationId . ':' . $realm . ':' . $purpose . ':' . $type . ':' . $value . ':' . $this->value;
     }
 
     public function forDelivery(): string

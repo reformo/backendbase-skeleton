@@ -19,6 +19,16 @@ final readonly class AccountState implements JsonSerializable
     ) {
     }
 
+    public function with(bool|null $ownershipVerified = null, bool|null $enabled = null, int|null $authVersion = null, bool|null $registrationAccepted = null): self
+    {
+        $ownershipVerified    ??= $this->ownershipVerified;
+        $enabled              ??= $this->enabled;
+        $authVersion          ??= $this->authVersion;
+        $registrationAccepted ??= $this->registrationAccepted;
+
+        return new self($ownershipVerified, $enabled, $authVersion, $registrationAccepted);
+    }
+
     /** @param array<array-key, mixed> $values */
     public static function fromArray(array $values): self
     {

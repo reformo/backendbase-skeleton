@@ -59,13 +59,14 @@ class Admin
     {
         $currentAccountId = $this->accountId ?? null;
 
-        $state = $actor->snapshot();
+        $snapshot = $actor->snapshot();
+        $state    = $snapshot->toArray();
         $this->assertRevision($state['revision']);
         if ($currentAccountId !== null && $currentAccountId->toString() !== $state['accountId']) {
             throw IdentityConflict::create('The actor Account reference cannot change.');
         }
 
-        $actorState      = ActorState::fromArray(['approved' => $state['approved'], 'invitation' => $state['invitation'], 'approval' => $state['approval']]);
+        $actorState      = $snapshot->authorization;
         $this->accountId = Uuid::fromString($state['accountId']);
         $this->createdAt = new DateTimeImmutable($state['createdAt'], new DateTimeZone('UTC'));
         $this->deletedAt = $state['deletedAt'] === null ? null : new DateTimeImmutable($state['deletedAt'], new DateTimeZone('UTC'));

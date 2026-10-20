@@ -12,6 +12,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryAddedP
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryChangedPayload;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventTrait;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -23,7 +24,7 @@ final class IntegrationEventBehaviorTest extends TestCase
     public function itExposesIntegrationEventPayloads(): void
     {
         $changedPayload = new EntryChangedPayload('example-id', false, 'changed', ['unit' => 'rows']);
-        $changed        = new EntryChanged($changedPayload);
+        $changed        = new EntryChanged($changedPayload, new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         self::assertSame('Example_ExampleChanged', $changed->eventName());
         self::assertTrue($changed->isExternal());
         self::assertSame('example-id', $changed->entryId());
@@ -39,11 +40,11 @@ final class IntegrationEventBehaviorTest extends TestCase
             '25',
             [],
         );
-        $added        = new EntryAdded($addedPayload);
+        $added        = new EntryAdded($addedPayload, new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         self::assertSame('example-id', $added->entryId());
         self::assertSame($addedPayload->toArray(), $addedPayload->jsonSerialize());
 
-        self::assertSame('example-id', (new EntryRemoved('example-id'))->entryId());
+        self::assertSame('example-id', (new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z')))->entryId());
     }
 
     #[Test]
@@ -57,7 +58,7 @@ final class IntegrationEventBehaviorTest extends TestCase
 
             public function __construct()
             {
-                $this->initializeOccurredOn();
+                $this->initializeOccurredOn(new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
             }
 
             public function eventName(): string

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$1" == /srv/backendbase/releases/* && "$2" == /srv/backendbase/state/recovery/* ]]
+touch /srv/backendbase/shared/maintenance
+supervisorctl --configuration /fixture/supervisord.conf stop all > /dev/null
+printf 'Traffic blocked and application processes stopped.\n' > "$2/maintenance-check.txt"

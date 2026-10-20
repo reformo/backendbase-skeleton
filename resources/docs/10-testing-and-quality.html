@@ -14,8 +14,8 @@
 <div class="callout"><strong>ADR implementation:</strong> Read the <a href="../adr/implementation-status.md">implementation register</a> and <a href="../platform/14-security.md">identity security policy</a> for current identity realms, binary UUID mapping, service tests, and recovery operations.</div>
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Use the smallest check that proves the change</h2>
 <p>Start with one focused test path. Expand to integration, API, static, and full-suite checks as risk increases.</p>
-<div class="summary-grid"><div class="stat"><strong>277</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
-<p>The <a href="code-quality-and-maintainability-report.html#evidence">quality report</a> records current checks and execution limits. All 1,521 cases pass with zero skips and 72,662 assertions. Executable-line and method coverage remain 100%. Static, API, native MySQL, Redis, Sentinel, and temporary deployment checks pass. Complete Bruno execution passes 58 named tests across all 52 operations. The Public API contracts score is 10/10. The engineering score is 9.5/10 from 94.5/100 points. Deployment durability remains unverified.</p>
+<div class="summary-grid"><div class="stat"><strong>285</strong><span>PHP test files</span></div><div class="stat"><strong>2</strong><span>Configured suite roots</span></div><div class="stat"><strong>8</strong><span>PHPStan level</span></div><div class="stat"><strong>4</strong><span>Main quality commands</span></div></div>
+<p>The <a href="code-quality-and-maintainability-report.html#evidence">quality report</a> records current checks and execution limits. All 1,593 cases pass with zero skips and 73,106 assertions. Executable-line and method coverage remain 100%. Static, API, native MySQL, Redis, Sentinel, and temporary deployment checks pass. Complete Bruno execution passes 58 named tests across all 52 operations. The Public API contracts score is 10/10. The engineering score is 9.8/10 from 98/100 points. Deployment durability remains unverified.</p>
 </section>
 <section id="layout"><p class="section-label">02 · Suite layout</p><h2>Tests live with their owning scope</h2>
 <p>The test-file count includes <code>*Test.php</code> files under both configured suite roots.</p>
@@ -142,4 +142,10 @@ python3 tests/Security/identity_http.py --bruno
 <tr><td>Project scripts and Rector status</td><td><code>composer.json</code></td></tr>
 <tr><td>Tests</td><td><code>tests</code> and <code>src/Backendbase/Domain/*/Tests</code></td></tr>
 </tbody></table></div></section>
+<section id="local-deployment-rehearsal"><p class="section-label">Local deployment verification</p><h2>Exercise the release with disposable services</h2>
+<p>Run <code>python3 tests/Deployment/local-runtime.py</code> to build the current workspace and use real PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3 services.</p>
+<p>The runner checks installation failures, worker restarts, concurrent requests, interrupted replay, database restore, and controlled session recovery. It removes owned resources and writes a sanitized result.</p>
+<p>The fixture uses local process supervision and manual Redis promotion. Target server hooks, secret providers, storage durability, and representative capacity require separate acceptance.</p>
+<p>See the <a href="../platform/operations/local-deployment-rehearsal.md">rehearsal procedure</a> and the <a href="code-quality-and-maintainability-report.html#local-deployment">current results</a>.</p>
+</section>
 </main></div><footer>Backendbase Core · Testing and quality guide</footer></body></html>

@@ -12,6 +12,12 @@ Commands change state and return no result. Queries read data and return a decla
 - Convert business values into enums or value objects at the boundary.
 - Require typed `AccessControl` in each command or query that needs a named privilege.
 - Keep serialization stable through `toArray()`.
+- Store fixed input fields in typed readonly properties. Keep arrays for serialized payloads, lists, and documented open-ended objects.
+
+ExampleCatalog commands and queries store validated typed values. `ChangeEntry` replaces immutable `EntryChanges` after each validated setter call.
+A rejected replacement preserves all earlier changes. Null clears the pending change and still means “not supplied” during dispatch.
+Identity registration, administration, contact, and operator inputs use typed fields. Application services consume those fields without array reconstruction.
+`ContactAttempt` uses named constructor arguments. `ContactAttempt` and `OperatorInput` expose immutable fields instead of `values()` arrays.
 
 ## Handler rules
 

@@ -10,6 +10,7 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Input\RegistrationInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactVerificationExpired;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ContactState;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\ContactScenario;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
@@ -91,9 +92,9 @@ final class ContactRegistrationTest extends TestCase
         try {
             $store->transaction(static function () use ($store, $emailId): void {
                 $first               = $store->get($emailId);
-                $state               = $first->snapshot();
+                $state               = $first->snapshot()->toArray();
                 $state['consumedAt'] = '2026-10-14 10:02:00.000000';
-                $store->save(new ContactInfo(IdentityId::fromString($first->id()), $state));
+                $store->save(new ContactInfo(IdentityId::fromString($first->id()), ContactState::fromArray($state)));
 
                 throw new RuntimeException('Forced transaction failure.');
             });

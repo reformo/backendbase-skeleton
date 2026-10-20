@@ -12,11 +12,13 @@ use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryValue;
 use Backendbase\Shared\CQRS\Command;
 use Override;
 
-class AddEntry implements Command
+readonly class AddEntry implements Command
 {
     private EntryIdentity $identity;
-    /** @var array{entryId: EntryId, isActive: bool, value: EntryValue, details: EntryDetails|null} */
-    private array $values;
+    private EntryId $identifier;
+    private bool $active;
+    private EntryValue $entryValue;
+    private EntryDetails|null $entryDetails;
 
     /** @param array<array-key, mixed>|null $details */
     public function __construct(
@@ -29,26 +31,24 @@ class AddEntry implements Command
         string $value,
         array|null $details = [],
     ) {
-        $this->identity = new EntryIdentity($type, $typeTargetId, $group, $key);
-        $this->values   = [
-            'entryId' => EntryId::fromString($entryId),
-            'isActive' => $isActive,
-            'value' => new EntryValue($value),
-            'details' => $details === null ? null : new EntryDetails($details),
-        ];
+        $this->identity     = new EntryIdentity($type, $typeTargetId, $group, $key);
+        $this->identifier   = EntryId::fromString($entryId);
+        $this->active       = $isActive;
+        $this->entryValue   = new EntryValue($value);
+        $this->entryDetails = $details === null ? null : new EntryDetails($details);
     }
 
     /** @return array<string, mixed> */
     public function details(): array
     {
-        $details = $this->values['details'];
+        $details = $this->entryDetails;
 
         return $details?->toArray() ?? [];
     }
 
     public function entryId(): string
     {
-        $identifier = $this->values['entryId'];
+        $identifier = $this->identifier;
 
         return $identifier->id();
     }
@@ -76,7 +76,7 @@ class AddEntry implements Command
 
     public function isActive(): bool
     {
-        return $this->values['isActive'];
+        return $this->active;
     }
 
     public function key(): string
@@ -88,7 +88,7 @@ class AddEntry implements Command
 
     public function value(): string
     {
-        $value = $this->values['value'];
+        $value = $this->entryValue;
 
         return $value->toString();
     }
@@ -109,7 +109,7 @@ class AddEntry implements Command
         $isActive     = $this->isActive();
         $key          = $this->key();
         $value        = $this->value();
-        $details      = $this->values['details'];
+        $details      = $this->entryDetails;
         $detailValues = $details?->toArray();
 
         return [

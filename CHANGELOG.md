@@ -10,6 +10,14 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Restrict shutdown error responses to fatal PHP errors. Preserve completed responses after native warnings, user warnings, notices, and deprecations. Retain fatal-error logging and safe error details. Verify concurrent cold startup and packaged dependency failure with a fresh local release.
+
+- Add a disposable local deployment rehearsal for the real release artifact, PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3. Verify installation failures, worker restarts, bounded HTTP load, interrupted replay, backup restore, and controlled session recovery. Verify cold-start and Redis-outage response integrity. Remove owned resources. Set engineering quality to 9.8/10 and retain the 9.9/10 architecture score. Update current assessment evidence without release identifiers or previous results.
+
+- Store fixed ExampleCatalog and identity inputs in typed readonly fields. Preserve serialized payloads, patch omission semantics, and input validation. Remove the operator completion forwarder. Verify preview, clock use, result publication, and rejected patch replacement. Synchronize current assessment scores and evidence from disposable local checks.
+
+- Require explicit event occurrence times from the application clock. Keep identity eligibility, membership, contact, and approval decisions on domain objects. Use immutable typed aggregate snapshots. Remove the registration password-hash forwarder and preserve hashing before the transaction. Inventory all 41 runtime factories and test supported configuration branches. Verify 1,583 tests with zero skips and full executable-line and method coverage on disposable local services. Set engineering quality to 9.7/10 and architecture to 9.8/10. Synchronize affected guidance and current assessment evidence.
+
 - Execute all three maintained Bruno collections on disposable local services. Pass all 52 operations through 58 requests and 58 named tests. Capture the invited Admin actor identifier for subsequent requests. Add a repeatable fixture runner and retain sanitized reports in the security workflow. Set Public API contracts to 10/10 and engineering quality to 9.5/10 from 94.5/100 points. Synchronize reports and request guidance without revision identifiers or historical results.
 
 - Extend live security checks to all 52 operations and all 38 writes. Add malformed-input, authentication, cross-account contact, and replay probes. Run authenticated ZAP scans for all three APIs. Record zero-skip native regressions and clean pinned scan results. Set Security verification to 9.5/10 and architecture to 9.4/10. Keep deployment durability unverified.

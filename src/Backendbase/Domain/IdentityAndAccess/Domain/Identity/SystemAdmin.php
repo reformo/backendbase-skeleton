@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Domain\Identity;
 
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Shared\Exception\InvalidUserInput;
 use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
@@ -32,12 +33,24 @@ final class SystemAdmin extends Actor
     public function approve(string $approvalEvidence): void
     {
         self::evidence($approvalEvidence);
-        $state = $this->snapshot();
-        if ($state['invitation'] === null || self::reference($state['invitation']) === self::reference($approvalEvidence)) {
+        $state         = $this->snapshot();
+        $authorization = $state->authorization;
+        $invitation    = $authorization->invitation;
+        if ($invitation === null || self::reference($invitation) === self::reference($approvalEvidence)) {
             throw InvalidUserInput::create('Separate Admin invitation and approval evidence is required.');
         }
 
         $this->approveWith($approvalEvidence);
+    }
+
+    public function assertPendingApproval(): void
+    {
+        $state         = $this->snapshot();
+        $authorization = $state->authorization;
+        $approved      = $authorization->approved;
+        if ($approved || $state->deletedAt !== null) {
+            throw IdentityConflict::create('A pending first-Admin invitation is required.');
+        }
     }
 
     private static function evidence(string $value): void

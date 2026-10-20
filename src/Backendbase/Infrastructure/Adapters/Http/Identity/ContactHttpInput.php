@@ -50,7 +50,7 @@ final class ContactHttpInput
         $contact = $action === 'request' && $realm === Realm::USER && ! $authenticated ? new ContactValue(self::text($payload, 'contactType'), self::text($payload, 'contactValue')) : null;
         $login   = $action === 'request' && $realm === Realm::ADMIN && ! $authenticated ? new LoginInput(self::text($payload, 'identifier'), self::text($payload, 'password')) : null;
 
-        return new ContactAttempt(['action' => $action, 'realm' => $realm, 'contactId' => $arguments['contact-info-id'] ?? null, 'token' => $token, 'client' => $client, 'contact' => $contact, 'contactType' => $action === 'request' ? self::text($payload, 'contactType') : null, 'code' => $action === 'confirm' ? new VerificationCode(self::text($payload, 'code')) : null, 'principal' => $principal, 'login' => $login]);
+        return new ContactAttempt(action: $action, realm: $realm, contactId: $arguments['contact-info-id'] ?? null, token: $token, client: $client, contact: $contact, contactType: $action === 'request' ? self::text($payload, 'contactType') : null, code: $action === 'confirm' ? new VerificationCode(self::text($payload, 'code')) : null, principal: $principal, login: $login);
     }
 
     /** @return list<string> */

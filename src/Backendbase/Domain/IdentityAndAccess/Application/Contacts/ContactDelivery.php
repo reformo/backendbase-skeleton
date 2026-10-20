@@ -33,7 +33,7 @@ final readonly class ContactDelivery
         }
 
         $state      = $contact->snapshot();
-        $generation = $state['generationId'];
+        $generation = $state->generationId;
         $notifier   = $this->notifier;
         try {
             $notifier->send($generation, $contact->contact(), $code->forDelivery());

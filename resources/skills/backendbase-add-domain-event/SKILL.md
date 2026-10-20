@@ -31,12 +31,13 @@ Adapt the event fact, payload fields, listener behavior, publish point, and tran
 4. Publish at the explicit application orchestration point. When listener failure must roll back the command, publish after required persistence and before the same real transaction callback returns.
 5. Keep network, broker, process, and filesystem work outside transactional domain listeners.
 6. Add a composition test that resolves the attributed listener through the production publisher and target container.
-7. Test payload serialization, listener type rejection, publication count, ordering, and rollback placement when relevant.
+7. Test exact occurrence time, payload serialization, listener type rejection, publication count, ordering, and rollback placement when relevant.
 
 ## Backendbase invariants
 
 - Implement `DomainEvent` and use `DomainEventTrait`.
-- Call `initializeOccurredOn()` during construction.
+- Require an explicit `DateTimeImmutable` occurrence time. Pass it to `initializeOccurredOn($occurredOn)` during construction.
+- Obtain the instant from the application clock at the authoritative operation point. Reuse it for facts from the same mutation.
 - Use one positional `DomainEventListener` attribute; the publisher uses the first attribute.
 - Implement the listener interface and reject an unexpected concrete event.
 - Do not add domain-event metadata to a context `ServiceProvider`; attribute routing and container autowiring own this path.

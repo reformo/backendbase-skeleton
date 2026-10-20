@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Backendbase\Shared\Domain;
 
-use Backendbase\Shared\Helpers\DateTimeImmutable as DateTimeImmutableFactory;
 use DateTimeImmutable;
 
 trait DomainEventTrait
@@ -16,9 +15,9 @@ trait DomainEventTrait
         return $this->occurredOn;
     }
 
-    protected function initializeOccurredOn(): void
+    protected function initializeOccurredOn(DateTimeImmutable $occurredOn): void
     {
-        $this->occurredOn = DateTimeImmutableFactory::create();
+        $this->occurredOn = $occurredOn;
     }
 
     public function jsonSerialize(): mixed

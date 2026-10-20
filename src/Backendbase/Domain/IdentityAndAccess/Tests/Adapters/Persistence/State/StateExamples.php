@@ -62,7 +62,7 @@ final class StateExamples
             'account' => AccountRecord::create(Account::create($id, new AccountEmail('ada@example.com'), new AccountMobile('+905551234567'), $now)),
             'user' => UserRecord::create(User::create($id, $accountId, $now)),
             'admin' => AdminRecord::create(SystemAdmin::invite($id, $accountId, 'invitation', $now)),
-            default => ContactVerification::create(new Contact($id, self::CONTACT)),
+            default => ContactVerification::create(new Contact($id, ContactState::fromArray(self::CONTACT))),
         };
     }
 }

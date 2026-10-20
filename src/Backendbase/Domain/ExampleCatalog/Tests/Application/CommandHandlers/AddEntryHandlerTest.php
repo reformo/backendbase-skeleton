@@ -51,7 +51,8 @@ final class AddEntryHandlerTest extends TestCase
         $publisher = $this->createMock(DomainEventPublisher::class);
         $publisher->expects(self::once())
             ->method('publish')
-            ->willReturnCallback(static function (DomainEvent $_event) use (&$calls): void {
+            ->willReturnCallback(static function (DomainEvent $event) use (&$calls, $now): void {
+                self::assertEquals($now, $event->occurredOn());
                 $calls[] = 'domain-event';
             });
         $transaction = $this->createMock(IntegrationEventTransaction::class);
@@ -63,11 +64,13 @@ final class AddEntryHandlerTest extends TestCase
             ) use (
                 &$calls,
                 $clock,
+                $now,
 ): void {
                 $calls[] = 'transaction-start';
                 $clock->advance(new DateInterval('PT1H'));
                 $event = $transactionalWork();
                 self::assertInstanceOf(EntryAdded::class, $event);
+                self::assertEquals($now, $event->occurredOn());
                 $calls[] = 'transaction-end';
             });
 

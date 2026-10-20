@@ -16,6 +16,11 @@ final readonly class ActorState implements JsonSerializable
     ) {
     }
 
+    public function withApproval(bool $approved, string $approval): self
+    {
+        return new self($approved, $this->invitation, $approval);
+    }
+
     /** @param array<array-key, mixed> $values */
     public static function fromArray(array $values): self
     {

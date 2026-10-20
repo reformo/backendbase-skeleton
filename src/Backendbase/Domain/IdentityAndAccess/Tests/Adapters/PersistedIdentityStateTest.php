@@ -48,7 +48,7 @@ final class PersistedIdentityStateTest extends TestCase
         self::assertArrayNotHasKey('owned', $state);
         $accountId = $account->id();
         $loaded    = $store->transaction(static fn (): Account => $store->account($accountId));
-        $snapshot  = $loaded->snapshot();
+        $snapshot  = $loaded->snapshot()->toArray();
         self::assertSame($ownershipVerified, $snapshot['ownershipVerified']);
         self::assertArrayNotHasKey('owned', $snapshot);
     }

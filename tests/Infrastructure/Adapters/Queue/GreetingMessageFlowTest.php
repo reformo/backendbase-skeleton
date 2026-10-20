@@ -78,7 +78,7 @@ final class GreetingMessageFlowTest extends TestCase
         );
         $payload   = new GreetingRequestedPayload('Ada Lovelace');
         self::assertSame(['fullname' => 'Ada Lovelace'], $payload->jsonSerialize());
-        $event   = new GreetingRequested($payload);
+        $event   = new GreetingRequested($payload, new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         $message = new Message(
             $event->eventName(),
             $event->getEventArguments(),

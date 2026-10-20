@@ -62,12 +62,13 @@ class ContactVerification
 
     public function synchronize(Contact $contact): void
     {
-        $state = $contact->snapshot();
+        $snapshot = $contact->snapshot();
+        $state    = $snapshot->toArray();
         if ($state['revision'] !== $this->version) {
             throw IdentityConflict::create('The contact verification changed.');
         }
 
-        $contactState       = ContactState::fromArray($state);
+        $contactState       = $snapshot;
         $this->contextHash  = $state['contextHash'];
         $this->realm        = $state['realm'];
         $this->purpose      = $state['purpose'];
@@ -86,7 +87,7 @@ class ContactVerification
         $actor    = $this->actorId;
         $verified = $this->verifiedAt;
 
-        return new Contact(IdentityId::fromString($this->id()), [
+        return new Contact(IdentityId::fromString($this->id()), ContactState::fromArray([
             'contextHash' => $this->contextHash,
             'realm' => $this->realm,
             'purpose' => $this->purpose,
@@ -104,7 +105,7 @@ class ContactVerification
             'consumedAt' => $state->consumedAt,
             'deliveryState' => $state->deliveryState,
             'revision' => $this->version,
-        ]);
+        ]));
     }
 
     public function state(): ContactState

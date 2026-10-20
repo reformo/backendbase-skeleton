@@ -13,7 +13,7 @@
 </nav><main id="main-content">
 <section id="overview"><p class="section-label">01 · Overview</p><h2>Translate failures at architectural boundaries</h2>
 <p>Domain and application code raise typed failures. HTTP adapters translate them into stable public responses. Logs keep the internal diagnostic context.</p>
-<div class="grid-3"><article class="card"><h3>Expected problem</h3><p>A pure <code>DomainException</code> becomes <code>application/problem+json</code> at the HTTP boundary.</p></article><article class="card"><h3>HTTP or unexpected error</h3><p><code>HttpErrorHandler</code> maps Slim exceptions and safe server failures.</p></article><article class="card"><h3>PHP shutdown error</h3><p><code>ShutdownHandler</code> logs the last PHP error and emits a 500 response.</p></article></div>
+<div class="grid-3"><article class="card"><h3>Expected problem</h3><p>A pure <code>DomainException</code> becomes <code>application/problem+json</code> at the HTTP boundary.</p></article><article class="card"><h3>HTTP or unexpected error</h3><p><code>HttpErrorHandler</code> maps Slim exceptions and safe server failures.</p></article><article class="card"><h3>PHP shutdown error</h3><p><code>ShutdownHandler</code> logs fatal PHP errors and emits a 500 response.</p></article></div>
 <p>Request tracing remains separate from idempotency. Missing keys return 400, changed request content returns 422, and outstanding claims return 409. Stored operation failures replay without debug details. See <a href="../platform/operations/http-idempotency.md">HTTP idempotency</a> for the complete contract and recovery procedure.</p>
 </section>
 <section id="flow"><p class="section-label">02 · Failure flow</p><h2>One of three boundaries owns the response</h2>
@@ -51,7 +51,7 @@
 <p>Unexpected exceptions return <code>Internal Server Error</code> and a safe 500 message. Only local development aliases and the test mode can add exception details to the response. Stage, CI, production, and unknown modes hide them.</p>
 </section>
 <section id="shutdown"><p class="section-label">06 · Shutdown errors</p><h2>Fatal PHP state still gets a structured response</h2>
-<p>The shutdown handler ignores deprecation errors. It logs other last-error data and passes an internal-server exception to the HTTP error handler.</p>
+<p>The shutdown handler responds only to fatal PHP errors. Warnings, notices, and deprecations preserve the existing response. Normal PHP diagnostic logging remains active. Fatal errors pass an internal-server exception to the HTTP error handler.</p>
 <div class="callout danger">Stage, CI, and production keep <code>display-error-details</code> disabled. File paths, traces, and exception messages must not appear in shared-environment responses.</div>
 </section>
 <section id="logging"><p class="section-label">07 · Logging</p><h2>Monolog writes structured context with a stable channel</h2>

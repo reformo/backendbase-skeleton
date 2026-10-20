@@ -8,10 +8,36 @@ use Backendbase\Infrastructure\Adapters\CQRS\RegistryHandlerResolver;
 use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Settings as SettingsInterface;
 use DI\ContainerBuilder;
+use Laminas\ConfigAggregator\ConfigAggregator;
+use Laminas\ConfigAggregator\PhpFileProvider;
 use Psr\Container\ContainerInterface;
+
+use function array_replace_recursive;
 
 final class ProductionContainerFixture
 {
+    /**
+     * @param array<string, mixed>  $configuration
+     * @param array<string, object> $overrides
+     */
+    public static function configured(array $configuration, array $overrides = []): ContainerInterface
+    {
+        $aggregator    = new ConfigAggregator([
+            new PhpFileProvider('config/autoload/*'),
+            new PhpFileProvider('config/example-api/*'),
+        ]);
+        $defaults      = $aggregator->getMergedConfig();
+        $configuration = array_replace_recursive($defaults, self::settings('rabbitmq'), $configuration);
+        $builder       = new ContainerBuilder();
+        $settings      = require 'config/settings.php';
+        $settings($builder, $configuration);
+        $dependencies = require 'config/dependencies.php';
+        $dependencies($builder);
+        $builder->addDefinitions($overrides);
+
+        return $builder->build();
+    }
+
     /** @param array<string, object> $overrides */
     public static function build(array $overrides, string $queueDriver = 'rabbitmq', string $resolverClass = RegistryHandlerResolver::class): ContainerInterface
     {

@@ -9,6 +9,16 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 
 final readonly class Principal
 {
+    public static function start(Realm $realm, string $accountId, string $actorId, int $authVersion): self
+    {
+        $sessionId         = IdentityId::create();
+        $tokenId           = IdentityId::create();
+        $sessionIdentifier = $sessionId->toString();
+        $tokenIdentifier   = $tokenId->toString();
+
+        return new self($realm, ['accountId' => $accountId, 'actorId' => $actorId, 'sid' => $sessionIdentifier, 'jti' => $tokenIdentifier, 'authVersion' => $authVersion]);
+    }
+
     /** @var array{accountId: non-empty-string, actorId: non-empty-string, sid: non-empty-string, jti: non-empty-string, authVersion: int} */
     private array $identity;
 

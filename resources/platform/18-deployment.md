@@ -33,4 +33,10 @@ The managed secret provider remains a required selection before production activ
 Use the local root identity commands with separate invitation and approval evidence for first-Admin setup.
 See [identity operator procedures](operations/identity-operator.md).
 
+## Disposable local rehearsal
+
+The [local deployment rehearsal](operations/local-deployment-rehearsal.md) runs the real artifact and installation script with temporary local services.
+It verifies backup and migration failures, process activation, HTTP replay, workload behavior, database restore, and controlled Redis recovery.
+It uses fixture hooks and local process supervision. Target hooks, secret-provider integration, and provider recovery guarantees remain separate acceptance checks.
+
 Basis: `resources/docs/12-deployment-and-operations.html`.

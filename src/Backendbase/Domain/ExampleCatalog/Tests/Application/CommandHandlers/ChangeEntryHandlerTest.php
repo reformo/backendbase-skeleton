@@ -63,10 +63,11 @@ final class ChangeEntryHandlerTest extends TestCase
         $transaction = $this->createMock(IntegrationEventTransaction::class);
         $transaction->expects(self::once())
             ->method('execute')
-            ->willReturnCallback(static function (callable $transactionalWork) use (&$calls): void {
+            ->willReturnCallback(static function (callable $transactionalWork) use (&$calls, $now): void {
                 $calls[] = 'transaction-start';
                 $event   = $transactionalWork();
                 self::assertInstanceOf(EntryChanged::class, $event);
+                self::assertEquals($now, $event->occurredOn());
                 self::assertSame('018f0000-0000-7000-8000-000000000001', $event->entryId());
                 $calls[] = 'transaction-end';
             });

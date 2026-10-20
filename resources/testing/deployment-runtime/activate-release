@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$1" == /srv/backendbase/releases/* ]]
+if [[ -e /run/rehearsal/fail-activation ]]; then exit 1; fi
+chown -R www-data:www-data "$1/var"
+supervisorctl --configuration /fixture/supervisord.conf start fpm consumer relay
+supervisorctl --configuration /fixture/supervisord.conf status | awk '$2 != "RUNNING" { exit 1 }'

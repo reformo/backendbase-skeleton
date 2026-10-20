@@ -72,8 +72,12 @@ See [contact verification](operations/contact-verification.md) for request field
 Password verification issues a session after the realm-specific Account gate, Account state, and actor approval checks pass.
 Account.startSession owns current-version principal creation. Actor.assertSessionIdentity checks approval, removal, realm, and Account membership.
 AuthenticationGate and LoginWorkflow do not inspect aggregate snapshots for these decisions.
+Account.assertEligible owns realm-specific acceptance and ownership checks. Account.contactFor selects the permitted stored contact.
+Actor.assertContactOwner checks contact membership. SystemAdmin.assertPendingApproval checks the locked first-Admin state.
 LoginWorkflow and ContactAuthorizer call Credentials directly. LoginAuthentication selects expiry after the login transaction.
-RegistrationCompletion creates identities and consumes proofs within the workflow transaction. Password hashing remains outside that transaction.
+RegistrationWorkflow hashes the password through Credentials before RegistrationCompletion opens the identity transaction.
+RegistrationCompletion checks uniqueness, creates identities, stores credentials, and consumes proofs within that transaction.
+Hashing failure opens no transaction. Credential failure rolls back identity creation and proof consumption.
 ContactDelivery executes verification before notification delivery. ContactCompletion records the operation result after delivery succeeds.
 Both realms authenticate through `POST /auth/login` and return the `session` result. ExampleApi exposes the same User contact, registration, login, identity, token, session, and Account endpoints as UserApi.
 ExampleApi uses its own controllers and the existing identity input, dispatch, policy, and application services. Its identity response key remains `user`.
@@ -83,6 +87,8 @@ Admin enrollment requires stored invitation and approval evidence.
 An Admin cannot approve its own enrollment. Contact ownership remains a separate session gate.
 First-Admin setup uses local root operator commands with separate invitation and approval evidence.
 The evidence remains in Admin state. Operator names and action timestamps have no separate persistence table.
+ApplyOperatorActionHandler calls OperatorRuntime with typed OperatorInput. OperatorRuntime supplies the injected clock and calls OperatorWorkflow.
+The handler records the result only after the workflow returns. Preview writes no Admin record. Failed actions publish no result.
 Operator setup and manual seeding share a database-scoped MySQL advisory lock before starting their transactions.
 Only the sole pending Admin can receive operator approval. Removed Admin rows prevent another first-Admin invitation.
 The manually approved initial Admin seeder attests ownership and records separate bootstrap invitation and approval evidence.

@@ -21,12 +21,12 @@ final readonly class OperatorWorkflow
 
     public function run(OperatorInput $input, DateTimeImmutable $now, bool $apply): string
     {
-        $values     = $input->values();
+        $action     = $input->action;
         $store      = $this->store;
         $operations = $this->operations;
 
-        $work        = function () use ($input, $values, $now, $apply): string {
-            return match ($values['action']) {
+        $work        = function () use ($input, $action, $now, $apply): string {
+            return match ($action) {
                 'invite-first-admin' => $this->invite($input, $now, $apply),
                 default => $this->approve($input, $apply),
             };
@@ -38,15 +38,15 @@ final readonly class OperatorWorkflow
 
     private function invite(OperatorInput $input, DateTimeImmutable $now, bool $apply): string
     {
-        $values     = $input->values();
+        $targetId   = $input->targetId();
         $operations = $this->operations;
         $operations->assertFirstAdminAvailable();
         $store   = $this->store;
-        $account = $store->accountForUpdate($values['targetId']);
-        $state   = $account->snapshot();
-        $account->assertSessionAllowed($state['authVersion'], Realm::ADMIN);
-        $id    = IdentityId::create();
-        $actor = SystemAdmin::invite($id, IdentityId::fromString($account->id()), $values['invitation'], $now);
+        $account = $store->accountForUpdate($targetId);
+        $account->assertEligible(Realm::ADMIN);
+        $invitation = $input->invitation;
+        $id         = IdentityId::create();
+        $actor      = SystemAdmin::invite($id, IdentityId::fromString($account->id()), $invitation, $now);
         if ($apply) {
             $store->saveActor($actor);
         }
@@ -56,21 +56,23 @@ final readonly class OperatorWorkflow
 
     private function approve(OperatorInput $input, bool $apply): string
     {
-        $values     = $input->values();
+        $targetId   = $input->targetId();
         $operations = $this->operations;
-        $operations->assertBootstrapActor($values['targetId']);
-        $store        = $this->store;
-        $reference    = $store->actorReference(Realm::ADMIN, $values['targetId']);
-        $state        = $reference->snapshot();
-        $account      = $store->accountForUpdate($state['accountId']);
-        $accountState = $account->snapshot();
-        $account->assertSessionAllowed($accountState['authVersion'], Realm::ADMIN);
-        $actor = $store->actorForUpdate(Realm::ADMIN, $values['targetId']);
-        if (! $actor instanceof SystemAdmin || $state['approved'] || $state['deletedAt'] !== null) {
+        $operations->assertBootstrapActor($targetId);
+        $store            = $this->store;
+        $reference        = $store->actorReference(Realm::ADMIN, $targetId);
+        $accountReference = $reference->accountReference();
+        $accountId        = $accountReference->toString();
+        $account          = $store->accountForUpdate($accountId);
+        $account->assertEligible(Realm::ADMIN);
+        $actor = $store->actorForUpdate(Realm::ADMIN, $targetId);
+        if (! $actor instanceof SystemAdmin) {
             throw IdentityConflict::create('A pending first-Admin invitation is required.');
         }
 
-        $actor->approve($values['approval']);
+        $actor->assertPendingApproval();
+        $approval = $input->approval;
+        $actor->approve($approval);
         if ($apply) {
             $store->saveActor($actor);
         }

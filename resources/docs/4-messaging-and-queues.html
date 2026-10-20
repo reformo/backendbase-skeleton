@@ -648,9 +648,11 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
             <div class="code-wrap">
                 <pre><code>$this-&gt;integrationEventTransaction-&gt;execute(
     function () use ($entry): EntryAdded {
+        $clock = $this-&gt;clock;
+        $occurredOn = $clock-&gt;now();
         $this-&gt;entryRepository-&gt;add($entry);
 
-        return new EntryAdded(new EntryAddedPayload(/* ... */));
+        return new EntryAdded(new EntryAddedPayload(/* ... */), $occurredOn);
     },
 );</code></pre>
             </div>

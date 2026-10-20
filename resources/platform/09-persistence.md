@@ -162,6 +162,11 @@ This preserves legacy authentication decisions without a data rewrite. An explic
 All other declared fields remain required. New Account writes include the acceptance field.
 Business transitions and authorization decisions remain on the existing aggregates.
 
+Account and Actor hold immutable `AccountSnapshot` and `ActorSnapshot` values. Their authentication and approval fields reuse `AccountState` and `ActorState`.
+ContactInfo holds `ContactState`. Aggregate `snapshot()` methods return these typed values.
+State transitions replace snapshots and preserve earlier snapshots. Application authorization calls aggregate methods instead of reading state fields.
+ORM writers and seeders reuse the typed JSON values. Convert arrays explicitly at reconstruction and serialization boundaries.
+
 Each Doctrine entity keeps its mapped `state` field as an array.
 `state()` reconstructs the corresponding immutable class on each call.
 `replaceState()` accepts that exact class and stores its `toArray()` result.

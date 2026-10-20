@@ -212,6 +212,8 @@
             <p>Any requirement for different staff members must be enforced by the surrounding approval process. Separate evidence does not by itself establish that staff separation.</p>
             <h3>First-Admin bootstrap</h3>
             <p>Before any Admin row exists, local operator commands can invite and approve the first Admin. Preview is the default. Applying an action requires local root authority on the identified target.</p>
+            <p>Registration, administration, contact, and operator inputs store typed readonly fields. Contact input uses named constructor arguments. Application services consume these fields directly.</p>
+            <p><code>ApplyOperatorActionHandler</code> calls <code>OperatorRuntime</code>, which supplies the clock to <code>OperatorWorkflow</code>. The handler records the result after successful completion.</p>
             <p><code>identity:operator</code> requires an action, target identifier, operator label, and the applicable evidence. Invitation and approval use separate commands.</p>
             <p>A database-scoped MySQL lock serializes bootstrap and manual seeding. Approval requires the sole Admin row to be pending and active. Removed Admin rows still count.</p>
             <details>
@@ -276,6 +278,9 @@
                 <p>Doctrine adapters enforce Account-first locking and database uniqueness. Transient transaction retries use fresh entity managers. Registration preserves proof on rollback.</p>
                 <p>Protected actor changes reload persisted authority under locks. A concurrently removed Admin cannot restore itself through stale managed state.</p>
                 <p>Mapped JSON fields reconstruct immutable <code>AccountState</code>, <code>ActorState</code>, and <code>ContactState</code> values. Missing, mistyped, or unsupported fields fail explicitly.</p>
+                <p>Account and Actor retain typed snapshots that reuse these JSON values. ContactInfo retains ContactState. State changes preserve earlier snapshots.</p>
+                <p>Aggregates own contact membership, stored-contact selection, realm eligibility, and pending Admin approval checks.</p>
+                <p>Registration hashes the password before opening the identity transaction. Identity creation, credential storage, and proof consumption share that transaction.</p>
                 <p>HTTP controllers remain inside their owning inbound API. Shared HTTP helpers live outside the context's domain and application layers.</p>
                 <p>Success responses use descriptive keys such as <code>registration</code>, <code>session</code>, and <code>contactInfo</code>. Problem Details fields remain at the response root.</p>
             </details>
@@ -393,10 +398,10 @@ BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
         <section id="verification">
             <p class="section-label">12 · Verification and sources</p>
             <h2>Use recorded evidence and owning source</h2>
-            <p>The latest recorded isolated run passed on 18 October 2026. It completed 1,527 tests and 72,701 assertions with zero failures, errors, or skips.</p>
-            <p>Coverage reached 100% for executable lines and methods: 6,858 of 6,858 lines and 1,604 of 1,604 methods.</p>
-            <p>All 64 previously skipped service cases passed: 33 MySQL, 23 standalone Redis, and eight Sentinel cases. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
-            <p>The earlier <a href="../../platform/operations/identity-acceptance.md#http-replay-evidence-on-18-october-2026">live UserApi and SystemAdminApi checks</a> covered all 31 operations through 59 initial requests. Extra probes verified 39 retries and 21 changed-body rejections. Notifications used a private test sink.</p>
+            <p>The current isolated run completes 1,593 tests and 73,106 assertions with zero failures, errors, or skips.</p>
+            <p>Coverage reached 100% for executable lines and methods: 7,058 of 7,058 lines and 1,624 of 1,624 methods.</p>
+            <p>All 62 service cases pass: 31 MySQL, 23 standalone Redis, and eight Sentinel cases. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
+            <p>The <a href="../code-quality-and-maintainability-report.html#evidence">current live checks</a> cover all 52 operations through 501 requests. Bruno verifies 58 named tests across the three APIs. Notifications use a private test sink.</p>
             <ul class="source-list">
                 <li><a href="../../platform/14-security.md">Canonical identity and authentication rules</a></li>
                 <li><a href="../../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">Native targets, interval, and evidence</a></li>

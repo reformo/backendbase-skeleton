@@ -7,45 +7,39 @@ namespace Backendbase\Domain\IdentityAndAccess\Domain\Contacts;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ContactState;
 use DateTimeImmutable;
 use DateTimeZone;
 
 final class ContactInfo
 {
-    /** @param array{realm: string, purpose: string, contactType: string, contactValue: string, contextHash: string, accountId: string|null, actorId: string|null, generationId: string, codeHash: string, codeExpiresAt: string, failedAttempts: int, requestedAt: string, lastSentAt: string, verifiedAt: string|null, consumedAt: string|null, deliveryState: string, revision: int} $state */
-    public function __construct(private readonly IdentityId $id, private array $state)
+    public function __construct(private readonly IdentityId $id, private ContactState $state)
     {
-        new ContactValue($state['contactType'], $state['contactValue']);
     }
 
     public static function request(IdentityId $id, ContactValue $contact, VerificationContextToken $token, VerificationScope $scope, DateTimeImmutable $now): self
     {
-        $owner     = $scope->owner();
-        $type      = $contact->type();
-        $value     = $contact->value();
-        $digest    = $token->digest();
-        $realm     = $scope->realm();
-        $purpose   = $scope->purpose();
-        $timestamp = $now->format('Y-m-d H:i:s.u');
-
-        return new self($id, ['realm' => $realm, 'purpose' => $purpose, 'contactType' => $type, 'contactValue' => $value, 'contextHash' => $digest, ...$owner, 'generationId' => '', 'codeHash' => '', 'codeExpiresAt' => $timestamp, 'failedAttempts' => 0, 'requestedAt' => $timestamp, 'lastSentAt' => $timestamp, 'verifiedAt' => null, 'consumedAt' => null, 'deliveryState' => 'pending', 'revision' => 1]);
+        return new self($id, ContactState::forRequest($contact, $token, $scope, $now));
     }
 
     public function assertContext(VerificationContextToken $token, VerificationScope $scope): void
     {
-        $owner = $scope->owner();
-        if (! $token->matches($this->state['contextHash']) || $this->state['realm'] !== $scope->realm() || $this->state['purpose'] !== $scope->purpose() || $owner !== ['accountId' => $this->state['accountId'], 'actorId' => $this->state['actorId']]) {
+        $state        = $this->state;
+        $contextHash  = $state->contextHash;
+        $tokenMatches = $token->matches($contextHash);
+        if (! $tokenMatches || ! $scope->matches($state)) {
             throw AuthenticationDenied::create('Contact verification is not permitted.');
         }
     }
 
     public function assertFresh(DateTimeImmutable $now): void
     {
-        if ($this->state['consumedAt'] !== null) {
+        $state = $this->state;
+        if ($state->consumedAt !== null) {
             throw IdentityConflict::create('The verification evidence has been consumed.');
         }
 
-        $verified = $this->state['verifiedAt'];
+        $verified = $state->verifiedAt;
         if ($verified === null) {
             throw AuthenticationDenied::create('The contact requires verification.');
         }
@@ -58,17 +52,19 @@ final class ContactInfo
 
     public function assertConfirmationAllowed(DateTimeImmutable $now): void
     {
-        if ($this->state['failedAttempts'] >= 5) {
+        $state = $this->state;
+        if ($state->failedAttempts >= 5) {
             throw VerificationLimited::create('The verification attempt limit was reached.', ['retryAfter' => 3600]);
         }
 
-        if ($this->state['verifiedAt'] !== null) {
+        if ($state->verifiedAt !== null) {
             $this->assertFresh($now);
 
             return;
         }
 
-        if ($this->state['codeExpiresAt'] <= $now->format('Y-m-d H:i:s.u')) {
+        $timestamp = $now->format('Y-m-d H:i:s.u');
+        if ($state->codeExpiresAt <= $timestamp) {
             throw ContactVerificationExpired::create('The verification code has expired.');
         }
     }
@@ -76,28 +72,29 @@ final class ContactInfo
     public function confirm(bool $valid, DateTimeImmutable $now): bool
     {
         $this->assertConfirmationAllowed($now);
-        if (! $valid) {
-            $this->state['failedAttempts']++;
+        $state       = $this->state;
+        $attempts    = $state->failedAttempts;
+        $verifiedAt  = $state->verifiedAt;
+        $timestamp   = $now->format('Y-m-d H:i:s.u');
+        $state       = $state->with(failedAttempts: $valid ? $attempts : $attempts + 1, verifiedAt: $valid ? ($verifiedAt ?? $timestamp) : $verifiedAt);
+        $this->state = $state;
 
-            return false;
-        }
-
-        $this->state['verifiedAt'] ??= $now->format('Y-m-d H:i:s.u');
-
-        return true;
+        return $valid;
     }
 
     public function assertResendAllowed(DateTimeImmutable $now): void
     {
-        if ($this->state['verifiedAt'] !== null || $this->state['consumedAt'] !== null) {
+        $state      = $this->state;
+        $verifiedAt = $state->verifiedAt;
+        if ($verifiedAt !== null || $state->consumedAt !== null) {
             throw IdentityConflict::create('Verified contact evidence cannot be renewed.');
         }
 
-        if ($this->state['failedAttempts'] >= 5) {
+        if ($state->failedAttempts >= 5) {
             throw VerificationLimited::create('The verification attempt limit was reached.', ['retryAfter' => 3600]);
         }
 
-        $previous = new DateTimeImmutable($this->state['lastSentAt'], new DateTimeZone('UTC'));
+        $previous = new DateTimeImmutable($state->lastSentAt, new DateTimeZone('UTC'));
         if ($previous->modify('+60 seconds') > $now) {
             throw VerificationLimited::create('Wait before requesting another code.', ['retryAfter' => 60]);
         }
@@ -105,29 +102,32 @@ final class ContactInfo
 
     public function issue(string $generationId, string $codeHash, DateTimeImmutable $now): void
     {
-        $expires                      = $now->modify('+5 minutes');
-        $this->state['generationId']  = $generationId;
-        $this->state['codeHash']      = $codeHash;
-        $this->state['codeExpiresAt'] = $expires->format('Y-m-d H:i:s.u');
-        $this->state['lastSentAt']    = $now->format('Y-m-d H:i:s.u');
-        $this->state['deliveryState'] = 'pending';
+        $expires     = $now->modify('+5 minutes');
+        $expiresAt   = $expires->format('Y-m-d H:i:s.u');
+        $lastSentAt  = $now->format('Y-m-d H:i:s.u');
+        $state       = $this->state;
+        $state       = $state->with(generationId: $generationId, codeHash: $codeHash, codeExpiresAt: $expiresAt, lastSentAt: $lastSentAt, deliveryState: 'pending');
+        $this->state = $state;
     }
 
     public function consume(string $accountId, string $actorId, DateTimeImmutable $now): void
     {
         $this->assertFresh($now);
-        $this->state['accountId']  = $accountId;
-        $this->state['actorId']    = $actorId;
-        $this->state['consumedAt'] = $now->format('Y-m-d H:i:s.u');
+        $state       = $this->state;
+        $consumedAt  = $now->format('Y-m-d H:i:s.u');
+        $state       = $state->with(accountId: $accountId, actorId: $actorId, consumedAt: $consumedAt);
+        $this->state = $state;
     }
 
     public function recordDelivery(string $generationId, string $status): void
     {
-        if ($this->state['generationId'] !== $generationId) {
+        $state = $this->state;
+        if ($state->generationId !== $generationId) {
             return;
         }
 
-        $this->state['deliveryState'] = $status;
+        $state       = $state->with(deliveryState: $status);
+        $this->state = $state;
     }
 
     public function id(): string
@@ -139,11 +139,10 @@ final class ContactInfo
 
     public function contact(): ContactValue
     {
-        return new ContactValue($this->state['contactType'], $this->state['contactValue']);
+        return ContactValue::fromState($this->state);
     }
 
-    /** @return array{realm: string, purpose: string, contactType: string, contactValue: string, contextHash: string, accountId: string|null, actorId: string|null, generationId: string, codeHash: string, codeExpiresAt: string, failedAttempts: int, requestedAt: string, lastSentAt: string, verifiedAt: string|null, consumedAt: string|null, deliveryState: string, revision: int} */
-    public function snapshot(): array
+    public function snapshot(): ContactState
     {
         return $this->state;
     }

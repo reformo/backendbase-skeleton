@@ -8,51 +8,43 @@ use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryGroup;
 use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryKey;
 use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryTargetId;
 
-/**
- * @phpstan-type EntryIdentityState array{
- *     type: EntryType,
- *     typeTargetId: EntryTargetId,
- *     group: EntryGroup,
- *     key: EntryKey
- * }
- */
 final readonly class EntryIdentity
 {
-    /** @var EntryIdentityState */
-    private array $state;
+    private EntryType $entryType;
+    private EntryTargetId $targetId;
+    private EntryGroup $entryGroup;
+    private EntryKey $entryKey;
 
     public function __construct(EntryType $type, int|null $typeTargetId, string $group, string $key)
     {
-        $this->state = [
-            'type' => $type,
-            'typeTargetId' => new EntryTargetId($typeTargetId),
-            'group' => new EntryGroup($group),
-            'key' => new EntryKey($key),
-        ];
+        $this->entryType  = $type;
+        $this->targetId   = new EntryTargetId($typeTargetId);
+        $this->entryGroup = new EntryGroup($group);
+        $this->entryKey   = new EntryKey($key);
     }
 
     public function type(): EntryType
     {
-        return $this->state['type'];
+        return $this->entryType;
     }
 
     public function typeTargetId(): int|null
     {
-        $value = $this->state['typeTargetId'];
+        $value = $this->targetId;
 
         return $value->toInteger();
     }
 
     public function group(): string
     {
-        $value = $this->state['group'];
+        $value = $this->entryGroup;
 
         return $value->toString();
     }
 
     public function key(): string
     {
-        $value = $this->state['key'];
+        $value = $this->entryKey;
 
         return $value->toString();
     }

@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Infrastructure\Adapters\DomainEvents\ContainerAwareDomainEventPublisher;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventTrait;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -29,7 +30,7 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
 
             public function __construct()
             {
-                $this->initializeOccurredOn();
+                $this->initializeOccurredOn(new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
             }
 
             public function eventName(): string
@@ -67,6 +68,6 @@ final class ContainerAwareDomainEventPublisherTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
 
-        $publisher->publish(new EntryAdded('018f0000-0000-7000-8000-000000000001', $command));
+        $publisher->publish(new EntryAdded($command, new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
     }
 }

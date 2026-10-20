@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Adapters\EventManager;
 
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryRemoved;
+use DateTimeImmutable;
 use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
@@ -25,7 +26,7 @@ final class IntegrationEventDispatchFailureTest extends IntegrationEventDispatch
         $this->expectExceptionMessage('The local integration subscriber failed.');
 
         try {
-            $this->executeEvent(new EntryRemoved('example-id'));
+            $this->executeEvent(new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
         } finally {
             $this->assertNoWrites();
         }
@@ -43,7 +44,7 @@ final class IntegrationEventDispatchFailureTest extends IntegrationEventDispatch
         $this->expectExceptionMessage('Outbox insert failed.');
 
         try {
-            $this->executeEvent(new EntryRemoved('example-id'));
+            $this->executeEvent(new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
         } finally {
             $this->assertNoWrites();
         }

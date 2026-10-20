@@ -9,6 +9,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
 use Backendbase\Shared\Domain\Attributes\DomainEventListener as DomainEventListenerAttribute;
 use Backendbase\Shared\Domain\DomainEvent;
 use Backendbase\Shared\Domain\DomainEventTrait;
+use DateTimeImmutable;
 
 #[DomainEventListenerAttribute(EntryAddedListener::class)]
 class EntryAdded implements DomainEvent
@@ -16,15 +17,17 @@ class EntryAdded implements DomainEvent
     use DomainEventTrait;
 
     public function __construct(
-        private string $entryId,
         private AddEntry $payload,
+        DateTimeImmutable $occurredOn,
     ) {
-        $this->initializeOccurredOn();
+        $this->initializeOccurredOn($occurredOn);
     }
 
     public function entryId(): string
     {
-        return $this->entryId;
+        $payload = $this->payload;
+
+        return $payload->entryId();
     }
 
     public function payload(): AddEntry
@@ -40,9 +43,9 @@ class EntryAdded implements DomainEvent
     /** @return array<string, mixed> */
     public function getEventArguments(): array
     {
-        return [
-            'exampleId' => $this->entryId,
-            'payload' => $this->payload->toArray(),
-        ];
+        $entryId = $this->entryId();
+        $payload = $this->payload;
+
+        return ['exampleId' => $entryId, 'payload' => $payload->toArray()];
     }
 }

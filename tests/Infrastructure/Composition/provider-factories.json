@@ -1,0 +1,198 @@
+{
+    "application.php": {
+        "factories": [
+            "Backendbase\\Domain\\IdentityAndAccess\\Domain\\Authentication\\SessionLifetime",
+            "Backendbase\\Domain\\IdentityAndAccess\\Domain\\Registration\\RegistrationPolicy",
+            "Backendbase\\Infrastructure\\Adapters\\Mapping\\ObjectMapper",
+            "Backendbase\\Shared\\Services\\Translator",
+            "Backendbase\\Utility\\Pipeline\\PipelineInterface"
+        ],
+        "branches": [
+            "Five environment modes; mapping cache and translated request language",
+            "Four registration policies; USER and ADMIN session lifetimes"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/RuntimeCompositionTest.php",
+            "tests/Infrastructure/Inbound/IdentityApi/Registration/RegistrationPolicyTest.php",
+            "tests/Infrastructure/Configuration/IdentitySettingsTest.php"
+        ]
+    },
+    "aws.php": {
+        "factories": [
+            "Aws\\S3\\S3ClientInterface",
+            "Aws\\SesV2\\SesV2Client",
+            "Aws\\Sns\\SnsClient",
+            "Aws\\Sqs\\SqsClient",
+            "Backendbase\\Infrastructure\\Adapters\\Notification\\SnsNotifier",
+            "Backendbase\\Infrastructure\\Adapters\\Queue\\SqsQueue",
+            "Backendbase\\Infrastructure\\Adapters\\Queue\\SqsTransport",
+            "Backendbase\\Shared\\Integrations\\BucketService"
+        ],
+        "branches": [
+            "Service and custom endpoints; explicit fixture credentials; bounded client timeouts",
+            "SNS, SES, SQS and S3 factories; SES unknown outcomes do not retry"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/RuntimeCompositionTest.php",
+            "tests/Infrastructure/Adapters/Notification/NotificationCompositionTest.php",
+            "tests/Infrastructure/Adapters/Aws/AwsClientConfigurationBuilderTest.php"
+        ]
+    },
+    "bounded-contexts.php": {
+        "factories": [
+            "Backendbase\\Infrastructure\\Adapters\\CQRS\\RegistryHandlerResolver"
+        ],
+        "branches": [
+            "Discovered context definitions and every CQRS handler; registry and attribute resolvers"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/ProductionContainerTest.php",
+            "tests/Architecture/RegistryHandlerBoundaryTest.php"
+        ]
+    },
+    "doctrine.php": {
+        "factories": [
+            "Backendbase\\Shared\\Persistence\\Outbox\\IntegrationEventOutbox",
+            "Doctrine\\DBAL\\Connection",
+            "Doctrine\\ORM\\Configuration",
+            "Doctrine\\ORM\\EntityManagerInterface"
+        ],
+        "branches": [
+            "Development and non-development caches; isolated SQLite and native MySQL",
+            "Production persistence ports, outbox destination and transaction boundaries"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/RuntimeCompositionTest.php",
+            "tests/Infrastructure/Composition/ProductionContainerTest.php",
+            "tests/Infrastructure/Adapters/Persistence/Doctrine/MessagingPolicyDependencyDefinitionsTest.php",
+            "src/Backendbase/Domain/IdentityAndAccess/Tests/Services/MySqlMappingTest.php"
+        ]
+    },
+    "idempotency.php": {
+        "factories": [
+            "Backendbase\\Infrastructure\\Adapters\\Http\\HttpErrorHandler"
+        ],
+        "branches": [
+            "Error mapping; public realm and protected replay; failure and conflict paths"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Inbound/IdentityApi/BoundaryFailureTest.php",
+            "tests/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/ReplayMigrationTest.php"
+        ]
+    },
+    "logger.php": {
+        "factories": [
+            "Psr\\Log\\LoggerInterface"
+        ],
+        "branches": [
+            "UTC records and configured stream, format and level"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/LoggerConfigurationTest.php"
+        ]
+    },
+    "modules.php": {
+        "factories": [
+            "Backendbase\\Shared\\CQRS\\CommandBus",
+            "Backendbase\\Shared\\CQRS\\QueryBus",
+            "Backendbase\\Shared\\Domain\\DomainEventPublisher",
+            "Backendbase\\Shared\\Integrations\\ExternalIntegrationEventRegistry",
+            "Backendbase\\Shared\\Services\\EventManager\\EventManager"
+        ],
+        "branches": [
+            "Context listener and subscriber discovery; domain and integration event buses"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/ProductionContainerTest.php",
+            "tests/Architecture/RegistryHandlerBoundaryTest.php",
+            "tests/Infrastructure/Adapters/EventManager/TransactionalIntegrationEventDispatchTest.php"
+        ]
+    },
+    "notification.php": {
+        "factories": [
+            "Backendbase\\Infrastructure\\Adapters\\Notification\\FirebasePushNotifier",
+            "Backendbase\\Infrastructure\\Adapters\\Notification\\NetgsmSmsNotifier",
+            "Backendbase\\Infrastructure\\Adapters\\Notification\\SesEmailNotifier",
+            "Backendbase\\Infrastructure\\Adapters\\Notification\\SmtpEmailNotifier",
+            "Backendbase\\Infrastructure\\Adapters\\Notification\\TwilioSmsNotifier",
+            "Backendbase\\Shared\\Integrations\\Notify",
+            "GuzzleHttp\\ClientInterface",
+            "Kreait\\Firebase\\Contract\\Messaging",
+            "Symfony\\Component\\Mailer\\MailerInterface"
+        ],
+        "branches": [
+            "All twelve SMS, email and push combinations through production settings",
+            "SMTP none, STARTTLS and SMTPS with and without credentials",
+            "Firebase explicit and application-default temporary service-account credentials; SDK construction without delivery"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/NotificationCompositionTest.php",
+            "tests/Infrastructure/Composition/SmtpCompositionTest.php",
+            "tests/Infrastructure/Composition/FirebaseCompositionTest.php"
+        ]
+    },
+    "queue.php": {
+        "factories": [
+            "Backendbase\\Shared\\Integrations\\MessageConsumer",
+            "Backendbase\\Shared\\Integrations\\MessagePublisher"
+        ],
+        "branches": [
+            "RabbitMQ and SQS; publisher and consumer share the selected outbound adapter"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/RuntimeCompositionTest.php",
+            "tests/Infrastructure/Composition/ProductionContainerTest.php"
+        ]
+    },
+    "rabbitmq.php": {
+        "factories": [
+            "Backendbase\\Infrastructure\\Health\\RabbitMQConnectionFactory",
+            "PhpAmqpLib\\Connection\\AbstractConnection"
+        ],
+        "branches": [
+            "Lazy runtime connection; separate bounded readiness connection"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/RuntimeCompositionTest.php",
+            "tests/Infrastructure/Health/ReadinessDependencyDefinitionsTest.php"
+        ]
+    },
+    "readiness.php": {
+        "factories": [
+            "Backendbase\\Shared\\Health\\ReadinessChecks"
+        ],
+        "branches": [
+            "RabbitMQ and SQS readiness; MySQL, Redis and object-store checks; deferred failures"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/ProductionContainerTest.php",
+            "tests/Infrastructure/Health/ReadinessDependencyDefinitionsTest.php"
+        ]
+    },
+    "redis.php": {
+        "factories": [
+            "Backendbase\\Infrastructure\\Adapters\\Security\\SessionRedis",
+            "Redislabs\\Interfaces\\RedisClientInterface"
+        ],
+        "branches": [
+            "Lazy RedisJSON connection reuse; credentials and TLS configuration",
+            "Native Redis 8 activation, rejection, reconnect and Sentinel failover"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Adapters/RedisDependencyDefinitionsTest.php",
+            "tests/Infrastructure/Configuration/RedisSecuritySettingsTest.php",
+            "src/Backendbase/Domain/IdentityAndAccess/Tests/Services/RedisFailoverTest.php",
+            "src/Backendbase/Domain/IdentityAndAccess/Tests/Services/RedisJson/RedisJsonSessionTest.php"
+        ]
+    },
+    "time.php": {
+        "factories": [],
+        "branches": [
+            "Application clock port and explicit event occurrence instants"
+        ],
+        "evidence": [
+            "tests/Infrastructure/Composition/ProductionContainerTest.php",
+            "src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php"
+        ]
+    }
+}

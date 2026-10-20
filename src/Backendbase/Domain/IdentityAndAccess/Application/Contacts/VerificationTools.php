@@ -41,6 +41,8 @@ final readonly class VerificationTools
         $state   = $contact->snapshot();
         $secrets = $this->secrets;
 
-        return $secrets->verifyProof($proof, $state['codeHash']);
+        $expectedHash = $state->codeHash;
+
+        return $secrets->verifyProof($proof, $expectedHash);
     }
 }

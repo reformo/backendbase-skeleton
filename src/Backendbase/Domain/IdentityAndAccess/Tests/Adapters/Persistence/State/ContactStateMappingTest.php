@@ -20,7 +20,7 @@ final class ContactStateMappingTest extends TestCase
         $fixture   = IdentityFixture::create();
         $container = $fixture->container();
         $manager   = $container->get(EntityManagerInterface::class);
-        $record    = ContactVerification::create(new Contact(IdentityId::create(), StateExamples::CONTACT));
+        $record    = ContactVerification::create(new Contact(IdentityId::create(), ContactState::fromArray(StateExamples::CONTACT)));
         $copy      = [...StateExamples::CONTACT, 'realm' => 'ADMIN', 'purpose' => 'admin-contact', 'contactValue' => 'other@example.com', 'contextHash' => 'different', 'accountId' => 'old-account', 'actorId' => 'old-actor', 'verifiedAt' => '2026-10-17 10:01:00.000000', 'revision' => 99];
         $record->replaceState(ContactState::fromArray($copy));
         $manager->persist($record);
@@ -32,20 +32,20 @@ final class ContactStateMappingTest extends TestCase
         $state = $loaded->state();
         self::assertSame($copy, $state->toArray());
         $contact = $loaded->toDomain();
-        self::assertEquals(StateExamples::CONTACT, $contact->snapshot());
+        self::assertEquals(StateExamples::CONTACT, $contact->snapshot()->toArray());
     }
 
     public function testInvalidStateDoesNotPartiallyChangeTheRecord(): void
     {
-        $id      = IdentityId::create();
-        $record  = ContactVerification::create(new Contact($id, StateExamples::CONTACT));
-        $invalid = new Contact($id, [...StateExamples::CONTACT, 'contactValue' => 'other@example.com', 'futureField' => true]);
+        $id     = IdentityId::create();
+        $record = ContactVerification::create(new Contact($id, ContactState::fromArray(StateExamples::CONTACT)));
         try {
+            $invalid = new Contact($id, ContactState::fromArray([...StateExamples::CONTACT, 'contactValue' => 'other@example.com', 'futureField' => true]));
             $record->synchronize($invalid);
             self::fail('Unsupported state must fail before record mutation.');
         } catch (AuthenticationUnavailable) {
             $contact = $record->toDomain();
-            self::assertEquals(StateExamples::CONTACT, $contact->snapshot());
+            self::assertEquals(StateExamples::CONTACT, $contact->snapshot()->toArray());
         }
     }
 }

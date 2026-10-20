@@ -10,6 +10,7 @@ use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Shared\Domain\Exception\DomainRecordNotFound;
 use Backendbase\Shared\Domain\Messaging\IntegrationEvent;
 use Backendbase\Shared\Domain\Messaging\IntegrationEventTrait;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +31,7 @@ final class SharedDomainSupportTest extends TestCase
             'key',
             'value',
         );
-        $event   = new EntryAdded('018f0000-0000-7000-8000-000000000001', $command);
+        $event   = new EntryAdded($command, new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         $aggregate->recordEvent($event);
 
         self::assertCount(1, $aggregate->getRecordedEvents());
@@ -53,7 +54,7 @@ final class SharedDomainSupportTest extends TestCase
             'value',
         );
 
-        $aggregate->recordEvent(new EntryAdded('018f0000-0000-7000-8000-000000000001', $command));
+        $aggregate->recordEvent(new EntryAdded($command, new DateTimeImmutable('2026-10-19T10:00:00.123456Z')));
 
         self::assertCount(1, $aggregate->getRecordedEvents());
     }

@@ -13,27 +13,26 @@ use function trim;
 
 final readonly class AdminInvitationInput
 {
-    /** @var array{accountId: IdentityId, evidence: string} */
-    private array $values;
+    private IdentityId $id;
 
-    public function __construct(string $accountId, string $evidence)
+    public function __construct(string $accountId, private string $evidence)
     {
         if (trim($evidence) === '' || strlen($evidence) > 160 || preg_match('/[\x00-\x1f\x7f]/', $evidence) === 1) {
             throw InvalidUserInput::create('A bounded invitation evidence reference is required.');
         }
 
-        $this->values = ['accountId' => IdentityId::fromString($accountId), 'evidence' => $evidence];
+        $this->id = IdentityId::fromString($accountId);
     }
 
     public function accountId(): string
     {
-        $id = $this->values['accountId'];
+        $id = $this->id;
 
         return $id->toString();
     }
 
     public function evidence(): string
     {
-        return $this->values['evidence'];
+        return $this->evidence;
     }
 }

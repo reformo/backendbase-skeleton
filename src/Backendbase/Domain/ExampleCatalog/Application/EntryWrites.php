@@ -38,7 +38,7 @@ final readonly class EntryWrites
         $repository   = $this->repository;
         $repository->add($entry);
 
-        return new EntryAdded(new EntryAddedPayload($entryId, $type->value, $typeTargetId, $group, $isActive, $key, $value, $details));
+        return new EntryAdded(new EntryAddedPayload($entryId, $type->value, $typeTargetId, $group, $isActive, $key, $value, $details), $now);
     }
 
     public function change(ChangeEntry $command): EntryChanged
@@ -54,7 +54,7 @@ final readonly class EntryWrites
         $entry->change($isActive, $value, $details, $now);
         $repository->save($entry);
 
-        return new EntryChanged(new EntryChangedPayload($entry->id(), $isActive, $value, $details));
+        return new EntryChanged(new EntryChangedPayload($entry->id(), $isActive, $value, $details), $now);
     }
 
     public function remove(RemoveEntry $command): EntryRemoved
@@ -67,6 +67,6 @@ final readonly class EntryWrites
         $entry->remove($now);
         $repository->save($entry);
 
-        return new EntryRemoved($entry->id());
+        return new EntryRemoved($entry->id(), $now);
     }
 }

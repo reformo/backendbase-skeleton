@@ -6,6 +6,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Domain\Contacts;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountEmail;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\AccountMobile;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\ContactState;
 use Backendbase\Shared\Exception\InvalidUserInput;
 
 use function hash;
@@ -27,6 +28,13 @@ final readonly class ContactValue
     public function type(): string
     {
         return $this->type;
+    }
+
+    public static function fromState(ContactState $state): self
+    {
+        $type = $state->contactType;
+
+        return new self($type, $state->contactValue);
     }
 
     public function value(): string

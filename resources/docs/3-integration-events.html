@@ -675,7 +675,7 @@
                     <tbody>
                         <tr><td><code>eventName()</code></td><td>Stable event type string.</td><td><code>integration_event_outbox.event_name</code></td></tr>
                         <tr><td><code>eventVersion()</code></td><td>Exact payload schema version.</td><td><code>integration_event_outbox.event_version</code></td></tr>
-                        <tr><td><code>occurredOn()</code></td><td>Time when the domain fact occurred.</td><td><code>integration_event_outbox.occurred_at</code></td></tr>
+                        <tr><td><code>occurredOn()</code></td><td>Explicit application-clock instant when the domain fact occurred.</td><td><code>integration_event_outbox.occurred_at</code></td></tr>
                         <tr><td><code>getEventArguments()</code></td><td>JSON-compatible payload object.</td><td><code>integration_event_outbox.payload</code></td></tr>
                         <tr><td><code>toArray()</code></td><td>Array form for logs and serialization.</td><td>Delegates to <code>getEventArguments()</code> in the trait.</td></tr>
                         <tr><td><code>isExternal()</code></td><td>Returns the <code>DELIVER_VIA_QUEUE</code> flag.</td><td>Controls the outbox insert after local subscribers run.</td></tr>
@@ -693,9 +693,9 @@
 
     use IntegrationEventTrait;
 
-    public function __construct(private readonly EntryChangedPayload $payload)
+    public function __construct(private readonly EntryChangedPayload $payload, DateTimeImmutable $occurredOn)
     {
-        $this-&gt;occurredOn = DateTimeImmutable::create();
+        $this-&gt;occurredOn = $occurredOn;
     }
 
     public function eventName(): string
@@ -769,10 +769,13 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
     function () use ($command): EntryChanged {
         $entry = $this-&gt;entryRepository
             -&gt;getActiveByIdentity($command-&gt;identity());
+        $clock = $this-&gt;clock;
+        $now = $clock-&gt;now();
         $entry-&gt;change(
             $command-&gt;isActive(),
             $command-&gt;value(),
             $command-&gt;details(),
+            $now,
         );
         $this-&gt;entryRepository-&gt;save($entry);
 
@@ -781,7 +784,7 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
             isActive: $command-&gt;isActive(),
             value: $command-&gt;value(),
             details: $command-&gt;details(),
-        ));
+        ), $now);
     },
 );</code></pre>
             </div>
@@ -1041,7 +1044,8 @@ Consumer name:  Example_ExampleChanged_Event</code></pre>
 
             <h3>Producer-to-consumer contract assertion</h3>
             <div class="code-wrap">
-                <pre><code>$event = new EntryAdded(new EntryAddedPayload(/* explicit values */));
+                <pre><code>$occurredOn = new DateTimeImmutable('2026-10-19T10:00:00.123456Z');
+$event = new EntryAdded(new EntryAddedPayload(/* explicit values */), $occurredOn);
 
 $eventManager-&gt;expects(self::once())
     -&gt;method('dispatchExternalEvent')

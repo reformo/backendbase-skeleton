@@ -145,7 +145,7 @@ Architecture tests under `tests/Architecture` parse PHP symbols with `nikic/php-
 
 `Psr\Log\LoggerInterface` remains allowed as an application port. Command and query contracts do not import their handlers.
 
-`Shared/Time/Clock` supplies UTC instants where time controls messaging availability, retries, claims, age checks, and retention. `config/dependencies/time.php` binds the system adapter. Pure calculations receive an explicit instant. Example audit writes read the injected clock and pass explicit instants to Entry. The date helper retains UTC defaults and explicit time-zone support for other date construction. The Monolog factory sets its own UTC time zone independently.
+`Shared/Time/Clock` supplies UTC instants where time controls messaging availability, retries, claims, age checks, and retention. `config/dependencies/time.php` binds the system adapter. Pure calculations receive an explicit instant. Example audit writes read the injected clock and pass the same instant to Entry and its events. Event constructors require that instant explicitly. The date helper retains UTC defaults and explicit time-zone support for other date construction. The Monolog factory sets its own UTC time zone independently.
 
 ### Ports And Adapters
 
@@ -375,19 +375,24 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 
 ## Current Assessment
 
-The [engineering assessment](code-quality-and-maintainability-report.html) scores current source quality at **9.5/10** from 94.5/100 points (9.45/10 before rounding).
-The [architecture assessment](ports-and-adapters-critique.html) scores dependency and design criteria at **9.4/10** from 75.5/80 points.
+The [engineering assessment](code-quality-and-maintainability-report.html) scores current source quality at **9.8/10** from 98/100 points.
+The [architecture assessment](ports-and-adapters-critique.html) scores dependency and design criteria at **9.9/10** from 79.5/80 points.
 Both reports state criterion weights, evidence, deductions, and execution limits.
+The disposable deployment rehearsal passes installation, concurrent cold startup, and recovery checks.
+All 48 cold-start requests preserve valid responses. Redis outage returns one JSON problem with HTTP 503.
+See the [local release evidence](code-quality-and-maintainability-report.html#local-deployment).
 
 - Context-owned ports, registry mappings, explicit transactions, and complete adapter classification remain strengths.
 - Validated identity JSON state, independent registration proof policies, and encrypted HTTP replay have local regression coverage.
 - All 52 API operations pass schema and tag checks. All 38 write operations require `Idempotency-Key`.
 - Four installation migrations create eleven application tables. Existing databases require a separate adoption plan.
-- Snapshot-based application decisions and static event timestamps remain design costs.
+- Domain objects own identity decisions. Aggregate snapshots are typed. Event constructors receive explicit instants. Fixed command inputs use typed fields. The operator handler records results directly after the clock-backed workflow completes.
 
-The current native-enabled suite passes all 1,521 cases with zero skips.
-It records 72,662 assertions, no failures or errors, and 100% executable-line and method coverage.
+The current native-enabled suite passes all 1,593 cases with zero skips.
+It records 73,106 assertions, no failures or errors, and 100% executable-line and method coverage.
 PHPStan level 8, complexity, coding standards, API validation, and temporary deployment fixtures pass.
+All 41 factories in 13 providers have maintained evidence. Tests execute supported runtime branches without external delivery.
+Registration hashes passwords before its transaction. Tests verify hash failure isolation and rollback after credential failure.
 Dependency integrity scores **10/10**. All 141 pristine packages match committed content digests and the software bill of materials.
 Isolated Composer diagnosis, strict validation, and the current advisory audit pass. No advisories or abandoned packages are reported.
 The Public API contracts score is **10/10**. All 52 maintained Bruno operations pass through 58 requests and 58 named tests.

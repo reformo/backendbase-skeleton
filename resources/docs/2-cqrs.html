@@ -749,6 +749,9 @@
                 <li>Return no data through <code>CommandBus</code>. Use a generated ID before dispatch when the response needs it.</li>
             </ul>
 
+            <p>Fixed command and query inputs use typed fields. Arrays remain at serialization boundaries and for documented open-ended details.</p>
+            <p><code>ChangeEntry</code> stores pending values in immutable <code>EntryChanges</code>. Each setter validates before replacement. Rejected values preserve earlier changes.</p>
+
             <h3 id="client-visible-write-results">Client-visible write results</h3>
             <p>Command handlers and <code>CommandBus</code> still return <code>void</code>. Select the smallest approach that satisfies the response contract.</p>
             <ol>
@@ -765,7 +768,7 @@
             <div class="callout command">
                 <strong>Patch commands can carry nullable fields</strong>
                 The current <code>ChangeEntry</code> command uses nullable values to mean “not supplied.”
-                Its handler passes those values to aggregate behavior.
+                Its handler passes those values to aggregate behavior. Setting a field to <code>null</code> clears its pending change.
             </div>
         </section>
 

@@ -50,7 +50,7 @@ final class AuthenticationAdapterFailureTest extends TestCase
         $store      = $container->get(IdentityStore::class);
         $id         = IdentityId::create();
         $admin      = SystemAdmin::invite($id, IdentityId::fromString($registered['accountId']), 'invitation:123', new DateTimeImmutable());
-        $actor      = new class ($id, $admin->snapshot()) extends Actor {
+        $actor      = new class ($id, $admin->snapshot()->toArray()) extends Actor {
             public function realm(): Realm
             {
                 return Realm::ADMIN;

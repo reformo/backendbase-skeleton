@@ -12,25 +12,21 @@ use Backendbase\Shared\Primitives\Pagination;
 /** @implements Query<EntryGroupPage> */
 readonly class GetEntryGroupsByType implements Query
 {
-    /** @var array{type: EntryType, typeTargetId: int|null} */
-    private array $criteria;
-
     public function __construct(
-        EntryType $type,
-        int|null $typeTargetId,
+        private EntryType $type,
+        private int|null $typeTargetId,
         private Pagination $pagination = new Pagination(1000, 1),
     ) {
-        $this->criteria = ['type' => $type, 'typeTargetId' => $typeTargetId];
     }
 
     public function type(): EntryType
     {
-        return $this->criteria['type'];
+        return $this->type;
     }
 
     public function typeTargetId(): int|null
     {
-        return $this->criteria['typeTargetId'];
+        return $this->typeTargetId;
     }
 
     public function pagination(): Pagination
@@ -46,9 +42,11 @@ readonly class GetEntryGroupsByType implements Query
     /** @return array{type: string, typeTargetId: int|null, pagination: Pagination} */
     public function toArray(): array
     {
+        $type = $this->type;
+
         return [
-            'type' => $this->criteria['type']->value,
-            'typeTargetId' => $this->criteria['typeTargetId'],
+            'type' => $type->value,
+            'typeTargetId' => $this->typeTargetId,
             'pagination' => $this->pagination,
         ];
     }

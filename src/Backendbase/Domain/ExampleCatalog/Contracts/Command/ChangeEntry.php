@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\ExampleCatalog\Contracts\Command;
 
+use Backendbase\Domain\ExampleCatalog\Contracts\Input\EntryChanges;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryDetails;
 use Backendbase\Domain\ExampleCatalog\Domain\Primitives\EntryValue;
@@ -12,12 +13,12 @@ use Override;
 
 class ChangeEntry implements Command
 {
-    /** @var array{isActive: bool|null, value: EntryValue|null, details: EntryDetails|null} */
-    private array $changes = ['isActive' => null, 'value' => null, 'details' => null];
+    private EntryChanges $changes;
 
     public function __construct(
         private EntryIdentity $identity,
     ) {
+        $this->changes = new EntryChanges();
     }
 
     public function identity(): EntryIdentity
@@ -27,26 +28,36 @@ class ChangeEntry implements Command
 
     public function isActive(): bool|null
     {
-        return $this->changes['isActive'];
+        $changes = $this->changes;
+
+        return $changes->isActive;
     }
 
     public function setIsActive(bool|null $isActive): self
     {
-        $this->changes['isActive'] = $isActive;
+        $changes       = $this->changes;
+        $value         = $changes->value;
+        $details       = $changes->details;
+        $this->changes = new EntryChanges($isActive, $value, $details);
 
         return $this;
     }
 
     public function value(): string|null
     {
-        $value = $this->changes['value'];
+        $changes = $this->changes;
+        $value   = $changes->value;
 
         return $value?->toString();
     }
 
     public function setValue(string|null $value): self
     {
-        $this->changes['value'] = $value === null ? null : new EntryValue($value);
+        $changes       = $this->changes;
+        $isActive      = $changes->isActive;
+        $details       = $changes->details;
+        $value         = $value === null ? null : new EntryValue($value);
+        $this->changes = new EntryChanges($isActive, $value, $details);
 
         return $this;
     }
@@ -54,7 +65,8 @@ class ChangeEntry implements Command
     /** @return array<string, mixed>|null */
     public function details(): array|null
     {
-        $details = $this->changes['details'];
+        $changes = $this->changes;
+        $details = $changes->details;
 
         return $details?->toArray();
     }
@@ -62,7 +74,11 @@ class ChangeEntry implements Command
     /** @param array<array-key, mixed>|null $details */
     public function setDetails(array|null $details): self
     {
-        $this->changes['details'] = $details === null ? null : new EntryDetails($details);
+        $changes       = $this->changes;
+        $isActive      = $changes->isActive;
+        $value         = $changes->value;
+        $details       = $details === null ? null : new EntryDetails($details);
+        $this->changes = new EntryChanges($isActive, $value, $details);
 
         return $this;
     }

@@ -63,8 +63,8 @@ final class IdentityPersistenceFailureTest extends TestCase
             : SystemAdmin::invite(IdentityId::create(), IdentityId::create(), 'invitation', $now);
         $record      = $actor instanceof User ? UserRecord::create($actor) : AdminRecord::create($actor);
         $replacement = $actor instanceof User
-            ? new User(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()])
-            : new SystemAdmin(IdentityId::fromString($actor->id()), [...$actor->snapshot(), 'accountId' => IdentityScenario::id()]);
+            ? new User(IdentityId::fromString($actor->id()), [...$actor->snapshot()->toArray(), 'accountId' => IdentityScenario::id()])
+            : new SystemAdmin(IdentityId::fromString($actor->id()), [...$actor->snapshot()->toArray(), 'accountId' => IdentityScenario::id()]);
         try {
             $record->synchronize($replacement);
             self::fail('The Account reference must be immutable.');

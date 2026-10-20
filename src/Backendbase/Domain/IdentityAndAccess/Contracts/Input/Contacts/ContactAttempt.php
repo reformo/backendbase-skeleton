@@ -18,23 +18,26 @@ use function in_array;
 
 final readonly class ContactAttempt
 {
-    /** @param array{action: string, realm: Realm, contactId: string|null, token: VerificationContextToken, client: VerificationClient, contact: ContactValue|null, contactType: string|null, code: VerificationCode|null, principal: Principal|null, login: LoginInput|null} $values */
-    public function __construct(private array $values)
-    {
-        if (! in_array($values['action'], ['request', 'confirm', 'resend'], true)) {
+    public function __construct(
+        public string $action,
+        public Realm $realm,
+        public string|null $contactId,
+        public VerificationContextToken $token,
+        public VerificationClient $client,
+        public ContactValue|null $contact,
+        public string|null $contactType,
+        public VerificationCode|null $code,
+        public Principal|null $principal,
+        public LoginInput|null $login,
+    ) {
+        if (! in_array($action, ['request', 'confirm', 'resend'], true)) {
             throw InvalidUserInput::create('The contact verification action is invalid.');
         }
 
-        if ($values['contactId'] === null) {
+        if ($contactId === null) {
             return;
         }
 
-        IdentityId::fromString($values['contactId']);
-    }
-
-    /** @return array{action: string, realm: Realm, contactId: string|null, token: VerificationContextToken, client: VerificationClient, contact: ContactValue|null, contactType: string|null, code: VerificationCode|null, principal: Principal|null, login: LoginInput|null} */
-    public function values(): array
-    {
-        return $this->values;
+        IdentityId::fromString($contactId);
     }
 }

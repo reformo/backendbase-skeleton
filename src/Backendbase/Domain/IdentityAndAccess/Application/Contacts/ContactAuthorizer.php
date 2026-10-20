@@ -23,29 +23,31 @@ final readonly class ContactAuthorizer
     /** @return array{VerificationScope, ContactValue|null} */
     public function resolve(ContactAttempt $input, ContactStore $contacts): array
     {
-        $values    = $input->values();
-        $principal = $values['principal'];
-        if ($principal !== null && $principal->realm() !== $values['realm']) {
+        $principal = $input->principal;
+        $realm     = $input->realm;
+        $login     = $input->login;
+        if ($principal !== null && $principal->realm() !== $realm) {
             throw AuthenticationDenied::create('Contact verification is not permitted.');
         }
 
-        if ($values['principal'] !== null || $values['login'] !== null) {
+        if ($principal !== null || $login !== null) {
             $store = $this->identities;
 
             return $store->transaction(fn () => $this->authorize($input));
         }
 
-        if ($values['realm'] === Realm::USER) {
-            return [new VerificationScope(Realm::USER), $values['contact']];
+        if ($realm === Realm::USER) {
+            return [new VerificationScope(Realm::USER), $input->contact];
         }
 
-        $id = $values['contactId'] ?? throw InvalidUserInput::create('A contact identifier is required.');
+        $token = $input->token;
+        $id    = $input->contactId ?? throw InvalidUserInput::create('A contact identifier is required.');
 
-        return $contacts->transaction(static function () use ($contacts, $id, $values): array {
+        return $contacts->transaction(static function () use ($contacts, $id, $token): array {
             $contact = $contacts->get($id);
             $state   = $contact->snapshot();
-            $scope   = new VerificationScope(Realm::ADMIN, ['accountId' => $state['accountId'], 'actorId' => $state['actorId']]);
-            $contact->assertContext($values['token'], $scope);
+            $scope   = VerificationScope::forContact(Realm::ADMIN, $state);
+            $contact->assertContext($token, $scope);
 
             return [$scope, null];
         });
@@ -54,24 +56,21 @@ final readonly class ContactAuthorizer
     /** @return array{VerificationScope, ContactValue|null} */
     private function authorize(ContactAttempt $input): array
     {
-        $values    = $input->values();
         $store     = $this->identities;
-        $principal = $values['principal'];
+        $principal = $input->principal;
+        $realm     = $input->realm;
         if ($principal !== null) {
             $identity = $principal->identity();
             $account  = $store->account($identity['accountId']);
-            $account->assertSessionAllowed($identity['authVersion'], $values['realm']);
-            $actor = $store->actor($values['realm'], $identity['actorId']);
+            $account->assertSessionAllowed($identity['authVersion'], $realm);
+            $actor = $store->actor($realm, $identity['actorId']);
             $actor->assertSessionAllowed();
-            $state = $actor->snapshot();
-            if ($state['accountId'] !== $identity['accountId']) {
-                throw AuthenticationDenied::create('Contact verification is not permitted.');
-            }
+            $actor->assertContactOwner($identity['accountId']);
 
-            return $this->authorized($input, $state['accountId'], $identity['actorId']);
+            return $this->authorized($input, $identity['accountId'], $identity['actorId']);
         }
 
-        $login      = $values['login'] ?? throw AuthenticationDenied::create('Contact verification is not permitted.');
+        $login      = $input->login ?? throw AuthenticationDenied::create('Contact verification is not permitted.');
         $identifier = $login->identifier();
         $actor      = $store->actorByIdentifier(Realm::ADMIN, $identifier);
         if ($actor === null) {
@@ -79,38 +78,34 @@ final readonly class ContactAuthorizer
         }
 
         $actor->assertContactVerificationAllowed();
-        $state        = $actor->snapshot();
-        $account      = $store->account($state['accountId']);
-        $accountState = $account->snapshot();
-        $account->assertSessionAllowed($accountState['authVersion'], Realm::ADMIN);
+        $reference = $actor->accountReference();
+        $accountId = $reference->toString();
+        $account   = $store->account($accountId);
+        $account->assertEligible(Realm::ADMIN);
         $credentials = $this->credentials;
         $password    = $login->password();
-        $credentials->assertPassword($state['accountId'], $password);
+        $credentials->assertPassword($accountId, $password);
 
-        return $this->authorized($input, $state['accountId'], $actor->id());
+        $actorId = $actor->id();
+
+        return $this->authorized($input, $accountId, $actorId);
     }
 
     /** @return array{VerificationScope, ContactValue|null} */
     private function authorized(ContactAttempt $input, string $accountId, string $actorId): array
     {
-        $values = $input->values();
-        $scope  = new VerificationScope($values['realm'], ['accountId' => $accountId, 'actorId' => $actorId]);
-        if ($values['action'] !== 'request') {
+        $realm       = $input->realm;
+        $action      = $input->action;
+        $contactType = $input->contactType;
+        $scope       = new VerificationScope($realm, ['accountId' => $accountId, 'actorId' => $actorId]);
+        if ($action !== 'request') {
             return [$scope, null];
         }
 
         $store   = $this->identities;
         $account = $store->account($accountId);
-        $state   = $account->snapshot();
-        $type    = $values['contactType'];
-        if ($values['realm'] === Realm::USER && $type !== 'email') {
-            throw InvalidUserInput::create('Select email for User contact verification after login.');
-        }
+        $contact = $account->contactFor($realm, $contactType);
 
-        if ($type !== 'email' && $type !== 'mobile') {
-            throw InvalidUserInput::create('Select email or mobile.');
-        }
-
-        return [$scope, new ContactValue($type, $state[$type])];
+        return [$scope, $contact];
     }
 }

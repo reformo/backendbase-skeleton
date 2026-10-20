@@ -30,7 +30,7 @@ final class ContactAuthorityTest extends TestCase
         $fixture    = IdentityFixture::create();
         $admin      = IdentityScenario::admin($fixture);
         $principal  = new Principal(Realm::USER, ['accountId' => $admin['accountId'], 'actorId' => $admin['actorId'], 'sid' => IdentityScenario::id(), 'jti' => IdentityScenario::id(), 'authVersion' => 1]);
-        $input      = new ContactAttempt(['action' => 'request', 'realm' => Realm::ADMIN, 'contactId' => null, 'token' => new VerificationContextToken(ContactScenario::token()), 'client' => new VerificationClient('::1'), 'contact' => null, 'contactType' => 'email', 'code' => null, 'principal' => $principal, 'login' => null]);
+        $input      = new ContactAttempt(action: 'request', realm: Realm::ADMIN, contactId: null, token: new VerificationContextToken(ContactScenario::token()), client: new VerificationClient('::1'), contact: null, contactType: 'email', code: null, principal: $principal, login: null);
         $container  = $fixture->container();
         $store      = $container->get(ContactStore::class);
         $authorizer = $container->get(ContactAuthorizer::class);
@@ -58,7 +58,7 @@ final class ContactAuthorityTest extends TestCase
         }
 
         $principal  = new Principal($realm, ['accountId' => $other['accountId'], 'actorId' => $actorId, 'sid' => IdentityScenario::id(), 'jti' => IdentityScenario::id(), 'authVersion' => 1]);
-        $input      = new ContactAttempt(['action' => 'request', 'realm' => $realm, 'contactId' => null, 'token' => $token, 'client' => new VerificationClient('::1'), 'contact' => null, 'contactType' => 'email', 'code' => null, 'principal' => $principal, 'login' => null]);
+        $input      = new ContactAttempt(action: 'request', realm: $realm, contactId: null, token: $token, client: new VerificationClient('::1'), contact: null, contactType: 'email', code: null, principal: $principal, login: null);
         $authorizer = $container->get(ContactAuthorizer::class);
         $authorizer->resolve($input, $store);
     }

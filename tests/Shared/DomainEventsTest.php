@@ -22,7 +22,7 @@ final class DomainEventsTest extends TestCase
 
             public function __construct()
             {
-                $this->initializeOccurredOn();
+                $this->initializeOccurredOn(new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
             }
 
             public function eventName(): string
@@ -43,7 +43,7 @@ final class DomainEventsTest extends TestCase
         self::assertSame([$domainEvent], $domainEvents->events());
         self::assertSame($domainEvent, $domainEvents->first());
         self::assertInstanceOf(ArrayIterator::class, $domainEvents->getIterator());
-        self::assertInstanceOf(DateTimeImmutable::class, $domainEvent->occurredOn());
+        self::assertEquals(new DateTimeImmutable('2026-10-19T10:00:00.123456Z'), $domainEvent->occurredOn());
         self::assertSame(['exampleId' => 'example-id'], $domainEvent->jsonSerialize());
     }
 

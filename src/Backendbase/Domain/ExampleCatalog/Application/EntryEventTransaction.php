@@ -15,14 +15,18 @@ final readonly class EntryEventTransaction
     {
     }
 
-    /** @param callable(): IntegrationEvent $work */
-    public function execute(callable $work, DomainEvent|null $domainEvent = null): void
+    /**
+     * @param callable(): IntegrationEvent                   $work
+     * @param (callable(IntegrationEvent): DomainEvent)|null $domainEventFactory
+     */
+    public function execute(callable $work, callable|null $domainEventFactory = null): void
     {
         $transaction = $this->transaction;
         $publisher   = $this->publisher;
-        $transaction->execute(static function () use ($work, $domainEvent, $publisher): IntegrationEvent {
+        $transaction->execute(static function () use ($work, $domainEventFactory, $publisher): IntegrationEvent {
             $event = $work();
-            if ($domainEvent !== null) {
+            if ($domainEventFactory !== null) {
+                $domainEvent = $domainEventFactory($event);
                 $publisher->publish($domainEvent);
             }
 

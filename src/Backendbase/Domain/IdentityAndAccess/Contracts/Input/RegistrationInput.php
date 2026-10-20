@@ -12,36 +12,43 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Profiles\AccountNames;
 
 final readonly class RegistrationInput
 {
-    /** @var array{names: AccountNames, email: AccountEmail, mobile: AccountMobile, password: Password, token: VerificationContextToken|null} */
-    private array $values;
+    private AccountNames $accountNames;
+    private AccountEmail $accountEmail;
+    private AccountMobile $accountMobile;
+    private Password $secret;
+    private VerificationContextToken|null $token;
 
     public function __construct(string $email, string $mobile, string $password, string|null $verificationContextToken = null, string|null $firstName = null, string|null $lastName = null)
     {
-        $this->values = ['names' => new AccountNames($firstName, $lastName), 'email' => new AccountEmail($email), 'mobile' => new AccountMobile($mobile), 'password' => new Password($password), 'token' => $verificationContextToken === null ? null : new VerificationContextToken($verificationContextToken)];
+        $this->accountNames  = new AccountNames($firstName, $lastName);
+        $this->accountEmail  = new AccountEmail($email);
+        $this->accountMobile = new AccountMobile($mobile);
+        $this->secret        = new Password($password);
+        $this->token         = $verificationContextToken === null ? null : new VerificationContextToken($verificationContextToken);
     }
 
     public function verificationContextToken(): VerificationContextToken|null
     {
-        return $this->values['token'];
+        return $this->token;
     }
 
     public function names(): AccountNames
     {
-        return $this->values['names'];
+        return $this->accountNames;
     }
 
     public function email(): AccountEmail
     {
-        return $this->values['email'];
+        return $this->accountEmail;
     }
 
     public function mobile(): AccountMobile
     {
-        return $this->values['mobile'];
+        return $this->accountMobile;
     }
 
     public function password(): Password
     {
-        return $this->values['password'];
+        return $this->secret;
     }
 }

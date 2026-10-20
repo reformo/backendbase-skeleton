@@ -53,16 +53,17 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
             function (): EntryRemoved {
                 $this->connection->insert('aggregate_write', ['id' => 'example-id']);
 
-                return new EntryRemoved('example-id');
+                return new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
             },
         );
 
         self::assertSame(1, $this->rowCount('aggregate_write'));
         self::assertSame(1, $this->rowCount('integration_event_outbox'));
         $message = $this->connection->fetchAssociative(
-            'SELECT event_name, event_version, payload, created_at, available_at FROM integration_event_outbox',
+            'SELECT event_name, event_version, payload, occurred_at, created_at, available_at FROM integration_event_outbox',
         );
         self::assertIsArray($message);
+        self::assertSame('2026-10-19 10:00:00.123456', $message['occurred_at']);
         self::assertSame('2026-09-24 10:00:00.000000', $message['created_at']);
         self::assertSame($message['created_at'], $message['available_at']);
         self::assertSame(EntryRemoved::EVENT_TYPE, $message['event_name']);
@@ -81,7 +82,7 @@ final class DoctrineIntegrationEventTransactionTest extends TestCase
                 function (): EntryRemoved {
                     $this->connection->insert('aggregate_write', ['id' => 'example-id']);
 
-                    return new EntryRemoved('example-id');
+                    return new EntryRemoved('example-id', new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
                 },
             );
             self::fail('The missing outbox table must fail the transaction.');

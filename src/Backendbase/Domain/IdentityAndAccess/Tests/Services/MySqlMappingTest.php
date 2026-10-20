@@ -40,8 +40,8 @@ final class MySqlMappingTest extends TestCase
             self::assertSame($id->toString(), $record->id());
             self::assertSame('stored-password-hash', $record->passwordHash());
             $loaded = $record->toDomain();
-            self::assertFalse($loaded->snapshot()['ownershipVerified']);
-            self::assertSame('2026-10-14 10:00:00.123456', $loaded->snapshot()['createdAt']);
+            self::assertFalse($loaded->snapshot()->toArray()['ownershipVerified']);
+            self::assertSame('2026-10-14 10:00:00.123456', $loaded->snapshot()->toArray()['createdAt']);
             $connection = $fixture->connection();
             self::assertSame($id->toString(), $connection->fetchOne('SELECT uuid FROM account'));
             self::assertSame(16, $connection->fetchOne('SELECT OCTET_LENGTH(id) FROM account'));

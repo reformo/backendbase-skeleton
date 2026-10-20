@@ -12,32 +12,31 @@ use function in_array;
 
 final readonly class ActorChangeInput
 {
-    /** @var array{actorId: IdentityId, realm: Realm, action: string} */
-    private array $values;
+    private IdentityId $id;
 
-    public function __construct(string $actorId, Realm $realm, string $action)
+    public function __construct(string $actorId, private Realm $realm, private string $action)
     {
         if (! in_array($action, ['remove', 'restore'], true)) {
             throw InvalidUserInput::create('The actor action must be remove or restore.');
         }
 
-        $this->values = ['actorId' => IdentityId::fromString($actorId), 'realm' => $realm, 'action' => $action];
+        $this->id = IdentityId::fromString($actorId);
     }
 
     public function actorId(): string
     {
-        $id = $this->values['actorId'];
+        $id = $this->id;
 
         return $id->toString();
     }
 
     public function realm(): Realm
     {
-        return $this->values['realm'];
+        return $this->realm;
     }
 
     public function action(): string
     {
-        return $this->values['action'];
+        return $this->action;
     }
 }

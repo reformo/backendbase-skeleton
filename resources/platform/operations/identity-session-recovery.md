@@ -58,6 +58,10 @@ It verifies planned promotion, primary failure, loss of revocation writes, and l
 The stale-replica case proves why controlled logout is required when acknowledged revocations are lost.
 See the [isolated failover runner](redis-failover-tests.md) for commands, boundaries, and cleanup.
 
+The [local deployment rehearsal](local-deployment-rehearsal.md) also exercises full HTTP authentication through PHP-FPM with real MySQL and Redis.
+It tests stale-replica promotion, controlled invalidation in both realms, and current MySQL rejection after Account closure.
+It restores a populated database into an independent MySQL container before this recovery check.
+
 These tests establish the local topology's behavior. They do not establish a managed service's durability or recovery objectives.
 Before production acceptance, rehearse the selected deployment with issued and revoked sessions.
 Record the recovery-point policy, outage interval, revocation durability, namespace invalidation, and fresh-login result.

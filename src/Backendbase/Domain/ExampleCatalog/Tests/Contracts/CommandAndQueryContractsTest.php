@@ -13,12 +13,51 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryGroupsByType;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryIdByCriteria;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Backendbase\Shared\Exception\InvalidUserInput;
 use Backendbase\Shared\Primitives\Pagination;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class CommandAndQueryContractsTest extends TestCase
 {
+    #[Test]
+    #[DataProvider('invalidReplacements')]
+    public function itPreservesChangesAfterInvalidReplacementAndClearsOmittedFields(string $field): void
+    {
+        $command = new ChangeEntry(new EntryIdentity(EntryType::USER, 42, 'settings', 'theme'));
+        $command->setIsActive(false);
+        $command->setValue('dark');
+        $command->setDetails(['contrast' => 'high']);
+        $before = $command->toArray();
+        try {
+            match ($field) {
+                'details' => $command->setDetails(['invalid list']),
+                default => $command->setValue("\xff"),
+            };
+            self::fail('Invalid replacement must fail before changing the command.');
+        } catch (InvalidUserInput) {
+            self::assertSame($before, $command->toArray());
+        }
+
+        $command->setIsActive(null);
+        $command->setValue(null);
+        $command->setDetails(null);
+        self::assertSame([
+            'identity' => $before['identity'],
+            'isActive' => null,
+            'value' => null,
+            'details' => null,
+        ], $command->toArray());
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function invalidReplacements(): iterable
+    {
+        yield 'details must remain an object' => ['details'];
+        yield 'the value must use UTF-8' => ['value'];
+    }
+
     #[Test]
     public function itSerializesEntryCommands(): void
     {

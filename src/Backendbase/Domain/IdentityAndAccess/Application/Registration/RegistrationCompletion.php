@@ -7,26 +7,38 @@ namespace Backendbase\Domain\IdentityAndAccess\Application\Registration;
 use Backendbase\Domain\IdentityAndAccess\Application\Credentials;
 use Backendbase\Domain\IdentityAndAccess\Contracts\IdentityStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\RegistrationInput;
+use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\IdentityConflict;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Account;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
-use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Password;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\User;
 
 final readonly class RegistrationCompletion
 {
-    public function __construct(private Credentials $credentials, private RegistrationEvidence $evidence)
+    public function __construct(private IdentityStore $store, private RegistrationEvidence $evidence)
     {
     }
 
-    public function hashPassword(Password $password): string
+    public function complete(Credentials $credentials, RegistrationInput $input, IdentityId $accountId, IdentityId $actorId, string $hash): void
     {
-        $credentials = $this->credentials;
+        $store = $this->store;
+        $store->transaction(function () use ($store, $credentials, $input, $accountId, $actorId, $hash): void {
+            $email  = $input->email();
+            $mobile = $input->mobile();
+            if ($store->accountByEmail($email) !== null) {
+                throw IdentityConflict::create('An active Account already uses this email.');
+            }
 
-        return $credentials->hashPassword($password);
+            if ($store->accountByMobile($mobile) !== null) {
+                throw IdentityConflict::create('An active Account already uses this mobile.');
+            }
+
+            $this->createIdentity($credentials, $input, $accountId, $actorId, $hash);
+        });
     }
 
-    public function complete(IdentityStore $store, RegistrationInput $input, IdentityId $accountId, IdentityId $actorId, string $hash): void
+    private function createIdentity(Credentials $credentials, RegistrationInput $input, IdentityId $accountId, IdentityId $actorId, string $hash): void
     {
+        $store            = $this->store;
         $evidence         = $this->evidence;
         [$contacts, $now] = $evidence->verify($input);
         $email            = $input->email();
@@ -41,7 +53,6 @@ final readonly class RegistrationCompletion
         $actor = User::create($actorId, $accountId, $now);
         $store->saveAccount($account);
         $store->saveActor($actor);
-        $credentials       = $this->credentials;
         $accountIdentifier = $account->id();
         $actorIdentifier   = $actor->id();
         $credentials->initialize($accountIdentifier, $hash);

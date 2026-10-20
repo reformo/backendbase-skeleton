@@ -8,6 +8,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryAdded;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\EntryChanged;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryAddedPayload;
 use Backendbase\Domain\ExampleCatalog\Contracts\IntegrationEvents\V1\EntryChangedPayload;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +26,7 @@ final class IntegrationEventSchemaTest extends TestCase
             key: 'page-size',
             value: '25',
             details: ['source' => 'test'],
-        ));
+        ), new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         $expectedPayload = [
             'exampleId' => 'example-id',
             'command' => [
@@ -53,7 +54,7 @@ final class IntegrationEventSchemaTest extends TestCase
             isActive: false,
             value: '50',
             details: null,
-        ));
+        ), new DateTimeImmutable('2026-10-19T10:00:00.123456Z'));
         $expectedPayload = [
             'exampleId' => 'example-id',
             'command' => [

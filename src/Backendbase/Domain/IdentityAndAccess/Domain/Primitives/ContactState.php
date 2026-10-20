@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Domain\Primitives;
 
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactValue;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationContextToken;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationScope;
+use DateTimeImmutable;
 use JsonSerializable;
 use Override;
 
@@ -28,6 +32,43 @@ final readonly class ContactState implements JsonSerializable
         public string $deliveryState,
         public int $revision,
     ) {
+        new ContactValue($contactType, $contactValue);
+    }
+
+    public static function forRequest(ContactValue $contact, VerificationContextToken $token, VerificationScope $scope, DateTimeImmutable $now): self
+    {
+        $owner     = $scope->owner();
+        $type      = $contact->type();
+        $value     = $contact->value();
+        $digest    = $token->digest();
+        $realm     = $scope->realm();
+        $purpose   = $scope->purpose();
+        $timestamp = $now->format('Y-m-d H:i:s.u');
+
+        return new self($realm, $purpose, $type, $value, $digest, $owner['accountId'], $owner['actorId'], '', '', $timestamp, 0, $timestamp, $timestamp, null, null, 'pending', 1);
+    }
+
+    public function with(string|null $generationId = null, string|null $codeHash = null, string|null $codeExpiresAt = null, string|null $lastSentAt = null, string|null $deliveryState = null, int|null $failedAttempts = null, string|null $verifiedAt = null, string|null $accountId = null, string|null $actorId = null, string|null $consumedAt = null): self
+    {
+        $generationId   ??= $this->generationId;
+        $codeHash       ??= $this->codeHash;
+        $codeExpiresAt  ??= $this->codeExpiresAt;
+        $lastSentAt     ??= $this->lastSentAt;
+        $deliveryState  ??= $this->deliveryState;
+        $failedAttempts ??= $this->failedAttempts;
+        $verifiedAt     ??= $this->verifiedAt;
+        $accountId      ??= $this->accountId;
+        $actorId        ??= $this->actorId;
+        $consumedAt     ??= $this->consumedAt;
+        $realm            = $this->realm;
+        $purpose          = $this->purpose;
+        $contactType      = $this->contactType;
+        $contactValue     = $this->contactValue;
+        $contextHash      = $this->contextHash;
+        $requestedAt      = $this->requestedAt;
+        $revision         = $this->revision;
+
+        return new self($realm, $purpose, $contactType, $contactValue, $contextHash, $accountId, $actorId, $generationId, $codeHash, $codeExpiresAt, $failedAttempts, $requestedAt, $lastSentAt, $verifiedAt, $consumedAt, $deliveryState, $revision);
     }
 
     /** @param array<array-key, mixed> $values */

@@ -48,10 +48,11 @@ final class RemoveEntryHandlerTest extends TestCase
             });
         $transaction = $this->createMock(IntegrationEventTransaction::class);
         $transaction->expects(self::once())->method('execute')
-            ->willReturnCallback(static function (callable $work) use (&$calls): void {
+            ->willReturnCallback(static function (callable $work) use (&$calls, $now): void {
                 $calls[] = 'transaction-start';
                 $event   = $work();
                 self::assertInstanceOf(EntryRemoved::class, $event);
+                self::assertEquals($now, $event->occurredOn());
                 self::assertSame('018f0000-0000-7000-8000-000000000001', $event->entryId());
                 $calls[] = 'transaction-end';
             });

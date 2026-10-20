@@ -14,11 +14,12 @@ use Slim\Interfaces\ErrorHandlerInterface;
 use function error_get_last;
 use function in_array;
 
-use const E_DEPRECATED;
-use const E_USER_DEPRECATED;
+use const E_COMPILE_ERROR;
+use const E_CORE_ERROR;
+use const E_ERROR;
+use const E_PARSE;
+use const E_RECOVERABLE_ERROR;
 use const E_USER_ERROR;
-use const E_USER_NOTICE;
-use const E_USER_WARNING;
 
 readonly class ShutdownHandler
 {
@@ -38,7 +39,13 @@ readonly class ShutdownHandler
             return;
         }
 
-        if (in_array($error['type'], [E_USER_DEPRECATED, E_DEPRECATED], true)) {
+        $this->handleError($error);
+    }
+
+    /** @param array{type: int, message: string, file: string, line: int} $error */
+    private function handleError(array $error): void
+    {
+        if (! in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR], true)) {
             return;
         }
 
@@ -49,27 +56,7 @@ readonly class ShutdownHandler
         $message      = 'An error while processing your request. Please try again later.';
 
         if ($this->displayErrorDetails) {
-            switch ($errorType) {
-                case E_USER_ERROR:
-                    // A user fatal error terminates the PHPUnit process.
-                    // @codeCoverageIgnoreStart
-                    $message = self::fatalErrorMessage($errorMessage, $errorLine, $errorFile);
-                    break;
-                    // @codeCoverageIgnoreEnd
-
-                case E_USER_WARNING:
-                    $message = 'WARNING: ' . $errorMessage;
-                    break;
-
-                case E_USER_NOTICE:
-                    $message = 'NOTICE: ' . $errorMessage;
-                    break;
-
-                default:
-                    $message  = 'ERROR: ' . $errorMessage;
-                    $message .= ' on line ' . $errorLine . ' in file ' . $errorFile . '.';
-                    break;
-            }
+            $message = self::fatalErrorMessage($errorMessage, $errorLine, $errorFile);
         }
 
         $this->logger->error('PHP shutdown error: ' . $errorMessage, [
