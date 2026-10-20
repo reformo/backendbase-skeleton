@@ -20,6 +20,8 @@ get:
           - system-admin
   security: []
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     200:
       description: Available
       content:

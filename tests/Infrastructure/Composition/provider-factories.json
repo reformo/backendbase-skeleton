@@ -1,20 +1,21 @@
 {
     "application.php": {
         "factories": [
-            "Backendbase\\Domain\\IdentityAndAccess\\Domain\\Authentication\\SessionLifetime",
             "Backendbase\\Domain\\IdentityAndAccess\\Domain\\Registration\\RegistrationPolicy",
+            "Backendbase\\Domain\\IdentityAndAccess\\Domain\\Sessions\\RealmSessionPolicies",
             "Backendbase\\Infrastructure\\Adapters\\Mapping\\ObjectMapper",
             "Backendbase\\Shared\\Services\\Translator",
             "Backendbase\\Utility\\Pipeline\\PipelineInterface"
         ],
         "branches": [
             "Five environment modes; mapping cache and translated request language",
-            "Four registration policies; USER and ADMIN session lifetimes"
+            "Four registration policies; independent USER and ADMIN token, idle, and maximum session durations"
         ],
         "evidence": [
             "tests/Infrastructure/Composition/RuntimeCompositionTest.php",
             "tests/Infrastructure/Inbound/IdentityApi/Registration/RegistrationPolicyTest.php",
-            "tests/Infrastructure/Configuration/IdentitySettingsTest.php"
+            "tests/Infrastructure/Configuration/IdentitySettingsTest.php",
+            "tests/Infrastructure/Configuration/Identity/SessionSettingsTest.php"
         ]
     },
     "aws.php": {

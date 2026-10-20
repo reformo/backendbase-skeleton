@@ -1,9 +1,12 @@
 # ADR-0038: Redis Token Allowlist and Session Lifecycle
 
 - **Status:** Accepted
+- **Partially superseded by:** [ADR-0053](0053-renewable-realm-sessions.md) for expiry, session schema, and renewal.
 - **Date:** 2026-08-31
 - **Owner / Deciders:** Mehmet Korkmaz <mehmet.korkmaz@reformo.net>
 - **Ticket / PR Reference:** Not assigned.
+
+Expiry, session schema, and renewal now follow [ADR-0053](0053-renewable-realm-sessions.md). The text below records the original fixed-expiry decision.
 
 ## Context and Problem Statement
 

@@ -62,7 +62,7 @@ def contact_finish(client, state, authenticated):
 
 
 def establish_session(client, state):
-    run_phase(client, state, "identity", state["authentication"] + "/password-login.yml", "identity/read-current-identity.yml")
+    run_phase(client, state, "identity", state["authentication"] + "/password-login.yml", state["authentication"] + "/refresh-session.yml", "identity/read-current-identity.yml")
     token = fixture_request(client, state, "POST", "/auth/login",
                             {"identifier": state["variables"]["email"], "password": PASSWORD})["session"]["accessToken"]
     state["variables"]["accessToken"] = token

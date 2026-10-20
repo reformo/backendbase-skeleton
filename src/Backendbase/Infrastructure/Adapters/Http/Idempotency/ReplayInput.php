@@ -14,6 +14,7 @@ use Slim\Routing\RouteContext;
 
 use function count;
 use function hash;
+use function is_string;
 use function json_encode;
 use function preg_match;
 
@@ -67,6 +68,11 @@ final class ReplayInput
 
         $identity = $principal->identity();
         $realm    = $principal->realm();
+
+        $refreshSession = $request->getAttribute('refreshSessionId');
+        if (is_string($refreshSession)) {
+            return [$realm->value, $identity['accountId'], $identity['actorId'], $refreshSession];
+        }
 
         return [$realm->value, $identity['accountId'], $identity['actorId']];
     }

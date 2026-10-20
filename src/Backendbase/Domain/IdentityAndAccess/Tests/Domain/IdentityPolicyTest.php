@@ -12,10 +12,10 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Query\GetCurrentIdentity;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Query\GetIdentityOperation;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\SessionLifetime;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\SystemAdmin;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\SessionPolicy;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Shared\Exception\InvalidUserInput;
 use DateTimeImmutable;
@@ -33,7 +33,7 @@ final class IdentityPolicyTest extends TestCase
         $id = IdentityScenario::id();
         $this->expectException($exception);
         match ($operation) {
-            'lifetime' => new SessionLifetime(59),
+            'lifetime' => new SessionPolicy(59, 86400, 604800),
             'invitation' => new AdminInvitationInput($id, ''),
             'approval' => new AdminApprovalInput($id, ''),
             'actor action' => new ActorChangeInput($id, Realm::USER, 'delete'),

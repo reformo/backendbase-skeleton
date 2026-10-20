@@ -43,6 +43,12 @@ class ResponseEmitter extends SlimResponseEmitter
             ->withAddedHeader('Cache-Control', 'post-check=0, pre-check=0')
             ->withHeader('Pragma', 'no-cache');
 
+        $headerSettings = $this->settings;
+        if ($requestOrigin !== null && $headerSettings->allowsOrigin($requestOrigin)) {
+            $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
+            $response = $response->withAddedHeader('Vary', 'Origin');
+        }
+
         if (ob_get_contents()) {
             ob_clean();
         }

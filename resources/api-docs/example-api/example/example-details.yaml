@@ -43,6 +43,8 @@ get:
         format: int64
         nullable: true
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     200:
       description: "OK"
       content:
@@ -173,6 +175,8 @@ patch:
               nullable: true
 
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     409:
       $ref: '../../common/components.yaml#/schemas/409'
     422:
@@ -248,6 +252,8 @@ delete:
         nullable: true
 
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     409:
       $ref: '../../common/components.yaml#/schemas/409'
     422:

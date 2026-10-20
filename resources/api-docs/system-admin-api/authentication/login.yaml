@@ -21,6 +21,14 @@ post:
           - system-admin
   security: []
   responses:
+    403:
+      description: 'Cookie transport requires an exact configured Origin'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '../system-admin-api-openapi.yml#/components/schemas/Problem'
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     422:
       $ref: '../../common/components.yaml#/schemas/422'
     500:
@@ -28,6 +36,10 @@ post:
     200:
       description: 'Completed operation'
       headers:
+        Set-Cookie:
+          description: 'Cookie transport only. Secure, HttpOnly, SameSite=Strict, Path=/; absolute session expiry.'
+          schema:
+            type: string
         Cache-Control:
           schema:
             type: string

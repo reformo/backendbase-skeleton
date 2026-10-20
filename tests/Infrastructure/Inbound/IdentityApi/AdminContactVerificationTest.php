@@ -119,6 +119,6 @@ final class AdminContactVerificationTest extends TestCase
         $clock     = $container->get(AuthenticationClock::class);
         $principal = IdentityScenario::principal($fixture, $realm, 'admin@example.com');
 
-        return $issuer->issue($principal, $clock->sessionExpiresAt());
+        return $issuer->issue($principal, $clock->tokenExpiresAt(Realm::ADMIN));
     }
 }

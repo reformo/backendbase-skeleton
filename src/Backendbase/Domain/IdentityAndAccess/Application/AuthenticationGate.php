@@ -20,6 +20,7 @@ final readonly class AuthenticationGate
 
         $principal = $currentTokens->verify($realm, $token);
         $this->confirm($principal);
+        $currentTokens->touch($principal);
 
         return $principal;
     }

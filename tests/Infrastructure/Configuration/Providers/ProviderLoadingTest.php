@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Configuration\Providers;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\RealmSessionPolicies;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Configuration\AwsSettings;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
@@ -35,7 +36,12 @@ final class ProviderLoadingTest extends TestCase
                 'AWS_SQS_MAXIMUM_MESSAGE_COUNT' => '7',
                 'BACKENDBASE_RABBITMQ_PREFETCH_COUNT' => '4',
                 'BACKENDBASE_READINESS_TIMEOUT_SECONDS' => '1.5',
-                'BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS' => '1200',
+                'BACKENDBASE_USER_ACCESS_TOKEN_LIFETIME_SECONDS' => '1200',
+                'BACKENDBASE_USER_SESSION_IDLE_TIMEOUT_SECONDS' => '7200',
+                'BACKENDBASE_USER_SESSION_MAXIMUM_LIFETIME_SECONDS' => '86400',
+                'BACKENDBASE_ADMIN_ACCESS_TOKEN_LIFETIME_SECONDS' => '180',
+                'BACKENDBASE_ADMIN_SESSION_IDLE_TIMEOUT_SECONDS' => '600',
+                'BACKENDBASE_ADMIN_SESSION_MAXIMUM_LIFETIME_SECONDS' => '3600',
                 'BACKENDBASE_USER_JWT_ISSUER' => 'https://user.example.com',
                 'BACKENDBASE_USER_JWT_AUDIENCE' => 'user-api',
                 'BACKENDBASE_USER_JWT_KEY' => base64_encode(str_repeat('u', 32)),
@@ -107,8 +113,12 @@ final class ProviderLoadingTest extends TestCase
         $topology = $queue->rabbitMqTopology();
         self::assertSame(4, $topology->prefetchCount());
         self::assertSame(1.5, $queue->readinessTimeoutSeconds());
-        $identity = $container->get(IdentitySettings::class);
-        self::assertSame(1200, $identity->tokenLifetimeSeconds());
+        $identity    = $container->get(IdentitySettings::class);
+        $policies    = $container->get(RealmSessionPolicies::class);
+        $userPolicy  = $policies->forRealm(Realm::USER);
+        $adminPolicy = $policies->forRealm(Realm::ADMIN);
+        self::assertSame(['accessTokenLifetimeSeconds' => 1200, 'idleTimeoutSeconds' => 7200, 'maximumLifetimeSeconds' => 86400], $userPolicy->toArray());
+        self::assertSame(['accessTokenLifetimeSeconds' => 180, 'idleTimeoutSeconds' => 600, 'maximumLifetimeSeconds' => 3600], $adminPolicy->toArray());
         self::assertSame('user-api', $identity->realm(Realm::USER)['audience']);
         self::assertSame('system-admin-api', $identity->realm(Realm::ADMIN)['audience']);
         $notification = $container->get(NotificationSettings::class);

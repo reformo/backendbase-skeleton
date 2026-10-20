@@ -21,11 +21,11 @@ final readonly class LoginHandler implements CommandHandler
         $authentication    = $this->authentication;
         $currentCompletion = $this->completion;
 
-        $attempt                 = $command->input();
-        $realm                   = $attempt->realm();
-        $input                   = $attempt->input();
-        $operationId             = $command->operationId();
-        [$principal, $expiresAt] = $authentication->authenticate($realm, $input);
-        $currentCompletion->complete($operationId, $principal, $expiresAt);
+        $attempt     = $command->input();
+        $realm       = $attempt->realm();
+        $input       = $attempt->input();
+        $operationId = $command->operationId();
+        $principal   = $authentication->authenticate($realm, $input);
+        $currentCompletion->complete($operationId, $principal);
     }
 }

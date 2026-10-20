@@ -72,6 +72,17 @@ final readonly class Principal
         }
     }
 
+    public function renewToken(): self
+    {
+        $tokenId = IdentityId::create();
+
+        $realm           = $this->realm;
+        $identity        = $this->identity;
+        $identity['jti'] = $tokenId->toString();
+
+        return new self($realm, $identity);
+    }
+
     /** @return non-empty-string */
     private static function canonicalId(string $value): string
     {

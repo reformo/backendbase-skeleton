@@ -64,8 +64,12 @@ final readonly class IdentityApiFixture
         return new self($app, $slug);
     }
 
-    /** @param array<string, mixed>|null $payload */
-    public function request(string $method, string $path, array|null $payload = null, string|null $token = null, string|null $idempotencyKey = null): ResponseInterface
+    /**
+     * @param array<string, mixed>|null $payload
+     * @param array<string, string>     $headers
+     * @param array<string, string>     $cookies
+     */
+    public function request(string $method, string $path, array|null $payload = null, string|null $token = null, string|null $idempotencyKey = null, array $headers = [], array $cookies = []): ResponseInterface
     {
         $request    = new ServerRequestFactory()->createServerRequest($method, $path, ['REMOTE_ADDR' => '127.0.0.1']);
         $identifier = Uuid::uuid7();
@@ -87,7 +91,11 @@ final readonly class IdentityApiFixture
             $request = $request->withHeader('Authorization', 'Bearer ' . $token);
         }
 
-        return $this->handle($request);
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
+
+        return $this->handle($request->withCookieParams($cookies));
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

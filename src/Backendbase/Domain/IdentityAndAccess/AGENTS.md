@@ -25,6 +25,11 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.
 - Store the Argon2id password hash directly in `account.password_hash`. Keep the credential port scalar and preserve Account locks and state checks.
 - Require both token and session allowlist records and current database identity state for authentication.
+- Use independent realm access-token, idle, and maximum durations. Preserve each session policy and fixed maximum during renewal.
+- Rotate refresh credentials atomically. Keep only hashes in Redis. Reuse for a new operation revokes the session.
+- Authenticate refresh credentials before replay. Reject obsolete replay results before sending an older cookie.
+- Require exact configured Origin for cookie login and renewal. Keep browser refresh secrets in Secure HttpOnly Strict cookies.
+- Extend idle only after successful database eligibility checks. Do not use background client renewal.
 - MySQL and Redis do not share a transaction. Preserve database rejection of closed Accounts when Redis revocation fails.
 - Admin enrollment requires separate invitation and approval evidence. Operator commands must not issue tokens.
 - Keep first-Admin evidence in Admin state. Serialize operator setup and manual seeding with the same database-scoped lock.
@@ -60,3 +65,7 @@ Keep detailed explanations in platform documents and decisions in architecture d
 All identity HTTP writes require `Idempotency-Key`, including public authentication and contact operations.
 Protected response replay requires current authentication. Shared replay claims do not wrap identity transactions.
 See [HTTP idempotency](../../../../resources/platform/operations/http-idempotency.md) for encrypted responses and uncertain outcomes.
+
+Renewal verification includes `Tests/Application/Sessions`, `Tests/Services/Sessions`, and `tests/Infrastructure/Inbound/IdentityApi/Sessions`.
+Run `node --test tests/Guides/identity-session-client.test.mjs` for the shared browser and mobile client helper.
+See [ADR-0053](../../../../resources/adr/0053-renewable-realm-sessions.md) for the renewal contract and compatibility boundaries.

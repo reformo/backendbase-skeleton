@@ -8,6 +8,11 @@ Example and Identity protected groups also require the existing USER bearer auth
 UserApi and SystemAdminApi use separate JWT authentication realms.
 Liveness and readiness remain public in each API.
 
+Nginx applies a shared general limit of 30 requests per second per client IP with a burst allowance of 60.
+Public API health and preflight requests count toward that limit. Restricted internal readiness remains available without a rate counter.
+Gateway rejections precede PHP authentication and replay. Contact verification quotas remain in IdentityAndAccess.
+See [HTTP rate limiting](operations/http-rate-limiting.md) for client address trust, instance scope, and deployment configuration.
+
 ## Inbound API boundaries
 
 - `X-Source-Id: example` selects ExampleApi. Its Authentication, Identity, and protected Example groups use the trusted USER realm.
@@ -103,31 +108,52 @@ State serialization is an internal storage contract. Never expose Contact code h
 ## Session state
 
 Session issuance stores both `jti` and `sid` allowlist records before token delivery.
-Redis records use realm and Account prefixes and include matching identity and credential version data.
-Keys follow `identity:{REALM:accountId}:jti:tokenId`, `identity:{REALM:accountId}:sid:sessionId`, and `identity:{REALM:accountId}:blocked`.
-Token and session values are RedisJSON objects. The token object contains `accountId`, `sub`, `sid`, `jti`, `authVersion`, `realm`, and `actorType`.
-The session object omits `jti`. Redis does not store the signed JWT string.
-`RedisTokenRegistry` uses the existing `RedisJsonInterface` library to execute Lua scripts through `raw('EVAL', ...)`.
-One activation script checks conflicts and blocks, writes both objects with `JSON.SET`, and applies key-level `EXPIRE` after each write.
-The remaining JWT lifetime is calculated in whole seconds from the Redis server clock.
-The script then applies `EXPIREAT` to retain the JWT's exact expiration deadline. Reads do not renew expiry.
-The script removes both new records if creation or expiry fails. No client can observe an intermediate activation state.
-Verification reads JSON roots with `JSON.GET` and requires both records to match the token identity.
-Existing string records remain readable until normal expiry. They are not rewritten or given a new TTL.
-Account block markers remain ordinary string keys.
-Authentication requires both records and current MySQL Account and actor state.
-Token expiry and session expiry are bounded to the configured lifetime, between 60 and 3600 seconds.
-The default lifetime is 900 seconds. The API provides no refresh-token flow.
+Redis keys use the shared cluster slot `identity:{REALM:accountId}`.
+Token objects retain `accountId`, `sub`, `sid`, `jti`, `authVersion`, `realm`, and `actorType`.
+Version 2 session objects also store current `jti`, policy, creation time, last activity, maximum expiry, and a refresh hash.
+The signed JWT and raw refresh secret are absent from Redis.
 
-Token revocation removes its `jti` record. Logout removes the active session and current token.
+USER defaults are token 900 seconds, idle 86400 seconds, and maximum 604800 seconds.
+ADMIN defaults are token 300 seconds, idle 1800 seconds, and maximum 28800 seconds.
+Six settings under `identity.user` and `identity.admin` control new sessions. Existing sessions retain their stored policy.
+Access-token lifetime permits 60–3600 seconds. Idle requires at least 60 seconds.
+Maximum must cover idle and cannot exceed 31536000 seconds.
+
+Lua activation writes both RedisJSON objects atomically and applies `EXPIRE` and `EXPIREAT` with their separate deadlines.
+Access tokens expire at their issue deadline, capped by the fixed session maximum.
+Sessions expire at `min(lastUsedAt + idleTimeoutSeconds, maximumExpiresAt)`.
+Successful protected authentication extends idle only after current database eligibility passes.
+Refresh credential inspection and replay do not rotate credentials or extend idle.
+Existing string and version 1 JSON records retain their original expiry. They cannot renew before the next password login.
+
+`POST /auth/refresh` authenticates the session and current Account and actor before HTTP replay.
+Each rotation replaces the refresh hash and creates a new access-token record.
+The session identifier, creation time, maximum deadline, and policy remain unchanged.
+Earlier access-token records remain valid until their expiry while the session remains active.
+Consumed digest markers use `used-refresh:sessionId:digest` keys through the maximum deadline.
+Unknown secrets and wrong realms deny access without revocation.
+A known consumed token used for a new operation revokes the session.
+
+Browser clients select cookie transport. Cookies use a realm-specific `__Host-` name, Secure, HttpOnly, SameSite=Strict, and Path=/.
+Cookie login and renewal require an exact configured Origin before replay. Wildcard and opaque origins are rejected.
+Matching configured origins receive credentialed CORS responses. Use HTTPS and same-site browser and API hosts.
+Mobile clients use body transport and operating system secure storage. Browser local storage must not contain refresh secrets.
+The client helper renews on demand and serializes browser tabs through Web Locks. It has no background renewal timer.
+
+Matching renewal retries return the same encrypted response and cookie.
+A response guard rejects an obsolete result with 409 `identity/conflict` before sending an earlier credential.
+The helper then attempts one renewal with the current credential.
+A revoked, expired, or ineligible session cannot replay a successful renewal.
+
+Token revocation removes its `jti` record. Logout removes the session and current token and clears its browser cookie.
 Account closure disables the Account and increments its authentication version before Redis revocation.
-Current database state denies old tokens even if Redis revocation fails.
+Current database state denies old access and refresh credentials even if Redis revocation fails.
 MySQL and Redis do not share one transaction.
 
-Do not restore old identity allowlists after losing revocation evidence.
-Invalidate both realms' affected allowlists and require login before reopening authentication traffic.
-Current Account checks protect closure and authentication-version changes. They cannot recover a lost token-only revocation.
-See [session recovery](operations/identity-session-recovery.md).
+Do not restore old identity allowlists or consumed refresh credentials after losing revocation evidence.
+Invalidate affected namespaces in both realms before reopening authentication traffic. Require another login.
+Current Account checks cannot recover a lost token-only revocation.
+See [renewable sessions](../adr/0053-renewable-realm-sessions.md), the [client guide](../guides/1-identity-and-access.html#session-renewal), and [session recovery](operations/identity-session-recovery.md).
 
 ## Internal policy
 

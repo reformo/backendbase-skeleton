@@ -27,7 +27,7 @@ The temporary application has a dedicated replay encryption key. Each intended w
 
 ## Coverage
 
-The deterministic HTTP sequence checks all 52 operations across ExampleApi, UserApi, and SystemAdminApi.
+The deterministic HTTP sequence checks all 55 operations across ExampleApi, UserApi, and SystemAdminApi.
 It verifies operator login and protected identity access in both realms, including runs without `--scan`.
 It verifies successful registration and authentication, realm isolation, approval, removal, restoration, token expiry, revocation, logout, and Account closure.
 It also checks missing credentials, invalid and oversized input, contact confirmation, and resend cooldown rejection.

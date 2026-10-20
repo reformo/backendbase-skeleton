@@ -15,6 +15,8 @@ paths:
     $ref: './authentication/contact-verification.yaml'
   /auth/register:
     $ref: "./authentication/register.yaml"
+  /auth/refresh:
+    $ref: './authentication/session-refresh.yaml'
   /auth/login:
     $ref: "./authentication/login.yaml"
   '/identity/contact-verifications':
@@ -95,6 +97,11 @@ components:
         - identifier
         - password
       properties:
+        refreshTokenTransport:
+          type: string
+          enum: [body, cookie]
+          default: body
+          description: 'Use cookie for same-site browsers. An exact configured Origin is required. Use body for native clients.'
         identifier:
           description: 'Account email or E.164 mobile number.'
           oneOf:
@@ -231,6 +238,27 @@ components:
           type: boolean
           enum:
             - true
+    RefreshSessionInput:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [refreshToken]
+          properties:
+            refreshToken:
+              type: string
+              minLength: 117
+              maxLength: 117
+            refreshTokenTransport:
+              type: string
+              enum: [body]
+        - type: object
+          additionalProperties: false
+          required: [refreshTokenTransport]
+          properties:
+            refreshTokenTransport:
+              type: string
+              enum: [cookie]
+              description: 'Send the realm refresh cookie and an exact configured Origin.'
     Session:
       type: object
       additionalProperties: false
@@ -238,9 +266,24 @@ components:
         - accessToken
         - tokenType
         - expiresAt
+        - sessionIdleExpiresAt
+        - sessionExpiresAt
       properties:
         accessToken:
           type: string
+        refreshToken:
+          type: string
+          minLength: 117
+          maxLength: 117
+          description: 'Returned only for body transport. Store in operating system secure storage.'
+        sessionIdleExpiresAt:
+          type: string
+          format: date-time
+          description: 'Idle deadline at issue time. Successful authenticated requests can extend this deadline.'
+        sessionExpiresAt:
+          type: string
+          format: date-time
+          description: 'Fixed maximum session deadline. Renewal cannot extend this deadline.'
         tokenType:
           type: string
           enum:

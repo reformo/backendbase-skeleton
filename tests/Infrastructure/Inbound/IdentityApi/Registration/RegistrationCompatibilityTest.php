@@ -14,6 +14,7 @@ use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityFixture;
 use Backendbase\Domain\IdentityAndAccess\Tests\Support\IdentityScenario;
 use Backendbase\Infrastructure\Configuration\Idempotency\ReplaySettings;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
+use Backendbase\Shared\Configuration\HttpHeaderSettings;
 use Backendbase\Shared\Time\Clock;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Configuration;
@@ -121,7 +122,7 @@ final class RegistrationCompatibilityTest extends TestCase
     {
         $old       = $fixture->container();
         $overrides = [RegistrationPolicy::class => $policy];
-        foreach ([Connection::class, Configuration::class, Clock::class, IdentitySettings::class, ReplaySettings::class, ContactNotifier::class, VerificationLimiter::class, TokenRegistry::class, LoggerInterface::class] as $class) {
+        foreach ([HttpHeaderSettings::class, Connection::class, Configuration::class, Clock::class, IdentitySettings::class, ReplaySettings::class, ContactNotifier::class, VerificationLimiter::class, TokenRegistry::class, LoggerInterface::class] as $class) {
             $overrides[$class] = $old->get($class);
         }
 

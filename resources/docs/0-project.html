@@ -876,7 +876,7 @@ composer run start-apis</code></pre>
             <pre><code>composer run generate-example-api-spec
 vendor/bin/php-openapi validate public/example-api/docs/example-api-merged.yml
 python3 tests/Security/identity_http.py --bruno</code></pre>
-            <p>The <a href="../platform/operations/identity-security-checks.md#bruno-contract-checks">disposable Bruno runner</a> supplies fixtures and executes all 52 operations across three APIs.</p>
+            <p>The <a href="../platform/operations/identity-security-checks.md#bruno-contract-checks">disposable Bruno runner</a> supplies fixtures and executes all 55 operations across three APIs.</p>
         </section>
 
         <section id="console">
@@ -979,6 +979,10 @@ python3 tests/Security/identity_http.py --bruno</code></pre>
                 <article class="guide-card"><h3><a href="16-shared-primitives-and-object-mapping.html">16. Shared Primitives and Object Mapping</a></h3><p>Identifiers, validated values, query primitives, object mapping, serialization, and safe reuse.</p></article>
                 <article class="guide-card"><h3><a href="http-idempotency.html">HTTP Idempotency</a></h3><p>Safe retries, client keys, encrypted results, configuration, cleanup, and recovery for support, developers, and operations.</p></article>
                 <article class="guide-card"><h3><a href="bounded-contexts/identity-and-access.html">IdentityAndAccess</a></h3><p>Accounts, User and Admin access, verification, sessions, configuration, operator work, and recovery.</p></article>
+                <article class="guide-card"><h3><a href="../guides/1-identity-and-access.html">Guide 1. IdentityAndAccess Configuration</a></h3><p>Required fields, all identity settings, change locations, provider configuration, code examples, and interactive React Flow diagrams.</p></article>
+                <article class="guide-card"><h3><a href="../guides/2-idempotency.html">Guide 2. Idempotency Usage</a></h3><p>Request keys, exact retries, scope, encrypted response replay, configuration, retention, conflicts, and recovery with interactive React Flow diagrams.</p></article>
+                <article class="guide-card"><h3><a href="../guides/3-adding-a-new-feature.html">Guide 3. Adding a New Feature</a></h3><p>One Entry feature through OpenAPI, commands, queries, persistence, transactions, integration events, subscribers, routing, and verification.</p></article>
+                <article class="guide-card"><h3><a href="../guides/4-bounded-context-lifecycle.html">Guide 4. Bounded Context Lifecycle</a></h3><p>When, how, and where to add queries, commands, repositories, database adapters, events, subscribers, registration, and isolated tests inside one context.</p></article>
                 <article class="guide-card"><h3><a href="project.md">Agent Project Reference</a></h3><p>Machine-oriented repository rules, feature sequence, entry points, and implementation constraints.</p></article>
                 <article class="guide-card"><h3><a href="code-quality-and-maintainability-report.html">Engineering Assessment</a></h3><p>Current strengths, weaknesses, local execution, recorded coverage, and follow-up checks.</p></article>
                 <article class="guide-card"><h3><a href="ports-and-adapters-critique.html">Architecture Assessment</a></h3><p>Dependency direction, adapter classification, domain encapsulation, and navigation costs.</p></article>

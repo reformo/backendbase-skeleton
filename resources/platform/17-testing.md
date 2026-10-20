@@ -89,7 +89,7 @@ The coverage gate reads `clover.xml` through `bin/check-coverage.php`. It fails 
 PHPStan, cyclomatic complexity, and PHPCS check `src`, `tests`, `config`, `public`, quality tools under `bin`, and `resources/database`.
 
 API validation commands check source and merged OpenAPI schemas and endpoint tags.
-`ApiDefinitionParityTest` checks all 52 documented operations, source/merged equality, and Bruno response assertions.
+`ApiDefinitionParityTest` checks all 55 documented operations, source/merged equality, and Bruno response assertions.
 `ApiResponseAssertions` compares executed responses with source and merged schemas for keys, shapes, types, enums, and media types.
 Identity `ModuleRoutingTest` checks module registration, handler namespaces, and route names against OpenAPI tags and operation IDs.
 It verifies missing-token and cross-realm rejection on all 18 protected routes through the actual group middleware.
@@ -175,9 +175,9 @@ When moving instructions, compare the original and destination rules after accou
 Generate fresh test artifacts before updating metrics. Record skipped service cases and a failed coverage gate explicitly. Keep dated service verification separate from current local metrics.
 
 GitHub Actions provides quality gates, security checks, and release-artifact workflows under `.github/workflows`. Each action reference uses an immutable commit SHA. Rector has no project configuration or direct Composer package.
-The security workflow runs all 52 operations over HTTP and separate authenticated ZAP scans for all three APIs.
+The security workflow runs all 55 operations over HTTP and separate authenticated ZAP scans for all three APIs.
 The HTTP sequence verifies seeded operator login and protected identity access in both realms before lifecycle changes, including runs without scanning.
-All 38 writes require recorded missing-key rejection and replay checks. Bounded probes cover malformed input, authentication, and cross-account contact access.
+All 41 writes require recorded missing-key rejection and replay checks. Bounded probes cover malformed input, authentication, and cross-account contact access.
 The same disposable HTTP fixture supports `--bruno` for complete collection execution with Bruno CLI 4.0.0.
 It enforces operation coverage and runs contact verification, registration, Example writes, administration, and session changes in prepared phases.
 It uses the production entry point and native adapters with a local contact-notification sink.
@@ -232,8 +232,22 @@ Event tests advance the clock before transactional work. They compare exact even
 
 ## Local deployment runtime
 
+Use `python3 tests/Deployment/nginx-rate-limits.py` for the isolated Nginx rate-limit check.
+It uses the cached, pinned Nginx image and one new labelled container. It needs no application or data services.
+It checks shared quotas, all methods, bursts, client isolation, forwarded headers, preserved errors, readiness, and recovery.
+See [HTTP rate limiting](operations/http-rate-limiting.md) for policy and deployment steps.
+
 Use `python3 tests/Deployment/local-runtime.py` for an explicitly authorized disposable deployment rehearsal.
 It builds the current workspace release and runs real PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3 services.
 It checks installation failures, worker restarts, concurrent HTTP requests, interrupted replay, database restore, and controlled Redis recovery.
 The runner removes owned resources and stores sanitized results.
 See [local deployment rehearsal](operations/local-deployment-rehearsal.md) for requirements, scope, and target acceptance limits.
+
+## Renewable session checks
+
+`Tests/Application/Sessions` checks access expiry, idle activity, fixed maximum expiry, reuse, and current identity rejection.
+`Tests/Services/Sessions` executes real RedisJSON activation, separate deadlines, touch, rotation, reuse, and competing rotations.
+`tests/Infrastructure/Inbound/IdentityApi/Sessions` checks all three APIs, native bodies, browser cookies, Origin, and authenticated replay.
+The tests verify that obsolete replay cannot send an earlier credential.
+Run `node --test tests/Guides/identity-session-client.test.mjs` for automatic renewal, concurrent calls, retry keys, secure storage, and API URL boundaries.
+The helper has no background timer. Test or preview the fifth React Flow diagram in the IdentityAndAccess guide after changing the renewal contract.

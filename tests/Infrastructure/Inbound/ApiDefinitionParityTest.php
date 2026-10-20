@@ -43,9 +43,9 @@ final class ApiDefinitionParityTest extends TestCase
     /** @return iterable<string, array{string, int}> */
     public static function apis(): iterable
     {
-        yield 'ExampleApi' => ['example-api', 21];
-        yield 'UserApi' => ['user-api', 14];
-        yield 'SystemAdminApi' => ['system-admin-api', 17];
+        yield 'ExampleApi' => ['example-api', 22];
+        yield 'UserApi' => ['user-api', 15];
+        yield 'SystemAdminApi' => ['system-admin-api', 18];
     }
 
     /**

@@ -32,6 +32,7 @@ final class ServiceProvider implements \Backendbase\Shared\ServiceProvider
             Contracts\Command\Operations\ApplyOperatorAction::class => Application\CommandHandlers\Operations\ApplyOperatorActionHandler::class,
             Contracts\Command\Authentication\RegisterUser::class => Application\CommandHandlers\Registration\RegisterUserHandler::class,
             Contracts\Command\Authentication\Login::class => Application\CommandHandlers\Login\LoginHandler::class,
+            Contracts\Command\Authentication\RefreshSession::class => Application\CommandHandlers\Login\RefreshSessionHandler::class,
             Contracts\Command\Lifecycle\RevokeAccessToken::class => Application\CommandHandlers\Lifecycle\RevokeAccessTokenHandler::class,
             Contracts\Command\Lifecycle\Logout::class => Application\CommandHandlers\Lifecycle\LogoutHandler::class,
             Contracts\Command\Lifecycle\CloseAccount::class => Application\CommandHandlers\Lifecycle\CloseAccountHandler::class,

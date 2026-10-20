@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="Add a Backendbase feature through OpenAPI, command and query contracts, persistence, transactions, events, subscribers, routing, and verification.">
+    <title>3. Adding a New Feature · Backendbase Guides</title>
+    <link rel="stylesheet" href="assets/react-flow.css">
+    <link rel="stylesheet" href="assets/guides.css">
+    <script defer src="assets/react-flow-runtime.js"></script>
+    <script defer src="assets/adding-a-new-feature.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="masthead">
+    <div class="masthead-inner">
+        <span class="brand">BACKENDBASE / GUIDES</span>
+        <span class="guide-number">Guide 3 · Adding a New Feature</span>
+    </div>
+</header>
+<div class="layout">
+    <nav class="contents" aria-label="Guide contents">
+        <strong>Implementation guide</strong>
+        <a href="#feature-scope">01 · Choose the slice</a>
+<a href="#api-contract">02 · OpenAPI first</a>
+<a href="#request-boundary">03 · Input and mapping</a>
+<a href="#command-contract">04 · Command and behavior</a>
+<a href="#persistence">05 · Persistent state</a>
+<a href="#transaction">06 · Transaction and events</a>
+<a href="#event-contract">07 · Versioned event contract</a>
+<a href="#subscribers">08 · Local and queue subscribers</a>
+<a href="#query-response">09 · Query and HTTP result</a>
+<a href="#registration">10 · DI and routing</a>
+<a href="#failure-retry">11 · Failures and retries</a>
+<a href="#verification">12 · Tests and completion</a>
+        <a class="catalog-link" href="../docs/0-project.html#guides">← Documentation catalog</a>
+    </nav>
+    <main id="main-content">
+        <div class="intro">
+            <p class="eyebrow">03 / Adding a New Feature</p>
+            <h1>Build one feature.<br>Follow every boundary.</h1>
+            <p class="lede">Trace one Entry from its OpenAPI contract through a command, database transaction, integration event, subscriber, and companion query.</p>
+            <p class="meta">Source checked: 20 October 2026 · ExampleCatalog and ExampleApi · Local, offline React Flow diagrams</p>
+            <div class="facts" aria-label="Feature boundaries">
+                <div class="fact"><strong>One slice</strong><span>Create and read the same Entry</span></div>
+                <div class="fact"><strong>One commit</strong><span>Business writes and the outbox row</span></div>
+                <div class="fact"><strong>Later delivery</strong><span>Queue consumption uses its own transaction</span></div>
+            </div>
+            <p>A bounded context owns a business model. Command Query Responsibility Segregation (CQRS) separates state-changing commands from read-only queries.</p>
+            <p>An outbox stores committed events for later publication. An inbox records consumer processing to prevent repeated database work.</p>
+            <noscript><p class="callout">JavaScript is disabled. Tables, code examples, source links, and text versions of both flows remain available.</p></noscript>
+        </div>
+
+<section id="feature-scope">
+<p class="section-number">01 / Choose the slice</p>
+<h2>Start with one observable result</h2>
+
+<p>This guide follows one existing feature: create an active system Entry, read it, and process its integration event.</p>
+<p>The sample Entry has group <code>settings</code>, key <code>page-size</code>, value <code>25</code>, and no target identifier.</p>
+<p>The public API calls this resource an <code>example</code>. Its PHP bounded context is <code>ExampleCatalog</code>, and its domain term is <code>Entry</code>.</p>
+<aside class="callout"><strong>Existing implementation.</strong> The linked classes and PHP excerpts already exist. Reconstruct their sequence when adding your own feature. Do not duplicate these endpoints.</aside>
+<p>Sample requests and JSON values are illustrative inputs. They do not create a new feature, table, event, or subscriber in this repository.</p>
+<ol>
+<li>Define the request, access policy, success response, and failure responses.</li>
+<li>Select the context that owns the business rules.</li>
+<li>Add the required contracts, behavior, adapters, and registration.</li>
+<li>Verify the full call path and its failure paths.</li>
+<li>Update contracts, request examples, documentation, and the changelog together.</li>
+</ol>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Required and conditional feature parts"><table><thead><tr><th scope="col">Part</th><th scope="col">When to add it</th><th scope="col">This example</th></tr></thead><tbody><tr><td>Command and handler</td><td>The use case changes state.</td><td><code>AddEntry</code> and <code>AddEntryHandler</code>.</td></tr><tr><td>Query and read model</td><td>The client needs a read operation.</td><td><code>GetEntryByCriteria</code> returns <code>EntryDetails|null</code>.</td></tr><tr><td>Aggregate and repository</td><td>The behavior needs persistent business state.</td><td><code>Entry</code>, write/read ports, Doctrine and memory adapters.</td></tr><tr><td>Entity and migration</td><td>The storage contract needs a new table, column, or index.</td><td>Reuse <code>ExampleTable</code> and its existing installation. No new migration is needed to send this request.</td></tr><tr><td>Integration event and subscribers</td><td>Another operation or service must react to a business fact.</td><td><code>EntryAdded</code>, one local subscriber, and one queue subscriber.</td></tr><tr><td>Domain event</td><td>An in-process domain reaction is required.</td><td>An optional <code>DomainEvents/EntryAdded</code> path also exists.</td></tr><tr><td>New module or context</td><td>The capability needs a new route group or business boundary.</td><td>Reuse the <code>Example</code> module and <code>ExampleCatalog</code> context.</td></tr></tbody></table></div>
+<p>Read <a href="../../AGENTS.md">root instructions</a> and <a href="../platform/README.md#context-instructions">context routing</a> first. Then read <a href="../../src/Backendbase/Domain/ExampleCatalog/AGENTS.md">ExampleCatalog instructions</a> for this slice.</p>
+<p>Use an existing context when it owns the invariants. Create a new context only for a separate business capability.</p>
+<p>Keep application and domain code independent of HTTP, Doctrine, and queues. Cross-context calls use published contracts.</p>
+<p>See <a href="../platform/02-architecture.md">architecture</a> and <a href="../platform/24-feature-workflow.md">feature workflow</a> for the shared rules.</p>
+
+</section>
+
+<section id="api-contract">
+<p class="section-number">02 / OpenAPI first</p>
+<h2>Specify the write and its companion read</h2>
+
+<div class="table-wrap" tabindex="0" role="region" aria-label="Example endpoint contract"><table><thead><tr><th scope="col">Operation</th><th scope="col">Contract</th></tr></thead><tbody><tr><td><code>POST /example-types/{type-slug}/groups/{example-group}/examples</code></td><td><code>addNewExample</code>; tag <code>Example</code>; API key, USER bearer token, and <code>Idempotency-Key</code>; returns empty <code>204</code> with <code>Backendbase-Insert-Id</code>.</td></tr><tr><td><code>GET /example-types/{type-slug}/groups/{example-group}/examples/{example-key}</code></td><td><code>getExampleByCriteria</code>; tag <code>Example</code>; API key only; returns <code>200</code> with root <code>example</code>, or <code>404</code>. No replay key is required.</td></tr></tbody></table></div>
+<ol>
+<li>Edit <a href="../../resources/api-docs/example-api/example-openapi.yml">the root OpenAPI document</a>.</li>
+<li>Reference one Path Item file for each path.</li>
+<li>Keep all methods for that path in the same file.</li>
+<li>Declare each operation tag in the root document with a description.</li>
+<li>Match route names to operation IDs and placeholders to path parameters.</li>
+<li>Define request types, defaults, size limits, security, responses, and shared headers.</li>
+</ol>
+<p class="code-caption">Current root paths excerpt. The enclosing <code>paths:</code> key is omitted.</p><pre><code data-language="yaml">/example-types/{type-slug}/groups/{example-group}/examples:
+  $ref: &quot;./example/examples.yaml&quot;
+/example-types/{type-slug}/groups/{example-group}/examples/{example-key}:
+  $ref: &quot;./example/example-details.yaml&quot;</code></pre>
+<p>The collection file defines POST and GET. The detail file defines GET, PATCH, and DELETE.</p>
+<p>Inside these files, shared header references use <code>../../common/components.yaml</code>. Root schema references use <code>../example-openapi.yml#/components/schemas/...</code>.</p>
+<p>Use <a href="../../resources/api-docs/common/components.yaml">shared headers and Problem Details responses</a>. Include <code>Idempotency-Key</code> for every POST, PUT, PATCH, and DELETE.</p>
+<p>POST requires <code>lookupValue</code>. Its other fields are <code>typeTargetId</code>, <code>lookupKey</code>, <code>details</code>, and <code>isActive</code>.</p>
+<p>The response header identifies the created Entry. The command returns no result. The follow-up GET returns a resource under <code>example</code>.</p>
+<p>Use descriptive response keys. Keep Problem Details at the root and preserve empty <code>204</code> bodies.</p>
+<p class="source">Source: <a href="../../resources/api-docs/example-api/example/examples.yaml">examples.yaml</a>.</p>
+<p class="source">Source: <a href="../../resources/api-docs/example-api/example/example-details.yaml">example-details.yaml</a>.</p>
+<p>After a real contract edit, generate and validate the merged document:</p>
+<pre><code data-language="sh">composer run generate-example-api-spec
+composer run validate-example-api-spec</code></pre>
+<p>Review <code>public/example-api/docs/example-api-merged.yml</code>. Do not edit it by hand. These commands are instructions for implementation work.</p>
+
+</section>
+
+<section id="request-boundary">
+<p class="section-number">03 / Input and mapping</p>
+<h2>Validate before dispatch</h2>
+
+<p>The following request illustrates the existing contract. Use only an identified, prepared test target with an eligible USER session.</p>
+<p>Replace the credential placeholders locally. Generate a fresh operation key for the first send. Keep the exact request for retries.</p>
+<p class="code-caption">Illustrative request. This guide does not execute HTTP writes.</p><pre><code data-language="sh">exampleApiBaseUrl=&#x27;http://127.0.0.1:8080/example-api&#x27;
+entryBody=&#x27;{&quot;lookupKey&quot;:&quot;page-size&quot;,&quot;lookupValue&quot;:&quot;25&quot;,&quot;details&quot;:{&quot;unit&quot;:&quot;items&quot;},&quot;isActive&quot;:true}&#x27;
+entryOperationKey=&#x27;019f6322-1234-7000-8000-000000000003&#x27;
+
+curl --silent --show-error --include \
+  --connect-timeout 5 --max-time 15 \
+  --request POST &quot;$exampleApiBaseUrl/example-types/system/groups/settings/examples&quot; \
+  --header &#x27;X-Source-Id: example&#x27; \
+  --header &#x27;Backendbase-Api-Key: REPLACE_WITH_TEST_API_KEY&#x27; \
+  --header &#x27;Authorization: Bearer REPLACE_WITH_TEST_USER_TOKEN&#x27; \
+  --header &#x27;Content-Type: application/json&#x27; \
+  --header &#x27;Accept: application/json&#x27; \
+  --header &quot;Idempotency-Key: $entryOperationKey&quot; \
+  --data-binary &quot;$entryBody&quot;</code></pre>
+<p><code>X-Source-Id: example</code> selects ExampleApi. It does not grant access. The public entry point is <code>public/index.php</code>.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Input conversion"><table><thead><tr><th scope="col">Boundary</th><th scope="col">Existing behavior</th></tr></thead><tbody><tr><td>Raw body</td><td><code>ExampleRequestBody::read()</code> reads at most 65,536 bytes, decodes JSON within 64 levels, requires an object, and rejects unknown fields.</td></tr><tr><td>Route parameters</td><td><code>ExampleRequestInput</code> checks <code>EntryType</code>, group, and key. Types are <code>system</code> and <code>user</code>.</td></tr><tr><td>Scalar fields</td><td>Body target identifiers must be native positive integers or null. Booleans and strings are not silently coerced.</td></tr><tr><td>Business values</td><td><code>AddEntry</code> constructs <code>EntryIdentity</code>, <code>EntryId</code>, <code>EntryValue</code>, and <code>EntryDetails</code> before dispatch.</td></tr><tr><td>Limits and defaults</td><td>Group: 1–32 UTF-8 characters. Key: 1–160. Value: 0–2048. Omitted/null target means no target. Omitted/null active means true. Omitted/null details become an empty object.</td></tr><tr><td>JSON details</td><td>Require an object for supplied non-null details. Reject integer top-level names and NUL-prefixed names at every depth. Preserve accepted nested objects, lists, text, and empty shapes.</td></tr></tbody></table></div>
+<p>A universally unique identifier (UUID) identifies each Entry. A ULID is a sortable identifier used for generated lookup keys.</p>
+<p>If <code>lookupKey</code> is omitted or null, <code>NewExample</code> generates a lowercase ULID. This sample supplies the key for a predictable follow-up read.</p>
+<p>Read requests convert declared integer query strings. This does not permit integer strings in POST JSON.</p>
+<p>Keep HTTP names such as <code>lookupValue</code> in the action. Map them to command terms such as <code>value</code>.</p>
+<p>The Entry HTTP boundary uses explicit mapping. The shared <a href="../../src/Backendbase/Infrastructure/Adapters/Mapping/ObjectMapper.php">ObjectMapper</a> is available when a typed input object needs Valinor mapping.</p>
+<p>For that alternative, validate root shape and size first. Reject unknown fields and wrong scalar types. Translate mapping errors into safe input errors.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ExampleRequestBody.php">ExampleRequestBody</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ExampleRequestInput.php">ExampleRequestInput</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/NewExample.php">NewExample</a>.</p>
+
+</section>
+
+<section id="command-contract">
+<p class="section-number">04 / Command and behavior</p>
+<h2>Keep the command synchronous and result-free</h2>
+
+<p>Create a command under <code>Contracts/Command</code> only for a state-changing use case. Implement <code>Shared/CQRS/Command</code>.</p>
+<p>Keep only required use-case data. Validate business values before they can enter the handler.</p>
+<p>Use typed immutable fields for new fixed inputs. Keep stable serialization when other code depends on <code>toArray()</code>.</p>
+<p class="code-caption">Current <code>AddEntry</code> constructor. The surrounding readonly class and imports are omitted.</p><pre><code data-language="php">public function __construct(
+        string $entryId,
+        EntryType $type,
+        int|null $typeTargetId,
+        string $group,
+        bool $isActive,
+        string $key,
+        string $value,
+        array|null $details = [],
+    ) {
+        $this-&gt;identity     = new EntryIdentity($type, $typeTargetId, $group, $key);
+        $this-&gt;identifier   = EntryId::fromString($entryId);
+        $this-&gt;active       = $isActive;
+        $this-&gt;entryValue   = new EntryValue($value);
+        $this-&gt;entryDetails = $details === null ? null : new EntryDetails($details);
+    }</code></pre>
+<p>Create the handler under <code>Application/CommandHandlers</code>. Depend on context ports and application services.</p>
+<p class="code-caption">Current <code>AddEntryHandler::handle()</code>. The injected services and imports are omitted.</p><pre><code data-language="php">public function handle(Command $command): void
+    {
+        $writes      = $this-&gt;writes;
+        $transaction = $this-&gt;transaction;
+        $work        = static fn () =&gt; $writes-&gt;add($command);
+        $domainEvent = static fn (IntegrationEvent $event): EntryAdded =&gt; new EntryAdded($command, $event-&gt;occurredOn());
+        $transaction-&gt;execute($work, $domainEvent);
+    }</code></pre>
+<p>The handler delegates creation to <code>EntryWrites</code>. The transaction service wraps that work and its event publication.</p>
+<p class="code-caption">Current <code>EntryWrites::add()</code>. The injected write port and clock are omitted.</p><pre><code data-language="php">public function add(AddEntry $command): EntryAdded
+    {
+        $clock        = $this-&gt;clock;
+        $now          = $clock-&gt;now();
+        $entryId      = $command-&gt;entryId();
+        $type         = $command-&gt;type();
+        $typeTargetId = $command-&gt;typeTargetId();
+        $group        = $command-&gt;group();
+        $isActive     = $command-&gt;isActive();
+        $key          = $command-&gt;key();
+        $value        = $command-&gt;value();
+        $details      = $command-&gt;details();
+        $entry        = Entry::create($entryId, $type, $typeTargetId, $group, $isActive, $key, $value, $details, $now);
+        $repository   = $this-&gt;repository;
+        $repository-&gt;add($entry);
+
+        return new EntryAdded(new EntryAddedPayload($entryId, $type-&gt;value, $typeTargetId, $group, $isActive, $key, $value, $details), $now);
+    }</code></pre>
+<p><code>Entry::create()</code> owns aggregate creation. The repository owns persistence. Both receive the same explicit mutation instant through this flow.</p>
+<p>A privileged use case must carry typed <code>AccessControl</code>. Its handler must enforce the named privilege before reads or effects.</p>
+<p><code>AddEntry</code> currently relies on the route’s API key and USER authentication. It does not declare a named application privilege.</p>
+<p>Do not copy an unrelated privilege or infer ownership from <code>typeTargetId</code>. Define the required policy for the new behavior.</p>
+<p>The buses only resolve and call handlers. They do not add validation, retries, authorization, asynchronous execution, or transactions.</p>
+<p>See <a href="../platform/04-cqrs.md">CQRS rules</a> and <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Entry aggregate behavior</a>.</p>
+
+</section>
+
+<section id="persistence">
+<p class="section-number">05 / Persistent state</p>
+<h2>Add storage only when the behavior needs it</h2>
+
+<div class="table-wrap" tabindex="0" role="region" aria-label="Persistence file map"><table><thead><tr><th scope="col">Role</th><th scope="col">Existing source and responsibility</th></tr></thead><tbody><tr><td>Domain aggregate</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Domain/Entry.php</a> enforces state changes without Doctrine.</td></tr><tr><td>Write port</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php">Contracts/EntryWriteRepository.php</a> declares add, active lookup, and save behavior.</td></tr><tr><td>Write adapter</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php">Doctrine/EntryWriteRepository.php</a> maps Entry to ExampleTable and translates duplicate identity errors.</td></tr><tr><td>Mapped entity</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/ExampleTable.php">Doctrine/Entity/ExampleTable.php</a> owns all mapped fields and converts snapshots in both directions.</td></tr><tr><td>Read port and adapter</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/EntryReadRepository.php">Contracts/EntryReadRepository.php</a> and <a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php">Doctrine/EntryReadRepository.php</a> return declared projections through bound SQL.</td></tr><tr><td>Persisted-row mapping</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadModelMapper.php">EntryReadModelMapper.php</a> validates rows before read-model construction.</td></tr><tr><td>Memory adapters</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory">Adapters/Persistence/Memory</a> share one EntryStore for deterministic lifecycle tests.</td></tr><tr><td>Existing installation</td><td><a href="../../resources/database/Migrations/Version20260823215059.php">Version20260823215059</a> creates the current Example table, uniqueness, and indexes.</td></tr></tbody></table></div>
+<p>For a new persistent feature, define the aggregate and ports first. Implement adapters and their common repository contract tests next.</p>
+<p>Name a new business table without a context prefix. Derive its Doctrine class from the full table name.</p>
+<p>Declare mapped identifiers, versions, and timestamps directly in the entity. Do not use entity inheritance or mapped-field traits.</p>
+<p>Record table ownership in <a href="../platform/database-table-ownership.md">the ownership registry</a>.</p>
+<p>Review every lookup and pagination query against existing index prefixes. Add required metadata, forward migrations, and regression checks together.</p>
+<p>This criteria lookup uses <code>example_search_idx</code>. The active identity uniqueness key prevents two nonremoved entries with the same identity.</p>
+<p>Uniqueness uses type, normalized target, group, and key. <code>isActive=false</code> does not release an identity; soft removal does.</p>
+<p><code>EntryWriteRepository::add()</code> flushes inside the surrounding transaction. A flush sends SQL; it does not commit this feature transaction.</p>
+<p>For new non-list JSON columns, use an immutable context-owned storage value with validated reconstruction and explicit conversion.</p>
+<p><code>example_table.details</code> is a documented exception. Preserve its <code>EntryDetails</code> validation and Doctrine <code>JSON_OBJECT</code> mapping.</p>
+<h3>If the schema must change</h3>
+<ol>
+<li>Confirm the authorized table, column, index, and compatibility scope.</li>
+<li>Complete mapping and repository tests.</li>
+<li>Identify the database target used by the Doctrine command.</li>
+<li>Generate a forward migration with <code>bin/doctrine migrations:diff</code>.</li>
+<li>Review every statement and remove unrelated generated changes.</li>
+<li>Review release migration metadata and rollback compatibility.</li>
+<li>Verify dry-run SQL on an authorized, prepared target.</li>
+<li>Apply only with explicit authority for that database and its effects.</li>
+</ol>
+<p>Do not rewrite applied installation migrations. Do not add seed rows unless the feature requires approved reference data.</p>
+<p>Verify representative <code>EXPLAIN</code> plans on prepared MySQL. SQLite checks do not prove production index selection.</p>
+<p>See <a href="../platform/09-persistence.md">persistence and JSON policy</a> and <a href="../platform/10-schema-changes.md">migration and adoption rules</a>.</p>
+
+</section>
+
+<section id="transaction">
+<p class="section-number">06 / Transaction and events</p>
+<h2>Publish the business fact before commit</h2>
+
+<div class="flow-frame"><div class="flow-heading"><strong>One create operation: business transaction</strong><span>Drag to move · Use + / − to zoom · Select a step</span></div><div id="write-flow"><p class="flow-placeholder">Loading the local diagram…</p></div></div><details class="flow-text"><summary>Read this flow as text</summary><ol><li>NewExample constructs AddEntry. AddEntryHandler enters EntryEventTransaction, which calls IntegrationEventTransaction.</li><li>EntryWrites reads Clock, creates Entry, and saves it. The write adapter flushes inside the active database transaction.</li><li>EntryEventTransaction publishes the optional domain event. The event manager runs local integration subscribers and appends one outbox row.</li><li>DoctrineIntegrationEventTransaction flushes and commits. The HTTP action can now return 204 and the identifier. Broker delivery remains pending.</li></ol></details>
+<p><code>EntryEventTransaction</code> delegates to <code>Shared/Persistence/IntegrationEventTransaction</code>. Production DI binds it to <code>DoctrineIntegrationEventTransaction</code>.</p>
+<p class="code-caption">Current production transaction wrapper. The injected entity manager and event manager are omitted.</p><pre><code data-language="php">public function execute(callable $transactionalWork): void
+    {
+        $eventManager  = $this-&gt;eventManager;
+        $entityManager = $this-&gt;entityManager;
+        $connection    = $entityManager-&gt;getConnection();
+        try {
+            $connection-&gt;transactional(static function () use ($transactionalWork, $eventManager, $entityManager): void {
+                $event = $transactionalWork();
+                $eventManager-&gt;dispatchEvent($event);
+                $entityManager-&gt;flush();
+            });
+        } catch (Throwable $exception) {
+            $entityManager-&gt;clear();
+
+            throw $exception;
+        }
+    }</code></pre>
+<p>The callback returns one complete <code>IntegrationEvent</code>. Direct producer dispatch requires an active transaction.</p>
+<p>The transaction, local subscriber repositories, and outbox adapter must share the same database connection.</p>
+<p>A subscriber exception, outbox insert failure, or final flush failure propagates and rolls back database work. The wrapper clears the entity manager.</p>
+<aside class="callout warning"><strong>Delivery follows commit.</strong> A successful HTTP response means the business transaction completed. It does not prove broker delivery or subscriber completion elsewhere.</aside>
+<h3>Keep domain and integration events distinct</h3>
+<p><code>Contracts/DomainEvents/EntryAdded</code> is synchronous in-process notification. Its target attribute selects <code>EntryAddedListener</code>.</p>
+<p><code>EntryEventTransaction</code> publishes that domain event after the write and before integration dispatch. The current listener logs metadata.</p>
+<p><code>Contracts/IntegrationEvents/EntryAdded</code> is the versioned integration fact. The event manager runs local integration subscribers before the optional outbox insert.</p>
+<p>Both <code>DELIVER_VIA_QUEUE</code> values run local subscribers. Only <code>true</code> adds an outbox row, including when no local subscriber exists.</p>
+<p>Do not perform broker, HTTP, file, or process effects inside transactional work or business subscribers.</p>
+<p>Current reference listeners emit debug logs. Those logs cannot roll back with database writes. They are not durable business effects.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryEventTransaction.php">EntryEventTransaction</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/DomainEvents/EntryAdded.php">domain EntryAdded and its listener target</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php">ContainerAwareEventManager</a>.</p>
+
+</section>
+
+<section id="event-contract">
+<p class="section-number">07 / Versioned event contract</p>
+<h2>Preserve the producer-to-consumer schema</h2>
+
+<p>Add an integration event only when a reaction is required. Place its typed payload under <code>Contracts/IntegrationEvents/V1</code>.</p>
+<p>Implement <code>IntegrationEvent</code> with <code>IntegrationEventTrait</code>. Declare the name, version, queue flag, and explicit occurrence instant.</p>
+<p class="code-caption">Current <code>EntryAdded</code> constants, shown together. The class and trait are omitted.</p><pre><code data-language="php">public const string EVENT_VERSION = &#x27;1.0&#x27;;
+public const bool DELIVER_VIA_QUEUE = true;
+public const string EVENT_TYPE = &#x27;Example_NewExampleAdded&#x27;;</code></pre>
+<p>Read the application clock inside the transaction. Reuse the mutation instant as the event occurrence time.</p>
+<p>The outbox stores that instant in <code>occurred_at</code>. Its <code>created_at</code> records persistence time.</p>
+<p class="code-caption">Illustrative <code>EntryAddedPayload::toArray()</code> data. The real UUID is the value returned in <code>Backendbase-Insert-Id</code>. This is payload data, not a full broker envelope.</p><pre><code data-language="json">{
+  &quot;exampleId&quot;: &quot;018f0000-0000-7000-8000-000000000001&quot;,
+  &quot;command&quot;: {
+    &quot;exampleId&quot;: &quot;018f0000-0000-7000-8000-000000000001&quot;,
+    &quot;type&quot;: &quot;system&quot;,
+    &quot;typeTargetId&quot;: null,
+    &quot;group&quot;: &quot;settings&quot;,
+    &quot;isActive&quot;: true,
+    &quot;key&quot;: &quot;page-size&quot;,
+    &quot;value&quot;: &quot;25&quot;,
+    &quot;details&quot;: {&quot;unit&quot;: &quot;items&quot;}
+  }
+}</code></pre>
+<p>The released <code>command</code> object is a data snapshot. The consumer does not dispatch it as <code>AddEntry</code>.</p>
+<p>Keep <code>Example_NewExampleAdded</code>, version <code>1.0</code>, and both serialized <code>exampleId</code> fields stable.</p>
+<p>PHP uses <code>entryId()</code>. The external carrier constructor retains <code>exampleId</code> for mapping.</p>
+<p>The registered <code>EntryAddedMessage</code> contains typed <code>EntryAddedCommand</code> data. Its constructor rejects mismatched outer and nested identifiers.</p>
+<p>For new event names, follow <code>{PascalCaseServiceName}_{PascalCaseEventClassName}</code>. Read the service name from <code>config/autoload/global.php</code>.</p>
+<p>Create a new version for an incompatible released payload. Retain old carriers while retained messages can still arrive.</p>
+<p>Verify the actual producer payload through the registered carrier and dispatcher. Include persisted outbox and transport serialization for JSON changes.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/EntryAdded.php">producer EntryAdded</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/V1/EntryAddedPayload.php">EntryAddedPayload</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/ExternalIntegrationEvents/V1/EntryAddedMessage.php">consumer EntryAddedMessage</a>.</p>
+
+</section>
+
+<section id="subscribers">
+<p class="section-number">08 / Local and queue subscribers</p>
+<h2>Register each reaction at its actual boundary</h2>
+
+<div class="table-wrap" tabindex="0" role="region" aria-label="Subscriber boundaries"><table><thead><tr><th scope="col">Kind</th><th scope="col">Location and contract</th><th scope="col">Execution</th></tr></thead><tbody><tr><td>Local integration subscriber</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Application/IntegrationEventSubscribers/EntryAddedSubscriber.php">Application/IntegrationEventSubscribers/EntryAddedSubscriber.php</a> implements <code>IntegrationEventSubscriber</code>.</td><td>Receives the producer event synchronously before outbox insertion and commit.</td></tr><tr><td>Queue integration subscriber</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Application/ExternalIntegrationEventSubscribers/ExampleCatalog/EntryAddedExternalSubscriber.php">Application/ExternalIntegrationEventSubscribers/ExampleCatalog/EntryAddedExternalSubscriber.php</a> implements <code>ExternalIntegrationEventSubscriber</code>.</td><td>Receives the mapped versioned carrier inside a separate inbox transaction.</td></tr></tbody></table></div>
+<p>The current local subscriber logs event name and version. The current queue subscriber logs event and message type, then completion.</p>
+<p>These subscribers do not create a projection, send a notification, or call another command. Add such behavior only when the feature requires it.</p>
+<p class="code-caption">Current local <code>EntryAddedSubscriber::handle()</code>.</p><pre><code data-language="php">public function handle(IntegrationEvent $integrationEvent): void
+    {
+        $this-&gt;logger-&gt;debug(&#x27;EntryAddedSubscriber&#x27;, [
+            &#x27;eventName&#x27; =&gt; $integrationEvent-&gt;eventName(),
+            &#x27;eventVersion&#x27; =&gt; $integrationEvent-&gt;eventVersion(),
+        ]);
+    }</code></pre>
+<p>Declare subscribed event names through <code>getSubscribedEvents()</code>. Register each subscriber in the owning <code>ServiceProvider</code>.</p>
+<p>External registration must also specify <code>message-fqcn</code> and <code>event-version</code>. The external name here is <code>Example_NewExampleAdded_Event</code>.</p>
+<p>Each subscriber needs an explicit constructor. The current dispatcher constructs a fresh subscriber through reflection.</p>
+<p>Constructor dependencies resolve by type, then parameter name. A binding for the subscriber class itself does not control that construction.</p>
+<div class="flow-frame"><div class="flow-heading"><strong>After commit: outbox relay and inbox processing</strong><span>Drag to move · Use + / − to zoom · Select a step</span></div><div id="delivery-flow"><p class="flow-placeholder">Loading the local diagram…</p></div></div><details class="flow-text"><summary>Read this flow as text</summary><ol><li>OutboxRelayService claims a committed pending row. OutboxPublication publishes through OutboxMessagePublisher and the selected transport.</li><li>RabbitMQ or SQS delivers the event metadata and payload. ExternalIntegrationEventMessageProcessor validates metadata and replay-window eligibility.</li><li>The processor opens processOnce for consumer name and message ID. The dispatcher resolves name plus version and maps EntryAddedMessage.</li><li>EntryAddedExternalSubscriber handles the carrier. The inbox commits database work with processed_at, then the processor returns ACKNOWLEDGE.</li></ol></details>
+<p>The consumer requires an immutable occurrence time within the previous seven days. Missing, malformed, future, or older times are permanent failures.</p>
+<p>The outbox can retry beyond this window. Monitor pending age before otherwise valid events become ineligible for consumption.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Shared/Integrations/Messaging/ReplayWindow.php">ReplayWindow</a>.</p>
+<p><code>dispatchExternalEvent()</code> does not append the received event to the outbox. A consumer does not republish a message automatically.</p>
+<p>Consumer database work must use the inbox connection. A processed duplicate acknowledges without repeated dispatch.</p>
+<p>For provider effects, use the existing external-effect pattern. A provider call cannot join the inbox database transaction.</p>
+<p>See <a href="../platform/12-messaging-consumers.md">inbox and external-effect rules</a> before adding email, SMS, or another network effect.</p>
+<p>The existing <code>outbox:relay</code> and <code>queue:consume</code> runtimes require configured transports and supervised workers.</p>
+<p>Registering an event does not start those workers or establish deployed broker topology. Verify those facts on the authorized target.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php">message processor</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcher.php">carrier mapping and external dispatch</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php">inbox transaction</a>.</p>
+
+</section>
+
+<section id="query-response">
+<p class="section-number">09 / Query and HTTP result</p>
+<h2>Read through a declared contract</h2>
+
+<p>Create the companion query under <code>Contracts/Query</code>. Declare its result with <code>Query&lt;EntryDetails|null&gt;</code>.</p>
+<p><code>GetEntryByCriteria</code> carries type, nullable target identifier, group, and key. The HTTP boundary validates these values first.</p>
+<p>Current source stores its non-enum criteria as scalar fields. Do not infer constructor validation for this query.</p>
+<p>For new query inputs with business rules, apply the context’s typed-value conventions. Keep queries free of mutations and events.</p>
+<p class="code-caption">Current <code>GetEntryByCriteriaHandler::handle()</code>. It delegates to the read port.</p><pre><code data-language="php">public function handle(Query $query): EntryDetails|null
+    {
+        return $this-&gt;entryRepository-&gt;getEntryByCriteria($query);
+    }</code></pre>
+<p>The DBAL adapter filters <code>deleted_at IS NULL</code>. It returns a validated <code>EntryDetails</code> projection or <code>null</code>.</p>
+<p><code>ExampleDetails</code> maps null to <code>ResourceNotFound</code>. It maps the read model to <code>{"example": ...}</code> with HTTP <code>200</code>.</p>
+<p>Use the same criteria for the sample read:</p>
+<p class="code-caption">Illustrative follow-up GET. No target query parameter selects the same null target. No replay key is required.</p><pre><code data-language="sh">curl --silent --show-error --include \
+  --connect-timeout 5 --max-time 15 \
+  &quot;$exampleApiBaseUrl/example-types/system/groups/settings/examples/page-size&quot; \
+  --header &#x27;X-Source-Id: example&#x27; \
+  --header &#x27;Backendbase-Api-Key: REPLACE_WITH_TEST_API_KEY&#x27; \
+  --header &#x27;Accept: application/json&#x27;</code></pre>
+<p>The returned <code>example.uuid</code> must equal the create response’s <code>Backendbase-Insert-Id</code>.</p>
+<p>Check <code>lookupKey=page-size</code>, <code>lookupValue="25"</code>, object <code>details</code>, boolean <code>isActive</code>, and ISO date-time timestamps.</p>
+<h3>Choose the write result deliberately</h3>
+<p><code>NewExample</code> creates a UUID before dispatch. It returns that UUID only after successful synchronous command execution.</p>
+<p class="code-caption">Current end of <code>NewExample::action()</code>.</p><pre><code data-language="php">$this-&gt;commandBus-&gt;handle($command);
+
+return new EmptyResponse(204, [&#x27;Backendbase-Insert-Id&#x27; =&gt; $entryId]);</code></pre>
+<p>If a new write must return a full representation, use one application orchestrator for command completion and the authorized response read.</p>
+<p>That orchestrator is permitted guidance, not an existing Entry service. Define committed visibility, read authorization, and post-commit read failures first.</p>
+<p>A response read failure cannot roll back a completed write. Do not repeat the command to recover its response.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/Query/GetEntryByCriteria.php">GetEntryByCriteria</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/ReadModel/EntryDetails.php">EntryDetails read model</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers/ExampleDetails.php">ExampleDetails response mapping</a>.</p>
+
+</section>
+
+<section id="registration">
+<p class="section-number">10 / DI and routing</p>
+<h2>Make the complete path reachable</h2>
+
+<p>Dependency injection (DI) supplies ports and services. The CQRS registry supplies each command-to-handler and query-to-handler mapping.</p>
+<p class="code-caption">Current entries from <code>ExampleCatalog/ServiceProvider.php</code>. Array wrappers and unrelated entries are omitted.</p><pre><code data-language="php">// Excerpt from getDefinitions():
+EntryReadRepository::class =&gt; DoctrineEntryReadRepository::class,
+EntryWriteRepository::class =&gt; DoctrineEntryWriteRepository::class,
+
+// Excerpt from getHandlers():
+AddEntry::class =&gt; AddEntryHandler::class,
+GetEntryByCriteria::class =&gt; GetEntryByCriteriaHandler::class,</code></pre>
+<p class="code-caption">Current external entry in <code>getIntegrationEventSubscribers()</code>. Register the local subscriber in that method too.</p><pre><code data-language="php">[
+    &#x27;events&#x27; =&gt; EntryAddedExternalSubscriber::getSubscribedEvents(),
+    &#x27;subscriber-fqcn&#x27; =&gt; EntryAddedExternalSubscriber::class,
+    &#x27;message-fqcn&#x27; =&gt; EntryAddedMessage::class,
+    &#x27;event-version&#x27; =&gt; EntryAdded::EVENT_VERSION,
+],</code></pre>
+<p><code>config/dependencies/bounded-contexts.php</code> discovers <code>Domain/*/ServiceProvider.php</code>, binds ports, and builds the handler registry.</p>
+<p><code>config/dependencies/modules.php</code> collects subscriber registrations and versioned carriers. <code>config/dependencies.php</code> selects <code>RegistryHandlerResolver</code>.</p>
+<p>No handler attribute is required for current commands or queries. A missing registry entry fails at dispatch.</p>
+<p>Place one HTTP handler per documented operation under <code>Infrastructure/Inbound/ExampleApi/Controllers/Example/Handlers</code>.</p>
+<p><code>Example</code> is the PascalCase OpenAPI tag. Keep each inbound API’s controllers in that API’s own directory.</p>
+<p class="code-caption">Current route declaration inside the protected <code>Example</code> subgroup.</p><pre><code data-language="php">$group-&gt;post(&#x27;/{type-slug}/groups/{example-group}/examples&#x27;, Handlers\NewExample::class)
+    -&gt;setName(&#x27;addNewExample&#x27;);</code></pre>
+<p>The module implements <code>ModuleRoute</code>. Its <code>ROUTE_KEY</code> and <code>routeKey()</code> both use <code>example-types</code>.</p>
+<p>Use fluent route declarations. Put common middleware on one group. Keep endpoint-specific policies on their routes.</p>
+<p class="code-caption">Current protected group middleware. Slim runs the last added middleware first.</p><pre><code data-language="php">-&gt;add(Idempotency::class)
+-&gt;add(RealmAuthentication::class)
+-&gt;add(new RealmPolicy(Realm::USER));</code></pre>
+<p>The execution order is realm policy → USER authentication → HTTP replay → endpoint. Authentication therefore runs before stored replay.</p>
+<p>The detail GET stays outside this protected subgroup. Its API-key protection comes from the API middleware.</p>
+<p>For a new module, add its <code>ModuleConfig</code> to <code>Controllers/ModuleRoutes.php</code>. Verify the outer group in <code>routes.php</code>.</p>
+<p>The current <code>routes.php</code> creates <code>/$moduleRouteKey</code> groups from the registry. Do not add a duplicate outer group.</p>
+<p>Check actual container, bus, route, and event-registry resolution. Direct handler tests cannot prove that registration works.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php">context ServiceProvider</a>.</p>
+<p class="source">Source: <a href="../../config/dependencies/bounded-contexts.php">port and handler registry composition</a>.</p>
+<p class="source">Source: <a href="../../config/dependencies/modules.php">event registry composition</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/Example/ModuleConfig.php">Example ModuleConfig</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/Controllers/ModuleRoutes.php">ModuleRoutes</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/routes.php">API route-group creation</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Inbound/ExampleApi/middleware.php">API-wide middleware</a>.</p>
+
+</section>
+
+<section id="failure-retry">
+<p class="section-number">11 / Failures and retries</p>
+<h2>Keep three idempotency boundaries separate</h2>
+
+<div class="table-wrap" tabindex="0" role="region" aria-label="Idempotency and retry boundaries"><table><thead><tr><th scope="col">Boundary</th><th scope="col">Current behavior</th><th scope="col">Required design check</th></tr></thead><tbody><tr><td>HTTP replay</td><td>A separate durable claim precedes the business operation. Response completion is another commit. Matching completed responses remain for 24 hours.</td><td>Keep operation ID, caller, key, and exact fingerprinted request stable. A crash after commit can leave an unresolved claim.</td></tr><tr><td>Outbox publication</td><td>A 60-second claim protects relay work. Failed publication retries after 2–256 seconds, without a terminal attempt limit.</td><td>Publishing can succeed before the row is marked published. Expect redelivery of the same message ID.</td></tr><tr><td>Consumer inbox</td><td>Identity is <code>(consumer_name, message_id)</code>. Consumer database work and <code>processed_at</code> commit together.</td><td>Duplicate delivery must not repeat committed database work. Do not claim exactly-once external effects.</td></tr></tbody></table></div>
+<p>Use the same HTTP key and unchanged request for a retry. Use a new key for a new intended operation.</p>
+<p>A completed retry returns the original status, body, and selected headers, including <code>Backendbase-Insert-Id</code>.</p>
+<p>Current authentication still runs first. A replacement token changes the request fingerprint. Revoked access cannot replay a protected response.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Failures to test"><table><thead><tr><th scope="col">Condition</th><th scope="col">Outcome</th></tr></thead><tbody><tr><td>Invalid JSON, field type, key, or value</td><td>Reject at the boundary with HTTP <code>400</code>. Keep business state unchanged.</td></tr><tr><td>Missing or invalid access</td><td>Reject under the API policy. The protected write must not reach business work or replay.</td></tr><tr><td>Duplicate nonremoved Entry identity</td><td><code>EntryAlreadyExists</code> maps to HTTP <code>409</code>. Keep the existing Entry unchanged.</td></tr><tr><td>Missing detail resource</td><td><code>ResourceNotFound</code> maps to HTTP <code>404</code>.</td></tr><tr><td>Changed request with the same scoped replay key</td><td>HTTP <code>422</code>, <code>idempotency/request-mismatch</code>.</td></tr><tr><td>Active or unresolved matching replay claim</td><td>HTTP <code>409</code>, <code>idempotency/request-outstanding</code>. Waiting does not release an unresolved claim.</td></tr><tr><td>Replay storage or encryption failure</td><td>HTTP <code>503</code>. Business work can already have committed before response storage fails.</td></tr><tr><td>Local subscriber or outbox failure</td><td>Propagate the failure and roll back database writes. Unexpected HTTP failures map to safe Problem Details.</td></tr><tr><td>Invalid queue metadata, unknown version, missing subscriber, wrong interface, or mapping error</td><td>Permanent consumer failure: reject through the failure policy when identifiers are available.</td></tr><tr><td>Other consumer or infrastructure exception</td><td>Roll back consumer work and retry. The failure policy makes the fifth recorded transient failure terminal.</td></tr><tr><td>Closed ORM session after consumer failure</td><td><code>ConsumerRestartRequired</code> preserves the retry/reject outcome. The transport stops consumption for supervisor restart.</td></tr></tbody></table></div>
+<p>Already completed application errors can also replay. A stored <code>500</code> or <code>503</code> does not automatically execute again.</p>
+<p>Before retrying after an uncertain result, retain the original key and inspect business and messaging evidence.</p>
+<p>Unresolved HTTP claims have no automatic expiry or takeover. After completed-response expiry, the same key can execute again.</p>
+<p>Do not delete claims or reset evidence to force execution. Follow <a href="../platform/operations/http-idempotency.md">HTTP recovery rules</a>.</p>
+<p>Return <code>application/problem+json</code> with root Problem Details and a matching integer <code>status</code>. Do not expose traces or credentials.</p>
+<p>Add a new domain problem only for a new expected failure. Align its stable code, HTTP mapping, OpenAPI, translations, and tests.</p>
+<p>Log safe correlation fields. Do not log request bodies, replay keys, credentials, or full event payloads.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRetryPolicy.php">OutboxRetryPolicy</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Messaging/QueueMessageFailureService.php">QueueMessageFailureService</a>.</p>
+<p>See <a href="2-idempotency.html">Guide 2: Idempotency</a>, <a href="../platform/11-messaging-outbox.md">outbox rules</a>, and <a href="../platform/16-errors-observability.md">error rules</a>.</p>
+
+</section>
+
+<section id="verification">
+<p class="section-number">12 / Tests and completion</p>
+<h2>Prove behavior, wiring, and failure handling</h2>
+
+<p>Use the smallest checks that prove the change. Expand checks when behavior, dependencies, or public contracts require it.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Existing evidence and implementation checks"><table><thead><tr><th scope="col">Check</th><th scope="col">Existing test source</th><th scope="col">Verify for the new feature</th></tr></thead><tbody><tr><td>Domain and command input</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Domain/EntryValidationTest.php">EntryValidationTest</a>; <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/CommandAndQueryContractsTest.php">CommandAndQueryContractsTest</a></td><td>Invalid, missing, boundary, and oversized values; no partial mutation after rejected input.</td></tr><tr><td>Handler behavior</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php">AddEntryHandlerTest</a></td><td>Correct aggregate, timestamp, repository write, and event. No success after a failed command.</td></tr><tr><td>HTTP and access</td><td><a href="../../tests/Infrastructure/Inbound/ExampleApi/ExampleWriteControllersTest.php">ExampleWriteControllersTest</a>; <a href="../../tests/Infrastructure/Inbound/ExampleApi/Security/ExampleAuthorizationTest.php">ExampleAuthorizationTest</a></td><td>Request mapping, missing and wrong-realm tokens, body bounds, status, empty body, and identifier header.</td></tr><tr><td>Routing and source contracts</td><td><a href="../../tests/Infrastructure/Inbound/ExampleApi/ModuleRoutingTest.php">ModuleRoutingTest</a>; <a href="../../tests/Infrastructure/Inbound/ApiDefinitionParityTest.php">ApiDefinitionParityTest</a></td><td>Tag, module, handler, route name, OpenAPI source/merged content, and Bruno agreement.</td></tr><tr><td>Lifecycle through real buses</td><td><a href="../../tests/Functional/EntryLifecycleTest.php">EntryLifecycleTest</a></td><td>Create, read, change, remove, and not-found through the registry. This fixture uses memory ports and a transaction stub.</td></tr><tr><td>Repository contract and mapping</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/EntryRepositoryContract.php">EntryRepositoryContract</a>; <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php">Doctrine EntryRepositoryTest</a></td><td>The same port behavior in memory and Doctrine; production metadata, stored values, uniqueness, and removal.</td></tr><tr><td>Transaction commit and rollback</td><td><a href="../../tests/Infrastructure/Adapters/EventManager/TransactionalIntegrationEventDispatchTest.php">TransactionalIntegrationEventDispatchTest</a>; <a href="../../tests/Infrastructure/Adapters/EventManager/IntegrationEventDispatchFailureTest.php">IntegrationEventDispatchFailureTest</a></td><td>Local subscribers before optional outbox; no out-of-transaction publication; rollback after subscriber or outbox failure.</td></tr><tr><td>Producer-to-carrier compatibility</td><td><a href="../../tests/Infrastructure/Adapters/Queue/ProducerConsumerContractTest.php">ProducerConsumerContractTest</a>; <a href="../../tests/Infrastructure/Adapters/Queue/Serialization/EntryJsonDeliveryTest.php">EntryJsonDeliveryTest</a></td><td>Actual provider registration, mapped carrier, stored payload, and SQS/RabbitMQ JSON shape preservation.</td></tr><tr><td>Consumer and publication failures</td><td><a href="../../tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessorTest.php">ExternalIntegrationEventMessageProcessorTest</a>; <a href="../../tests/Infrastructure/Messaging/QueueMessageFailureServiceTest.php">QueueMessageFailureServiceTest</a>; <a href="../../tests/Infrastructure/Messaging/OutboxRelayServiceTest.php">OutboxRelayServiceTest</a></td><td>Duplicates, malformed messages, terminal attempts, restart outcomes, and publication failure.</td></tr><tr><td>HTTP replay</td><td><a href="../../tests/Infrastructure/Adapters/Http/Idempotency/MiddlewareReplayTest.php">MiddlewareReplayTest</a>; <a href="../../tests/Infrastructure/Adapters/Http/Idempotency/ReplayFailureTest.php">ReplayFailureTest</a></td><td>Matching retry, changed request, stored failure, concurrency, and incomplete response storage.</td></tr><tr><td>Container and indexes</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/ServiceProviderTest.php">ServiceProviderTest</a>; <a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/Mapping/RequiredQueryIndexesTest.php">RequiredQueryIndexesTest</a>; <a href="../../tests/Infrastructure/Composition/ProductionContainerTest.php">ProductionContainerTest</a></td><td>Bindings, registered subscribers and carriers, required index order, and real container reachability.</td></tr></tbody></table></div>
+<h3>Run the checks required by the changed surface</h3>
+<p class="code-caption">Implementation checklist commands. These are not a claim that every command ran for this documentation change.</p><pre><code data-language="sh"># Choose focused files or directories for the changed behavior.
+vendor/bin/phpunit --no-coverage src/Backendbase/Domain/ExampleCatalog/Tests
+vendor/bin/phpunit --no-coverage tests/Infrastructure/Inbound/ExampleApi
+
+# PHP changes require all three code checks.
+composer phpstan
+composer complexity
+composer cs-check
+
+# Public ExampleApi contract changes require generation and validation.
+composer run generate-example-api-spec
+composer run validate-example-api-spec
+
+# Documentation changes require link checks.
+php bin/check-documentation-links.php resources</code></pre>
+<p>PHPStan must use level 8. Keep each function’s cyclomatic complexity at 12 or less.</p>
+<p>Add architecture checks for changed dependencies. Add real container and registry checks for changed runtime wiring.</p>
+<p>Run native database, live Bruno, broker, and provider checks only on identified, authorized, prepared targets.</p>
+<p>These local source tests do not prove deployment topology, MySQL optimizer choices, production concurrency, or provider delivery.</p>
+<h3>Synchronize the complete feature</h3>
+<ol>
+<li>Update affected OpenAPI sources and regenerate the merged document.</li>
+<li>Update <a href="../../resources/bruno/example-api/example/add-example.yml">the Bruno write request</a> and <a href="../../resources/bruno/example-api/example/get-example-details.yml">the companion read request</a>.</li>
+<li>Align headers, input values, statuses, response fields, and replay assertions.</li>
+<li>Check affected material in <code>resources/platform</code>, <code>resources/docs</code>, and <code>resources/skills</code>.</li>
+<li>Update context instructions when ownership, invariants, or verification entry points change.</li>
+<li>Add the related <code>CHANGELOG.md</code> entry under <code>Unreleased</code>.</li>
+<li>Review the final diff for unrelated changes and generated artifacts.</li>
+<li>Report executed checks, concrete failures, and unverified targets.</li>
+</ol>
+<p>For a documentation-only change, check meaning, links, code examples, script syntax, and browser rendering. PHP analysis and application suites are not required.</p>
+<p>This guide reuses <a href="../../resources/guides/assets/guides.css">shared guide CSS</a>, <a href="../../resources/guides/assets/react-flow-runtime.js">the local React Flow runtime</a>, and <a href="assets/adding-a-new-feature.js">its diagram definitions</a>.</p>
+<p>Runtime versions and rebuild instructions remain in <a href="assets/third-party-notices.txt">third-party notices</a>. No application API is called by the diagrams.</p>
+<p>See <a href="../platform/17-testing.md">testing guidance</a> for test ownership, check selection, and execution boundaries.</p>
+
+</section>
+        <footer>Backendbase Guides · 3. Adding a New Feature · <a href="#main-content">Back to start</a> · <a href="../docs/0-project.html#guides">Documentation catalog</a></footer>
+    </main>
+</div>
+</body>
+</html>

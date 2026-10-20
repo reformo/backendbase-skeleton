@@ -80,6 +80,6 @@ final class ExampleApiFixture
         $clock     = $container->get(AuthenticationClock::class);
         $principal = IdentityScenario::principal($identity, $realm, $identifier);
 
-        return $issuer->issue($principal, $clock->sessionExpiresAt());
+        return $issuer->issue($principal, $clock->tokenExpiresAt($realm));
     }
 }

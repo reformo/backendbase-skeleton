@@ -43,7 +43,7 @@ Starting source revision: `ddc9946`.
 | [ADR-0035](0035-local-translation-catalogs-and-controlled-synchronization.md) | Implemented; verification below | The English catalog contains English messages and matching placeholders. No remote translation synchronization was performed. |
 | [ADR-0036](0036-single-identity-and-access-context-and-global-accounts.md) | Implemented; verification below | Global Accounts own contact and credentials. Each Account has at most one User and one Admin, including historical actor rows. |
 | [ADR-0037](0037-user-and-system-admin-jwt-realms.md) | Implemented; verification below | USER and ADMIN JWTs use separate issuers, audiences, signing keys, and route-selected realm validation. |
-| [ADR-0038](0038-redis-token-allowlist-and-session-lifecycle.md) | Implemented; verification below | Redis 8 atomically records token and session allowlists. Expiry, revocation, Account blocking, and outage behavior are tested. |
+| [ADR-0038](0038-redis-token-allowlist-and-session-lifecycle.md) | Partially superseded by ADR-0053 | Redis 8 atomically records token and session allowlists. Expiry, revocation, Account blocking, and outage behavior are tested. |
 | [ADR-0039](0039-uuidv7-identifiers-and-binary-storage.md) | Implemented for fresh installations | Identity and Example use assigned natural binary UUIDs. New aggregate IDs use UUIDv7. An existing Example database needs a separately reviewed conversion that preserves public UUIDs. |
 | [ADR-0040](0040-assigned-uuid-identifiers-in-doctrine.md) | Implemented; verification below | Ramsey uuid_binary mappings use assigned identifiers. Real MySQL tests verify legacy and new UUID round trips. |
 | [ADR-0041](0041-mysql84-character-set-and-turkish-collation.md) | Implemented for fresh installations | Docker MySQL server defaults and new business tables use utf8mb4 and Turkish UCA 9.0 collation. Native tests verify case, accent, Unicode composition, and NO PAD uniqueness. Existing databases need reviewed conversion. Identity keys retain explicit ASCII binary rules. |
@@ -58,6 +58,7 @@ Starting source revision: `ddc9946`.
 | [ADR-0050](0050-contact-verification-before-user-registration.md) | Partially superseded by ADR-0051 | Code, context, delivery, quotas, and optional Admin verification remain implemented. |
 | [ADR-0051](0051-optional-email-verification-after-user-login.md) | Partially superseded by ADR-0052 | Email input remains required. Stored email can be verified after login. |
 | [ADR-0052](0052-configurable-registration-verification.md) | Implemented | Independent mobile and email proof settings govern new registration. Stored acceptance is separate from ownership. Legacy accounts and sessions retain authorization. |
+| [ADR-0053](0053-renewable-realm-sessions.md) | Implemented | Independent realm token, idle, and maximum policies. Rotating refresh credentials support browser cookies and native secure storage. Current authentication precedes replay. |
 
 ## Verification
 

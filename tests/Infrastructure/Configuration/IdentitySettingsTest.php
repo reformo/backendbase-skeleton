@@ -44,22 +44,6 @@ final class IdentitySettingsTest extends TestCase
         yield 'wrong realm structure' => [['user' => 'invalid']];
     }
 
-    #[DataProvider('invalidLifetimes')]
-    public function testSessionLifetimeRejectsCoercionAndInvalidBounds(mixed $value): void
-    {
-        $settings = IdentityFixture::settings(['token-lifetime-seconds' => $value]);
-        $this->expectException(AuthenticationUnavailable::class);
-        $settings->tokenLifetimeSeconds();
-    }
-
-    /** @return iterable<string, array{mixed}> */
-    public static function invalidLifetimes(): iterable
-    {
-        yield 'too short' => [59];
-        yield 'too long' => [3601];
-        yield 'string' => ['900'];
-    }
-
     public function testProofKeyRotationAcceptsOldProofsAndWritesTheActiveKey(): void
     {
         $old      = new SodiumAuthenticationSecrets(IdentityFixture::settings());
@@ -68,9 +52,7 @@ final class IdentitySettingsTest extends TestCase
         $rotated  = new SodiumAuthenticationSecrets($settings);
         self::assertTrue($rotated->verifyProof('ownership-code', $proof));
         self::assertStringStartsWith('new-factor:', $rotated->proofHash('ownership-code'));
-        self::assertSame(900, $settings->tokenLifetimeSeconds());
         self::assertSame('identity@example.com', $settings->contactEmailSender());
-        self::assertSame(900, new IdentitySettings(new Settings([]))->tokenLifetimeSeconds());
     }
 
     public function testInvalidTopLevelConfigurationFailsClosed(): void

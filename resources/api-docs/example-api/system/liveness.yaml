@@ -9,6 +9,8 @@ get:
     - $ref: '../../common/components.yaml#/headers/X-Request-Id'
     - $ref: '../../common/components.yaml#/headers/X-Source-Id'
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     200:
       description: Process is alive
       content:

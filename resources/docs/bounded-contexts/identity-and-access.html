@@ -53,7 +53,7 @@
             <div class="summary-grid">
                 <div class="stat"><strong>1</strong><span>Shared Account for credentials and contacts</span></div>
                 <div class="stat"><strong>2</strong><span>Separate authentication realms: USER and ADMIN</span></div>
-                <div class="stat"><strong>15 min</strong><span>Default token lifetime; configuration can change it</span></div>
+                <div class="stat"><strong>15 min</strong><span>USER token default; ADMIN defaults to 5 minutes</span></div>
                 <div class="stat"><strong>12 hours</strong><span>Registration window after each required proof</span></div>
             </div>
             <div class="reading-path">
@@ -173,7 +173,7 @@
                 </ol>
             </div>
             <p>A JSON Web Token (JWT) is signed, but its claims can still be read. Current tokens contain identifiers and authentication state. They do not contain email, mobile, or profile names.</p>
-            <p>The default token lifetime is 900 seconds. The supported range is 60 to 3,600 seconds. Reads and replay do not renew it. No refresh-token flow is provided.</p>
+            <p>USER defaults are a 15-minute access token, 24-hour idle timeout, and 7-day maximum session. ADMIN defaults are 5 minutes, 30 minutes, and 8 hours. Six deployment settings control new sessions. <a href="../../guides/1-identity-and-access.html#session-renewal">The guide</a> includes browser cookies, mobile secure storage, automatic renewal, and retry examples.</p>
             <div class="table-wrap" tabindex="0" role="region" aria-label="Token, session, actor, and Account lifecycle effects">
                 <table>
                     <thead><tr><th scope="col">Action</th><th scope="col">Effect</th><th scope="col">Support implication</th></tr></thead>
@@ -244,6 +244,7 @@
             <p>The client header selects a known API. Trusted route middleware selects the expected realm. A client cannot select extra authority through a header.</p>
             <h3>Retries are part of the write contract</h3>
             <p>All identity writes require <code>Idempotency-Key</code>. Reuse it with the exact request for retries. <code>X-Request-Id</code> remains a separate trace identifier.</p>
+            <p>POST /auth/refresh rotates credentials within the original session maximum. Cookie mode requires an exact configured Origin. Mobile mode returns the refresh token in JSON.</p>
             <p>Login replay returns the original token without renewing it. Contact replay avoids another message or proof consumption.</p>
             <p>Authentication runs before protected replay. A successful logout, token revocation, or Account closure can therefore make its retry return 401.</p>
             <p>Generic HTTP replay preserves the registration response for 24 hours. Without that matching retained replay, consumed registration proof causes a business conflict.</p>
@@ -266,7 +267,7 @@
                         <tr><td>MySQL <code>account</code></td><td>Shared contacts, names, password hash, registration acceptance, ownership, enabled state, and authentication version.</td><td>Keep Account identity separate from actor identity.</td></tr>
                         <tr><td>MySQL <code>user</code> and <code>admin</code></td><td>Realm-specific membership, approval, removal, and retained evidence.</td><td>One actor of each type per Account, including removed rows.</td></tr>
                         <tr><td>MySQL <code>contact_verification</code></td><td>Contact, purpose, realm, context digest, code hash, deadlines, attempts, and consumption state.</td><td>Do not expose its full internal state in responses or logs.</td></tr>
-                        <tr><td>Redis</td><td>Token/session allowlists, Account blocks, and verification reservations.</td><td>Require matching token and session state. Reads do not renew expiry.</td></tr>
+                        <tr><td>Redis</td><td>Token/session allowlists, Account blocks, and verification reservations.</td><td>Require matching token and session state. Successful authentication extends idle after database eligibility checks. Maximum and access-token deadlines remain fixed.</td></tr>
                         <tr><td>MySQL <code>http_request_replay</code></td><td>Shared HTTP infrastructure stores request claims and encrypted results.</td><td>Keep replay outside the context's application transaction.</td></tr>
                     </tbody>
                 </table>
@@ -292,6 +293,7 @@
         <section id="configuration">
             <p class="section-label">08 · Configuration</p>
             <h2>Keep three key purposes separate</h2>
+            <p>Use the <a href="../../guides/1-identity-and-access.html">IdentityAndAccess configuration guide</a> for the complete settings catalog, required-field rules, change examples, and interactive flows.</p>
             <p>Signing keys protect tokens. Contact proof keys protect verification hashes. The replay key encrypts stored HTTP results. Use separate generated secrets for these purposes.</p>
             <p>All three key types require base64-encoded 32-byte values. Public example keys are for local development. Inject production secrets through the approved deployment mechanism.</p>
             <div class="table-wrap" tabindex="0" role="region" aria-label="Identity signing and verification configuration">
@@ -302,7 +304,9 @@
                         <tr><td><code>BACKENDBASE_USER_JWT_KEY_ID</code><br><code>BACKENDBASE_USER_JWT_KEY</code></td><td>Active USER signing key and identifier.</td><td>The key must be a valid 32-byte secret.</td></tr>
                         <tr><td><code>BACKENDBASE_ADMIN_JWT_ISSUER</code><br><code>BACKENDBASE_ADMIN_JWT_AUDIENCE</code></td><td>Trusted ADMIN token issuer and audience.</td><td>Required and separate from USER trust settings.</td></tr>
                         <tr><td><code>BACKENDBASE_ADMIN_JWT_KEY_ID</code><br><code>BACKENDBASE_ADMIN_JWT_KEY</code></td><td>Active ADMIN signing key and identifier.</td><td>USER and ADMIN signing-key sets must not share key bytes.</td></tr>
-                        <tr><td><code>BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS</code></td><td>Token lifetime for both realms.</td><td>Default 900. Allowed range: 60 to 3,600.</td></tr>
+                        <tr><td><code>BACKENDBASE_USER_ACCESS_TOKEN_LIFETIME_SECONDS</code><br><code>BACKENDBASE_ADMIN_ACCESS_TOKEN_LIFETIME_SECONDS</code></td><td>Access-token duration.</td><td>USER 900; ADMIN 300. Range 60–3600 seconds.</td></tr>
+                        <tr><td><code>BACKENDBASE_USER_SESSION_IDLE_TIMEOUT_SECONDS</code><br><code>BACKENDBASE_ADMIN_SESSION_IDLE_TIMEOUT_SECONDS</code></td><td>Session idle duration.</td><td>USER 86400; ADMIN 1800. At least 60 seconds.</td></tr>
+                        <tr><td><code>BACKENDBASE_USER_SESSION_MAXIMUM_LIFETIME_SECONDS</code><br><code>BACKENDBASE_ADMIN_SESSION_MAXIMUM_LIFETIME_SECONDS</code></td><td>Fixed maximum duration.</td><td>USER 604800; ADMIN 28800. At least idle and at most one year.</td></tr>
                         <tr><td><code>BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY_ID</code><br><code>BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY</code></td><td>Active code-hashing key.</td><td>Required for contact verification.</td></tr>
                         <tr><td><code>BACKENDBASE_IDEMPOTENCY_KEY</code></td><td>Shared write fingerprint and response encryption.</td><td>Required for write replay. Online rotation is not implemented.</td></tr>
                     </tbody>
@@ -385,7 +389,7 @@ BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
             <p class="section-label">11 · Important limits</p>
             <h2>Plan processes around the current capability</h2>
             <ul class="checklist">
-                <li>No documented refresh-token, password-reset, time-based one-time password (TOTP) enrollment, or factor-recovery flow is provided.</li>
+                <li>No documented password-reset, time-based one-time password (TOTP) enrollment, or factor-recovery flow is provided.</li>
                 <li>There is no public Admin registration. Ordinary Admin enrollment starts from an existing verified Account.</li>
                 <li>Optional contact verification does not change stored contact values or grant Admin approval.</li>
                 <li>Contact quotas apply to verification operations. They are not a general password-login rate limiter.</li>
@@ -401,7 +405,7 @@ BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
             <p>The current isolated run completes 1,593 tests and 73,106 assertions with zero failures, errors, or skips.</p>
             <p>Coverage reached 100% for executable lines and methods: 7,058 of 7,058 lines and 1,624 of 1,624 methods.</p>
             <p>All 62 service cases pass: 31 MySQL, 23 standalone Redis, and eight Sentinel cases. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
-            <p>The <a href="../code-quality-and-maintainability-report.html#evidence">current live checks</a> cover all 52 operations through 501 requests. Bruno verifies 58 named tests across the three APIs. Notifications use a private test sink.</p>
+            <p>The <a href="../code-quality-and-maintainability-report.html#evidence">recorded live checks before session renewal</a> cover 52 operations through 501 requests. Bruno verifies 58 named tests across the three APIs. Notifications use a private test sink.</p>
             <ul class="source-list">
                 <li><a href="../../platform/14-security.md">Canonical identity and authentication rules</a></li>
                 <li><a href="../../platform/operations/identity-acceptance.md#latest-isolated-regression-evidence">Native targets, interval, and evidence</a></li>

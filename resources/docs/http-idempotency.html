@@ -50,7 +50,7 @@
             <p><strong>Idempotency</strong> means that a retry can return the original result without performing the operation again. The client supplies an <code>Idempotency-Key</code> to identify that intended operation.</p>
             <p>For example, registration can succeed while the response is lost. A retry with the same key and request returns the stored registration result.</p>
             <div class="summary-grid">
-                <div class="stat"><strong>38</strong><span>Documented write operations require a key</span></div>
+                <div class="stat"><strong>41</strong><span>Documented write operations require a key</span></div>
                 <div class="stat"><strong>24 hours</strong><span>Completed responses remain replayable</span></div>
                 <div class="stat"><strong>1 key</strong><span>Reuse it for one operation and its retries</span></div>
                 <div class="stat"><strong>409</strong><span>An active or unresolved attempt stays blocked</span></div>
@@ -148,8 +148,8 @@ X-Request-Id: 019f6322-1234-7000-8000-000000000002</code></pre>
             </details>
             <details>
                 <summary>Developer details: response contract and Bruno requests</summary>
-                <p>Replay preserves the original status and body. Selected headers are <code>Content-Type</code>, <code>Cache-Control</code>, <code>Content-Language</code>, <code>Backendbase-Insert-Id</code>, <code>Location</code>, and <code>Retry-After</code>.</p>
-                <p>Trace, cookie, transport, and cross-origin headers are not stored for replay.</p>
+                <p>Replay preserves the original status and body. Selected headers are <code>Content-Type</code>, <code>Cache-Control</code>, <code>Content-Language</code>, <code>Backendbase-Insert-Id</code>, <code>Location</code>, <code>Retry-After</code>, and <code>Set-Cookie</code>.</p>
+                <p>Set-Cookie is encrypted with the response. Trace, transport, and cross-origin headers are not stored for replay.</p>
                 <p>The raw request-body limit is 65,536 bytes. Stored response bodies must fit within 1 MiB. Oversized responses leave their claims unresolved and return 503.</p>
                 <p>Maintained Bruno writes use <code>{{$randomUUID}}</code>, which creates a new key for each send. Replace it with one fixed test key when checking retries.</p>
             </details>
@@ -561,6 +561,7 @@ protected function action(): ResponseInterface
             <p class="section-label">07 · Authentication and contact flows</p>
             <h2>Replay preserves results and current access checks</h2>
             <ul class="checklist">
+                <li><strong>Renewal:</strong> Authenticate the refresh credential and current identity before replay. Encrypt Set-Cookie with the response. Reject obsolete results before returning an earlier credential. See <a href="../guides/1-identity-and-access.html#session-renewal">automatic session renewal</a>.</li>
                 <li><strong>Login:</strong> A matching retry returns the original token. It does not issue another session, renew token expiry, or restore a revoked session. A fresh login needs a new key.</li>
                 <li><strong>Protected writes:</strong> API-key and bearer checks run before replay where required.</li>
                 <li><strong>Logout, token revocation, and Account closure:</strong> A successful action can make its own retry credentials invalid. The retry then returns 401.</li>

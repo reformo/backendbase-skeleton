@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Adapters\Authentication;
 
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Sessions\RedisRenewableSessions;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Sessions\RedisSessionConnection;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Sessions\SessionRecords;
+use Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Sessions\SessionValidation;
 use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Primitives\SessionState;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\RefreshToken;
 use DateTimeImmutable;
 use Redislabs\Module\RedisJson\RedisJsonInterface;
-use Throwable;
 
 use function is_array;
-use function json_encode;
-
-use const JSON_THROW_ON_ERROR;
 
 final readonly class RedisTokenRegistry implements TokenRegistry
 {
@@ -38,32 +40,40 @@ end
 return 1
 LUA;
 
-    private const string ASSERT_ACTIVE = <<<'LUA'
-local function record(key)
-    if redis.call('TYPE', key).ok == 'string' then return redis.call('GET', key) end
-    return redis.call('JSON.GET', key, '.')
-end
-return {record(KEYS[1]), record(KEYS[2]), redis.call('EXISTS', KEYS[3])}
-LUA;
+    private RedisSessionConnection $connection;
+    private RedisRenewableSessions $sessions;
 
-    public function __construct(private RedisJsonInterface $redisJson)
+    public function __construct(RedisJsonInterface $redisJson)
     {
+        $connection       = new RedisSessionConnection($redisJson);
+        $this->connection = $connection;
+        $this->sessions   = new RedisRenewableSessions($connection);
     }
 
-    public function activate(Principal $principal, DateTimeImmutable $expiresAt): void
+    public function activate(Principal $principal, DateTimeImmutable $expiresAt, SessionState|null $session = null): void
     {
-        [$token, $session, $blocked] = self::keys($principal);
-        [$tokenValue, $sessionValue] = self::records($principal);
-        $result                      = $this->evaluate(self::ACTIVATE, [$token, $session, $blocked, $tokenValue, $sessionValue, $expiresAt->getTimestamp()], 3);
+        if ($session !== null) {
+            $sessions = $this->sessions;
+            $sessions->activate($session, $expiresAt);
+
+            return;
+        }
+
+        [$token, $sessionKey, $blocked] = SessionRecords::keys($principal);
+        [$tokenValue, $sessionValue]    = SessionRecords::legacy($principal);
+        $connection                     = $this->connection;
+        $timestamp                      = $expiresAt->getTimestamp();
+        $result                         = $connection->evaluate(self::ACTIVATE, [$token, $sessionKey, $blocked, $tokenValue, $sessionValue, $timestamp], 3);
         if ($result !== 1) {
             throw AuthenticationDenied::create('The session could not be activated.');
         }
     }
 
-    public function assertActive(Principal $principal): void
+    public function assertActive(Principal $principal, bool $touch = false): void
     {
-        $values                      = $this->evaluate(self::ASSERT_ACTIVE, self::keys($principal), 3);
-        [$tokenValue, $sessionValue] = self::records($principal);
+        [$tokenValue, $sessionValue] = SessionRecords::legacy($principal);
+        $connection                  = $this->connection;
+        $values                      = $connection->evaluate(SessionValidation::SCRIPT, [...SessionRecords::keys($principal), $tokenValue, $sessionValue, (int) $touch], 3);
         if (! is_array($values) || $values !== [$tokenValue, $sessionValue, 0]) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
@@ -71,56 +81,37 @@ LUA;
 
     public function revokeSession(Principal $principal): void
     {
-        [$token, $session] = self::keys($principal);
-        $this->evaluate("return redis.call('DEL', KEYS[1], KEYS[2])", [$token, $session], 2);
+        [$token, $session] = SessionRecords::keys($principal);
+        $connection        = $this->connection;
+        $connection->evaluate("return redis.call('DEL', KEYS[1], KEYS[2])", [$token, $session], 2);
     }
 
     public function revokeToken(Principal $principal): void
     {
-        [$token] = self::keys($principal);
-        $this->evaluate("return redis.call('DEL', KEYS[1])", [$token], 1);
+        [$token]    = SessionRecords::keys($principal);
+        $connection = $this->connection;
+        $connection->evaluate("return redis.call('DEL', KEYS[1])", [$token], 1);
     }
 
     public function revokeAccount(string $accountId): void
     {
         foreach (['USER', 'ADMIN'] as $realm) {
-            $key = 'identity:{' . $realm . ':' . $accountId . '}:blocked';
-            $this->evaluate("return redis.call('SET', KEYS[1], '1', 'EX', 3600)", [$key], 1);
+            $key        = 'identity:{' . $realm . ':' . $accountId . '}:blocked';
+            $connection = $this->connection;
+            $connection->evaluate("return redis.call('SET', KEYS[1], '1', 'EX', 3600)", [$key], 1);
         }
     }
 
-    /** @return array{string, string, string} */
-    private static function keys(Principal $principal): array
+    public function session(Realm $realm, RefreshToken $token, bool $allowUsed = false): SessionState
     {
-        $identity = $principal->identity();
-        $realm    = $principal->realm();
-        $prefix   = 'identity:{' . $realm->value . ':' . $identity['accountId'] . '}:';
+        $sessions = $this->sessions;
 
-        return [$prefix . 'jti:' . $identity['jti'], $prefix . 'sid:' . $identity['sid'], $prefix . 'blocked'];
+        return $sessions->session($realm, $token, $allowUsed);
     }
 
-    /** @return array{string, string} */
-    private static function records(Principal $principal): array
+    public function rotate(RefreshToken $provided, SessionState $replacement, DateTimeImmutable $expiresAt): void
     {
-        $claims = $principal->claims();
-        $token  = json_encode($claims, JSON_THROW_ON_ERROR);
-        unset($claims['jti']);
-
-        return [$token, json_encode($claims, JSON_THROW_ON_ERROR)];
-    }
-
-    /** @param list<string|int> $arguments */
-    private function evaluate(string $script, array $arguments, int $keyCount): mixed
-    {
-        try {
-            $result = $this->redisJson->raw('EVAL', $script, $keyCount, ...$arguments);
-            if ($result === false) {
-                throw AuthenticationUnavailable::create('Authentication state is temporarily unavailable.');
-            }
-
-            return $result;
-        } catch (Throwable $exception) {
-            throw AuthenticationUnavailable::create('Authentication state is temporarily unavailable.', previous: $exception);
-        }
+        $sessions = $this->sessions;
+        $sessions->rotate($provided, $replacement, $expiresAt);
     }
 }

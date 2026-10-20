@@ -11,6 +11,7 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\Input;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationDenied;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\RefreshToken;
 use Backendbase\Infrastructure\Adapters\Http\Input\RequestObjectInput;
 use Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper;
 use Backendbase\Shared\Exception\InvalidUserInput;
@@ -28,6 +29,10 @@ final readonly class IdentityHttpInput
 
     public function command(string $id, string $action, Realm $realm, ServerRequestInterface $request): IdentityCommand
     {
+        if ($action === 'refresh') {
+            return $this->refreshCommand($id, $realm, $request);
+        }
+
         if ($action === 'logout' || $action === 'close-account' || $action === 'revoke-token') {
             RequestObjectInput::assertEmptyBody($request);
             $principal = $request->getAttribute('identityPrincipal');
@@ -58,15 +63,26 @@ final readonly class IdentityHttpInput
         };
     }
 
+    private function refreshCommand(string $id, Realm $realm, ServerRequestInterface $request): IdentityCommand
+    {
+        $token = $request->getAttribute('refreshCredential');
+        if (! $token instanceof RefreshToken) {
+            throw AuthenticationDenied::create('A refresh credential is required.');
+        }
+
+        return new Authentication\RefreshSession($id, new Input\SessionRenewal($realm, $token));
+    }
+
     private function payload(string $action, ServerRequestInterface $request): Input\RegistrationInput|Input\LoginInput
     {
         [$class, $fields] = match ($action) {
             'register' => [Input\RegistrationInput::class, ['email', 'mobile', 'password', 'verificationContextToken', 'firstName', 'lastName']],
-            'login' => [Input\LoginInput::class, ['identifier', 'password']],
+            'login' => [Input\LoginInput::class, ['identifier', 'password', 'refreshTokenTransport']],
             default => throw InvalidUserInput::create('The authentication operation is invalid.'),
         };
         $payload = RequestObjectInput::fromRequest($request, $fields);
-        $mapper  = $this->mapper;
+        unset($payload['refreshTokenTransport']);
+        $mapper = $this->mapper;
 
         return $mapper->map($class, $payload);
     }

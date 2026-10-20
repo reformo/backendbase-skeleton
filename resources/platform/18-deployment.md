@@ -26,6 +26,9 @@ Runtime secrets are injected outside releases. Configuration and container defin
 Keep the recorded previous release available. Prefer forward repair after partially committed MySQL data-definition changes.
 
 Current deployment scripts require server-specific backup and process-activation hooks. `deployment/release.json` supplies migration and rollback policy for the generated `release-manifest.json`. Linux systemd units provide worker supervision and relay and cleanup timers. See [managed server operations](operations/managed-servers.md).
+Nginx API rate-limit includes enforce 30 requests per second per client IP with a burst allowance of 60.
+All three APIs share the counter. Application verification limits remain separate.
+See [HTTP rate limiting](operations/http-rate-limiting.md) for installation, client addresses, response headers, and isolated checks.
 Use [fresh installation](operations/fresh-installation.md) for the current rollback-unsafe release on an empty MySQL database.
 The explicit `--fresh-install` mode requires no active or previous deployment and mandatory maintenance, backup, and activation hooks.
 It rejects existing schema objects before migration. Normal updates retain the rollback compatibility guard.

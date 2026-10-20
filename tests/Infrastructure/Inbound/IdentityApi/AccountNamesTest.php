@@ -27,7 +27,7 @@ final class AccountNamesTest extends TestCase
         $container = $fixture->container();
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
-        $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
+        $token     = $issuer->issue($principal, $clock->tokenExpiresAt(Realm::USER));
         $resource  = UserFlowTest::resource($api->request('GET', '/identity', token: $token), 'user');
         self::assertSame('Mehmet', $resource['firstName']);
         self::assertSame('Korkmaz', $resource['lastName']);

@@ -9,6 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
 use Backendbase\Infrastructure\Adapters\Http\Identity\IdentityHttpDispatch;
 use Backendbase\Infrastructure\Adapters\Http\Identity\IdentityHttpInput;
+use Backendbase\Infrastructure\Adapters\Http\Identity\Sessions\SessionCookies;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -34,6 +35,8 @@ final class EndSession extends Action
         $command    = $input->command($identifier->toString(), $action, $realm, $request);
         $dispatch   = $this->dispatch;
 
-        return $dispatch->execute($command, 'session');
+        $response = $dispatch->execute($command, 'session');
+
+        return SessionCookies::clear($response, $realm);
     }
 }

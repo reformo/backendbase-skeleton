@@ -24,7 +24,7 @@ final class ReplayResponse
     public static function encode(ResponseInterface $response): string
     {
         $headers = [];
-        foreach (['Content-Type', 'Cache-Control', 'Content-Language', 'Backendbase-Insert-Id', 'Location', 'Retry-After'] as $name) {
+        foreach (['Content-Type', 'Cache-Control', 'Content-Language', 'Backendbase-Insert-Id', 'Location', 'Retry-After', 'Set-Cookie'] as $name) {
             $headers[$name] = $response->getHeader($name);
         }
 

@@ -62,6 +62,8 @@
 <div class="related"><a href="4-messaging-and-queues.html">Messaging and Queues</a></div>
 </section>
 <section id="health"><p class="section-label">08 · Health checks</p><h2>Verify the request path and background state</h2>
+<p>Install the <a href="../platform/operations/http-rate-limiting.md">Nginx API rate-limit includes</a> before opening traffic. Each client IP shares 30 requests per second with a burst allowance of 60 across all three APIs. Excess requests return HTTP 429 Problem Details with <code>Retry-After: 1</code> before PHP runs. Application verification limits and their responses remain unchanged.</p>
+<p>Public health and preflight requests count toward the limit. Keep <code>/internal-ready</code> restricted to the deployment network; its empty counter key preserves internal readiness during excess traffic. Configure trusted proxy addresses and target CORS headers before activation. Separate Nginx instances retain separate counters.</p>
 <ol class="steps"><li>Request <code>GET /_status</code> for a cheap application liveness check.</li><li>Request <code>GET /_status/ready</code> for dependency readiness.</li><li>Confirm that readiness returns <code>200</code> and <code>status: ready</code>.</li><li>Run outbox status.</li>
 <li>Confirm worker processes are running.</li><li>Inspect new error and critical logs.</li></ol>
 <div class="callout"><code>/_status/ready</code> checks MySQL, Redis, the selected queue, and the object store. Each connection uses <code>BACKENDBASE_READINESS_TIMEOUT_SECONDS</code>. A failed check returns <code>503</code> with safe status data.</div>
@@ -88,6 +90,7 @@
 <tr><td>Artifact build</td><td><code>bin/deployment/build-release.sh</code></td></tr><tr><td>Guarded activation</td><td><code>bin/deployment/deploy-release.sh</code></td></tr>
 <tr><td>Application rollback</td><td><code>bin/deployment/rollback-release.sh</code></td></tr><tr><td>Release policy</td><td><code>deployment/release.json</code></td></tr>
 <tr><td>Server preparation and hook contract</td><td><code>deployment/README.md</code></td></tr>
+<tr><td>Nginx API rate limiting</td><td><a href="../deployment/nginx/http-rate-limit.conf">Shared IP zone</a> and <a href="../deployment/nginx/api-rate-limit.conf">server rejection policy</a></td></tr>
 <tr><td>Local maintenance</td><td><code>bin/dev/housekeeping.sh</code> requires <code>BACKENDBASE_ENV=dev</code>.</td></tr><tr><td>Console commands</td><td><code>config/commands.php</code></td></tr>
 <tr><td>Local infrastructure</td><td><code>docker-compose.yaml</code></td></tr><tr><td>Environment contract</td><td><code>.env.example</code></td></tr>
 <tr><td>HTTP health routes</td><td><code>Infrastructure/Inbound/ExampleApi/routes.php</code></td></tr><tr><td>Dependency checks</td><td><code>Infrastructure/Health</code></td></tr>
@@ -95,6 +98,7 @@
 <section id="local-deployment-rehearsal"><p class="section-label">Local deployment verification</p><h2>Exercise the release with disposable services</h2>
 <p>Run <code>python3 tests/Deployment/local-runtime.py</code> to build the current workspace and use real PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3 services.</p>
 <p>The runner checks installation failures, worker restarts, concurrent requests, interrupted replay, database restore, and controlled session recovery. It removes owned resources and writes a sanitized result.</p>
+<p>The rehearsal uses the deployment rate-limit includes and paces its mixed workload at 25 requests per second. Run <code>python3 tests/Deployment/nginx-rate-limits.py</code> for the smaller isolated rejection, client separation, preserved error, readiness, and recovery check.</p>
 <p>The fixture uses local process supervision and manual Redis promotion. Target server hooks, secret providers, storage durability, and representative capacity require separate acceptance.</p>
 <p>See the <a href="../platform/operations/local-deployment-rehearsal.md">rehearsal procedure</a> and the <a href="code-quality-and-maintainability-report.html#local-deployment">current results</a>.</p>
 </section>

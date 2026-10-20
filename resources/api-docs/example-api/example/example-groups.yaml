@@ -44,6 +44,8 @@ get:
         default: 1
 
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     200:
       description: "OK"
       content:

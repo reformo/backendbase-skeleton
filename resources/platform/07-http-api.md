@@ -8,6 +8,10 @@ Console entry points and message handlers can also be inbound adapters. Keep `co
 
 ## Runtime
 
+Nginx API ingress limits each client IP to 30 requests per second with a burst allowance of 60 across all three APIs.
+Gateway rejection returns HTTP 429 before PHP, authentication, and replay. Application verification quotas remain in code.
+See [HTTP rate limiting](operations/http-rate-limiting.md) for configuration, trusted client addresses, and the internal readiness exception.
+
 - All public entry points use `public/index.php`, which selects an API from `X-Source-Id` through `InboundApiTarget`.
 - Invalid source selection returns HTTP `400` with `application/problem+json` and a matching Problem Details status before container creation.
 - `public/example-api/index.php` assigns API name and slug variables that the shared bootstrap does not read. Its requests still require `X-Source-Id: example`.
@@ -78,3 +82,14 @@ All documented POST, PATCH, and DELETE operations require `Idempotency-Key`. The
 `Idempotency` runs after group authentication and before endpoint work. Public Authentication groups run it after realm selection.
 All three API CORS configurations permit the header. Reads and preflight skip replay storage.
 See [HTTP idempotency](operations/http-idempotency.md) for matching, expiry, errors, encrypted responses, and recovery.
+
+## Session renewal transport
+
+Each API exposes `POST /auth/refresh` under Authentication. The refresh credential replaces bearer authentication for this operation.
+A fixed realm policy and refresh authentication run before Idempotency. ExampleApi also requires its API key.
+Login and renewal accept `refreshTokenTransport: body|cookie`. Body is the default for native clients.
+Cookie mode requires an exact configured Origin and uses a Secure, HttpOnly, SameSite=Strict host cookie.
+Responses use `session` with access expiry, idle expiry at issuance, and fixed maximum expiry.
+Cookie responses omit the refresh token body attribute. Matching origins receive `Access-Control-Allow-Credentials: true`.
+Refresh middleware validates successful responses after replay. It rejects a result that a later rotation replaced.
+See [the client guide](../guides/1-identity-and-access.html#session-renewal).

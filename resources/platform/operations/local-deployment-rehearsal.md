@@ -60,10 +60,11 @@ A successful diagnostic run also removes the directory.
 | Activation failure | Retain the migrated schema and remove the active application link. |
 | Rollback | Reject application rollback when the release marks its schema unsafe. |
 | HTTP composition | Register and authenticate USER and ADMIN identities through Nginx and PHP-FPM. Verify realm separation and response replay. |
+| Nginx ingress | Include the deployment rate-limit policy: 30 requests per second per IP with a burst allowance of 60. Use the separate isolated Nginx check for rejection and recovery. |
 | Local delivery | Send verification email to the isolated SMTP sink. Check real S3, RabbitMQ, Redis, and MySQL readiness. |
 | Workers | Dispatch a command through the production container. Verify outbox publication, RabbitMQ consumption, and inbox completion before and after process-group termination. |
 | Cold startup | Send 48 concurrent requests across three empty-cache starts. Record response failures separately so recovery checks can continue. |
-| Concurrent workload | Use eight clients for 200 mixed login, identity, pagination, and write requests with 10,000 synthetic database rows. Record latency, response counts, and row-lock waits. |
+| Concurrent workload | Use eight clients for 200 mixed login, identity, pagination, and write requests with 10,000 synthetic database rows. Pace one caller IP at 25 requests per second. Record latency, response counts, and row-lock waits. |
 | Query plan | Verify that the pagination query selects `example_group_entries_idx`. |
 | Interrupted response | Pause replay completion after the business commit. Terminate PHP-FPM and its unfinished response transaction. Require HTTP 409 on retry and exactly one business effect. |
 | Database recovery | Restore a populated logical backup into an independent MySQL container. Compare all row contents, column definitions, and indexes. Stop the original database and verify schema, references, and encrypted response replay. |

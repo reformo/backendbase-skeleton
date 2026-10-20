@@ -8,21 +8,17 @@ use Backendbase\Domain\IdentityAndAccess\Application\Workflows\LoginWorkflow;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\LoginInput;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\Principal;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
-use DateTimeImmutable;
 
 final readonly class LoginAuthentication
 {
-    public function __construct(private LoginWorkflow $workflow, private AuthenticationClock $clock)
+    public function __construct(private LoginWorkflow $workflow)
     {
     }
 
-    /** @return array{Principal, DateTimeImmutable} */
-    public function authenticate(Realm $realm, LoginInput $input): array
+    public function authenticate(Realm $realm, LoginInput $input): Principal
     {
-        $workflow  = $this->workflow;
-        $principal = $workflow->authenticate($realm, $input);
-        $clock     = $this->clock;
+        $workflow = $this->workflow;
 
-        return [$principal, $clock->sessionExpiresAt()];
+        return $workflow->authenticate($realm, $input);
     }
 }

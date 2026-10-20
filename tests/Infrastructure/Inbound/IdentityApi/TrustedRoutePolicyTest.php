@@ -38,6 +38,7 @@ final class TrustedRoutePolicyTest extends TestCase
     /** @return iterable<string, array{string, class-string<Throwable>}> */
     public static function missingPolicies(): iterable
     {
+        yield 'user RefreshSession policy' => [UserControllers\Authentication\Handlers\RefreshSession::class, RuntimeException::class];
         yield 'user PasswordLogin policy' => [UserControllers\Authentication\Handlers\PasswordLogin::class, RuntimeException::class];
         yield 'user RevokeAccessToken policy' => [UserControllers\Identity\Handlers\RevokeAccessToken::class, RuntimeException::class];
         yield 'user EndSession policy' => [UserControllers\Identity\Handlers\EndSession::class, RuntimeException::class];
@@ -47,6 +48,7 @@ final class TrustedRoutePolicyTest extends TestCase
         yield 'user Authentication RequestContactVerification policy' => [UserControllers\Authentication\Handlers\RequestContactVerification::class, AuthenticationDenied::class];
         yield 'user Authentication ConfirmContactVerification policy' => [UserControllers\Authentication\Handlers\ConfirmContactVerification::class, AuthenticationDenied::class];
         yield 'user Authentication ResendContactVerification policy' => [UserControllers\Authentication\Handlers\ResendContactVerification::class, AuthenticationDenied::class];
+        yield 'example RefreshSession policy' => [ExampleControllers\Authentication\Handlers\RefreshSession::class, RuntimeException::class];
         yield 'example PasswordLogin policy' => [ExampleControllers\Authentication\Handlers\PasswordLogin::class, RuntimeException::class];
         yield 'example RevokeAccessToken policy' => [ExampleControllers\Identity\Handlers\RevokeAccessToken::class, RuntimeException::class];
         yield 'example EndSession policy' => [ExampleControllers\Identity\Handlers\EndSession::class, RuntimeException::class];
@@ -56,6 +58,7 @@ final class TrustedRoutePolicyTest extends TestCase
         yield 'example Authentication RequestContactVerification policy' => [ExampleControllers\Authentication\Handlers\RequestContactVerification::class, AuthenticationDenied::class];
         yield 'example Authentication ConfirmContactVerification policy' => [ExampleControllers\Authentication\Handlers\ConfirmContactVerification::class, AuthenticationDenied::class];
         yield 'example Authentication ResendContactVerification policy' => [ExampleControllers\Authentication\Handlers\ResendContactVerification::class, AuthenticationDenied::class];
+        yield 'admin RefreshSession policy' => [AdminControllers\Authentication\Handlers\RefreshSession::class, RuntimeException::class];
         yield 'admin PasswordLogin policy' => [AdminControllers\Authentication\Handlers\PasswordLogin::class, RuntimeException::class];
         yield 'admin RevokeAccessToken policy' => [AdminControllers\Identity\Handlers\RevokeAccessToken::class, RuntimeException::class];
         yield 'admin EndSession policy' => [AdminControllers\Identity\Handlers\EndSession::class, RuntimeException::class];

@@ -70,7 +70,9 @@ def workload_checks(services, base, values, token):
                   "WITH RECURSIVE numbers AS (SELECT 1 AS number UNION ALL SELECT number+1 FROM numbers WHERE number<10000) "
                   "SELECT UUID_TO_BIN(UUID(),0),'user',CONCAT('fixture-',MOD(number,100)),CONCAT('fixture-',number),'synthetic',JSON_OBJECT(),NOW(6) FROM numbers")
     waits_before = int(sql(services, "SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME='Innodb_row_lock_waits'"))
+    started = time.monotonic()
     def operation(index):
+        time.sleep(max(0, started + index / 25 - time.monotonic()))
         if index % 4 == 0:
             response = request(base, EXAMPLES, "POST", {"lookupKey": "load-" + str(index), "lookupValue": "bounded load"}, token, api_key=api_key)
             expect(response, 204)
@@ -86,7 +88,6 @@ def workload_checks(services, base, values, token):
         response = request(base, "/user-api/auth/login", "POST", {"identifier": "user@example.test", "password": values["FIXTURE_MYSQL_PASSWORD"]})
         expect(response, 200)
         return response[2]
-    started = time.monotonic()
     with ThreadPoolExecutor(max_workers=8) as executor:
         timings = list(executor.map(operation, range(200)))
     elapsed = time.monotonic() - started
@@ -95,7 +96,7 @@ def workload_checks(services, base, values, token):
     waits_after = int(sql(services, "SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME='Innodb_row_lock_waits'"))
     plan = sql(services, "EXPLAIN SELECT id FROM example_table WHERE type='user' AND type_target_id IS NULL AND lookup_group='rehearsal' AND deleted_at IS NULL ORDER BY created_at,id LIMIT 25").split("\t")
     assert plan[6] == "example_group_entries_idx", "The pagination query did not select its ordering index."
-    return {"boundedLocalWorkload": {"requests": 200, "concurrency": 8, "unexpectedResponses": 0,
+    return {"boundedLocalWorkload": {"requests": 200, "concurrency": 8, "targetRequestsPerSecond": 25, "unexpectedResponses": 0,
             "writes": 50, "syntheticRows": 10000, "rowLockWaits": waits_after - waits_before,
             "paginationIndex": plan[6], "durationSeconds": round(elapsed, 3), "requestsPerSecond": round(200 / elapsed, 2),
             "medianMilliseconds": round(statistics.median(durations) * 1000, 2),

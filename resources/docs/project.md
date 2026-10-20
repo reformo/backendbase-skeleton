@@ -384,12 +384,12 @@ See the [local release evidence](code-quality-and-maintainability-report.html#lo
 
 - Context-owned ports, registry mappings, explicit transactions, and complete adapter classification remain strengths.
 - Validated identity JSON state, independent registration proof policies, and encrypted HTTP replay have local regression coverage.
-- All 52 API operations pass schema and tag checks. All 38 write operations require `Idempotency-Key`.
+- All 55 API operations pass schema and tag checks. All 41 write operations require `Idempotency-Key`.
 - Four installation migrations create eleven application tables. Existing databases require a separate adoption plan.
 - Domain objects own identity decisions. Aggregate snapshots are typed. Event constructors receive explicit instants. Fixed command inputs use typed fields. The operator handler records results directly after the clock-backed workflow completes.
 
-The current native-enabled suite passes all 1,593 cases with zero skips.
-It records 73,106 assertions, no failures or errors, and 100% executable-line and method coverage.
+The current native-enabled suite passes all 1,681 cases with zero skips.
+It records 83,987 assertions, no failures or errors, and 100% executable-line and method coverage.
 PHPStan level 8, complexity, coding standards, API validation, and temporary deployment fixtures pass.
 All 41 factories in 13 providers have maintained evidence. Tests execute supported runtime branches without external delivery.
 Registration hashes passwords before its transaction. Tests verify hash failure isolation and rollback after credential failure.
@@ -398,7 +398,7 @@ Isolated Composer diagnosis, strict validation, and the current advisory audit p
 The Public API contracts score is **10/10**. All 52 maintained Bruno operations pass through 58 requests and 58 named tests.
 Reports exclude headers and bodies. The disposable fixtures and services are removed.
 Security verification scores **9.5/10**. Native MySQL, Redis, and Sentinel tests pass.
-Live checks cover 52 operations and all 38 writes. Semgrep and authenticated ZAP scans for three APIs pass.
+Recorded live checks before session renewal cover 52 operations and all 38 writes. Semgrep and authenticated ZAP scans for three APIs pass.
 Deployment durability and production acceptance remain unverified.
 See the [current verification evidence](code-quality-and-maintainability-report.html#evidence).
 

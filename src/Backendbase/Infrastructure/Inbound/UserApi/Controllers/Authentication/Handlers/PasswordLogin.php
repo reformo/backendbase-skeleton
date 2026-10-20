@@ -7,15 +7,15 @@ namespace Backendbase\Infrastructure\Inbound\UserApi\Controllers\Authentication\
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\IdentityId;
 use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
 use Backendbase\Infrastructure\Adapters\Http\Actions\Action;
-use Backendbase\Infrastructure\Adapters\Http\Identity\IdentityHttpDispatch;
 use Backendbase\Infrastructure\Adapters\Http\Identity\IdentityHttpInput;
+use Backendbase\Infrastructure\Adapters\Http\Identity\Sessions\SessionHttpDispatch;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 final class PasswordLogin extends Action
 {
-    public function __construct(LoggerInterface $logger, private IdentityHttpInput $input, private IdentityHttpDispatch $dispatch)
+    public function __construct(LoggerInterface $logger, private IdentityHttpInput $input, private SessionHttpDispatch $dispatch)
     {
         parent::__construct($logger);
     }
@@ -34,6 +34,6 @@ final class PasswordLogin extends Action
         $command    = $input->command($identifier->toString(), $action, $realm, $request);
         $dispatch   = $this->dispatch;
 
-        return $dispatch->execute($command, 'session');
+        return $dispatch->execute($command, $request, $realm);
     }
 }

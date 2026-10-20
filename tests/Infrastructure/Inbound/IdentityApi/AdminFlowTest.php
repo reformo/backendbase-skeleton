@@ -41,7 +41,7 @@ final class AdminFlowTest extends TestCase
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
         $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'admin@example.com');
-        $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
+        $token     = $issuer->issue($principal, $clock->tokenExpiresAt(Realm::ADMIN));
         self::assertSame(403, $api->request('POST', '/administration/admins/approve', ['actorId' => $admin['actorId'], 'evidence' => 'ticket:self-approval'], $token)->getStatusCode());
     }
 
@@ -55,7 +55,7 @@ final class AdminFlowTest extends TestCase
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
         $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'admin@example.com');
-        $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
+        $token     = $issuer->issue($principal, $clock->tokenExpiresAt(Realm::ADMIN));
         $api       = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $response  = $api->request('POST', '/administration/admins/invite', ['accountId' => $target['accountId'], 'evidence' => 'ticket:invite-1'], $token);
         self::assertSame(201, $response->getStatusCode());
@@ -77,7 +77,7 @@ final class AdminFlowTest extends TestCase
         $userApi = IdentityApiFixture::create($fixture, Realm::USER);
         self::assertSame(401, $userApi->request('GET', '/identity', token: $targetToken)->getStatusCode());
         $userPrincipal = IdentityScenario::principal($fixture, Realm::USER, 'target@example.com');
-        $userToken     = $issuer->issue($userPrincipal, $clock->sessionExpiresAt());
+        $userToken     = $issuer->issue($userPrincipal, $clock->tokenExpiresAt(Realm::USER));
         self::assertSame(401, $api->request('GET', '/identity', token: $userToken)->getStatusCode());
         $response = $api->request('DELETE', '/identity/session', token: $targetToken);
         self::assertSame(200, $response->getStatusCode());
@@ -95,7 +95,7 @@ final class AdminFlowTest extends TestCase
         $issuer    = $container->get(SessionIssuance::class);
         $clock     = $container->get(AuthenticationClock::class);
         $principal = IdentityScenario::principal($fixture, Realm::ADMIN, 'admin@example.com');
-        $token     = $issuer->issue($principal, $clock->sessionExpiresAt());
+        $token     = $issuer->issue($principal, $clock->tokenExpiresAt(Realm::ADMIN));
         $api       = IdentityApiFixture::create($fixture, Realm::ADMIN);
         $response  = $api->request('POST', '/administration/actors/change', ['actorId' => $target['actorId'], 'realm' => 'USER', 'action' => 'remove'], $token);
         self::assertSame(200, $response->getStatusCode());

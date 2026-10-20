@@ -23,6 +23,8 @@ get:
       apiKey: []
       bearerToken: []
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     200:
       description: 'Completed operation'
       headers:

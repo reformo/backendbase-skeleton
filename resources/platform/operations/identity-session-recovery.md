@@ -9,8 +9,14 @@ The local Docker service is a single Redis instance.
 
 The current registry reads both RedisJSON and existing string allowlists. Existing records keep their original expiry during rollout.
 New activation writes RedisJSON through the existing library and sets expiry with `EXPIRE` inside the same Lua script.
-The remaining JWT lifetime determines the initial TTL in whole seconds.
-The script then applies `EXPIREAT` to retain the exact JWT expiration deadline. Authentication reads do not renew it.
+The token TTL follows its access deadline. The version 2 session TTL follows the earlier idle or maximum deadline.
+The script applies `EXPIREAT` to retain each exact deadline. Successful database-authenticated requests can extend idle.
+Access-token expiry and the maximum session deadline remain fixed.
+Consumed refresh digest markers remain until the maximum deadline. Preserve these markers with session state.
+A recovered session without its consumed-token history can lose reuse detection. Require controlled logout after uncertain recovery.
+Version 2 sessions preserve policy, creation time, last activity, maximum expiry, and a SHA-256 refresh hash.
+Legacy sessions retain their original expiry and do not renew. New password login creates a version 2 session.
+An older server cannot verify the new session schema. Invalidate affected namespaces before rolling back.
 Redis access policy must permit the JSON, expiry, read, deletion, type, and scripting commands used by the registry.
 An activation error removes its newly created pair before returning an authentication-unavailable error.
 

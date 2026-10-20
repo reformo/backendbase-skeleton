@@ -114,6 +114,29 @@ schemas:
       application/problem+json:
         schema:
           $ref: '#/schemas/ApiProblem'
+  429:
+    description: Nginx API request limit reached before application execution
+    headers:
+      Retry-After:
+        description: Wait at least this many seconds before retrying the unchanged request.
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      Cache-Control:
+        schema:
+          type: string
+          enum: [no-store]
+    content:
+      application/problem+json:
+        schema:
+          $ref: '#/schemas/ApiProblem'
+        example:
+          type: about:blank
+          code: system/rate-limit-exceeded
+          title: Too Many Requests
+          status: 429
+          detail: The API request limit was reached.
   500:
     description: Internal failure; the same key replays the recorded failure
     content:

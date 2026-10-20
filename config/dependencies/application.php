@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\SessionLifetime;
 use Backendbase\Domain\IdentityAndAccess\Domain\Registration\RegistrationPolicy;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\RealmSessionPolicies;
 use Backendbase\Infrastructure\Adapters\Mapping\ObjectMapper;
 use Backendbase\Infrastructure\Configuration\ApplicationRuntimeSettings;
 use Backendbase\Infrastructure\Configuration\Identity\RegistrationSettings;
-use Backendbase\Infrastructure\Configuration\IdentitySettings;
+use Backendbase\Infrastructure\Configuration\Identity\SessionSettings;
 use Backendbase\Shared\Options\System\Environment;
 use Backendbase\Shared\Services\Translator;
 use Backendbase\Utility\Pipeline\Pipeline;
@@ -24,10 +24,10 @@ return static function (ContainerBuilder $containerBuilder): void {
 
             return $settings->policy();
         },
-        SessionLifetime::class => static function (ContainerInterface $container): SessionLifetime {
-            $settings = $container->get(IdentitySettings::class);
+        RealmSessionPolicies::class => static function (ContainerInterface $container): RealmSessionPolicies {
+            $settings = $container->get(SessionSettings::class);
 
-            return new SessionLifetime($settings->tokenLifetimeSeconds());
+            return $settings->policies();
         },
         PipelineInterface::class => static fn (ContainerInterface $container) => Pipeline::withContainer($container),
         ObjectMapper::class => static function (ContainerInterface $container) {

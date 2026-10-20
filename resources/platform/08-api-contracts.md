@@ -21,6 +21,11 @@ OpenAPI defines the public contract. Bruno supplies executable examples against 
 
 ## Response status and bodies
 
+Every documented operation can return HTTP 429 when the Nginx ingress quota is exceeded.
+Gateway rejection uses `system/rate-limit-exceeded`, root Problem Details, and `Retry-After: 1`.
+Contact verification retains `identity/verification-limited` and its application-selected wait.
+Retry rejected writes with the same key and unchanged request. See [HTTP rate limiting](operations/http-rate-limiting.md).
+
 Successful JSON bodies use descriptive resource or result keys without generic `data` wrappers or top-level `statusCode` fields.
 The HTTP response carries the status code. Keep existing resource fields and their nested values.
 Use singular resource keys, plural collection keys, and `camelCase`. Select the key in the HTTP adapter.
@@ -66,7 +71,7 @@ Clients that read the previous metadata key must update their lookup.
 
 ## Automated response checks
 
-The specifications and Bruno collections contain 52 operations: ExampleApi has 21, UserApi has 14, and SystemAdminApi has 17.
+The specifications and Bruno collections contain 55 operations: ExampleApi has 22, UserApi has 15, and SystemAdminApi has 18.
 `ApiDefinitionParityTest` compares source and merged operation definitions with Bruno methods and paths.
 It also checks success key names and Bruno status, key, and wrapper assertions.
 Identity API `ModuleRoutingTest` checks module registration, route names, and handler namespaces against the OpenAPI tags and operation IDs.
@@ -189,3 +194,12 @@ Each write operation references the required shared `Idempotency-Key` parameter 
 GET and preflight operations need no idempotency key. `X-Request-Id` remains optional tracing metadata.
 Bruno write requests use `{{$randomUUID}}` for fresh operations. Replace that expression with a fixed key when testing a retry.
 Reuse the exact request and key for that retry. See [HTTP idempotency](operations/http-idempotency.md).
+
+## Session contracts
+
+Password login and renewal return `session.accessToken`, `tokenType`, `expiresAt`, `sessionIdleExpiresAt`, and `sessionExpiresAt`.
+Body transport also returns `session.refreshToken`. Cookie transport omits it and sets the realm refresh cookie.
+`POST /auth/refresh` requires a JSON body and Idempotency-Key. It does not require an access bearer token.
+Body mode requires refreshToken. Cookie mode requires refreshTokenTransport=cookie, the realm cookie, and an exact configured Origin.
+Cookie mode rejects a supplied body refresh token. Refresh authentication precedes replay.
+The renewal response guard returns 409 identity/conflict if a later rotation replaced that result.

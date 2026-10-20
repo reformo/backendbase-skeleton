@@ -10,6 +10,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Separate USER and ADMIN access-token, idle, and maximum session durations. Add rotating refresh credentials, browser cookie and mobile body transports, authenticated renewal replay, and an automatic client helper. Update tests, OpenAPI, Bruno, operations, and the IdentityAndAccess guide.
+
 - Restrict shutdown error responses to fatal PHP errors. Preserve completed responses after native warnings, user warnings, notices, and deprecations. Retain fatal-error logging and safe error details. Verify concurrent cold startup and packaged dependency failure with a fresh local release.
 
 - Add a disposable local deployment rehearsal for the real release artifact, PHP-FPM, Nginx, MySQL, Redis, RabbitMQ, SMTP, and S3. Verify installation failures, worker restarts, bounded HTTP load, interrupted replay, backup restore, and controlled session recovery. Verify cold-start and Redis-outage response integrity. Remove owned resources. Set engineering quality to 9.8/10 and retain the 9.9/10 architecture score. Update current assessment evidence without release identifiers or previous results.
@@ -79,6 +81,12 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 - Removed orphan JWT configuration and DAST account provisioning. DAST uses API-key-protected Example writes. Internal QueueGreeting authorization and queue delivery remain available.
 
 ### Added
+
+- Add the Adding a New Feature HTML guide with one source-checked Entry flow, conditional implementation steps, transaction and event boundaries, offline diagrams, and verification guidance.
+
+- Add general Nginx API rate limiting at 30 requests per second per client IP with a burst allowance of 60 shared across all three APIs. Return HTTP 429 Problem Details before PHP, preserve application verification limits and errors, retain internal readiness access, and add isolated gateway checks and deployment guidance.
+
+- Add the numbered HTML guide series under `resources/guides` for IdentityAndAccess, Idempotency, Adding a New Feature, and Bounded Context Lifecycle. Document IdentityAndAccess required fields, all identity settings, configuration management, providers, sessions, Admin access, and change checks. Include code examples, offline React Flow diagrams, and a registration policy selector. Link the guides from the documentation catalog and configuration guidance.
 
 - Add the portable `naming-things` skill with naming references and discovery metadata. Integrate it into root instructions, platform routing, and project guidance.
 

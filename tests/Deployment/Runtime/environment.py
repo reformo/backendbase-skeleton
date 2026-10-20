@@ -28,7 +28,12 @@ def settings():
         "BACKENDBASE_RABBITMQ_EXCHANGE_NAME": "deployment", "BACKENDBASE_RABBITMQ_PORT": "5672",
         "BACKENDBASE_RABBITMQ_EXCHANGE_TYPE": "direct", "BACKENDBASE_REDIS_HOST": "redis",
         "BACKENDBASE_REDIS_PASSWORD": password, "BACKENDBASE_REDIS_PORT": "6379",
-        "BACKENDBASE_REDIS_TLS": "false", "BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS": "900",
+        "BACKENDBASE_REDIS_TLS": "false", "BACKENDBASE_USER_ACCESS_TOKEN_LIFETIME_SECONDS": "900",
+        "BACKENDBASE_USER_SESSION_IDLE_TIMEOUT_SECONDS": "86400",
+        "BACKENDBASE_USER_SESSION_MAXIMUM_LIFETIME_SECONDS": "604800",
+        "BACKENDBASE_ADMIN_ACCESS_TOKEN_LIFETIME_SECONDS": "300",
+        "BACKENDBASE_ADMIN_SESSION_IDLE_TIMEOUT_SECONDS": "1800",
+        "BACKENDBASE_ADMIN_SESSION_MAXIMUM_LIFETIME_SECONDS": "28800",
         "BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_MOBILE_VERIFICATION": "false",
         "BACKENDBASE_IDENTITY_REGISTRATION_REQUIRE_EMAIL_VERIFICATION": "false",
         "BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER": "rehearsal@example.test",
@@ -79,6 +84,7 @@ def start_services(services, root, directory, values):
               "type=volume,src=" + services.resources["volume"] + ",dst=/srv/backendbase"]
     services.start("application", "php", ["bash", "/fixture/entrypoint.sh"], mounts=mounts, memory="1g")
     services.start("web", "nginx", mounts=[mounts[0], mounts[2] + ",readonly",
+                   "type=bind,src=" + str(root / "resources/deployment/nginx") + ",dst=/etc/nginx/backendbase,readonly",
                    "type=bind,src=" + str(fixture / "nginx.conf") + ",dst=/etc/nginx/nginx.conf,readonly"], publish=8080)
     wait_until(lambda: services.run("mysql", ["sh", "-c", 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot -N -e "SELECT 1"'], check=False).returncode == 0,
                "temporary MySQL readiness")

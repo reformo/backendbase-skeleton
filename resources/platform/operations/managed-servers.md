@@ -24,6 +24,9 @@ Provider-specific authentication and renewal must be configured before activatio
 Adjust installation and PHP binary paths to the identified host.
 Keep `BACKENDBASE_ENV=production`. Keep exception arguments disabled.
 Point Nginx only at the release `public` directory.
+Install the [Nginx rate-limit includes](http-rate-limiting.md) before accepting API traffic.
+Use one shared per-IP counter across all three APIs. Keep internal readiness access restricted.
+Preserve application error responses and configure the target's CORS headers on gateway rejections.
 Keep PHP-FPM in the host supervisor. Set its pool to the application user.
 Allow PHP-FPM to inherit only the required injected environment variables.
 

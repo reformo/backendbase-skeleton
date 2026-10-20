@@ -91,6 +91,11 @@ jobs:
           composer run validate-identity-api-specs
           vendor/bin/php-openapi validate --silent public/example-api/docs/example-api-merged.yml
 
+      - name: Verify Nginx API rate limits
+        run: |
+          docker pull nginx@sha256:0d3b80406a13a767339fbe2f41406d6c7da727ab89cf8fae399e81f780f814d1
+          python3 tests/Deployment/nginx-rate-limits.py
+
       - name: Build immutable artifact
         id: release
         run: |

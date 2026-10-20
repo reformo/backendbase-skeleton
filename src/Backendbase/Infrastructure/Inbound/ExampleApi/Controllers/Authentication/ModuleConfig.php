@@ -10,6 +10,8 @@ use Backendbase\Infrastructure\Adapters\Http\Idempotency\Idempotency;
 use Backendbase\Infrastructure\Adapters\Http\Identity\ContactRoutePolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RealmPolicy;
 use Backendbase\Infrastructure\Adapters\Http\Identity\RoutePolicy;
+use Backendbase\Infrastructure\Adapters\Http\Identity\Sessions\LoginTransportPolicy;
+use Backendbase\Infrastructure\Adapters\Http\Identity\Sessions\RefreshAuthentication;
 use Override;
 use Psr\Container\ContainerInterface;
 use Slim\Routing\RouteCollectorProxy;
@@ -44,6 +46,16 @@ final class ModuleConfig implements ModuleRoute
                 ->add(new ContactRoutePolicy(['action' => 'resend', 'authenticated' => false]));
         })
             ->add(Idempotency::class)
+            ->add(LoginTransportPolicy::class)
+            ->add(new RealmPolicy(Realm::USER));
+
+        $routeCollector->group('', function (RouteCollectorProxy $group): void {
+            $group->post('/refresh', Handlers\RefreshSession::class)
+                ->setName('exampleRefreshSession')
+                ->add(new RoutePolicy('refresh'));
+        })
+            ->add(Idempotency::class)
+            ->add(RefreshAuthentication::class)
             ->add(new RealmPolicy(Realm::USER));
     }
 

@@ -21,6 +21,8 @@ paths:
     $ref: './authentication/contact-verification.yaml'
   /auth/register:
     $ref: "./authentication/register.yaml"
+  /auth/refresh:
+    $ref: './authentication/session-refresh.yaml'
   /auth/login:
     $ref: "./authentication/login.yaml"
   '/identity/contact-verifications':
@@ -74,6 +76,8 @@ components:
       $ref: '../user-api/user-api-openapi.yml#/components/schemas/Registration'
     RegistrationInput:
       $ref: '../user-api/user-api-openapi.yml#/components/schemas/RegistrationInput'
+    RefreshSessionInput:
+      $ref: '../user-api/user-api-openapi.yml#/components/schemas/RefreshSessionInput'
     Session:
       $ref: '../user-api/user-api-openapi.yml#/components/schemas/Session'
     Readiness:

@@ -46,4 +46,9 @@ final readonly class HttpHeaderSettings
     {
         return $this->allowedHeaders;
     }
+
+    public function allowsOrigin(string $origin): bool
+    {
+        return $origin !== '*' && in_array($origin, $this->allowedOrigins, true);
+    }
 }

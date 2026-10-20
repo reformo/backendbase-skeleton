@@ -481,7 +481,7 @@
                 <strong>Current reference</strong>
                 The repository contains <code>ExampleApi</code>, <code>UserApi</code>, and <code>SystemAdminApi</code>. Each API owns its controllers and route registration.
             </div>
-        <p>All 38 write operations require <code>Idempotency-Key</code>. Group authentication runs before replay. Claims preserve existing application transaction boundaries. See <a href="../platform/operations/http-idempotency.md">HTTP idempotency</a> for the complete contract and recovery procedure.</p>
+        <p>All 41 write operations require <code>Idempotency-Key</code>. Group authentication runs before replay. Claims preserve existing application transaction boundaries. See <a href="../platform/operations/http-idempotency.md">HTTP idempotency</a> for the complete contract and recovery procedure.</p>
 </section>
 
         <section id="topology">
@@ -528,6 +528,7 @@ tests/Infrastructure/Inbound/ExampleApi/</code></pre></div>
         <section id="lifecycle">
             <h2>Request lifecycle</h2>
             <p>The shared bootstrap builds the runtime. The selected API supplies only its middleware and routes.</p>
+            <p>The deployment Nginx policy limits each client IP to 30 requests per second with a burst allowance of 60 shared across all three APIs. Excess requests receive HTTP 429 Problem Details before PHP runs. Application contact verification limits remain separate. See <a href="../platform/operations/http-rate-limiting.md">HTTP rate limiting</a> for configuration and the internal readiness exception.</p>
             <figure class="diagram">
                 <svg viewBox="0 0 1120 560" role="img" aria-label="Inbound API request lifecycle">
                     <title>Inbound API request lifecycle</title>

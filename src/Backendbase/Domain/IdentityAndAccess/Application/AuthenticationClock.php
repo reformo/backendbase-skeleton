@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Backendbase\Domain\IdentityAndAccess\Application;
 
-use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\SessionLifetime;
+use Backendbase\Domain\IdentityAndAccess\Domain\Identity\Realm;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\RealmSessionPolicies;
+use Backendbase\Domain\IdentityAndAccess\Domain\Sessions\SessionPolicy;
 use Backendbase\Shared\Time\Clock;
 use DateTimeImmutable;
 
 final readonly class AuthenticationClock
 {
-    public function __construct(private Clock $clock, private SessionLifetime $lifetime)
+    public function __construct(private Clock $clock, private RealmSessionPolicies $policies)
     {
     }
 
@@ -21,12 +23,20 @@ final readonly class AuthenticationClock
         return $currentClock->now();
     }
 
-    public function sessionExpiresAt(): DateTimeImmutable
+    public function policy(Realm $realm): SessionPolicy
     {
-        $currentLifetime = $this->lifetime;
+        $policies = $this->policies;
 
-        $now = $this->now();
+        return $policies->forRealm($realm);
+    }
 
-        return $currentLifetime->expiresAt($now);
+    public function tokenExpiresAt(Realm $realm): DateTimeImmutable
+    {
+        $policy    = $this->policy($realm);
+        $now       = $this->now();
+        $timestamp = $now->getTimestamp();
+        $maximum   = $policy->maximumExpiresAt($timestamp);
+
+        return $policy->tokenExpiresAt($now, $maximum);
     }
 }

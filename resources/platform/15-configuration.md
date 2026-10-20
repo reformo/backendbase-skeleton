@@ -107,6 +107,8 @@ Keep the key through retained responses and unresolved claims. See [HTTP idempot
 
 ## Registration verification policy
 
+Read the [IdentityAndAccess configuration guide](../guides/1-identity-and-access.html) for required fields, the complete identity settings catalog, change examples, and interactive flows.
+
 `identity.registration` defines two independent settings for new User registrations in UserApi and ExampleApi.
 `RegistrationSettings` validates the values and supplies the context-owned `RegistrationPolicy` through the production container.
 
@@ -135,3 +137,23 @@ The API schema documents conditional token requirements. No policy discovery end
 Clear mapping caches when deploying the changed registration input. Restart long-running processes after changing settings.
 Coordinate policy values across API instances. Stop mixed-version access before writing the new Account JSON field.
 Existing Account records and session claims need no rewrite. See [ADR-0052](../adr/0052-configurable-registration-verification.md).
+
+## Realm session durations
+
+Set these deployment variables. `config/autoload/identity-global.php` maps them to the corresponding realm keys.
+
+| Configuration key suffix under `identity.user` or `identity.admin` | USER variable and default | ADMIN variable and default |
+| --- | --- | --- |
+| `access-token-lifetime-seconds` | `BACKENDBASE_USER_ACCESS_TOKEN_LIFETIME_SECONDS=900` | `BACKENDBASE_ADMIN_ACCESS_TOKEN_LIFETIME_SECONDS=300` |
+| `session-idle-timeout-seconds` | `BACKENDBASE_USER_SESSION_IDLE_TIMEOUT_SECONDS=86400` | `BACKENDBASE_ADMIN_SESSION_IDLE_TIMEOUT_SECONDS=1800` |
+| `session-maximum-lifetime-seconds` | `BACKENDBASE_USER_SESSION_MAXIMUM_LIFETIME_SECONDS=604800` | `BACKENDBASE_ADMIN_SESSION_MAXIMUM_LIFETIME_SECONDS=28800` |
+
+All values require integers. Access tokens permit 60–3600 seconds. Idle requires at least 60 seconds.
+Maximum must cover idle and cannot exceed 31536000 seconds.
+`Identity/SessionSettings` validates both policies. `RealmSessionPolicies` supplies the selected domain policy.
+Each session stores its policy. Configuration changes affect new sessions. Revoke existing sessions to apply shorter limits immediately.
+Replace `identity.token-lifetime-seconds` and `BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS`. The shared setting has no compatibility alias.
+Keep USER settings coordinated across UserApi and ExampleApi.
+For browser cookies, configure exact HTTPS origins through `USER_API_CORS_ORIGIN`, `EXAMPLE_API_CORS_ORIGIN`, and `SYSTEM_ADMIN_API_CORS_ORIGIN`.
+Use same-site browser and API hosts. Cookie requests reject missing or unconfigured origins.
+See the [IdentityAndAccess guide](../guides/1-identity-and-access.html#session-renewal) for both client contracts and automatic renewal.

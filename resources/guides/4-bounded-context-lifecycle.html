@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="Trace the lifecycle inside a Backendbase bounded context: query and command handlers, repositories, database adapters, events, subscribers, transactions, registration, and tests.">
+    <title>4. Bounded Context Lifecycle · Backendbase Guides</title>
+    <link rel="stylesheet" href="assets/react-flow.css">
+    <link rel="stylesheet" href="assets/guides.css">
+    <script defer src="assets/react-flow-runtime.js"></script>
+    <script defer src="assets/bounded-context-lifecycle.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="masthead"><div class="masthead-inner"><span class="brand">BACKENDBASE / GUIDES</span><span class="guide-number">Guide 4 · Bounded Context Lifecycle</span></div></header>
+<div class="layout">
+<nav class="contents" aria-label="Guide contents"><strong>Context lifecycle guide</strong>
+<a href="#context-map">01 · Context and file map</a>
+<a href="#queries">02 · Queries and handlers</a>
+<a href="#commands">03 · Commands and domain behavior</a>
+<a href="#write-repositories">04 · Write repositories</a>
+<a href="#read-adapters">05 · Read adapters</a>
+<a href="#event-contracts">06 · Event definitions</a>
+<a href="#subscribers">07 · Subscribers</a>
+<a href="#transaction-timing">08 · Publish and commit</a>
+<a href="#registration">09 · Registration and dispatch</a>
+<a href="#queue-delivery">10 · Conditional queue delivery</a>
+<a href="#schema-fixtures">11 · Schema, fixtures, and seed data</a>
+<a href="#database-tests">12 · Database and repository tests</a>
+<a href="#completion">13 · Lifecycle verification</a>
+<a class="catalog-link" href="../docs/0-project.html#guides">← Documentation catalog</a></nav>
+<main id="main-content">
+<div class="intro">
+<p class="eyebrow">04 / Bounded Context Lifecycle</p>
+<h1>Inside one context.<br>Follow the lifecycle.</h1>
+<p class="lede">Learn when each part is needed, how it works, and where it belongs. Trace one Entry through reads, writes, events, storage, and tests.</p>
+<p class="meta">Source checked: 20 October 2026 · ExampleCatalog · Local, offline React Flow diagrams</p>
+<div class="facts" aria-label="Lifecycle boundaries"><div class="fact"><strong>One model</strong><span>Contracts, application, domain, and adapters</span></div><div class="fact"><strong>Explicit timing</strong><span>Work and local reactions before commit</span></div><div class="fact"><strong>Selected parts</strong><span>Add persistence and messaging when required</span></div></div>
+<p>This guide starts inside the bounded context. It complements <a href="3-adding-a-new-feature.html">Adding a New Feature</a>, which follows the HTTP feature path.</p>
+<noscript><p class="callout">JavaScript is disabled. All explanations, tables, code examples, source links, and text flows remain available.</p></noscript>
+</div>
+<section id="context-map"><p class="section-number">01 / Context and file map</p><h2>Keep one model inside its boundary</h2>
+
+<p>A bounded context owns its business terms, rules, contracts, and adapters. This guide follows the existing <code>ExampleCatalog</code> context.</p>
+<p>The example creates a system <code>Entry</code> in group <code>settings</code>, with key <code>page-size</code>, value <code>25</code>, and no target identifier.</p>
+<p>The companion query reads the same Entry. Later changes update its value or mark it removed. Its HTTP resource name is <code>example</code>.</p>
+<aside class="callout"><strong>Reading key.</strong> “Current source excerpt” means copied implementation. “Illustrative example” means sample usage of existing APIs. No sample feature is installed by this guide.</aside>
+<p>Command Query Responsibility Segregation (CQRS) separates writes from reads. A port declares required behavior. An adapter implements that port with a specific technology.</p>
+<p>Dependency injection (DI) supplies services and port implementations. Doctrine Object Relational Mapping (ORM) maps records. Its Database Abstraction Layer (DBAL) executes SQL queries.</p>
+<p>SQL means Structured Query Language. UUID means universally unique identifier. UTC means Coordinated Universal Time.</p>
+<p>An outbox stores events with business writes for later publication. An inbox records consumer processing to prevent repeated committed database work.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Layer responsibilities"><table><thead><tr><th scope="col">Area</th><th scope="col">Responsibility</th><th scope="col">Dependency boundary</th></tr></thead><tbody><tr><td>Domain</td><td>Entry behavior, identity, validated values, and snapshots.</td><td>No HTTP, Doctrine, queue, container, or application-handler dependency.</td></tr><tr><td>Contracts</td><td>Commands, queries, repository ports, read models, and event contracts.</td><td>Published context types. CQRS contracts do not import their handlers.</td></tr><tr><td>Application</td><td>Handle a use case. Call domain behavior and ports. Select transaction and event timing.</td><td>No SQL, HTTP response construction, or concrete infrastructure adapter.</td></tr><tr><td>Adapters</td><td>Map aggregates and projections to database or memory storage.</td><td>Context-owned persistence adapters stay beside their context.</td></tr><tr><td>Infrastructure</td><td>Implement shared buses, event dispatch, transactions, queue delivery, and inbound APIs.</td><td>Framework details remain outside the domain and application layers.</td></tr></tbody></table></div>
+<p>The following tree is a selected map of real files. All paths below start at <code>src/Backendbase/Domain/ExampleCatalog/</code>.</p>
+<p class="code-caption">Current file map. Braces group existing files; they are not literal directory names.</p><pre><code data-language="text">ExampleCatalog/
+├── AGENTS.md
+├── ServiceProvider.php
+├── Contracts/
+│   ├── Command/{AddEntry,ChangeEntry,RemoveEntry}.php
+│   ├── Query/GetEntryByCriteria.php
+│   ├── ReadModel/EntryDetails.php
+│   ├── EntryWriteRepository.php
+│   ├── EntryReadRepository.php
+│   ├── DomainEvents/EntryAdded.php
+│   ├── IntegrationEvents/EntryAdded.php
+│   ├── IntegrationEvents/V1/EntryAddedPayload.php
+│   └── ExternalIntegrationEvents/V1/{EntryAddedMessage,EntryAddedCommand}.php
+├── Domain/
+│   ├── Entry.php
+│   ├── EntryIdentity.php
+│   ├── EntrySnapshot.php
+│   └── Primitives/{EntryId,EntryGroup,EntryKey,EntryValue,EntryDetails}.php
+├── Application/
+│   ├── CommandHandlers/{AddEntryHandler,ChangeEntryHandler,RemoveEntryHandler}.php
+│   ├── QueryHandlers/GetEntryByCriteriaHandler.php
+│   ├── EntryWrites.php
+│   ├── EntryEventTransaction.php
+│   ├── DomainEventListener/EntryAddedListener.php
+│   ├── IntegrationEventSubscribers/EntryAddedSubscriber.php
+│   └── ExternalIntegrationEventSubscribers/ExampleCatalog/EntryAddedExternalSubscriber.php
+├── Adapters/Persistence/
+│   ├── Doctrine/{EntryWriteRepository,EntryReadRepository,EntryReadModelMapper}.php
+│   ├── Doctrine/Entity/ExampleTable.php
+│   └── Memory/{EntryStore,EntryWriteRepository,EntryReadRepository}.php
+└── Tests/
+    ├── Domain/{EntryTest,EntryValidationTest,EntryDetailsValidationTest}.php
+    ├── Application/CommandHandlers/AddEntryHandlerTest.php
+    ├── Adapters/Persistence/EntryRepositoryContract.php
+    ├── Adapters/Persistence/Doctrine/{DoctrineEntryRepositoryTestCase,EntryRepositoryTest}.php
+    ├── Adapters/Persistence/Memory/EntryRepositoryTest.php
+    ├── Contracts/IntegrationEvents/IntegrationEventSchemaTest.php
+    └── ServiceProviderTest.php</code></pre>
+<p>Two classes use the name <code>EntryDetails</code>. <code>Domain/Primitives/EntryDetails</code> validates stored JSON contents. <code>Contracts/ReadModel/EntryDetails</code> represents a query result.</p>
+<p>Shared runtime configuration is outside this tree. Migrations live under <code>resources/database/Migrations</code>. Shared integration tests live under <code>tests</code>.</p>
+<p>Read <a href="../../src/Backendbase/Domain/ExampleCatalog/AGENTS.md">the context instructions</a> before changing this model. Use <a href="../platform/README.md#context-instructions">context routing</a> for another capability.</p>
+<p>Use <a href="3-adding-a-new-feature.html">Adding a New Feature</a> for the HTTP and OpenAPI path. Use this guide for work inside the context.</p>
+<p>See <a href="../docs/1-bounded-contexts.html">Bounded Contexts</a> and <a href="../platform/02-architecture.md">architecture rules</a> for dependency constraints.</p>
+
+</section>
+
+<section id="queries"><p class="section-number">02 / Queries and handlers</p><h2>Read through a declared result contract</h2>
+
+<p><strong>When:</strong> Add a query when a caller needs data without a state change. Reuse a query only when its meaning and result match.</p>
+<p><strong>Where:</strong> Put the query in <code>Contracts/Query</code>. Put its result in <code>Contracts/ReadModel</code> and handler in <code>Application/QueryHandlers</code>.</p>
+<p><strong>How:</strong> Implement <code>Query&lt;TResult&gt;</code>. Declare the concrete handler result. Inject a read port. Register the contract-to-handler pair.</p>
+<p class="code-caption">Current source excerpt: GetEntryByCriteriaHandler::handle(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Application/QueryHandlers/GetEntryByCriteriaHandler.php">public function handle(Query $query): EntryDetails|null
+{
+    return $this-&gt;entryRepository-&gt;getEntryByCriteria($query);
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/QueryHandlers/GetEntryByCriteriaHandler.php">src/Backendbase/Domain/ExampleCatalog/Application/QueryHandlers/GetEntryByCriteriaHandler.php</a>.</p>
+<p><code>GetEntryByCriteria</code> declares <code>Query&lt;EntryDetails|null&gt;</code>. It carries type, nullable target identifier, group, and key.</p>
+<p>This query constructor stores those scalar criteria. It does not validate group, key, or target ranges. The caller must validate boundary input.</p>
+<p>New inputs must follow the <a href="../platform/04-cqrs.md">CQRS contract rules</a>. Use typed values when they carry business rules.</p>
+<p class="code-caption">Illustrative example. Uses existing APIs; it is not a new source file.</p><pre><code data-language="php">use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryByCriteria;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+
+// $queryBus is an injected Backendbase\Shared\CQRS\QueryBus.
+$query = new GetEntryByCriteria(EntryType::SYSTEM, null, &#x27;settings&#x27;, &#x27;page-size&#x27;);
+$entryDetails = $queryBus-&gt;handle($query);
+// $entryDetails is Contracts\ReadModel\EntryDetails|null.</code></pre><div class="flow-frame"><div class="flow-heading"><strong>Query lifecycle · no state change</strong><span>Select a node for details · Pan and zoom with the controls</span></div><div id="read-flow"><p class="flow-placeholder">Loading the local diagram. Read the text flow below if it is unavailable.</p></div></div>
+<details class="flow-text"><summary>Read the text version of this flow</summary><ol><li>Validate criteria at the input boundary. Construct <code>GetEntryByCriteria</code>.</li><li><code>QueryBus::handle()</code> resolves the registered handler through <code>RegistryHandlerResolver</code>.</li><li>The handler calls <code>EntryReadRepository</code>. Its Doctrine adapter selects bound SQL rows and validates the projection.</li><li>Return <code>EntryDetails|null</code>. The inbound adapter selects the HTTP resource key or missing-result response.</li></ol></details>
+<p>Keep queries free of mutations and integration events. A missing row returns <code>null</code> here. The HTTP adapter converts that result to its documented response.</p>
+<p>PHPDoc generic types are not runtime checks. Test both the registered handler and its concrete result.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/Query/GetEntryByCriteria.php">src/Backendbase/Domain/ExampleCatalog/Contracts/Query/GetEntryByCriteria.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/ReadModel/EntryDetails.php">src/Backendbase/Domain/ExampleCatalog/Contracts/ReadModel/EntryDetails.php</a>.</p>
+</section>
+
+<section id="commands"><p class="section-number">03 / Commands and domain behavior</p><h2>Change state through one use case</h2>
+
+<p><strong>When:</strong> Add a command for an intended state change. Commands and command handlers return <code>void</code>.</p>
+<p><strong>Where:</strong> Put the command in <code>Contracts/Command</code>. Put the handler in <code>Application/CommandHandlers</code>. Keep invariants in <code>Domain</code>.</p>
+<p><strong>How:</strong> Implement <code>Command</code>. Carry only use-case data. Validate business values during construction. Inject ports or small application services into the handler.</p>
+<p><code>AddEntry</code> creates <code>EntryIdentity</code>, <code>EntryId</code>, <code>EntryValue</code>, and primitive <code>EntryDetails</code>. Invalid values fail before dispatch.</p>
+<p class="code-caption">Illustrative example. Uses existing APIs; it is not a new source file.</p><pre><code data-language="php">use Backendbase\Domain\ExampleCatalog\Contracts\Command\AddEntry;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+use Ramsey\Uuid\Uuid;
+
+// $commandBus is an injected Backendbase\Shared\CQRS\CommandBus.
+$entryId = Uuid::uuid7()-&gt;toString();
+$command = new AddEntry(
+    $entryId,
+    EntryType::SYSTEM,
+    null,
+    &#x27;settings&#x27;,
+    true,
+    &#x27;page-size&#x27;,
+    &#x27;25&#x27;,
+    [&#x27;unit&#x27; =&gt; &#x27;items&#x27;],
+);
+$commandBus-&gt;handle($command);
+// Use $entryId only after successful completion.</code></pre><p class="code-caption">Current source excerpt: AddEntryHandler::handle(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php">public function handle(Command $command): void
+{
+    $writes      = $this-&gt;writes;
+    $transaction = $this-&gt;transaction;
+    $work        = static fn () =&gt; $writes-&gt;add($command);
+    $domainEvent = static fn (IntegrationEvent $event): EntryAdded =&gt; new EntryAdded($command, $event-&gt;occurredOn());
+    $transaction-&gt;execute($work, $domainEvent);
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php">src/Backendbase/Domain/ExampleCatalog/Application/CommandHandlers/AddEntryHandler.php</a>.</p>
+<p>In this handler, <code>EntryAdded</code> refers to <code>Contracts/DomainEvents/EntryAdded</code>. The transaction callback returns a separate integration event.</p>
+<p class="code-caption">Current source excerpt: EntryWrites::add(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryWrites.php">public function add(AddEntry $command): EntryAdded
+{
+    $clock        = $this-&gt;clock;
+    $now          = $clock-&gt;now();
+    $entryId      = $command-&gt;entryId();
+    $type         = $command-&gt;type();
+    $typeTargetId = $command-&gt;typeTargetId();
+    $group        = $command-&gt;group();
+    $isActive     = $command-&gt;isActive();
+    $key          = $command-&gt;key();
+    $value        = $command-&gt;value();
+    $details      = $command-&gt;details();
+    $entry        = Entry::create($entryId, $type, $typeTargetId, $group, $isActive, $key, $value, $details, $now);
+    $repository   = $this-&gt;repository;
+    $repository-&gt;add($entry);
+
+    return new EntryAdded(new EntryAddedPayload($entryId, $type-&gt;value, $typeTargetId, $group, $isActive, $key, $value, $details), $now);
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryWrites.php">src/Backendbase/Domain/ExampleCatalog/Application/EntryWrites.php</a>.</p>
+<p><code>Entry::create()</code> validates the aggregate state. <code>Entry::change()</code> validates replacements before mutation. <code>Entry::remove()</code> records removal time.</p>
+<p><code>EntryWrites</code> owns the application sequence. It reads the injected UTC clock inside transactional work and passes one instant to creation and related events.</p>
+<p>For change and removal, it first resolves current state through the write repository. It reads the clock after that lookup.</p>
+<h3>Continue with the same Entry</h3>
+<p>The following calls update and remove the Entry created above. Both operations use its current business identity.</p>
+<p class="code-caption">Illustrative continuation. The command bus is injected. These calls are not executed by this guide.</p><pre><code data-language="php">use Backendbase\Domain\ExampleCatalog\Contracts\Command\ChangeEntry;
+use Backendbase\Domain\ExampleCatalog\Contracts\Command\RemoveEntry;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryIdentity;
+use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
+
+$identity = new EntryIdentity(EntryType::SYSTEM, null, 'settings', 'page-size');
+$change = new ChangeEntry($identity);
+$change-&gt;setValue('30');
+$commandBus-&gt;handle($change);
+// The companion query now returns lookupValue="30".
+
+$commandBus-&gt;handle(new RemoveEntry($identity));
+// The companion query now returns null.</code></pre>
+<p>Removal sets a timestamp. It does not delete the row. Setting <code>isActive=false</code> alone does not remove the Entry.</p>
+<p>Authorization belongs before repository calls or effects when a named privilege applies. Carry typed <code>AccessControl</code> for such use cases.</p>
+<p><code>AddEntry</code> currently has no named application privilege. Its HTTP route applies API-key and USER authentication. Do not infer ownership from its target identifier.</p>
+<p>A public creation identifier can be generated before dispatch. Keep HTTP status, headers, and response keys outside the command.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php">src/Backendbase/Domain/ExampleCatalog/Contracts/Command/AddEntry.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php</a>.</p><p>See <a href="3-adding-a-new-feature.html#command-contract">command behavior</a> and <a href="../platform/04-cqrs.md#client-visible-write-results">write-result rules</a>.</p>
+</section>
+
+<section id="write-repositories"><p class="section-number">04 / Write repositories</p><h2>Map aggregate state at the storage boundary</h2>
+
+<p><strong>When:</strong> Add a write repository when a use case must persist or reload an aggregate. Reuse the existing port for the same aggregate.</p>
+<p><strong>Where:</strong> Declare the port in <code>Contracts</code>. Implement it in <code>Adapters/Persistence/Doctrine</code>. Put mapped records in its <code>Entity</code> directory.</p>
+<p><strong>How:</strong> Expose aggregate operations in the port. Keep SQL, Doctrine objects, and storage failures behind the adapter.</p>
+<p class="code-caption">Current port declaration. Namespace and imports are omitted.</p><pre><code data-language="php">interface EntryWriteRepository
+{
+    public function add(Entry $entry): void;
+    public function getActive(string $entryId): Entry;
+    public function getActiveByIdentity(EntryIdentity $identity): Entry;
+    public function save(Entry $entry): void;
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php">src/Backendbase/Domain/ExampleCatalog/Contracts/EntryWriteRepository.php</a>.</p><p class="code-caption">Current source excerpt: Doctrine EntryWriteRepository::add(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php">public function add(Entry $entry): void
+{
+    try {
+        $this-&gt;entityManager-&gt;persist(ExampleTable::fromDomain($entry));
+        $this-&gt;entityManager-&gt;flush();
+    } catch (UniqueConstraintViolationException $exception) {
+        throw EntryAlreadyExists::create(
+            &#x27;An active example already uses this identity.&#x27;,
+            previous: $exception,
+        );
+    }
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php">src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryWriteRepository.php</a>.</p>
+<p>The adapter converts <code>Entry</code> to <code>ExampleTable</code>. It translates duplicate identity storage errors into <code>EntryAlreadyExists</code>.</p>
+<p><code>getActiveByIdentity()</code> reconstructs an aggregate. <code>save()</code> synchronizes its mapped record. A lookup without a nonremoved match raises <code>ResourceNotFound</code>.</p>
+<p>Here “active” repository lookup means <code>deleted_at IS NULL</code>. It does not require <code>is_active = 1</code>.</p>
+<p>The repository flushes during add and save. A flush sends writes to the database. It does not commit an already active outer transaction.</p>
+<p>The command transaction must already be open. Repository methods alone do not atomically coordinate business writes, subscribers, and outbox rows.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Write mapping locations"><table><thead><tr><th scope="col">File</th><th scope="col">How to extend it</th></tr></thead><tbody><tr><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/Entry.php">Domain/Entry.php</a></td><td>Add behavior and invariant checks. Keep persistence annotations out.</td></tr><tr><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Domain/EntrySnapshot.php">Domain/EntrySnapshot.php</a></td><td>Carry validated persisted state. Preserve existing timestamps during reconstruction.</td></tr><tr><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/Entity/ExampleTable.php">Entity/ExampleTable.php</a></td><td>Declare mapped fields directly. Convert with fromDomain(), synchronize(), and toDomain().</td></tr><tr><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryWriteRepository.php">Memory/EntryWriteRepository.php</a></td><td>Implement the same port for deterministic tests. Share EntryStore with the memory read adapter.</td></tr></tbody></table></div>
+<p>Mapped entities must not extend another class. Derive each name from its full table name. <code>example_table</code> maps to <code>ExampleTable</code>.</p>
+<p>New business tables use business names without context prefixes. <code>example_table</code> is the documented exception.</p>
+<p>For new JSON object state, follow the typed <a href="../platform/09-persistence.md#json-column-policy">JSON column policy</a>.</p>
+<p><code>example_table.details</code> is an exception. Preserve primitive <code>EntryDetails</code>, <code>JSON_OBJECT</code> mapping, nested shapes, and the documented legacy empty-list read behavior.</p>
+<p>See <a href="../docs/9-persistence-and-database.html">Persistence and Database</a> for mapping rules.</p>
+
+</section>
+
+<section id="read-adapters"><p class="section-number">05 / Read adapters</p><h2>Return a projection without loading an aggregate</h2>
+
+<p><strong>When:</strong> Add or extend a read adapter when the query needs a new projection or lookup. A query does not require a new table.</p>
+<p><strong>Where:</strong> Put the read port in <code>Contracts</code>. Keep database code and row mapping under <code>Adapters/Persistence/Doctrine</code>.</p>
+<p><strong>How:</strong> Bind SQL values. Select the required columns. Validate persisted rows. Return the declared read model, page, scalar, or <code>null</code>.</p>
+<p class="code-caption">Current source excerpt: Doctrine EntryReadRepository::getEntryByCriteria(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php">public function getEntryByCriteria(GetEntryByCriteria $query): EntryDetails|null
+{
+    [$targetCondition, $parameters] = self::targetCondition($query-&gt;type(), $query-&gt;typeTargetId());
+    $parameters[&#x27;lookupGroup&#x27;]      = $query-&gt;group();
+    $parameters[&#x27;lookupKey&#x27;]        = $query-&gt;key();
+    $row                            = $this-&gt;connection-&gt;fetchAssociative(
+        &#x27;SELECT uuid, type, type_target_id, lookup_group, lookup_key, lookup_value, details, is_active,&#x27;
+        . &#x27; COALESCE(updated_at, created_at) AS updated_at, created_at FROM &#x27; . self::TABLE
+        . &#x27; WHERE type = :type AND &#x27; . $targetCondition
+        . &#x27; AND lookup_group = :lookupGroup AND lookup_key = :lookupKey&#x27;
+        . &#x27; AND deleted_at IS NULL LIMIT 1&#x27;,
+        $parameters,
+    );
+    if ($row === false) {
+        return null;
+    }
+
+    return EntryReadModelMapper::details($row);
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php">src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadRepository.php</a>.</p>
+<p><code>targetCondition()</code> emits <code>IS NULL</code> for a null target. A non-null target uses a bound parameter.</p>
+<p><code>EntryReadModelMapper::details()</code> validates scalar columns, timestamps, and JSON before constructing the projection.</p>
+<p>This query excludes removed rows. It can return rows with <code>isActive=false</code>. Preserve that distinction in tests.</p>
+<p>List reads count all matching rows. They apply limit and offset in SQL and order by <code>created_at ASC, id ASC</code>.</p>
+<p>Group reads count distinct groups before pagination. The memory adapter must preserve the same visible behavior.</p>
+<p>Review indexes for every new SQL or Doctrine lookup. Reuse a suitable existing prefix before adding another index.</p>
+<p>The current metadata includes criteria, group, and ordered-entry indexes. Include metadata and a forward migration when a new query needs an index.</p>
+<p>Use representative MySQL <code>EXPLAIN</code> plans on an identified, prepared target. SQLite tests do not prove MySQL optimizer choices.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/EntryReadRepository.php">src/Backendbase/Domain/ExampleCatalog/Contracts/EntryReadRepository.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadModelMapper.php">src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Doctrine/EntryReadModelMapper.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryReadRepository.php">src/Backendbase/Domain/ExampleCatalog/Adapters/Persistence/Memory/EntryReadRepository.php</a>.</p><p>See <a href="../platform/09-persistence.md#query-indexes">query index guidance</a> and <a href="#database-tests">database tests</a>.</p>
+</section>
+
+<section id="event-contracts"><p class="section-number">06 / Event definitions</p><h2>Choose the event path before publishing</h2>
+
+<p><strong>When:</strong> Add an event when another operation must react to a completed business fact. A write does not always need an event.</p>
+<p>Domain events and integration events use different dispatch paths. Neither path is created automatically by calling an aggregate method.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Event choices"><table><thead><tr><th scope="col">Kind</th><th scope="col">Where</th><th scope="col">How and when</th></tr></thead><tbody><tr><td>Domain event</td><td><code>Contracts/DomainEvents</code> with listener in <code>Application/DomainEventListener</code>.</td><td>Implement DomainEvent and use DomainEventTrait. Supply an explicit occurrence time. Publish through DomainEventPublisher for an in-process reaction.</td></tr><tr><td>Integration event</td><td><code>Contracts/IntegrationEvents</code> with payload in <code>Contracts/IntegrationEvents/V1</code>.</td><td>Implement IntegrationEvent and use IntegrationEventTrait. Declare name, version, queue flag, arguments, and explicit occurrence time. Return the event from transactional work.</td></tr><tr><td>External carrier</td><td><code>Contracts/ExternalIntegrationEvents/V1</code>.</td><td>Implement EventMessage for a queue-delivered contract. Register its event name and version. It is not the producer event object.</td></tr></tbody></table></div>
+<h3>The domain event targets one listener</h3>
+<p>The current domain <code>EntryAdded</code> uses <code>#[DomainEventListenerAttribute(EntryAddedListener::class)]</code>.</p>
+<p><code>ContainerAwareDomainEventPublisher::publish()</code> reads that attribute, resolves the listener from the container, and calls <code>handle(DomainEvent): void</code>.</p>
+<p>This attribute links one listener in the same context. It is not a subscriber entry in <code>ServiceProvider::getIntegrationEventSubscribers()</code>.</p>
+<p>A missing listener attribute or wrong listener interface fails explicitly. Keep this path only when an in-process domain reaction is required.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/DomainEvents/EntryAdded.php">src/Backendbase/Domain/ExampleCatalog/Contracts/DomainEvents/EntryAdded.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/DomainEventListener/EntryAddedListener.php">src/Backendbase/Domain/ExampleCatalog/Application/DomainEventListener/EntryAddedListener.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/DomainEvents/ContainerAwareDomainEventPublisher.php">src/Backendbase/Infrastructure/Adapters/DomainEvents/ContainerAwareDomainEventPublisher.php</a>.</p>
+<h3>The integration event carries a versioned fact</h3>
+<p class="code-caption">Current EntryAdded constants. The surrounding class and trait are omitted.</p><pre><code data-language="php">public const string EVENT_VERSION = &#x27;1.0&#x27;;
+public const bool DELIVER_VIA_QUEUE = true;
+public const string EVENT_TYPE = &#x27;Example_NewExampleAdded&#x27;;</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/EntryAdded.php">src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/EntryAdded.php</a>.</p>
+<p>The constructor accepts <code>EntryAddedPayload</code> and <code>DateTimeImmutable</code>. <code>getEventArguments()</code> returns the payload array.</p>
+<p>Use <code>DELIVER_VIA_QUEUE=true</code> for local dispatch plus outbox delivery. Use <code>false</code> for local integration dispatch only.</p>
+<p>Both values run local subscribers before commit. Direct producer dispatch requires an active transaction, including the local-only case.</p>
+<p>The released version-one payload has outer <code>exampleId</code> and nested <code>command</code> keys. Keep those names although PHP calls the identifier <code>entryId()</code>.</p>
+<p class="code-caption">Illustrative version-one payload. Metadata and transport envelopes are omitted.</p><pre><code data-language="json">{
+  &quot;exampleId&quot;: &quot;018f0000-0000-7000-8000-000000000001&quot;,
+  &quot;command&quot;: {
+    &quot;exampleId&quot;: &quot;018f0000-0000-7000-8000-000000000001&quot;,
+    &quot;type&quot;: &quot;system&quot;,
+    &quot;typeTargetId&quot;: null,
+    &quot;group&quot;: &quot;settings&quot;,
+    &quot;isActive&quot;: true,
+    &quot;key&quot;: &quot;page-size&quot;,
+    &quot;value&quot;: &quot;25&quot;,
+    &quot;details&quot;: {&quot;unit&quot;: &quot;items&quot;}
+  }
+}</code></pre>
+<p>Serialize a typed payload instead of the aggregate or command object. The existing nested <code>command</code> key is a compatibility shape.</p>
+<p>New event names follow <code>{PascalCaseServiceName}_{PascalCaseEventClassName}</code>. Preserve released event names and old versions while retained messages can exist.</p>
+<p>Read the service name from <a href="../../config/autoload/global.php">config/autoload/global.php</a>. The released Example name remains unchanged.</p>
+<p>Test incompatible changes as a new version. See <a href="../platform/05-integration-event-contracts.md">event contract rules</a> and <a href="../docs/3-integration-events.html">Integration Events</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/V1/EntryAddedPayload.php">src/Backendbase/Domain/ExampleCatalog/Contracts/IntegrationEvents/V1/EntryAddedPayload.php</a>.</p>
+</section>
+
+<section id="subscribers"><p class="section-number">07 / Subscribers</p><h2>Define the reaction and register its type</h2>
+
+<p><strong>When:</strong> Add a subscriber when a business reaction is required. Publishing an integration event does not require a local subscriber.</p>
+<p><strong>Where:</strong> Keep local subscribers in <code>Application/IntegrationEventSubscribers</code>. Keep queue subscribers in <code>Application/ExternalIntegrationEventSubscribers/{SourceService}</code>.</p>
+<p><strong>How:</strong> Implement the matching interface. Declare <code>getSubscribedEvents()</code>. Use injected ports for work and register the subscriber in the context provider.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Subscriber contracts"><table><thead><tr><th scope="col">Type</th><th scope="col">Methods</th><th scope="col">Processing rule</th></tr></thead><tbody><tr><td>Local integration subscriber</td><td><code>IntegrationEventSubscriber</code>: <code>handle(IntegrationEvent): void</code> and <code>getSubscribedEvents(): array</code>.</td><td>Subscribe to the producer name, such as Example_NewExampleAdded. Work runs synchronously before producer commit.</td></tr><tr><td>External integration subscriber</td><td><code>ExternalIntegrationEventSubscriber</code>: <code>handle(EventMessage): void</code> and <code>getSubscribedEvents(): array</code>.</td><td>Subscribe to Example_NewExampleAdded_Event. Work runs in a separate consumer inbox transaction.</td></tr></tbody></table></div><p class="code-caption">Current source excerpt: EntryAddedSubscriber::handle(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Application/IntegrationEventSubscribers/EntryAddedSubscriber.php">public function handle(IntegrationEvent $integrationEvent): void
+{
+    $this-&gt;logger-&gt;debug(&#x27;EntryAddedSubscriber&#x27;, [
+        &#x27;eventName&#x27; =&gt; $integrationEvent-&gt;eventName(),
+        &#x27;eventVersion&#x27; =&gt; $integrationEvent-&gt;eventVersion(),
+    ]);
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/IntegrationEventSubscribers/EntryAddedSubscriber.php">src/Backendbase/Domain/ExampleCatalog/Application/IntegrationEventSubscribers/EntryAddedSubscriber.php</a>.</p>
+<p>The current local subscriber returns <code>[EntryAdded::EVENT_TYPE]</code> from <code>getSubscribedEvents()</code>. It logs event name and version only.</p>
+<p>The current external subscriber expects <code>EntryAddedMessage</code> through PHPDoc. It logs metadata only. Neither Entry subscriber maintains another business table.</p>
+<p>For a required database reaction, inject a context-owned port. Keep all writes on the transaction connection. Let failures propagate.</p>
+<p>Keep provider calls, filesystem writes, processes, and direct broker publication outside local subscribers. Database rollback cannot undo those effects.</p>
+<p>Do not log complete event payloads. Use stable metadata that does not expose stored content.</p>
+<p>The reference listeners emit diagnostic logs. Those logs cannot roll back with database writes. They are not durable business effects.</p>
+<h3>Construction is part of the contract</h3>
+<p>The subscriber registry creates a fresh instance through reflection. Declare an explicit constructor, including an empty constructor without dependencies.</p>
+<p>Constructor arguments resolve from the container by type, then by parameter name. Binding the subscriber class itself does not control this construction.</p>
+<p>Test registration through the event manager. Instantiating the subscriber directly does not prove the real construction path.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/ExternalIntegrationEventSubscribers/ExampleCatalog/EntryAddedExternalSubscriber.php">src/Backendbase/Domain/ExampleCatalog/Application/ExternalIntegrationEventSubscribers/ExampleCatalog/EntryAddedExternalSubscriber.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareSubscriberRegistry.php">src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareSubscriberRegistry.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareSubscriberDispatcher.php">src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareSubscriberDispatcher.php</a>.</p><p>See <a href="../platform/06-integration-event-consumers.md">consumer contract rules</a> and <a href="#registration">the registration example</a>.</p>
+</section>
+
+<section id="transaction-timing"><p class="section-number">08 / Publish and commit</p><h2>Publish inside the transaction; deliver later</h2>
+
+<p><strong>When:</strong> Use a transaction when business writes and related local or outbox writes must succeed together.</p>
+<p><strong>Where:</strong> Select the boundary in the command handler or its application service. Depend on the shared <code>IntegrationEventTransaction</code> port.</p>
+<p><strong>How:</strong> Pass a callback that performs authoritative work and returns a complete integration event. Do not publish directly to a broker.</p>
+<p class="code-caption">Current source excerpt: EntryEventTransaction::execute(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryEventTransaction.php">public function execute(callable $work, callable|null $domainEventFactory = null): void
+{
+    $transaction = $this-&gt;transaction;
+    $publisher   = $this-&gt;publisher;
+    $transaction-&gt;execute(static function () use ($work, $domainEventFactory, $publisher): IntegrationEvent {
+        $event = $work();
+        if ($domainEventFactory !== null) {
+            $domainEvent = $domainEventFactory($event);
+            $publisher-&gt;publish($domainEvent);
+        }
+
+        return $event;
+    });
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Application/EntryEventTransaction.php">src/Backendbase/Domain/ExampleCatalog/Application/EntryEventTransaction.php</a>.</p>
+<p><code>EntryEventTransaction</code> adds the optional domain publication inside the shared transaction callback. AddEntry supplies that factory; other writes can omit it.</p>
+<div class="flow-frame"><div class="flow-heading"><strong>Producer lifecycle · one database transaction</strong><span>Select a node for details · Pan and zoom with the controls</span></div><div id="write-flow"><p class="flow-placeholder">Loading the local diagram. Read the text flow below if it is unavailable.</p></div></div>
+<details class="flow-text"><summary>Read the text version of this flow</summary><ol><li><code>AddEntryHandler</code> enters <code>EntryEventTransaction</code>. The Doctrine wrapper opens the transaction before running work.</li><li><code>EntryWrites</code> reads the clock, creates Entry, and writes through the repository. It returns the integration event.</li><li>The context wrapper publishes the domain event. Then the integration event manager runs local subscribers and appends the optional outbox row.</li><li>The Doctrine wrapper flushes and commits. Any failure rolls back database work. Queue publication can start only after commit.</li></ol></details><p class="code-caption">Current source excerpt: DoctrineIntegrationEventTransaction::execute(). Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php">public function execute(callable $transactionalWork): void
+{
+    $eventManager  = $this-&gt;eventManager;
+    $entityManager = $this-&gt;entityManager;
+    $connection    = $entityManager-&gt;getConnection();
+    try {
+        $connection-&gt;transactional(static function () use ($transactionalWork, $eventManager, $entityManager): void {
+            $event = $transactionalWork();
+            $eventManager-&gt;dispatchEvent($event);
+            $entityManager-&gt;flush();
+        });
+    } catch (Throwable $exception) {
+        $entityManager-&gt;clear();
+
+        throw $exception;
+    }
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php">src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransaction.php</a>.</p>
+<p>The order is: database work → domain listener → local integration subscribers → optional outbox append → final flush → commit.</p>
+<p>The repository can flush earlier. All flushes still belong to the open transaction. The wrapper clears the EntityManager after a failure and rethrows.</p>
+<p>Use the same connection for the transaction wrapper, subscriber repositories, and outbox writer. Independent connections cannot share this commit.</p>
+<p><code>occurredOn()</code> preserves the mutation instant. The outbox stores it as <code>occurred_at</code>. Its own clock reading supplies <code>created_at</code>.</p>
+<p>In this code, “fire an event” means <code>DomainEventPublisher::publish()</code> or transactional <code>EventManager::dispatchEvent()</code>. There is no separate fire API.</p>
+<p>The command and query buses only resolve and call handlers. They do not supply transactions, validation, authorization, asynchronous dispatch, or retry.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php">src/Backendbase/Infrastructure/Adapters/EventManager/ContainerAwareEventManager.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php">src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventOutbox.php</a>.</p><p>See <a href="../platform/11-messaging-outbox.md">transactional outbox rules</a> for the full commit and relay contract.</p>
+</section>
+
+<section id="registration"><p class="section-number">09 / Registration and dispatch</p><h2>Connect contracts to concrete behavior</h2>
+
+<p><strong>When:</strong> Update registration when adding a handler, port adapter, or subscriber. A class file alone does not register a use case.</p>
+<p><strong>Where:</strong> Use the owning context’s <code>ServiceProvider.php</code>. Shared bootstrap loads those definitions.</p>
+<p><strong>How:</strong> Bind ports in <code>getDefinitions()</code>. Map CQRS contracts in <code>getHandlers()</code>. Register integration subscribers separately.</p>
+<p class="code-caption">Current provider entries. These are array fragments; keep each group in its own method.</p><pre><code data-language="php">// Selected entries from ServiceProvider::getDefinitions():
+EntryReadRepository::class =&gt; DoctrineEntryReadRepository::class,
+EntryWriteRepository::class =&gt; DoctrineEntryWriteRepository::class,
+
+// Selected entries from ServiceProvider::getHandlers():
+AddEntry::class =&gt; AddEntryHandler::class,
+GetEntryByCriteria::class =&gt; GetEntryByCriteriaHandler::class,</code></pre>
+<p>The Doctrine aliases name implementations under <code>Adapters/Persistence/Doctrine</code>. The unaliased repository names refer to ports under <code>Contracts</code>.</p>
+<p class="code-caption">Current subscriber registration entries. Whitespace is expanded for reading; enclosing array and imports are omitted.</p><pre><code data-language="php">// Selected entries from ServiceProvider::getIntegrationEventSubscribers():
+[
+    &#x27;events&#x27; =&gt; EntryAddedSubscriber::getSubscribedEvents(),
+    &#x27;subscriber-fqcn&#x27; =&gt; EntryAddedSubscriber::class,
+],
+[
+    &#x27;events&#x27; =&gt; EntryAddedExternalSubscriber::getSubscribedEvents(),
+    &#x27;subscriber-fqcn&#x27; =&gt; EntryAddedExternalSubscriber::class,
+    &#x27;message-fqcn&#x27; =&gt; EntryAddedMessage::class,
+    &#x27;event-version&#x27; =&gt; EntryAdded::EVENT_VERSION,
+],</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php">src/Backendbase/Domain/ExampleCatalog/ServiceProvider.php</a>.</p><div class="table-wrap" tabindex="0" role="region" aria-label="Shared wiring"><table><thead><tr><th scope="col">Source</th><th scope="col">Responsibility</th></tr></thead><tbody><tr><td><a href="../../config/dependencies.php">config/dependencies.php</a></td><td>Loads provider files and selects RegistryHandlerResolver by default.</td></tr><tr><td><a href="../../config/dependencies/bounded-contexts.php">bounded-contexts.php</a></td><td>Discovers context providers. Autowires port definitions. Builds the handler registry and rejects duplicate mappings.</td></tr><tr><td><a href="../../config/dependencies/modules.php">modules.php</a></td><td>Binds the buses and DomainEventPublisher. Registers subscriber classes with EventManager. Builds the versioned external carrier registry.</td></tr><tr><td><a href="../../config/dependencies/doctrine.php">doctrine.php</a></td><td>Binds transaction and outbox adapters. Builds EntityManager from the shared Connection.</td></tr><tr><td><a href="../../src/Backendbase/Infrastructure/Adapters/CQRS/RegistryHandlerResolver.php">RegistryHandlerResolver.php</a></td><td>Selects the handler from the concrete contract class. Missing mappings fail at dispatch.</td></tr></tbody></table></div>
+<p><code>ContainerAwareCommandBus</code> and <code>ContainerAwareQueryBus</code> obtain the resolved handler from the container. They verify its handler interface before calling it.</p>
+<p>Current CQRS contracts have no handler attribute. Do not copy domain-listener attributes onto commands or queries.</p>
+<p>Keep domain-listener wiring on the domain event attribute. Keep integration-subscriber registration in the provider.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php">src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareCommandBus.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php">src/Backendbase/Infrastructure/Adapters/CQRS/ContainerAwareQueryBus.php</a>.</p><p>Verify these links through <a href="../../tests/Architecture/RegistryHandlerBoundaryTest.php">RegistryHandlerBoundaryTest</a> and <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/ServiceProviderTest.php">ServiceProviderTest</a>.</p>
+</section>
+
+<section id="queue-delivery"><p class="section-number">10 / Conditional queue delivery</p><h2>Handle committed events in a separate transaction</h2>
+
+<p><strong>When:</strong> Use queue delivery when a reaction must run outside the producer transaction or in another service.</p>
+<p><strong>Where:</strong> Keep versioned carriers and external subscribers in the context. Shared relay and consumer mechanics stay in infrastructure.</p>
+<p><strong>How:</strong> Set the producer queue flag. Register the external carrier and subscriber. Use the existing outbox and inbox pipeline.</p>
+<div class="flow-frame"><div class="flow-heading"><strong>Queue lifecycle · separate producer and consumer commits</strong><span>Select a node for details · Pan and zoom with the controls</span></div><div id="delivery-flow"><p class="flow-placeholder">Loading the local diagram. Read the text flow below if it is unavailable.</p></div></div>
+<details class="flow-text"><summary>Read the text version of this flow</summary><ol><li>The relay claims a committed outbox row, publishes through the selected transport, and records publication success or retry state.</li><li>The processor validates message identity, destination, event name, event version, and replay eligibility. It adds <code>_Event</code> to the producer event name.</li><li>The inbox opens a separate transaction. The dispatcher maps the payload to the registered carrier and calls external subscribers.</li><li>The inbox flushes subscriber database work and records <code>processed_at</code> before commit. Success acknowledges. A processed duplicate does not dispatch again.</li></ol></details>
+<p><code>EntryAddedMessage</code> contains typed outer data and an <code>EntryAddedCommand</code> carrier. It rejects different outer and nested identifiers.</p>
+<p>The dispatcher resolves the event name and version through the actual registry. Valinor reconstructs the carrier before <code>dispatchExternalEvent()</code>.</p>
+<p>External dispatch does not append the received event to the outbox again. The present Entry queue subscriber logs metadata only.</p>
+<p>The replay window accepts occurrence times within the previous seven days. Missing, malformed, future, or older times fail permanently.</p>
+<p>The outbox can retry beyond that window. Monitor pending age before retained events become ineligible for consumption.</p>
+<p>Registration does not start workers or configure broker topology. Queue delivery also needs configured transports and supervised relay and consumer processes.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Shared/Integrations/Messaging/ReplayWindow.php">ReplayWindow</a>. See <a href="../platform/13-queue-runtime.md">queue runtime</a> for worker setup.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Failure and replay boundaries"><table><thead><tr><th scope="col">Boundary</th><th scope="col">Existing behavior</th><th scope="col">What to verify</th></tr></thead><tbody><tr><td>Producer transaction</td><td>Local subscriber or outbox failure propagates and rolls back database writes. No bus retry is supplied.</td><td>Business state, subscriber state, and outbox remain unchanged after failure.</td></tr><tr><td>Outbox relay</td><td>Publication can succeed before success is recorded. The row can publish again. Retry delay grows from 2 to 256 seconds; there is no terminal attempt limit.</td><td>Publication failure and success-record failure. Do not claim exactly-once delivery.</td></tr><tr><td>Consumer inbox</td><td>Identity is (consumer_name, message_id). Successful database work commits with processed_at.</td><td>Duplicate processing, rollback, and separate consumer identities.</td></tr><tr><td>Consumer failure policy</td><td>Contract and mapping failures are permanent. Other subscriber or infrastructure failures use bounded transient retries, terminal after five attempts.</td><td>Unknown version, missing subscriber, invalid payload, transient failures, and retry exhaustion.</td></tr><tr><td>External provider effect</td><td>A database inbox cannot atomically commit a network effect. The project has a separate ExternalEffectInbox path.</td><td>Use that path only for an actual provider effect. Resolve unknown outcomes before repeating calls.</td></tr></tbody></table></div>
+<p>HTTP retry keys and inbox identity serve different boundaries. The HTTP key does not replace consumer deduplication.</p>
+<p>If this use case is exposed through HTTP, use shared replay middleware for every POST, PUT, PATCH, and DELETE.</p>
+<p>See <a href="2-idempotency.html">Idempotency Usage</a>, <a href="../docs/4-messaging-and-queues.html">Messaging and Queues</a>, and <a href="../platform/12-messaging-consumers.md">consumer failure rules</a>.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Contracts/ExternalIntegrationEvents/V1/EntryAddedMessage.php">src/Backendbase/Domain/ExampleCatalog/Contracts/ExternalIntegrationEvents/V1/EntryAddedMessage.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php">src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventMessageProcessor.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcher.php">src/Backendbase/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcher.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php">src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransaction.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Messaging/OutboxRetryPolicy.php">src/Backendbase/Infrastructure/Messaging/OutboxRetryPolicy.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Infrastructure/Messaging/QueueMessageFailureService.php">src/Backendbase/Infrastructure/Messaging/QueueMessageFailureService.php</a>.</p>
+</section>
+
+<section id="schema-fixtures"><p class="section-number">11 / Schema, fixtures, and seed data</p><h2>Add storage support only when required</h2>
+
+<div class="table-wrap" tabindex="0" role="region" aria-label="Conditional storage artifacts"><table><thead><tr><th scope="col">Artifact</th><th scope="col">When</th><th scope="col">Where and how</th></tr></thead><tbody><tr><td>Migration</td><td>A table, column, constraint, or required index changes.</td><td>Use resources/database/Migrations. Keep ORM metadata aligned. Draft a forward migration for existing installations. Review generated SQL before execution.</td></tr><tr><td>Test fixture</td><td>Tests need controlled state or dependencies.</td><td>Keep context test support under Tests, or shared fixtures under tests. Create fresh memory stores or isolated schemas for each test.</td></tr><tr><td>Reference seeder</td><td>Approved stable business reference data must exist after installation.</td><td>Use resources/database/Seeders. Reuse the persistence conversion contract. Guard inserts for repeat runs. Do not use production seeders for test-only records.</td></tr></tbody></table></div>
+<p>Creating another Entry with the current schema needs no migration. Reuse <code>ExampleTable</code> and the existing repositories.</p>
+<p>The installation <code>Version20260823215059</code> creates the Example table and its indexes. <code>Version20260823000000</code> creates the messaging tables.</p>
+<p>Do not rerun consolidated installation migrations on an existing database. Use the documented adoption procedure when existing history differs.</p>
+<p>The reference <code>EntrySeeder</code> is not invoked by a migration. Its sample row is not required for this lifecycle.</p>
+<p><code>EntrySeederTest</code> calls it twice in an isolated schema and verifies one row. Use a seeder only for approved reference data.</p>
+<p>The test base creates its schema from production metadata. It does not use a production database or depend on that sample row.</p>
+<p class="source">Source: <a href="../../resources/database/Migrations/Version20260823215059.php">resources/database/Migrations/Version20260823215059.php</a>.</p><p class="source">Source: <a href="../../resources/database/Migrations/Version20260823000000.php">resources/database/Migrations/Version20260823000000.php</a>.</p><p class="source">Source: <a href="../../resources/database/Seeders/EntrySeeder.php">resources/database/Seeders/EntrySeeder.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntrySeederTest.php">src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntrySeederTest.php</a>.</p>
+<p>Record new table ownership in <a href="../platform/database-table-ownership.md">the ownership catalog</a>. Check uniqueness across the shared database.</p>
+<p>See <a href="../platform/10-schema-changes.md">schema changes</a> and <a href="../platform/operations/migration-consolidation.md">migration adoption</a>.</p>
+
+</section>
+
+<section id="database-tests"><p class="section-number">12 / Database and repository tests</p><h2>Prove the port contract and storage behavior</h2>
+
+<p><strong>When:</strong> Add repository checks when a port, lookup, mapping, or stored invariant changes. Add storage-specific checks for behavior a memory adapter cannot prove.</p>
+<p><strong>Where:</strong> Keep context repository tests in <code>Tests/Adapters/Persistence</code>. Keep shared transaction and messaging tests under <code>tests/Infrastructure</code>.</p>
+<p><strong>How:</strong> Share a behavioral contract across adapters. Create an isolated fixture. Act through the port. Assert stored and returned behavior.</p>
+<h3>Use the existing isolated Doctrine base</h3>
+<p><code>DoctrineEntryRepositoryTestCase::setUp()</code> registers production Doctrine types and loads the context’s production entity metadata.</p>
+<p>It opens <code>pdo_sqlite</code> with <code>memory=true</code>, registers <code>BIN_TO_UUID</code>, and creates schema through <code>SchemaTool</code>.</p>
+<p>The fixture replaces the MySQL virtual UUID column declaration with SQLite-compatible text. It builds both real adapters on the same connection.</p>
+<p>Each test gets fresh in-memory storage. Follow this fixture instead of loading application database settings.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/DoctrineEntryRepositoryTestCase.php">src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/DoctrineEntryRepositoryTestCase.php</a>.</p>
+<h3>Share behavior across implementations</h3>
+<p><code>EntryRepositoryContract</code> requires <code>readRepository()</code> and <code>writeRepository()</code>. Both Doctrine and memory test classes use that trait.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Repository checks"><table><thead><tr><th scope="col">Behavior</th><th scope="col">Required assertions</th></tr></thead><tbody><tr><td>Empty and missing reads</td><td>Detail and identifier queries return null. Empty pages report zero total.</td></tr><tr><td>Round trip</td><td>Write an aggregate. Read a projection. Verify identifier, target scope, fields, JSON contents, and timestamps.</td></tr><tr><td>Changes and removal</td><td>Save changed state. Exclude removed rows. A write lookup of removed state raises ResourceNotFound.</td></tr><tr><td>Uniqueness</td><td>Reject duplicate nonremoved identity, including a null target. Permit replacement after removal.</td></tr><tr><td>Ordering and pagination</td><td>Use reversed insertion order. Verify creation-time and UUID order, stable page contents, and total counts.</td></tr><tr><td>Persisted data validation</td><td>Reject malformed rows. Preserve accepted JSON objects, lists, empty shapes, and legacy compatibility.</td></tr></tbody></table></div>
+<p>The memory fixture creates one <code>EntryStore</code> for both adapters. Separate stores would hide the write from the read side.</p>
+<p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/EntryRepositoryContract.php">src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/EntryRepositoryContract.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php">src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php</a>.</p><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Memory/EntryRepositoryTest.php">src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Memory/EntryRepositoryTest.php</a>.</p>
+<h3>Verify rollback through the shared connection</h3>
+<p class="code-caption">Current source excerpt: EntryRepositoryTest rollback check. Enclosing class and imports are omitted.</p><pre><code data-language="php" data-source="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php">public function itRollsBackOrmWritesThroughTheSharedDbalConnection(): void
+{
+    $entryId = Uuid::uuid7()-&gt;toString();
+
+    try {
+        $this-&gt;connection-&gt;transactional(function () use ($entryId): void {
+            $this-&gt;addEntry($entryId, &#x27;settings&#x27;, &#x27;first&#x27;, &#x27;one&#x27;);
+
+            throw new RuntimeException(&#x27;Force transaction rollback.&#x27;);
+        });
+    } catch (RuntimeException $exception) {
+        self::assertSame(&#x27;Force transaction rollback.&#x27;, $exception-&gt;getMessage());
+    }
+
+    $storedEntryId = $this-&gt;readRepository-&gt;getEntryIdByCriteria(
+        new GetEntryIdByCriteria(EntryType::SYSTEM, null, &#x27;settings&#x27;, &#x27;first&#x27;),
+    );
+    self::assertNull($storedEntryId);
+}</code></pre><p class="source">Source: <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php">src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence/Doctrine/EntryRepositoryTest.php</a>.</p>
+<p>This check proves an ORM flush does not escape the outer transaction. It does not prove the complete event transaction.</p>
+<p>Use <code>DoctrineIntegrationEventTransactionTest</code> for mutation/outbox commit and rollback. Use <code>IntegrationEventDispatchFailureTest</code> for subscriber failure rollback.</p>
+<p>SQLite checks do not prove native MySQL collation, locking, migration execution, or optimizer behavior. Use a prepared MySQL target for those claims.</p>
+<p class="source">Source: <a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php">tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php</a>.</p><p class="source">Source: <a href="../../tests/Infrastructure/Adapters/EventManager/IntegrationEventDispatchFailureTest.php">tests/Infrastructure/Adapters/EventManager/IntegrationEventDispatchFailureTest.php</a>.</p><p>See <a href="../platform/17-testing.md">testing guidance</a> for target authorization and check selection.</p>
+</section>
+
+<section id="completion"><p class="section-number">13 / Lifecycle verification</p><h2>Verify the path that your change uses</h2>
+
+<p>Select checks from the behavior changed. A new query does not require a queue test unless it changes queue behavior.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Lifecycle evidence map"><table><thead><tr><th scope="col">Concern</th><th scope="col">Existing source or test</th><th scope="col">Evidence and limits</th></tr></thead><tbody><tr><td>Domain rules</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Domain/EntryTest.php">EntryTest</a>; <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Domain/EntryValidationTest.php">EntryValidationTest</a></td><td>Creation, changes, removal, validation, and explicit timestamps.</td></tr><tr><td>Handler timing</td><td><a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Application/CommandHandlers/AddEntryHandlerTest.php">AddEntryHandlerTest</a></td><td>Transaction starts before the clock and repository work. The domain event occurs inside it. Uses test doubles.</td></tr><tr><td>Bus lifecycle</td><td><a href="../../tests/Functional/EntryLifecycleTest.php">EntryLifecycleTest</a></td><td>Create, query, change, paginate, and remove through real buses and registry. Uses memory adapters and transaction/event doubles.</td></tr><tr><td>Registration</td><td><a href="../../tests/Architecture/RegistryHandlerBoundaryTest.php">RegistryHandlerBoundaryTest</a>; <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/ServiceProviderTest.php">ServiceProviderTest</a></td><td>Handler mappings, resolvable classes, and declared subscriber/carrier registration.</td></tr><tr><td>Local dispatch</td><td><a href="../../tests/Infrastructure/Adapters/EventManager/TransactionalIntegrationEventDispatchTest.php">TransactionalIntegrationEventDispatchTest</a></td><td>Both queue flags, local-before-outbox order, no-subscriber publication, and rejection without a transaction.</td></tr><tr><td>Consumer contract</td><td><a href="../../tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php">ExternalIntegrationEventDispatcherTest</a>; <a href="../../src/Backendbase/Domain/ExampleCatalog/Tests/Contracts/IntegrationEvents/IntegrationEventSchemaTest.php">IntegrationEventSchemaTest</a></td><td>Registered carrier reconstruction and invalid version-one payloads.</td></tr><tr><td>Stored JSON delivery</td><td><a href="../../tests/Infrastructure/Adapters/Queue/Serialization/EntryJsonDeliveryTest.php">EntryJsonDeliveryTest</a></td><td>Producer → stored outbox → SQS/RabbitMQ serialization → registered carrier. Deterministic transport checks do not prove a running broker.</td></tr><tr><td>Inbox replay</td><td><a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineInboxMessageTransactionTest.php">DoctrineInboxMessageTransactionTest</a></td><td>Duplicate identity, consumer database work, completion, and rollback.</td></tr></tbody></table></div>
+<p>Run implementation checks from the repository root when changing the relevant behavior. The following commands are examples for future implementation work.</p>
+<p class="code-caption">Selected existing checks. Inspect fixtures before execution. These commands were not run to produce this guide.</p><pre><code data-language="sh">vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests/Adapters/Persistence
+vendor/bin/phpunit tests/Functional/EntryLifecycleTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/EventManager
+vendor/bin/phpunit tests/Infrastructure/Adapters/Persistence/Doctrine/DoctrineIntegrationEventTransactionTest.php
+vendor/bin/phpunit tests/Infrastructure/Adapters/Queue/ExternalIntegrationEventDispatcherTest.php</code></pre>
+<p>For PHP changes, also run PHPStan at level 8, <code>composer complexity</code>, and <code>composer cs-check</code>. Add architecture checks when boundaries or registration change.</p>
+<p>For documentation-only changes, check meaning, syntax, examples, and links. Application and database tests are not required.</p>
+<p class="code-caption">Documentation checks for this guide.</p><pre><code data-language="sh">node --check resources/guides/assets/bounded-context-lifecycle.js
+php bin/check-documentation-links.php resources</code></pre>
+<ol>
+<li>Confirm the context owns the behavior and each new artifact is required.</li>
+<li>Verify query and command contracts against their real handlers and registry.</li>
+<li>Verify domain invariants independently from framework adapters.</li>
+<li>Verify repository behavior across memory and Doctrine when persistence changes.</li>
+<li>Verify commit, rollback, event timing, and duplicate processing where those paths exist.</li>
+<li>Keep affected contracts, examples, platform guidance, and documentation current.</li>
+<li>Include the Unreleased changelog entry when preparing a commit.</li>
+<li>Report unrun checks and prepared-target limits.</li>
+</ol>
+<p>This guide documents current source. It does not install a feature, apply migrations, create database rows, publish events, or run consumers.</p>
+<p>Continue with <a href="3-adding-a-new-feature.html">Adding a New Feature</a>, <a href="2-idempotency.html">Idempotency Usage</a>, or <a href="../docs/10-testing-and-quality.html">Testing and Quality</a>.</p>
+
+</section>
+<footer>Backendbase Guides · 4. Bounded Context Lifecycle · <a href="../docs/0-project.html#guides">Documentation catalog</a></footer>
+</main></div>
+</body>
+</html>

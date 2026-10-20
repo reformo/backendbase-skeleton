@@ -40,6 +40,10 @@ Complete the first conversion during a maintenance window. Verify that the exist
 
 Do not store environment files in release archives.
 
+Install the [Nginx API rate-limit configuration](../resources/platform/operations/http-rate-limiting.md) on the identified host.
+It shares 30 requests per second per client IP with a burst allowance of 60 across all three APIs.
+Application contact verification limits remain in code. Repository checks do not install or reload the target configuration.
+
 ## Required hooks
 
 Both hooks must be executable. A nonzero exit status stops deployment.

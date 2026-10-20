@@ -24,6 +24,8 @@ delete:
       apiKey: []
       bearerToken: []
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     422:
       $ref: '../../common/components.yaml#/schemas/422'
     500:

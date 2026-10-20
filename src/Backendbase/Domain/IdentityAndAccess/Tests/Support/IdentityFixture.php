@@ -9,6 +9,7 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\TokenRegistry;
 use Backendbase\Domain\IdentityAndAccess\Contracts\VerificationLimiter;
 use Backendbase\Infrastructure\Configuration\Idempotency\ReplaySettings;
 use Backendbase\Infrastructure\Configuration\IdentitySettings;
+use Backendbase\Shared\Configuration\HttpHeaderSettings;
 use Backendbase\Shared\Health\ReadinessChecks;
 use Backendbase\Shared\Services\Settings;
 use Backendbase\Shared\Time\Clock;
@@ -63,6 +64,7 @@ final readonly class IdentityFixture
             Configuration::class => $configuration,
             Clock::class => $clock,
             IdentitySettings::class => self::settings(),
+            HttpHeaderSettings::class => new HttpHeaderSettings(new Settings(['headers' => ['Access-Control-Allow-Origin' => 'https://app.example.com', 'Access-Control-Allow-Headers' => 'Content-Type,Authorization,Idempotency-Key']])),
             ReplaySettings::class => ReplayFixture::settings(),
             ContactNotifier::class => new CapturedContactNotifier(),
             VerificationLimiter::class => new MemoryVerificationLimiter($clock),
@@ -78,7 +80,6 @@ final readonly class IdentityFixture
     {
         return new IdentitySettings(new Settings([
             'identity' => array_replace_recursive([
-                'token-lifetime-seconds' => 900,
                 'contact-proof-key-id' => 'factor-key',
                 'contact-proof-key' => base64_encode(str_repeat('e', 32)),
                 'contact-email-sender' => 'identity@example.com',

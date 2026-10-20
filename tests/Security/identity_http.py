@@ -68,7 +68,12 @@ return static function (\\DI\\ContainerBuilder $builder): void {
         "BACKENDBASE_IDENTITY_CONTACT_PROOF_KEY": base64.b64encode(b"e" * 32).decode(),
         "BACKENDBASE_IDEMPOTENCY_KEY": base64.b64encode(secrets.token_bytes(32)).decode(),
         "BACKENDBASE_IDENTITY_CONTACT_EMAIL_SENDER": "identity@example.test",
-        "BACKENDBASE_IDENTITY_TOKEN_LIFETIME_SECONDS": "900",
+        "BACKENDBASE_USER_ACCESS_TOKEN_LIFETIME_SECONDS": "900",
+        "BACKENDBASE_USER_SESSION_IDLE_TIMEOUT_SECONDS": "86400",
+        "BACKENDBASE_USER_SESSION_MAXIMUM_LIFETIME_SECONDS": "604800",
+        "BACKENDBASE_ADMIN_ACCESS_TOKEN_LIFETIME_SECONDS": "300",
+        "BACKENDBASE_ADMIN_SESSION_IDLE_TIMEOUT_SECONDS": "1800",
+        "BACKENDBASE_ADMIN_SESSION_MAXIMUM_LIFETIME_SECONDS": "28800",
         "EXAMPLE_API_KEY": "http-fixture-api-key",
     })
     for realm, key in [("USER", b"u" * 32), ("ADMIN", b"a" * 32)]:
@@ -170,8 +175,10 @@ def expired_token(token, key):
 
 def exercise(client):
     from example_http import exercise_example
-    from write_probes import changed_public_login
+    from write_probes import changed_public_login, exercise_refresh
     exercise_example(client)
+    for api in ["example", "user", "system-admin"]:
+        exercise_refresh(client, api, client.operatorEmail)
     for api in ["user", "system-admin"]:
         client.request(api, "GET", "/_status", 200)
         ready = client.request(api, "GET", "/_status/ready", 503)

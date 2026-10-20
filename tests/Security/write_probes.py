@@ -77,3 +77,17 @@ def changed_public_login(client, api, token):
     client.request(api, "POST", "/auth/login", 422, {**payload, "identifier": "different@example.test"},
                    headers={"Idempotency-Key": key}, probe="cross-account-public-replay")
     assert session["session"]["accessToken"] != token
+
+
+def exercise_refresh(client, api, identifier):
+    session = client.request(api, "POST", "/auth/login", 200,
+                             {"identifier": identifier, "password": "http-fixture-password"})["session"]
+    client.request(api, "POST", "/auth/refresh", 400, {"refreshToken": []})
+    renewed = client.request(api, "POST", "/auth/refresh", 200,
+                             {"refreshToken": session["refreshToken"]})["session"]
+    assert renewed["refreshToken"] != session["refreshToken"]
+    assert renewed["sessionExpiresAt"] == session["sessionExpiresAt"]
+    client.request(api, "GET", "/identity", 200, token=renewed["accessToken"])
+    client.request(api, "POST", "/auth/refresh", 401,
+                   {"refreshToken": session["refreshToken"]}, probe="refresh-reuse")
+    client.request(api, "GET", "/identity", 401, token=renewed["accessToken"])

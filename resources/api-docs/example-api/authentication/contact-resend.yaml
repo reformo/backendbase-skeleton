@@ -80,7 +80,7 @@ post:
           schema:
             $ref: '../example-openapi.yml#/components/schemas/Problem'
     429:
-      description: 'Verification limit reached'
+      description: 'Nginx request or application verification limit reached'
       headers:
         Retry-After:
           schema:

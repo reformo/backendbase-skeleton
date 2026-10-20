@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="Use Backendbase HTTP idempotency: request keys, exact retries, scope, retention, replay, configuration, conflicts, and uncertain outcomes.">
+    <title>2. Idempotency · Backendbase Guides</title>
+    <link rel="stylesheet" href="assets/react-flow.css">
+    <link rel="stylesheet" href="assets/guides.css">
+    <script defer src="assets/react-flow-runtime.js"></script>
+    <script defer src="assets/idempotency.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="masthead">
+    <div class="masthead-inner">
+        <span class="brand">BACKENDBASE / GUIDES</span>
+        <span class="guide-number">Guide 2 · Idempotency</span>
+    </div>
+</header>
+<div class="layout">
+    <nav class="contents" aria-label="Guide contents">
+        <strong>Usage guide</strong>
+        <a href="#request-contract">01 · Request contract</a>
+        <a href="#usage-example">02 · Send and retry</a>
+        <a href="#scope-and-matching">03 · Scope and matching</a>
+        <a href="#execution-and-replay">04 · Execution and replay</a>
+        <a href="#response-decisions">05 · Conflicts and errors</a>
+        <a href="#configuration">06 · Configure replay</a>
+        <a href="#retention-and-recovery">07 · Retention and recovery</a>
+        <a href="#verification">08 · Verification and limits</a>
+        <a href="#source-map">09 · Source map</a>
+        <a class="catalog-link" href="../docs/0-project.html#guides">← Documentation catalog</a>
+    </nav>
+    <main id="main-content">
+        <div class="intro">
+            <p class="eyebrow">02 / HTTP idempotency</p>
+            <h1>Keep one key.<br>Retry the same operation.</h1>
+            <p class="lede">Idempotency lets a matching retry return a stored HTTP response without executing the operation again. Keep the key and request together.</p>
+            <p class="meta">Source checked: 20 October 2026 · Applies to UserApi, ExampleApi, and SystemAdminApi · Local, offline React Flow diagrams</p>
+            <div class="facts" aria-label="Replay contract">
+                <div class="fact"><strong>1 key</strong><span>For one intended operation and its retries</span></div>
+                <div class="fact"><strong>24 hours</strong><span>Retention after response completion</span></div>
+                <div class="fact"><strong>No takeover</strong><span>Unresolved claims remain blocked</span></div>
+            </div>
+            <p>A <strong>claim</strong> is a stored record that reserves an operation key. A <strong>replay</strong> returns its completed response.</p>
+            <aside class="callout warning"><strong>A timeout does not prove failure.</strong> Keep the original key. A new key can execute another operation.</aside>
+            <noscript><p class="callout">JavaScript is disabled. Tables, code examples, source links, and text versions of both flows remain available.</p></noscript>
+        </div>
+
+        <section id="request-contract">
+            <p class="section-number">01 / Client contract</p>
+            <h2>Send a key with every write</h2>
+            <p>Current write routes require <code>Idempotency-Key</code>. This includes login, registration, contact verification, session changes, administration, and Example writes.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Methods and key requirements">
+                <table>
+                    <thead><tr><th scope="col">HTTP method</th><th scope="col">Key requirement</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>POST</code>, <code>PATCH</code>, <code>DELETE</code></td><td>Required on current write routes.</td></tr>
+                        <tr><td><code>PUT</code></td><td>Supported by the same middleware when a named write route is added.</td></tr>
+                        <tr><td><code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code></td><td>No key requirement and no replay storage.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <ol>
+                <li>Generate an unpredictable key when an intended operation starts.</li>
+                <li>Keep the key and exact request until the outcome is known.</li>
+                <li>Reuse that key for retries of the same operation.</li>
+                <li>Use a new key for each new intended operation.</li>
+            </ol>
+            <h3>Use the accepted header format</h3>
+            <p>Send exactly one unquoted value with 1–255 ASCII characters. Start with a letter or digit.</p>
+            <p>Remaining characters can be letters, digits, periods, underscores, colons, or hyphens. Spaces, commas, quotation marks, and repeated values are rejected.</p>
+            <pre><code>Idempotency-Key: 019f6322-1234-7000-8000-000000000001</code></pre>
+            <p>A universally unique identifier (UUID) is suitable. UUID format is not required by the validator.</p>
+            <p><code>X-Request-Id</code> identifies an HTTP attempt for diagnostics. It is separate from the operation key and can change between attempts.</p>
+            <p class="source">Sources: <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/ReplayInput.php">ReplayInput</a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/Idempotency.php">Idempotency</a>, and <a href="../api-docs/common/components.yaml">shared OpenAPI components</a>.</p>
+        </section>
+
+        <section id="usage-example">
+            <p class="section-number">02 / Working request</p>
+            <h2>Retry a UserApi login unchanged</h2>
+            <p>This shell example uses the local UserApi base URL from the maintained Bruno environment. Use an existing, eligible test Account.</p>
+            <p>Replace the sample credentials before the first send. Generate a fresh key for that login operation.</p>
+            <p>The command uses <code>POST /auth/login</code>, operation ID <code>userPasswordLogin</code>, and the required <code>X-Source-Id: user</code> header.</p>
+            <pre><code data-language="sh">userApiBaseUrl='http://127.0.0.1:8080/user-api'
+idempotencyKey='019f6322-1234-7000-8000-000000000001'
+loginBody='{"identifier":"ada@example.com","password":"valid-password-123"}'
+
+sendLogin() {
+    curl --silent --show-error --include \
+        --connect-timeout 5 --max-time 15 \
+        --request POST "$userApiBaseUrl/auth/login" \
+        --header 'X-Source-Id: user' \
+        --header 'Content-Type: application/json' \
+        --header 'Accept: application/json' \
+        --header "Idempotency-Key: $idempotencyKey" \
+        --data-binary "$loginBody"
+}
+
+# First attempt.
+sendLogin
+
+# Matching retry. Keep the key, credentials, headers, and body unchanged.
+sendLogin</code></pre>
+            <p>An eligible login returns <code>200</code> with the <code>session</code> response key. A completed matching retry returns the original body and token.</p>
+            <p>The retry does not create another session or renew token expiry. The original token can already be expired or revoked.</p>
+            <p>Session renewal authenticates its refresh credential before replay. It rejects obsolete results before sending an earlier cookie. See <a href="1-identity-and-access.html#session-renewal">automatic session renewal</a>.</p>
+            <p>Both calls use the same serialized body. Rebuilding equivalent JSON can change whitespace or field order and cause a mismatch.</p>
+            <aside class="callout"><strong>Bruno sends new keys by default.</strong> Maintained write requests use <code>{{$randomUUID}}</code>. Replace it with one fixed key when testing retries.</aside>
+            <p>Registration retries return the original created identity. Contact request and resend retries do not send another notification after response completion.</p>
+            <p>An explicit contact resend is a separate operation with a new key. Retrying confirmation does not renew its stored verification time.</p>
+            <p class="source">Compare <a href="../api-docs/user-api/authentication/login.yaml">login.yaml</a>, <a href="../../src/Backendbase/Infrastructure/Inbound/UserApi/Controllers/Authentication/ModuleConfig.php">Authentication/ModuleConfig.php</a>, <a href="../bruno/user-api/environments/local.yml">Bruno local environment</a>, <a href="../../tests/Infrastructure/Inbound/Idempotency/AuthenticationReplayTest.php">AuthenticationReplayTest</a>, and <a href="../../tests/Infrastructure/Inbound/Idempotency/ContactReplayTest.php">ContactReplayTest</a>.</p>
+        </section>
+
+        <section id="scope-and-matching">
+            <p class="section-number">03 / Request identity</p>
+            <h2>Keep the scope and request content stable</h2>
+            <p>The key scope contains the named route's operation ID, caller identity, and key. It does not use the key alone.</p>
+            <p>Authenticated caller identity contains the realm, Account ID, and actor ID. Public authentication operations use an anonymous caller scope.</p>
+            <p>Operation IDs separate the three inbound APIs. Keep those IDs stable while claims exist. A route name change creates a different scope.</p>
+            <p>A <strong>fingerprint</strong> is a keyed digest used to compare request content within that scope.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Fingerprint inputs">
+                <table>
+                    <thead><tr><th scope="col">Input</th><th scope="col">Retry requirement</th></tr></thead>
+                    <tbody>
+                        <tr><td>Method, path, raw query string</td><td>Keep each value unchanged. Query parameter order matters.</td></tr>
+                        <tr><td>Raw body bytes</td><td>Keep exact bytes. JSON whitespace and field order matter.</td></tr>
+                        <tr><td><code>Content-Type</code>, <code>Accept</code>, <code>Accept-Language</code>, <code>The-Timezone-IANA</code></td><td>Keep the header values unchanged, including omission.</td></tr>
+                        <tr><td><code>Authorization</code>, <code>Backendbase-Api-Key</code></td><td>Keep credentials unchanged. A replacement bearer token changes the fingerprint.</td></tr>
+                        <tr><td><code>X-Request-Id</code></td><td>Not fingerprinted. It can identify each attempt separately.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Different actors can use the same key independently. Different public callers with the same operation and key share one scope.</p>
+            <p>Different content under that public scope returns <code>422</code>. It cannot return the first caller's stored result without matching the fingerprint.</p>
+            <p>The path belongs to the fingerprint. Reusing a key for another resource path under one operation ID causes a mismatch.</p>
+            <p class="source">Sources: <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/ReplayInput.php">ReplayInput::identity()</a> and <a href="../../tests/Infrastructure/Adapters/Http/Idempotency/MiddlewareReplayTest.php">MiddlewareReplayTest</a>.</p>
+        </section>
+
+        <section id="execution-and-replay">
+            <p class="section-number">04 / Server behavior</p>
+            <h2>Separate the claim from the application transaction</h2>
+            <div class="flow-frame">
+                <div class="flow-heading"><strong>First accepted write</strong><span>Drag to move · Use + / − to zoom · Select a step</span></div>
+                <div id="execution-flow"><p class="flow-placeholder">The interactive diagram loads here. Read the flow steps below if it is unavailable.</p></div>
+            </div>
+            <details class="flow-text">
+                <summary>Read the first-write flow as text</summary>
+                <ol>
+                    <li>Run applicable authentication, validate the key, and enforce the 65,536-byte raw body limit.</li>
+                    <li>Commit a unique claim before executing the application operation.</li>
+                    <li>Execute the operation with its existing application transactions and external effects.</li>
+                    <li>Encrypt and store the response before returning it to the client.</li>
+                </ol>
+            </details>
+            <p>The shared middleware does not wrap the application operation in a database transaction. Claim storage and response completion are separate commits.</p>
+            <p>A crash after an effect but before response completion leaves an unresolved claim. A matching retry returns <code>409</code>.</p>
+            <div class="flow-frame">
+                <div class="flow-heading"><strong>Completed matching retry</strong><span>Drag to move · Use + / − to zoom · Select a step</span></div>
+                <div id="replay-flow"><p class="flow-placeholder">The interactive diagram loads here. Read the flow steps below if it is unavailable.</p></div>
+            </div>
+            <details class="flow-text">
+                <summary>Read the completed-retry flow as text</summary>
+                <ol>
+                    <li>Run current authentication on protected routes before replay.</li>
+                    <li>Find the claim using the operation ID, caller identity, and key.</li>
+                    <li>Compare the fingerprint and decrypt the completed response.</li>
+                    <li>Return the stored status, body, and selected headers without executing the operation.</li>
+                </ol>
+            </details>
+            <h3>What does replay preserve?</h3>
+            <p>Replay preserves the status and body. Stored headers are <code>Content-Type</code>, <code>Cache-Control</code>, <code>Content-Language</code>, <code>Backendbase-Insert-Id</code>, <code>Location</code>, <code>Retry-After</code>, and <code>Set-Cookie</code>.</p>
+            <p>Set-Cookie is encrypted with the response. Trace, transport, and cross-origin headers are not stored for replay. Outer middleware can add current response headers.</p>
+            <p>Returned errors and exceptions mapped by the HTTP error handler are stored after execution starts. This includes application <code>400</code>, <code>429</code>, <code>500</code>, and <code>503</code> responses.</p>
+            <p>Errors before the claim are not stored. These include missing-key, current authentication, and raw body-size rejection.</p>
+            <aside class="callout warning"><strong>Protected replay still requires current access.</strong> Retrying successful logout or token revocation with the revoked token returns <code>401</code>.</aside>
+            <p class="source">Sources: <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/Idempotency.php">Idempotency</a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/ReplayExecution.php">ReplayExecution</a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/ReplayResponse.php">ReplayResponse</a>, and <a href="../../src/Backendbase/Infrastructure/Inbound/UserApi/Controllers/Identity/ModuleConfig.php">protected route order</a>.</p>
+        </section>
+
+        <section id="response-decisions">
+            <p class="section-number">05 / Failure handling</p>
+            <h2>Select the next action from the response</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Response decisions">
+                <table>
+                    <thead><tr><th scope="col">Condition</th><th scope="col">Response</th><th scope="col">Client action</th></tr></thead>
+                    <tbody>
+                        <tr><td>Missing, repeated, malformed, or oversized key</td><td><code>400</code> before execution</td><td>Correct the header before submission.</td></tr>
+                        <tr><td>Completed matching request</td><td>Original status, body, and selected headers</td><td>Use the original result. The response can be an error.</td></tr>
+                        <tr><td>Different content under the same scoped key</td><td><code>422</code>, <code>idempotency/request-mismatch</code></td><td>Restore the original request for a retry. Review its outcome before starting a corrected operation.</td></tr>
+                        <tr><td>Active or unresolved matching claim</td><td><code>409</code>, <code>idempotency/request-outstanding</code></td><td>Keep the same key. Use bounded backoff for an active attempt. Investigate a persistent unresolved result.</td></tr>
+                        <tr><td>Claim, encryption, response storage, or decryption failure</td><td><code>503</code></td><td>Keep the original key. The operation can have completed before response storage failed.</td></tr>
+                        <tr><td>Expired, revoked, or invalid protected credentials</td><td><code>401</code> before replay</td><td>Follow the authentication procedure. Do not infer that the earlier operation failed.</td></tr>
+                        <tr><td>Connection timeout or lost response</td><td>No reliable result</td><td>Retry the unchanged request with its original key within the retention window.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Read the Problem Details <code>code</code> and <code>detail</code> fields. Other business conditions can also return <code>409</code>.</p>
+            <p>The middleware does not implement a client retry schedule. Select a bounded retry count and backoff for the client.</p>
+            <p>Waiting does not release an unresolved claim. A stored application <code>429</code> or <code>503</code> remains the original response on matching retries.</p>
+            <p class="source">Failure evidence: <a href="../../tests/Infrastructure/Adapters/Http/Idempotency/ReplayFailureTest.php">ReplayFailureTest</a> covers concurrency, stored errors, unavailable storage, and failure after an effect.</p>
+        </section>
+
+        <section id="configuration">
+            <p class="section-number">06 / Deployment settings</p>
+            <h2>Configure one dedicated replay secret</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Replay configuration and fixed limits">
+                <table>
+                    <thead><tr><th scope="col">Setting or limit</th><th scope="col">Current contract</th><th scope="col">Source</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BACKENDBASE_IDEMPOTENCY_KEY</code></td><td>Base64-encoded 32-byte secret. Maps to <code>idempotency.key</code>. Missing environment value defaults to empty text and fails validation.</td><td><a href="../../config/autoload/idempotency-global.php">idempotency-global.php</a>, <a href="../../src/Backendbase/Infrastructure/Configuration/Idempotency/ReplaySettings.php">ReplaySettings</a></td></tr>
+                        <tr><td>Completed-response retention</td><td>Fixed at 24 hours after completion. No retention configuration key.</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/DoctrineRequestReplayStore.php">DoctrineRequestReplayStore</a></td></tr>
+                        <tr><td>Raw request body</td><td>Maximum 65,536 bytes before a claim.</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Input/RequestObjectInput.php">RequestObjectInput</a></td></tr>
+                        <tr><td>Stored response body</td><td>Maximum 1,048,576 bytes (1 MiB). Oversized or unserializable responses return 503 and leave an unresolved claim.</td><td><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/ReplayResponse.php">ReplayResponse</a></td></tr>
+                        <tr><td>Storage and encryption</td><td><code>RequestReplayStore</code> uses Doctrine. <code>RequestReplayCipher</code> uses Sodium.</td><td><a href="../../config/dependencies/idempotency.php">dependency bindings</a></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Generate a secret locally with PHP:</p>
+            <pre><code data-language="sh">php -r 'echo base64_encode(random_bytes(32)), PHP_EOL;'</code></pre>
+            <p>Supply that value through deployment secrets or local <code>.env</code>. Use the same value on every API instance sharing replay records.</p>
+            <p>Keep it separate from signing and contact proof keys. The public value in <code>.env.example</code> is for local development only.</p>
+            <p>The request key is not this secret. Clients send operation keys; the server uses its secret for fingerprints and encrypted responses.</p>
+            <p>The store uses <code>http_request_replay</code>. Request keys, raw bodies, and credentials are not stored as plaintext replay fields.</p>
+            <p>Responses, including tokens and personal data, are encrypted. Claims store digests and timestamps outside the encrypted response.</p>
+            <aside class="callout warning"><strong>No online key rotation is implemented.</strong> Changing the secret invalidates retained fingerprints and encrypted responses. Follow the controlled rollout and recovery procedure.</aside>
+            <p>Deploy the reviewed schema and secret before activating write replay. Stop writes during mixed-version activation and clear route caches.</p>
+            <p>See <a href="../platform/operations/http-idempotency.md#configuration-and-rollout">configuration and rollout</a> for migration and replacement requirements.</p>
+        </section>
+
+        <section id="retention-and-recovery">
+            <p class="section-number">07 / Operation lifetime</p>
+            <h2>Keep uncertain outcomes blocked</h2>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Claim lifetime">
+                <table>
+                    <thead><tr><th scope="col">State</th><th scope="col">Matching retry</th><th scope="col">Lifetime</th></tr></thead>
+                    <tbody>
+                        <tr><td>No claim</td><td>Claim and execute once.</td><td>No stored protection yet.</td></tr>
+                        <tr><td>Claim without a response</td><td>Return <code>409</code>.</td><td>No automatic expiry or takeover.</td></tr>
+                        <tr><td>Completed claim</td><td>Return the stored response.</td><td>24 hours from completion. Reads do not renew expiry.</td></tr>
+                        <tr><td>Expired completed claim</td><td>Remove that record and permit another execution.</td><td>Protection has ended, even if scheduled cleanup has not run.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Do not retry an uncertain operation automatically after its retention window. The same key can then execute another operation.</p>
+            <h3>Remove expired completed responses</h3>
+            <p>Run this command only on an identified, authorized target:</p>
+            <pre><code data-language="sh">bin/backendbase idempotency:cleanup</code></pre>
+            <p>Each run deletes up to 500 expired completed responses. It preserves unresolved claims. No schedule is installed automatically.</p>
+            <h3>Investigate an unresolved claim</h3>
+            <ol>
+                <li>Keep the client key and original request.</li>
+                <li>Inspect business records, outbox records, Redis state, and provider evidence for the original outcome.</li>
+                <li>Use separately authorized recovery only after proving the outcome of the exact claim.</li>
+            </ol>
+            <p>There is no automatic reconciliation or claim-release command in this implementation. Do not delete claims or reset timestamps to permit retries.</p>
+            <p>External delivery can remain uncertain after a provider timeout. HTTP replay does not guarantee exactly-once external delivery.</p>
+            <p>Restore replay evidence consistently with business data. Lost claims or older restored claims can permit duplicate operations.</p>
+            <p class="source">Sources: <a href="../../src/Backendbase/Infrastructure/Adapters/Console/Operations/CleanupRequestReplays.php">CleanupRequestReplays</a>, <a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/DoctrineRequestReplayStore.php">DoctrineRequestReplayStore</a>, and <a href="../platform/operations/http-idempotency.md#retention-and-recovery">recovery procedure</a>.</p>
+        </section>
+
+        <section id="verification">
+            <p class="section-number">08 / Evidence and boundaries</p>
+            <h2>Compare examples with the implementation</h2>
+            <p>The login example matches the current method, route name, headers, input fields, response key, and local base URL.</p>
+            <p>The diagram definitions use the same local React Flow runtime and shared styles as <a href="1-identity-and-access.html">Guide 1</a>.</p>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Existing verification sources">
+                <table>
+                    <thead><tr><th scope="col">Contract</th><th scope="col">Existing test evidence</th></tr></thead>
+                    <tbody>
+                        <tr><td>Required headers and maintained Bruno writes</td><td><a href="../../tests/Infrastructure/Inbound/Idempotency/IdempotencyContractTest.php">IdempotencyContractTest</a></td></tr>
+                        <tr><td>Matching replay, changed input, actor scope, and key validation</td><td><a href="../../tests/Infrastructure/Adapters/Http/Idempotency/MiddlewareReplayTest.php">MiddlewareReplayTest</a></td></tr>
+                        <tr><td>Concurrency, stored failures, and incomplete response storage</td><td><a href="../../tests/Infrastructure/Adapters/Http/Idempotency/ReplayFailureTest.php">ReplayFailureTest</a></td></tr>
+                        <tr><td>Login token replay, API scope, and revoked credentials</td><td><a href="../../tests/Infrastructure/Inbound/Idempotency/AuthenticationReplayTest.php">AuthenticationReplayTest</a></td></tr>
+                        <tr><td>Registration, notification, resend, and confirmation replay</td><td><a href="../../tests/Infrastructure/Inbound/Idempotency/ContactReplayTest.php">ContactReplayTest</a></td></tr>
+                        <tr><td>Expiry, cleanup, and independent transaction boundaries</td><td><a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/RequestReplayStoreTest.php">RequestReplayStoreTest</a>, <a href="../../tests/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/RequestReplayFailureTest.php">RequestReplayFailureTest</a></td></tr>
+                        <tr><td>Encryption, invalid secrets, and response bounds</td><td><a href="../../tests/Infrastructure/Adapters/Security/Idempotency/ReplayCipherTest.php">ReplayCipherTest</a>, <a href="../../tests/Infrastructure/Adapters/Http/Idempotency/ReplayResponseValidationTest.php">ReplayResponseValidationTest</a></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>These links identify test coverage in source. They do not establish the deployed schema, effective secret, cleanup schedule, or provider outcome.</p>
+            <p>Verify those facts on the authorized target. The example Account must already exist and meet the current login policy.</p>
+            <p>For documentation changes, check resource links from the repository root:</p>
+            <pre><code data-language="sh">php bin/check-documentation-links.php resources</code></pre>
+        </section>
+
+        <section id="source-map">
+            <p class="section-number">09 / Maintained references</p>
+            <h2>Find the source for the next change</h2>
+            <ul>
+                <li><a href="../platform/operations/http-idempotency.md">HTTP idempotency operational contract</a> and <a href="../docs/http-idempotency.html">capability guide</a>.</li>
+                <li><a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency">HTTP replay middleware and response mapping</a>.</li>
+                <li><a href="../../src/Backendbase/Shared/Idempotency">Replay ports and request identity</a>.</li>
+                <li><a href="../../src/Backendbase/Infrastructure/Adapters/Persistence/Doctrine/Idempotency/DoctrineRequestReplayStore.php">Doctrine store</a> and <a href="../../src/Backendbase/Infrastructure/Adapters/Security/Idempotency/SodiumRequestReplayCipher.php">Sodium cipher</a>.</li>
+                <li><a href="../api-docs/user-api/user-api-openapi.yml">UserApi</a>, <a href="../api-docs/example-api/example-openapi.yml">ExampleApi</a>, and <a href="../api-docs/system-admin-api/system-admin-api-openapi.yml">SystemAdminApi</a> contracts.</li>
+                <li>Shared <a href="assets/react-flow-entry.js">runtime entry</a>, <a href="assets/idempotency.js">diagram definitions</a>, and <a href="assets/third-party-notices.txt">runtime versions, licenses, and rebuild instructions</a>.</li>
+            </ul>
+            <p>Source files establish current behavior. Update this guide when the request contract, replay storage, or recovery procedure changes.</p>
+        </section>
+        <footer>Backendbase Guides · 2. Idempotency · <a href="#main-content">Back to start</a> · <a href="../docs/0-project.html#guides">Documentation catalog</a></footer>
+    </main>
+</div>
+</body>
+</html>

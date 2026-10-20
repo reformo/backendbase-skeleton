@@ -4,7 +4,7 @@ Read the [HTML capability guide](../../docs/http-idempotency.html) for examples,
 Its [payment walkthrough](../../docs/http-idempotency.html#payment-example) includes PHP examples for route registration, middleware replay, business transactions, response mapping, and provider-status recovery.
 The payment types are illustrative. The replay middleware excerpt reflects the current implementation.
 
-All 38 documented POST, PATCH, and DELETE operations require `Idempotency-Key`.
+All 41 documented POST, PATCH, and DELETE operations require `Idempotency-Key`.
 The shared middleware also supports PUT when a named write route is added.
 Authentication, registration, contact request, confirmation, resend, session changes, administration, and Example writes use this policy.
 GET, HEAD, and OPTIONS need no key. `X-Request-Id` remains an optional trace identifier.
@@ -42,8 +42,8 @@ Stored responses include failures raised during operation execution, including 4
 A stored failure returns unchanged on retry. Check the operation outcome before starting another attempt with a new key.
 Missing-key rejection, authentication rejection, and body-size rejection occur before a claim and are not stored.
 
-The stored headers are `Content-Type`, `Cache-Control`, `Content-Language`, `Backendbase-Insert-Id`, `Location`, and `Retry-After`.
-Trace, transport, cookie, and cross-origin response headers are not replayed.
+The stored headers are `Content-Type`, `Cache-Control`, `Content-Language`, `Backendbase-Insert-Id`, `Location`, `Retry-After`, and `Set-Cookie`.
+Trace, transport, and cross-origin response headers are not replayed. Cookie values are encrypted with the stored response.
 Response bodies must fit within 1 MiB. Current write responses are small JSON objects or empty bodies.
 An oversized or unserializable response leaves its claim unresolved and returns 503.
 
@@ -53,6 +53,16 @@ API-key and bearer authentication run before replay on protected routes.
 An expired or revoked token still returns 401, including a retry after successful logout, token revocation, or Account closure.
 A login replay returns the original token. It does not renew expiry, restore an allowlist record, or create another session.
 A fresh login needs a new key. A previously issued token can already be expired or revoked when its response is replayed.
+
+Refresh routes authenticate the current refresh credential, live session, and database eligibility before replay.
+Their caller scope also includes the session identifier. A new operation needs a new key and the current refresh credential.
+A matching retry can use the consumed credential or the replacement cookie while the session remains eligible.
+The fingerprint keeps the exact body. Browser cookie rotation does not change the fingerprint.
+A response guard returns 409 `identity/conflict` when a later rotation replaced the cached result.
+This prevents an earlier response from replacing a newer cookie. No obsolete credential is returned.
+The client helper retries that conflict once with the current credential and a new key.
+A consumed refresh token used for another intended operation revokes the session.
+A revoked, expired, or ineligible session cannot replay renewal.
 
 Contact retries do not resend a notification, consume a confirmation again, or renew its stored verification time.
 Existing application checks still run during the first execution.

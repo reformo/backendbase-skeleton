@@ -12,7 +12,6 @@ use function array_intersect;
 use function base64_decode;
 use function explode;
 use function is_array;
-use function is_int;
 use function is_string;
 use function preg_match;
 use function strlen;
@@ -32,16 +31,6 @@ final readonly class IdentitySettings
         }
 
         $this->values = $identity;
-    }
-
-    public function tokenLifetimeSeconds(): int
-    {
-        $value = $this->value('token-lifetime-seconds') ?? 900;
-        if (! is_int($value) || $value < 60 || $value > 3600) {
-            throw AuthenticationUnavailable::create('The authentication configuration is unavailable.');
-        }
-
-        return $value;
     }
 
     /** @return array{issuer: non-empty-string, audience: non-empty-string, keyId: non-empty-string, keys: array<non-empty-string, non-empty-string>} */

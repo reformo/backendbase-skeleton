@@ -74,6 +74,8 @@ post:
               example: true
 
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     422:
       $ref: '../../common/components.yaml#/schemas/422'
     500:
@@ -152,6 +154,8 @@ get:
         minimum: 1
         default: 1
   responses:
+    429:
+      $ref: '../../common/components.yaml#/schemas/429'
     200:
       description: "OK"
       content:

@@ -491,6 +491,7 @@
     <div class="hero-inner">
         <p class="eyebrow">Backendbase Core · Current architecture assessment · 19 October 2026</p>
         <h1>Ports and Adapters Architecture Critique</h1>
+<p class="callout">Session renewal adds three operations under <a href="../adr/0053-renewable-realm-sessions.md">ADR-0053</a>. Current API counts are 55 operations and 41 writes. Recorded 52-operation scan and deployment evidence below predates this extension.</p>
         <p class="lede">Architecture scores <strong>9.9/10</strong>. Dependency direction is well controlled. Fixed inputs use typed fields. Operator dispatch has a direct completion path. Deployment composition remains the score limit.</p>
         <div class="chips" aria-label="Report summary">
             <span class="chip">27 architecture tests passed</span>
@@ -517,7 +518,7 @@
             <p class="section-label">01 · Verdict</p>
             <h2>Preserve context ownership and explicit transaction boundaries</h2>
             <div class="callout good"><strong>Sound dependency direction:</strong> Domain and application code depend on project-owned contracts. Context service providers select adapters and handlers. Shared contracts remain framework-free.</div>
-            <p>The two bounded contexts are ExampleCatalog and IdentityAndAccess. Three inbound APIs expose 52 operations through these contexts.</p>
+            <p>The two bounded contexts are ExampleCatalog and IdentityAndAccess. Three inbound APIs expose 55 operations through these contexts.</p>
             <p>ExampleApi uses API-key protection and USER authentication on protected routes. UserApi and SystemAdminApi keep USER and ADMIN session decisions separate.</p>
             <p>Registration policy selects required proofs. Account stores registration acceptance separately from ownership. Session checks use persisted acceptance and the current actor state.</p>
             <p>AccountState, ActorState, and ContactState validate persisted JSON. Doctrine entities retain array fields and perform explicit typed conversion.</p>
@@ -633,10 +634,10 @@
                     <tr><td>Architecture suite</td><td><span class="badge strong">Passed</span></td><td>27 tests and 130 assertions within the full local run. Dependency, registry, listener, context, messaging, and construction rules pass.</td></tr>
                     <tr><td>Adapter ownership</td><td><span class="badge strong">Passed</span></td><td>No unclassified adapters. Unknown categories, overlapping directions, and forbidden-dependency fixtures are checked.</td></tr>
                     <tr><td>Runtime configuration</td><td><span class="badge strong">Passed</span></td><td>All 41 factories in 13 providers have maintained evidence. Production providers execute supported environment, queue, notification, credential, and locale branches. Live external providers are not contacted. The release rehearsal uses local delivery services.</td></tr>
-                    <tr><td>Local suite and coverage</td><td><span class="badge strong">Passed</span></td><td>1,593 passed, zero skipped, and 73,106 assertions. All 7,058 executable lines and 1,624 methods are covered.</td></tr>
+                    <tr><td>Local suite and coverage</td><td><span class="badge strong">Passed</span></td><td>1,681 passed, zero skipped, and 83,987 assertions. All 7,495 executable lines and 1,706 methods are covered.</td></tr>
                     <tr><td>Static analysis and coding controls</td><td><span class="badge strong">Passed</span></td><td>PHPStan level 8, complexity ≤ 12, and Doctrine coding standard pass. Coding-standard inventory: 955 PHP files.</td></tr>
                     <tr><td>Source inventory</td><td><span class="badge">Inspected</span></td><td>537 production PHP files, including 132 Shared files; 285 test files; 15 architecture test files; four migrations. Module tests are excluded from production counts.</td></tr>
-                    <tr><td>API and installation contracts</td><td><span class="badge strong">Passed locally</span></td><td>52 operations validate. Local tests check 38 write-key contracts, four installation migrations, table groups, and mapping parity.</td></tr>
+                    <tr><td>API and installation contracts</td><td><span class="badge strong">Passed locally</span></td><td>55 operations validate. Local tests check 41 write-key contracts, four installation migrations, table groups, and mapping parity.</td></tr>
                     <tr><td>Native services and live HTTP</td><td><span class="badge strong">Passed</span></td><td>MySQL, Redis, and Sentinel regressions pass. Live checks cover all 52 operations and all 38 write replay contracts.</td></tr>
                     <tr><td>Local release and recovery</td><td><span class="badge strong">Passed</span></td><td>Real installation, process restart, populated restore, replay recovery, and controlled Redis promotion pass. All 48 cold-start requests pass, and Redis outage returns one valid HTTP 503 problem. See <a href="code-quality-and-maintainability-report.html#local-deployment">the complete evidence</a>.</td></tr>
                     <tr><td>Production behavior</td><td><span class="badge medium">Not verified</span></td><td>Live providers, representative performance, deployment durability, and server-specific recovery remain outside this execution.</td></tr>

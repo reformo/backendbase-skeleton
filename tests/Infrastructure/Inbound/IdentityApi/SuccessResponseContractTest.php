@@ -25,6 +25,7 @@ final class SuccessResponseContractTest extends TestCase
         '/identity/contact-verifications/{contact-info-id}/confirm' => 'contactInfo',
         '/identity/contact-verifications/{contact-info-id}/resend' => 'contactInfo',
         '/auth/login' => 'session',
+        '/auth/refresh' => 'session',
         '/identity/token' => 'token',
         '/identity/session' => 'session',
         '/identity/account' => 'account',
@@ -59,10 +60,10 @@ final class SuccessResponseContractTest extends TestCase
     /** @return iterable<string, array{string, int, string}> */
     public static function documents(): iterable
     {
-        yield 'user source' => ['resources/api-docs/user-api/user-api-openapi.yml', 12, 'user'];
-        yield 'user merged' => ['public/user-api/docs/user-api-merged.yml', 12, 'user'];
-        yield 'admin source' => ['resources/api-docs/system-admin-api/system-admin-api-openapi.yml', 15, 'admin'];
-        yield 'admin merged' => ['public/system-admin-api/docs/system-admin-api-merged.yml', 15, 'admin'];
+        yield 'user source' => ['resources/api-docs/user-api/user-api-openapi.yml', 13, 'user'];
+        yield 'user merged' => ['public/user-api/docs/user-api-merged.yml', 13, 'user'];
+        yield 'admin source' => ['resources/api-docs/system-admin-api/system-admin-api-openapi.yml', 16, 'admin'];
+        yield 'admin merged' => ['public/system-admin-api/docs/system-admin-api-merged.yml', 16, 'admin'];
     }
 
     /** @param array<array-key, mixed> $operations */
