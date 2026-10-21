@@ -68,6 +68,8 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Removed
 
+- Remove the unused native PHP `SessionMiddleware` class and its test.
+
 - Omit `operator_action` and its indexes from installation and naming migrations. Remove the obsolete drop migration. Retain first-Admin setup protection and invitation and approval evidence in Admin state. Update the release target, tests, quality report, and existing-database adoption guidance.
 
 - Replace User and System Admin usernames with Account email or mobile login. Require globally unique active E.164 mobile numbers at registration. Update initial identity migration, API contracts, operator commands, contact responses, tests, and identity guidance.
