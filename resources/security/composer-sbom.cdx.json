@@ -13,7 +13,7 @@
         "properties": [
             {
                 "name": "backendbase:composer-lock-content-hash",
-                "value": "6b15fa6fd37fcc356fb4d3611cd88a89"
+                "value": "71c41ec165c78fb7d89dcf238330b401"
             }
         ]
     },
@@ -128,12 +128,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/aws/aws-sdk-php@3.401.2",
+            "bom-ref": "pkg:composer/aws/aws-sdk-php@3.402.5",
             "group": "aws",
             "name": "aws-sdk-php",
-            "version": "3.401.2",
+            "version": "3.402.5",
             "scope": "required",
-            "purl": "pkg:composer/aws/aws-sdk-php@3.401.2",
+            "purl": "pkg:composer/aws/aws-sdk-php@3.402.5",
             "licenses": [
                 {
                     "license": {
@@ -148,17 +148,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b1af9196bd0f94bcebdb6588a150dd85dc240758"
+                    "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ffff4dbeda1c386f66e7e819afbd55406aa9799b"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "b1af9196bd0f94bcebdb6588a150dd85dc240758"
+                    "value": "ffff4dbeda1c386f66e7e819afbd55406aa9799b"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "b1af9196bd0f94bcebdb6588a150dd85dc240758"
+                    "value": "ffff4dbeda1c386f66e7e819afbd55406aa9799b"
                 }
             ]
         },
@@ -668,12 +668,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/doctrine/inflector@2.1.0",
+            "bom-ref": "pkg:composer/doctrine/inflector@2.1.1",
             "group": "doctrine",
             "name": "inflector",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "scope": "required",
-            "purl": "pkg:composer/doctrine/inflector@2.1.0",
+            "purl": "pkg:composer/doctrine/inflector@2.1.1",
             "licenses": [
                 {
                     "license": {
@@ -688,17 +688,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/doctrine/inflector/zipball/6d6c96277ea252fc1304627204c3d5e6e15faa3b"
+                    "url": "https://api.github.com/repos/doctrine/inflector/zipball/46351b6812b7b6d52b82c3efa5dfb786a198ec88"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "6d6c96277ea252fc1304627204c3d5e6e15faa3b"
+                    "value": "46351b6812b7b6d52b82c3efa5dfb786a198ec88"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "6d6c96277ea252fc1304627204c3d5e6e15faa3b"
+                    "value": "46351b6812b7b6d52b82c3efa5dfb786a198ec88"
                 }
             ]
         },
@@ -812,12 +812,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/doctrine/orm@3.7.5",
+            "bom-ref": "pkg:composer/doctrine/orm@3.7.6",
             "group": "doctrine",
             "name": "orm",
-            "version": "3.7.5",
+            "version": "3.7.6",
             "scope": "required",
-            "purl": "pkg:composer/doctrine/orm@3.7.5",
+            "purl": "pkg:composer/doctrine/orm@3.7.6",
             "licenses": [
                 {
                     "license": {
@@ -832,17 +832,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/doctrine/orm/zipball/00c2fd70da291cca1ec75f4dae5344fe3df588fa"
+                    "url": "https://api.github.com/repos/doctrine/orm/zipball/4487f850401c0e1f27891cce5897fa90b3055c2a"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "00c2fd70da291cca1ec75f4dae5344fe3df588fa"
+                    "value": "4487f850401c0e1f27891cce5897fa90b3055c2a"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "00c2fd70da291cca1ec75f4dae5344fe3df588fa"
+                    "value": "4487f850401c0e1f27891cce5897fa90b3055c2a"
                 }
             ]
         },
@@ -1064,12 +1064,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/google/auth@v1.55.1",
+            "bom-ref": "pkg:composer/google/auth@v1.55.3",
             "group": "google",
             "name": "auth",
-            "version": "v1.55.1",
+            "version": "v1.55.3",
             "scope": "required",
-            "purl": "pkg:composer/google/auth@v1.55.1",
+            "purl": "pkg:composer/google/auth@v1.55.3",
             "licenses": [
                 {
                     "license": {
@@ -1084,17 +1084,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/ef1b92cb42470b09b3caaf23bb9b4bb9a2dc787e"
+                    "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/81d6d2bd311ba5fb579e52f6c8aa2d660379de75"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "ef1b92cb42470b09b3caaf23bb9b4bb9a2dc787e"
+                    "value": "81d6d2bd311ba5fb579e52f6c8aa2d660379de75"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "ef1b92cb42470b09b3caaf23bb9b4bb9a2dc787e"
+                    "value": "81d6d2bd311ba5fb579e52f6c8aa2d660379de75"
                 }
             ]
         },
@@ -1136,12 +1136,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/google/cloud-storage@v2.6.0",
+            "bom-ref": "pkg:composer/google/cloud-storage@v2.6.1",
             "group": "google",
             "name": "cloud-storage",
-            "version": "v2.6.0",
+            "version": "v2.6.1",
             "scope": "required",
-            "purl": "pkg:composer/google/cloud-storage@v2.6.0",
+            "purl": "pkg:composer/google/cloud-storage@v2.6.1",
             "licenses": [
                 {
                     "license": {
@@ -1156,28 +1156,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/58f908ce816d49b8a5f4ce482b94a7384aa3a59b"
+                    "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/cf14f967fa45113e2a239fe9103bada8d7b92021"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "58f908ce816d49b8a5f4ce482b94a7384aa3a59b"
+                    "value": "cf14f967fa45113e2a239fe9103bada8d7b92021"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "58f908ce816d49b8a5f4ce482b94a7384aa3a59b"
+                    "value": "cf14f967fa45113e2a239fe9103bada8d7b92021"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/google/common-protos@4.14.3",
+            "bom-ref": "pkg:composer/google/common-protos@4.15.0",
             "group": "google",
             "name": "common-protos",
-            "version": "4.14.3",
+            "version": "4.15.0",
             "scope": "required",
-            "purl": "pkg:composer/google/common-protos@4.14.3",
+            "purl": "pkg:composer/google/common-protos@4.15.0",
             "licenses": [
                 {
                     "license": {
@@ -1192,28 +1192,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/googleapis/common-protos-php/zipball/3c219d28f513a8997ac5d098f43943e3c5b4509a"
+                    "url": "https://api.github.com/repos/googleapis/common-protos-php/zipball/74893ae29540a7166dab074cee8b57e78c534702"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "3c219d28f513a8997ac5d098f43943e3c5b4509a"
+                    "value": "74893ae29540a7166dab074cee8b57e78c534702"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "3c219d28f513a8997ac5d098f43943e3c5b4509a"
+                    "value": "74893ae29540a7166dab074cee8b57e78c534702"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/google/gax@v1.51.0",
+            "bom-ref": "pkg:composer/google/gax@v1.51.2",
             "group": "google",
             "name": "gax",
-            "version": "v1.51.0",
+            "version": "v1.51.2",
             "scope": "required",
-            "purl": "pkg:composer/google/gax@v1.51.0",
+            "purl": "pkg:composer/google/gax@v1.51.2",
             "licenses": [
                 {
                     "license": {
@@ -1228,28 +1228,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/googleapis/gax-php/zipball/4cad310c5b520be80fd89f76b54261f28f10ab54"
+                    "url": "https://api.github.com/repos/googleapis/gax-php/zipball/1c06ae8e829e4e56bf22d4ce32768bf2523ddf7d"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "4cad310c5b520be80fd89f76b54261f28f10ab54"
+                    "value": "1c06ae8e829e4e56bf22d4ce32768bf2523ddf7d"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "4cad310c5b520be80fd89f76b54261f28f10ab54"
+                    "value": "1c06ae8e829e4e56bf22d4ce32768bf2523ddf7d"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/google/grpc-gcp@0.4.2",
+            "bom-ref": "pkg:composer/google/grpc-gcp@0.5.0",
             "group": "google",
             "name": "grpc-gcp",
-            "version": "0.4.2",
+            "version": "0.5.0",
             "scope": "required",
-            "purl": "pkg:composer/google/grpc-gcp@0.4.2",
+            "purl": "pkg:composer/google/grpc-gcp@0.5.0",
             "licenses": [
                 {
                     "license": {
@@ -1264,28 +1264,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/GoogleCloudPlatform/grpc-gcp-php/zipball/1049c0c15b6a1789fdeb52af688a94d540932469"
+                    "url": "https://api.github.com/repos/GoogleCloudPlatform/grpc-gcp-php/zipball/cecdf5ebe76a7b4e6e133a0c081f7be8ab274cd7"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "1049c0c15b6a1789fdeb52af688a94d540932469"
+                    "value": "cecdf5ebe76a7b4e6e133a0c081f7be8ab274cd7"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "1049c0c15b6a1789fdeb52af688a94d540932469"
+                    "value": "cecdf5ebe76a7b4e6e133a0c081f7be8ab274cd7"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/google/longrunning@0.8.5",
+            "bom-ref": "pkg:composer/google/longrunning@0.9.0",
             "group": "google",
             "name": "longrunning",
-            "version": "0.8.5",
+            "version": "0.9.0",
             "scope": "required",
-            "purl": "pkg:composer/google/longrunning@0.8.5",
+            "purl": "pkg:composer/google/longrunning@0.9.0",
             "licenses": [
                 {
                     "license": {
@@ -1300,17 +1300,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/googleapis/php-longrunning/zipball/ca83fbce2e20556f9abdb939efce14f642336acd"
+                    "url": "https://api.github.com/repos/googleapis/php-longrunning/zipball/ccecf40953cefbddb569fd67b27bd0cf8a1381da"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "ca83fbce2e20556f9abdb939efce14f642336acd"
+                    "value": "ccecf40953cefbddb569fd67b27bd0cf8a1381da"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "ca83fbce2e20556f9abdb939efce14f642336acd"
+                    "value": "ccecf40953cefbddb569fd67b27bd0cf8a1381da"
                 }
             ]
         },
@@ -1388,12 +1388,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/grpc/grpc@1.82.0",
+            "bom-ref": "pkg:composer/grpc/grpc@1.85.0",
             "group": "grpc",
             "name": "grpc",
-            "version": "1.82.0",
+            "version": "1.85.0",
             "scope": "required",
-            "purl": "pkg:composer/grpc/grpc@1.82.0",
+            "purl": "pkg:composer/grpc/grpc@1.85.0",
             "licenses": [
                 {
                     "license": {
@@ -1408,28 +1408,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/grpc/grpc-php/zipball/be984cb608f21e96453b3cfe54c748cc7b192250"
+                    "url": "https://api.github.com/repos/grpc/grpc-php/zipball/08bd482ca6f99d45fa85ad0bd70876e7455e39cf"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "be984cb608f21e96453b3cfe54c748cc7b192250"
+                    "value": "08bd482ca6f99d45fa85ad0bd70876e7455e39cf"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "be984cb608f21e96453b3cfe54c748cc7b192250"
+                    "value": "08bd482ca6f99d45fa85ad0bd70876e7455e39cf"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/guzzlehttp/guzzle@7.15.5",
+            "bom-ref": "pkg:composer/guzzlehttp/guzzle@7.16.1",
             "group": "guzzlehttp",
             "name": "guzzle",
-            "version": "7.15.5",
+            "version": "7.16.1",
             "scope": "required",
-            "purl": "pkg:composer/guzzlehttp/guzzle@7.15.5",
+            "purl": "pkg:composer/guzzlehttp/guzzle@7.16.1",
             "licenses": [
                 {
                     "license": {
@@ -1444,28 +1444,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ee80339fd9177ba44c49cdb653ff02a4d1106b9a"
+                    "url": "https://api.github.com/repos/guzzle/guzzle/zipball/81755d989b3007ca7f88a069857553cd08e7dc2e"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "ee80339fd9177ba44c49cdb653ff02a4d1106b9a"
+                    "value": "81755d989b3007ca7f88a069857553cd08e7dc2e"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "ee80339fd9177ba44c49cdb653ff02a4d1106b9a"
+                    "value": "81755d989b3007ca7f88a069857553cd08e7dc2e"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/guzzlehttp/promises@2.5.3",
+            "bom-ref": "pkg:composer/guzzlehttp/promises@2.6.0",
             "group": "guzzlehttp",
             "name": "promises",
-            "version": "2.5.3",
+            "version": "2.6.0",
             "scope": "required",
-            "purl": "pkg:composer/guzzlehttp/promises@2.5.3",
+            "purl": "pkg:composer/guzzlehttp/promises@2.6.0",
             "licenses": [
                 {
                     "license": {
@@ -1480,28 +1480,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/guzzle/promises/zipball/cde49999552d185d64715fe9c1f77a2aadd2f9f1"
+                    "url": "https://api.github.com/repos/guzzle/promises/zipball/3d88c829bd5f13d13847b39067dbf09a60af2154"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "cde49999552d185d64715fe9c1f77a2aadd2f9f1"
+                    "value": "3d88c829bd5f13d13847b39067dbf09a60af2154"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "cde49999552d185d64715fe9c1f77a2aadd2f9f1"
+                    "value": "3d88c829bd5f13d13847b39067dbf09a60af2154"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/guzzlehttp/psr7@2.13.1",
+            "bom-ref": "pkg:composer/guzzlehttp/psr7@2.13.2",
             "group": "guzzlehttp",
             "name": "psr7",
-            "version": "2.13.1",
+            "version": "2.13.2",
             "scope": "required",
-            "purl": "pkg:composer/guzzlehttp/psr7@2.13.1",
+            "purl": "pkg:composer/guzzlehttp/psr7@2.13.2",
             "licenses": [
                 {
                     "license": {
@@ -1516,28 +1516,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/guzzle/psr7/zipball/95e7828100de18b4e269fb1703be530082d5166d"
+                    "url": "https://api.github.com/repos/guzzle/psr7/zipball/adee536f95101929f262b8c59e8a61472f347d58"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "95e7828100de18b4e269fb1703be530082d5166d"
+                    "value": "adee536f95101929f262b8c59e8a61472f347d58"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "95e7828100de18b4e269fb1703be530082d5166d"
+                    "value": "adee536f95101929f262b8c59e8a61472f347d58"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/justinrainbow/json-schema@6.13.1",
+            "bom-ref": "pkg:composer/justinrainbow/json-schema@6.14.0",
             "group": "justinrainbow",
             "name": "json-schema",
-            "version": "6.13.1",
+            "version": "6.14.0",
             "scope": "optional",
-            "purl": "pkg:composer/justinrainbow/json-schema@6.13.1",
+            "purl": "pkg:composer/justinrainbow/json-schema@6.14.0",
             "licenses": [
                 {
                     "license": {
@@ -1552,17 +1552,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/e54aacc4c0657b3a4af4f628428d2702146828c6"
+                    "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/bae415e135dd68260c2d020ba392850231e9b1ab"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "e54aacc4c0657b3a4af4f628428d2702146828c6"
+                    "value": "bae415e135dd68260c2d020ba392850231e9b1ab"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "e54aacc4c0657b3a4af4f628428d2702146828c6"
+                    "value": "bae415e135dd68260c2d020ba392850231e9b1ab"
                 }
             ]
         },
@@ -1640,12 +1640,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/laminas/laminas-code@4.17.0",
+            "bom-ref": "pkg:composer/laminas/laminas-code@4.18.0",
             "group": "laminas",
             "name": "laminas-code",
-            "version": "4.17.0",
+            "version": "4.18.0",
             "scope": "required",
-            "purl": "pkg:composer/laminas/laminas-code@4.17.0",
+            "purl": "pkg:composer/laminas/laminas-code@4.18.0",
             "licenses": [
                 {
                     "license": {
@@ -1660,17 +1660,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/laminas/laminas-code/zipball/40d61e2899ec17c5d08bbc0a2d586b3ca17ab9bd"
+                    "url": "https://api.github.com/repos/laminas/laminas-code/zipball/d1ec5de6a87971446cfcc2acbc340c65ca56cee3"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "40d61e2899ec17c5d08bbc0a2d586b3ca17ab9bd"
+                    "value": "d1ec5de6a87971446cfcc2acbc340c65ca56cee3"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "40d61e2899ec17c5d08bbc0a2d586b3ca17ab9bd"
+                    "value": "d1ec5de6a87971446cfcc2acbc340c65ca56cee3"
                 }
             ]
         },
@@ -1820,12 +1820,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/lcobucci/clock@3.6.0",
+            "bom-ref": "pkg:composer/lcobucci/clock@3.7.0",
             "group": "lcobucci",
             "name": "clock",
-            "version": "3.6.0",
+            "version": "3.7.0",
             "scope": "required",
-            "purl": "pkg:composer/lcobucci/clock@3.6.0",
+            "purl": "pkg:composer/lcobucci/clock@3.7.0",
             "licenses": [
                 {
                     "license": {
@@ -1840,17 +1840,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/lcobucci/clock/zipball/4cdd88f761e9be9095ccbedf3e08d61ae216c643"
+                    "url": "https://api.github.com/repos/lcobucci/clock/zipball/f7739b066e14fe528a586f02aa22d4b2ba2acb38"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "4cdd88f761e9be9095ccbedf3e08d61ae216c643"
+                    "value": "f7739b066e14fe528a586f02aa22d4b2ba2acb38"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "4cdd88f761e9be9095ccbedf3e08d61ae216c643"
+                    "value": "f7739b066e14fe528a586f02aa22d4b2ba2acb38"
                 }
             ]
         },
@@ -2468,12 +2468,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpseclib/phpseclib@4.0.2",
+            "bom-ref": "pkg:composer/phpseclib/phpseclib@4.0.3",
             "group": "phpseclib",
             "name": "phpseclib",
-            "version": "4.0.2",
+            "version": "4.0.3",
             "scope": "required",
-            "purl": "pkg:composer/phpseclib/phpseclib@4.0.2",
+            "purl": "pkg:composer/phpseclib/phpseclib@4.0.3",
             "licenses": [
                 {
                     "license": {
@@ -2488,28 +2488,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/1fe20b9acb08ce810cec24d8a9d02e7c13426e4c"
+                    "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/6077cecfed9e371993d3aa339b0afeb23f7bf636"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "1fe20b9acb08ce810cec24d8a9d02e7c13426e4c"
+                    "value": "6077cecfed9e371993d3aa339b0afeb23f7bf636"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "1fe20b9acb08ce810cec24d8a9d02e7c13426e4c"
+                    "value": "6077cecfed9e371993d3aa339b0afeb23f7bf636"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpstan/phpdoc-parser@2.3.6",
+            "bom-ref": "pkg:composer/phpstan/phpdoc-parser@2.4.1",
             "group": "phpstan",
             "name": "phpdoc-parser",
-            "version": "2.3.6",
+            "version": "2.4.1",
             "scope": "optional",
-            "purl": "pkg:composer/phpstan/phpdoc-parser@2.3.6",
+            "purl": "pkg:composer/phpstan/phpdoc-parser@2.4.1",
             "licenses": [
                 {
                     "license": {
@@ -2524,28 +2524,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/1427af4647235b4a73b13940b1f1258d3584f36e"
+                    "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/af8e840551031d254cfdb3a18a62c3470a309c10"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "1427af4647235b4a73b13940b1f1258d3584f36e"
+                    "value": "af8e840551031d254cfdb3a18a62c3470a309c10"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "1427af4647235b4a73b13940b1f1258d3584f36e"
+                    "value": "af8e840551031d254cfdb3a18a62c3470a309c10"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpstan/phpstan@2.3.1",
+            "bom-ref": "pkg:composer/phpstan/phpstan@2.3.4",
             "group": "phpstan",
             "name": "phpstan",
-            "version": "2.3.1",
+            "version": "2.3.4",
             "scope": "optional",
-            "purl": "pkg:composer/phpstan/phpstan@2.3.1",
+            "purl": "pkg:composer/phpstan/phpstan@2.3.4",
             "licenses": [
                 {
                     "license": {
@@ -2556,24 +2556,24 @@
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db"
+                    "url": "https://api.github.com/repos/phpstan/phpstan/zipball/f20ce6f3c82556cfcfc086b152445a12d1d64fff"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:dist-reference",
-                    "value": "6155239b488e95d26d1ebd95c6b4bb294d7f09db"
+                    "value": "f20ce6f3c82556cfcfc086b152445a12d1d64fff"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpunit/php-code-coverage@14.4.1",
+            "bom-ref": "pkg:composer/phpunit/php-code-coverage@14.5.1",
             "group": "phpunit",
             "name": "php-code-coverage",
-            "version": "14.4.1",
+            "version": "14.5.1",
             "scope": "optional",
-            "purl": "pkg:composer/phpunit/php-code-coverage@14.4.1",
+            "purl": "pkg:composer/phpunit/php-code-coverage@14.5.1",
             "licenses": [
                 {
                     "license": {
@@ -2588,17 +2588,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/f1e54f06b6b4cea73cd6104ba3c0cfa0efa6d73f"
+                    "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/4063552c678ce3beb4b7f131a5b7354a19ff3e2a"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "f1e54f06b6b4cea73cd6104ba3c0cfa0efa6d73f"
+                    "value": "4063552c678ce3beb4b7f131a5b7354a19ff3e2a"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "f1e54f06b6b4cea73cd6104ba3c0cfa0efa6d73f"
+                    "value": "4063552c678ce3beb4b7f131a5b7354a19ff3e2a"
                 }
             ]
         },
@@ -2748,12 +2748,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/phpunit/phpunit@13.4.3",
+            "bom-ref": "pkg:composer/phpunit/phpunit@13.4.6",
             "group": "phpunit",
             "name": "phpunit",
-            "version": "13.4.3",
+            "version": "13.4.6",
             "scope": "optional",
-            "purl": "pkg:composer/phpunit/phpunit@13.4.3",
+            "purl": "pkg:composer/phpunit/phpunit@13.4.6",
             "licenses": [
                 {
                     "license": {
@@ -2768,17 +2768,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2180c47c4229e5da117ff248753370443c074f10"
+                    "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4821376960d0e1e5a7b7b700955ebcab33ecd71b"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "2180c47c4229e5da117ff248753370443c074f10"
+                    "value": "4821376960d0e1e5a7b7b700955ebcab33ecd71b"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "2180c47c4229e5da117ff248753370443c074f10"
+                    "value": "4821376960d0e1e5a7b7b700955ebcab33ecd71b"
                 }
             ]
         },
@@ -3648,12 +3648,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/sebastian/git-state@1.0.0",
+            "bom-ref": "pkg:composer/sebastian/git-state@1.1.0",
             "group": "sebastian",
             "name": "git-state",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "scope": "optional",
-            "purl": "pkg:composer/sebastian/git-state@1.0.0",
+            "purl": "pkg:composer/sebastian/git-state@1.1.0",
             "licenses": [
                 {
                     "license": {
@@ -3668,17 +3668,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/sebastianbergmann/git-state/zipball/792a952e0eba55b6960a48aeceb9f371aad1f76b"
+                    "url": "https://api.github.com/repos/sebastianbergmann/git-state/zipball/31a565f463686f0eefa85f899549256bf5805985"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "792a952e0eba55b6960a48aeceb9f371aad1f76b"
+                    "value": "31a565f463686f0eefa85f899549256bf5805985"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "792a952e0eba55b6960a48aeceb9f371aad1f76b"
+                    "value": "31a565f463686f0eefa85f899549256bf5805985"
                 }
             ]
         },
@@ -4116,12 +4116,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/cache@v8.1.9",
+            "bom-ref": "pkg:composer/symfony/cache@v8.1.10",
             "group": "symfony",
             "name": "cache",
-            "version": "v8.1.9",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/cache@v8.1.9",
+            "purl": "pkg:composer/symfony/cache@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4136,28 +4136,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/cache/zipball/151eb8001bb873afc9dce0fdc7cd077250f3db10"
+                    "url": "https://api.github.com/repos/symfony/cache/zipball/385f37a95296a9d4bc0204c9c49ee4765d4fe989"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "151eb8001bb873afc9dce0fdc7cd077250f3db10"
+                    "value": "385f37a95296a9d4bc0204c9c49ee4765d4fe989"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "151eb8001bb873afc9dce0fdc7cd077250f3db10"
+                    "value": "385f37a95296a9d4bc0204c9c49ee4765d4fe989"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/console@v8.1.9",
+            "bom-ref": "pkg:composer/symfony/console@v8.1.10",
             "group": "symfony",
             "name": "console",
-            "version": "v8.1.9",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/console@v8.1.9",
+            "purl": "pkg:composer/symfony/console@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4172,17 +4172,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/console/zipball/630e74196a2635ec0f06c12bd3fb47cfedf85157"
+                    "url": "https://api.github.com/repos/symfony/console/zipball/5b6d9b127ec27bc6db59bf65e2e37b6fe5b00083"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "630e74196a2635ec0f06c12bd3fb47cfedf85157"
+                    "value": "5b6d9b127ec27bc6db59bf65e2e37b6fe5b00083"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "630e74196a2635ec0f06c12bd3fb47cfedf85157"
+                    "value": "5b6d9b127ec27bc6db59bf65e2e37b6fe5b00083"
                 }
             ]
         },
@@ -4332,12 +4332,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/mailer@v8.1.7",
+            "bom-ref": "pkg:composer/symfony/mailer@v8.1.10",
             "group": "symfony",
             "name": "mailer",
-            "version": "v8.1.7",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/mailer@v8.1.7",
+            "purl": "pkg:composer/symfony/mailer@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4352,28 +4352,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/mailer/zipball/8783380ecdafa23d36fc90c5873fd44b635c6e10"
+                    "url": "https://api.github.com/repos/symfony/mailer/zipball/4ba81a8f04fbf0bb1691f7bff760b301f1956fd7"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "8783380ecdafa23d36fc90c5873fd44b635c6e10"
+                    "value": "4ba81a8f04fbf0bb1691f7bff760b301f1956fd7"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "8783380ecdafa23d36fc90c5873fd44b635c6e10"
+                    "value": "4ba81a8f04fbf0bb1691f7bff760b301f1956fd7"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/mime@v8.1.7",
+            "bom-ref": "pkg:composer/symfony/mime@v8.1.10",
             "group": "symfony",
             "name": "mime",
-            "version": "v8.1.7",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/mime@v8.1.7",
+            "purl": "pkg:composer/symfony/mime@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4388,17 +4388,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/mime/zipball/773ac57f20e2795bdadb65b5b1b5f4850d498283"
+                    "url": "https://api.github.com/repos/symfony/mime/zipball/8d1232052c9cdef170ed9608b3147bca4f61ff69"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "773ac57f20e2795bdadb65b5b1b5f4850d498283"
+                    "value": "8d1232052c9cdef170ed9608b3147bca4f61ff69"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "773ac57f20e2795bdadb65b5b1b5f4850d498283"
+                    "value": "8d1232052c9cdef170ed9608b3147bca4f61ff69"
                 }
             ]
         },
@@ -4440,12 +4440,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.0",
+            "bom-ref": "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.3",
             "group": "symfony",
             "name": "polyfill-intl-grapheme",
-            "version": "v1.43.0",
+            "version": "v1.43.3",
             "scope": "required",
-            "purl": "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.0",
+            "purl": "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.3",
             "licenses": [
                 {
                     "license": {
@@ -4460,17 +4460,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/5cac8f4db97208823aa353f59a01faad2da52c75"
+                    "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/5a8f33c87aeecffce24e721b5064fab05f4becf8"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "5cac8f4db97208823aa353f59a01faad2da52c75"
+                    "value": "5a8f33c87aeecffce24e721b5064fab05f4becf8"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "5cac8f4db97208823aa353f59a01faad2da52c75"
+                    "value": "5a8f33c87aeecffce24e721b5064fab05f4becf8"
                 }
             ]
         },
@@ -4620,12 +4620,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/property-access@v8.1.4",
+            "bom-ref": "pkg:composer/symfony/property-access@v8.1.10",
             "group": "symfony",
             "name": "property-access",
-            "version": "v8.1.4",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/property-access@v8.1.4",
+            "purl": "pkg:composer/symfony/property-access@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4640,28 +4640,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/property-access/zipball/1a41232c678972b93ce499a504e19ea09dfcd0b2"
+                    "url": "https://api.github.com/repos/symfony/property-access/zipball/38ce2d539230c1d0e3c42198289c4bae5e931727"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "1a41232c678972b93ce499a504e19ea09dfcd0b2"
+                    "value": "38ce2d539230c1d0e3c42198289c4bae5e931727"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "1a41232c678972b93ce499a504e19ea09dfcd0b2"
+                    "value": "38ce2d539230c1d0e3c42198289c4bae5e931727"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/property-info@v8.1.8",
+            "bom-ref": "pkg:composer/symfony/property-info@v8.1.10",
             "group": "symfony",
             "name": "property-info",
-            "version": "v8.1.8",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/property-info@v8.1.8",
+            "purl": "pkg:composer/symfony/property-info@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4676,28 +4676,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/property-info/zipball/fe727d4888a92ac9200a2c1b8e0a995b6022afa7"
+                    "url": "https://api.github.com/repos/symfony/property-info/zipball/cb5bfc9fbc9da75fdb1b8860a29d9c4fefb2b924"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "fe727d4888a92ac9200a2c1b8e0a995b6022afa7"
+                    "value": "cb5bfc9fbc9da75fdb1b8860a29d9c4fefb2b924"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "fe727d4888a92ac9200a2c1b8e0a995b6022afa7"
+                    "value": "cb5bfc9fbc9da75fdb1b8860a29d9c4fefb2b924"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/serializer@v8.1.9",
+            "bom-ref": "pkg:composer/symfony/serializer@v8.1.10",
             "group": "symfony",
             "name": "serializer",
-            "version": "v8.1.9",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/serializer@v8.1.9",
+            "purl": "pkg:composer/symfony/serializer@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4712,17 +4712,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/serializer/zipball/bc6f84d67225d7a25d56af6d4bd52e9e34997a96"
+                    "url": "https://api.github.com/repos/symfony/serializer/zipball/b9b8831cd84a5304e43f2bb92cb0e88290ba2082"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "bc6f84d67225d7a25d56af6d4bd52e9e34997a96"
+                    "value": "b9b8831cd84a5304e43f2bb92cb0e88290ba2082"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "bc6f84d67225d7a25d56af6d4bd52e9e34997a96"
+                    "value": "b9b8831cd84a5304e43f2bb92cb0e88290ba2082"
                 }
             ]
         },
@@ -4800,12 +4800,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/string@v8.1.9",
+            "bom-ref": "pkg:composer/symfony/string@v8.1.10",
             "group": "symfony",
             "name": "string",
-            "version": "v8.1.9",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/string@v8.1.9",
+            "purl": "pkg:composer/symfony/string@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4820,28 +4820,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/string/zipball/07fb208558f941eab50ec49c89c2a6a93fb11f01"
+                    "url": "https://api.github.com/repos/symfony/string/zipball/6c6110979c0150393bbb336170e286d51ab4d76c"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "07fb208558f941eab50ec49c89c2a6a93fb11f01"
+                    "value": "6c6110979c0150393bbb336170e286d51ab4d76c"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "07fb208558f941eab50ec49c89c2a6a93fb11f01"
+                    "value": "6c6110979c0150393bbb336170e286d51ab4d76c"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/type-info@v8.1.8",
+            "bom-ref": "pkg:composer/symfony/type-info@v8.1.10",
             "group": "symfony",
             "name": "type-info",
-            "version": "v8.1.8",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/type-info@v8.1.8",
+            "purl": "pkg:composer/symfony/type-info@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4856,17 +4856,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/type-info/zipball/18e1d891f0b8776141f281f7b6f5e67e4df9d9cd"
+                    "url": "https://api.github.com/repos/symfony/type-info/zipball/2083d4516f9041b8ac550d9029afb08fcf09d0ad"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "18e1d891f0b8776141f281f7b6f5e67e4df9d9cd"
+                    "value": "2083d4516f9041b8ac550d9029afb08fcf09d0ad"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "18e1d891f0b8776141f281f7b6f5e67e4df9d9cd"
+                    "value": "2083d4516f9041b8ac550d9029afb08fcf09d0ad"
                 }
             ]
         },
@@ -4908,12 +4908,12 @@
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/var-exporter@v8.1.9",
+            "bom-ref": "pkg:composer/symfony/var-exporter@v8.1.10",
             "group": "symfony",
             "name": "var-exporter",
-            "version": "v8.1.9",
+            "version": "v8.1.10",
             "scope": "required",
-            "purl": "pkg:composer/symfony/var-exporter@v8.1.9",
+            "purl": "pkg:composer/symfony/var-exporter@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4928,28 +4928,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/var-exporter/zipball/3717217839a76f6fa284931a224c4cada514da2a"
+                    "url": "https://api.github.com/repos/symfony/var-exporter/zipball/e94442cdefc1df995528d26acb40d25c2d50504d"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "3717217839a76f6fa284931a224c4cada514da2a"
+                    "value": "e94442cdefc1df995528d26acb40d25c2d50504d"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "3717217839a76f6fa284931a224c4cada514da2a"
+                    "value": "e94442cdefc1df995528d26acb40d25c2d50504d"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/symfony/yaml@v8.1.9",
+            "bom-ref": "pkg:composer/symfony/yaml@v8.1.10",
             "group": "symfony",
             "name": "yaml",
-            "version": "v8.1.9",
+            "version": "v8.1.10",
             "scope": "optional",
-            "purl": "pkg:composer/symfony/yaml@v8.1.9",
+            "purl": "pkg:composer/symfony/yaml@v8.1.10",
             "licenses": [
                 {
                     "license": {
@@ -4964,64 +4964,28 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/yaml/zipball/6107ee26a25215c3df3af0a3315e56bb4fd0b7db"
+                    "url": "https://api.github.com/repos/symfony/yaml/zipball/9de4ff9874dd18b738b9f248398c3e36ef15a1d2"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "6107ee26a25215c3df3af0a3315e56bb4fd0b7db"
+                    "value": "9de4ff9874dd18b738b9f248398c3e36ef15a1d2"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "6107ee26a25215c3df3af0a3315e56bb4fd0b7db"
+                    "value": "9de4ff9874dd18b738b9f248398c3e36ef15a1d2"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "pkg:composer/theseer/tokenizer@2.0.1",
-            "group": "theseer",
-            "name": "tokenizer",
-            "version": "2.0.1",
-            "scope": "optional",
-            "purl": "pkg:composer/theseer/tokenizer@2.0.1",
-            "licenses": [
-                {
-                    "license": {
-                        "name": "BSD-3-Clause"
-                    }
-                }
-            ],
-            "externalReferences": [
-                {
-                    "type": "vcs",
-                    "url": "https://github.com/theseer/tokenizer.git"
-                },
-                {
-                    "type": "distribution",
-                    "url": "https://api.github.com/repos/theseer/tokenizer/zipball/7989e43bf381af0eac72e4f0ca5bcbfa81658be4"
-                }
-            ],
-            "properties": [
-                {
-                    "name": "composer:source-reference",
-                    "value": "7989e43bf381af0eac72e4f0ca5bcbfa81658be4"
-                },
-                {
-                    "name": "composer:dist-reference",
-                    "value": "7989e43bf381af0eac72e4f0ca5bcbfa81658be4"
-                }
-            ]
-        },
-        {
-            "type": "library",
-            "bom-ref": "pkg:composer/vlucas/phpdotenv@v5.7.0",
+            "bom-ref": "pkg:composer/vlucas/phpdotenv@v5.8.0",
             "group": "vlucas",
             "name": "phpdotenv",
-            "version": "v5.7.0",
+            "version": "v5.8.0",
             "scope": "required",
-            "purl": "pkg:composer/vlucas/phpdotenv@v5.7.0",
+            "purl": "pkg:composer/vlucas/phpdotenv@v5.8.0",
             "licenses": [
                 {
                     "license": {
@@ -5036,17 +5000,17 @@
                 },
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40"
+                    "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/96149103e62ac67e915f6d2ef59b72dee2e011e0"
                 }
             ],
             "properties": [
                 {
                     "name": "composer:source-reference",
-                    "value": "301c07936b16d88628b126b01d082ba153cf4c40"
+                    "value": "96149103e62ac67e915f6d2ef59b72dee2e011e0"
                 },
                 {
                     "name": "composer:dist-reference",
-                    "value": "301c07936b16d88628b126b01d082ba153cf4c40"
+                    "value": "96149103e62ac67e915f6d2ef59b72dee2e011e0"
                 }
             ]
         },
@@ -5105,12 +5069,12 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/aws/aws-sdk-php@3.401.2",
+            "ref": "pkg:composer/aws/aws-sdk-php@3.402.5",
             "dependsOn": [
                 "pkg:composer/aws/aws-crt-php@v1.2.7",
-                "pkg:composer/guzzlehttp/guzzle@7.15.5",
-                "pkg:composer/guzzlehttp/promises@2.5.3",
-                "pkg:composer/guzzlehttp/psr7@2.13.1",
+                "pkg:composer/guzzlehttp/guzzle@7.16.1",
+                "pkg:composer/guzzlehttp/promises@2.6.0",
+                "pkg:composer/guzzlehttp/psr7@2.13.2",
                 "pkg:composer/mtdowling/jmespath.php@2.9.2",
                 "pkg:composer/psr/http-message@2.0",
                 "pkg:composer/symfony/filesystem@v8.1.9"
@@ -5121,21 +5085,21 @@
             "dependsOn": [
                 "pkg:composer/adbario/php-dot-notation@3.5.0",
                 "pkg:composer/akrabat/ip-address-middleware@2.6.1",
-                "pkg:composer/aws/aws-sdk-php@3.401.2",
+                "pkg:composer/aws/aws-sdk-php@3.402.5",
                 "pkg:composer/beberlei/doctrineextensions@v1.5.0",
                 "pkg:composer/cuyz/valinor@2.6.0",
                 "pkg:composer/devizzent/cebe-php-openapi@1.1.5",
                 "pkg:composer/doctrine/coding-standard@13.0.1",
                 "pkg:composer/doctrine/dbal@4.5.0",
                 "pkg:composer/doctrine/migrations@3.9.8",
-                "pkg:composer/doctrine/orm@3.7.5",
+                "pkg:composer/doctrine/orm@3.7.6",
                 "pkg:composer/dunglas/doctrine-json-odm@v1.5.1",
                 "pkg:composer/friendsofphp/proxy-manager-lts@v1.0.19",
-                "pkg:composer/guzzlehttp/guzzle@7.15.5",
+                "pkg:composer/guzzlehttp/guzzle@7.16.1",
                 "pkg:composer/kreait/firebase-php@8.6.0",
                 "pkg:composer/laminas/laminas-config-aggregator@1.20.0",
                 "pkg:composer/laminas/laminas-diactoros@3.9.0",
-                "pkg:composer/lcobucci/clock@3.6.0",
+                "pkg:composer/lcobucci/clock@3.7.0",
                 "pkg:composer/lcobucci/jwt@5.6.1",
                 "pkg:composer/malukenho/mcbumpface@1.2.0",
                 "pkg:composer/mkorkmaz/redislabs-rejson@2.3",
@@ -5143,8 +5107,8 @@
                 "pkg:composer/nikic/php-parser@v5.9.0",
                 "pkg:composer/php-amqplib/php-amqplib@v3.7.5",
                 "pkg:composer/php-di/php-di@7.1.1",
-                "pkg:composer/phpstan/phpstan@2.3.1",
-                "pkg:composer/phpunit/phpunit@13.4.3",
+                "pkg:composer/phpstan/phpstan@2.3.4",
+                "pkg:composer/phpunit/phpunit@13.4.6",
                 "pkg:composer/psr/container@2.0.2",
                 "pkg:composer/psr/http-message@2.0",
                 "pkg:composer/psr/http-server-handler@1.0.2",
@@ -5156,20 +5120,20 @@
                 "pkg:composer/scienta/doctrine-json-functions@6.5.0",
                 "pkg:composer/slim/slim@4.15.3",
                 "pkg:composer/squizlabs/php_codesniffer@3.13.6",
-                "pkg:composer/symfony/cache@v8.1.9",
-                "pkg:composer/symfony/console@v8.1.9",
-                "pkg:composer/symfony/mailer@v8.1.7",
-                "pkg:composer/symfony/mime@v8.1.7",
-                "pkg:composer/symfony/serializer@v8.1.9",
+                "pkg:composer/symfony/cache@v8.1.10",
+                "pkg:composer/symfony/console@v8.1.10",
+                "pkg:composer/symfony/mailer@v8.1.10",
+                "pkg:composer/symfony/mime@v8.1.10",
+                "pkg:composer/symfony/serializer@v8.1.10",
                 "pkg:composer/symfony/uid@v8.1.9",
-                "pkg:composer/symfony/yaml@v8.1.9",
-                "pkg:composer/vlucas/phpdotenv@v5.7.0"
+                "pkg:composer/symfony/yaml@v8.1.10",
+                "pkg:composer/vlucas/phpdotenv@v5.8.0"
             ]
         },
         {
             "ref": "pkg:composer/beberlei/doctrineextensions@v1.5.0",
             "dependsOn": [
-                "pkg:composer/doctrine/orm@3.7.5"
+                "pkg:composer/doctrine/orm@3.7.6"
             ]
         },
         {
@@ -5212,8 +5176,8 @@
         {
             "ref": "pkg:composer/devizzent/cebe-php-openapi@1.1.5",
             "dependsOn": [
-                "pkg:composer/justinrainbow/json-schema@6.13.1",
-                "pkg:composer/symfony/yaml@v8.1.9"
+                "pkg:composer/justinrainbow/json-schema@6.14.0",
+                "pkg:composer/symfony/yaml@v8.1.10"
             ]
         },
         {
@@ -5248,7 +5212,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/doctrine/inflector@2.1.0",
+            "ref": "pkg:composer/doctrine/inflector@2.1.1",
             "dependsOn": []
         },
         {
@@ -5266,26 +5230,26 @@
                 "pkg:composer/doctrine/deprecations@1.1.6",
                 "pkg:composer/doctrine/event-manager@2.1.1",
                 "pkg:composer/psr/log@3.0.2",
-                "pkg:composer/symfony/console@v8.1.9",
+                "pkg:composer/symfony/console@v8.1.10",
                 "pkg:composer/symfony/stopwatch@v8.1.0",
-                "pkg:composer/symfony/var-exporter@v8.1.9"
+                "pkg:composer/symfony/var-exporter@v8.1.10"
             ]
         },
         {
-            "ref": "pkg:composer/doctrine/orm@3.7.5",
+            "ref": "pkg:composer/doctrine/orm@3.7.6",
             "dependsOn": [
                 "pkg:composer/doctrine/collections@3.1.0",
                 "pkg:composer/doctrine/dbal@4.5.0",
                 "pkg:composer/doctrine/deprecations@1.1.6",
                 "pkg:composer/doctrine/event-manager@2.1.1",
-                "pkg:composer/doctrine/inflector@2.1.0",
+                "pkg:composer/doctrine/inflector@2.1.1",
                 "pkg:composer/doctrine/instantiator@2.1.0",
                 "pkg:composer/doctrine/lexer@3.0.3",
                 "pkg:composer/doctrine/persistence@4.2.1",
                 "pkg:composer/psr/cache@3.0.0",
-                "pkg:composer/symfony/console@v8.1.9",
+                "pkg:composer/symfony/console@v8.1.10",
                 "pkg:composer/symfony/polyfill-php86@v1.43.0",
-                "pkg:composer/symfony/var-exporter@v8.1.9"
+                "pkg:composer/symfony/var-exporter@v8.1.10"
             ]
         },
         {
@@ -5299,10 +5263,10 @@
         {
             "ref": "pkg:composer/dunglas/doctrine-json-odm@v1.5.1",
             "dependsOn": [
-                "pkg:composer/doctrine/orm@3.7.5",
-                "pkg:composer/symfony/property-access@v8.1.4",
-                "pkg:composer/symfony/property-info@v8.1.8",
-                "pkg:composer/symfony/serializer@v8.1.9"
+                "pkg:composer/doctrine/orm@3.7.6",
+                "pkg:composer/symfony/property-access@v8.1.10",
+                "pkg:composer/symfony/property-info@v8.1.10",
+                "pkg:composer/symfony/serializer@v8.1.10"
             ]
         },
         {
@@ -5323,16 +5287,16 @@
         {
             "ref": "pkg:composer/friendsofphp/proxy-manager-lts@v1.0.19",
             "dependsOn": [
-                "pkg:composer/laminas/laminas-code@4.17.0",
+                "pkg:composer/laminas/laminas-code@4.18.0",
                 "pkg:composer/symfony/filesystem@v8.1.9"
             ]
         },
         {
-            "ref": "pkg:composer/google/auth@v1.55.1",
+            "ref": "pkg:composer/google/auth@v1.55.3",
             "dependsOn": [
                 "pkg:composer/firebase/php-jwt@v7.2.1",
-                "pkg:composer/guzzlehttp/guzzle@7.15.5",
-                "pkg:composer/guzzlehttp/psr7@2.13.1",
+                "pkg:composer/guzzlehttp/guzzle@7.16.1",
+                "pkg:composer/guzzlehttp/psr7@2.13.2",
                 "pkg:composer/psr/cache@3.0.0",
                 "pkg:composer/psr/http-client@1.0.3",
                 "pkg:composer/psr/http-message@2.0",
@@ -5342,54 +5306,54 @@
         {
             "ref": "pkg:composer/google/cloud-core@v1.74.0",
             "dependsOn": [
-                "pkg:composer/google/auth@v1.55.1",
-                "pkg:composer/google/gax@v1.51.0",
-                "pkg:composer/guzzlehttp/guzzle@7.15.5",
-                "pkg:composer/guzzlehttp/promises@2.5.3",
-                "pkg:composer/guzzlehttp/psr7@2.13.1",
+                "pkg:composer/google/auth@v1.55.3",
+                "pkg:composer/google/gax@v1.51.2",
+                "pkg:composer/guzzlehttp/guzzle@7.16.1",
+                "pkg:composer/guzzlehttp/promises@2.6.0",
+                "pkg:composer/guzzlehttp/psr7@2.13.2",
                 "pkg:composer/monolog/monolog@3.12.1",
                 "pkg:composer/psr/http-message@2.0",
                 "pkg:composer/rize/uri-template@0.4.2"
             ]
         },
         {
-            "ref": "pkg:composer/google/cloud-storage@v2.6.0",
+            "ref": "pkg:composer/google/cloud-storage@v2.6.1",
             "dependsOn": [
                 "pkg:composer/google/cloud-core@v1.74.0",
                 "pkg:composer/ramsey/uuid@4.9.4"
             ]
         },
         {
-            "ref": "pkg:composer/google/common-protos@4.14.3",
+            "ref": "pkg:composer/google/common-protos@4.15.0",
             "dependsOn": [
                 "pkg:composer/google/protobuf@v5.36.2"
             ]
         },
         {
-            "ref": "pkg:composer/google/gax@v1.51.0",
+            "ref": "pkg:composer/google/gax@v1.51.2",
             "dependsOn": [
-                "pkg:composer/google/auth@v1.55.1",
-                "pkg:composer/google/common-protos@4.14.3",
-                "pkg:composer/google/grpc-gcp@0.4.2",
-                "pkg:composer/google/longrunning@0.8.5",
+                "pkg:composer/google/auth@v1.55.3",
+                "pkg:composer/google/common-protos@4.15.0",
+                "pkg:composer/google/grpc-gcp@0.5.0",
+                "pkg:composer/google/longrunning@0.9.0",
                 "pkg:composer/google/protobuf@v5.36.2",
-                "pkg:composer/grpc/grpc@1.82.0",
-                "pkg:composer/guzzlehttp/promises@2.5.3",
-                "pkg:composer/guzzlehttp/psr7@2.13.1",
+                "pkg:composer/grpc/grpc@1.85.0",
+                "pkg:composer/guzzlehttp/promises@2.6.0",
+                "pkg:composer/guzzlehttp/psr7@2.13.2",
                 "pkg:composer/ramsey/uuid@4.9.4"
             ]
         },
         {
-            "ref": "pkg:composer/google/grpc-gcp@0.4.2",
+            "ref": "pkg:composer/google/grpc-gcp@0.5.0",
             "dependsOn": [
-                "pkg:composer/google/auth@v1.55.1",
+                "pkg:composer/google/auth@v1.55.3",
                 "pkg:composer/google/protobuf@v5.36.2",
-                "pkg:composer/grpc/grpc@1.82.0",
+                "pkg:composer/grpc/grpc@1.85.0",
                 "pkg:composer/psr/cache@3.0.0"
             ]
         },
         {
-            "ref": "pkg:composer/google/longrunning@0.8.5",
+            "ref": "pkg:composer/google/longrunning@0.9.0",
             "dependsOn": []
         },
         {
@@ -5403,26 +5367,26 @@
             ]
         },
         {
-            "ref": "pkg:composer/grpc/grpc@1.82.0",
+            "ref": "pkg:composer/grpc/grpc@1.85.0",
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/guzzlehttp/guzzle@7.15.5",
+            "ref": "pkg:composer/guzzlehttp/guzzle@7.16.1",
             "dependsOn": [
-                "pkg:composer/guzzlehttp/promises@2.5.3",
-                "pkg:composer/guzzlehttp/psr7@2.13.1",
+                "pkg:composer/guzzlehttp/promises@2.6.0",
+                "pkg:composer/guzzlehttp/psr7@2.13.2",
                 "pkg:composer/psr/http-client@1.0.3",
                 "pkg:composer/symfony/deprecation-contracts@v3.7.1"
             ]
         },
         {
-            "ref": "pkg:composer/guzzlehttp/promises@2.5.3",
+            "ref": "pkg:composer/guzzlehttp/promises@2.6.0",
             "dependsOn": [
                 "pkg:composer/symfony/deprecation-contracts@v3.7.1"
             ]
         },
         {
-            "ref": "pkg:composer/guzzlehttp/psr7@2.13.1",
+            "ref": "pkg:composer/guzzlehttp/psr7@2.13.2",
             "dependsOn": [
                 "pkg:composer/psr/http-factory@1.1.0",
                 "pkg:composer/psr/http-message@2.0",
@@ -5431,7 +5395,7 @@
             ]
         },
         {
-            "ref": "pkg:composer/justinrainbow/json-schema@6.13.1",
+            "ref": "pkg:composer/justinrainbow/json-schema@6.14.0",
             "dependsOn": [
                 "pkg:composer/marc-mabe/php-enum@v4.7.2"
             ]
@@ -5445,11 +5409,11 @@
                 "pkg:composer/cuyz/valinor@2.6.0",
                 "pkg:composer/fig/http-message-util@1.1.5",
                 "pkg:composer/firebase/php-jwt@v7.2.1",
-                "pkg:composer/google/auth@v1.55.1",
-                "pkg:composer/google/cloud-storage@v2.6.0",
-                "pkg:composer/guzzlehttp/guzzle@7.15.5",
-                "pkg:composer/guzzlehttp/promises@2.5.3",
-                "pkg:composer/guzzlehttp/psr7@2.13.1",
+                "pkg:composer/google/auth@v1.55.3",
+                "pkg:composer/google/cloud-storage@v2.6.1",
+                "pkg:composer/guzzlehttp/guzzle@7.16.1",
+                "pkg:composer/guzzlehttp/promises@2.6.0",
+                "pkg:composer/guzzlehttp/psr7@2.13.2",
                 "pkg:composer/kreait/firebase-tokens@5.6.2",
                 "pkg:composer/lcobucci/jwt@5.6.1",
                 "pkg:composer/mtdowling/jmespath.php@2.9.2",
@@ -5466,13 +5430,13 @@
             "dependsOn": [
                 "pkg:composer/beste/clock@4.0.0",
                 "pkg:composer/fig/http-message-util@1.1.5",
-                "pkg:composer/guzzlehttp/guzzle@7.15.5",
+                "pkg:composer/guzzlehttp/guzzle@7.16.1",
                 "pkg:composer/lcobucci/jwt@5.6.1",
                 "pkg:composer/psr/cache@3.0.0"
             ]
         },
         {
-            "ref": "pkg:composer/laminas/laminas-code@4.17.0",
+            "ref": "pkg:composer/laminas/laminas-code@4.18.0",
             "dependsOn": []
         },
         {
@@ -5499,7 +5463,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/lcobucci/clock@3.6.0",
+            "ref": "pkg:composer/lcobucci/clock@3.7.0",
             "dependsOn": [
                 "pkg:composer/psr/clock@1.0.0"
             ]
@@ -5567,7 +5531,7 @@
         {
             "ref": "pkg:composer/php-amqplib/php-amqplib@v3.7.5",
             "dependsOn": [
-                "pkg:composer/phpseclib/phpseclib@4.0.2"
+                "pkg:composer/phpseclib/phpseclib@4.0.3"
             ]
         },
         {
@@ -5589,30 +5553,29 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/phpseclib/phpseclib@4.0.2",
+            "ref": "pkg:composer/phpseclib/phpseclib@4.0.3",
             "dependsOn": [
                 "pkg:composer/paragonie/constant_time_encoding@v3.1.3"
             ]
         },
         {
-            "ref": "pkg:composer/phpstan/phpdoc-parser@2.3.6",
+            "ref": "pkg:composer/phpstan/phpdoc-parser@2.4.1",
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/phpstan/phpstan@2.3.1",
+            "ref": "pkg:composer/phpstan/phpstan@2.3.4",
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/phpunit/php-code-coverage@14.4.1",
+            "ref": "pkg:composer/phpunit/php-code-coverage@14.5.1",
             "dependsOn": [
                 "pkg:composer/nikic/php-parser@v5.9.0",
                 "pkg:composer/phpunit/php-text-template@6.0.1",
                 "pkg:composer/sebastian/complexity@6.0.0",
                 "pkg:composer/sebastian/environment@9.3.3",
-                "pkg:composer/sebastian/git-state@1.0.0",
+                "pkg:composer/sebastian/git-state@1.1.0",
                 "pkg:composer/sebastian/lines-of-code@5.0.2",
-                "pkg:composer/sebastian/version@7.0.1",
-                "pkg:composer/theseer/tokenizer@2.0.1"
+                "pkg:composer/sebastian/version@7.0.1"
             ]
         },
         {
@@ -5632,12 +5595,12 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/phpunit/phpunit@13.4.3",
+            "ref": "pkg:composer/phpunit/phpunit@13.4.6",
             "dependsOn": [
                 "pkg:composer/myclabs/deep-copy@1.14.0",
                 "pkg:composer/phar-io/manifest@2.0.4",
                 "pkg:composer/phar-io/version@3.2.1",
-                "pkg:composer/phpunit/php-code-coverage@14.4.1",
+                "pkg:composer/phpunit/php-code-coverage@14.5.1",
                 "pkg:composer/phpunit/php-file-iterator@7.0.2",
                 "pkg:composer/phpunit/php-invoker@7.0.0",
                 "pkg:composer/phpunit/php-text-template@6.0.1",
@@ -5648,7 +5611,7 @@
                 "pkg:composer/sebastian/environment@9.3.3",
                 "pkg:composer/sebastian/exporter@8.2.1",
                 "pkg:composer/sebastian/file-filter@1.0.0",
-                "pkg:composer/sebastian/git-state@1.0.0",
+                "pkg:composer/sebastian/git-state@1.1.0",
                 "pkg:composer/sebastian/global-state@9.0.1",
                 "pkg:composer/sebastian/object-enumerator@8.1.0",
                 "pkg:composer/sebastian/recursion-context@8.0.1",
@@ -5743,7 +5706,7 @@
             "dependsOn": [
                 "pkg:composer/doctrine/dbal@4.5.0",
                 "pkg:composer/doctrine/lexer@3.0.3",
-                "pkg:composer/doctrine/orm@3.7.5"
+                "pkg:composer/doctrine/orm@3.7.6"
             ]
         },
         {
@@ -5782,7 +5745,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/sebastian/git-state@1.0.0",
+            "ref": "pkg:composer/sebastian/git-state@1.1.0",
             "dependsOn": []
         },
         {
@@ -5824,7 +5787,7 @@
             "ref": "pkg:composer/slevomat/coding-standard@8.22.1",
             "dependsOn": [
                 "pkg:composer/dealerdirect/phpcodesniffer-composer-installer@v1.2.1",
-                "pkg:composer/phpstan/phpdoc-parser@2.3.6",
+                "pkg:composer/phpstan/phpdoc-parser@2.4.1",
                 "pkg:composer/squizlabs/php_codesniffer@3.13.6"
             ]
         },
@@ -5855,21 +5818,21 @@
             ]
         },
         {
-            "ref": "pkg:composer/symfony/cache@v8.1.9",
+            "ref": "pkg:composer/symfony/cache@v8.1.10",
             "dependsOn": [
                 "pkg:composer/psr/cache@3.0.0",
                 "pkg:composer/psr/log@3.0.2",
                 "pkg:composer/symfony/cache-contracts@v3.7.1",
                 "pkg:composer/symfony/service-contracts@v3.7.3",
-                "pkg:composer/symfony/var-exporter@v8.1.9"
+                "pkg:composer/symfony/var-exporter@v8.1.10"
             ]
         },
         {
-            "ref": "pkg:composer/symfony/console@v8.1.9",
+            "ref": "pkg:composer/symfony/console@v8.1.10",
             "dependsOn": [
                 "pkg:composer/symfony/deprecation-contracts@v3.7.1",
                 "pkg:composer/symfony/service-contracts@v3.7.3",
-                "pkg:composer/symfony/string@v8.1.9"
+                "pkg:composer/symfony/string@v8.1.10"
             ]
         },
         {
@@ -5896,18 +5859,18 @@
             ]
         },
         {
-            "ref": "pkg:composer/symfony/mailer@v8.1.7",
+            "ref": "pkg:composer/symfony/mailer@v8.1.10",
             "dependsOn": [
                 "pkg:composer/egulias/email-validator@4.0.4",
                 "pkg:composer/psr/event-dispatcher@1.0.0",
                 "pkg:composer/psr/log@3.0.2",
                 "pkg:composer/symfony/event-dispatcher@v8.1.5",
-                "pkg:composer/symfony/mime@v8.1.7",
+                "pkg:composer/symfony/mime@v8.1.10",
                 "pkg:composer/symfony/service-contracts@v3.7.3"
             ]
         },
         {
-            "ref": "pkg:composer/symfony/mime@v8.1.7",
+            "ref": "pkg:composer/symfony/mime@v8.1.10",
             "dependsOn": [
                 "pkg:composer/symfony/polyfill-intl-idn@v1.43.0"
             ]
@@ -5917,7 +5880,7 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.0",
+            "ref": "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.3",
             "dependsOn": []
         },
         {
@@ -5939,20 +5902,20 @@
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/symfony/property-access@v8.1.4",
+            "ref": "pkg:composer/symfony/property-access@v8.1.10",
             "dependsOn": [
-                "pkg:composer/symfony/property-info@v8.1.8"
+                "pkg:composer/symfony/property-info@v8.1.10"
             ]
         },
         {
-            "ref": "pkg:composer/symfony/property-info@v8.1.8",
+            "ref": "pkg:composer/symfony/property-info@v8.1.10",
             "dependsOn": [
-                "pkg:composer/symfony/string@v8.1.9",
-                "pkg:composer/symfony/type-info@v8.1.8"
+                "pkg:composer/symfony/string@v8.1.10",
+                "pkg:composer/symfony/type-info@v8.1.10"
             ]
         },
         {
-            "ref": "pkg:composer/symfony/serializer@v8.1.9",
+            "ref": "pkg:composer/symfony/serializer@v8.1.10",
             "dependsOn": [
                 "pkg:composer/symfony/deprecation-contracts@v3.7.1"
             ]
@@ -5971,14 +5934,14 @@
             ]
         },
         {
-            "ref": "pkg:composer/symfony/string@v8.1.9",
+            "ref": "pkg:composer/symfony/string@v8.1.10",
             "dependsOn": [
-                "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.0",
+                "pkg:composer/symfony/polyfill-intl-grapheme@v1.43.3",
                 "pkg:composer/symfony/polyfill-intl-normalizer@v1.43.0"
             ]
         },
         {
-            "ref": "pkg:composer/symfony/type-info@v8.1.8",
+            "ref": "pkg:composer/symfony/type-info@v8.1.10",
             "dependsOn": [
                 "pkg:composer/psr/container@2.0.2"
             ]
@@ -5990,22 +5953,18 @@
             ]
         },
         {
-            "ref": "pkg:composer/symfony/var-exporter@v8.1.9",
+            "ref": "pkg:composer/symfony/var-exporter@v8.1.10",
             "dependsOn": [
                 "pkg:composer/symfony/deprecation-contracts@v3.7.1",
                 "pkg:composer/symfony/polyfill-deepclone@v1.43.2"
             ]
         },
         {
-            "ref": "pkg:composer/symfony/yaml@v8.1.9",
+            "ref": "pkg:composer/symfony/yaml@v8.1.10",
             "dependsOn": []
         },
         {
-            "ref": "pkg:composer/theseer/tokenizer@2.0.1",
-            "dependsOn": []
-        },
-        {
-            "ref": "pkg:composer/vlucas/phpdotenv@v5.7.0",
+            "ref": "pkg:composer/vlucas/phpdotenv@v5.8.0",
             "dependsOn": [
                 "pkg:composer/graham-campbell/result-type@v1.2.0",
                 "pkg:composer/phpoption/phpoption@1.10.0"
