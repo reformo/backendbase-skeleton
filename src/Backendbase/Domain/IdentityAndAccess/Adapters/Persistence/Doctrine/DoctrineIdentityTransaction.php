@@ -16,6 +16,9 @@ use function usleep;
 
 final readonly class DoctrineIdentityTransaction
 {
+    private const int MAX_ATTEMPTS             = 3;
+    private const int RETRY_DELAY_MICROSECONDS = 10000;
+
     public function __construct(private Connection $connection, private IdentitySession $session)
     {
     }
@@ -48,11 +51,11 @@ final readonly class DoctrineIdentityTransaction
                     return $result;
                 });
             } catch (RetryableException $exception) {
-                if ($attempt >= 3) {
+                if ($attempt >= self::MAX_ATTEMPTS) {
                     throw $exception;
                 }
 
-                usleep(10000 * $attempt);
+                usleep(self::RETRY_DELAY_MICROSECONDS * $attempt);
             } catch (UniqueConstraintViolationException | OptimisticLockException $exception) {
                 throw IdentityConflict::create('The identity record conflicts with the current state.', previous: $exception);
             } catch (Throwable $exception) {

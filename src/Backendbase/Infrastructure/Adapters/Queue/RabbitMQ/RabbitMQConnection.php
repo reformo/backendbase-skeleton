@@ -18,6 +18,7 @@ final class RabbitMQConnection
     public function channel(): AMQPChannel
     {
         if ($this->channel === null || ! $this->channel->is_open()) {
+            // A failed confirm selection leaves the open channel available for later reuse.
             $this->channel = $this->connection->channel();
             $this->channel->confirm_select();
         }

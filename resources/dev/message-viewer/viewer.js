@@ -6,6 +6,7 @@ const refresh = document.querySelector("#refresh");
 const status = document.querySelector("#status");
 const error = document.querySelector("#error");
 const empty = document.querySelector("#empty");
+// Keep loading, messages, and errors separate for each message type.
 const states = {
     sms: {messages: [], loading: false, updated: null, error: null},
     emails: {messages: [], loading: false, updated: null, error: null},

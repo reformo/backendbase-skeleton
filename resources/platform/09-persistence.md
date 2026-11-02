@@ -138,6 +138,13 @@ Define one repository contract suite for behavior declared by the port. Run it u
 
 Doctrine repository tests must also use production mapping metadata and Doctrine `SchemaTool`. Test storage mapping, nulls, malformed data, and rollback at this adapter boundary.
 
+ExampleCatalog write lookups named `getActive` and `getActiveByIdentity` return nonremoved entries, regardless of `isActive`.
+An inactive, nonremoved Entry still reserves its identity. Removal permits a new Entry to use that identity.
+The memory and Doctrine repository contracts verify these rules against both adapters.
+`EntryWrites` uses these lookups before change or removal. A retained Entry does not independently reject mutation after removal.
+After removal was saved, the memory adapter accepts another save of that Entry. The Doctrine adapter rejects it through its nonremoved lookup.
+This difference is outside the normal write workflow. Decide a common stale-object contract before changing it.
+
 `EntityFieldOwnershipTest` checks that discovered entities have no parent class and own all mapped fields.
 Compare production metadata and generated schema SQL when moving field declarations. Field placement changes must preserve the schema unless a schema change is authorized.
 
@@ -203,6 +210,8 @@ Reload persisted actor authorization under those locks after an unlocked referen
 Preserve pending Account credential changes and skip database refresh for newly inserted Actors.
 See [table ownership](database-table-ownership.md) for scalar references and migration gates.
 Identity units create a fresh EntityManager through the platform factory for each eligible retry.
+They run at most three attempts for retryable database failures, with 10 ms and 20 ms delays before later attempts.
+Unique and optimistic conflicts are translated without retry. Other failures propagate after rollback and manager disposal.
 Transaction adapters flush pending ORM state before commit.
 An inbox flush failure that closes the EntityManager stops the consumer through `ConsumerRestartRequired`.
 The supervisor restarts the process before another message can use the closed unit.

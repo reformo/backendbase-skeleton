@@ -26,12 +26,12 @@ final class Session
 
     public function assertActive(DateTimeImmutable $now): void
     {
-        $state         = $this->state;
-        $timestamp     = $now->getTimestamp();
-        $createdAt     = $state->createdAt;
-        $idleExpiresAt = $this->idleExpiresAt();
-        $idleTimestamp = $idleExpiresAt->getTimestamp();
-        if ($timestamp < $createdAt || $timestamp >= $idleTimestamp) {
+        $state             = $this->state;
+        $timestamp         = $now->getTimestamp();
+        $createdAt         = $state->createdAt;
+        $deadline          = $this->idleExpiresAt();
+        $effectiveDeadline = $deadline->getTimestamp();
+        if ($timestamp < $createdAt || $timestamp >= $effectiveDeadline) {
             throw AuthenticationDenied::create('The session has expired.');
         }
     }

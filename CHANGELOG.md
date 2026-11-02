@@ -10,6 +10,22 @@ This changelog starts on 29 August 2026. Use the Git history for earlier changes
 
 ### Changed
 
+- Verify the 74 previously skipped native cases with disposable MySQL, Redis, and Sentinel fixtures. Record the results and remaining service boundaries.
+
+- Verify cross-machine transitions and compatibility. Add isolated Redis session adapter and deployment completion tests. Clarify current and historical verification evidence.
+
+- Make release interruption, identity retry, notification batch, viewer refresh, and RabbitMQ channel states explicit. Add isolated interruption, boundary, and failure-path tests.
+
+- Make outbox, inbox, external-effect, failure, and transport settlement contracts explicit. Reject external-effect claims inside an active database transaction. Add claim, interruption, recovery, duplicate-delivery, and settlement regressions.
+
+- Make HTTP replay claim, completion, mismatch, and expiry decisions explicit. Add committed-write failure, ciphertext corruption, and exact-deadline regressions.
+
+- Make session deadlines, token revocation, and refresh replay guards explicit. Serialize successful client logout cleanup with in-flight credential operations. Add session, recovery, privacy, and client race regressions.
+
+- Name contact proof deadlines, delivery generation results, and atomic quota transitions. Add boundary, unknown-delivery, reservation, and simulated race tests without changing stored formats.
+
+- Make Account realm eligibility, actor removal, and Admin approval guards explicit. Clarify Example Entry visibility and verify the existing transitions across domain, API, and repository contracts.
+
 - Separate USER and ADMIN access-token, idle, and maximum session durations. Add rotating refresh credentials, browser cookie and mobile body transports, authenticated renewal replay, and an automatic client helper. Update tests, OpenAPI, Bruno, operations, and the IdentityAndAccess guide.
 
 - Restrict shutdown error responses to fatal PHP errors. Preserve completed responses after native warnings, user warnings, notices, and deprecations. Retain fatal-error logging and safe error details. Verify concurrent cold startup and packaged dependency failure with a fresh local release.

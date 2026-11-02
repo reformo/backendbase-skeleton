@@ -39,7 +39,7 @@ final class ReplayMiddlewareFixture
         $cipher     = new SodiumRequestReplayCipher(ReplayFixture::settings());
         $exchange   = new ReplayExchange($cipher, new ReplayExecution($errors));
         $middleware = new Idempotency($store ?? self::store(), $exchange);
-        $route      = $app->map(['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'OPTIONS'], '/write/{identifier}', $handler);
+        $route      = $app->map(['POST', 'PUT', 'PATCH', 'DELETE', 'GET', 'HEAD', 'OPTIONS'], '/write/{identifier}', $handler);
         $route->setName('testWrite');
         $route->add($middleware);
         $app->addRoutingMiddleware();

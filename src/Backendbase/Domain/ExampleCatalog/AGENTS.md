@@ -11,6 +11,8 @@ This context is the complete business-module reference. Production contexts use 
 - Preserve accepted text and JSON details. Reject non-object HTTP details and integer top-level detail names.
 - Validate detail encoding and decoding within 64 levels before mutation. Reject NUL-prefixed member names at every depth.
 - Order entry pages by creation time and UUID in both repository adapters.
+- Write lookups return nonremoved entries even when `isActive` is false. Inactive entries still reserve their identity.
+- Normal writes load a nonremoved Entry. A second save after removal differs between memory and Doctrine; do not assume adapter parity for that path.
 - Pass explicit instants to Entry creation, change, and removal. `EntryWrites` reads the injected UTC clock during transactional work.
 - Preserve stored timestamps during reconstitution.
 - Keep mutation and domain-event publication inside `EntryEventTransaction`, which delegates to `IntegrationEventTransaction`.

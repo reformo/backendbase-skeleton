@@ -153,6 +153,8 @@
             <aside class="callout warning">
                 <strong>Delivery can be uncertain.</strong> Notification delivery happens after the identity transaction commits. A provider timeout can leave an unknown outcome. Provider acceptance does not prove final delivery.
             </aside>
+            <p>A correct code can still verify the contact when delivery is unknown. A late result for an older code cannot change the current generation's delivery state.</p>
+            <p>A confirmation that fails or stops after reserving quota keeps that reservation. A competing request can also consume a send reservation without issuing another code.</p>
             <p>A repeated create request returns the existing contact state. An explicit resend creates a new code generation after cooldown and quota checks.</p>
             <div class="related"><a href="../../platform/operations/contact-verification.md">Complete contact verification contract</a><a href="../13-notifications.html">Notification providers</a></div>
         </section>
@@ -178,7 +180,7 @@
                 <table>
                     <thead><tr><th scope="col">Action</th><th scope="col">Effect</th><th scope="col">Support implication</th></tr></thead>
                     <tbody>
-                        <tr><td>Revoke current token</td><td>Remove the current token allowlist record.</td><td>That token cannot authenticate. Other independent sessions can remain valid.</td></tr>
+                        <tr><td>Revoke current token</td><td>Remove the current token allowlist record.</td><td>That token cannot authenticate. Its live session can still renew if all other checks pass.</td></tr>
                         <tr><td>End current session</td><td>Remove the session and current token records.</td><td>The current session can no longer authenticate.</td></tr>
                         <tr><td>Remove an actor</td><td>Mark that actor as removed. Current MySQL checks reject it.</td><td>The Account and its contact reservations remain.</td></tr>
                         <tr><td>Restore an actor</td><td>Clear the actor's removal marker. Current Account and approval gates still apply.</td><td>Restoration does not create a new session or token.</td></tr>
@@ -209,6 +211,7 @@
                 <li>The approved actor can log in through the ADMIN API with the Account credentials.</li>
             </ol>
             <p>The target Admin cannot approve its own enrollment. The same existing Admin can invite and approve another Admin when the evidence references differ.</p>
+            <p>An authorized Admin can approve another Admin again. Valid approval evidence must differ from the invitation evidence. The new approval evidence replaces the earlier value.</p>
             <p>Any requirement for different staff members must be enforced by the surrounding approval process. Separate evidence does not by itself establish that staff separation.</p>
             <h3>First-Admin bootstrap</h3>
             <p>Before any Admin row exists, local operator commands can invite and approve the first Admin. Preview is the default. Applying an action requires local root authority on the identified target.</p>
@@ -404,7 +407,7 @@ BACKENDBASE_IDENTITY_PREVIOUS_CONTACT_PROOF_KEY</code></pre>
             <h2>Use recorded evidence and owning source</h2>
             <p>The current isolated run completes 1,593 tests and 73,106 assertions with zero failures, errors, or skips.</p>
             <p>Coverage reached 100% for executable lines and methods: 7,058 of 7,058 lines and 1,624 of 1,624 methods.</p>
-            <p>All 62 service cases pass: 31 MySQL, 23 standalone Redis, and eight Sentinel cases. Native checks cover schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior.</p>
+            <p>The recorded service run passed 62 cases: 31 MySQL, 23 standalone Redis, and eight Sentinel cases. Native checks covered schema, uniqueness, locking, retries, proof consumption, session activation, expiry, revocation, and failover behavior. Later Redis tests for missing refresh history and clock rollback require a prepared target.</p>
             <p>The <a href="../code-quality-and-maintainability-report.html#evidence">recorded live checks before session renewal</a> cover 52 operations through 501 requests. Bruno verifies 58 named tests across the three APIs. Notifications use a private test sink.</p>
             <ul class="source-list">
                 <li><a href="../../platform/14-security.md">Canonical identity and authentication rules</a></li>

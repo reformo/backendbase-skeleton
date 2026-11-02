@@ -100,7 +100,7 @@ final class ReplayFailureTest extends TestCase
         $claim = $store->expects(self::never());
         $claim->method('claim');
         $app = ReplayMiddlewareFixture::app(static fn (): EmptyResponse => new EmptyResponse(), $store);
-        foreach (['GET', 'OPTIONS'] as $method) {
+        foreach (['GET', 'HEAD', 'OPTIONS'] as $method) {
             $request  = ReplayMiddlewareFixture::request($method);
             $read     = $request->withoutHeader('Idempotency-Key');
             $response = $app->handle($read);

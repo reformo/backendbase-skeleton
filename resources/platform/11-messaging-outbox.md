@@ -19,6 +19,8 @@ The transactional outbox separates business completion from broker availability.
 The transaction wrapper, local subscriber repositories, and outbox writer must share one database connection. Keep external effects outside local subscribers. Queue consumption uses a separate dispatch method that does not republish the received event.
 
 MySQL uses `FOR UPDATE SKIP LOCKED`. Each relay also uses a 60-second claim token.
+At the deadline, another relay can replace the token. The original token can still complete until replacement occurs.
+Publication and failure updates use the token. A stale token cannot change the replacement claim.
 
 A publish can succeed before the row is marked as published. A later relay can publish the same event again.
 

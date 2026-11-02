@@ -24,6 +24,7 @@ trait EntryRepositoryContract
 {
     use EntryGroupPaginationContract;
     use EntryOrderingContract;
+    use EntryVisibilityContract;
 
     abstract protected function readRepository(): EntryReadRepository;
 

@@ -34,6 +34,7 @@ $externalEffectInbox->processOnce(
 ```
 
 The inbox must distinguish completed, active, and unknown external outcomes. A database rollback cannot prove that a provider did not send a message.
+In an unmodified Backendbase target, call the external-effect inbox without an active transaction on its claim connection. Use a separate processing boundary from the transactional database inbox.
 
 ## Contract checks
 

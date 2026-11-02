@@ -128,7 +128,7 @@ export function createSessionClient({
     async function logout(operationKey) {
         requireOperationKey(operationKey);
         const response = await request('identity/session', { method: 'DELETE', headers: { 'Idempotency-Key': operationKey } });
-        if (response.ok) await clear();
+        if (response.ok) await lock(clear);
         return response;
     }
 

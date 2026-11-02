@@ -68,6 +68,7 @@ deployLog "Switching from $(basename "$activeRelease") to $allowedRevision"
 deployAtomicLink "$activeRelease" "$deployRoot/previous"
 deployAtomicLink "$allowedRelease" "$currentLink"
 
+# Link activation and the active-release state write are separate steps.
 if deployRunHook "$hooksDirectory/activate-release" "$requireActivationHook" "$allowedRelease" "$activeRelease" \
     && deployCheckReadiness "$readinessUrl"; then
     migrationTarget="$(deployManifestValue "$statePath" migrationTarget)"

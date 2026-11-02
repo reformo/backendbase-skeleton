@@ -95,6 +95,7 @@ final readonly class SqsQueue implements MessageConsumer, MessagePublisher
             return;
         }
 
+        // SQS retains both retry and rejection outcomes for visibility and configured redrive.
         if ($outcome !== QueueMessageHandlingOutcome::ACKNOWLEDGE) {
             return;
         }

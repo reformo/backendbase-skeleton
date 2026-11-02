@@ -35,7 +35,7 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
 
     public function getActive(string $entryId): Entry
     {
-        $record = $this->getActiveRecord(['id' => Uuid::fromString($entryId)]);
+        $record = $this->getNonRemovedRecord(['id' => Uuid::fromString($entryId)]);
 
         return $record->toDomain();
     }
@@ -47,7 +47,7 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
         $group        = $identity->group();
         $key          = $identity->key();
 
-        $record = $this->getActiveRecord([
+        $record = $this->getNonRemovedRecord([
             'type' => $type,
             'typeTargetId' => $typeTargetId,
             'group' => $group,
@@ -60,13 +60,13 @@ final readonly class EntryWriteRepository implements EntryWriteRepositoryContrac
     public function save(Entry $entry): void
     {
         $entryId = $entry->id();
-        $record  = $this->getActiveRecord(['id' => Uuid::fromString($entryId)]);
+        $record  = $this->getNonRemovedRecord(['id' => Uuid::fromString($entryId)]);
         $record->synchronize($entry);
         $this->entityManager->flush();
     }
 
     /** @param array<string, mixed> $criteria */
-    private function getActiveRecord(array $criteria): ExampleTable
+    private function getNonRemovedRecord(array $criteria): ExampleTable
     {
         $criteria['deletedAt'] = null;
         $entityManager         = $this->entityManager;

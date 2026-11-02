@@ -46,6 +46,8 @@
 <tr><td>Reconstitution</td><td><code>toDomain()</code> calls a domain reconstitution factory.</td></tr><tr><td>Soft removal</td><td><code>deleted_at</code> remains part of persistence, while domain state uses <code>removedAt</code>.</td></tr>
 <tr><td>Uniqueness</td><td>Generated columns support active-record uniqueness when nullable values and soft removal are present.</td></tr>
 </tbody></table></div>
+<p>Example write lookups named <code>getActive</code> and <code>getActiveByIdentity</code> return nonremoved entries even when <code>isActive</code> is false. Inactive entries reserve their identity. Removal permits a replacement.</p>
+<p>The normal write workflow loads a nonremoved Entry before each change or removal. A previously retained Entry can still be changed after removal. A second save then succeeds in the memory adapter but is rejected by the Doctrine adapter. This path is outside the normal workflow and has no common adapter contract.</p>
 </section>
 <section id="discovery"><p class="section-label">06 · Discovery and types</p><h2>PathFinder discovers mapped entity directories</h2>
 <p>The runtime and Doctrine CLI use <code>PathFinder::doctrineEntityPaths()</code>. The CLI schema filter includes service tables and the Doctrine migration metadata table.</p>

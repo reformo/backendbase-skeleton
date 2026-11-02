@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Backendbase\Domain\IdentityAndAccess\Contracts\ReadModel;
 
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactVerificationPolicy;
 use DateTimeImmutable;
 use DateTimeZone;
 use JsonSerializable;
@@ -22,10 +23,10 @@ final readonly class ContactInfoView implements JsonSerializable
         $verifiedAt = $state->verifiedAt;
         $verified   = $verifiedAt === null ? null : new DateTimeImmutable($verifiedAt, new DateTimeZone('UTC'));
         $sent       = new DateTimeImmutable($state->lastSentAt, new DateTimeZone('UTC'));
-        $resend     = $sent->modify('+60 seconds');
+        $resend     = $sent->modify(ContactVerificationPolicy::RESEND_COOLDOWN);
         $expires    = new DateTimeImmutable($state->codeExpiresAt, new DateTimeZone('UTC'));
         $purpose    = $state->purpose;
-        $validUntil = $purpose === 'user-registration' ? $verified?->modify('+12 hours') : null;
+        $validUntil = $purpose === 'user-registration' ? $verified?->modify(ContactVerificationPolicy::EVIDENCE_LIFETIME) : null;
 
         $id                     = $contact->id();
         $type                   = $state->contactType;

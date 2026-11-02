@@ -51,6 +51,7 @@ class StackNotifier implements Notify
 
     private function notifyStack(StackNotification $stack): NotificationResult
     {
+        // Resolve every provider before the first external delivery.
         $notifications = $stack->notifications();
         foreach ($notifications as $notification) {
             $this->providerFor($notification);

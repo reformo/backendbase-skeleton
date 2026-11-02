@@ -62,10 +62,13 @@ test('secure storage failure retains the old refresh request until persistence s
         load: async () => 'old-secret', clear: async () => {},
         save: async () => { writes += 1; if (writes === 1) throw new Error('Storage unavailable'); },
     };
-    const client = setup(async (_url, options) => { requests.push(options.body); return response('access'); }, { transport: 'body', storage });
+    const client = setup(async (_url, options) => {
+        requests.push({ body: options.body, key: options.headers['Idempotency-Key'] });
+        return response('access');
+    }, { transport: 'body', storage });
     await assert.rejects(client.renew(), /Storage unavailable/);
     await client.renew();
-    assert.equal(requests[0], requests[1]);
+    assert.deepEqual(requests[0], requests[1]);
 });
 
 test('a protected write retries one authentication failure with the same key and body', async () => {
@@ -157,4 +160,119 @@ test('native clients serialize shared storage across API surfaces', async () => 
     const example = setup(send, { storage, transport: 'body', baseUrl: 'https://api.example.com/example-api/' });
     await Promise.all([user.renew(), example.renew()]);
     assert.deepEqual(received, ['initial-secret', 'secret-1']);
+});
+
+test('successful native logout clears a renewal that completes after the logout response', async () => {
+    let secret = null;
+    let finishLogout;
+    let finishRenewal;
+    let reportLogoutStarted;
+    let reportRenewalStarted;
+    const logoutStarted = new Promise((resolve) => { reportLogoutStarted = resolve; });
+    const renewalStarted = new Promise((resolve) => { reportRenewalStarted = resolve; });
+    const storage = { load: async () => secret, save: async (value) => { secret = value; }, clear: async () => { secret = null; } };
+    const client = setup(async (url) => {
+        if (url.pathname.endsWith('/auth/login')) return response('initial-access', 'initial-secret');
+        if (url.pathname.endsWith('/identity/session')) {
+            reportLogoutStarted();
+            return new Promise((resolve) => { finishLogout = resolve; });
+        }
+        if (url.pathname.endsWith('/auth/refresh')) {
+            reportRenewalStarted();
+            return new Promise((resolve) => { finishRenewal = resolve; });
+        }
+        throw new Error('An authenticated request must not follow logout.');
+    }, { transport: 'body', storage });
+
+    await client.login({ identifier: 'ada@example.com', password: 'example-password' }, 'login-operation');
+    const logout = client.logout('logout-operation');
+    await logoutStarted;
+    const renewal = client.renew();
+    await renewalStarted;
+    finishLogout(new Response('{}'));
+    await new Promise((resolve) => setImmediate(resolve));
+    finishRenewal(response('later-access', 'later-secret'));
+    await renewal;
+    await logout;
+
+    assert.equal(secret, null);
+    await assert.rejects(client.request('identity'), /Sign in before/);
+});
+
+test('an unsuccessful logout retains the current native session', async () => {
+    let secret = null;
+    const storage = { load: async () => secret, save: async (value) => { secret = value; }, clear: async () => { secret = null; } };
+    const client = setup(async (url, options) => {
+        if (url.pathname.endsWith('/auth/login')) return response('initial-access', 'initial-secret');
+        if (url.pathname.endsWith('/identity/session')) return new Response('{}', { status: 503 });
+        assert.equal(options.headers.Authorization, 'Bearer initial-access');
+        return new Response('{}');
+    }, { transport: 'body', storage });
+
+    await client.login({ identifier: 'ada@example.com', password: 'example-password' }, 'login-operation');
+    const logout = await client.logout('logout-operation');
+    assert.equal(logout.status, 503);
+    assert.equal(secret, 'initial-secret');
+    assert.equal((await client.request('identity')).status, 200);
+});
+
+test('logout can renew first and then clear the native secret', async () => {
+    let secret = 'existing-secret';
+    const paths = [];
+    const storage = { load: async () => secret, save: async (value) => { secret = value; }, clear: async () => { secret = null; } };
+    const client = setup(async (url, options) => {
+        paths.push(url.pathname);
+        if (url.pathname.endsWith('/auth/refresh')) return response('renewed-access', 'renewed-secret');
+        assert.equal(options.headers.Authorization, 'Bearer renewed-access');
+        return new Response('{}');
+    }, { transport: 'body', storage });
+
+    const logout = await client.logout('logout-operation');
+    assert.equal(logout.status, 200);
+    assert.equal(secret, null);
+    assert.deepEqual(paths, ['/user-api/auth/refresh', '/user-api/identity/session']);
+});
+
+test('successful browser logout clears a renewal that completes after the logout response', async () => {
+    let finishLogout;
+    let finishRenewal;
+    let reportLogoutStarted;
+    let reportRenewalStarted;
+    let refreshes = 0;
+    let tail = Promise.resolve();
+    const withLock = (_name, operation) => {
+        const next = tail.then(operation, operation);
+        tail = next.then(() => undefined, () => undefined);
+        return next;
+    };
+    const logoutStarted = new Promise((resolve) => { reportLogoutStarted = resolve; });
+    const renewalStarted = new Promise((resolve) => { reportRenewalStarted = resolve; });
+    const client = setup(async (url) => {
+        if (url.pathname.endsWith('/auth/login')) return response('initial-access');
+        if (url.pathname.endsWith('/identity/session')) {
+            reportLogoutStarted();
+            return new Promise((resolve) => { finishLogout = resolve; });
+        }
+        if (url.pathname.endsWith('/auth/refresh')) {
+            refreshes += 1;
+            if (refreshes > 1) return new Response('{}', { status: 401 });
+            reportRenewalStarted();
+            return new Promise((resolve) => { finishRenewal = resolve; });
+        }
+        return new Response('{}');
+    }, { withLock });
+
+    await client.login({ identifier: 'ada@example.com', password: 'example-password' }, 'login-operation');
+    const logout = client.logout('logout-operation');
+    await logoutStarted;
+    const renewal = client.renew();
+    await renewalStarted;
+    finishLogout(new Response('{}'));
+    await new Promise((resolve) => setImmediate(resolve));
+    finishRenewal(response('later-access'));
+    await renewal;
+    await logout;
+
+    await assert.rejects(client.request('identity'), /Sign in again/);
+    assert.equal(refreshes, 2);
 });

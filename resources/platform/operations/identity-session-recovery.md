@@ -14,6 +14,7 @@ The script applies `EXPIREAT` to retain each exact deadline. Successful database
 Access-token expiry and the maximum session deadline remain fixed.
 Consumed refresh digest markers remain until the maximum deadline. Preserve these markers with session state.
 A recovered session without its consumed-token history can lose reuse detection. Require controlled logout after uncertain recovery.
+When a consumed marker is missing, Redis denies that old credential. It cannot recognize reuse and does not automatically revoke the current session.
 Version 2 sessions preserve policy, creation time, last activity, maximum expiry, and a SHA-256 refresh hash.
 Legacy sessions retain their original expiry and do not renew. New password login creates a version 2 session.
 An older server cannot verify the new session schema. Invalidate affected namespaces before rolling back.
@@ -58,6 +59,7 @@ Authentication must remain stopped when the affected namespace cannot be establi
 It verifies rejection after total loss, partial restoration, and client reconnection.
 It also restores records after MySQL Account closure and verifies that both realms remain denied.
 That Account check uses the isolated SQLite identity fixture. It tests the Redis recovery boundary, not cross-service commit atomicity.
+`RedisRefreshHistoryTest` checks a missing consumed marker in both realms on a prepared Redis target.
 
 `RedisFailoverTest` runs real Sentinel elections in a disposable primary, replica, and three-Sentinel topology.
 It verifies planned promotion, primary failure, loss of revocation writes, and loss of Sentinel majority in both realms.

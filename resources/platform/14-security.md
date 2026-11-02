@@ -71,6 +71,8 @@ Matching fresh optional evidence is consumed when present. Missing or unusable o
 Authenticated Users can verify their stored email through `/identity/contact-verifications` with a separate Account-bound purpose.
 Email verification preserves ownership and sessions. It cannot authorize registration or change the stored email.
 Codes expire after five minutes. Failed attempts, resend limits, and delivery identities are contact-specific.
+`ContactVerificationPolicy` supplies the proof deadlines and limits to the aggregate and response projection.
+Redis quota scripts remain independent atomic reservations across contexts and realms.
 Optional Admin verification preserves ownership, credential versions, and existing sessions.
 See [contact verification](operations/contact-verification.md) for request fields, state transitions, quotas, and error contracts.
 
@@ -122,6 +124,8 @@ Maximum must cover idle and cannot exceed 31536000 seconds.
 Lua activation writes both RedisJSON objects atomically and applies `EXPIRE` and `EXPIREAT` with their separate deadlines.
 Access tokens expire at their issue deadline, capped by the fixed session maximum.
 Sessions expire at `min(lastUsedAt + idleTimeoutSeconds, maximumExpiresAt)`.
+The deadline is exclusive: a session is inactive at the idle or maximum deadline.
+Redis also rejects a clock value before `lastUsedAt`. The PHP domain check rejects time before creation.
 Successful protected authentication extends idle only after current database eligibility passes.
 Refresh credential inspection and replay do not rotate credentials or extend idle.
 Existing string and version 1 JSON records retain their original expiry. They cannot renew before the next password login.
@@ -133,19 +137,22 @@ Earlier access-token records remain valid until their expiry while the session r
 Consumed digest markers use `used-refresh:sessionId:digest` keys through the maximum deadline.
 Unknown secrets and wrong realms deny access without revocation.
 A known consumed token used for a new operation revokes the session.
+If its consumed marker is missing, Redis denies the old credential but cannot identify reuse or revoke the current session.
 
 Browser clients select cookie transport. Cookies use a realm-specific `__Host-` name, Secure, HttpOnly, SameSite=Strict, and Path=/.
 Cookie login and renewal require an exact configured Origin before replay. Wildcard and opaque origins are rejected.
 Matching configured origins receive credentialed CORS responses. Use HTTPS and same-site browser and API hosts.
 Mobile clients use body transport and operating system secure storage. Browser local storage must not contain refresh secrets.
 The client helper renews on demand and serializes browser tabs through Web Locks. It has no background renewal timer.
+After successful logout, the helper waits for earlier host-locked credential operations, then clears its local session and native secret.
 
 Matching renewal retries return the same encrypted response and cookie.
 A response guard rejects an obsolete result with 409 `identity/conflict` before sending an earlier credential.
 The helper then attempts one renewal with the current credential.
 A revoked, expired, or ineligible session cannot replay a successful renewal.
 
-Token revocation removes its `jti` record. Logout removes the session and current token and clears its browser cookie.
+Token revocation removes its `jti` record. The live session can still renew if all other guards pass.
+Logout removes the session and current token and clears its browser cookie.
 Account closure disables the Account and increments its authentication version before Redis revocation.
 Current database state denies old access and refresh credentials even if Redis revocation fails.
 MySQL and Redis do not share one transaction.
@@ -162,6 +169,10 @@ Reload persisted actor state under Account-first locks after a target reference 
 A concurrently removed Admin cannot use its earlier managed state to restore itself.
 Admin actor history uses stored values and includes removed rows.
 Actor restoration requires an active Account and passes the same database uniqueness constraints.
+Actor removal preserves approval and does not revoke existing token or session records.
+After restoration, an unexpired credential can authenticate again when all current checks pass.
+The Admin API permits an authorized Admin to approve another Admin again with valid, separate evidence.
+Reapproval replaces the approval evidence and preserves approval. First-Admin operator approval still requires a sole pending actor.
 
 Shared `AccessControl` remains the internal privilege contract.
 Internal `QueueGreeting` requires `example.add`. Its caller supplies the access-control implementation.

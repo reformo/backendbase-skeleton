@@ -24,6 +24,9 @@ Clear route, Doctrine, and mapping metadata caches when their sources change. Re
 Runtime secrets are injected outside releases. Configuration and container definitions are rebuilt without persistent credential caches.
 
 Keep the recorded previous release available. Prefer forward repair after partially committed MySQL data-definition changes.
+An interruption after a link switch can leave the active link and `active-release.json` inconsistent.
+The interruption trap does not run the normal activation-failure restoration path. Reconcile links, recovery records, hooks, and schema before another operation.
+An interrupted migration can have an unknown schema outcome. Inspect migration and backup evidence before deciding recovery.
 
 Current deployment scripts require server-specific backup and process-activation hooks. `deployment/release.json` supplies migration and rollback policy for the generated `release-manifest.json`. Linux systemd units provide worker supervision and relay and cleanup timers. See [managed server operations](operations/managed-servers.md).
 Nginx API rate-limit includes enforce 30 requests per second per client IP with a burst allowance of 60.

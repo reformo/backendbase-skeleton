@@ -17,7 +17,8 @@ use function is_int;
 
 final readonly class RedisVerificationLimiter implements VerificationLimiter
 {
-    private const string SEND    = <<<'LUA'
+    // Check cooldown, contact, and IP limits before reserving either send budget.
+    private const string RESERVE_SEND = <<<'LUA'
 local contact, ip, cooldown = KEYS[1], KEYS[2], KEYS[3]
 local wait = redis.call('TTL', cooldown)
 if wait > 0 then return wait end
@@ -29,13 +30,17 @@ end
 redis.call('SET', cooldown, '1', 'EX', 60)
 return 0
 LUA;
-    private const string ATTEMPT = <<<'LUA'
+
+    // Keep each failed or outstanding confirmation in the current one-hour window.
+    private const string RESERVE_CONFIRMATION = <<<'LUA'
 local count = tonumber(redis.call('GET', KEYS[1]) or '0')
 if count >= 10 then return math.max(1, redis.call('TTL', KEYS[1])) end
 if redis.call('INCR', KEYS[1]) == 1 then redis.call('EXPIRE', KEYS[1], 3600) end
 return 0
 LUA;
-    private const string ACCEPT  = <<<'LUA'
+
+    // A successful confirmation releases one reservation without extending the window.
+    private const string RELEASE_CONFIRMATION = <<<'LUA'
 local count = tonumber(redis.call('GET', KEYS[1]) or '0')
 if count > 0 then redis.call('DECR', KEYS[1]) end
 return 0
@@ -47,18 +52,21 @@ LUA;
 
     public function send(ContactValue $contact, VerificationClient $client): void
     {
-        $key = $contact->counterKey();
-        $this->run(self::SEND, ['identity-verification:send:' . $key, 'identity-verification:ip:' . $client->key(), 'identity-verification:cooldown:' . $key]);
+        $key       = $contact->counterKey();
+        $clientKey = $client->key();
+        $this->run(self::RESERVE_SEND, ['identity-verification:send:' . $key, 'identity-verification:ip:' . $clientKey, 'identity-verification:cooldown:' . $key]);
     }
 
     public function attempt(ContactValue $contact): void
     {
-        $this->run(self::ATTEMPT, ['identity-verification:failure:' . $contact->counterKey()]);
+        $key = $contact->counterKey();
+        $this->run(self::RESERVE_CONFIRMATION, ['identity-verification:failure:' . $key]);
     }
 
     public function accept(ContactValue $contact): void
     {
-        $this->run(self::ACCEPT, ['identity-verification:failure:' . $contact->counterKey()]);
+        $key = $contact->counterKey();
+        $this->run(self::RELEASE_CONFIRMATION, ['identity-verification:failure:' . $key]);
     }
 
     /** @param list<string> $keys */

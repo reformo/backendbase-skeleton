@@ -34,7 +34,7 @@ abstract class Actor
         $state         = $this->state;
         $authorization = $state->authorization;
         $approved      = $authorization->approved;
-        if (! $approved || $state->deletedAt !== null) {
+        if (! $approved || $this->isRemoved()) {
             throw AuthenticationDenied::create('Authentication is not permitted.');
         }
     }
@@ -66,10 +66,16 @@ abstract class Actor
 
     public function assertContactVerificationAllowed(): void
     {
-        $state = $this->state;
-        if ($state->deletedAt !== null) {
+        if ($this->isRemoved()) {
             throw AuthenticationDenied::create('Contact verification is not permitted.');
         }
+    }
+
+    protected function isRemoved(): bool
+    {
+        $state = $this->state;
+
+        return $state->deletedAt !== null;
     }
 
     protected function approveWith(string $evidence): void

@@ -128,6 +128,7 @@ For email, payment, storage, or another provider call, use a durable external-ef
 Backendbase keys the external-effect row by `(consumer_name, message_id)` and stores the effect name as metadata. This permits one effect per key. Redesign the unique key or use a distinct stable consumer identity when one message must start multiple independent effects.
 
 The current adapter uses a lease token and `claim_expires_at`. An active claim returns in-progress. An expired incomplete claim becomes outcome-unknown and does not run again. An exception after the callback starts and a failure to record completion both become outcome-unknown.
+In an unmodified Backendbase target, the claim connection must have no active outer transaction. The adapter rejects nested use before the provider call. The default database-inbox processor dispatches inside a transaction; use a separate external-effect processing boundary.
 
 This protocol prevents an automatic duplicate start. It does not prove that the provider completed the effect. Add operator-visible reconciliation. The repository has no automatic reconciliation worker.
 

@@ -292,12 +292,12 @@ final class ModuleConfig implements ModuleRoute
                 <p>This method is copied from the existing <a href="../../src/Backendbase/Infrastructure/Adapters/Http/Idempotency/Idempotency.php">Idempotency middleware</a>. Reuse that middleware for the proposed route.</p>
                 <pre><code class="language-php">private function processWrite(ServerRequestInterface $request, RequestHandlerInterface $handler, string $key): ResponseInterface
 {
-    $exchange = $this-&gt;exchange;
-    $store    = $this-&gt;store;
-    $identity = $exchange-&gt;identity($request, $key);
-    $stored   = $store-&gt;claim($identity);
-    if ($stored !== null) {
-        return $exchange-&gt;replay($identity, $stored);
+    $exchange          = $this-&gt;exchange;
+    $store             = $this-&gt;store;
+    $identity          = $exchange-&gt;identity($request, $key);
+    $encryptedResponse = $store-&gt;claim($identity);
+    if ($encryptedResponse !== null) {
+        return $exchange-&gt;replay($identity, $encryptedResponse);
     }
 
     $response  = $exchange-&gt;execute($request, $handler);
@@ -307,6 +307,7 @@ final class ModuleConfig implements ModuleRoute
     return $response;
 }</code></pre>
                 <p><code>claim()</code> returns <code>null</code> only for a new committed claim. It returns ciphertext for a completed matching claim.</p>
+                <p>The 24-hour retention period starts at completion. At the exact deadline, the completed claim can be replaced. An unresolved claim remains blocked.</p>
                 <p>The store throws <code>RequestMismatch</code> or <code>RequestOutstanding</code> for conflicting claims. The enclosing <code>process()</code> maps these exceptions to 422 or 409.</p>
                 <p><code>execute()</code> translates application exceptions into safe HTTP responses. Those error responses are encrypted and stored too.</p>
                 <p>A storage failure returns 503. A claim without a stored response remains blocked. The middleware does not delete it after an exception.</p>

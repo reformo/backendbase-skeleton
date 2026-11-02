@@ -70,10 +70,10 @@ final class Account
         $this->assertActive();
         $state          = $this->state;
         $authentication = $state->authentication;
-        $accepted       = $authentication->registrationAccepted;
-        if ($realm === Realm::ADMIN) {
-            $accepted = $authentication->ownershipVerified;
-        }
+        $accepted       = match ($realm) {
+            Realm::USER => $authentication->registrationAccepted,
+            Realm::ADMIN => $authentication->ownershipVerified,
+        };
 
         if (! $accepted) {
             throw AuthenticationDenied::create('Authentication is not permitted.');

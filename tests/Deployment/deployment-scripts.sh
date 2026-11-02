@@ -6,8 +6,15 @@ deployScript="$projectRoot/bin/deployment/deploy-release.sh"
 rollbackScript="$projectRoot/bin/deployment/rollback-release.sh"
 temporaryDirectory="$(mktemp -d "${TMPDIR:-/tmp}/backendbase-deployment-test.XXXXXX")"
 fakeBin="$temporaryDirectory/bin"
+activeTestPid=''
+barrierDirectory=''
 
 cleanupTests() {
+    if [[ -n "$activeTestPid" ]] && kill -0 "$activeTestPid" 2> /dev/null; then
+        [[ -z "$barrierDirectory" ]] || touch "$barrierDirectory/release"
+        kill -TERM "$activeTestPid" 2> /dev/null || true
+        wait "$activeTestPid" 2> /dev/null || true
+    fi
     rm -rf -- "$temporaryDirectory"
 }
 
@@ -69,6 +76,12 @@ EOF
     cat > "$rootPath/shared/hooks/activate-release" <<'EOF'
 #!/usr/bin/env bash
 printf 'activate:%s\n' "$1" >> "${TEST_HOOK_LOG:?}"
+if [[ -n "${TEST_ACTIVATION_BARRIER:-}" ]]; then
+    touch "$TEST_ACTIVATION_BARRIER/entered"
+    while [[ ! -f "$TEST_ACTIVATION_BARRIER/release" ]]; do
+        sleep 0.05
+    done
+fi
 EOF
     chmod +x "$rootPath/shared/hooks/pre-migrate" "$rootPath/shared/hooks/activate-release"
 }
@@ -111,6 +124,12 @@ fi
 if [[ "$*" == *'migrations:migrate'* && "${TEST_MIGRATION_FAILURE:-false}" == 'true' ]]; then
     printf 'migration failed\n' >&2
     exit 1
+fi
+if [[ "$*" == *'migrations:migrate'* && -n "${TEST_MIGRATION_BARRIER:-}" ]]; then
+    touch "$TEST_MIGRATION_BARRIER/entered"
+    while [[ ! -f "$TEST_MIGRATION_BARRIER/release" ]]; do
+        sleep 0.05
+    done
 fi
 exit 0
 EOF
@@ -156,6 +175,9 @@ createRoot "$successRoot" "$oldRevision"
 successArchive="$(createArtifact "$temporaryDirectory/success-artifact" "$newRevision")"
 TEST_CURL_FAILURE_COUNT=0 TEST_MIGRATION_FAILURE=false runDeployment "$successRoot" "$successArchive"
 assertCurrentRelease "$successRoot" "$successRoot/releases/$newRevision"
+php -r '$state=json_decode(file_get_contents($argv[1]),true); exit($state["revision"]===$argv[2] ? 0 : 1);' "$successRoot/state/active-release.json" "$newRevision" \
+    || failTest 'Successful deployment did not record the active revision.'
+test -f "$successRoot"/state/recovery/*/DEPLOYED || failTest 'Successful deployment did not record completion.'
 grep --quiet '^backup$' "$successRoot/hook.log" || failTest 'The backup hook did not run.'
 
 PATH="$fakeBin:$PATH" \
@@ -241,5 +263,99 @@ for failure in nonempty backup migration activation readiness existing; do
 done
 
 printf 'Fresh installation and maintenance failure tests passed.\n'
+
+waitForBarrier() {
+    local attempt
+    for ((attempt = 0; attempt < 200; attempt++)); do
+        [[ ! -f "$barrierDirectory/entered" ]] || return 0
+        kill -0 "$activeTestPid" 2> /dev/null || failTest 'The deployment ended before the test barrier.'
+        sleep 0.05
+    done
+    failTest 'The test barrier was not reached.'
+}
+
+interruptProcess() {
+    local status=0
+    kill -TERM "$activeTestPid"
+    touch "$barrierDirectory/release"
+    wait "$activeTestPid" || status=$?
+    activeTestPid=''
+    [[ "$status" -eq 130 ]] || failTest "Expected interrupted exit 130, got $status."
+}
+
+migrationInterruptRoot="$temporaryDirectory/interrupted-migration-root"
+createRoot "$migrationInterruptRoot" "$oldRevision"
+mkdir -p "$migrationInterruptRoot/state"
+printf '{"revision":"%s"}\n' "$oldRevision" > "$migrationInterruptRoot/state/active-release.json"
+migrationInterruptArchive="$(createArtifact "$temporaryDirectory/interrupted-migration-artifact" "$newRevision")"
+barrierDirectory="$migrationInterruptRoot/barrier"
+mkdir "$barrierDirectory"
+PATH="$fakeBin:$PATH" \
+TEST_CURL_COUNTER="$migrationInterruptRoot/curl-count" \
+TEST_HOOK_LOG="$migrationInterruptRoot/hook.log" \
+TEST_MIGRATION_BARRIER="$barrierDirectory" \
+BACKENDBASE_DEPLOY_ROOT="$migrationInterruptRoot" \
+BACKENDBASE_CURRENT_LINK="$migrationInterruptRoot/webroot/api" \
+BACKENDBASE_READINESS_URL='http://readiness.test' \
+"$deployScript" "$migrationInterruptArchive" "$migrationInterruptArchive.sha256" '.env.production' update &
+activeTestPid=$!
+waitForBarrier
+assertCurrentRelease "$migrationInterruptRoot" "$migrationInterruptRoot/releases/$oldRevision"
+interruptProcess
+assertCurrentRelease "$migrationInterruptRoot" "$migrationInterruptRoot/releases/$oldRevision"
+test -f "$migrationInterruptRoot"/state/recovery/*/migration-plan.sql || failTest 'Interrupted migration lost its plan.'
+[[ ! -d "$migrationInterruptRoot/.deployment-lock" ]] || failTest 'Interrupted migration retained its lock.'
+! test -f "$migrationInterruptRoot"/state/recovery/*/DEPLOYED || failTest 'Interrupted migration was marked complete.'
+
+interruptRoot="$temporaryDirectory/interrupted-deployment-root"
+createRoot "$interruptRoot" "$oldRevision"
+mkdir -p "$interruptRoot/state"
+printf '{"revision":"%s"}\n' "$oldRevision" > "$interruptRoot/state/active-release.json"
+interruptArchive="$(createArtifact "$temporaryDirectory/interrupted-deployment-artifact" "$newRevision")"
+barrierDirectory="$interruptRoot/barrier"
+mkdir "$barrierDirectory"
+PATH="$fakeBin:$PATH" \
+TEST_CURL_COUNTER="$interruptRoot/curl-count" \
+TEST_HOOK_LOG="$interruptRoot/hook.log" \
+TEST_ACTIVATION_BARRIER="$barrierDirectory" \
+BACKENDBASE_DEPLOY_ROOT="$interruptRoot" \
+BACKENDBASE_CURRENT_LINK="$interruptRoot/webroot/api" \
+BACKENDBASE_READINESS_URL='http://readiness.test' \
+"$deployScript" "$interruptArchive" "$interruptArchive.sha256" '.env.production' update &
+activeTestPid=$!
+waitForBarrier
+assertCurrentRelease "$interruptRoot" "$interruptRoot/releases/$newRevision"
+interruptProcess
+assertCurrentRelease "$interruptRoot" "$interruptRoot/releases/$newRevision"
+php -r '$state=json_decode(file_get_contents($argv[1]),true); exit($state["revision"]===$argv[2] ? 0 : 1);' "$interruptRoot/state/active-release.json" "$oldRevision" \
+    || failTest 'Interrupted deployment unexpectedly changed active-release state.'
+[[ ! -d "$interruptRoot/.deployment-lock" ]] || failTest 'Interrupted deployment retained its lock.'
+test -f "$interruptRoot"/state/recovery/*/previous-release || failTest 'Interrupted deployment lost its recovery record.'
+! test -f "$interruptRoot"/state/recovery/*/DEPLOYED || failTest 'Interrupted deployment was marked complete.'
+
+rollbackInterruptRoot="$temporaryDirectory/interrupted-rollback-root"
+createRoot "$rollbackInterruptRoot" "$oldRevision"
+rollbackInterruptArchive="$(createArtifact "$temporaryDirectory/interrupted-rollback-artifact" "$newRevision")"
+runDeployment "$rollbackInterruptRoot" "$rollbackInterruptArchive"
+barrierDirectory="$rollbackInterruptRoot/barrier"
+mkdir "$barrierDirectory"
+PATH="$fakeBin:$PATH" \
+TEST_CURL_COUNTER="$rollbackInterruptRoot/curl-count" \
+TEST_HOOK_LOG="$rollbackInterruptRoot/hook.log" \
+TEST_ACTIVATION_BARRIER="$barrierDirectory" \
+BACKENDBASE_DEPLOY_ROOT="$rollbackInterruptRoot" \
+BACKENDBASE_CURRENT_LINK="$rollbackInterruptRoot/webroot/api" \
+BACKENDBASE_READINESS_URL='http://readiness.test' \
+"$rollbackScript" "$oldRevision" &
+activeTestPid=$!
+waitForBarrier
+assertCurrentRelease "$rollbackInterruptRoot" "$rollbackInterruptRoot/releases/$oldRevision"
+interruptProcess
+assertCurrentRelease "$rollbackInterruptRoot" "$rollbackInterruptRoot/releases/$oldRevision"
+php -r '$state=json_decode(file_get_contents($argv[1]),true); exit($state["revision"]===$argv[2] ? 0 : 1);' "$rollbackInterruptRoot/state/active-release.json" "$newRevision" \
+    || failTest 'Interrupted rollback unexpectedly changed active-release state.'
+[[ ! -d "$rollbackInterruptRoot/.deployment-lock" ]] || failTest 'Interrupted rollback retained its lock.'
+
+printf 'Deployment and rollback interruption tests passed.\n'
 
 bash "$projectRoot/tests/Deployment/build-release.sh"

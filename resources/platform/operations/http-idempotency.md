@@ -56,12 +56,13 @@ A fresh login needs a new key. A previously issued token can already be expired 
 
 Refresh routes authenticate the current refresh credential, live session, and database eligibility before replay.
 Their caller scope also includes the session identifier. A new operation needs a new key and the current refresh credential.
-A matching retry can use the consumed credential or the replacement cookie while the session remains eligible.
+A matching retry can use a recognized consumed credential or the replacement cookie while the session remains eligible.
 The fingerprint keeps the exact body. Browser cookie rotation does not change the fingerprint.
 A response guard returns 409 `identity/conflict` when a later rotation replaced the cached result.
 This prevents an earlier response from replacing a newer cookie. No obsolete credential is returned.
 The client helper retries that conflict once with the current credential and a new key.
-A consumed refresh token used for another intended operation revokes the session.
+A recognized consumed refresh token used for another intended operation revokes the session.
+Missing consumed-token markers prevent reuse detection. Follow [session recovery](identity-session-recovery.md) after uncertain history.
 A revoked, expired, or ineligible session cannot replay renewal.
 
 Contact retries do not resend a notification, consume a confirmation again, or renew its stored verification time.
@@ -82,6 +83,17 @@ Identity operations can therefore retain their transaction retries and separate 
 The stored response is committed after the operation finishes.
 A crash between these commits leaves a durable unresolved claim. The server blocks another execution under that key.
 Unresolved claims have no automatic expiry or takeover. This design does not claim exactly-once external delivery.
+
+The stored fields define the replay states. They do not identify whether an unresolved request is still running.
+
+| State | Guard or event | Result |
+| --- | --- | --- |
+| No claim | A valid write claims its scoped key. | Commit an unresolved claim before application work. |
+| Unresolved claim | A matching request arrives or response storage fails. | Keep the claim blocked. Return 409 for the matching retry. |
+| Unresolved claim | The matching handler response is encrypted and stored. | Retain the completed response for 24 hours from completion. |
+| Completed claim | A matching request arrives before the deadline. | Replay the encrypted response without extending its deadline. |
+| Completed claim | The deadline is reached. | Cleanup or the next claim can remove the completed record. |
+| Unresolved or unexpired completed claim | A different fingerprint uses the same scoped key. | Reject it without running the handler. |
 
 A known exception is translated through the existing safe HTTP error handler and stored as a response.
 Failure to store that response leaves the claim unresolved. The client must retain its original key.
@@ -125,9 +137,12 @@ The `http_request_replay_expiry_idx (expires_at)` index covers ordered cleanup s
 Cleanup deletes recheck expiry and completed response state, so a concurrent replacement claim is retained.
 No ORM entity is needed for this infrastructure table. Doctrine's mapped-table filter excludes it from business-schema diffs.
 
-SQLite tests prove duplicate handling, expiry, cleanup, rollback boundaries, and two-connection visibility.
+SQLite tests cover duplicate handling, exact expiry, cleanup, rollback boundaries, and independent-connection visibility.
+An HTTP regression commits a business row, forces response storage to fail, and verifies that later retries remain blocked.
+Another regression checks that corrupt ciphertext returns 503 without repeating the business operation.
 HTTP tests cover login, registration, notifications, tracing, credential checks, concurrent requests, and response-storage failure.
 The opt-in MySQL tests verify the migration, independent connections, HTTP replay, expiry, cleanup, and index plans on a prepared target.
+`MySqlCommittedReplayTest` checks a committed business write followed by failed response storage and blocked retries.
 Offline SQL review and SQLite evidence do not establish native MySQL execution or production query plans.
 
 The 18 October 2026 isolated run verifies native execution on MySQL 8.4.11 and Redis 8.10.2.

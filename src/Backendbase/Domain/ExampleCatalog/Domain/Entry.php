@@ -64,7 +64,11 @@ final class Entry
         ]);
     }
 
-    /** @param array<array-key, mixed>|null $details */
+    /**
+     * The normal write workflow loads a nonremoved Entry before changing it.
+     *
+     * @param array<array-key, mixed>|null $details
+     */
     public function change(bool|null $isActive, string|null $value, array|null $details, DateTimeImmutable $now): void
     {
         $validatedValue   = $value === null ? $this->state['lookupValue'] : new EntryValue($value);
@@ -80,6 +84,7 @@ final class Entry
         $this->state['updatedAt'] = $now;
     }
 
+    /** The normal write workflow loads a nonremoved Entry before removing it. */
     public function remove(DateTimeImmutable $now): void
     {
         $this->state['removedAt'] = $now;

@@ -9,6 +9,7 @@ use Backendbase\Shared\Persistence\ExternalEffectOutcomeUnknown;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use LogicException;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
 
@@ -28,6 +29,11 @@ final readonly class ExternalEffectClaims
         string $effectName,
         DateTimeImmutable $now,
     ): string|null {
+        $connection = $this->connection;
+        if ($connection->isTransactionActive()) {
+            throw new LogicException('External-effect claims must commit before the provider call.');
+        }
+
         $identifier      = Uuid::uuid7();
         $claimToken      = $identifier->toString();
         $claimTtlSeconds = $this->claimTtlSeconds;
@@ -35,8 +41,6 @@ final readonly class ExternalEffectClaims
 
         $receivedAtValue     = $now->format('Y-m-d H:i:s.u');
         $claimExpiresAtValue = $claimExpiresAt->format('Y-m-d H:i:s.u');
-
-        $connection = $this->connection;
 
         return $connection->transactional(static function (Connection $connection) use (
             $consumerName,
@@ -114,7 +118,8 @@ final readonly class ExternalEffectClaims
     ): void {
         $processedAtValue = $processedAt->format('Y-m-d H:i:s.u');
         $connection       = $this->connection;
-        $updated          = $connection->update(
+        // The token, not the elapsed deadline, identifies the worker that may finish.
+        $updated = $connection->update(
             self::INBOX_TABLE,
             [
                 'processed_at' => $processedAtValue,

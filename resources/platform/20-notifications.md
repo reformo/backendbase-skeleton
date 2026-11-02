@@ -19,6 +19,7 @@ Shared notification models define provider-independent email, push, and SMS requ
 - The SES client disables automatic retries. A connection failure can leave the send outcome unknown; callers must check it before sending again.
 - Email providers require a sender, recipient, subject, and rendered HTML body. Template metadata is not rendered.
 - `NotificationBatchFailed` reports completed deliveries and the failed item index. Do not retry a partial batch without checking external outcomes.
+- A missing batch provider is rejected before any delivery. The first provider failure stops all later items.
 
 Identity contact verification sends email and SMS synchronously after its database transaction commits.
 Each contact code generation has one delivery identity. Unknown outcomes require an explicit new generation.
@@ -30,11 +31,14 @@ Select SMS or Emails. Expand an email to preview its stored HTML or plain text a
 This PHP development tool reads existing MiniStack captures. It does not change notification providers or send notifications.
 MiniStack records up to 80 characters per SMS. The viewer shows the first line, recipient, and time with automatic refresh and filtering.
 Some raw emails have no stored recipient. Previews block scripts, links, forms, and remote images. Attachments are unavailable.
+The viewer stores refresh state separately for SMS and email. A malformed successful payload can replace prior data before rendering fails.
+An initial status-render failure can leave that type marked as loading. Reload the page to reset its in-memory state.
 See [local service limits](19-external-services.md).
 
 No notification queue consumer is registered. Add one only after the message supplies every required field and the container registers a compatible provider.
 
 Queued notification delivery must use `ExternalEffectInbox`. Treat an unknown provider outcome as permanent until an operator proves whether delivery occurred.
+Call the external-effect inbox without an active transaction on its claim connection. It rejects nested use before calling the provider.
 
 Use provider doubles in tests. Never send live email, push, or SMS from automated tests.
 

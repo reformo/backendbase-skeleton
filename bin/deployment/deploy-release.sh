@@ -183,6 +183,7 @@ if [[ -n "$previousRelease" ]]; then
 fi
 deployAtomicLink "$releasePath" "$currentLink"
 
+# Link activation and the active-release state write are separate steps.
 if ! deployRunHook "$hooksDirectory/activate-release" "$requireActivationHook" "$releasePath" "$previousRelease"; then
     activationSucceeded='false'
 else

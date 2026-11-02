@@ -66,6 +66,50 @@ final class RequestReplayStoreTest extends TestCase
         self::assertNull($store->claim($identity));
     }
 
+    public function testRetentionStartsAtCompletionAndEndsAtTheExactDeadline(): void
+    {
+        [$store, $connection, $clock] = $this->fixture();
+        $identity                     = $this->identity();
+        $store->claim($identity);
+        $clock->advance(new DateInterval('PT3H'));
+        $store->complete($identity, 'encrypted');
+        self::assertSame('2026-10-19 15:00:00.000000', $connection->fetchOne('SELECT expires_at FROM http_request_replay'));
+        $clock->advance(new DateInterval('PT23H59M59S'));
+        $almostSecond    = new DateInterval('PT0S');
+        $almostSecond->f = 0.999999;
+        $clock->advance($almostSecond);
+        self::assertSame('encrypted', $store->claim($identity));
+        self::assertSame(0, $store->deleteExpired());
+        $microsecond    = new DateInterval('PT0S');
+        $microsecond->f = 0.000001;
+        $clock->advance($microsecond);
+        self::assertNull($store->claim($identity));
+    }
+
+    public function testCleanupDoesNotDeleteAnUnresolvedClaimWithAnElapsedExpiry(): void
+    {
+        [$store, $connection] = $this->fixture();
+        $identity             = $this->identity();
+        $store->claim($identity);
+        $connection->executeStatement("UPDATE http_request_replay SET expires_at = '2020-01-01 00:00:00.000000'");
+        self::assertSame(0, $store->deleteExpired());
+        $this->expectException(RequestOutstanding::class);
+        $store->claim($identity);
+    }
+
+    public function testExpiredCompletedKeyCanClaimDifferentContent(): void
+    {
+        [$store, , $clock] = $this->fixture();
+        $identity          = $this->identity();
+        $store->claim($identity);
+        $store->complete($identity, 'original');
+        $clock->advance(new DateInterval('P1D'));
+        $different = $this->identity('different');
+        self::assertNull($store->claim($different));
+        $store->complete($different, 'replacement');
+        self::assertSame('replacement', $store->claim($different));
+    }
+
     public function testCleanupPreservesActiveAndUnresolvedClaims(): void
     {
         [$store, $connection, $clock] = $this->fixture();

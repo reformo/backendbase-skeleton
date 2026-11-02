@@ -9,11 +9,15 @@ use Backendbase\Domain\IdentityAndAccess\Contracts\ContactStore;
 use Backendbase\Domain\IdentityAndAccess\Contracts\Input\Contacts\ContactAttempt;
 use Backendbase\Domain\IdentityAndAccess\Domain\Authentication\AuthenticationUnavailable;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactInfo;
+use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\ContactVerificationPolicy;
 use Backendbase\Domain\IdentityAndAccess\Domain\Contacts\VerificationCode;
 use Throwable;
 
 final readonly class ContactDelivery
 {
+    private const string ACCEPTED = 'accepted';
+    private const string UNKNOWN  = 'unknown';
+
     public function __construct(private ContactStore $store, private ContactNotifier $notifier)
     {
     }
@@ -32,27 +36,32 @@ final readonly class ContactDelivery
             return $contact;
         }
 
-        $state      = $contact->snapshot();
-        $generation = $state->generationId;
-        $notifier   = $this->notifier;
+        $state        = $contact->snapshot();
+        $generationId = $state->generationId;
+        $notifier     = $this->notifier;
         try {
-            $notifier->send($generation, $contact->contact(), $code->forDelivery());
+            $destination  = $contact->contact();
+            $deliveryCode = $code->forDelivery();
+            $notifier->send($generationId, $destination, $deliveryCode);
         } catch (Throwable $exception) {
-            $this->record($contact->id(), $generation, 'unknown');
+            $contactId = $contact->id();
+            $this->recordGenerationResult($contactId, $generationId, self::UNKNOWN);
 
-            throw AuthenticationUnavailable::create('Contact verification delivery is unavailable.', ['contactInfoId' => $contact->id(), 'retryAfter' => 60], previous: $exception);
+            throw AuthenticationUnavailable::create('Contact verification delivery is unavailable.', ['contactInfoId' => $contactId, 'retryAfter' => ContactVerificationPolicy::RESEND_RETRY_SECONDS], previous: $exception);
         }
 
-        return $this->record($contact->id(), $generation, 'accepted');
+        $contactId = $contact->id();
+
+        return $this->recordGenerationResult($contactId, $generationId, self::ACCEPTED);
     }
 
-    private function record(string $id, string $generation, string $status): ContactInfo
+    private function recordGenerationResult(string $id, string $generationId, string $status): ContactInfo
     {
         $store = $this->store;
 
-        return $store->transaction(static function () use ($store, $id, $generation, $status): ContactInfo {
+        return $store->transaction(static function () use ($store, $id, $generationId, $status): ContactInfo {
             $contact = $store->get($id);
-            $contact->recordDelivery($generation, $status);
+            $contact->recordDelivery($generationId, $status);
             $store->save($contact);
 
             return $contact;

@@ -20,18 +20,23 @@ Its tables are `account`, `user`, `admin`, and `contact_verification`. Do not ad
 - Require email and mobile input before User registration. Apply independent mobile and email proof requirements from the deployment policy. Default to required mobile and optional email.
 - Require a context token when either proof is required. Permit omission or null only when neither is required. Validate every supplied token. Find evidence by submitted values and context.
 - When a context is supplied, lock email and mobile slots in that order before checking time. Consume required and matching fresh optional proofs atomically with identity creation.
+- Keep proof deadlines and limits in `ContactVerificationPolicy`. Keep Redis quota reservations atomic and independent of delivery state.
 - Accept registration after all configured requirements pass. Mark ownership verified only when registration consumes evidence. Keep later contact verification records separate.
 - Permit authenticated Users to verify their stored Account email after login. Bind evidence to the USER realm, Account, and actor. Preserve ownership and sessions.
 - Password login returns a session after the required gates. TOTP enrollment and second-step login are absent under ADR-0049.
 - Store the Argon2id password hash directly in `account.password_hash`. Keep the credential port scalar and preserve Account locks and state checks.
 - Require both token and session allowlist records and current database identity state for authentication.
 - Use independent realm access-token, idle, and maximum durations. Preserve each session policy and fixed maximum during renewal.
-- Rotate refresh credentials atomically. Keep only hashes in Redis. Reuse for a new operation revokes the session.
+- Rotate refresh credentials atomically. Keep only hashes in Redis. Recognized reuse for a new operation revokes the session.
+- Preserve consumed refresh markers during recovery. Missing markers prevent reuse detection and require controlled invalidation.
 - Authenticate refresh credentials before replay. Reject obsolete replay results before sending an older cookie.
 - Require exact configured Origin for cookie login and renewal. Keep browser refresh secrets in Secure HttpOnly Strict cookies.
 - Extend idle only after successful database eligibility checks. Do not use background client renewal.
+- Serialize successful example-client logout cleanup with host-locked login and renewal operations.
 - MySQL and Redis do not share a transaction. Preserve database rejection of closed Accounts when Redis revocation fails.
 - Admin enrollment requires separate invitation and approval evidence. Operator commands must not issue tokens.
+- Admin API reapproval replaces evidence when its existing authorization and separate-evidence checks pass.
+- Actor removal preserves approval and does not revoke sessions. Restoration can permit an earlier unexpired credential again.
 - Keep first-Admin evidence in Admin state. Serialize operator setup and manual seeding with the same database-scoped lock.
 - Permit operator approval only for the sole pending Admin. Retained removed Admin rows prevent another first-Admin invitation.
 

@@ -25,21 +25,15 @@ final class SystemAdmin extends Actor
 
     public static function invite(IdentityId $id, IdentityId $accountId, string $invitationEvidence, DateTimeImmutable $now): self
     {
-        self::evidence($invitationEvidence);
+        self::assertValidEvidence($invitationEvidence);
 
         return new self($id, ['accountId' => $accountId->toString(), 'approved' => false, 'invitation' => $invitationEvidence, 'approval' => null, 'deletedAt' => null, 'revision' => 1, 'createdAt' => $now->format('Y-m-d H:i:s.u')]);
     }
 
     public function approve(string $approvalEvidence): void
     {
-        self::evidence($approvalEvidence);
-        $state         = $this->snapshot();
-        $authorization = $state->authorization;
-        $invitation    = $authorization->invitation;
-        if ($invitation === null || self::reference($invitation) === self::reference($approvalEvidence)) {
-            throw InvalidUserInput::create('Separate Admin invitation and approval evidence is required.');
-        }
-
+        self::assertValidEvidence($approvalEvidence);
+        $this->assertSeparateApprovalEvidence($approvalEvidence);
         $this->approveWith($approvalEvidence);
     }
 
@@ -48,12 +42,22 @@ final class SystemAdmin extends Actor
         $state         = $this->snapshot();
         $authorization = $state->authorization;
         $approved      = $authorization->approved;
-        if ($approved || $state->deletedAt !== null) {
+        if ($approved || $this->isRemoved()) {
             throw IdentityConflict::create('A pending first-Admin invitation is required.');
         }
     }
 
-    private static function evidence(string $value): void
+    private function assertSeparateApprovalEvidence(string $approvalEvidence): void
+    {
+        $state         = $this->snapshot();
+        $authorization = $state->authorization;
+        $invitation    = $authorization->invitation;
+        if ($invitation === null || self::reference($invitation) === self::reference($approvalEvidence)) {
+            throw InvalidUserInput::create('Separate Admin invitation and approval evidence is required.');
+        }
+    }
+
+    private static function assertValidEvidence(string $value): void
     {
         if (trim($value) === '' || strlen($value) > 255 || preg_match('/[\x00-\x1f\x7f]/', $value) === 1) {
             throw InvalidUserInput::create('A bounded Admin authorization evidence reference is required.');

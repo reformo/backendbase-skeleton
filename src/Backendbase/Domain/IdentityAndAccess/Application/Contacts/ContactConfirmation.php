@@ -19,12 +19,13 @@ final readonly class ContactConfirmation
 
     public function confirm(string $id, VerificationContextToken $token, VerificationScope $scope, VerificationCode $code): ContactInfo
     {
-        $store   = $this->store;
-        $contact = $store->transaction(fn () => $this->permitted($id, $token, $scope));
-        $checks  = $this->checks;
+        $store           = $this->store;
+        $findConfirmable = fn (): ContactInfo => $this->confirmableContact($id, $token, $scope);
+        $contact         = $store->transaction($findConfirmable);
+        $checks          = $this->checks;
         $checks->reserve($contact);
-        [$contact, $valid] = $store->transaction(function () use ($id, $token, $scope, $code): array {
-            $contact  = $this->permitted($id, $token, $scope);
+        [$contact, $accepted] = $store->transaction(function () use ($id, $token, $scope, $code): array {
+            $contact  = $this->confirmableContact($id, $token, $scope);
             $checks   = $this->checks;
             $now      = $checks->now();
             $valid    = $checks->valid($contact, $code);
@@ -34,7 +35,7 @@ final readonly class ContactConfirmation
 
             return [$contact, $accepted];
         });
-        if (! $valid) {
+        if (! $accepted) {
             throw AuthenticationDenied::create('Contact verification is not permitted.');
         }
 
@@ -43,13 +44,14 @@ final readonly class ContactConfirmation
         return $contact;
     }
 
-    private function permitted(string $id, VerificationContextToken $token, VerificationScope $scope): ContactInfo
+    private function confirmableContact(string $id, VerificationContextToken $token, VerificationScope $scope): ContactInfo
     {
         $store   = $this->store;
         $contact = $store->get($id);
         $contact->assertContext($token, $scope);
         $checks = $this->checks;
-        $contact->assertConfirmationAllowed($checks->now());
+        $now    = $checks->now();
+        $contact->assertConfirmationAllowed($now);
 
         return $contact;
     }

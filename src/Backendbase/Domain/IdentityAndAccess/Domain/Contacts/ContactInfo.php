@@ -39,13 +39,13 @@ final class ContactInfo
             throw IdentityConflict::create('The verification evidence has been consumed.');
         }
 
-        $verified = $state->verifiedAt;
-        if ($verified === null) {
+        $verifiedAt = $state->verifiedAt;
+        if ($verifiedAt === null) {
             throw AuthenticationDenied::create('The contact requires verification.');
         }
 
-        $date = new DateTimeImmutable($verified, new DateTimeZone('UTC'));
-        if ($date > $now || $date->modify('+12 hours') <= $now) {
+        $verificationTime = new DateTimeImmutable($verifiedAt, new DateTimeZone('UTC'));
+        if ($verificationTime > $now || $verificationTime->modify(ContactVerificationPolicy::EVIDENCE_LIFETIME) <= $now) {
             throw ContactVerificationExpired::create('The contact verification has expired.');
         }
     }
@@ -53,8 +53,8 @@ final class ContactInfo
     public function assertConfirmationAllowed(DateTimeImmutable $now): void
     {
         $state = $this->state;
-        if ($state->failedAttempts >= 5) {
-            throw VerificationLimited::create('The verification attempt limit was reached.', ['retryAfter' => 3600]);
+        if ($state->failedAttempts >= ContactVerificationPolicy::MAXIMUM_FAILED_ATTEMPTS) {
+            throw VerificationLimited::create('The verification attempt limit was reached.', ['retryAfter' => ContactVerificationPolicy::FAILED_ATTEMPT_RETRY_SECONDS]);
         }
 
         if ($state->verifiedAt !== null) {
@@ -90,19 +90,19 @@ final class ContactInfo
             throw IdentityConflict::create('Verified contact evidence cannot be renewed.');
         }
 
-        if ($state->failedAttempts >= 5) {
-            throw VerificationLimited::create('The verification attempt limit was reached.', ['retryAfter' => 3600]);
+        if ($state->failedAttempts >= ContactVerificationPolicy::MAXIMUM_FAILED_ATTEMPTS) {
+            throw VerificationLimited::create('The verification attempt limit was reached.', ['retryAfter' => ContactVerificationPolicy::FAILED_ATTEMPT_RETRY_SECONDS]);
         }
 
-        $previous = new DateTimeImmutable($state->lastSentAt, new DateTimeZone('UTC'));
-        if ($previous->modify('+60 seconds') > $now) {
-            throw VerificationLimited::create('Wait before requesting another code.', ['retryAfter' => 60]);
+        $lastSentAt = new DateTimeImmutable($state->lastSentAt, new DateTimeZone('UTC'));
+        if ($lastSentAt->modify(ContactVerificationPolicy::RESEND_COOLDOWN) > $now) {
+            throw VerificationLimited::create('Wait before requesting another code.', ['retryAfter' => ContactVerificationPolicy::RESEND_RETRY_SECONDS]);
         }
     }
 
     public function issue(string $generationId, string $codeHash, DateTimeImmutable $now): void
     {
-        $expires     = $now->modify('+5 minutes');
+        $expires     = $now->modify(ContactVerificationPolicy::CODE_LIFETIME);
         $expiresAt   = $expires->format('Y-m-d H:i:s.u');
         $lastSentAt  = $now->format('Y-m-d H:i:s.u');
         $state       = $this->state;
@@ -121,8 +121,9 @@ final class ContactInfo
 
     public function recordDelivery(string $generationId, string $status): void
     {
-        $state = $this->state;
-        if ($state->generationId !== $generationId) {
+        $state                    = $this->state;
+        $matchesCurrentGeneration = $state->generationId === $generationId;
+        if (! $matchesCurrentGeneration) {
             return;
         }
 

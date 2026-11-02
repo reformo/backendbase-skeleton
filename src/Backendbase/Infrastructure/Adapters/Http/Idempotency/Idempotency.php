@@ -45,12 +45,12 @@ final readonly class Idempotency implements MiddlewareInterface
 
     private function processWrite(ServerRequestInterface $request, RequestHandlerInterface $handler, string $key): ResponseInterface
     {
-        $exchange = $this->exchange;
-        $store    = $this->store;
-        $identity = $exchange->identity($request, $key);
-        $stored   = $store->claim($identity);
-        if ($stored !== null) {
-            return $exchange->replay($identity, $stored);
+        $exchange          = $this->exchange;
+        $store             = $this->store;
+        $identity          = $exchange->identity($request, $key);
+        $encryptedResponse = $store->claim($identity);
+        if ($encryptedResponse !== null) {
+            return $exchange->replay($identity, $encryptedResponse);
         }
 
         $response  = $exchange->execute($request, $handler);

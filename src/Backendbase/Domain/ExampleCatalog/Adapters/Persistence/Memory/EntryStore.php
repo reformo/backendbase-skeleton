@@ -24,7 +24,7 @@ final class EntryStore
 
     public function save(Entry $entry): void
     {
-        $this->rejectActiveIdentityConflict($entry);
+        $this->rejectNonRemovedIdentityConflict($entry);
         $this->entries[$entry->id()] = clone $entry;
     }
 
@@ -65,7 +65,7 @@ final class EntryStore
         return $entries;
     }
 
-    private function rejectActiveIdentityConflict(Entry $entry): void
+    private function rejectNonRemovedIdentityConflict(Entry $entry): void
     {
         if ($entry->isRemoved()) {
             return;

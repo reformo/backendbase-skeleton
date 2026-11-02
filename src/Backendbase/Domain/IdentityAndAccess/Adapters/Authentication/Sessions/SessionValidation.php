@@ -6,6 +6,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Sessions;
 
 final class SessionValidation
 {
+    // The caller requests idle extension only after the database eligibility gate succeeds.
     public const string SCRIPT = SessionScripts::READ . "\n" . SessionScripts::LIVE . "\n" . <<<'LUA'
 local token, session, blocked = record(KEYS[1]), record(KEYS[2]), redis.call('EXISTS', KEYS[3])
 local state = decoded(session)

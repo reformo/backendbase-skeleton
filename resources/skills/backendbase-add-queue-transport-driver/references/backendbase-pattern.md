@@ -129,6 +129,7 @@ Keep secrets outside source and logs. Use neutral values in local examples.
 - Caught handler exceptions produce transport-level diagnostic evidence without sensitive message content.
 - Poll bounds must obey vendor limits.
 - Outbox publication in Backendbase uses the configured default route. Per-event routing is not stored in each outbox row.
+- In an unmodified Backendbase target, a failed RabbitMQ confirm selection can leave an open cached channel. Recreate the adapter before relying on confirms.
 - A new driver changes readiness and deployment configuration.
 
 ## Authorization boundary

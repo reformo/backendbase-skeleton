@@ -80,6 +80,9 @@ Only SHA-256 context digests are stored. The context token has 256 bits of rando
 Six-digit code hashes use the keyed proof hasher and bind contact, generation, purpose, realm, and record identity.
 Neither the plaintext code nor the raw context token is stored in `contact_verification`.
 The contact record retains code deadlines, attempts, delivery state, verification time, and consumption evidence.
+`ContactVerificationPolicy` names the code, resend, evidence, and failed-attempt limits.
+`ContactInfo` applies those guards. `ContactInfoView` uses the same resend and evidence intervals for response deadlines.
+The request workflow checks resend eligibility before issuing a replacement. Direct issuance does not repeat that guard.
 `ContactState` provides immutable typed access to its stored JSON snapshot. Reconstruction validates all declared field types.
 Mapped columns remain authoritative for contact identity, owner references, verification time, and row revision.
 The JSON snapshot retains its existing duplicate fields. Do not log or expose its complete serialization.
@@ -134,6 +137,8 @@ Redis performs atomic request reservations with expiring counters:
 
 A successful confirmation releases its outstanding failure reservation.
 An interrupted or failed operation keeps that reservation. This conservatively limits retries.
+The limiter's send, confirmation-reservation, and confirmation-release scripts own these counter transitions.
+The verification proof and delivery generation do not replace or duplicate the Redis counters.
 Hourly counters expire one hour after their first reservation. Resend does not renew their window.
 A reservation rejected by a later database race can remain charged. It never permits an extra send.
 Use `REMOTE_ADDR` for the client address. Forwarded headers do not override this address.

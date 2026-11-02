@@ -50,6 +50,10 @@ Clear safe metadata and route caches when their sources change.
 Restart PHP-FPM and the affected consumer instances.
 Verify readiness, outbox health, and process status.
 
+After an interrupted deployment or rollback, compare the active and previous links with `state/active-release.json` and the recovery records.
+An interruption after a link switch can leave those records inconsistent. The interruption trap does not restore the prior link.
+Check migration and backup evidence before recovery. An interrupted migration can leave a partially changed schema.
+
 Application configuration and container definitions do not write credential values into persistent caches.
 Doctrine and object-mapping caches contain metadata. Route caches contain trusted route definitions.
 

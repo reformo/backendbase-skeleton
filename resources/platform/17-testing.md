@@ -99,6 +99,10 @@ All twelve protected ExampleApi routes reject missing, invalid, ADMIN, revoked, 
 Example detail reads retain API-key protection without checking bearer credentials.
 Admin contact resend tests verify cooldown, context rejection, notification delivery, and confirmation without granting approval or changing Account ownership.
 Account closure tests reject existing tokens and new login in both realms. Revocation tests cover User logout and Admin token revocation while preserving another Admin session.
+Token-only revocation tests renew the same session through UserApi, ExampleApi, and SystemAdminApi before logout.
+Session deadline tests distinguish the idle and maximum boundaries. Client tests cover logout during renewal and uncertain secure-storage retries.
+The Node browser scenario uses an injected serial lock. It does not exercise a browser's Web Locks implementation.
+The HTTP diagnostic privacy test checks that synthetic access and refresh credentials do not appear in error logs or responses.
 Identity health tests execute both API route maps. Liveness skips dependency checks. Readiness returns 200 or a safe 503 response through deterministic dependency doubles.
 `tests/Tools/OpenApiTagsTest.php` verifies valid tags, invalid tags, referenced path files, and invalid files with isolated fixtures.
 
@@ -107,6 +111,13 @@ User email tests cover registration without email proof, stored-email verificati
 Ownership state tests persist and reload both boolean values through `ownershipVerified`. Admin and seeder checks retain verified ownership.
 Registration tests cover all four policy combinations in UserApi and ExampleApi, required and optional evidence, and context omission.
 Compatibility tests preserve legacy authentication decisions and existing sessions after stricter configuration. User acceptance cannot authorize Admin login.
+Realm eligibility tests cover each acceptance and ownership combination, reconstruction, and closed Accounts.
+Actor lifecycle tests cover approval, removal, restoration, retained sessions, and Admin API reapproval.
+The Example repository contract covers inactive visibility, reactivation, and identity reservation in both adapters.
+Adapter-specific tests record their different handling of a second save after Entry removal.
+Contact state tests cover microsecond deadline boundaries, failed attempts across resends, and stale delivery generations.
+Quota tests cover cross-realm scope, expiring reservations, successful release, and simulated database races or interruption.
+An API test confirms a valid code after an unknown provider outcome. Native-service tests remain separate.
 Identity state tests cover exact JSON serialization, nullable fields, missing fields, invalid types, and unknown fields.
 Production Doctrine mapping tests verify typed replacement, fresh hydration, unchanged earlier snapshots, and rejection before domain use.
 Contact tests preserve authoritative column values when JSON contains duplicate snapshot fields.
@@ -118,6 +129,8 @@ They cover preview, separate evidence, repeated approval, additional and removed
 `CommandAndQueryContractsTest` verifies stable entry serialization, rejection before patch replacement, and null clearing of pending changes.
 Native MySQL tests verify fresh installation without operator history, first-Admin approval, and competing setup lock timeouts.
 SQLite tests verify transaction rollback. Redis doubles verify commands, key scope, expiry arguments, and response validation.
+The renewable-session registry tests use Redis client doubles for activation, lookup, rotation, rejected responses, and refresh-secret handling.
+They do not execute Redis Lua scripts or establish native atomicity.
 Native RedisJSON tests verify token and session objects, key-level TTL, automatic removal, unchanged claims, and existing string-record reads.
 They also verify duplicate-token and duplicate-session rejection without partial records or lifetime renewal.
 Restricted Redis test users reject `JSON.SET` or `EXPIRE` to verify cleanup after a failed activation.
@@ -129,6 +142,8 @@ Native MySQL tests cover Turkish UCA comparison and NO PAD uniqueness, error 121
 `RedisVerificationLimiterTest` executes the contact cooldown, contact/IP send budgets, and confirmation reservation scripts on a prepared Redis target.
 `MySqlContactVerificationTest` checks single proof consumption and deadlines after observed contact lock waits with separate PHP processes.
 `RedisRecoveryTest` uses fixture-owned `DUMP` and `RESTORE` records to check loss, partial recovery, reconnection, and current Account closure.
+`RedisRefreshHistoryTest` checks consumed-marker loss in both realms on an explicitly prepared Redis 8 target.
+The PHP domain deadline and Redis Lua clock guards differ when time moves backward after activity. Test production behavior with native Redis.
 The Redis recovery Account gate uses isolated SQLite persistence. It does not prove MySQL/Redis atomicity or production replica durability.
 `RedisFailoverTest` runs eight cases through a disposable primary, replica, and three Sentinels.
 It verifies planned promotion, primary failure, stale revocations, and quorum loss through the production Redis connection provider.
@@ -149,6 +164,8 @@ After ADR Markdown changes, run `node bin/build-adr-index.mjs`, then `node bin/b
 Run `vendor/bin/phpunit tests/Tools --filter MessageViewer` for the local SMS and email viewer.
 These tests cover parsing, bounded process reads, provider failures, HTTP responses, local-only access, and safe email previews.
 They use isolated PHP child processes and HTTP client doubles. They send no notifications.
+Run `node --test tests/Tools/message-viewer.test.mjs` for per-type loading, overlapping requests, failures, type switching, and scheduled refresh.
+The Node tests use a DOM double and simulated timeouts. They do not verify real browser rendering or a live viewer server.
 Verify browser rendering, filtering, refresh, and email previews against existing MiniStack captures after UI changes.
 
 Run `vendor/bin/phpunit tests/Tools/DevelopmentCommandsTest.php` for the shared `bin/dev` environment check.
@@ -198,9 +215,12 @@ Basis: `resources/docs/10-testing-and-quality.html`.
 
 HTTP replay tests under `tests/Infrastructure/Inbound/Idempotency` cover login, registration, contact delivery, and revoked authentication.
 Adapter tests cover request matching, parallel attempts, encryption, storage failure, expiry, and cleanup.
+`ReplayPersistenceStateTest` commits a business write through a separate SQLite connection before forcing replay storage failure.
+It also checks that corrupt ciphertext cannot cause another execution. Deadline tests cover the microsecond before and the instant of expiry.
 `IdempotencyContractTest` checks required write headers, runtime rejection, CORS, and maintained Bruno headers.
 Native MySQL replay checks remain opt-in and require a prepared target.
 `MySqlHttpReplayTest` verifies HTTP replay, conflicts, encryption, expiry, cleanup, and unresolved claims through independent MySQL connections.
+`MySqlCommittedReplayTest` checks a committed business write followed by response-storage failure on a prepared MySQL target.
 See [HTTP idempotency](operations/http-idempotency.md).
 
 ## Runtime composition evidence
@@ -229,6 +249,9 @@ This evidence covers supported repository configuration. It does not establish d
 Identity snapshot tests verify immutable replacements, exact reconstruction, legacy registration acceptance, and unchanged earlier snapshots.
 Registration ordering tests verify hashing before transaction entry and rollback after a credential write failure.
 Event tests advance the clock before transactional work. They compare exact event and audit instants with stored outbox occurrence and creation times.
+Outbox claim tests cover expiry, token replacement, and stale completion. An isolated interruption test passes duplicate publications through the database inbox.
+External-effect tests cover an outer transaction, deadline equality, interrupted claims, completion failure, and both evidence-backed resolutions.
+Queue settlement tests apply the same outcomes to RabbitMQ and SQS doubles. They simulate SQS redelivery without proving broker redrive.
 
 ## Local deployment runtime
 

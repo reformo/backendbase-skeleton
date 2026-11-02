@@ -8,6 +8,7 @@ use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryByCriteria;
 use Backendbase\Domain\ExampleCatalog\Contracts\Query\GetEntryIdByCriteria;
 use Backendbase\Domain\ExampleCatalog\Domain\EntryType;
 use Backendbase\Domain\ExampleCatalog\Tests\Adapters\Persistence\EntryRepositoryContract;
+use Backendbase\Shared\Exception\ResourceNotFound;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\Doctrine\UuidBinaryType;
@@ -68,5 +69,19 @@ final class EntryRepositoryTest extends DoctrineEntryRepositoryTestCase
             new GetEntryIdByCriteria(EntryType::SYSTEM, null, 'settings', 'first'),
         );
         self::assertNull($storedEntryId);
+    }
+
+    #[Test]
+    public function itRejectsSavingAnEntryAfterItsRemovalWasSaved(): void
+    {
+        $entryId = Uuid::uuid7()->toString();
+        $this->addEntry($entryId, 'settings', 'first', 'one');
+        $writer = $this->writeRepository();
+        $entry  = $writer->getActive($entryId);
+        $entry->remove(new DateTimeImmutable('2026-10-16T11:00:00Z'));
+        $writer->save($entry);
+        $entry->change(false, 'changed', null, new DateTimeImmutable('2026-10-16T12:00:00Z'));
+        $this->expectException(ResourceNotFound::class);
+        $writer->save($entry);
     }
 }

@@ -71,6 +71,7 @@
 <section id="rollback"><p class="section-label">09 · Recovery</p><h2>Prepare recovery before migration</h2>
 <ul><li>Keep the previous release directory available.</li><li>Record whether the previous application supports the target schema.</li><li>Prefer a forward repair when MySQL has committed part of a schema change.</li>
 <li>Use the required backup hook before migration.</li><li>Use <code>rollback-release.sh</code> only for the recorded previous revision.</li><li>Preserve recovery files, failed messages, and logs for diagnosis.</li></ul>
+<p>An interruption after a link switch can leave the active link and <code>active-release.json</code> inconsistent. Compare both links, recovery records, hook results, and schema before recovery. An interrupted migration can have a partial outcome.</p>
 </section>
 <section id="secrets"><p class="section-label">10 · Secrets</p><h2>Inject target values outside source control</h2>
 <p>Each release links to a protected environment file under <code>/opt/backendbase/shared</code>. Protect database credentials, API keys, RabbitMQ credentials, AWS credentials, object-store credentials, and Tolgee keys.</p>

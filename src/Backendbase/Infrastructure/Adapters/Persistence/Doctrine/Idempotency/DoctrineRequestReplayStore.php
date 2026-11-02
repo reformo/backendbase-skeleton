@@ -30,6 +30,7 @@ final readonly class DoctrineRequestReplayStore implements RequestReplayStore
         $now         = $this->timestamp();
         $keyHash     = $identity->keyHash;
         $fingerprint = $identity->fingerprint;
+        // An unresolved claim cannot expire or be replaced automatically.
         $connection->executeStatement(
             'DELETE FROM http_request_replay WHERE request_hash = ? AND expires_at <= ? AND response IS NOT NULL',
             [$keyHash, $now],
@@ -43,7 +44,7 @@ final readonly class DoctrineRequestReplayStore implements RequestReplayStore
 
             return null;
         } catch (UniqueConstraintViolationException) {
-            return $this->existing($identity);
+            return $this->resolveExistingClaim($identity);
         }
     }
 
@@ -51,11 +52,11 @@ final readonly class DoctrineRequestReplayStore implements RequestReplayStore
     {
         $connection  = $this->connection();
         $clock       = $this->clock;
-        $now         = $clock->now();
-        $expires     = $now->modify('+24 hours');
+        $completedAt = $clock->now();
+        $deadline    = $completedAt->modify('+24 hours');
         $keyHash     = $identity->keyHash;
         $fingerprint = $identity->fingerprint;
-        $expiresAt   = $expires->format('Y-m-d H:i:s.u');
+        $expiresAt   = $deadline->format('Y-m-d H:i:s.u');
         $changed     = $connection->executeStatement(
             'UPDATE http_request_replay SET response = ?, expires_at = ? WHERE request_hash = ? AND fingerprint = ? AND response IS NULL',
             [$response, $expiresAt, $keyHash, $fingerprint],
@@ -84,7 +85,7 @@ final readonly class DoctrineRequestReplayStore implements RequestReplayStore
         );
     }
 
-    private function existing(RequestIdentity $identity): string
+    private function resolveExistingClaim(RequestIdentity $identity): string
     {
         $connection = $this->connection();
         $keyHash    = $identity->keyHash;

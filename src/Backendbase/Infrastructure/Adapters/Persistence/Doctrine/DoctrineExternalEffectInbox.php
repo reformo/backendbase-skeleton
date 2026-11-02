@@ -6,9 +6,11 @@ namespace Backendbase\Infrastructure\Adapters\Persistence\Doctrine;
 
 use Backendbase\Infrastructure\Adapters\Persistence\Doctrine\Inbox\ExternalEffectClaims;
 use Backendbase\Shared\Persistence\ExternalEffectInbox;
+use Backendbase\Shared\Persistence\ExternalEffectInProgress;
 use Backendbase\Shared\Persistence\ExternalEffectOutcomeUnknown;
 use Backendbase\Shared\Time\Clock;
 use Doctrine\DBAL\Connection;
+use LogicException;
 use Throwable;
 
 final readonly class DoctrineExternalEffectInbox implements ExternalEffectInbox
@@ -20,6 +22,11 @@ final readonly class DoctrineExternalEffectInbox implements ExternalEffectInbox
         $this->claims = new ExternalEffectClaims($connection, $claimTtlSeconds);
     }
 
+    /**
+     * @throws ExternalEffectInProgress
+     * @throws ExternalEffectOutcomeUnknown
+     * @throws LogicException
+     */
     public function processOnce(
         string $consumerName,
         string $messageId,

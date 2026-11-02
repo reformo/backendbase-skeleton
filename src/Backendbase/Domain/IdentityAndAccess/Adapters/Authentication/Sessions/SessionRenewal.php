@@ -6,6 +6,7 @@ namespace Backendbase\Domain\IdentityAndAccess\Adapters\Authentication\Sessions;
 
 final class SessionRenewal
 {
+    // A recognized consumed credential can authenticate a replay; a missing marker cannot identify reuse.
     public const string LOOKUP = SessionScripts::READ . "\n" . SessionScripts::LIVE . "\n" . <<<'LUA'
 local value = record(KEYS[1])
 local state = decoded(value)
@@ -19,6 +20,7 @@ end
 return 0
 LUA;
 
+    // Rotation replaces the current digest and records its predecessor in the same atomic Redis script.
     public const string ROTATE = SessionScripts::READ . "\n" . SessionScripts::LIVE . "\n" . <<<'LUA'
 local state = decoded(record(KEYS[2]))
 local now = tonumber(redis.call('TIME')[1])

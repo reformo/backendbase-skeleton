@@ -5,6 +5,9 @@ Set `BACKENDBASE_QUEUE_DRIVER` to `rabbitmq` or `sqs`. RabbitMQ is the default a
 Queue clients depend on separate `MessagePublisher` and `MessageConsumer` ports. The ports exchange typed `Message`, `MessageSubscription`, and `MessagePublicationResult` objects. Vendor results stay inside Infrastructure adapters.
 
 The composition root configures the RabbitMQ readiness connection factory. The readiness check requests a temporary connection and closes it after the probe.
+The RabbitMQ adapter reuses an open channel. It stores the channel before selecting publisher confirms.
+If confirm selection fails and the channel remains open, a later call can reuse it without selecting confirms again. Recreate the adapter after that failure.
+If channel close fails, the exception propagates before the adapter closes the connection.
 
 ## Driver behavior
 
@@ -15,6 +18,7 @@ The composition root configures the RabbitMQ readiness connection factory. The r
 | Reject | Dead-letter without requeue | Keep until redrive policy acts |
 
 RabbitMQ declares a dead-letter queue. SQS requires an infrastructure redrive policy. `outbox:replay` previews one replay by default. `--apply` records operator evidence and schedules the original message.
+A recorded application rejection does not prove that a broker moved the message. SQS can deliver it again before redrive.
 `external-effect:resolve` records accepted or confirmed nonaccepted provider outcomes. Active claims cannot be resolved.
 Only confirmed nonacceptance releases an uncertain external-effect claim for another attempt.
 Replay uses the original UTC occurrence time and permits at most seven days.

@@ -378,7 +378,8 @@ vendor/bin/phpunit src/Backendbase/Domain/ExampleCatalog/Tests
 The [engineering assessment](code-quality-and-maintainability-report.html) scores current source quality at **9.8/10** from 98/100 points.
 The [architecture assessment](ports-and-adapters-critique.html) scores dependency and design criteria at **9.9/10** from 79.5/80 points.
 Both reports state criterion weights, evidence, deductions, and execution limits.
-The disposable deployment rehearsal passes installation, concurrent cold startup, and recovery checks.
+The scores and deployment rehearsal describe an earlier recorded assessment. The 74 previously skipped MySQL, Redis, and Sentinel cases passed in a later isolated run.
+The recorded disposable deployment rehearsal passed installation, concurrent cold startup, and recovery checks.
 All 48 cold-start requests preserve valid responses. Redis outage returns one JSON problem with HTTP 503.
 See the [local release evidence](code-quality-and-maintainability-report.html#local-deployment).
 
@@ -388,17 +389,18 @@ See the [local release evidence](code-quality-and-maintainability-report.html#lo
 - Four installation migrations create eleven application tables. Existing databases require a separate adoption plan.
 - Domain objects own identity decisions. Aggregate snapshots are typed. Event constructors receive explicit instants. Fixed command inputs use typed fields. The operator handler records results directly after the clock-backed workflow completes.
 
-The current native-enabled suite passes all 1,681 cases with zero skips.
-It records 83,987 assertions, no failures or errors, and 100% executable-line and method coverage.
-PHPStan level 8, complexity, coding standards, API validation, and temporary deployment fixtures pass.
+On 2 November 2026, the isolated suite passed 1,714 cases and skipped 74 service-backed cases.
+It recorded 88,114 assertions and 100% executable-line and method coverage. Client doubles do not prove native Redis behavior.
+A later targeted run passed all 74 skipped cases. The selection contained 79 tests and 971 assertions.
+PHPStan level 8, complexity, coding standards, API validation, and temporary deployment fixtures passed.
 All 41 factories in 13 providers have maintained evidence. Tests execute supported runtime branches without external delivery.
 Registration hashes passwords before its transaction. Tests verify hash failure isolation and rollback after credential failure.
 Dependency integrity scores **10/10**. All 141 pristine packages match committed content digests and the software bill of materials.
 Isolated Composer diagnosis, strict validation, and the current advisory audit pass. No advisories or abandoned packages are reported.
 The Public API contracts score is **10/10**. All 52 maintained Bruno operations pass through 58 requests and 58 named tests.
 Reports exclude headers and bodies. The disposable fixtures and services are removed.
-Security verification scores **9.5/10**. Native MySQL, Redis, and Sentinel tests pass.
-Recorded live checks before session renewal cover 52 operations and all 38 writes. Semgrep and authenticated ZAP scans for three APIs pass.
+The earlier security assessment scored **9.5/10** and passed native MySQL, Redis, and Sentinel tests.
+Recorded live checks before session renewal covered 52 operations and all 38 writes. Semgrep and authenticated ZAP scans for three APIs passed in that assessment.
 Deployment durability and production acceptance remain unverified.
 See the [current verification evidence](code-quality-and-maintainability-report.html#evidence).
 

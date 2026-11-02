@@ -16,13 +16,19 @@ interface TokenRegistry
 
     public function assertActive(Principal $principal, bool $touch = false): void;
 
+    /**
+     * Allow a recognized consumed credential for replay authentication and result checks.
+     * A new rotation must require the current credential. A replay result must still be current.
+     */
     public function session(Realm $realm, RefreshToken $token, bool $allowUsed = false): SessionState;
 
     public function rotate(RefreshToken $provided, SessionState $replacement, DateTimeImmutable $expiresAt): void;
 
     public function revokeAccount(string $accountId): void;
 
+    /** Revoke this access token without ending its renewable session. */
     public function revokeToken(Principal $principal): void;
 
+    /** End the session and revoke the supplied access token. */
     public function revokeSession(Principal $principal): void;
 }

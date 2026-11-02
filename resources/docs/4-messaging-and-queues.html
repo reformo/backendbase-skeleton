@@ -708,6 +708,7 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 <article class="card">
                     <h3>Parallel relay safety</h3>
                     <p>MySQL uses <code>FOR UPDATE SKIP LOCKED</code>. Each relay also writes a 60-second claim token.</p>
+                    <p>Expiry permits a new claim. The original token can still complete until another relay replaces it.</p>
                 </article>
                 <article class="card">
                     <h3>Duplicate window</h3>
@@ -876,12 +877,14 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 <li>The inbox commits the database mutation and <code>processed_at</code> in one transaction.</li>
             </ul>
             <p><code>Infrastructure/Messaging/QueueMessageFailureService</code> owns permanent, transient, and five-attempt decisions. <code>DoctrineQueueMessageFailureStore</code> only records, marks, and clears failure state.</p>
+            <p>The rejection timestamp records an application decision. A later delivery can clear it or remove the failure record after success.</p>
 
             <h3>External effects</h3>
             <p>
                 Notification delivery cannot share a database transaction with the external provider.
                 <code>ExternalEffectInbox</code> uses a 300-second claim instead.
             </p>
+            <p>The claim connection must have no active outer transaction. The adapter rejects nested use before the provider call.</p>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>State</th><th>Consumer result</th><th>Reason</th></tr></thead>
@@ -922,6 +925,8 @@ bin/doctrine migrations:migrate --no-interaction</code></pre></div>
                 Create the queue, dead-letter queue, retention policy, and redrive policy outside this application.
                 Set the redrive count to match the five-attempt messaging policy when possible.
             </div>
+            <p>If RabbitMQ confirm selection fails and its channel remains open, the adapter can reuse that channel without selecting confirms again. Recreate the adapter after that failure.</p>
+            <p>If channel close fails, the exception propagates before the adapter closes the connection.</p>
         </section>
 
         <section id="commands">

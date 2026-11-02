@@ -80,6 +80,30 @@ final class DoctrineInboxMessageTransactionTest extends TestCase
         self::assertSame(0, $this->rowCount('integration_event_inbox'));
     }
 
+    public function testRollbackAfterMutationAllowsTheSameDeliveryToRunAgain(): void
+    {
+        $connection  = $this->connection;
+        $transaction = new DoctrineInboxMessageTransaction(EntityManagerFactory::create($connection), $this->clock);
+        try {
+            $transaction->processOnce('events', 'message-id', 'Example_Changed_Event', static function () use ($connection): void {
+                $connection->insert('subscriber_write', ['id' => 'write-id']);
+
+                throw new RuntimeException('Failure after the database mutation.');
+            });
+            self::fail('The failed mutation must roll back.');
+        } catch (RuntimeException $exception) {
+            self::assertSame('Failure after the database mutation.', $exception->getMessage());
+        }
+
+        self::assertSame(0, $this->rowCount('subscriber_write'));
+        self::assertSame(0, $this->rowCount('integration_event_inbox'));
+        $transaction->processOnce('events', 'message-id', 'Example_Changed_Event', static function () use ($connection): void {
+            $connection->insert('subscriber_write', ['id' => 'write-id']);
+        });
+        self::assertSame(1, $this->rowCount('subscriber_write'));
+        self::assertSame(1, $this->rowCount('integration_event_inbox'));
+    }
+
     private function rowCount(string $table): int
     {
         return (int) $this->connection->fetchOne('SELECT COUNT(*) FROM ' . $table);

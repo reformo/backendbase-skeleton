@@ -50,15 +50,16 @@ final readonly class SessionIssuance
         $principal = $state->principal;
         $gate->confirm($principal);
 
-        return $state->principal;
+        return $principal;
     }
 
     public function confirmResult(Realm $realm, RefreshToken $token): void
     {
-        $tokens = $this->tokens;
-        $state  = $tokens->session($realm, $token, true);
-        $hash   = $token->digest();
-        if ($state->refreshHash !== $hash) {
+        $tokens               = $this->tokens;
+        $state                = $tokens->session($realm, $token, true);
+        $presentedRefreshHash = $token->digest();
+        $currentRefreshHash   = $state->refreshHash;
+        if ($currentRefreshHash !== $presentedRefreshHash) {
             throw IdentityConflict::create('The renewal result was replaced. Renew with the current refresh credential.');
         }
     }
@@ -71,7 +72,7 @@ final readonly class SessionIssuance
         $expected  = $tokens->session($realm, $provided);
         $principal = $expected->principal;
         $gate->confirm($principal);
-        $refreshToken = RefreshToken::create($expected->principal);
+        $refreshToken = RefreshToken::create($principal);
         $session      = new Session($expected);
         $session->rotate($refreshToken, $now);
         $replacement = $session->snapshot();

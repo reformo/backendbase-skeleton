@@ -85,4 +85,22 @@ final class EntryRepositoryTest extends TestCase
 
         $this->writeRepository->getActive('018f0000-0000-7000-8000-000000000001');
     }
+
+    #[Test]
+    public function itCanSaveAChangedEntryAfterItsRemovalWasSaved(): void
+    {
+        $store  = new EntryStore();
+        $writer = new EntryWriteRepository($store);
+        $entry  = Entry::create('018f0000-0000-7000-8000-000000000001', EntryType::SYSTEM, null, 'settings', true, 'page-size', '25', [], new DateTimeImmutable('2026-10-16T10:00:00Z'));
+        $writer->add($entry);
+        $entry->remove(new DateTimeImmutable('2026-10-16T11:00:00Z'));
+        $writer->save($entry);
+        $entry->change(false, '30', null, new DateTimeImmutable('2026-10-16T12:00:00Z'));
+        $writer->save($entry);
+        $stored = $store->get('018f0000-0000-7000-8000-000000000001');
+        self::assertNotNull($stored);
+        self::assertTrue($stored->isRemoved());
+        $snapshot = $stored->snapshot();
+        self::assertSame('30', $snapshot->lookupValue());
+    }
 }

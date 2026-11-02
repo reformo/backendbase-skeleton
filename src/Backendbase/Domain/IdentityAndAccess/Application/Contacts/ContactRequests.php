@@ -23,18 +23,20 @@ final readonly class ContactRequests
     /** @return array{ContactInfo, VerificationCode|null} */
     public function request(ContactValue $value, VerificationContextToken $token, VerificationScope $scope, VerificationClient $client): array
     {
-        $store    = $this->store;
-        $existing = $store->transaction(fn () => $this->existing($value, $token, $scope));
+        $store        = $this->store;
+        $findMatching = fn (): ContactInfo|null => $this->matchingSlot($value, $token, $scope);
+        $existing     = $store->transaction($findMatching);
         if ($existing !== null) {
             return [$existing, null];
         }
 
         $issuance = $this->issuance;
         $issuance->reserve($value, $client);
+        $create = fn () => $this->create($value, $token, $scope);
         try {
-            return $store->transaction(fn () => $this->create($value, $token, $scope));
+            return $store->transaction($create);
         } catch (IdentityConflict $exception) {
-            $existing = $store->transaction(fn () => $this->existing($value, $token, $scope));
+            $existing = $store->transaction($findMatching);
             if ($existing === null) {
                 throw $exception;
             }
@@ -46,7 +48,7 @@ final readonly class ContactRequests
     /** @return array{ContactInfo, VerificationCode|null} */
     private function create(ContactValue $value, VerificationContextToken $token, VerificationScope $scope): array
     {
-        $existing = $this->existing($value, $token, $scope);
+        $existing = $this->matchingSlot($value, $token, $scope);
         if ($existing !== null) {
             return [$existing, null];
         }
@@ -65,13 +67,15 @@ final readonly class ContactRequests
     /** @return array{ContactInfo, VerificationCode} */
     public function resend(string $id, VerificationContextToken $token, VerificationScope $scope, VerificationClient $client): array
     {
-        $store    = $this->store;
-        $contact  = $store->transaction(fn () => $this->resendable($id, $token, $scope));
-        $issuance = $this->issuance;
-        $issuance->reserve($contact->contact(), $client);
+        $store          = $this->store;
+        $findResendable = fn (): ContactInfo => $this->resendableContact($id, $token, $scope);
+        $contact        = $store->transaction($findResendable);
+        $issuance       = $this->issuance;
+        $value          = $contact->contact();
+        $issuance->reserve($value, $client);
 
         return $store->transaction(function () use ($id, $token, $scope): array {
-            $contact  = $this->resendable($id, $token, $scope);
+            $contact  = $this->resendableContact($id, $token, $scope);
             $issuance = $this->issuance;
             $store    = $this->store;
             $code     = $issuance->replacement($contact);
@@ -83,18 +87,19 @@ final readonly class ContactRequests
         });
     }
 
-    private function resendable(string $id, VerificationContextToken $token, VerificationScope $scope): ContactInfo
+    private function resendableContact(string $id, VerificationContextToken $token, VerificationScope $scope): ContactInfo
     {
         $store   = $this->store;
         $contact = $store->get($id);
         $contact->assertContext($token, $scope);
         $issuance = $this->issuance;
-        $contact->assertResendAllowed($issuance->now());
+        $now      = $issuance->now();
+        $contact->assertResendAllowed($now);
 
         return $contact;
     }
 
-    private function existing(ContactValue $value, VerificationContextToken $token, VerificationScope $scope): ContactInfo|null
+    private function matchingSlot(ContactValue $value, VerificationContextToken $token, VerificationScope $scope): ContactInfo|null
     {
         $store   = $this->store;
         $contact = $store->slot($token, $scope, $value);
@@ -103,8 +108,10 @@ final readonly class ContactRequests
         }
 
         $contact->assertContext($token, $scope);
-        $stored = $contact->contact();
-        if ($stored->value() !== $value->value()) {
+        $stored         = $contact->contact();
+        $storedValue    = $stored->value();
+        $requestedValue = $value->value();
+        if ($storedValue !== $requestedValue) {
             throw IdentityConflict::create('The contact value in this verification context cannot change.');
         }
 

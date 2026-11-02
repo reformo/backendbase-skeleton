@@ -9,7 +9,8 @@ Integration consumers use an inbox transaction. External-effect consumers use a 
 - Success commits consumer database work and `processed_at` together.
 - Permanent contract failures reject the message.
 - Transient failures retry through `QueueMessageFailureService`.
-- `Infrastructure/Messaging/QueueMessageFailureService` makes delivery failures terminal after five attempts.
+- `Infrastructure/Messaging/QueueMessageFailureService` returns rejection at five transient attempts or after a permanent failure.
+- A recorded rejection is an application decision. Later redelivery can change the failure record or clear it after success.
 - `DoctrineQueueMessageFailureStore` only records, marks, and clears supplied failure state.
 - `QueueMessageFailureService` and the database inbox read `Shared/Time/Clock` for failure and completion timestamps used by retention.
 - An ORM flush failure that closes the persistence session raises `ConsumerRestartRequired` after transaction rollback.
@@ -25,6 +26,8 @@ Integration consumers use an inbox transaction. External-effect consumers use a 
 - Resolve unknown outcomes through provider records and the message ID.
 
 `DoctrineExternalEffectInbox` reads the UTC clock and delegates claim persistence to `Doctrine/Inbox/ExternalEffectClaims`. A claim equal to the current instant remains active. An expired incomplete claim has an unknown outcome and must not repeat the provider call.
+The claim connection must have no active outer transaction. The adapter rejects that case before the provider call.
+The original worker can record completion after the deadline while its token still matches. A resolution removes or clears that token.
 
 Cleanup reads the same clock contract. It deletes terminal records strictly older than the retention cutoff and preserves records exactly at that cutoff.
 

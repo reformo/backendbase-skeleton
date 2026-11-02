@@ -35,8 +35,21 @@ Concurrency workers use separate PHP processes and database connections.
 Tests wait for an observed InnoDB lock wait before allowing the competing transaction to proceed.
 Contact registration tests use the actual context and evidence locks. SQLite does not prove those lock waits.
 
+## Focused native state-machine verification
+
+On 2 November 2026, a targeted run executed all 74 cases skipped by the earlier isolated suite.
+The selection contained 79 cases and 971 assertions. All passed with zero skips.
+The five additional cases were already passing Redis adapter tests.
+The run used PHP 8.5.12, MySQL 8.4.11, and Redis 8.10.2 with RedisJSON.
+The Sentinel cases used one primary, one replica, and three Sentinels in a separate Compose project.
+MySQL and Redis used temporary memory storage and random ports bound to localhost.
+The tests ran from 19:46:33 to 19:48:37 UTC. Cleanup removed both projects' containers, networks, and volumes.
+The targeted run did not repeat the complete native-enabled suite or establish production acceptance.
+RabbitMQ, SQS, external providers, and target deployment remain separate verification boundaries.
+
 ## Latest isolated regression evidence
 
+The following entries record earlier full-suite runs.
 The full suite passed on 18 October 2026 with configurable registration and kebab-case configuration changes present.
 
 | Evidence | Recorded value |
