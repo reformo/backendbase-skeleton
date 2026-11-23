@@ -1,5 +1,6 @@
 /.agents export-ignore
 /.github export-ignore
+/javascript export-ignore
 /artifacts export-ignore
 /resources/docs export-ignore
 /tests export-ignore

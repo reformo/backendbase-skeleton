@@ -12,7 +12,7 @@ composer --timeout=0 run start-apis
 [`reformo-orchestration.ini`](reformo-orchestration.ini) declares the project-copy settings:
 
 - `base-name` is `backendbase`.
-- `omit-files` excludes the orchestration file and three listed example/account migration files from the copy.
+- `omit-files` excludes the orchestration file, the listed migration and the separate `javascript/` package from PHP project copies.
 - `preserve-manifest` preserves the target project's `composer.json` sections `require` and `require-dev`.
 - `post-install-run` lists these commands in order: `cp .env.example .env`, `composer update`, `mkdir -p ./artifacts`, and `bin/dev/housekeeping.sh`.
 

@@ -1,12 +1,12 @@
 {
     "schemaVersion": 1,
-    "composerLockSha256": "b751a073101941b9a77d8a1f47a10678843d69edcab721102143055cfc1b6cf7",
+    "composerLockSha256": "4fcbb8504690bd83b91db7c0f61b9111b3a1701add395c8d6789a067a2ac60aa",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
-            "version": "3.5.0",
-            "sourceReference": "aa09db5a7a365a8d2d8dd7edfa3cd501d1a8acb0",
-            "sha256": "33fabd194bfa07af8ee15bc7e01f3921e952f2cdbd13be571d1786c4c11f00dc"
+            "version": "3.6.0",
+            "sourceReference": "b59a609293b22fdb8a7d9fcb4b9b283176463d40",
+            "sha256": "ef9042998a1ea7d87147cb1c741a2dc4805e88aecaeaad73c4a8bf9b7c5d2e93"
         },
         {
             "name": "akrabat/ip-address-middleware",
@@ -22,9 +22,9 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.402.5",
-            "sourceReference": "ffff4dbeda1c386f66e7e819afbd55406aa9799b",
-            "sha256": "e24628bf131a4de4d36dfb51907a3784530337e31e8bcf6f9ad9b5aea090b207"
+            "version": "3.407.1",
+            "sourceReference": "205fcddb1f2bc9ac98412d6f1eeb4ad5d5ac7229",
+            "sha256": "6e4dffce3aaeaa7e931c229569d80727f3ded5e0d3c40170212bce776f81a6d5"
         },
         {
             "name": "beberlei/doctrineextensions",
@@ -46,9 +46,9 @@
         },
         {
             "name": "beste/json",
-            "version": "1.7.0",
-            "sourceReference": "976525f1ce2323a4e044364269d60b402603e216",
-            "sha256": "883d89c3c8483d51ea954e455aefe3e7cd1996089ed09859517ef7ef3fc2d744"
+            "version": "1.8.0",
+            "sourceReference": "2424ee42e6e0397dc42776e37ca87add2fb0f35b",
+            "sha256": "dcd3f677400314b6cc34da84bb9fad13c1cecd0366cf488615d208ea58a4ef04"
         },
         {
             "name": "brick/math",
@@ -64,9 +64,9 @@
         },
         {
             "name": "cuyz/valinor",
-            "version": "2.6.0",
-            "sourceReference": "15e5afc4a5463d15d26b010fd0a703e16f14c90f",
-            "sha256": "ba5a09d58c5ad14071f38f73d68f670224b3bed09d39e5b994de4760c3bd03d8"
+            "version": "2.8.0",
+            "sourceReference": "473ba512c859a4441e382ca279778a67a302971d",
+            "sha256": "6448510d7c892e983609ebf9cf4a6bd74cbfb3ee8a23b22f7299bdb529d23e8e"
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
@@ -76,9 +76,9 @@
         },
         {
             "name": "devizzent/cebe-php-openapi",
-            "version": "1.1.5",
-            "sourceReference": "6e5fcc8810bfe8ad55d1b40764bff6417f485984",
-            "sha256": "29fb13dcdd155ca15197e57339c11a3f8defb34c85fb67d1d73321951ab6cffd"
+            "version": "1.1.6",
+            "sourceReference": "5a54d8fe11e3acdc8629b672bfadd01da0eef0d2",
+            "sha256": "2f65c6c26280cc48939d4482beb8202544bf78a77243db966397de24e8a542d0"
         },
         {
             "name": "doctrine/coding-standard",
@@ -94,15 +94,15 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "4.5.0",
-            "sourceReference": "c435cd7ea33e17d2a89288caf994cf3d4549b879",
-            "sha256": "870ac498fb4b4430701e4554a4fa3862d8a2f8c0f732bec5137e3054c087600b"
+            "version": "4.6.0",
+            "sourceReference": "1b56fbfb22704712786fea81ff4bb156fcc6427e",
+            "sha256": "a783e0558f9e8b8a20c0677363757d58e612b1d5fd094abb298cc7a280518897"
         },
         {
             "name": "doctrine/deprecations",
-            "version": "1.1.6",
-            "sourceReference": "d4fe3e6fd9bb9e72557a19674f44d8ac7db4c6ca",
-            "sha256": "94cd31b6630b97bc0bc8f975a2abff63543b0b8bff784098cd6a9120bb4ec555"
+            "version": "1.2.0",
+            "sourceReference": "d2e16653a734c8784c1851ad68b02f997b53ca82",
+            "sha256": "ddd6668ffc1933dcbc99bea515264eadeaa6fbe37455189d3ff10693935680db"
         },
         {
             "name": "doctrine/event-manager",
@@ -118,9 +118,9 @@
         },
         {
             "name": "doctrine/instantiator",
-            "version": "2.1.0",
-            "sourceReference": "23da848e1a2308728fe5fdddabf4be17ff9720c7",
-            "sha256": "bb4f6426a6663c9ba7f016cd76fe95cdcb632f340ad43c367e0efef13ab16b95"
+            "version": "2.2.0",
+            "sourceReference": "bf3870fbe25c1b5f4febaf281be76d1e2d86df30",
+            "sha256": "bca063b1b071fe3ac8f304e5983a6c4d966a26c07a3e2db8db481823ea2a6e75"
         },
         {
             "name": "doctrine/lexer",
@@ -130,15 +130,15 @@
         },
         {
             "name": "doctrine/migrations",
-            "version": "3.9.8",
-            "sourceReference": "eb0b9ce3f999d720fa73037bbd06977ea34b76a0",
-            "sha256": "0e2005e30b6f5d90a1cf8fc1cd8479dde1fb0190ddcd9463c103cd3d6304a00b"
+            "version": "3.9.9",
+            "sourceReference": "5749e371aa864ce6578a8fa9167e5aa6e676ba6f",
+            "sha256": "b23457f03042f85a32b20785cec3474eeaa7cbd33077b0cb2fc29125ee0f7ed3"
         },
         {
             "name": "doctrine/orm",
-            "version": "3.7.6",
-            "sourceReference": "4487f850401c0e1f27891cce5897fa90b3055c2a",
-            "sha256": "b9a8048552a615e99cc54b59e00fd4b260d240e3586491bc681dd6d5a8abea31"
+            "version": "3.8.0",
+            "sourceReference": "243f25157055d553da52d7c4bbe73c4623dadc61",
+            "sha256": "c80d52afb8a72e82d1a269b159525456951c59df1e3caae8602fde5184e8543e"
         },
         {
             "name": "doctrine/persistence",
@@ -154,9 +154,9 @@
         },
         {
             "name": "egulias/email-validator",
-            "version": "4.0.4",
-            "sourceReference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
-            "sha256": "850528ade66ee8a151a5b0840cf1f1e7117cdfe86704efd4db613dcc71b50aa9"
+            "version": "4.0.5",
+            "sourceReference": "9bef884e12278a7b89b64adbfb9379c021d3c102",
+            "sha256": "cce11db087ec5c497c629a7ba9a225a800d7f435c19bdd56461f4b793d43bd71"
         },
         {
             "name": "fig/http-message-util",
@@ -166,9 +166,9 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v7.2.1",
-            "sourceReference": "0501f5729b9e2448516674aff07c7d1727869b8e",
-            "sha256": "e694aad68a776cb1215d96330ae38119d2ccb3728ca2c070a27be91f46a300ac"
+            "version": "v7.2.2",
+            "sourceReference": "99efeb17d6def8c0295777f2d45b07ff4fdb4e40",
+            "sha256": "6a2def9b21fffbfbbcdb300225701167341374fd3d14d367bf9b5d9a8025662f"
         },
         {
             "name": "friendsofphp/proxy-manager-lts",
@@ -190,9 +190,9 @@
         },
         {
             "name": "google/cloud-storage",
-            "version": "v2.6.1",
-            "sourceReference": "cf14f967fa45113e2a239fe9103bada8d7b92021",
-            "sha256": "01dd42834cd575bdd862da35d5842c79473f83d31e10be96505001075c9a7d59"
+            "version": "v2.7.0",
+            "sourceReference": "2ad43074f03edcb8b867b1627e57edcce06b2095",
+            "sha256": "d1f8d1253bda5f4ffe6609a25ddd58a4c7ec260207d9d56b9c39ef06479eb594"
         },
         {
             "name": "google/common-protos",
@@ -202,9 +202,9 @@
         },
         {
             "name": "google/gax",
-            "version": "v1.51.2",
-            "sourceReference": "1c06ae8e829e4e56bf22d4ce32768bf2523ddf7d",
-            "sha256": "798ffbbf5cb554e8cd82bbfb76c332a15b80c81ad37a82f2607059d654696938"
+            "version": "v1.52.0",
+            "sourceReference": "3d794528520c360cda2a8de74a1dbfbd3ae63e1e",
+            "sha256": "7fd6106a60eb785e0f46ced2269c5022c468ee095f9dbd06030141d3e51c8712"
         },
         {
             "name": "google/grpc-gcp",
@@ -214,9 +214,9 @@
         },
         {
             "name": "google/longrunning",
-            "version": "0.9.0",
-            "sourceReference": "ccecf40953cefbddb569fd67b27bd0cf8a1381da",
-            "sha256": "1b4d28353951dded38870aa5fe75b284931885a5e6d5b3e6052e7b236893b67d"
+            "version": "0.9.1",
+            "sourceReference": "cd86d2c4bf939a74fc81cdf34a986159dcc832f7",
+            "sha256": "f5b5ba2e01c3f74c761593f424562bd0338f12ab1845d088c81bd24c8001df08"
         },
         {
             "name": "google/protobuf",
@@ -232,27 +232,27 @@
         },
         {
             "name": "grpc/grpc",
-            "version": "1.85.0",
-            "sourceReference": "08bd482ca6f99d45fa85ad0bd70876e7455e39cf",
-            "sha256": "cbf80fcc0db7ba1f9523474adc6e3cb80d0d1aceb0e81482608987ed30714e6d"
+            "version": "1.85.4",
+            "sourceReference": "2edfb26547948bb5f5b63147d46db7c20406b84d",
+            "sha256": "a7e3e01cca2de91ef40366c93b73a3cd74f126550b9fca10df4d0cdace65f3eb"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.16.1",
-            "sourceReference": "81755d989b3007ca7f88a069857553cd08e7dc2e",
-            "sha256": "73320f9ca1faa4d308d09c027bed9c39f2ed20be7a13754078c5bfca8ac9da1f"
+            "version": "7.17.0",
+            "sourceReference": "f61ba5ea0a55032a55ddbb72cab7d307c1043654",
+            "sha256": "5a49594c7318fd33cfe9d2dae841f59be6b1a415cb5173b172d83ab56cd5c218"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.6.0",
-            "sourceReference": "3d88c829bd5f13d13847b39067dbf09a60af2154",
-            "sha256": "97ab28acd51759cafc32bb1d9df8f0f7e29d3f4a12757561759ca031866f9f0b"
+            "version": "2.6.2",
+            "sourceReference": "72e93ed2b1f3d8c09d1460c950bd5726face7ccd",
+            "sha256": "00243e576d9a237426d34bd2f20c8e6a7c8dd0c91659b1416e4f6df03067a98c"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.13.2",
-            "sourceReference": "adee536f95101929f262b8c59e8a61472f347d58",
-            "sha256": "97068f05b18e6ec9795ff1471beb2a66bec7b94ade6ad1d94b20907d8f660ba3"
+            "version": "2.13.6",
+            "sourceReference": "2bd3dccf56e99cdacf74b1ad5e06a08a5a7739f2",
+            "sha256": "3b40baf44a9e5d19efa75da16b45223d477ca43fa46d624078318f8dbc61cee1"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -262,9 +262,9 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "8.6.0",
-            "sourceReference": "e6900e5b0b80c4ee7a39a848c688790e1400e0c3",
-            "sha256": "e131a424d8acdad92778e3c493508aa40995aee53171f3724aed74074ab06701"
+            "version": "8.7.0",
+            "sourceReference": "38a39643d5353b80fdfc4d827593e855f685a5cb",
+            "sha256": "33449e911d7fa0ddf20853fdfff4c1a3e3a6bc11a7fb9a9fb595d4df9143933f"
         },
         {
             "name": "kreait/firebase-tokens",
@@ -274,32 +274,32 @@
         },
         {
             "name": "laminas/laminas-code",
-            "version": "4.18.0",
-            "sourceReference": "d1ec5de6a87971446cfcc2acbc340c65ca56cee3",
-            "sha256": "764ac103d10fc5dd78fa2426b6c6100aac37577603901b54c7d1411188989265"
+            "version": "4.20.0",
+            "sourceReference": "ea2df2daea112c6432ac62aaa9f8750487c5c211",
+            "sha256": "d03d657b73084472d7feb68d15d1fe0575723e4f4f2cf06c9686d92ad941b027"
         },
         {
             "name": "laminas/laminas-config-aggregator",
-            "version": "1.20.0",
-            "sourceReference": "75331b17a9ba72c5fa8679988ef08a588ddd86af",
-            "sha256": "6d9a41dd80fd5d58a73bd36337d8b4b12f732228f2d87782591175d373e19a12"
+            "version": "1.21.0",
+            "sourceReference": "2bede20fb70e32e08a605fe634e8d1f5e29a080f",
+            "sha256": "fb310e896ba63e413f54416e3de9ff5524150ae6a329808734655d30da1a6553"
         },
         {
             "name": "laminas/laminas-diactoros",
-            "version": "3.9.0",
-            "sourceReference": "4ab9fe10869ac0cd46fa78e641b6d0f4389bc6b4",
-            "sha256": "d2df595b9699613580001eac5e0714f04ddccde3a7c197abd49289728b6408dd"
+            "version": "3.10.0",
+            "sourceReference": "5939fbc03e9043e5d27050ed584de263b869c57f",
+            "sha256": "2571253bd83e3fe67360636b4ac46902b8140bd5b6e4836c231ed48ef60a0d1f"
         },
         {
             "name": "laminas/laminas-stdlib",
-            "version": "3.21.0",
-            "sourceReference": "b1c81514cfe158aadf724c42b34d3d0a8164c096",
-            "sha256": "1b4577c06ac72c8dd3120abd79336e541ddf5c08630a59c9f8e5d2cef3587a91"
+            "version": "3.22.0",
+            "sourceReference": "1053fe6ecbcf6f0352e687eda749ee16ace5cc8b",
+            "sha256": "1d6ec0fe16a69c71072d44132b6c2634bb2f07f0681893c1a4d9ef6390d34874"
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.1.0",
-            "sourceReference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5",
+            "version": "v2.2.0",
+            "sourceReference": "2bfb44e8af009b553ed2c060c94b0bc3c67b4769",
             "sha256": "49bc68aec6fdc11eac8cc10172b4b7785681ccfaf0770c19b5f80dfbc47e5c46"
         },
         {
@@ -310,9 +310,9 @@
         },
         {
             "name": "lcobucci/jwt",
-            "version": "5.6.1",
-            "sourceReference": "482760068e5a55a9045feddb3e2fc3f878cbd577",
-            "sha256": "c26863de2f4f956452a133cf3f32db886515efe865a693f1dd15aa79149ae12e"
+            "version": "5.7.0",
+            "sourceReference": "d7e47accd18c44268e1dcf01eec19f24d6904862",
+            "sha256": "a83643302368a8a893e5da13806bd42457751e88e647e4ddde0a48abb4c29b29"
         },
         {
             "name": "malukenho/mcbumpface",
@@ -340,15 +340,15 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "3.12.1",
-            "sourceReference": "d7059e4c691d05ea1222b5124bed0f961be46e15",
-            "sha256": "fcff4a569bcfdc386f9169532b420160f8fc0ce6dc8c2821b8db8ed7d276a103"
+            "version": "3.13.0",
+            "sourceReference": "1f5f55bb4a9a230ff6d8a4ceccea31d10b0142ac",
+            "sha256": "86050cde0dbc8db27835d2b95ae76d1624e3e60981171a425cfa926600abd056"
         },
         {
             "name": "mtdowling/jmespath.php",
-            "version": "2.9.2",
-            "sourceReference": "2157c5e50e813ec6a96c1eed3be7f64a20fb32a8",
-            "sha256": "5ce546373d16d472d589507d2297988e94ece3e2c29c6889a3ed41b5a02c2e7e"
+            "version": "2.10.0",
+            "sourceReference": "3fec5e616a35a06a65bc3c0b97aa6f384c218814",
+            "sha256": "70c40e19097544536fe2c5016231f9a2928098c673a4790b0902e7b9a1eddda2"
         },
         {
             "name": "myclabs/deep-copy",
@@ -370,9 +370,9 @@
         },
         {
             "name": "paragonie/constant_time_encoding",
-            "version": "v3.1.3",
-            "sourceReference": "d5b01a39b3415c2cd581d3bd3a3575c1ebbd8e77",
-            "sha256": "7b3af363dba92c3448cea67f01f6a32d46324c6608fbfa1353c9e8d23b1a8451"
+            "version": "v3.1.5",
+            "sourceReference": "ceed38ba49d98b85808edfc4f04750ff61eb9739",
+            "sha256": "cf53586fc2d77882e76946cd48f7301462d5b624df6f0b0dac255e8e153d9057"
         },
         {
             "name": "phar-io/manifest",
@@ -412,9 +412,9 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "4.0.3",
-            "sourceReference": "6077cecfed9e371993d3aa339b0afeb23f7bf636",
-            "sha256": "e9ad8b6c68c5feee89d3c1b519e2c9d66dfda5d67eedce941b5f1415102bf715"
+            "version": "4.0.4",
+            "sourceReference": "44303c95a83b6071229cdea56cdcd52712730476",
+            "sha256": "9d193558e69a118da7978a8646fe9b3c49b9739fe8f207ff9709bfda6b8e5487"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -424,15 +424,15 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.4",
-            "sourceReference": "f20ce6f3c82556cfcfc086b152445a12d1d64fff",
-            "sha256": "9e69545dac7958b8e4ff8dac092ed2e9a64271798f258045d9eece8b5f947072"
+            "version": "2.3.7",
+            "sourceReference": "90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
+            "sha256": "b3e94e9531122d6831049ed60ff3a96262efea43c658377d3a390f2382585bc3"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "14.5.1",
-            "sourceReference": "4063552c678ce3beb4b7f131a5b7354a19ff3e2a",
-            "sha256": "944e7297b4062801a62a7525de9ec30148410860cf76bb90f0a52eedddc639a2"
+            "version": "14.5.2",
+            "sourceReference": "2f122b9b48af71ad9b4448368febc26af86534c9",
+            "sha256": "52fb6835ac4b90548125eb7d6c8b0ed26ea1159870edb3baa6442ae840557904"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -460,9 +460,9 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "13.4.6",
-            "sourceReference": "4821376960d0e1e5a7b7b700955ebcab33ecd71b",
-            "sha256": "09c596fde622a1cca912082609c7dc679ffc27af99ff753bdbdc8b8adda0a650"
+            "version": "13.4.8",
+            "sourceReference": "291e66a76eb39f2fb8f880d38edc30dbd7acd9a2",
+            "sha256": "36b45df50c3473ffdc7666c66d856adf4e50ee578b424180526b27e150f47f09"
         },
         {
             "name": "psr/cache",
@@ -538,9 +538,9 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "4.9.4",
-            "sourceReference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2",
-            "sha256": "088fff0d50a89711eba083f3ad779e97a9b1b08a1d7fdff0c3aa92f7335cf890"
+            "version": "4.10.0",
+            "sourceReference": "f9aa3efc8015fcbc013d84d699583b268ccb593a",
+            "sha256": "640364c04bdf8647c645cc84d9cc4abb63f2f00b3ccc8118ee0f2a0eb977f081"
         },
         {
             "name": "ramsey/uuid-doctrine",
@@ -652,9 +652,9 @@
         },
         {
             "name": "sebastian/version",
-            "version": "7.0.1",
-            "sourceReference": "f1598cf1d8d1ca4c0f194a52f2fe72a559a7b0b1",
-            "sha256": "3f1c49125fe8b637130d72dc81c35d0e483816b511340589c159f747c5b12d1c"
+            "version": "7.1.0",
+            "sourceReference": "08e41d0c7e146bfc8cef7e63989b1294453a6d6a",
+            "sha256": "fcb2505e9272cfff9395178344c511d446eb6ce2439a603b55894d05e7878e7d"
         },
         {
             "name": "slevomat/coding-standard",
@@ -682,27 +682,27 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v8.1.10",
-            "sourceReference": "385f37a95296a9d4bc0204c9c49ee4765d4fe989",
-            "sha256": "239293017a4c10a57cc765f21547e5064f6d9340536e874bd60e5597bdb4b686"
+            "version": "v8.1.11",
+            "sourceReference": "60b6bfd51e671219b1ab9066b94c617d1760d7cf",
+            "sha256": "654f20b255fd45f14a21957f93672b0adb9c279eee2fa88347c6ae9a3cfb7b3f"
         },
         {
             "name": "symfony/cache-contracts",
-            "version": "v3.7.1",
-            "sourceReference": "9789738bc19af1106dc54d6afba9a0b467516cf2",
-            "sha256": "26c083a35d73324ebaf084ab2d40a7529bd9d45f43aab489ce6547f4b39fb1f3"
+            "version": "v3.8.1",
+            "sourceReference": "af26a91232085b7edd4e04be62f75e7c25159ece",
+            "sha256": "90dfea777a5f2653a61d7f479c27623e3cae6da6f42e95b5c0c810e1b06e0e3a"
         },
         {
             "name": "symfony/console",
-            "version": "v8.1.10",
-            "sourceReference": "5b6d9b127ec27bc6db59bf65e2e37b6fe5b00083",
-            "sha256": "b314b61057ee0045a96309bc215daaafacba99260d3d2c1875ad4e5915bfda78"
+            "version": "v8.1.11",
+            "sourceReference": "5a315b092b81f3e920e9daea1a2ae4c66ed298b9",
+            "sha256": "e57cfe5b15948ec4bd5617e39548ad3ea4bfbe3ea47fc3151b2bc94a28452bac"
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.7.1",
-            "sourceReference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
-            "sha256": "0e2e97d6b741d5d5c6697e1799ec70b52bd06206a12547cdcbc18955b588efed"
+            "version": "v3.8.1",
+            "sourceReference": "feb1edf4e546af3b85c5caebe8359a20db230ca3",
+            "sha256": "8fd4e3dbdf2f7bb7e4e094998534cabb4a045638c4d6cd1c49ffabb0edce8a8f"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -712,15 +712,15 @@
         },
         {
             "name": "symfony/event-dispatcher-contracts",
-            "version": "v3.7.1",
-            "sourceReference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e",
-            "sha256": "8cec2620a5499b6d3e26604f60db54c3e498ca567fdd8759c44830ba597fdd60"
+            "version": "v3.8.1",
+            "sourceReference": "658e29751424da3ef4758c60f769e59d1b2981eb",
+            "sha256": "4d51a931dc1eba26518c01f2f5b116f2fc4d7e2937074667448614b1d58789e0"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v8.1.9",
-            "sourceReference": "43d109c803d22c00bb820ed45df250b6a8792ca2",
-            "sha256": "f80ad8e5dc66d5edbff5e90fe60c3ea2de87ac04ba2133c750989b8293ab4a96"
+            "version": "v8.1.11",
+            "sourceReference": "58f57b6a33e3495f7f41e01258f1ae5ef76cccd2",
+            "sha256": "d84c9995662a5669c81a58af6229c8907a4bbfff99db752d517634e58db3b478"
         },
         {
             "name": "symfony/mailer",
@@ -772,27 +772,27 @@
         },
         {
             "name": "symfony/property-access",
-            "version": "v8.1.10",
-            "sourceReference": "38ce2d539230c1d0e3c42198289c4bae5e931727",
-            "sha256": "e583f0a393b9d093663477eb73c4289f7e95cd58738553671aaa963b3362201a"
+            "version": "v8.1.11",
+            "sourceReference": "d080c2afa37114d46e4f950ed8593667f01f7cab",
+            "sha256": "9b22d83eb611d3fb48b598010f9f9ada63f15087cadd9316a8690beefeaa9db3"
         },
         {
             "name": "symfony/property-info",
-            "version": "v8.1.10",
-            "sourceReference": "cb5bfc9fbc9da75fdb1b8860a29d9c4fefb2b924",
-            "sha256": "43c398d5c4172ed7d50107f126c625214e34502cac187c60d42b5dfdc9c2b1d4"
+            "version": "v8.1.11",
+            "sourceReference": "b5afa379a5b54f15a594c1d45ceaa19969d38a16",
+            "sha256": "79674efe614b7a1190f5b9059435885acd008b382bacdd3451b79be23c4b4782"
         },
         {
             "name": "symfony/serializer",
-            "version": "v8.1.10",
-            "sourceReference": "b9b8831cd84a5304e43f2bb92cb0e88290ba2082",
-            "sha256": "bb5e2342dfb721cf9237c27f0e1dc0c6907d77e306d0df46b94bc93dda9bdc81"
+            "version": "v8.1.11",
+            "sourceReference": "05624c94507c3acf065b6486bb626f0d741af459",
+            "sha256": "dfde47ac8fbcd2a776f5e20b2db2e74abd8d938881ff29077adc933d6675c388"
         },
         {
             "name": "symfony/service-contracts",
-            "version": "v3.7.3",
-            "sourceReference": "15e6a07ec2a2c75ceb1b21dd98105ee8456d2257",
-            "sha256": "7d56dfc112c1c9401949dad0c09c6401259a9d94021e2f9616b5eec7e60b300b"
+            "version": "v3.8.1",
+            "sourceReference": "052852a96fd5e5ebdb617dba22031e41a3300fb5",
+            "sha256": "0853b1dfaa3e3efc1a527c458df015fbf58c3241901575bfdf7f8ab3eb4d48c9"
         },
         {
             "name": "symfony/stopwatch",
@@ -808,9 +808,9 @@
         },
         {
             "name": "symfony/type-info",
-            "version": "v8.1.10",
-            "sourceReference": "2083d4516f9041b8ac550d9029afb08fcf09d0ad",
-            "sha256": "7d7aeadac9cb1c9d3a64fd82402a8b9159dc57878aab490ec37291cd01b4cd6c"
+            "version": "v8.1.11",
+            "sourceReference": "9fd1414061c4bbf953bcfc183b133cbfa0a73c73",
+            "sha256": "29a39a53d1ac9c9f3d72f358b654fc7b4bed65a288d8757ea2a7e5ed7aed2aaa"
         },
         {
             "name": "symfony/uid",
@@ -826,15 +826,15 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v8.1.10",
-            "sourceReference": "9de4ff9874dd18b738b9f248398c3e36ef15a1d2",
-            "sha256": "9d05ba6c8dfb4be928a3c69fd02f1836cdd12d54b88a9fc56e8d95c715b9c6f8"
+            "version": "v8.1.11",
+            "sourceReference": "e8266f55160f674f290a5f567cb55e11e21f921b",
+            "sha256": "1649dacdad7b3c4803b3de572f89ca8b0c85e5078ef6531d7d3986e48c174516"
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "v5.8.0",
-            "sourceReference": "96149103e62ac67e915f6d2ef59b72dee2e011e0",
-            "sha256": "299b2be0796d921df7b9c57927373730dc247400362109f5b176ba7cba47d8d9"
+            "version": "v5.8.1",
+            "sourceReference": "ba37876e98122ca15151247ce1187d20ee8bf4e0",
+            "sha256": "9ff627b2ab12989b7be06a86b0cf8e4d55dcb3f20cd771278198abbf74ab0e55"
         },
         {
             "name": "webimpress/safe-writer",
